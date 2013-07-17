@@ -1,0 +1,53 @@
+newlink:
+
+resources
+
+look up by:
+
+model, name = publisher.consume(request)
+request.render(model, name)
+
+implicit.lookup.adapt(IResource, (self, model))
+
+will do:
+
+implicit.lookup.component(IResource, (self, model))(self, model)
+
+if self (request) has the remaining crumbs (the name), this can be used to do:
+
+  func = self.predicate.get(predicate_info(self))
+  return func(request, model, **parameter_info(request))
+
+so if the predicate registry 
+def request.render(self, model, name):
+   resource_predicate_lookup = implicit.lookup.component(
+     IResource, (self, model))
+   resource_func = resource_predicate_lookup.get(predicate_info(self, name))
+   if resource_func is None:
+      raise CannotRender() # will be 404 in web publish situation
+   return resource_func(request, model, **parameter_info(request))
+
+The result needs to be adapted to the web when exposed to web publish
+
+   # XXX hook in request conversion/parsing for json request?
+   return  resource_func.render(result)
+
+but how does this relate to cromlech's publisher where we have types
+of resource?
+
+
+dawnlight publisher:
+
+model, crumbs = model_lookup(request, root, stack)
+
+if isinstance(model, IResponse):
+    return model
+if isinstance(model, IResponseFactory):
+    return model()
+
+resource = implicit.lookup(request, model, crumbs)
+if resource is None:
+  raise Cannot be rendered
+
+factory = IResponseFactory.adapt(resource)
+return factory()
