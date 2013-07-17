@@ -31,7 +31,6 @@ class Publisher(object):
         # there is a default resource or an extra path step with the resource
         resource = self.resource_resolver(request, model, crumbs)
         return resource(request, model)
-# XXX resource should never be None, it should have errored in that case
 
         # this renderer needs to be resolved into an IResponse
         #factory = IResponseFactory(resource)
