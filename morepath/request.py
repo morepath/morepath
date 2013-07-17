@@ -1,4 +1,4 @@
-from werkzeug.wrappers import BaseRequest
+from werkzeug.wrappers import BaseRequest, BaseResponse
 
 class Request(BaseRequest):
     def __init__(self, environ, populate_request=True, shallow=False):
@@ -10,6 +10,9 @@ class Request(BaseRequest):
 
     def resolver_info(self):
         return self._resolver_info 
+
+class Response(BaseResponse):
+    pass
 
     # def render(self, model, name, **predicates):
     #     predicate_lookup = IResource.component(self, model)

@@ -15,6 +15,13 @@ class IConsumer(Interface):
 class IResource(Interface):
     pass
 
+class IResponseFactory(Interface):
+    """When called, a Response instance is returned.
+    """
+    @abstractmethod
+    def __call__(self):
+        """Returns a Response instance."""
+        
 class ResolveError(Exception):
     pass
 

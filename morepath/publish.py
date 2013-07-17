@@ -1,5 +1,7 @@
 from .pathstack import parse_path, RESOURCE
 from .resolve import ModelResolver, ResourceResolver
+from .request import Response
+from .interfaces import IResponseFactory
 
 SHORTCUTS = {
     '@@': RESOURCE,
@@ -7,6 +9,7 @@ SHORTCUTS = {
 
 class Publisher(object):
     def __init__(self, lookup):
+        self.lookup = lookup
         self.model_resolver = ModelResolver(lookup)
         self.resource_resolver = ResourceResolver(lookup)
     
@@ -23,15 +26,40 @@ class Publisher(object):
 
         model, crumbs = self.model_resolver(root, stack)
         # the model itself is capable of producing a response
-        # if not crumbs:
-        #     if isinstance(model, Response):
-        #         return model
-        #     elif isinstance(model, IResponseFactory):
-        #         return model()
-        # there is a default resource or an extra path step with the resource
+        # XXX tests
+        if not crumbs:
+            if isinstance(model, Response):
+                return model
+            elif isinstance(model, IResponseFactory):
+                return model()
+        # find resource (either default or through last step on crumbs)
         resource = self.resource_resolver(request, model, crumbs)
-        return resource(request, model)
+        # XXX IResponseFactory should do something involving renderer
+        factory = IResponseFactory.adapt(resource, lookup=self.lookup)
+        return factory()
+
+    # XXX speculative code that implements request.render. This will
+    # use a IRenderFactory instead of a IResponseFactory to get the result
+    # in the case of JSON, this will not serialize the JSON; it might
+    # simply return the original result in most cases
+    # request needs to be able to access the publisher now; it
+    # might start to make sense to make the publisher part of the request,
+    # in which case lookup is too. or should publisher be a global?
+    def render(self, request, model, name=''):
+        resource = self.resource_resolver(request, model, [(RESOURCE, name)])
+        factory = IRenderFactory.adapt(resource, lookup=self.lookup)
+        return factory()
+    
+        # return resource(request, model)
 
         # this renderer needs to be resolved into an IResponse
         #factory = IResponseFactory(resource)
         #return factory()
+
+class FunctionResponseFactory(IResponseFactory):
+    def __init__(self, func):
+        self.func = func
+
+    def __call__(self, request, model):
+        return self.func(request, model)
+    
