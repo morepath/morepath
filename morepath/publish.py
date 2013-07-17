@@ -22,20 +22,17 @@ class Publisher(object):
         stack = parse_path(request.path, SHORTCUTS)
 
         model, crumbs = self.model_resolver(root, stack)
-        return self.resource_resolver(request, model, crumbs)
-    
+        # the model itself is capable of producing a response
         # if not crumbs:
-        #     if IResponse.providedBy(model):
-        #         # The found object can be returned safely.
+        #     if isinstance(model, Response):
         #         return model
-        #     elif IResponseFactory.providedBy(model):
+        #     elif isinstance(model, IResponseFactory):
         #         return model()
+        # there is a default resource or an extra path step with the resource
+        resource = self.resource_resolver(request, model, crumbs)
+        return resource(request, model)
+# XXX resource should never be None, it should have errored in that case
 
-        # # The model needs an renderer
-        # component = self.view_lookup(request, model, crumbs)
-        # if component is None:
-        #     raise PublicationError('%r can not be rendered.' % model)
-
-        # # This renderer needs to be resolved into an IResponse
-        # factory = IResponseFactory(component)
-        # return factory()
+        # this renderer needs to be resolved into an IResponse
+        #factory = IResponseFactory(resource)
+        #return factory()

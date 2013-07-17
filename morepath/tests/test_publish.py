@@ -1,6 +1,6 @@
 from comparch import Registry
 from morepath.configure import register_resource
-from morepath.interfaces import ResourceError
+from morepath.interfaces import ResourceError, ResolveError
 from morepath.publish import Publisher
 from morepath.request import Request
 from werkzeug.test import EnvironBuilder
@@ -47,13 +47,14 @@ def test_notfound():
     with py.test.raises(ResourceError):
         publisher.publish(get_request(path=''), model)
         
-# def test_notfound_with_predicates():
-#     reg = Registry()
-#     def resource(request, model):
-#         return "resource"
-#     register_resource(reg, Model, resource, name='')
+def test_notfound_with_predicates():
+    reg = Registry()
+    def resource(request, model):
+        return "resource"
+    register_resource(reg, Model, resource, name='')
     
-#     model = Model()
-#     publisher = Publisher(reg)
-#     assert publisher.publish(get_request(path='foo'), model)
+    model = Model()
+    publisher = Publisher(reg)
+    with py.test.raises(ResolveError):
+        publisher.publish(get_request(path='foo'), model)
    

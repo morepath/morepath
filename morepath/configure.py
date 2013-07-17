@@ -11,10 +11,10 @@ class PredicateLookup(object):
         self.predicate_registry = predicate_registry
 
     def __call__(self, request, model):
-        func = self.predicate_registry.get(self.get_predicates(request))
-        if func is None:
-            return None
-        return func(request, model)
+        return self.predicate_registry.get(self.get_predicates(request))
+        #if func is None:
+        #    return None
+        #return func(request, model)
     
     # XXX move to request?
     def get_predicates(self, request):

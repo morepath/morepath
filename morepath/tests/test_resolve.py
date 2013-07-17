@@ -123,7 +123,7 @@ def test_resolve_errors():
     with pytest.raises(ResolveError) as e:
         resolver(request, model, parse_path(u'test'))
     assert str(e.value) == "<Model> has neither resource nor sub-model: /test"
-
+    
 def traverse_container(container, ns, name):
     if ns != DEFAULT:
         return None
