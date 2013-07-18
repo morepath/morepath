@@ -18,11 +18,33 @@ Once steps have been consumed, look up the model.
 
 VARIABLE = '{}'
 
+def subpatterns(pattern):
+    """Decompose a pattern into sub patterns.
+
+    A pattern can be decomposed into a number of sub patterns.
+    ('a', 'b', 'c') for instance has the sub patterns ('a',),
+    ('a', 'b') and ('a', 'b', 'c').
+
+    pattern - the pattern tuple to decompose.
+
+    returns the sub pattern tuples of this pattern.
+    """
+    subpattern = []
+    result = []
+    for step in pattern:
+        subpattern.append(step)
+        result.append(tuple(subpattern))
+    return result
+
 class Traject(object):
     def __init__(self):
         self._step_matchers = {}
         self._variable_matchers = {}
 
+    def register(self, pattern, model_factory):
+        sp = subpatterns(pattern)
+        for p in sp:
+            name = 
     def match(self, pattern, step):
         step_pattern = self.match_step(pattern, step)
         if step_pattern is not None:
