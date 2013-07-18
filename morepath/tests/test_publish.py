@@ -1,8 +1,9 @@
 from comparch import Registry
 from morepath.configure import register_resource
-from morepath.interfaces import ResourceError, ResolveError
+from morepath.interfaces import (IResource, IResponseFactory,
+                                 ResourceError, ResolveError)
 from morepath.publish import Publisher
-from morepath.request import Request
+from morepath.request import Request, Response
 from werkzeug.test import EnvironBuilder
 import py.test
 
@@ -58,3 +59,54 @@ def test_notfound_with_predicates():
     with py.test.raises(ResolveError):
         publisher.publish(get_request(path='foo'), model)
    
+def test_model_is_response():
+    class MyModel(Response):
+        pass
+    reg = Registry()
+    model = MyModel()
+    publisher = Publisher(reg)
+    assert publisher.publish(get_request(path=''), model) is model
+
+    # if there is a name left, it cannot resolve to model
+    with py.test.raises(ResolveError):
+        publisher.publish(get_request(path='foo'), model)
+
+def test_model_is_response_factory():
+    class MyResponse(Response):
+        pass
+
+    my_response = MyResponse()
+    class MyModel(IResponseFactory):
+        def __call__(self):
+            return my_response
+
+    reg = Registry()
+    model = MyModel()
+    publisher = Publisher(reg)
+    assert publisher.publish(get_request(path=''), model) is my_response
+
+def test_resource_as_response_factory():
+    reg = Registry()
+    model = Model()
+    publisher = Publisher(reg)
+
+    class MyResponse(Response):
+        def __init__(self, request, context):
+            self.request = request
+            self.context = context
+            
+    class MyResource(IResponseFactory):
+        def __init__(self, request, context):
+            self.request = request
+            self.context = context
+            
+        def __call__(self):
+            return MyResponse(self.request, self.context)
+        
+    reg.register(IResource, (Request, Model), MyResource)
+
+    req = get_request(path='')
+    response = publisher.publish(req, model)
+    assert response.request is req
+    assert response.context is model
+    

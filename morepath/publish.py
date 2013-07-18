@@ -55,11 +55,3 @@ class Publisher(object):
         # this renderer needs to be resolved into an IResponse
         #factory = IResponseFactory(resource)
         #return factory()
-
-class FunctionResponseFactory(IResponseFactory):
-    def __init__(self, func):
-        self.func = func
-
-    def __call__(self, request, model):
-        return self.func(request, model)
-    

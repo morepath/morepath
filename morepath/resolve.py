@@ -59,6 +59,8 @@ class ResourceResolver(object):
         if resource is not RESOURCE_SENTINEL:
             return resource
 
+        # XXX how can we report if failure is there due to predicate
+        # mismatch as opposed to the name being missing?
         if ns == RESOURCE:
             if name == self.default_name:
                 raise ResourceError(
