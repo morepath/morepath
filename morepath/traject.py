@@ -71,29 +71,45 @@ class Traject(object):
     def match_variables(self, pattern, step):
         variable_pattern = pattern + (VARIABLE,)
         for variable_matcher in self._variable_matchers.get(pattern, []):
-            matched = variable_matcher.match(step)
+            matched = variable_matcher(step)
             if matched:
                 break
         else:
             return None, {}
         return pattern + step, matched
 
-IDENTIFIER = r'[^\d\W]\w*'
-# XXX should really match all names in { } and reject those that
-# aren't legitimate identifiers
-PATH_VARIABLE = r'\{(' + IDENTIFIER + r')\}'
+IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
+PATH_VARIABLE = re.compile(r'\{([^}]*)\}')
 
-variable_re = re.compile(PATH_VARIABLE)
+def is_identifier(s):
+    return IDENTIFIER.match(s) is not None
+
+def parse_variables(s):
+    return PATH_VARIABLE.findall(s)
+
+def create_variables_re(s):
+    return re.compile('^' + PATH_VARIABLE.sub(r'(.+)', s) + '$')
+    
+#variable_re = re.compile(PATH_VARIABLE)
 
 class VariableMatcher(object):
-    def __init__(self, step):
-        ns, name = step
+    def __init__(self, ns, pattern):
         self.ns = ns
-        self.name = name
+        self.pattern = pattern
+        self.variables_re = create_variables_re(pattern)
+        self.names = parse_variables(pattern)
         
-    def match(self, step):
+    def __call__(self, step):
         ns, name = step
-        variable_re.findall(name)
+        if ns != self.ns:
+            return {}
+        matched = self.variables_re.match(name)
+        if matched is None:
+            return {}
+        result = {}
+        for name, match in zip(self.names, matched.groups()): 
+            result[name] = match
+        return result
         
 def consume(lookup, base, stack):
     traject = ITraject.component(base, lookup=lookup)
