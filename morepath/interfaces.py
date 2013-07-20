@@ -23,12 +23,17 @@ class IResponseFactory(Interface):
         """Returns a Response instance."""
         
 class ResolveError(Exception):
-    pass
+    """Raised when path cannot be resolved
+    """
 
 class ModelError(ResolveError):
-    """Exception raised when a model cannot be resolved
+    """Raised when a model cannot be resolved
     """
 
 class ResourceError(ResolveError):
-    """Exception raised when a resource cannot be resolved
+    """Raised when a resource cannot be resolved
+    """
+
+class TrajectError(Exception):
+    """Raised when path supplied to traject is not allowed.
     """

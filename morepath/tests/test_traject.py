@@ -3,6 +3,8 @@ from morepath.traject import (is_identifier,
                               create_variables_re,
                               VariableMatcher)
 from morepath.pathstack import DEFAULT
+from morepath.interfaces import TrajectError
+import py.test
 
 # def test_variable_re():
 #     assert variable_re.findall('foo {bar} {baz} hoi{qux}!') == 3
@@ -21,15 +23,6 @@ def test_parse_variables():
     assert parse_variables('No variables') == []
     assert parse_variables('The {foo} is the {bar}.') == ['foo', 'bar']
     assert parse_variables('{}') == ['']
-
-# def test_create_variables_re():
-#     assert (create_variables_re('The {foo} is the {bar}.') ==
-#             'The (.+) is the (.+).')
-
-# def test_generalize_variables():
-#     assert generalize_variables('No variables') == 'No variables'
-#     assert (generalize_variables('The {foo} is the {bar}.') ==
-#             'The (.+) is the (.+).')
     
 def test_variable_matcher():
     matcher = VariableMatcher(DEFAULT, '{foo}')
@@ -40,3 +33,14 @@ def test_variable_matcher():
     assert matcher((DEFAULT, 'hey')) == {}
     matcher = VariableMatcher(DEFAULT, 'foo-{n}')
     assert matcher((DEFAULT, 'blah')) == {}
+    matcher = VariableMatcher(DEFAULT, '{ foo }')
+    assert matcher((DEFAULT, 'test')) == {'foo': 'test'}
+    
+def test_variable_matcher_ns():
+    matcher = VariableMatcher(DEFAULT, '{foo}')
+    assert matcher(('not default', 'test')) == {}
+    
+def test_variable_matcher_checks():
+    with py.test.raises(TrajectError):
+        matcher = VariableMatcher(DEFAULT, '{1illegal}')
+    

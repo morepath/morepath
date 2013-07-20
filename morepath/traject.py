@@ -1,3 +1,4 @@
+from .interfaces import TrajectError
 #
 
 """
@@ -97,8 +98,15 @@ class VariableMatcher(object):
         self.ns = ns
         self.pattern = pattern
         self.variables_re = create_variables_re(pattern)
-        self.names = parse_variables(pattern)
-        
+        names = parse_variables(pattern)
+        names = [name.strip() for name in names]
+        for name in names:
+            if not is_identifier(name):
+                raise TrajectError(
+                    "path '%s' cannot be parsed, illegal identifier: %s" %
+                    (pattern, name))
+        self.names = names
+
     def __call__(self, step):
         ns, name = step
         if ns != self.ns:
