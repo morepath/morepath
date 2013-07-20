@@ -44,3 +44,10 @@ def test_variable_matcher_checks():
     with py.test.raises(TrajectError):
         matcher = VariableMatcher(DEFAULT, '{1illegal}')
     
+def test_variable_matcher_type():
+    matcher = VariableMatcher(DEFAULT, '{foo:str}')
+    assert matcher((DEFAULT, 'test')) == {'foo': 'test'}
+    matcher = VariableMatcher(DEFAULT, '{foo:int}')
+    assert matcher((DEFAULT, '1')) == {'foo': 1}
+    assert matcher((DEFAULT, 'noint')) == {}
+    

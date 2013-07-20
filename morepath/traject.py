@@ -90,23 +90,67 @@ def parse_variables(s):
 
 def create_variables_re(s):
     return re.compile('^' + PATH_VARIABLE.sub(r'(.+)', s) + '$')
-    
-#variable_re = re.compile(PATH_VARIABLE)
+
+
+# XXX need to make this pluggable
+KNOWN_TYPES = {
+    'str': str,
+    'int': int
+    }
+
+class NameParser(object):
+    def __init__(self, known_types):
+        self.known_types = known_types
+
+    def __call__(self, pattern, s):
+        parts = s.split(':')
+        if len(parts) > 2:
+            raise TrajectError("illegal path '%s', illegal identifier: %s" % (
+                    pattern, s))
+        if len(parts) == 1:
+            name = s.strip()
+            type_id = 'str'
+        else:
+            name, type_id = parts
+            name = name.strip()
+            type_id = type_id.strip()
+        if not is_identifier(name):
+            raise TrajectError("illegal path '%s', illegal identifier: %s" % (
+                    pattern, name))
+        converter = self.known_types.get(type_id)
+        if converter is None:
+            return TrajectError("illegal path '%s', unknown type: %s" % (
+                                pattern, type_id))
+        return name, converter
+
+def parse_variable_name(pattern, name):
+    parts = name.split(':')
+    if len(parts) == 1:
+        return name.strip(), str
+    if len(parts) != 2:
+        raise TrajectError(
+            "path '%s' cannot be parsed, illegal identifier: %s" %
+            (pattern, name))
+    name, type_id = parts
+    name = name.strip()
+    type_id = type_id.strip()
 
 class VariableMatcher(object):
     def __init__(self, ns, pattern):
         self.ns = ns
         self.pattern = pattern
         self.variables_re = create_variables_re(pattern)
-        names = parse_variables(pattern)
-        names = [name.strip() for name in names]
-        for name in names:
-            if not is_identifier(name):
-                raise TrajectError(
-                    "path '%s' cannot be parsed, illegal identifier: %s" %
-                    (pattern, name))
+        matched = parse_variables(pattern)
+        parser = NameParser(KNOWN_TYPES)
+        names = []
+        converters = []
+        for m in matched:
+            name, converter = parser(pattern, m)
+            names.append(name)
+            converters.append(converter)
         self.names = names
-
+        self.converters = converters
+    
     def __call__(self, step):
         ns, name = step
         if ns != self.ns:
@@ -115,8 +159,13 @@ class VariableMatcher(object):
         if matched is None:
             return {}
         result = {}
-        for name, match in zip(self.names, matched.groups()): 
-            result[name] = match
+        for name, converter, match in zip(
+            self.names, self.converters, matched.groups()): 
+            try:
+                result[name] = converter(match)
+            except ValueError:
+                # cannot convert, so isn't a match
+                return {}
         return result
         
 def consume(lookup, base, stack):
