@@ -1,13 +1,18 @@
 from morepath.traject import (is_identifier,
                               parse_variables,
                               create_variables_re,
-                              VariableMatcher)
+                              VariableMatcher,
+                              parse, Traject, TrajectConsumer)
+from comparch import Registry
 from morepath.pathstack import DEFAULT
-from morepath.interfaces import TrajectError
+from morepath.interfaces import ITraject, TrajectError
 import py.test
 
-# def test_variable_re():
-#     assert variable_re.findall('foo {bar} {baz} hoi{qux}!') == 3
+class Root(object):
+    pass
+
+class Model(object):
+    pass
 
 def test_identifier():
     assert is_identifier('a')
@@ -53,3 +58,14 @@ def test_variable_matcher_type():
     assert matcher((DEFAULT, '1')) == {'foo': 1}
     assert matcher((DEFAULT, 'noint')) == {}
     
+# def test_traject_consumer():
+#     reg = Registry()
+#     root = Root()
+#     traject = Traject()
+#     traject.register(parse_path('sub'), Model)
+#     reg.register(ITraject, (root,), traject) 
+#     consumer = TrajectConsumer(reg)
+#     found, obj, stack = consumer(root, parse_path('sub'))
+#     assert found
+#     assert isinstance(obj, Model)
+#     assert stack == []

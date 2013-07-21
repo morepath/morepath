@@ -17,8 +17,32 @@ Once steps have been consumed, look up the model.
 
 """
 import re
+from .interfaces import ITraject
 
 VARIABLE = '{}'
+
+def parse(pattern_str):
+    """Parse an URL pattern.
+
+    Takes a URL pattern string and parses it into a tuple. Pattern
+    strings look like this: foo/:bar/baz
+
+    pattern_str - the pattern
+
+    returns the pattern tuple.
+    """
+    pattern_str = normalize(pattern_str)
+    result = []
+    pattern = tuple(pattern_str.split('/'))
+    known_variables = set()
+    for step in pattern:
+        if step[0] == ':':
+            if step in known_variables:
+                raise ParseError(
+                    'URL pattern contains multiple variables with name: %s' %
+                    step[1:])
+            known_variables.add(step)
+    return pattern
 
 def subpatterns(pattern):
     """Decompose a pattern into sub patterns.
@@ -168,23 +192,28 @@ class VariableMatcher(object):
                 return {}
         return result
         
-def consume(lookup, base, stack):
-    traject = ITraject.component(base, lookup=lookup)
-    variables = {}
-    pattern = ()
-    consumed = []
-    while stack:
-        step = stack.pop()
-        consumed.append(step)
-        next_pattern, matched = traject.match(pattern, step)
-        if next_pattern is None:
-            break
-        pattern = next_pattern
-    # the next step cannot be matched, so try to get model
-    # XXX pattern should be the full pattern, not the generalized one
-    model = traject.get_model(pattern, variables)
-    if model is None:
-        # put what we tried to consume back on stack
-        stack.extend(reversed(consumed))
-        return stack, [], base
-    return stack, consumed, model
+class TrajectConsumer(object):
+    def __init__(self, lookup):
+        self.lookup = lookup
+
+    def __call__(self, base, stack):
+        traject = ITraject.component(base, lookup=self.lookup)
+        variables = {}
+        pattern = ()
+        consumed = []
+        while stack:
+            step = stack.pop()
+            consumed.append(step)
+            next_pattern, matched = traject.match(pattern, step)
+            if next_pattern is None:
+                break
+            pattern = next_pattern
+        # the next step cannot be matched, so try to get model
+        # XXX pattern should be the full pattern, not the generalized one
+        model = traject.get_model(pattern, variables)
+        if model is None:
+            # put what we tried to consume back on stack
+            stack.extend(reversed(consumed))
+            return False, base, stack
+        return True, base, stack
+

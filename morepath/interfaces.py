@@ -21,7 +21,11 @@ class IResponseFactory(Interface):
     @abstractmethod
     def __call__(self):
         """Returns a Response instance."""
-        
+
+# XXX complete
+class ITraject(Interface):
+    pass
+
 class ResolveError(Exception):
     """Raised when path cannot be resolved
     """
