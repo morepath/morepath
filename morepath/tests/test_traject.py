@@ -43,7 +43,9 @@ def test_variable_matcher_ns():
 def test_variable_matcher_checks():
     with py.test.raises(TrajectError):
         matcher = VariableMatcher(DEFAULT, '{1illegal}')
-    
+    with py.test.raises(TrajectError):
+        matcher = VariableMatcher(DEFAULT, '{}')
+        
 def test_variable_matcher_type():
     matcher = VariableMatcher(DEFAULT, '{foo:str}')
     assert matcher((DEFAULT, 'test')) == {'foo': 'test'}
