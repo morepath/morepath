@@ -1,60 +1,21 @@
-from .interfaces import TrajectError
-#
-
-"""
-
-All lookups are in terms of base.
-
-Try to look up step, registered by name
-
-If not there, try to look up variable pattern, i.e. foo/?.
-
-Find a list of matches.
-
-For each match, see whether it matches the variables. If so, stop.
-
-Once steps have been consumed, look up the model.
-
-"""
 import re
-from .interfaces import ITraject
+from .interfaces import ITraject, TrajectError
+from .pathstack import parse_path
+from .publisher import SHORTCUTS
 
 VARIABLE = '{}'
 
+def normalize(pattern_str):
+    if pattern_str.startswith('/'):
+        return pattern_str[1:]
+    return pattern_str
+
 def parse(pattern_str):
-    """Parse an URL pattern.
-
-    Takes a URL pattern string and parses it into a tuple. Pattern
-    strings look like this: foo/:bar/baz
-
-    pattern_str - the pattern
-
-    returns the pattern tuple.
-    """
     pattern_str = normalize(pattern_str)
-    result = []
-    pattern = tuple(pattern_str.split('/'))
-    known_variables = set()
-    for step in pattern:
-        if step[0] == ':':
-            if step in known_variables:
-                raise ParseError(
-                    'URL pattern contains multiple variables with name: %s' %
-                    step[1:])
-            known_variables.add(step)
-    return pattern
+    stack = parse_path(pattern_str, SHORTCUTS)
+    return tuple(reversed(stack))
 
 def subpatterns(pattern):
-    """Decompose a pattern into sub patterns.
-
-    A pattern can be decomposed into a number of sub patterns.
-    ('a', 'b', 'c') for instance has the sub patterns ('a',),
-    ('a', 'b') and ('a', 'b', 'c').
-
-    pattern - the pattern tuple to decompose.
-
-    returns the sub pattern tuples of this pattern.
-    """
     subpattern = []
     result = []
     for step in pattern:
@@ -68,16 +29,19 @@ class Traject(object):
         self._variable_matchers = {}
         self._model_factories = {}
         
-    def register(self, pattern, model_factory):
-        sp = subpatterns(pattern)
-        for p in sp:
-            if has_variables(pattern[-1]):
-                variable_pattern = pattern[:-1] + (VARIABLE,)
+    def register(self, path, model_factory):
+        pattern = parse(path)
+        for p in subpatterns(pattern):
+            last_step = p[-1]
+            ns, name = last_step
+            variable_matcher = VariableMatcher(ns, name)
+            if variable_matcher.has_variables():
+                variable_pattern = p[:-1] + (VARIABLE,)
                 variable_matchers = self._variable_matchers.setdefault(
                     variable_pattern, [])
-                variable_matchers.append(VariableMatcher(pattern[-1]))
+                variable_matchers.append(variable_matcher)
             else:
-                self._step_matchers.add(pattern)
+                self._step_matchers.add(p)
         self._model_factories[pattern] = model_factory
         
     def match(self, pattern, step):
@@ -103,6 +67,12 @@ class Traject(object):
             return None, {}
         return pattern + step, matched
 
+    def get_model(self, pattern, variables):
+        model_factory = self._model_factories.get(pattern)
+        if model_factory is None:
+            return None
+        return model_factory(**variables)
+    
 IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
 PATH_VARIABLE = re.compile(r'\{([^}]*)\}')
 
@@ -174,7 +144,10 @@ class VariableMatcher(object):
             converters.append(converter)
         self.names = names
         self.converters = converters
-    
+
+    def has_variables(self):
+        return bool(self.names)
+
     def __call__(self, step):
         ns, name = step
         if ns != self.ns:
@@ -208,12 +181,10 @@ class TrajectConsumer(object):
             if next_pattern is None:
                 break
             pattern = next_pattern
-        # the next step cannot be matched, so try to get model
-        # XXX pattern should be the full pattern, not the generalized one
         model = traject.get_model(pattern, variables)
         if model is None:
             # put what we tried to consume back on stack
             stack.extend(reversed(consumed))
             return False, base, stack
-        return True, base, stack
+        return True, model, stack
 
