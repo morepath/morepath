@@ -1,7 +1,8 @@
 import re
-from .interfaces import ITraject, TrajectError
+from .interfaces import ITraject, IInverse, TrajectError
 from .pathstack import parse_path, create_path
 from .publish import SHORTCUTS
+from comparch import Registry
 
 IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
 PATH_VARIABLE = re.compile(r'\{([^}]*)\}')
@@ -18,6 +19,7 @@ class Traject(object):
         self._step_matchers = set()
         self._variable_matchers = {}
         self._model_factories = {}
+        self._inverse = Registry() # XXX caching?
         
     def register(self, path, model_factory):
         pattern = parse(path)
@@ -44,6 +46,10 @@ class Traject(object):
             else:
                 self._step_matchers.add(p)
         self._model_factories[pattern] = model_factory
+
+    def register_inverse(self, model_class, path, get_variables):
+        path = interpolation_path(path)
+        self._inverse.register(IInverse, (model_class,), (path, get_variables))
         
     def match(self, pattern, step):
         step_pattern = self.match_step(pattern, step)
@@ -57,7 +63,7 @@ class Traject(object):
             return pattern
         else:
             return None
-    
+        
     def match_variables(self, pattern, step):
         variable_pattern = pattern + (VARIABLE,)
         for variable_matcher in self._variable_matchers.get(variable_pattern,
@@ -74,7 +80,12 @@ class Traject(object):
         if model_factory is None:
             return None
         return model_factory(**variables)
-        
+
+    def get_path(self, model):
+        path, get_variables = IInverse.component(model, lookup=self._inverse)
+        variables = get_variables(model)
+        return path % variables
+    
 class TrajectConsumer(object):
     def __init__(self, lookup):
         self.lookup = lookup
@@ -211,6 +222,9 @@ def create_variables_re(s):
 def generalize_variables(s):
     return PATH_VARIABLE.sub('{}', s)
 
+def interpolation_path(s):
+    return PATH_VARIABLE.sub(r'%(\1)s', s)
+    
 def validate_variables(s):
     parts = PATH_VARIABLE.split(s)
     if parts[0] == '':

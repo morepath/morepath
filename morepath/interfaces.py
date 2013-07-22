@@ -22,9 +22,12 @@ class IResponseFactory(Interface):
     def __call__(self):
         """Returns a Response instance."""
 
-# XXX complete
+# XXX incomplete
 class ITraject(Interface):
     pass
+
+class IInverse(Interface):
+    """Marker interface to hook in inverse component in a traject."""
 
 class ResolveError(Exception):
     """Raised when path cannot be resolved

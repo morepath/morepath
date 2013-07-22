@@ -1,6 +1,7 @@
 from morepath.traject import (is_identifier,
                               parse_variables,
                               create_variables_re,
+                              interpolation_path,
                               VariableMatcher,
                               parse, Traject, TrajectConsumer)
 from comparch import Registry
@@ -263,8 +264,7 @@ def test_traject_no_conflict_if_different_path():
     traject.register('b/{bar}', get_model)
     assert True
 
-
-def test_traject_onflict_if_same_path():
+def test_traject_conflict_if_same_path():
     traject = Traject()
     def get_model(foo):
         return Model
@@ -273,13 +273,23 @@ def test_traject_onflict_if_same_path():
         traject.register('a/{bar}', get_model)
     assert True
 
+def test_traject_no_conflict_if_different_text():
+    traject = Traject()
+    def get_model(foo):
+        return Model
+    traject.register('prefix-{foo}', get_model)
+    traject.register('{foo}-postfix', get_model)
+    assert True
 
-# possible conflict scenarios
-
-# step versus variable matching - step match always wins
-# {foo:int} versus {foo:str}; int match is more specific, implies
-# for equivalent matchers some converters kick the others out (or prevent
-# them from beig added). but how would this work with
-# {foo:int}{bar:str}
-
-# how is {foo:int}{bar:str} handled? it cannot be, right?
+def test_interpolation_path():
+    assert interpolation_path('{foo} is {bar}') == '%(foo)s is %(bar)s'
+    
+def test_path_for_model():
+    traject = Traject()
+    class IdModel(object):
+        def __init__(self, id):
+            self.id = id
+    traject.register_inverse(IdModel, 'foo/{id}',
+                             lambda model: { 'id': model.id})
+    assert traject.get_path(IdModel('a')) == 'foo/a'
+    
