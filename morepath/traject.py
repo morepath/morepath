@@ -1,6 +1,6 @@
 import re
 from .interfaces import ITraject, TrajectError
-from .pathstack import parse_path
+from .pathstack import parse_path, create_path
 from .publish import SHORTCUTS
 
 IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
@@ -23,7 +23,7 @@ class Traject(object):
         pattern = parse(path)
         seen_names = set()
         for p in subpatterns(pattern):
-            variable_matcher = VariableMatcher(p[-1])
+            variable_matcher = VariableMatcher(p[-1], p)
             if variable_matcher.has_variables():
                 for name in variable_matcher.names:
                     if name in seen_names:
@@ -35,6 +35,11 @@ class Traject(object):
                 variable_pattern = p[:-1] + (VARIABLE,)
                 variable_matchers = self._variable_matchers.setdefault(
                     variable_pattern, set())
+                for m in variable_matchers:
+                    if variable_matcher.conflicts(m):
+                        raise TrajectError(
+                            "path '%s' conflicts with path '%s'" %
+                            (path, create(m.pattern)))
                 variable_matchers.add(variable_matcher)
             else:
                 self._step_matchers.add(p)
@@ -97,10 +102,12 @@ class TrajectConsumer(object):
         return True, model, stack
     
 class VariableMatcher(object):
-    def __init__(self, step):
+    def __init__(self, step, pattern=None):
         self.step = step
+        self.pattern = pattern # useful to report on conflicts
         self.ns, self.name = step
         self.variables_re = create_variables_re(self.name)
+        self.generalized = generalize_variables(self.name)
         matched = parse_variables(self.name)
         parser = NameParser(KNOWN_TYPES)
         names = []
@@ -117,6 +124,13 @@ class VariableMatcher(object):
     
     def __hash__(self):
         return hash(self.step)
+
+    def conflicts(self, other):
+        if self.ns != other.ns:
+            return False
+        if self.name == other.name:
+            return False
+        return self.generalized == other.generalized
     
     def has_variables(self):
         return bool(self.names)
@@ -173,6 +187,9 @@ def parse(pattern_str):
     stack = parse_path(pattern_str, SHORTCUTS)
     return tuple(reversed(stack))
 
+def create(pattern):
+    return create_path(list(reversed(pattern)), SHORTCUTS)[1:]
+    
 def subpatterns(pattern):
     subpattern = []
     result = []
@@ -190,6 +207,9 @@ def parse_variables(s):
 def create_variables_re(s):
     validate_variables(s)
     return re.compile('^' + PATH_VARIABLE.sub(r'(.+)', s) + '$')
+
+def generalize_variables(s):
+    return PATH_VARIABLE.sub('{}', s)
 
 def validate_variables(s):
     parts = PATH_VARIABLE.split(s)

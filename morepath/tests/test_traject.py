@@ -239,6 +239,41 @@ def test_traject_no_duplicate_variables():
         traject.register('{foo}/{foo}', get_model)
     
 
+def test_traject_conflicting_registrations():
+    traject = Traject()
+    def get_model(foo):
+        return Model
+    traject.register('{foo}', get_model)
+    with py.test.raises(TrajectError):
+        traject.register('{bar}', get_model)
+
+def test_traject_conflicting_type_registrations():
+    traject = Traject()
+    def get_model(foo):
+        return Model
+    traject.register('{foo:str}', get_model)
+    with py.test.raises(TrajectError):
+        traject.register('{foo:int}', get_model)
+
+def test_traject_no_conflict_if_different_path():
+    traject = Traject()
+    def get_model(foo):
+        return Model
+    traject.register('a/{foo}', get_model)
+    traject.register('b/{bar}', get_model)
+    assert True
+
+
+def test_traject_onflict_if_same_path():
+    traject = Traject()
+    def get_model(foo):
+        return Model
+    traject.register('a/{foo}', get_model)
+    with py.test.raises(TrajectError):
+        traject.register('a/{bar}', get_model)
+    assert True
+
+
 # possible conflict scenarios
 
 # step versus variable matching - step match always wins
