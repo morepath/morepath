@@ -69,3 +69,23 @@ def test_traject_consumer():
     assert found
     assert isinstance(obj, Model)
     assert stack == []
+
+def test_traject_consumer_not_found():
+    reg = Registry()
+    root = Root()
+    traject = Traject()
+    reg.register(ITraject, (Root,), traject) 
+    consumer = TrajectConsumer(reg)
+    found, obj, stack = consumer(root, parse_path('sub'))
+    assert not found
+    assert obj is root
+    assert stack == [(u'default', 'sub')]
+    
+def test_traject_consumer_no_traject():
+    reg = Registry()
+    root = Root()
+    consumer = TrajectConsumer(reg)
+    found, obj, stack = consumer(root, parse_path('sub'))
+    assert not found
+    assert obj is root
+    assert stack == [(u'default', 'sub')]

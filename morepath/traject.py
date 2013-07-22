@@ -170,7 +170,9 @@ class TrajectConsumer(object):
         self.lookup = lookup
 
     def __call__(self, base, stack):
-        traject = ITraject.component(base, lookup=self.lookup)
+        traject = ITraject.component(base, lookup=self.lookup, default=None)
+        if traject is None:
+            return False, base, stack
         variables = {}
         pattern = ()
         consumed = []
