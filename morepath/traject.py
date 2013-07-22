@@ -32,9 +32,7 @@ class Traject(object):
     def register(self, path, model_factory):
         pattern = parse(path)
         for p in subpatterns(pattern):
-            last_step = p[-1]
-            ns, name = last_step
-            variable_matcher = VariableMatcher(ns, name)
+            variable_matcher = VariableMatcher(p[-1])
             if variable_matcher.has_variables():
                 variable_pattern = p[:-1] + (VARIABLE,)
                 variable_matchers = self._variable_matchers.setdefault(
@@ -59,13 +57,14 @@ class Traject(object):
     
     def match_variables(self, pattern, step):
         variable_pattern = pattern + (VARIABLE,)
-        for variable_matcher in self._variable_matchers.get(pattern, []):
+        for variable_matcher in self._variable_matchers.get(variable_pattern,
+                                                            []):
             matched = variable_matcher(step)
             if matched:
                 break
         else:
             return None, {}
-        return pattern + step, matched
+        return pattern + (variable_matcher.step,), matched
 
     def get_model(self, pattern, variables):
         model_factory = self._model_factories.get(pattern)
@@ -130,16 +129,16 @@ def parse_variable_name(pattern, name):
     type_id = type_id.strip()
 
 class VariableMatcher(object):
-    def __init__(self, ns, pattern):
-        self.ns = ns
-        self.pattern = pattern
-        self.variables_re = create_variables_re(pattern)
-        matched = parse_variables(pattern)
+    def __init__(self, step):
+        self.step = step
+        self.ns, self.name = step
+        self.variables_re = create_variables_re(self.name)
+        matched = parse_variables(self.name)
         parser = NameParser(KNOWN_TYPES)
         names = []
         converters = []
         for m in matched:
-            name, converter = parser(pattern, m)
+            name, converter = parser(self.name, m)
             names.append(name)
             converters.append(converter)
         self.names = names
@@ -180,6 +179,7 @@ class TrajectConsumer(object):
             step = stack.pop()
             consumed.append(step)
             next_pattern, matched = traject.match(pattern, step)
+            variables.update(matched)
             if next_pattern is None:
                 break
             pattern = next_pattern

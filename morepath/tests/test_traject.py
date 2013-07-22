@@ -30,31 +30,31 @@ def test_parse_variables():
     assert parse_variables('{}') == ['']
     
 def test_variable_matcher():
-    matcher = VariableMatcher(DEFAULT, '{foo}')
+    matcher = VariableMatcher((DEFAULT, '{foo}'))
     assert matcher((DEFAULT, 'test')) == {'foo': 'test'}
-    matcher = VariableMatcher(DEFAULT, 'foo-{n}')
+    matcher = VariableMatcher((DEFAULT, 'foo-{n}'))
     assert matcher((DEFAULT, 'foo-bar')) == {'n': 'bar'}
-    matcher = VariableMatcher(DEFAULT, 'hey')
+    matcher = VariableMatcher((DEFAULT, 'hey'))
     assert matcher((DEFAULT, 'hey')) == {}
-    matcher = VariableMatcher(DEFAULT, 'foo-{n}')
+    matcher = VariableMatcher((DEFAULT, 'foo-{n}'))
     assert matcher((DEFAULT, 'blah')) == {}
-    matcher = VariableMatcher(DEFAULT, '{ foo }')
+    matcher = VariableMatcher((DEFAULT, '{ foo }'))
     assert matcher((DEFAULT, 'test')) == {'foo': 'test'}
     
 def test_variable_matcher_ns():
-    matcher = VariableMatcher(DEFAULT, '{foo}')
+    matcher = VariableMatcher((DEFAULT, '{foo}'))
     assert matcher(('not default', 'test')) == {}
     
 def test_variable_matcher_checks():
     with py.test.raises(TrajectError):
-        matcher = VariableMatcher(DEFAULT, '{1illegal}')
+        matcher = VariableMatcher((DEFAULT, '{1illegal}'))
     with py.test.raises(TrajectError):
-        matcher = VariableMatcher(DEFAULT, '{}')
+        matcher = VariableMatcher((DEFAULT, '{}'))
         
 def test_variable_matcher_type():
-    matcher = VariableMatcher(DEFAULT, '{foo:str}')
+    matcher = VariableMatcher((DEFAULT, '{foo:str}'))
     assert matcher((DEFAULT, 'test')) == {'foo': 'test'}
-    matcher = VariableMatcher(DEFAULT, '{foo:int}')
+    matcher = VariableMatcher((DEFAULT, '{foo:int}'))
     assert matcher((DEFAULT, '1')) == {'foo': 1}
     assert matcher((DEFAULT, 'noint')) == {}
     
@@ -89,3 +89,21 @@ def test_traject_consumer_no_traject():
     assert not found
     assert obj is root
     assert stack == [(u'default', 'sub')]
+
+def test_traject_consumer_variable():
+    reg = Registry()
+    root = Root()
+    traject = Traject()
+    def get_model(foo):
+        result = Model()
+        result.foo = foo
+        return result
+    traject.register('{foo}', get_model)
+    reg.register(ITraject, (Root,), traject) 
+    consumer = TrajectConsumer(reg)
+    found, obj, stack = consumer(root, parse_path('something'))
+    assert found
+    assert isinstance(obj, Model)
+    assert stack == []
+    assert obj.foo == 'something'
+    
