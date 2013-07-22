@@ -107,3 +107,27 @@ def test_traject_consumer_variable():
     assert stack == []
     assert obj.foo == 'something'
     
+def test_traject_consumer_combination():
+    reg = Registry()
+    root = Root()
+    traject = Traject()
+    def get_model(foo):
+        result = Model()
+        result.foo = foo
+        return result
+    class Special(object):
+        pass
+    traject.register('special', Special)
+    traject.register('{foo}', get_model)
+    reg.register(ITraject, (Root,), traject) 
+    consumer = TrajectConsumer(reg)
+    found, obj, stack = consumer(root, parse_path('something'))
+    assert found
+    assert isinstance(obj, Model)
+    assert stack == []
+    assert obj.foo == 'something'
+    found, obj, stack = consumer(root, parse_path('special'))
+    assert found
+    assert isinstance(obj, Special)
+    assert stack == []
+    
