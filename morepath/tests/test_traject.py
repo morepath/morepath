@@ -83,7 +83,21 @@ def test_traject_consumer_not_found():
     assert not found
     assert obj is root
     assert stack == [(u'default', 'sub')]
-    
+
+def test_traject_consumer_factory_returns_none():
+    reg = Registry()
+    root = Root()
+    traject = Traject()
+    def get_model():
+        return None
+    traject.register('sub', get_model)
+    reg.register(ITraject, (Root,), traject) 
+    consumer = TrajectConsumer(reg)
+    found, obj, stack = consumer(root, parse_path('sub'))
+    assert not found
+    assert isinstance(obj, Root)
+    assert stack == [(u'default', 'sub')]
+
 def test_traject_consumer_no_traject():
     reg = Registry()
     root = Root()
@@ -177,4 +191,60 @@ def test_traject_nested_with_variable():
     assert found
     assert isinstance(obj, Special)
     assert stack == []
+
+def test_traject_with_multiple_variables():
+    reg = Registry()
+    root = Root()
+    traject = Traject()
+    def get_model(first_id):
+        result = Model()
+        result.first_id = first_id
+        return result
+    def get_special(first_id, second_id):
+        result = Special()
+        result.first_id = first_id
+        result.second_id = second_id
+        return result
+    traject.register('{first_id}', get_model)
+    traject.register('{first_id}/{second_id}', get_special)
+    reg.register(ITraject, (Root,), traject)
+    consumer = TrajectConsumer(reg)
+    found, obj, stack = consumer(root, parse_path('a'))
+    assert found
+    assert isinstance(obj, Model)
+    assert stack == []
+    assert obj.first_id == 'a'
+    assert not hasattr(obj, 'second_id')
+    found, obj, stack = consumer(root, parse_path('a/b'))
+    assert found
+    assert isinstance(obj, Special)
+    assert stack == []
+    assert obj.first_id == 'a'
+    assert obj.second_id == 'b'
+
+def test_traject_no_concecutive_variables():
+    traject = Traject()
+    def get_model(foo, bar):
+        return Model()
+    with py.test.raises(TrajectError):
+        traject.register('{foo}{bar}', get_model)
+
+def test_traject_no_duplicate_variables():
+    traject = Traject()
+    def get_model(foo):
+        return Model
+    with py.test.raises(TrajectError):
+        traject.register('{foo}-{foo}', get_model)
+    with py.test.raises(TrajectError):
+        traject.register('{foo}/{foo}', get_model)
     
+
+# possible conflict scenarios
+
+# step versus variable matching - step match always wins
+# {foo:int} versus {foo:str}; int match is more specific, implies
+# for equivalent matchers some converters kick the others out (or prevent
+# them from beig added). but how would this work with
+# {foo:int}{bar:str}
+
+# how is {foo:int}{bar:str} handled? it cannot be, right?

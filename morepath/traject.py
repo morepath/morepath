@@ -21,9 +21,17 @@ class Traject(object):
         
     def register(self, path, model_factory):
         pattern = parse(path)
+        seen_names = set()
         for p in subpatterns(pattern):
             variable_matcher = VariableMatcher(p[-1])
             if variable_matcher.has_variables():
+                for name in variable_matcher.names:
+                    if name in seen_names:
+                        raise TrajectError(
+                            "path '%s' has a duplicate variable: %s" %
+                            (path, name)
+                            )
+                    seen_names.add(name)
                 variable_pattern = p[:-1] + (VARIABLE,)
                 variable_matchers = self._variable_matchers.setdefault(
                     variable_pattern, set())
@@ -180,8 +188,22 @@ def parse_variables(s):
     return PATH_VARIABLE.findall(s)
 
 def create_variables_re(s):
+    validate_variables(s)
     return re.compile('^' + PATH_VARIABLE.sub(r'(.+)', s) + '$')
 
+def validate_variables(s):
+    parts = PATH_VARIABLE.split(s)
+    if parts[0] == '':
+        parts = parts[1:]
+    if parts[-1] == '':
+        parts = parts[:-1]
+    for part in parts:
+        if part == '':
+            # XXX also include path info in error
+            raise TrajectError(
+                "path segment '%s' cannot be parsed, variables cannot be concecutive" %
+                s)
+    
 def parse_variable_name(pattern, name):
     parts = name.split(':')
     if len(parts) == 1:
