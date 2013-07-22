@@ -1,7 +1,7 @@
 import re
 from .interfaces import ITraject, TrajectError
 from .pathstack import parse_path
-from .publisher import SHORTCUTS
+from .publish import SHORTCUTS
 
 VARIABLE = '{}'
 
