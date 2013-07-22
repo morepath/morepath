@@ -26,8 +26,8 @@ class Traject(object):
             if variable_matcher.has_variables():
                 variable_pattern = p[:-1] + (VARIABLE,)
                 variable_matchers = self._variable_matchers.setdefault(
-                    variable_pattern, [])
-                variable_matchers.append(variable_matcher)
+                    variable_pattern, set())
+                variable_matchers.add(variable_matcher)
             else:
                 self._step_matchers.add(p)
         self._model_factories[pattern] = model_factory
@@ -104,6 +104,12 @@ class VariableMatcher(object):
         self.names = names
         self.converters = converters
 
+    def __eq__(self, other):
+        return self.step == other.step
+    
+    def __hash__(self):
+        return hash(self.step)
+    
     def has_variables(self):
         return bool(self.names)
 

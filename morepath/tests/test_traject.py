@@ -14,6 +14,9 @@ class Root(object):
 class Model(object):
     pass
 
+class Special(object):
+    pass
+
 def test_identifier():
     assert is_identifier('a')
     not is_identifier('')
@@ -115,8 +118,6 @@ def test_traject_consumer_combination():
         result = Model()
         result.foo = foo
         return result
-    class Special(object):
-        pass
     traject.register('special', Special)
     traject.register('{foo}', get_model)
     reg.register(ITraject, (Root,), traject) 
@@ -127,6 +128,52 @@ def test_traject_consumer_combination():
     assert stack == []
     assert obj.foo == 'something'
     found, obj, stack = consumer(root, parse_path('special'))
+    assert found
+    assert isinstance(obj, Special)
+    assert stack == []
+
+def test_traject_nested():
+    reg = Registry()
+    root = Root()
+    traject = Traject()
+    traject.register('a', Model)
+    traject.register('a/b', Special)
+    reg.register(ITraject, (Root,), traject) 
+    consumer = TrajectConsumer(reg)
+    found, obj, stack = consumer(root, parse_path('a'))
+    assert found
+    assert isinstance(obj, Model)
+    assert stack == []
+    found, obj, stack = consumer(root, parse_path('a/b'))
+    assert found
+    assert isinstance(obj, Special)
+    assert stack == []
+
+def test_traject_nested_with_variable():
+    reg = Registry()
+    root = Root()
+    traject = Traject()
+    def get_model(id):
+        result = Model()
+        result.id = id
+        return result
+    def get_special(id):
+        result = Special()
+        result.id = id
+        return result
+    traject.register('{id}', get_model)
+    traject.register('{id}/sub', get_special)
+    reg.register(ITraject, (Root,), traject) 
+    consumer = TrajectConsumer(reg)
+    found, obj, stack = consumer(root, parse_path('a'))
+    assert found
+    assert isinstance(obj, Model)
+    assert stack == []
+    found, obj, stack = consumer(root, parse_path('b'))
+    assert found
+    assert isinstance(obj, Model)
+    assert stack == []
+    found, obj, stack = consumer(root, parse_path('a/sub'))
     assert found
     assert isinstance(obj, Special)
     assert stack == []
