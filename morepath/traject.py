@@ -82,6 +82,7 @@ class Traject(object):
         return model_factory(**variables)
 
     def get_path(self, model):
+        # XXX what if path cannot be found?
         path, get_variables = IInverse.component(model, lookup=self._inverse)
         variables = get_variables(model)
         return path % variables
@@ -249,3 +250,12 @@ def parse_variable_name(pattern, name):
     name, type_id = parts
     name = name.strip()
     type_id = type_id.strip()
+
+def register_model(registry, base, model, path, variables, model_factory):
+    traject = registry.exact_get(ITraject, (base,))
+    if traject is None:
+        traject = Traject()
+        registry.register(ITraject, (base,), traject)
+    traject.register(path, model_factory)
+    traject.register_inverse(model, path, variables)
+    

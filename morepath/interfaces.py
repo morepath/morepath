@@ -29,6 +29,31 @@ class ITraject(Interface):
 class IInverse(Interface):
     """Marker interface to hook in inverse component in a traject."""
 
+class IRoot(Interface):
+    """Mark this object as the root.
+    """
+
+class IConfigItem(Interface):
+    """A configuration item.
+    """
+
+    @abstractmethod
+    def discriminator(self):
+        """Returns an immutable that uniquely identifies this config.
+
+        Used for configuration conflict detection.
+        """
+
+    @abstractmethod
+    def register(self, registry, name, obj):
+        """Register whatever is being configured.
+
+        registry - the registry in which to register
+        name - the name of the obj in its module
+        obj - the object being registered
+        """
+        
+    
 class ResolveError(Exception):
     """Raised when path cannot be resolved
     """
@@ -44,3 +69,8 @@ class ResourceError(ResolveError):
 class TrajectError(Exception):
     """Raised when path supplied to traject is not allowed.
     """
+
+class LinkError(Exception):
+    """Raised when a link cannot be made.
+    """
+    

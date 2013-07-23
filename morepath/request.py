@@ -1,4 +1,5 @@
 from werkzeug.wrappers import BaseRequest, BaseResponse
+from .link import link
 
 class Request(BaseRequest):
     def __init__(self, environ, populate_request=True, shallow=False):
@@ -10,6 +11,10 @@ class Request(BaseRequest):
 
     def resolver_info(self):
         return self._resolver_info 
+
+    # XXX add way to easily generate URL parameters too
+    def link(self, model, name='', base=None):
+        return link(self, model, name, base, self.lookup)
 
 class Response(BaseResponse):
     pass
