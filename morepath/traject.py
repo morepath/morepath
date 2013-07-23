@@ -45,6 +45,11 @@ class Traject(object):
                 variable_matchers.add(variable_matcher)
             else:
                 self._step_matchers.add(p)
+        existing_model_factory = self._model_factories.get(pattern)
+        if existing_model_factory is not None:
+            raise TrajectError(
+                "path '%s' is already used to register model %r" %
+                (path, existing_model_factory))
         self._model_factories[pattern] = model_factory
 
     def register_inverse(self, model_class, path, get_variables):

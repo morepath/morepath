@@ -241,7 +241,6 @@ def test_traject_no_duplicate_variables():
         traject.register('{foo}-{foo}', get_model)
     with py.test.raises(TrajectError):
         traject.register('{foo}/{foo}', get_model)
-    
 
 def test_traject_conflicting_registrations():
     traject = Traject()
@@ -251,6 +250,16 @@ def test_traject_conflicting_registrations():
     with py.test.raises(TrajectError):
         traject.register('{bar}', get_model)
 
+def test_traject_conflicting_registrations_without_variables():
+    traject = Traject()
+    def get_model(foo):
+        return Model()
+    def get_model2(foo):
+        return Model()
+    traject.register('foo', get_model)
+    with py.test.raises(TrajectError):
+        traject.register('foo', get_model2)
+    
 def test_traject_conflicting_type_registrations():
     traject = Traject()
     def get_model(foo):
