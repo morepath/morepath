@@ -78,7 +78,7 @@ class app(Directive):
     def discriminator(self):
         return ('app', self.model, self.name)
 
-    def register(self, registry, name, obj):    
+    def register(self, registry, name, obj):
         register_model(registry, IRoot, self.model, self.name,
                        lambda app: {}, obj)
 
