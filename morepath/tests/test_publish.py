@@ -1,5 +1,5 @@
 from comparch import Registry
-from morepath.configure import register_resource
+from morepath.resource import register_resource
 from morepath.interfaces import (IResource, IResponseFactory,
                                  ResourceError, ResolveError)
 from morepath.publish import Publisher

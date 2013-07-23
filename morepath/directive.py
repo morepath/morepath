@@ -1,6 +1,6 @@
 import venusian
 from .interfaces import IConfigItem, IRoot
-from .configure import register_resource
+from .resource import register_resource
 from .traject import register_model
 
 class Directive(IConfigItem):
