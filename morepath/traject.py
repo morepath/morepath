@@ -1,5 +1,5 @@
 import re
-from .interfaces import ITraject, IInverse, TrajectError
+from .interfaces import ITraject, IInverse, IModelBase, TrajectError
 from .pathstack import parse_path, create_path
 from .publish import SHORTCUTS
 from comparch import Registry
@@ -106,15 +106,17 @@ class TrajectConsumer(object):
         consumed = []
         while stack:
             step = stack.pop()
-            consumed.append(step)
             next_pattern, matched = traject.match(pattern, step)
             variables.update(matched)
             if next_pattern is None:
+                # put the last step back onto the stack
+                stack.append(step)
                 break
+            consumed.append(step)
             pattern = next_pattern
         model = traject.get_model(pattern, variables)
         if model is None:
-            # put what we tried to consume back on stack
+            # put everything we tried to consume back on stack
             stack.extend(reversed(consumed))
             return False, base, stack
         return True, model, stack
@@ -264,4 +266,4 @@ def register_model(registry, base, model, path, variables, model_factory):
         registry.register(ITraject, (base,), traject)
     traject.register(path, model_factory)
     traject.register_inverse(model, path, variables)
-    
+    registry.register(IModelBase, (model,), base)

@@ -33,6 +33,10 @@ class IRoot(Interface):
     """Mark this object as the root.
     """
 
+class IModelBase(Interface):
+    """Mark this object as a base of a model.
+    """
+    
 class IConfigItem(Interface):
     """A configuration item.
     """

@@ -7,7 +7,7 @@ from morepath.traject import (is_identifier,
                               register_model)
 from comparch import Registry
 from morepath.pathstack import parse_path, DEFAULT
-from morepath.interfaces import ITraject, TrajectError
+from morepath.interfaces import ITraject, IModelBase, TrajectError
 from morepath.link import path
 
 import py.test
@@ -167,6 +167,22 @@ def test_traject_nested():
     assert isinstance(obj, Special)
     assert stack == []
 
+def test_traject_nested_not_resolved_entirely_by_consumer():
+    reg = Registry()
+    root = Root()
+    traject = Traject()
+    traject.register('a', Model)
+    reg.register(ITraject, (Root,), traject) 
+    consumer = TrajectConsumer(reg)
+    found, obj, stack = consumer(root, parse_path('a'))
+    assert found
+    assert isinstance(obj, Model)
+    assert stack == []
+    found, obj, stack = consumer(root, parse_path('a/b'))
+    assert found
+    assert isinstance(obj, Model)
+    assert stack == [('default', 'b')]
+    
 def test_traject_nested_with_variable():
     reg = Registry()
     root = Root()
@@ -320,3 +336,5 @@ def test_register_model():
     model = Model()
     model.id = 'b'
     assert path(model, root, reg) == 'b'
+    assert IModelBase.component(model, lookup=reg) is Root
+    
