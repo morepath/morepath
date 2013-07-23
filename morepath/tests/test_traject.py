@@ -3,10 +3,13 @@ from morepath.traject import (is_identifier,
                               create_variables_re,
                               interpolation_path,
                               VariableMatcher,
-                              parse, Traject, TrajectConsumer)
+                              parse, Traject, TrajectConsumer,
+                              register_model)
 from comparch import Registry
 from morepath.pathstack import parse_path, DEFAULT
 from morepath.interfaces import ITraject, TrajectError
+from morepath.link import path
+
 import py.test
 
 class Root(object):
@@ -293,3 +296,18 @@ def test_path_for_model():
                              lambda model: { 'id': model.id})
     assert traject.get_path(IdModel('a')) == 'foo/a'
     
+def test_register_model():
+    reg = Registry()
+    def get_model(id):
+        model = Model()
+        model.id = id
+        return model
+    register_model(reg, Root, Model, '{id}', lambda model: { 'id': model.id},
+                      get_model)
+    consumer = TrajectConsumer(reg)
+    root = Root()
+    found, obj, stack = consumer(root, parse_path('a'))
+    assert obj.id == 'a'
+    model = Model()
+    model.id = 'b'
+    assert path(model, root, reg) == 'b'

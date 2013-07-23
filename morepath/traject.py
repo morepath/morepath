@@ -85,6 +85,7 @@ class Traject(object):
         # XXX what if path cannot be found?
         path, get_variables = IInverse.component(model, lookup=self._inverse)
         variables = get_variables(model)
+        assert isinstance(variables, dict)
         return path % variables
     
 class TrajectConsumer(object):
