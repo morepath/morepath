@@ -266,4 +266,6 @@ def register_model(registry, base, model, path, variables, model_factory):
         registry.register(ITraject, (base,), traject)
     traject.register(path, model_factory)
     traject.register_inverse(model, path, variables)
-    registry.register(IModelBase, (model,), base)
+    def get_base(model):
+        return base() # XXX assume base is an app object
+    registry.register(IModelBase, (model,), get_base)

@@ -24,6 +24,9 @@ def test_basic():
     root = Root()
     
     request = get_request('myapp/something')
-
+    request.lookup = reg # XXX need to have a better place to place this
     result = publisher.publish(request, root)
     assert result == 'The resource for model: something'
+
+    m = basic.Model('foo')
+    assert request.link(m) == '/myapp/foo'

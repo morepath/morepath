@@ -8,7 +8,7 @@ from morepath.traject import (is_identifier,
 from comparch import Registry
 from morepath.pathstack import parse_path, DEFAULT
 from morepath.interfaces import ITraject, IModelBase, TrajectError
-from morepath.link import path
+from morepath.link import path, get_base
 
 import py.test
 
@@ -328,7 +328,7 @@ def test_register_model():
         model.id = id
         return model
     register_model(reg, Root, Model, '{id}', lambda model: { 'id': model.id},
-                      get_model)
+                   get_model)
     consumer = TrajectConsumer(reg)
     root = Root()
     found, obj, stack = consumer(root, parse_path('a'))
@@ -336,5 +336,6 @@ def test_register_model():
     model = Model()
     model.id = 'b'
     assert path(model, root, reg) == 'b'
-    assert IModelBase.component(model, lookup=reg) is Root
+    base = get_base(model, lookup=reg)
+    assert isinstance(base, Root)
     
