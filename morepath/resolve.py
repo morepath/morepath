@@ -17,6 +17,7 @@ class ModelResolver(object):
                 any_consumed, obj, unconsumed = consumer(obj, unconsumed)
                 if any_consumed:
                     break
+                # XXX why is the else here? couldn't we just remove it?
             else:
                 # nothing could be consumed
                 return obj, unconsumed
