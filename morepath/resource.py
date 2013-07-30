@@ -12,6 +12,12 @@ class PredicateLookup(object):
 
     def __call__(self, request, model):
         component = self.predicate_registry.get(self.get_predicates(request))
+        # XXX but wait; it could be that a matching set of predicates is
+        # registered for a base class, and now that never would be found!
+        # if some predicates match for elephant and a non-overlapping set of
+        # predicates are registered for animal, and the match is not for
+        # elephant, it should really find the match for animal if that's
+        # there, but right now it won't
         if component is None:
             return None
         # XXX check for function type?
