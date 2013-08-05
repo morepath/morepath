@@ -26,7 +26,6 @@ class Publisher(object):
 
         model, crumbs = self.model_resolver(root, stack)
         # the model itself is capable of producing a response
-        # XXX tests
         if not crumbs:
             if isinstance(model, Response):
                 return model
