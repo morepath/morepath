@@ -23,7 +23,6 @@ class Publisher(object):
     def publish(self, request, root):
         #path = self.base_path(request)
         stack = parse_path(request.path, SHORTCUTS)
-
         model, crumbs = self.model_resolver(root, stack)
         # the model itself is capable of producing a response
         if not crumbs:

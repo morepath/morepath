@@ -1,4 +1,4 @@
-from .directive import model, app, resource
+from .directive import Registry
 from .implicit import initialize
 
 initialize()
