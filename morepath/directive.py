@@ -1,13 +1,9 @@
 from .interfaces import IRoot
-from .registry import Registry, Directive
+from .registry import Directive, directive
 from .resource import register_resource
 from .traject import register_model
 
-def add_directive(name, directive):
-    def method(self, *args, **kw):
-        return directive(self, *args, **kw)
-    setattr(Registry, name, method)
-    
+@directive('model')
 class ModelDirective(Directive):
     def __init__(self, registry, base, model, path, variables):
         self.registry = registry
@@ -23,8 +19,7 @@ class ModelDirective(Directive):
     def register(self, name, obj):    
         register_model(self.registry, self.base, self.model, self.path,
                        self.variables, obj)
-add_directive('model', ModelDirective)
-
+@directive('resource')
 class ResourceDirective(Directive):
     def __init__(self, registry, model, name=''):
         self.registry = registry
@@ -39,9 +34,9 @@ class ResourceDirective(Directive):
     
     def register(self, name, obj):
         register_resource(self.registry, self.model, obj, **self.predicates)
-add_directive('resource', ResourceDirective)
 
 # XXX can implement as subclass of model instead
+@directive('app')
 class AppDirective(Directive):
     def __init__(self, registry, model, name):
         self.registry = registry
@@ -54,8 +49,8 @@ class AppDirective(Directive):
     def register(self, name, obj):
         register_model(self.registry, IRoot, self.model, self.name,
                        lambda app: {}, obj)
-add_directive('app', AppDirective)
 
+@directive('component')
 class ComponentDirective(Directive):
     def __init__(self, registry, target, sources):
         self.registry = registry
@@ -67,4 +62,3 @@ class ComponentDirective(Directive):
 
     def register(self, name, obj):
         self.registry.register(self.target, self.sources, obj)
-add_directive('component', ComponentDirective)
