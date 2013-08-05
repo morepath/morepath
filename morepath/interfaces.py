@@ -7,7 +7,7 @@ class IConsumer(Interface):
     """
 
     @abstractmethod
-    def __call__(self, obj, stack):
+    def __call__(self, obj, stack, lookup):
         """Returns a boolean meaning that some stack has been consumed,
         an object and the rest of unconsumed stack
         """

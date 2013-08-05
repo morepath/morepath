@@ -14,7 +14,8 @@ class ModelResolver(object):
         unconsumed = stack[:]
         while unconsumed:
             for consumer in IConsumer.all(obj, lookup=self.lookup):
-                any_consumed, obj, unconsumed = consumer(obj, unconsumed)
+                any_consumed, obj, unconsumed = consumer(obj, unconsumed,
+                                                         self.lookup)
                 if any_consumed:
                     break
                 # XXX why is the else here? couldn't we just remove it?
@@ -87,7 +88,7 @@ class Traverser(IConsumer):
     def __init__(self, func):
         self.func = func
 
-    def __call__(self, obj, stack):
+    def __call__(self, obj, stack, lookup):
         ns, name = stack.pop()
         next_obj = self.func(obj, ns, name)
         if next_obj is None:

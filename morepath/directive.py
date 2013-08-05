@@ -1,47 +1,12 @@
-import venusian
-from .interfaces import IConfigItem, IRoot
+from .interfaces import IRoot
+from .registry import Registry, Directive
 from .resource import register_resource
 from .traject import register_model
-from comparch import Registry as BaseRegistry
 
-class Directive(IConfigItem):
-    def discriminator(self):
-        raise NotImplementedError()
-
-    def register(self, registry, name, obj):
-        raise NotImplementedError()
-    
-    def __call__(self, wrapped):
-        def callback(scanner, name, obj):
-            scanner.config.action(self, name, obj)
-        venusian.attach(wrapped, callback)
-        return wrapped
-
-class Config(object):
-    def __init__(self):
-        self.actions = []
-
-    def scan(self, package):
-        scanner = venusian.Scanner(config=self)
-        scanner.scan(package)
-        
-    def action(self, item, name, obj):
-        self.actions.append((item, name, obj))
-
-    def validate(self):
-        pass # XXX check for conflicts
-
-    def commit(self):
-        for item, name, obj in self.actions:
-            item.register(name, obj)
-
-class Registry(BaseRegistry):
-    def model(self, base, model, path, variables):
-        return ModelDirective(self, base, model, path, variables) 
-    def resource(self, model, name=''):
-        return ResourceDirective(self, model, name)
-    def app(self, model, name):
-        return AppDirective(self, model, name)
+def add_directive(name, directive):
+    def method(self, *args, **kw):
+        return directive(self, *args, **kw)
+    setattr(Registry, name, method)
     
 class ModelDirective(Directive):
     def __init__(self, registry, base, model, path, variables):
@@ -58,7 +23,8 @@ class ModelDirective(Directive):
     def register(self, name, obj):    
         register_model(self.registry, self.base, self.model, self.path,
                        self.variables, obj)
-    
+add_directive('model', ModelDirective)
+
 class ResourceDirective(Directive):
     def __init__(self, registry, model, name=''):
         self.registry = registry
@@ -73,6 +39,7 @@ class ResourceDirective(Directive):
     
     def register(self, name, obj):
         register_resource(self.registry, self.model, obj, **self.predicates)
+add_directive('resource', ResourceDirective)
 
 # XXX can implement as subclass of model instead
 class AppDirective(Directive):
@@ -87,4 +54,17 @@ class AppDirective(Directive):
     def register(self, name, obj):
         register_model(self.registry, IRoot, self.model, self.name,
                        lambda app: {}, obj)
+add_directive('app', AppDirective)
 
+class ComponentDirective(Directive):
+    def __init__(self, registry, target, sources):
+        self.registry = registry
+        self.target = target
+        self.sources = sources
+
+    def discriminator(self):
+        return ('component', self.model, self.name)
+
+    def register(self, name, obj):
+        self.registry.register(self.target, self.sources, obj)
+add_directive('component', ComponentDirective)

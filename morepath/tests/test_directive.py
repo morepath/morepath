@@ -1,13 +1,13 @@
 from .fixtures import basic
 from comparch import Registry, Lookup
 from comparch import ChainClassLookup
-from morepath.directive import Config
+from morepath.registry import Config
 from morepath.link import path
 from morepath.publish import Publisher
 from morepath.interfaces import IRoot, IConsumer
 from morepath.request import Request
+from morepath.initialize import global_registry
 from werkzeug.test import EnvironBuilder
-from morepath.traject import TrajectConsumer
 
 def get_request(*args, **kw):
     return Request(EnvironBuilder(*args, **kw).get_environ())
@@ -20,14 +20,8 @@ def test_basic():
     config.scan(basic)
     config.commit()
 
-    global_registry = Registry()
-
     lookup = Lookup(ChainClassLookup(basic.reg, global_registry))
 
-    # XXX find a better place to do this, with a directive or something
-    global_registry.register(IConsumer, (object,),
-                             TrajectConsumer(lookup)) 
-        
     publisher = Publisher(lookup)
 
     root = Root()

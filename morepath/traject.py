@@ -92,35 +92,31 @@ class Traject(object):
         variables = get_variables(model)
         assert isinstance(variables, dict)
         return path % variables
-    
-class TrajectConsumer(object):
-    def __init__(self, lookup):
-        self.lookup = lookup
 
-    def __call__(self, base, stack):
-        traject = ITraject.component(base, lookup=self.lookup, default=None)
-        if traject is None:
-            return False, base, stack
-        variables = {}
-        pattern = ()
-        consumed = []
-        while stack:
-            step = stack.pop()
-            next_pattern, matched = traject.match(pattern, step)
-            variables.update(matched)
-            if next_pattern is None:
-                # put the last step back onto the stack
-                stack.append(step)
-                break
-            consumed.append(step)
-            pattern = next_pattern
-        model = traject.get_model(pattern, variables)
-        if model is None:
-            # put everything we tried to consume back on stack
-            stack.extend(reversed(consumed))
-            return False, base, stack
-        return True, model, stack
-    
+def traject_consumer(base, stack, lookup):
+    traject = ITraject.component(base, lookup=lookup, default=None)
+    if traject is None:
+        return False, base, stack
+    variables = {}
+    pattern = ()
+    consumed = []
+    while stack:
+        step = stack.pop()
+        next_pattern, matched = traject.match(pattern, step)
+        variables.update(matched)
+        if next_pattern is None:
+            # put the last step back onto the stack
+            stack.append(step)
+            break
+        consumed.append(step)
+        pattern = next_pattern
+    model = traject.get_model(pattern, variables)
+    if model is None:
+        # put everything we tried to consume back on stack
+        stack.extend(reversed(consumed))
+        return False, base, stack
+    return True, model, stack
+
 class VariableMatcher(object):
     def __init__(self, step, pattern=None):
         self.step = step
