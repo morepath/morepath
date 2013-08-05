@@ -4,4 +4,5 @@ from .interfaces import IConsumer
 
 global_registry = Registry()
 
+# XXX should be done inside a function
 global_registry.register(IConsumer, (object,), traject_consumer)
