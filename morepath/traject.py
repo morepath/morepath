@@ -17,11 +17,12 @@ KNOWN_TYPES = {
 class Traject(object):
     def __init__(self):
         self._step_matchers = set()
+        self._conflicting_steps = set()
         self._variable_matchers = {}
         self._model_factories = {}
         self._inverse = Registry() # XXX caching?
         
-    def register(self, path, model_factory):
+    def register(self, path, model_factory, conflicting=False):
         pattern = parse(path)
         seen_names = set()
         for p in subpatterns(pattern):
@@ -44,7 +45,16 @@ class Traject(object):
                             (path, create(m.pattern)))
                 variable_matchers.add(variable_matcher)
             else:
+                if conflicting and p in self._step_matchers:
+                    raise TrajectError(
+                        "path '%s' conflicts with another" % path)
+                if p in self._conflicting_steps:
+                    raise TrajectError(
+                        "path '%s' conflicts with another" % path)
                 self._step_matchers.add(p)
+                if conflicting:
+                    self._conflicting_steps.add(p)
+
         existing_model_factory = self._model_factories.get(pattern)
         if existing_model_factory is not None:
             raise TrajectError(
@@ -255,13 +265,29 @@ def parse_variable_name(pattern, name):
     name = name.strip()
     type_id = type_id.strip()
 
-def register_model(registry, base, model, path, variables, model_factory):
+def register_model(registry, base, model, path, variables, model_factory,
+                   conflicting=False):
     traject = registry.exact_get(ITraject, (base,))
     if traject is None:
         traject = Traject()
         registry.register(ITraject, (base,), traject)
-    traject.register(path, model_factory)
+    traject.register(path, model_factory, conflicting)
     traject.register_inverse(model, path, variables)
     def get_base(model):
         return base() # XXX assume base is an app object
     registry.register(IModelBase, (model,), get_base)
+
+def register_app(registry, base, model, path, app_factory):
+    register_model(registry, base, model, path, lambda app: {}, app_factory,
+                   conflicting=True)
+    
+# def register_model(registry, base, model, path, app_factory):
+#     traject = registry.exact_get(ITraject, (base,))
+#     if traject is None:
+#         traject = Traject()
+#         registry.register(ITraject, (base,), traject)
+#     traject.register(path, model_factory)
+#     traject.register_inverse(model, path, lambda app: {})
+#     def get_base(model):
+#         return base()
+    

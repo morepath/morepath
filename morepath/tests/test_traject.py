@@ -4,7 +4,8 @@ from morepath.traject import (is_identifier,
                               interpolation_path,
                               VariableMatcher,
                               parse, Traject, traject_consumer,
-                              register_model)
+                              register_model,
+                              register_app)
 from comparch import Registry
 from morepath.pathstack import parse_path, DEFAULT
 from morepath.interfaces import ITraject, IModelBase, TrajectError
@@ -13,6 +14,9 @@ from morepath.link import path, get_base
 import py.test
 
 class Root(object):
+    pass
+
+class App(object):
     pass
 
 class Model(object):
@@ -269,7 +273,7 @@ def test_traject_conflicting_registrations_without_variables():
 def test_traject_conflicting_type_registrations():
     traject = Traject()
     def get_model(foo):
-        return Model
+        return Model()
     traject.register('{foo:str}', get_model)
     with py.test.raises(TrajectError):
         traject.register('{foo:int}', get_model)
@@ -277,7 +281,7 @@ def test_traject_conflicting_type_registrations():
 def test_traject_no_conflict_if_different_path():
     traject = Traject()
     def get_model(foo):
-        return Model
+        return Model()
     traject.register('a/{foo}', get_model)
     traject.register('b/{bar}', get_model)
     assert True
@@ -285,7 +289,7 @@ def test_traject_no_conflict_if_different_path():
 def test_traject_conflict_if_same_path():
     traject = Traject()
     def get_model(foo):
-        return Model
+        return Model()
     traject.register('a/{foo}', get_model)
     with py.test.raises(TrajectError):
         traject.register('a/{bar}', get_model)
@@ -294,11 +298,11 @@ def test_traject_conflict_if_same_path():
 def test_traject_no_conflict_if_different_text():
     traject = Traject()
     def get_model(foo):
-        return Model
+        return Model()
     traject.register('prefix-{foo}', get_model)
     traject.register('{foo}-postfix', get_model)
     assert True
-
+   
 def test_interpolation_path():
     assert interpolation_path('{foo} is {bar}') == '%(foo)s is %(bar)s'
     
@@ -328,3 +332,30 @@ def test_register_model():
     base = get_base(model, lookup=reg)
     assert isinstance(base, Root)
     
+def test_conflict_app_and_model():
+    reg = Registry()
+    def get_model(id):
+        model = Model()
+        model.id = id
+        return model
+    def get_app():
+        return App()
+    register_model(reg, Root, Model, 'a/{id}', lambda model: { 'id': model.id},
+                   get_model)
+    with py.test.raises(TrajectError):
+        register_app(reg, Root, App, 'a', get_app)
+    
+def test_conflict_model_and_app():
+    reg = Registry()
+    def get_model(id):
+        model = Model()
+        model.id = id
+        return model
+    def get_app():
+        return App()
+    register_app(reg, Root, App, 'a', get_app)
+    with py.test.raises(TrajectError):
+        register_model(reg, Root, Model, 'a/{id}',
+                       lambda model: { 'id': model.id},
+                       get_model)
+

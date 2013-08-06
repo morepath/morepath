@@ -1,7 +1,7 @@
 from .interfaces import IRoot
 from .registry import Directive, directive
 from .resource import register_resource
-from .traject import register_model
+from .traject import register_model, register_app
 
 @directive('model')
 class ModelDirective(Directive):
@@ -35,7 +35,6 @@ class ResourceDirective(Directive):
     def register(self, name, obj):
         register_resource(self.registry, self.model, obj, **self.predicates)
 
-# XXX can implement as subclass of model instead
 @directive('app')
 class AppDirective(Directive):
     def __init__(self, registry, model, name):
@@ -47,8 +46,7 @@ class AppDirective(Directive):
         return ('app', self.model, self.name)
 
     def register(self, name, obj):
-        register_model(self.registry, IRoot, self.model, self.name,
-                       lambda app: {}, obj)
+        register_app(self.registry, IRoot, self.model, self.name, obj)
 
 @directive('component')
 class ComponentDirective(Directive):

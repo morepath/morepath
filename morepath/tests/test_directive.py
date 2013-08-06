@@ -33,3 +33,28 @@ def test_basic():
 
     m = basic.Model('foo')
     assert request.link(m) == '/myapp/foo'
+
+# def test_client():
+#     config = Config()
+#     config.scan(basic)
+#     config.commit()
+
+#     lookup = Lookup(ChainClassLookup(basic.reg, global_registry))
+
+#     publisher = Publisher(lookup)
+
+#     root = Root()
+
+#     from werkzeug.wrappers import BaseResponse
+    
+#     c = Client(test_app, BaseResponse)
+#     resp = c.get('/myapp/something')
+    
+#     request = get_request('myapp/something')
+#     request.lookup = lookup # XXX need to have a better place to place this
+#     result = publisher.publish(request, root)
+#     assert result == 'The resource for model: something'
+
+#     m = basic.Model('foo')
+#     assert request.link(m) == '/myapp/foo'
+    
