@@ -27,8 +27,15 @@ class Config(object):
         self.actions.append((item, name, obj))
 
     def validate(self):
-        pass # XXX check for conflicts
-
+        # XXX check for conflicts
+        # XXX check that all base of an app is another app,
+        # can only do this in the end
+        # XXX a model cannot be registered multiple times in the same
+        # registry. same for app
+        # XXX check that a model registration that has a base that is
+        # not an app supplies a get_base
+        pass
+    
     def commit(self):
         for item, name, obj in self.actions:
             item.register(name, obj)
