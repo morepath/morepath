@@ -5,7 +5,7 @@ from morepath.interfaces import (IConsumer, IResource,
                                  ResolveError, ModelError, ResourceError)
 from morepath.pathstack import parse_path, create_path, DEFAULT, RESOURCE
 from morepath.request import Request
-from morepath.resolve import resolve_model, ResourceResolver, Traverser
+from morepath.resolve import resolve_model, resolve_resource, Traverser
 from werkzeug.test import EnvironBuilder
 import pytest
 
@@ -97,35 +97,36 @@ def test_resolve_resource():
     
     reg.register(IResource, (Request, Model), resource)
     
-    resolver = ResourceResolver(get_lookup(reg))
+    lookup = get_lookup(reg)
 
     req = get_request()
-    assert resolver(req, model, parse_path(u'')) == 'resource'
+    assert resolve_resource(req, model, parse_path(u''), lookup) == 'resource'
     assert req.resolver_info()['name'] == u''
     req = get_request()
     # this will work for any name given the resource we registered
-    assert resolver(req, model, parse_path(u'something')) == 'resource'
+    assert resolve_resource(
+        req, model, parse_path(u'something'), lookup) == 'resource'
     assert req.resolver_info()['name'] == u'something'
     
 def test_resolve_errors():
     reg = get_registry()
     model = Model()
-    
-    resolver = ResourceResolver(get_lookup(reg))
+
+    lookup = get_lookup(reg)
     
     request = get_request()
 
     with pytest.raises(ModelError) as e:
-        resolver(request, model, parse_path(u'a/b'))
+        resolve_resource(request, model, parse_path(u'a/b'), lookup)
     assert str(e.value) == (
         "<Model> has unresolved path /a/b")
     
     with pytest.raises(ResolveError) as e:
-        resolver(request, model, [])
+        resolve_resource(request, model, [], lookup)
     assert str(e.value) == "<Model> has no default resource"
         
     with pytest.raises(ResolveError) as e:
-        resolver(request, model, parse_path(u'test'))
+        resolve_resource(request, model, parse_path(u'test'), lookup)
     assert str(e.value) == "<Model> has neither resource nor sub-model: /test"
     
 def traverse_container(container, ns, name):

@@ -1,5 +1,5 @@
 from .pathstack import parse_path, RESOURCE
-from .resolve import resolve_model, ResourceResolver
+from .resolve import resolve_model, resolve_resource
 from .request import Response
 from .interfaces import IResponseFactory
 
@@ -10,7 +10,6 @@ SHORTCUTS = {
 class Publisher(object):
     def __init__(self, lookup):
         self.lookup = lookup
-        self.resource_resolver = ResourceResolver(lookup)
     
     # def base_path(self, request):
     #     path = request.path
@@ -33,9 +32,9 @@ class Publisher(object):
             elif isinstance(model, IResponseFactory):
                 return model()
         # find resource (either default or through last step on crumbs)
-        resource = self.resource_resolver(request, model, crumbs)
+        resource = resolve_resource(request, model, crumbs, lookup)
         # XXX IResponseFactory should do something involving renderer
-        factory = IResponseFactory.adapt(resource, lookup=self.lookup)
+        factory = IResponseFactory.adapt(resource, lookup=lookup)
         return factory()
 
     # XXX speculative code that implements request.render. This will
