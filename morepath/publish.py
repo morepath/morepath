@@ -22,6 +22,7 @@ def publish(request, root, lookup, get_lookup):
     # find resource (either default or through last step on crumbs)
     resource = resolve_resource(request, model, crumbs, lookup)
     # XXX IResponseFactory should do something involving renderer
+    # XXX special case for a response returning text
     factory = IResponseFactory.adapt(resource, lookup=lookup)
     return factory()
 
