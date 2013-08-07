@@ -9,9 +9,6 @@ from morepath.resolve import ModelResolver, ResourceResolver, Traverser
 from werkzeug.test import EnvironBuilder
 import pytest
 
-#from webtest import TestApp
-
-
 def get_request(*args, **kw):
     return Request(EnvironBuilder(*args, **kw).get_environ())
 
