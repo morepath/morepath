@@ -13,10 +13,9 @@ def resolve_model(obj, stack, lookup):
                                                      lookup)
             if any_consumed:
                 break
-            # XXX why is the else here? couldn't we just remove it?
         else:
             # nothing could be consumed
-            return obj, unconsumed
+            break
     return obj, unconsumed
 
 # handy for debuggability
