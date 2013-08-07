@@ -5,7 +5,7 @@ from morepath.interfaces import (IConsumer, IResource,
                                  ResolveError, ModelError, ResourceError)
 from morepath.pathstack import parse_path, create_path, DEFAULT, RESOURCE
 from morepath.request import Request
-from morepath.resolve import ModelResolver, ResourceResolver, Traverser
+from morepath.resolve import resolve_model, ResourceResolver, Traverser
 from werkzeug.test import EnvironBuilder
 import pytest
 
@@ -51,11 +51,11 @@ def get_structure():
     return root
 
 def test_resolve_no_consumers():
-    resolver = ModelResolver(get_lookup(get_registry()))
+    lookup = get_lookup(get_registry())
     base = object()
 
     stack = parse_path(u'/a')
-    obj, unconsumed = resolver(base, stack)
+    obj, unconsumed = resolve_model(base, stack, lookup)
 
     assert obj is base
     assert unconsumed == [(DEFAULT, u'a')]
@@ -63,21 +63,25 @@ def test_resolve_no_consumers():
 def test_resolve_traverse():
     reg = get_registry()
     
-    resolver = ModelResolver(get_lookup(reg))
+    lookup = get_lookup(reg)
 
     reg.register(IConsumer, (Container,), Traverser(traverse_container))
 
     base = get_structure()
 
-    assert resolver(base, parse_path(u'/a')) == (base['a'], [])
-    assert resolver(base, parse_path(u'/sub')) == (base['sub'], []) 
-    assert resolver(base, parse_path(u'/sub/b')) == (base['sub']['b'], [])
+    assert resolve_model(base, parse_path(u'/a'), lookup) == (
+        base['a'], [])
+    assert resolve_model(base, parse_path(u'/sub'), lookup) == (
+        base['sub'], []) 
+    assert resolve_model(base, parse_path(u'/sub/b'), lookup) == (
+        base['sub']['b'], [])
 
     # there is no /c
-    assert resolver(base, parse_path(u'/c')) == (base, [(DEFAULT, u'c')])
+    assert resolve_model(base, parse_path(u'/c'), lookup) == (
+        base, [(DEFAULT, u'c')])
 
     # there is a sub, but no c in sub
-    assert resolver(base, parse_path(u'/sub/c')) == (
+    assert resolve_model(base, parse_path(u'/sub/c'), lookup) == (
         base['sub'], [(DEFAULT, u'c')])
 
 def test_resolve_resource():

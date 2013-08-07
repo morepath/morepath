@@ -3,26 +3,21 @@ from .interfaces import (IConsumer, IResource,
                          ResolveError, ModelError, ResourceError)
 from .pathstack import create_path, RESOURCE, DEFAULT
 
-class ModelResolver(object):
+def resolve_model(obj, stack, lookup):
     """Resolve path to a model using consumers.
     """
-
-    def __init__(self, lookup):
-        self.lookup = lookup
-
-    def __call__(self, obj, stack):
-        unconsumed = stack[:]
-        while unconsumed:
-            for consumer in IConsumer.all(obj, lookup=self.lookup):
-                any_consumed, obj, unconsumed = consumer(obj, unconsumed,
-                                                         self.lookup)
-                if any_consumed:
-                    break
-                # XXX why is the else here? couldn't we just remove it?
-            else:
-                # nothing could be consumed
-                return obj, unconsumed
-        return obj, unconsumed
+    unconsumed = stack[:]
+    while unconsumed:
+        for consumer in IConsumer.all(obj, lookup=lookup):
+            any_consumed, obj, unconsumed = consumer(obj, unconsumed,
+                                                     lookup)
+            if any_consumed:
+                break
+            # XXX why is the else here? couldn't we just remove it?
+        else:
+            # nothing could be consumed
+            return obj, unconsumed
+    return obj, unconsumed
 
 # handy for debuggability
 class ResourceSentinel(object):

@@ -1,5 +1,5 @@
 from .pathstack import parse_path, RESOURCE
-from .resolve import ModelResolver, ResourceResolver
+from .resolve import resolve_model, ResourceResolver
 from .request import Response
 from .interfaces import IResponseFactory
 
@@ -10,7 +10,6 @@ SHORTCUTS = {
 class Publisher(object):
     def __init__(self, lookup):
         self.lookup = lookup
-        self.model_resolver = ModelResolver(lookup)
         self.resource_resolver = ResourceResolver(lookup)
     
     # def base_path(self, request):
@@ -23,7 +22,7 @@ class Publisher(object):
     def publish(self, request, root):
         #path = self.base_path(request)
         stack = parse_path(request.path, SHORTCUTS)
-        model, crumbs = self.model_resolver(root, stack)
+        model, crumbs = resolve_model(root, stack, self.lookup)
         # the model itself is capable of producing a response
         if not crumbs:
             if isinstance(model, Response):
