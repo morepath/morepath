@@ -277,17 +277,8 @@ def register_model(registry, base, model, path, variables, model_factory,
         return base() # XXX assume base is an app object
     registry.register(IModelBase, (model,), get_base)
 
-def register_app(registry, base, model, path, app_factory):
-    register_model(registry, base, model, path, lambda app: {}, app_factory,
+def register_app(registry, base, model, name, app_factory):
+    #if model in known_app_models:
+    register_model(registry, base, model, name, lambda app: {}, app_factory,
                    conflicting=True)
-    
-# def register_model(registry, base, model, path, app_factory):
-#     traject = registry.exact_get(ITraject, (base,))
-#     if traject is None:
-#         traject = Traject()
-#         registry.register(ITraject, (base,), traject)
-#     traject.register(path, model_factory)
-#     traject.register_inverse(model, path, lambda app: {})
-#     def get_base(model):
-#         return base()
     
