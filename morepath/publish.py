@@ -22,7 +22,7 @@ class Publisher(object):
     def publish(self, request, root):
         #path = self.base_path(request)
         stack = parse_path(request.path, SHORTCUTS)
-        def get_lookup(obj):
+        def get_lookup(lookup, obj):
             return None
         model, crumbs, lookup = resolve_model(root, stack, self.lookup,
                                               get_lookup)

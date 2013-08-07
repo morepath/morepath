@@ -50,7 +50,7 @@ def get_structure():
     
     return root
 
-def dummy_get_lookup(obj):
+def dummy_get_lookup(lookup, obj):
     return None
 
 def test_resolve_no_consumers():

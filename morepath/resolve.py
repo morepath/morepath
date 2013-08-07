@@ -12,9 +12,9 @@ def resolve_model(obj, stack, lookup, get_lookup):
             any_consumed, obj, unconsumed = consumer(obj, unconsumed,
                                                      lookup)
             if any_consumed:
-                obj_lookup = get_lookup(obj)
+                obj_lookup = get_lookup(lookup, obj)
                 if obj_lookup is not None:
-                    lookup = ChainLookup(obj_lookup, lookup)
+                    lookup = obj_lookup
                 break
         else:
             # nothing could be consumed
