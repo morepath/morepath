@@ -2,7 +2,7 @@ from comparch import Registry
 from morepath.resource import register_resource
 from morepath.interfaces import (IResource, IResponseFactory,
                                  ResourceError, ResolveError)
-from morepath.publish import Publisher
+from morepath.publish import publish
 from morepath.request import Request, Response
 from werkzeug.test import EnvironBuilder
 import py.test
@@ -21,8 +21,7 @@ def test_resource():
     register_resource(reg, Model, resource, name='')
 
     model = Model()
-    publisher = Publisher(reg)
-    result = publisher.publish(get_request(path=''), model)
+    result = publish(get_request(path=''), model, reg)
     assert result == 'Resource!'
 
     
@@ -36,17 +35,15 @@ def test_predicates():
     register_resource(reg, Model, post_resource, name='', request_method='POST')
     
     model = Model()
-    publisher = Publisher(reg)
-    assert publisher.publish(get_request(path=''), model) == 'all'
-    assert (publisher.publish(get_request(path='', method='POST'), model) ==
+    assert publish(get_request(path=''), model, reg) == 'all'
+    assert (publish(get_request(path='', method='POST'), model, reg) ==
             'post')
     
 def test_notfound():
     reg = Registry()
     model = Model()
-    publisher = Publisher(reg)
     with py.test.raises(ResourceError):
-        publisher.publish(get_request(path=''), model)
+        publish(get_request(path=''), model, reg)
         
 def test_notfound_with_predicates():
     reg = Registry()
@@ -55,21 +52,20 @@ def test_notfound_with_predicates():
     register_resource(reg, Model, resource, name='')
     
     model = Model()
-    publisher = Publisher(reg)
     with py.test.raises(ResolveError):
-        publisher.publish(get_request(path='foo'), model)
+        publish(get_request(path='foo'), model, reg)
    
 def test_model_is_response():
     class MyModel(Response):
         pass
     reg = Registry()
     model = MyModel()
-    publisher = Publisher(reg)
-    assert publisher.publish(get_request(path=''), model) is model
+
+    assert publish(get_request(path=''), model, reg) is model
 
     # if there is a name left, it cannot resolve to model
     with py.test.raises(ResolveError):
-        publisher.publish(get_request(path='foo'), model)
+        publish(get_request(path='foo'), model, reg)
 
 def test_model_is_response_factory():
     class MyResponse(Response):
@@ -82,13 +78,11 @@ def test_model_is_response_factory():
 
     reg = Registry()
     model = MyModel()
-    publisher = Publisher(reg)
-    assert publisher.publish(get_request(path=''), model) is my_response
+    assert publish(get_request(path=''), model, reg) is my_response
 
 def test_resource_as_response_factory():
     reg = Registry()
     model = Model()
-    publisher = Publisher(reg)
 
     class MyResponse(Response):
         def __init__(self, request, context):
@@ -106,7 +100,6 @@ def test_resource_as_response_factory():
     reg.register(IResource, (Request, Model), MyResource)
 
     req = get_request(path='')
-    response = publisher.publish(req, model)
+    response = publish(req, model, reg)
     assert response.request is req
     assert response.context is model
-    
