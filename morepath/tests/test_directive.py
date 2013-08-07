@@ -15,6 +15,9 @@ def get_request(*args, **kw):
 class Root(IRoot):
     pass
 
+def dummy_get_lookup(lookup, obj):
+    return None
+
 def test_basic():
     config = Config()
     config.scan(basic)
@@ -26,7 +29,7 @@ def test_basic():
     
     request = get_request('myapp/something')
     request.lookup = lookup # XXX need to have a better place to place this
-    result = publish(request, root, lookup)
+    result = publish(request, root, lookup, dummy_get_lookup)
     assert result == 'The resource for model: something'
 
     m = basic.Model('foo')
