@@ -3,7 +3,7 @@ from .interfaces import (IConsumer, IResource,
                          ResolveError, ModelError, ResourceError)
 from .pathstack import create_path, RESOURCE, DEFAULT
 
-def resolve_model(obj, stack, lookup):
+def resolve_model(obj, stack, lookup, get_lookup):
     """Resolve path to a model using consumers.
     """
     unconsumed = stack[:]
@@ -12,11 +12,14 @@ def resolve_model(obj, stack, lookup):
             any_consumed, obj, unconsumed = consumer(obj, unconsumed,
                                                      lookup)
             if any_consumed:
+                obj_lookup = get_lookup(obj)
+                if obj_lookup is not None:
+                    lookup = ChainLookup(obj_lookup, lookup)
                 break
         else:
             # nothing could be consumed
             break
-    return obj, unconsumed
+    return obj, unconsumed, lookup
 
 # handy for debuggability
 class ResourceSentinel(object):

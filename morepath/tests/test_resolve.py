@@ -50,12 +50,15 @@ def get_structure():
     
     return root
 
+def dummy_get_lookup(obj):
+    return None
+
 def test_resolve_no_consumers():
     lookup = get_lookup(get_registry())
     base = object()
 
     stack = parse_path(u'/a')
-    obj, unconsumed = resolve_model(base, stack, lookup)
+    obj, unconsumed, l = resolve_model(base, stack, lookup, dummy_get_lookup)
 
     assert obj is base
     assert unconsumed == [(DEFAULT, u'a')]
@@ -69,20 +72,20 @@ def test_resolve_traverse():
 
     base = get_structure()
 
-    assert resolve_model(base, parse_path(u'/a'), lookup) == (
-        base['a'], [])
-    assert resolve_model(base, parse_path(u'/sub'), lookup) == (
-        base['sub'], []) 
-    assert resolve_model(base, parse_path(u'/sub/b'), lookup) == (
-        base['sub']['b'], [])
+    assert resolve_model(base, parse_path(u'/a'), lookup, dummy_get_lookup) == (
+        base['a'], [], lookup)
+    assert resolve_model(base, parse_path(u'/sub'), lookup, dummy_get_lookup) == (
+        base['sub'], [], lookup) 
+    assert resolve_model(base, parse_path(u'/sub/b'), lookup, dummy_get_lookup) == (
+        base['sub']['b'], [], lookup)
 
     # there is no /c
-    assert resolve_model(base, parse_path(u'/c'), lookup) == (
-        base, [(DEFAULT, u'c')])
+    assert resolve_model(base, parse_path(u'/c'), lookup, dummy_get_lookup) == (
+        base, [(DEFAULT, u'c')], lookup)
 
     # there is a sub, but no c in sub
-    assert resolve_model(base, parse_path(u'/sub/c'), lookup) == (
-        base['sub'], [(DEFAULT, u'c')])
+    assert resolve_model(base, parse_path(u'/sub/c'), lookup, dummy_get_lookup) == (
+        base['sub'], [(DEFAULT, u'c')], lookup)
 
 def test_resolve_resource():
     reg = get_registry()

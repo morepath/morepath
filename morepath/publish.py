@@ -22,7 +22,10 @@ class Publisher(object):
     def publish(self, request, root):
         #path = self.base_path(request)
         stack = parse_path(request.path, SHORTCUTS)
-        model, crumbs = resolve_model(root, stack, self.lookup)
+        def get_lookup(obj):
+            return None
+        model, crumbs, lookup = resolve_model(root, stack, self.lookup,
+                                              get_lookup)
         # the model itself is capable of producing a response
         if not crumbs:
             if isinstance(model, Response):
