@@ -41,12 +41,13 @@ def get_structure():
 
     a = Model()
     root['a'] = a
-
+    
     sub = Container()
     root['sub'] = sub
     
     b = Model()
     sub['b'] = b
+    sub.attr = b
     
     return root
 
@@ -87,6 +88,33 @@ def test_resolve_traverse():
     assert resolve_model(base, parse_path(u'/sub/c'), lookup, dummy_get_lookup) == (
         base['sub'], [(DEFAULT, u'c')], lookup)
 
+def test_resolve_lookup_changes():
+    reg1 = get_registry()
+    reg2 = get_registry()
+    
+    lookup1 = get_lookup(reg1)
+    lookup2 = get_lookup(reg2)
+    
+    reg1.register(IConsumer, (Container,), Traverser(traverse_container))
+    reg2.register(IConsumer, (Container,), Traverser(traverse_attributes))
+    
+    base = get_structure()
+
+    # we change the lookup when we enter sub
+    def sub_lookup(lookup, obj):
+        if obj is base['sub']:
+            return lookup2
+        return None
+
+    # the lookup will change to lookup2, and we won't find a, as in sub2
+    # we deal with attribute traversal
+    assert resolve_model(base, parse_path(u'/sub/a'), lookup1, sub_lookup) == (
+        base['sub'], [(u'default', u'a')], lookup2)
+    # we can however traverse to the attribute due to attribute traversal
+    assert resolve_model(base, parse_path(u'/sub/attr'), lookup1, sub_lookup) == (
+        base['sub'].attr, [], lookup2)
+    
+    
 def test_resolve_resource():
     reg = get_registry()
 
@@ -133,3 +161,8 @@ def traverse_container(container, ns, name):
     if ns != DEFAULT:
         return None
     return container.get(name)
+
+def traverse_attributes(container, ns, name):
+    if ns != DEFAULT:
+        return None
+    return getattr(container, name, None)
