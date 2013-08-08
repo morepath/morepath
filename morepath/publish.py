@@ -8,11 +8,10 @@ SHORTCUTS = {
     }
 
 
-def publish(request, root, lookup, get_lookup):
+def publish(request, root, lookup):
     #path = self.base_path(request)
     stack = parse_path(request.path, SHORTCUTS)
-    model, crumbs, lookup = resolve_model(root, stack, lookup,
-                                          get_lookup)
+    model, crumbs = resolve_model(root, stack, lookup)
     # the model itself is capable of producing a response
     if not crumbs:
         if isinstance(model, Response):
@@ -24,7 +23,13 @@ def publish(request, root, lookup, get_lookup):
     # XXX IResponseFactory should do something involving renderer
     # XXX special case for a response returning text
     factory = IResponseFactory.adapt(resource, lookup=lookup)
-    return factory()
+    result = factory()
+    if isinstance(result, Response):
+        return result
+    # XXX handle this at the IResponseFactory adapter level?
+    if isinstance(result, basestring):
+        return Response(result)
+    assert False
 
 # def base_path(self, request):
 #     path = request.path

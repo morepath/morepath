@@ -1,37 +1,25 @@
 from .fixtures import basic
 from comparch import Registry, Lookup
 from comparch import ChainClassLookup
-from morepath.registry import Config
+from morepath.config import Config
 from morepath.link import path
 from morepath.publish import publish
 from morepath.interfaces import IRoot, IConsumer
-from morepath.request import Request
-from morepath.initialize import global_registry
-from werkzeug.test import EnvironBuilder
-
-def get_request(*args, **kw):
-    return Request(EnvironBuilder(*args, **kw).get_environ())
-
-class Root(IRoot):
-    pass
-
-def dummy_get_lookup(lookup, obj):
-    return None
+from morepath.request import Request, Response
+from morepath.app import global_app
+from werkzeug.test import Client
 
 def test_basic():
     config = Config()
     config.scan(basic)
     config.commit()
-
-    lookup = Lookup(ChainClassLookup(basic.reg, global_registry))
-
-    root = Root()
     
-    request = get_request('myapp/something')
-    request.lookup = lookup # XXX need to have a better place to place this
-    result = publish(request, root, lookup, dummy_get_lookup)
-    assert result == 'The resource for model: something'
+    c = Client(basic.app, Response)
+    
+    response = c.get('foo')
+
+    assert response.data == 'The resource for model: foo'
 
     m = basic.Model('foo')
-    assert request.link(m) == '/myapp/foo'
+    #assert request.link(m) == 'foo'
    

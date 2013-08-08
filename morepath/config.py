@@ -1,12 +1,15 @@
 import venusian
 from .interfaces import IConfigItem
-from comparch import ClassRegistry
+from .app import App
 
 class Directive(IConfigItem):
     def discriminator(self):
         raise NotImplementedError()
 
-    def register(self, registry, name, obj):
+    def prepare(self, name, obj):
+        pass
+    
+    def register(self, name, obj):
         raise NotImplementedError()
     
     def __call__(self, wrapped):
@@ -38,10 +41,10 @@ class Config(object):
     
     def commit(self):
         for item, name, obj in self.actions:
+            item.prepare(name, obj)
+        
+        for item, name, obj in self.actions:
             item.register(name, obj)
-
-class Registry(ClassRegistry):
-    pass
 
 class directive(object):
     def __init__(self, name):
@@ -50,5 +53,5 @@ class directive(object):
     def __call__(self, directive):
         def method(self, *args, **kw):
             return directive(self, *args, **kw)
-        setattr(Registry, self.name, method)
+        setattr(App, self.name, method)
 

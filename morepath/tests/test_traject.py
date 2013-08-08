@@ -4,9 +4,9 @@ from morepath.traject import (is_identifier,
                               interpolation_path,
                               VariableMatcher,
                               parse, Traject, traject_consumer,
-                              register_model,
-                              register_app)
-from comparch import Registry
+                              register_model)
+from comparch import Lookup, Registry
+from morepath.app import App
 from morepath.pathstack import parse_path, DEFAULT
 from morepath.interfaces import ITraject, IModelBase, TrajectError
 from morepath.link import path, get_base
@@ -14,9 +14,6 @@ from morepath.link import path, get_base
 import py.test
 
 class Root(object):
-    pass
-
-class App(object):
     pass
 
 class Model(object):
@@ -316,46 +313,53 @@ def test_path_for_model():
     assert traject.get_path(IdModel('a')) == 'foo/a'
     
 def test_register_model():
-    reg = Registry()
+    app = App()
+    root = Root()
+    app.root_model = Root
+    app.root_obj = root
+    lookup = Lookup(app)
+    
     def get_model(id):
         model = Model()
         model.id = id
         return model
-    register_model(reg, Root, Model, '{id}', lambda model: { 'id': model.id},
+    register_model(app, Model, '{id}', lambda model: { 'id': model.id},
                    get_model)
-    root = Root()
-    found, obj, stack = traject_consumer(root, parse_path('a'), reg)
+    
+    found, obj, stack = traject_consumer(root, parse_path('a'), lookup)
     assert obj.id == 'a'
     model = Model()
     model.id = 'b'
-    assert path(model, root, reg) == 'b'
-    base = get_base(model, lookup=reg)
+    assert path(model, root, lookup) == 'b'
+    base = get_base(model, lookup=lookup)
     assert isinstance(base, Root)
+
+# XXX we still need to do a conflict between a model path and an app name
     
-def test_conflict_app_and_model():
-    reg = Registry()
-    def get_model(id):
-        model = Model()
-        model.id = id
-        return model
-    def get_app():
-        return App()
-    register_model(reg, Root, Model, 'a/{id}', lambda model: { 'id': model.id},
-                   get_model)
-    with py.test.raises(TrajectError):
-        register_app(reg, Root, App, 'a', get_app)
+# def test_conflict_app_and_model():
+#     reg = Registry()
+#     def get_model(id):
+#         model = Model()
+#         model.id = id
+#         return model
+#     def get_app():
+#         return App()
+#     register_model(reg, Root, Model, 'a/{id}', lambda model: { 'id': model.id},
+#                    get_model)
+#     with py.test.raises(TrajectError):
+#         register_app(reg, Root, App, 'a', get_app)
     
-def test_conflict_model_and_app():
-    reg = Registry()
-    def get_model(id):
-        model = Model()
-        model.id = id
-        return model
-    def get_app():
-        return App()
-    register_app(reg, Root, App, 'a', get_app)
-    with py.test.raises(TrajectError):
-        register_model(reg, Root, Model, 'a/{id}',
-                       lambda model: { 'id': model.id},
-                       get_model)
+# def test_conflict_model_and_app():
+#     reg = Registry()
+#     def get_model(id):
+#         model = Model()
+#         model.id = id
+#         return model
+#     def get_app():
+#         return App()
+#     register_app(reg, Root, App, 'a', get_app)
+#     with py.test.raises(TrajectError):
+#         register_model(reg, Root, Model, 'a/{id}',
+#                        lambda model: { 'id': model.id},
+#                        get_model)
 

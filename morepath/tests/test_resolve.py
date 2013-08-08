@@ -51,15 +51,12 @@ def get_structure():
     
     return root
 
-def dummy_get_lookup(lookup, obj):
-    return None
-
 def test_resolve_no_consumers():
     lookup = get_lookup(get_registry())
     base = object()
 
     stack = parse_path(u'/a')
-    obj, unconsumed, l = resolve_model(base, stack, lookup, dummy_get_lookup)
+    obj, unconsumed = resolve_model(base, stack, lookup)
 
     assert obj is base
     assert unconsumed == [(DEFAULT, u'a')]
@@ -73,47 +70,20 @@ def test_resolve_traverse():
 
     base = get_structure()
 
-    assert resolve_model(base, parse_path(u'/a'), lookup, dummy_get_lookup) == (
-        base['a'], [], lookup)
-    assert resolve_model(base, parse_path(u'/sub'), lookup, dummy_get_lookup) == (
-        base['sub'], [], lookup) 
-    assert resolve_model(base, parse_path(u'/sub/b'), lookup, dummy_get_lookup) == (
-        base['sub']['b'], [], lookup)
+    assert resolve_model(base, parse_path(u'/a'), lookup) == (
+        base['a'], [])
+    assert resolve_model(base, parse_path(u'/sub'), lookup) == (
+        base['sub'], []) 
+    assert resolve_model(base, parse_path(u'/sub/b'), lookup) == (
+        base['sub']['b'], [])
 
     # there is no /c
-    assert resolve_model(base, parse_path(u'/c'), lookup, dummy_get_lookup) == (
-        base, [(DEFAULT, u'c')], lookup)
+    assert resolve_model(base, parse_path(u'/c'), lookup) == (
+        base, [(DEFAULT, u'c')])
 
     # there is a sub, but no c in sub
-    assert resolve_model(base, parse_path(u'/sub/c'), lookup, dummy_get_lookup) == (
-        base['sub'], [(DEFAULT, u'c')], lookup)
-
-def test_resolve_lookup_changes():
-    reg1 = get_registry()
-    reg2 = get_registry()
-    
-    lookup1 = get_lookup(reg1)
-    lookup2 = get_lookup(reg2)
-    
-    reg1.register(IConsumer, (Container,), Traverser(traverse_container))
-    reg2.register(IConsumer, (Container,), Traverser(traverse_attributes))
-    
-    base = get_structure()
-
-    # we change the lookup when we enter sub
-    def sub_lookup(lookup, obj):
-        if obj is base['sub']:
-            return lookup2
-        return None
-
-    # the lookup will change to lookup2, and we won't find a, as in sub2
-    # we deal with attribute traversal
-    assert resolve_model(base, parse_path(u'/sub/a'), lookup1, sub_lookup) == (
-        base['sub'], [(u'default', u'a')], lookup2)
-    # we can however traverse to the attribute due to attribute traversal
-    assert resolve_model(base, parse_path(u'/sub/attr'), lookup1, sub_lookup) == (
-        base['sub'].attr, [], lookup2)
-    
+    assert resolve_model(base, parse_path(u'/sub/c'), lookup) == (
+        base['sub'], [(DEFAULT, u'c')])
     
 def test_resolve_resource():
     reg = get_registry()

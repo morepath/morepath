@@ -57,6 +57,10 @@ class IConfigItem(Interface):
         obj - the object being registered
         """
         
+
+class ConfigError(Exception):
+    """Raised when configuration is bad
+    """
     
 class ResolveError(Exception):
     """Raised when path cannot be resolved

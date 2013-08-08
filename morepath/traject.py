@@ -265,20 +265,21 @@ def parse_variable_name(pattern, name):
     name = name.strip()
     type_id = type_id.strip()
 
-def register_model(registry, base, model, path, variables, model_factory,
+def register_model(app, model, path, variables, model_factory,
                    conflicting=False):
-    traject = registry.exact_get(ITraject, (base,))
+    root_model = app.root_model
+    traject = app.exact_get(ITraject, [root_model])
     if traject is None:
         traject = Traject()
-        registry.register(ITraject, (base,), traject)
+        app.register(ITraject, [root_model], traject)
     traject.register(path, model_factory, conflicting)
     traject.register_inverse(model, path, variables)
     def get_base(model):
-        return base() # XXX assume base is an app object
-    registry.register(IModelBase, (model,), get_base)
+        return app.root_obj
+    app.register(IModelBase, (model,), get_base)
 
-def register_app(registry, base, model, name, app_factory):
-    #if model in known_app_models:
-    register_model(registry, base, model, name, lambda app: {}, app_factory,
-                   conflicting=True)
+# def register_app(registry, base, model, name, app_factory):
+#     #if model in known_app_models:
+#     register_model(registry, base, model, name, lambda app: {}, app_factory,
+#                    conflicting=True)
     

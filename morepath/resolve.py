@@ -5,7 +5,7 @@ from .pathstack import create_path, RESOURCE, DEFAULT
 
 DEFAULT_NAME = u''
 
-def resolve_model(obj, stack, lookup, get_lookup):
+def resolve_model(obj, stack, lookup):
     """Resolve path to a model using consumers.
     """
     unconsumed = stack[:]
@@ -14,14 +14,11 @@ def resolve_model(obj, stack, lookup, get_lookup):
             any_consumed, obj, unconsumed = consumer(obj, unconsumed,
                                                      lookup)
             if any_consumed:
-                obj_lookup = get_lookup(lookup, obj)
-                if obj_lookup is not None:
-                    lookup = obj_lookup
                 break
         else:
             # nothing could be consumed
             break
-    return obj, unconsumed, lookup
+    return obj, unconsumed
 
 # handy for debuggability
 class ResourceSentinel(object):
