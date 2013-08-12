@@ -1,7 +1,8 @@
-from .app import global_app, App
+from .app import App, global_app
 from .config import Config
 import morepath.directive #
 from .interfaces import ITraject, IConsumer, IModelBase, IRoot, IPath, LinkError
+from .pathstack import DEFAULT
 from .request import Request
 from .traject import traject_consumer
 import morepath
@@ -30,8 +31,20 @@ def app_path(request, model):
 
 @global_app.component(IModelBase, [App])
 def app_base(model):
-    return None
+    return model.parent
 
 @global_app.component(IPath, [Request, IRoot])
 def root_path(request, model):
     return ''
+
+@global_app.component(IConsumer, [App])
+def app_consumer(base, stack, lookup):
+    ns, name = stack.pop()
+    if ns != DEFAULT:
+        stack.append((ns, name))
+        return False, base, stack
+    app = base.sub_apps.get(name)
+    if app is None:
+        stack.append((ns, name))
+        return False, base, stack
+    return True, app, stack

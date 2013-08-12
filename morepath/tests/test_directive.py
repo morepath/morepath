@@ -13,10 +13,9 @@ def test_basic():
     
     c = Client(basic.app, Response)
     
-    response = c.get('foo')
+    response = c.get('/foo')
 
     assert response.data == 'The resource for model: foo'
 
-    response = c.get('foo/link')
-    assert response.data == 'myapp/foo'
-   
+    response = c.get('/foo/link')
+    assert response.data == 'foo'

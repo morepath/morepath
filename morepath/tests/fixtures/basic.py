@@ -1,6 +1,6 @@
 import morepath
 
-app = morepath.App('myapp')
+app = morepath.App()
 
 @app.root()
 class Root(object):
