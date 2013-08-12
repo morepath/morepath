@@ -286,9 +286,4 @@ def register_model(app, model, path, variables, model_factory,
     def get_base(model):
         return app.root_obj
     app.register(IModelBase, (model,), get_base)
-
-# def register_app(registry, base, model, name, app_factory):
-#     #if model in known_app_models:
-#     register_model(registry, base, model, name, lambda app: {}, app_factory,
-#                    conflicting=True)
     
