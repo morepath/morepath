@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .interfaces import (IConsumer, IResource,
+from .interfaces import (IConsumer, IResource, ILookup,
                          ResolveError, ModelError, ResourceError)
 from .pathstack import create_path, RESOURCE, DEFAULT
 
@@ -11,14 +11,16 @@ def resolve_model(obj, stack, lookup):
     unconsumed = stack[:]
     while unconsumed:
         for consumer in IConsumer.all(obj, lookup=lookup):
-            any_consumed, obj, unconsumed = consumer(obj, unconsumed,
-                                                     lookup)
+            any_consumed, obj, unconsumed = consumer(
+                obj, unconsumed, lookup)
             if any_consumed:
+                # get new lookup for whatever we found if it exists
+                lookup = ILookup.adapt(obj, lookup=lookup, default=lookup)
                 break
         else:
             # nothing could be consumed
             break
-    return obj, unconsumed
+    return obj, unconsumed, lookup
 
 # handy for debuggability
 class ResourceSentinel(object):

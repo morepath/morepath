@@ -1,5 +1,5 @@
 
-from comparch import Lookup, Registry, ChainClassLookup
+from comparch import Lookup, ChainClassLookup
 from morepath.app import App, global_app
 from morepath.interfaces import ITraject, TrajectError
 from morepath.link import path, get_base
@@ -11,6 +11,7 @@ from morepath.traject import (is_identifier,
                               VariableMatcher,
                               Traject, traject_consumer,
                               register_root, register_model)
+from morepath.setup import setup
 from werkzeug.test import EnvironBuilder
 
 def get_request(*args, **kw):
@@ -72,119 +73,90 @@ def test_variable_matcher_type():
     assert matcher((DEFAULT, 'noint')) == {}
     
 def test_traject_consumer():
-    reg = Registry()
-    root = Root()
-    traject = Traject()
-    traject.register('sub', Model)
-    reg.register(ITraject, (Root,), traject) 
-    found, obj, stack = traject_consumer(root, parse_path('sub'), reg)
+    app = App()
+    app.traject.register('sub', Model)
+    found, obj, stack = traject_consumer(app, parse_path('sub'), Lookup(app))
     assert found
     assert isinstance(obj, Model)
     assert stack == []
 
 def test_traject_consumer_not_found():
-    reg = Registry()
-    root = Root()
-    traject = Traject()
-    reg.register(ITraject, (Root,), traject) 
-    found, obj, stack = traject_consumer(root, parse_path('sub'), reg)
+    app = App()
+    found, obj, stack = traject_consumer(app, parse_path('sub'), Lookup(app))
     assert not found
-    assert obj is root
+    assert obj is app
     assert stack == [(u'default', 'sub')]
 
 def test_traject_consumer_factory_returns_none():
-    reg = Registry()
-    root = Root()
-    traject = Traject()
+    app = App()
     def get_model():
         return None
-    traject.register('sub', get_model)
-    reg.register(ITraject, (Root,), traject) 
-    found, obj, stack = traject_consumer(root, parse_path('sub'), reg)
+    app.traject.register('sub', get_model)
+    found, obj, stack = traject_consumer(app, parse_path('sub'), Lookup(app))
     assert not found
-    assert isinstance(obj, Root)
-    assert stack == [(u'default', 'sub')]
-
-def test_traject_consumer_no_traject():
-    reg = Registry()
-    root = Root()
-    found, obj, stack = traject_consumer(root, parse_path('sub'), reg)
-    assert not found
-    assert obj is root
+    assert obj is app
     assert stack == [(u'default', 'sub')]
 
 def test_traject_consumer_variable():
-    reg = Registry()
-    root = Root()
-    traject = Traject()
+    app = App()
     def get_model(foo):
         result = Model()
         result.foo = foo
         return result
-    traject.register('{foo}', get_model)
-    reg.register(ITraject, (Root,), traject) 
-    found, obj, stack = traject_consumer(root, parse_path('something'), reg)
+    app.traject.register('{foo}', get_model)
+    found, obj, stack = traject_consumer(app, parse_path('something'),
+                                         Lookup(app))
     assert found
     assert isinstance(obj, Model)
     assert stack == []
     assert obj.foo == 'something'
     
 def test_traject_consumer_combination():
-    reg = Registry()
+    app = App()
     root = Root()
-    traject = Traject()
     def get_model(foo):
         result = Model()
         result.foo = foo
         return result
-    traject.register('special', Special)
-    traject.register('{foo}', get_model)
-    reg.register(ITraject, (Root,), traject)
-    found, obj, stack = traject_consumer(root, parse_path('something'), reg)
+    app.traject.register('special', Special)
+    app.traject.register('{foo}', get_model)
+    found, obj, stack = traject_consumer(app, parse_path('something'), Lookup(app))
     assert found
     assert isinstance(obj, Model)
     assert stack == []
     assert obj.foo == 'something'
-    found, obj, stack = traject_consumer(root, parse_path('special'), reg)
+    found, obj, stack = traject_consumer(app, parse_path('special'), Lookup(app))
     assert found
     assert isinstance(obj, Special)
     assert stack == []
 
 def test_traject_nested():
-    reg = Registry()
-    root = Root()
-    traject = Traject()
-    traject.register('a', Model)
-    traject.register('a/b', Special)
-    reg.register(ITraject, (Root,), traject) 
-    found, obj, stack = traject_consumer(root, parse_path('a'), reg)
+    app = App()
+    app.traject.register('a', Model)
+    app.traject.register('a/b', Special)
+    found, obj, stack = traject_consumer(app, parse_path('a'), Lookup(app))
     assert found
     assert isinstance(obj, Model)
     assert stack == []
-    found, obj, stack = traject_consumer(root, parse_path('a/b'), reg)
+    found, obj, stack = traject_consumer(app, parse_path('a/b'), Lookup(app))
     assert found
     assert isinstance(obj, Special)
     assert stack == []
 
 def test_traject_nested_not_resolved_entirely_by_consumer():
-    reg = Registry()
-    root = Root()
-    traject = Traject()
-    traject.register('a', Model)
-    reg.register(ITraject, (Root,), traject) 
-    found, obj, stack = traject_consumer(root, parse_path('a'), reg)
+    app = App()
+    app.traject.register('a', Model)
+    found, obj, stack = traject_consumer(app, parse_path('a'), Lookup(app))
     assert found
     assert isinstance(obj, Model)
     assert stack == []
-    found, obj, stack = traject_consumer(root, parse_path('a/b'), reg)
+    found, obj, stack = traject_consumer(app, parse_path('a/b'), Lookup(app))
     assert found
     assert isinstance(obj, Model)
     assert stack == [('default', 'b')]
     
 def test_traject_nested_with_variable():
-    reg = Registry()
-    root = Root()
-    traject = Traject()
+    app = App()
     def get_model(id):
         result = Model()
         result.id = id
@@ -193,26 +165,23 @@ def test_traject_nested_with_variable():
         result = Special()
         result.id = id
         return result
-    traject.register('{id}', get_model)
-    traject.register('{id}/sub', get_special)
-    reg.register(ITraject, (Root,), traject) 
-    found, obj, stack = traject_consumer(root, parse_path('a'), reg)
+    app.traject.register('{id}', get_model)
+    app.traject.register('{id}/sub', get_special)
+    found, obj, stack = traject_consumer(app, parse_path('a'), Lookup(app))
     assert found
     assert isinstance(obj, Model)
     assert stack == []
-    found, obj, stack = traject_consumer(root, parse_path('b'), reg)
+    found, obj, stack = traject_consumer(app, parse_path('b'), Lookup(app))
     assert found
     assert isinstance(obj, Model)
     assert stack == []
-    found, obj, stack = traject_consumer(root, parse_path('a/sub'), reg)
+    found, obj, stack = traject_consumer(app, parse_path('a/sub'), Lookup(app))
     assert found
     assert isinstance(obj, Special)
     assert stack == []
 
 def test_traject_with_multiple_variables():
-    reg = Registry()
-    root = Root()
-    traject = Traject()
+    app = App()
     def get_model(first_id):
         result = Model()
         result.first_id = first_id
@@ -222,16 +191,15 @@ def test_traject_with_multiple_variables():
         result.first_id = first_id
         result.second_id = second_id
         return result
-    traject.register('{first_id}', get_model)
-    traject.register('{first_id}/{second_id}', get_special)
-    reg.register(ITraject, (Root,), traject)
-    found, obj, stack = traject_consumer(root, parse_path('a'), reg)
+    app.traject.register('{first_id}', get_model)
+    app.traject.register('{first_id}/{second_id}', get_special)
+    found, obj, stack = traject_consumer(app, parse_path('a'), Lookup(app))
     assert found
     assert isinstance(obj, Model)
     assert stack == []
     assert obj.first_id == 'a'
     assert not hasattr(obj, 'second_id')
-    found, obj, stack = traject_consumer(root, parse_path('a/b'), reg)
+    found, obj, stack = traject_consumer(app, parse_path('a/b'), Lookup(app))
     assert found
     assert isinstance(obj, Special)
     assert stack == []
@@ -329,9 +297,10 @@ def test_register_root():
     request.lookup = lookup
     assert path(request, root) == ''
     base = get_base(root, lookup=lookup)
-    assert isinstance(base, App)
+    assert base is app
     
 def test_register_model():
+    setup()
     app = App()
     root = Root()
     app.root_model = Root
@@ -346,7 +315,7 @@ def test_register_model():
     register_model(app, Model, '{id}', lambda model: { 'id': model.id},
                    get_model)
     
-    found, obj, stack = traject_consumer(root, parse_path('a'), lookup)
+    found, obj, stack = traject_consumer(app, parse_path('a'), lookup)
     assert obj.id == 'a'
     model = Model()
     model.id = 'b'
@@ -354,7 +323,9 @@ def test_register_model():
     request.lookup = lookup
     assert path(request, model) == 'b'
     base = get_base(model, lookup=lookup)
-    assert isinstance(base, Root)
+    assert base is app
+    
+    #assert isinstance(base, Root)
 
 # XXX we still need to do a conflict between a model path and an app name
     

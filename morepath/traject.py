@@ -104,7 +104,7 @@ class Traject(object):
         return path % variables
 
 def traject_consumer(base, stack, lookup):
-    traject = ITraject.component(base, lookup=lookup, default=None)
+    traject = base.traject
     if traject is None:
         return False, base, stack
     variables = {}
@@ -273,17 +273,16 @@ def register_root(app, model):
     from .request import Request
     app.register(IPath, [Request, model], root_path)
     app.register(IModelBase, [model], get_base)
+    # XXX need to test going to root and looking up resource
     
 def register_model(app, model, path, variables, model_factory,
                    conflicting=False):
-    root_model = app.root_model
-    traject = app.exact_get(ITraject, [root_model])
+    traject = app.traject
     if traject is None:
-        traject = Traject()
-        app.register(ITraject, [root_model], traject)
+        app.traject = traject = Traject()
     traject.register(path, model_factory, conflicting)
     traject.register_inverse(model, path, variables)
     def get_base(model):
-        return app.root_obj
+        return app
     app.register(IModelBase, (model,), get_base)
     

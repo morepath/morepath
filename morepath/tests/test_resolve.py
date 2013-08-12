@@ -55,11 +55,12 @@ def test_resolve_no_consumers():
     base = object()
 
     stack = parse_path(u'/a')
-    obj, unconsumed = resolve_model(base, stack, lookup)
+    obj, unconsumed, lookup = resolve_model(base, stack, lookup)
 
     assert obj is base
     assert unconsumed == [(DEFAULT, u'a')]
-
+    assert lookup is lookup
+    
 def test_resolve_traverse():
     reg = get_registry()
     
@@ -70,19 +71,19 @@ def test_resolve_traverse():
     base = get_structure()
 
     assert resolve_model(base, parse_path(u'/a'), lookup) == (
-        base['a'], [])
+        base['a'], [], lookup)
     assert resolve_model(base, parse_path(u'/sub'), lookup) == (
-        base['sub'], []) 
+        base['sub'], [], lookup) 
     assert resolve_model(base, parse_path(u'/sub/b'), lookup) == (
-        base['sub']['b'], [])
+        base['sub']['b'], [], lookup)
 
     # there is no /c
     assert resolve_model(base, parse_path(u'/c'), lookup) == (
-        base, [(DEFAULT, u'c')])
+        base, [(DEFAULT, u'c')], lookup)
 
     # there is a sub, but no c in sub
     assert resolve_model(base, parse_path(u'/sub/c'), lookup) == (
-        base['sub'], [(DEFAULT, u'c')])
+        base['sub'], [(DEFAULT, u'c')], lookup)
     
 def test_resolve_resource():
     reg = get_registry()

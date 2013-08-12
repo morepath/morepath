@@ -1,23 +1,24 @@
-from .interfaces import IResponseFactory
+from .interfaces import IResponseFactory, IApp
 from .pathstack import parse_path, RESOURCE
 from .request import Response
 from .resolve import resolve_model, resolve_resource
+from comparch import Lookup
 
 SHORTCUTS = {
     '@@': RESOURCE,
     }
 
-
 def publish(request, root, lookup):
     #path = self.base_path(request)
     stack = parse_path(request.path, SHORTCUTS)
-    model, crumbs = resolve_model(root, stack, lookup)
+    model, crumbs, lookup = resolve_model(root, stack, lookup)
     # the model itself is capable of producing a response
     if not crumbs:
         if isinstance(model, Response):
             return model
         elif isinstance(model, IResponseFactory):
             return model()
+    request.lookup = lookup
     # find resource (either default or through last step on crumbs)
     resource = resolve_resource(request, model, crumbs, lookup)
     # XXX IResponseFactory should do something involving renderer

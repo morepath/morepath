@@ -33,6 +33,14 @@ class IRoot(Interface):
     """Mark this object as the root.
     """
 
+class ILookup(Interface):
+    """Mark this model as an model that can change the lookup.
+    """
+    
+class IApp(Interface):
+    """An application."""
+    # XXX fill in details
+    
 class IModelBase(Interface):
     """Mark this object as a base of a model.
     """

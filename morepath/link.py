@@ -14,6 +14,8 @@ def link(request, model, name, base, lookup):
         model = IModelBase.adapt(model, lookup=request.lookup, default=None)
         if model is None:
             break
+        # XXX should switch lookup back to lookup of base model in order
+        # to mimic what happens during path resolution
     result.reverse()
     return '/'.join(result)
 
