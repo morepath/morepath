@@ -36,8 +36,3 @@ class App(IApp, ClassRegistry):
         return response(environ, start_response)
 
 global_app = App()
-
-# XXX this shouldn't be here but be the root of the global app
-class Root(IRoot):
-    pass
-root = Root()
