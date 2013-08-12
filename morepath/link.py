@@ -1,4 +1,4 @@
-from interfaces import ITraject, IModelBase, IRoot, IPath, LinkError
+from interfaces import IModelBase, IPath
 
 # XXX introduce ILink interface and make it possible to
 # completely override link getting strategy based on model

@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from comparch import Lookup, ClassRegistry
-from morepath.interfaces import (IConsumer, IResource,
-                                 ResolveError, ModelError, ResourceError)
-from morepath.pathstack import parse_path, create_path, DEFAULT, RESOURCE
+from morepath.interfaces import IConsumer, IResource, ResolveError, ModelError
+from morepath.pathstack import parse_path, DEFAULT
 from morepath.request import Request
 from morepath.resolve import resolve_model, resolve_resource, Traverser
 from werkzeug.test import EnvironBuilder

@@ -1,8 +1,7 @@
-from comparch import ClassRegistry, Lookup, ChainClassLookup
-from .request import Request, Response
+from .interfaces import IRoot
 from .publish import publish
-from .traject import traject_consumer
-from .interfaces import IConsumer, IPath, IRoot, IModelBase, ITraject, LinkError
+from .request import Request
+from comparch import ClassRegistry, Lookup, ChainClassLookup
 
 class App(ClassRegistry):
     def __init__(self, name=''):

@@ -1,9 +1,12 @@
-import morepath
+from .app import global_app, App
 from .config import Config
-from interfaces import ITraject, IConsumer, IModelBase, IRoot, IPath, LinkError
-from .app import global_app, Root, App
+import morepath.directive #
+from .interfaces import ITraject, IConsumer, IModelBase, IRoot, IPath, LinkError
 from .request import Request
 from .traject import traject_consumer
+import morepath
+
+assert morepath.directive # we need to make the component directive work
 
 def setup():
     config = Config()

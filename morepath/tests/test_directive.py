@@ -1,12 +1,7 @@
 from .fixtures import basic
-from comparch import Registry, Lookup
-from comparch import ChainClassLookup
-from morepath.config import Config
-from morepath.publish import publish
-from morepath.interfaces import IRoot, IConsumer
-from morepath.request import Request, Response
-from morepath.app import global_app
 from morepath import setup
+from morepath.config import Config
+from morepath.request import Response
 from werkzeug.test import Client
 
 def test_basic():

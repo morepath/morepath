@@ -1,9 +1,9 @@
 from comparch import Registry
-from morepath.resource import register_resource
 from morepath.interfaces import (IResource, IResponseFactory,
                                  ResourceError, ResolveError)
 from morepath.publish import publish
 from morepath.request import Request, Response
+from morepath.resource import register_resource
 from werkzeug.test import EnvironBuilder
 import py.test
 

@@ -1,5 +1,5 @@
-from werkzeug.wrappers import BaseRequest, BaseResponse
 from .link import link
+from werkzeug.wrappers import BaseRequest, BaseResponse
 
 class Request(BaseRequest):
     def __init__(self, environ, populate_request=True, shallow=False):

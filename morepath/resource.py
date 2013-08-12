@@ -1,7 +1,6 @@
-from comparch import PredicateRegistry
-
-from .interfaces import IResource, IResponseFactory, ResourceError
+from .interfaces import IResource, IResponseFactory
 from .request import Request
+from comparch import PredicateRegistry
 
 # XXX hardcoded predicates gotta change
 PREDICATES = ['name', 'request_method']

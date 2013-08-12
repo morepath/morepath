@@ -1,16 +1,16 @@
-from morepath.traject import (is_identifier,
-                              parse_variables,
-                              create_variables_re,
-                              interpolation_path,
-                              VariableMatcher,
-                              parse, Traject, traject_consumer,
-                              register_root, register_model)
+
 from comparch import Lookup, Registry, ChainClassLookup
 from morepath.app import App, global_app
-from morepath.pathstack import parse_path, DEFAULT
-from morepath.interfaces import ITraject, IModelBase, TrajectError
+from morepath.interfaces import ITraject, TrajectError
 from morepath.link import path, get_base
+from morepath.pathstack import parse_path, DEFAULT
 from morepath.request import Request
+from morepath.traject import (is_identifier,
+                              parse_variables,
+                              interpolation_path,
+                              VariableMatcher,
+                              Traject, traject_consumer,
+                              register_root, register_model)
 from werkzeug.test import EnvironBuilder
 
 def get_request(*args, **kw):
@@ -60,9 +60,9 @@ def test_variable_matcher_ns():
     
 def test_variable_matcher_checks():
     with py.test.raises(TrajectError):
-        matcher = VariableMatcher((DEFAULT, '{1illegal}'))
+        VariableMatcher((DEFAULT, '{1illegal}'))
     with py.test.raises(TrajectError):
-        matcher = VariableMatcher((DEFAULT, '{}'))
+        VariableMatcher((DEFAULT, '{}'))
         
 def test_variable_matcher_type():
     matcher = VariableMatcher((DEFAULT, '{foo:str}'))
@@ -318,8 +318,6 @@ def test_path_for_model():
     assert traject.get_path(IdModel('a')) == 'foo/a'
 
 def test_register_root():
-    from morepath import app
-    
     app = App()
     root = Root()
     app.root_model = Root
@@ -334,8 +332,6 @@ def test_register_root():
     assert isinstance(base, App)
     
 def test_register_model():
-    from morepath import app
-    
     app = App()
     root = Root()
     app.root_model = Root

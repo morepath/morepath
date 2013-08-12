@@ -1,5 +1,5 @@
-from .interfaces import ConfigError, IModelBase, IPath
 from .config import Directive, directive
+from .interfaces import ConfigError
 from .resource import register_resource
 from .traject import register_model, register_root
 

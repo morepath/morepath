@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from comparch import Interface
 from abc import abstractmethod
+from comparch import Interface
 
 class IConsumer(Interface):
     """A consumer consumes steps in a stack to find an object.

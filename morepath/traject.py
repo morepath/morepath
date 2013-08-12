@@ -1,8 +1,8 @@
-import re
 from .interfaces import ITraject, IInverse, IModelBase, TrajectError, IPath
 from .pathstack import parse_path, create_path
 from .publish import SHORTCUTS
 from comparch import Registry
+import re
 
 IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
 PATH_VARIABLE = re.compile(r'\{([^}]*)\}')

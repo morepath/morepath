@@ -1,6 +1,6 @@
-import venusian
-from .interfaces import IConfigItem
 from .app import App
+from .interfaces import IConfigItem
+import venusian
 
 class Directive(IConfigItem):
     def discriminator(self):

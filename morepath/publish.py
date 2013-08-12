@@ -1,7 +1,7 @@
-from .pathstack import parse_path, RESOURCE
-from .resolve import resolve_model, resolve_resource
-from .request import Response
 from .interfaces import IResponseFactory
+from .pathstack import parse_path, RESOURCE
+from .request import Response
+from .resolve import resolve_model, resolve_resource
 
 SHORTCUTS = {
     '@@': RESOURCE,
@@ -47,7 +47,7 @@ def publish(request, root, lookup):
 # in which case lookup is too. or should publisher be a global?
 def render(self, request, model, name=''):
     resource = self.resource_resolver(request, model, [(RESOURCE, name)])
-    factory = IRenderFactory.adapt(resource, lookup=self.lookup)
+    factory = IResponseFactory.adapt(resource, lookup=self.lookup)
     return factory()
     
         # return resource(request, model)

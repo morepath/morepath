@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import pytest
 from morepath.pathstack import parse_path, create_path, DEFAULT, RESOURCE
 
 def test_parse():
