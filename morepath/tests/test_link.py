@@ -2,7 +2,8 @@ from morepath.link import path
 from morepath.interfaces import IRoot, IPath
 from morepath.request import Request
 from werkzeug.test import EnvironBuilder
-from morepath.app import global_app, root_path
+from morepath.app import global_app
+from morepath.setup import root_path, setup
 from comparch import Lookup
 
 def get_request(*args, **kw):
@@ -12,6 +13,7 @@ class Root(IRoot):
     pass
 
 def test_root_path():
+    setup()
     request = get_request()
     request.lookup = lookup = Lookup(global_app)
     root = Root()

@@ -25,31 +25,3 @@ global_app = App()
 class Root(IRoot):
     pass
 root = Root()
-
-# XXX should be done inside a function
-global_app.register(IConsumer, (object,), traject_consumer)
-
-def traject_path(request, model):
-    base = IModelBase.adapt(model, lookup=request.lookup, default=None)
-    traject = ITraject.component(base, lookup=request.lookup, default=None)
-    if traject is None:
-        raise LinkError(
-            "cannot determine traject path info for base %r" % base)
-    return traject.get_path(model)
-global_app.register(IPath, [Request, object], traject_path)
-
-def app_path(request, model):
-    return model.name
-global_app.register(IPath, [Request, App], app_path)
-
-def app_base(model):
-    return None
-global_app.register(IModelBase, [App], app_base)
-
-def root_path(request, model):
-    return ''
-global_app.register(IPath, [Request, IRoot], root_path)
-
-# model has a base. this contains the traject info
-
-# root has separate path. this is the path of the app.

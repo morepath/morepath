@@ -22,9 +22,9 @@ class Config(object):
     def __init__(self):
         self.actions = []
 
-    def scan(self, package):
+    def scan(self, package, ignore=None):
         scanner = venusian.Scanner(config=self)
-        scanner.scan(package)
+        scanner.scan(package, ignore=ignore)
         
     def action(self, item, name, obj):
         self.actions.append((item, name, obj))

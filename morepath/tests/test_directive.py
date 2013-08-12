@@ -6,9 +6,12 @@ from morepath.publish import publish
 from morepath.interfaces import IRoot, IConsumer
 from morepath.request import Request, Response
 from morepath.app import global_app
+from morepath import setup
 from werkzeug.test import Client
 
 def test_basic():
+    setup()
+    
     config = Config()
     config.scan(basic)
     config.commit()
