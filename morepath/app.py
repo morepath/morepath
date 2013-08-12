@@ -11,10 +11,10 @@ class App(ClassRegistry):
         self.name = name
         self.root_model = None
         self.root_obj = None
-        self.sub_apps = {}
+        self.child_apps = {}
         self.parent = parent
         if self.parent is not None:
-            parent.sub_apps[name] = self
+            parent.child_apps[name] = self
     
     def __call__(self, environ, start_response):
         # XXX do caching lookup where?

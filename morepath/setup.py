@@ -43,7 +43,7 @@ def app_consumer(base, stack, lookup):
     if ns != DEFAULT:
         stack.append((ns, name))
         return False, base, stack
-    app = base.sub_apps.get(name)
+    app = base.child_apps.get(name)
     if app is None:
         stack.append((ns, name))
         return False, base, stack
