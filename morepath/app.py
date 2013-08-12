@@ -4,8 +4,6 @@ from .request import Request
 from .traject import Traject
 from comparch import ClassRegistry, Lookup, ChainClassLookup
 
-known_apps = {}
-
 class App(IApp, ClassRegistry):
     def __init__(self, name='', parent=None):
         super(App, self).__init__()
