@@ -269,7 +269,7 @@ def register_root(app, model):
     def get_base(model):
         return app
     def root_path(request, model):
-        return ''
+        return '' # no path for root
     from .request import Request
     app.register(IPath, [Request, model], root_path)
     app.register(IModelBase, [model], get_base)
