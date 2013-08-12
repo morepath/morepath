@@ -4,12 +4,17 @@ from morepath.traject import (is_identifier,
                               interpolation_path,
                               VariableMatcher,
                               parse, Traject, traject_consumer,
-                              register_model)
-from comparch import Lookup, Registry
-from morepath.app import App
+                              register_root, register_model)
+from comparch import Lookup, Registry, ChainClassLookup
+from morepath.app import App, global_app
 from morepath.pathstack import parse_path, DEFAULT
 from morepath.interfaces import ITraject, IModelBase, TrajectError
 from morepath.link import path, get_base
+from morepath.request import Request
+from werkzeug.test import EnvironBuilder
+
+def get_request(*args, **kw):
+    return Request(EnvironBuilder(*args, **kw).get_environ())
 
 import py.test
 
@@ -311,18 +316,37 @@ def test_path_for_model():
     traject.register_inverse(IdModel, 'foo/{id}',
                              lambda model: { 'id': model.id})
     assert traject.get_path(IdModel('a')) == 'foo/a'
+
+def test_register_root():
+    from morepath import app
     
-def test_register_model():
     app = App()
     root = Root()
     app.root_model = Root
     app.root_obj = root
-    lookup = Lookup(app)
+    lookup = Lookup(ChainClassLookup(app, global_app))
+    
+    register_root(app, Root)
+    request = get_request()
+    request.lookup = lookup
+    assert path(request, root) == ''
+    base = get_base(root, lookup=lookup)
+    assert isinstance(base, App)
+    
+def test_register_model():
+    from morepath import app
+    
+    app = App()
+    root = Root()
+    app.root_model = Root
+    app.root_obj = root
+    lookup = Lookup(ChainClassLookup(app, global_app))
     
     def get_model(id):
         model = Model()
         model.id = id
         return model
+    register_root(app, Root)
     register_model(app, Model, '{id}', lambda model: { 'id': model.id},
                    get_model)
     
@@ -330,7 +354,9 @@ def test_register_model():
     assert obj.id == 'a'
     model = Model()
     model.id = 'b'
-    assert path(model, root, lookup) == 'b'
+    request = get_request()
+    request.lookup = lookup
+    assert path(request, model) == 'b'
     base = get_base(model, lookup=lookup)
     assert isinstance(base, Root)
 

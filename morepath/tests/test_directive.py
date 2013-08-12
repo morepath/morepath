@@ -2,7 +2,6 @@ from .fixtures import basic
 from comparch import Registry, Lookup
 from comparch import ChainClassLookup
 from morepath.config import Config
-from morepath.link import path
 from morepath.publish import publish
 from morepath.interfaces import IRoot, IConsumer
 from morepath.request import Request, Response
@@ -20,6 +19,6 @@ def test_basic():
 
     assert response.data == 'The resource for model: foo'
 
-    m = basic.Model('foo')
-    #assert request.link(m) == 'foo'
+    response = c.get('foo/link')
+    assert response.data == 'myapp/foo'
    

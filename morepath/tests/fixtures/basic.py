@@ -3,7 +3,7 @@ import morepath
 app = morepath.App('myapp')
 
 @app.root()
-class App(object):
+class Root(object):
     pass
 
 class Model(object):
@@ -19,4 +19,7 @@ def get_model(id):
 def default(request, model):
     return "The resource for model: %s" % model.id
 
+@app.resource(model=Model, name='link')
+def link(request, model):
+    return request.link(model)
 

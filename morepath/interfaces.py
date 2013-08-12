@@ -36,7 +36,10 @@ class IRoot(Interface):
 class IModelBase(Interface):
     """Mark this object as a base of a model.
     """
-    
+
+class IPath(Interface):
+    """Get the path for a model."""
+
 class IConfigItem(Interface):
     """A configuration item.
     """

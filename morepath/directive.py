@@ -1,7 +1,7 @@
-from .interfaces import IRoot, ConfigError
+from .interfaces import ConfigError, IModelBase, IPath
 from .config import Directive, directive
 from .resource import register_resource
-from .traject import register_model
+from .traject import register_model, register_root
 
 @directive('model')
 class ModelDirective(Directive):
@@ -80,10 +80,8 @@ class RootDirective(Directive):
         self.app.root_obj = obj()
         
     def register(self, name, obj):
-        pass
-#self.app.root_model = self.model
-        #register_app(self.app, IRoot, self.model, self.app.name, obj)
-
+        register_root(self.app, self.model)
+        
 @directive('component')
 class ComponentDirective(Directive):
     def __init__(self, app, target, sources):

@@ -1,5 +1,5 @@
 import re
-from .interfaces import ITraject, IInverse, IModelBase, TrajectError
+from .interfaces import ITraject, IInverse, IModelBase, TrajectError, IPath
 from .pathstack import parse_path, create_path
 from .publish import SHORTCUTS
 from comparch import Registry
@@ -265,6 +265,15 @@ def parse_variable_name(pattern, name):
     name = name.strip()
     type_id = type_id.strip()
 
+def register_root(app, model):
+    def get_base(model):
+        return app
+    def root_path(request, model):
+        return ''
+    from .request import Request
+    app.register(IPath, [Request, model], root_path)
+    app.register(IModelBase, [model], get_base)
+    
 def register_model(app, model, path, variables, model_factory,
                    conflicting=False):
     root_model = app.root_model
