@@ -18,7 +18,7 @@ def test_resource():
     def resource(request, model):
         return "Resource!"
     
-    register_resource(reg, Model, resource, name='')
+    register_resource(reg, Model, resource, predicates=dict(name=''))
 
     model = Model()
     result = publish(get_request(path=''), model, reg)
@@ -31,8 +31,9 @@ def test_predicates():
         return "all"
     def post_resource(request, model):
         return "post"
-    register_resource(reg, Model, resource, name='')
-    register_resource(reg, Model, post_resource, name='', request_method='POST')
+    register_resource(reg, Model, resource, predicates=dict(name=''))
+    register_resource(reg, Model, post_resource,
+                      predicates=dict(name='', request_method='POST'))
     
     model = Model()
     assert publish(get_request(path=''), model, reg).data == 'all'
@@ -49,7 +50,7 @@ def test_notfound_with_predicates():
     reg = Registry()
     def resource(request, model):
         return "resource"
-    register_resource(reg, Model, resource, name='')
+    register_resource(reg, Model, resource, predicates=dict(name=''))
     
     model = Model()
     with py.test.raises(ResolveError):
@@ -103,3 +104,5 @@ def test_resource_as_response_factory():
     response = publish(req, model, reg)
     assert response.request is req
     assert response.context is model
+
+# XXX add tests for renderer

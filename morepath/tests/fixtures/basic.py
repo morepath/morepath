@@ -24,6 +24,10 @@ def default(request, model):
 def link(request, model):
     return request.link(model)
 
+@app.resource(model=Model, name='json', renderer=morepath.json_renderer)
+def json(request, model):
+    return {'id': model.id}
+
 @app.resource(model=Root)
 def root_default(request, model):
     return "The root: %s" % model.value

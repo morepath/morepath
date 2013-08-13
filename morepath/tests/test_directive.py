@@ -22,6 +22,21 @@ def test_basic():
     response = c.get('/foo/link')
     assert response.data == 'foo'
 
+def test_basic_json():
+    setup()
+    basic.app.clear()
+    
+    config = Config()
+    config.scan(basic)
+    config.app(basic.app)
+    config.commit()
+    
+    c = Client(basic.app, Response)
+    
+    response = c.get('/foo/json')
+
+    assert response.data == '{"id": "foo"}'
+
 def test_basic_root():
     setup()
     basic.app.clear()

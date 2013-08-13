@@ -1,6 +1,7 @@
 from .interfaces import IResource, IResponseFactory
 from .request import Request
 from comparch import PredicateRegistry
+import json
 
 # XXX hardcoded predicates gotta change
 PREDICATES = ['name', 'request_method']
@@ -29,11 +30,15 @@ class PredicateLookup(object):
         result['name'] = request.resolver_info()['name']
         return result
     
-def register_resource(registry, model, resource, **predicates):
+def register_resource(registry, model, resource, renderer=None, predicates=None):
+    # XXX should predicates ever be None?
+    if predicates is None:
+        predicates = {}
     lookup = registry.exact_get(IResource, (Request, model))
     if lookup is None:
         lookup = PredicateLookup(PredicateRegistry(PREDICATES))
         registry.register(IResource, (Request, model), lookup)
+    resource.renderer = renderer
     lookup.predicate_registry.register(predicates, resource)
     
 class FunctionResource(IResponseFactory):
@@ -41,6 +46,20 @@ class FunctionResource(IResponseFactory):
         self.func = func
         self.request = request
         self.model = model
-
+        
     def __call__(self):
-        return self.func(self.request, self.model)
+        # XXX but what if same function is registered as multiple
+        # resources? that is not possible using decorator approach though
+        renderer = self.func.renderer
+        if renderer is None:
+            renderer = noop_renderer
+        result = self.func(self.request, self.model)
+        return renderer(result)
+    
+def noop_renderer(data):
+    return data
+
+# XXX use response object?
+def json_renderer(data):
+    return json.dumps(data)
+    
