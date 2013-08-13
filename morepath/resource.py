@@ -29,7 +29,11 @@ class PredicateLookup(object):
         result['request_method'] = request.method
         result['name'] = request.resolver_info()['name']
         return result
-    
+
+# XXX want to reverse the approach so that what is registered is a
+# full IResponseFactory or something adaptable to it. This can then also
+# contain the renderer. A function is wrapped into such a resource
+# before registration.
 def register_resource(registry, model, resource, renderer=None, predicates=None):
     # XXX should predicates ever be None?
     if predicates is None:
