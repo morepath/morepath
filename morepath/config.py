@@ -1,17 +1,21 @@
-from .app import App
-from .interfaces import IConfigItem
+from .interfaces import IConfigAction
+from copy import copy
 import venusian
 
-class Directive(IConfigItem):
+class Action(IConfigAction):
     def discriminator(self):
         raise NotImplementedError()
 
+    def clone(self):
+        return copy(self)
+    
     def prepare(self, name, obj):
         pass
     
-    def register(self, name, obj):
+    def perform(self, name, obj):
         raise NotImplementedError()
     
+class Directive(Action):
     def __call__(self, wrapped):
         def callback(scanner, name, obj):
             scanner.config.action(self, name, obj)
@@ -22,12 +26,17 @@ class Config(object):
     def __init__(self):
         self.actions = []
 
+    def app(self, app):
+        self.actions.append((app, app.name, app))
+        #XXX
+        # self.actions.append((self, name, obj))
+        
     def scan(self, package, ignore=None):
         scanner = venusian.Scanner(config=self)
         scanner.scan(package, ignore=ignore)
         
-    def action(self, item, name, obj):
-        self.actions.append((item, name, obj))
+    def action(self, directive, name, obj):
+        self.actions.append((directive, name, obj))
 
     def validate(self):
         # XXX check for conflicts
@@ -40,18 +49,12 @@ class Config(object):
         pass
     
     def commit(self):
-        for item, name, obj in self.actions:
-            item.prepare(name, obj)
+        actions = []
+        for action, name, obj in self.actions:
+            action = action.clone() # so that prepare starts fresh
+            action.prepare(name, obj)
+            actions.append((action, name, obj))
         
-        for item, name, obj in self.actions:
-            item.register(name, obj)
-
-class directive(object):
-    def __init__(self, name):
-        self.name = name
-
-    def __call__(self, directive):
-        def method(self, *args, **kw):
-            return directive(self, *args, **kw)
-        setattr(App, self.name, method)
+        for action, name, obj in actions:
+            action.perform(name, obj)
 

@@ -1,5 +1,5 @@
 import morepath
-
+    
 app = morepath.App()
 
 @app.root()
@@ -23,3 +23,10 @@ def default(request, model):
 def link(request, model):
     return request.link(model)
 
+@app.resource(model=Root)
+def root_default(request, model):
+    return "The root"
+
+@app.resource(model=Root, name='link')
+def root_link(request, model):
+    return request.link(model)

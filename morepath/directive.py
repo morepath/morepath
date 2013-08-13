@@ -1,7 +1,17 @@
-from .config import Directive, directive
+from .app import App
+from .config import Directive
 from .interfaces import ConfigError
 from .resource import register_resource
 from .traject import register_model, register_root
+
+class directive(object):
+    def __init__(self, name):
+        self.name = name
+
+    def __call__(self, directive):
+        def method(self, *args, **kw):
+            return directive(self, *args, **kw)
+        setattr(App, self.name, method)
 
 @directive('model')
 class ModelDirective(Directive):
@@ -35,7 +45,7 @@ class ModelDirective(Directive):
         # XXX check whether variables is there if variable is used in
         # path
     
-    def register(self, name, obj):    
+    def perform(self, name, obj):    
         register_model(self.app, self.model, self.path,
                        self.variables, obj)
         
@@ -52,7 +62,7 @@ class ResourceDirective(Directive):
     def discriminator(self):
         return ('resource', self.model, self.name)
     
-    def register(self, name, obj):
+    def perform(self, name, obj):
         register_resource(self.app, self.model, obj, **self.predicates)
 
 @directive('root')
@@ -79,7 +89,7 @@ class RootDirective(Directive):
         # XXX calling things too early?
         self.app.root_obj = obj()
         
-    def register(self, name, obj):
+    def perform(self, name, obj):
         register_root(self.app, self.model)
         
 @directive('component')
@@ -92,5 +102,5 @@ class ComponentDirective(Directive):
     def discriminator(self):
         return ('component', self.model, self.name)
 
-    def register(self, name, obj):
+    def perform(self, name, obj):
         self.app.register(self.target, self.sources, obj)

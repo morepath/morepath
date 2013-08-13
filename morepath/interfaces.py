@@ -48,7 +48,7 @@ class IModelBase(Interface):
 class IPath(Interface):
     """Get the path for a model."""
 
-class IConfigItem(Interface):
+class IConfigAction(Interface):
     """A configuration item.
     """
 
@@ -60,7 +60,7 @@ class IConfigItem(Interface):
         """
 
     @abstractmethod
-    def register(self, registry, name, obj):
+    def perform(self, registry, name, obj):
         """Register whatever is being configured.
 
         registry - the registry in which to register
