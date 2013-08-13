@@ -265,7 +265,7 @@ def parse_variable_name(pattern, name):
     name = name.strip()
     type_id = type_id.strip()
 
-def register_root(app, model):
+def register_root(app, model, model_factory):
     def get_base(model):
         return app
     def root_path(request, model):
@@ -273,8 +273,8 @@ def register_root(app, model):
     from .request import Request
     app.register(IPath, [Request, model], root_path)
     app.register(IModelBase, [model], get_base)
-    # XXX need to test going to root and looking up resource
-    
+    register_model(app, model, '', lambda model: {}, model_factory)
+
 def register_model(app, model, path, variables, model_factory,
                    conflicting=False):
     traject = app.traject

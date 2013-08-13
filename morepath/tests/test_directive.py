@@ -22,23 +22,24 @@ def test_basic():
     response = c.get('/foo/link')
     assert response.data == 'foo'
 
-# def test_basic_root():
-#     setup()
-#     basic.app.clear()
+def test_basic_root():
+    setup()
+    basic.app.clear()
     
-#     config = Config()
-#     config.scan(basic)
-#     config.app(basic.app)
-#     config.commit()
+    config = Config()
+    config.scan(basic)
+    config.app(basic.app)
+    config.commit()
     
-#     c = Client(basic.app, Response)
+    c = Client(basic.app, Response)
     
-#     response = c.get('/')
+    response = c.get('/')
 
-#     assert response.data == 'The resource for model: foo'
+    assert response.data == 'The root: ROOT'
 
-#     response = c.get('/link')
-#     assert response.data == 'foo'
+    # @@ is to make sure we get the view, not the sub-model
+    response = c.get('/@@link')
+    assert response.data == ''
     
 def test_nested():
     setup()

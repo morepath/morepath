@@ -292,7 +292,7 @@ def test_register_root():
     app.root_obj = root
     lookup = Lookup(ChainClassLookup(app, global_app))
     
-    register_root(app, Root)
+    register_root(app, Root, lambda: root)
     request = get_request()
     request.lookup = lookup
     assert path(request, root) == ''
@@ -311,7 +311,7 @@ def test_register_model():
         model = Model()
         model.id = id
         return model
-    register_root(app, Root)
+    register_root(app, Root, lambda: root)
     register_model(app, Model, '{id}', lambda model: { 'id': model.id},
                    get_model)
     

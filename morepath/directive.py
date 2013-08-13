@@ -90,7 +90,7 @@ class RootDirective(Directive):
         self.app.root_obj = obj()
         
     def perform(self, name, obj):
-        register_root(self.app, self.model)
+        register_root(self.app, self.model, obj)
         
 @directive('component')
 class ComponentDirective(Directive):

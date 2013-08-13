@@ -8,6 +8,14 @@ DEFAULT_NAME = u''
 def resolve_model(obj, stack, lookup):
     """Resolve path to a model using consumers.
     """
+    # we need to consume towards a root
+    if not stack:
+        for consumer in IConsumer.all(obj, lookup=lookup):
+            any_consumed, obj, unconsumed = consumer(obj, stack, lookup)
+            if any_consumed:
+                break
+        return obj, stack, lookup
+    # consume steps
     unconsumed = stack[:]
     while unconsumed:
         for consumer in IConsumer.all(obj, lookup=lookup):

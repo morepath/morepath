@@ -4,7 +4,8 @@ app = morepath.App()
 
 @app.root()
 class Root(object):
-    pass
+    def __init__(self):
+        self.value = 'ROOT'
 
 class Model(object):
     def __init__(self, id):
@@ -25,7 +26,7 @@ def link(request, model):
 
 @app.resource(model=Root)
 def root_default(request, model):
-    return "The root"
+    return "The root: %s" % model.value
 
 @app.resource(model=Root, name='link')
 def root_link(request, model):
