@@ -15,6 +15,15 @@ class IConsumer(Interface):
 class IResource(Interface):
     pass
 
+class IResourceRegistration(Interface):
+    pass
+
+class IContent(Interface):
+    pass
+
+class IResponse(Interface):
+    pass
+    
 class IResponseFactory(Interface):
     """When called, a Response instance is returned.
     """

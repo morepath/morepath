@@ -51,11 +51,11 @@ class ModelDirective(Directive):
         
 @directive('resource')
 class ResourceDirective(Directive):
-    def __init__(self, app, model, name='', renderer=None):
+    def __init__(self, app, model, name='', render=None):
         self.app = app
         self.model = model
         self.name = name
-        self.renderer = renderer
+        self.render = render
         self.predicates = {
             'name': self.name
             }
@@ -66,7 +66,7 @@ class ResourceDirective(Directive):
     def perform(self, name, obj):
         # XXX kwargs for predicates doesn't seem useful as we unpack
         # them again on the other side
-        register_resource(self.app, self.model, obj, self.renderer,
+        register_resource(self.app, self.model, obj, self.render,
                           self.predicates)
 
 @directive('root')

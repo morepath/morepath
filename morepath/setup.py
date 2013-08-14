@@ -2,7 +2,8 @@ from .app import global_app
 from .config import Config
 import morepath.directive #
 from .interfaces import (ITraject, IConsumer, ILookup, IModelBase, IRoot,
-                         IPath, LinkError, IApp)
+                         IPath, LinkError, IApp, IContent, IResponse,
+                         IResourceRegistration)
 from .pathstack import DEFAULT
 from .request import Request
 from .traject import traject_consumer
@@ -43,3 +44,24 @@ def root_path(request, model):
 def app_lookup(model):
     return Lookup(model.class_lookup())
 
+def get_registration(request, model):
+    return IResourceRegistration.adapt(request, model,
+                                       lookup=request.lookup,
+                                       default=None)
+    
+@global_app.component(IContent, [Request, object])
+def get_content(request, model):
+    reg = get_registration(request, model)
+    if reg is None:
+        return None
+    return reg.resource(request, model)
+
+@global_app.component(IResponse, [Request, object])
+def get_response(request, model):
+    reg = get_registration(request, model)
+    if reg is None:
+        return None
+    content = reg.resource(request, model)
+    if reg.render is None:
+        return content
+    return reg.render(content)

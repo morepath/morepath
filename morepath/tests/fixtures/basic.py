@@ -24,7 +24,7 @@ def default(request, model):
 def link(request, model):
     return request.link(model)
 
-@app.resource(model=Model, name='json', renderer=morepath.json_renderer)
+@app.resource(model=Model, name='json', render=morepath.render_json)
 def json(request, model):
     return {'id': model.id}
 

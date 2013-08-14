@@ -1,5 +1,5 @@
-from .interfaces import IResponseFactory, IApp
-from .pathstack import parse_path, RESOURCE
+from .interfaces import IResponse, IApp, ResourceError, ModelError
+from .pathstack import parse_path, DEFAULT, RESOURCE
 from .request import Response
 from .resolve import resolve_model, resolve_resource
 from comparch import Lookup
@@ -8,29 +8,48 @@ SHORTCUTS = {
     '@@': RESOURCE,
     }
 
+DEFAULT_NAME = u''
+
+class ResponseSentinel(object):
+    pass
+
+RESPONSE_SENTINEL = ResponseSentinel()
+
+def get_resource_step(model, stack):
+    unconsumed_amount = len(stack)
+    if unconsumed_amount == 0:
+        return RESOURCE, DEFAULT_NAME
+    elif unconsumed_amount == 1:
+        return stack[0]
+    raise ModelError(
+        "%r has unresolved path %s" % (model, create_path(stack)))
+
+def resolve_response(request, model, stack, lookup):
+    ns, name = get_resource_step(model, stack)
+
+    if ns not in (DEFAULT, RESOURCE):
+        # XXX also report on resource name
+        raise ResourceError(
+            "namespace %r is not supported:" % ns)
+
+    request.set_resolver_info({'name': name})
+
+    response = IResponse.adapt(request, model, default=RESPONSE_SENTINEL,
+                               lookup=lookup)
+    if response is RESPONSE_SENTINEL:
+        # XXX lookup error resource and fallback to default
+        return Response("Not found", 404)
+    return response
+    
 def publish(request, root, lookup):
     #path = self.base_path(request)
     stack = parse_path(request.path, SHORTCUTS)
     model, crumbs, lookup = resolve_model(root, stack, lookup)
-    # the model itself is capable of producing a response
-    if not crumbs:
-        if isinstance(model, Response):
-            return model
-        elif isinstance(model, IResponseFactory):
-            return model()
     request.lookup = lookup
-    # find resource (either default or through last step on crumbs)
-    resource = resolve_resource(request, model, crumbs, lookup)
-    # XXX IResponseFactory should do something involving renderer
-    # XXX special case for a response returning text
-    factory = IResponseFactory.adapt(resource, lookup=lookup)
-    result = factory()
-    if isinstance(result, Response):
-        return result
-    # XXX handle this at the IResponseFactory adapter level?
-    if isinstance(result, basestring):
-        return Response(result)
-    assert False
+    response = resolve_response(request, model, crumbs, lookup)
+    if isinstance(response, basestring):
+        return Response(response)
+    return response
 
 # def base_path(self, request):
 #     path = request.path
