@@ -4,9 +4,31 @@ from comparch import Lookup, ClassRegistry
 from morepath.interfaces import IConsumer, IResource, ResolveError, ModelError
 from morepath.pathstack import parse_path, DEFAULT
 from morepath.request import Request
-from morepath.resolve import resolve_model, resolve_resource, Traverser
+from morepath.publish import resolve_model
 from werkzeug.test import EnvironBuilder
 import pytest
+
+class Traverser(IConsumer):
+    """A traverser is a consumer that consumes only a single step.
+
+    Only the top of the stack is popped.
+
+    Should be constructed with a traversal function. The function
+    takes three arguments: the object to traverse into, and the namespace
+    and name to traverse. It should return either the object traversed towards,
+    or None if this object cannot be found.
+    """
+
+    def __init__(self, func):
+        self.func = func
+
+    def __call__(self, obj, stack, lookup):
+        ns, name = stack.pop()
+        next_obj = self.func(obj, ns, name)
+        if next_obj is None:
+            stack.append((ns, name))
+            return False, obj, stack
+        return True, next_obj, stack
 
 def get_request(*args, **kw):
     return Request(EnvironBuilder(*args, **kw).get_environ())
@@ -84,48 +106,6 @@ def test_resolve_traverse():
     # there is a sub, but no c in sub
     assert resolve_model(base, parse_path(u'/sub/c'), lookup) == (
         base['sub'], [(DEFAULT, u'c')], lookup)
-    
-def test_resolve_resource():
-    reg = get_registry()
-
-    model = Model()
-
-    def resource(request, model):
-        return 'resource'
-    
-    reg.register(IResource, (Request, Model), resource)
-    
-    lookup = get_lookup(reg)
-
-    req = get_request()
-    assert resolve_resource(req, model, parse_path(u''), lookup) == 'resource'
-    assert req.resolver_info()['name'] == u''
-    req = get_request()
-    # this will work for any name given the resource we registered
-    assert resolve_resource(
-        req, model, parse_path(u'something'), lookup) == 'resource'
-    assert req.resolver_info()['name'] == u'something'
-    
-def test_resolve_errors():
-    reg = get_registry()
-    model = Model()
-
-    lookup = get_lookup(reg)
-    
-    request = get_request()
-
-    with pytest.raises(ModelError) as e:
-        resolve_resource(request, model, parse_path(u'a/b'), lookup)
-    assert str(e.value) == (
-        "<Model> has unresolved path /a/b")
-    
-    with pytest.raises(ResolveError) as e:
-        resolve_resource(request, model, [], lookup)
-    assert str(e.value) == "<Model> has no default resource"
-        
-    with pytest.raises(ResolveError) as e:
-        resolve_resource(request, model, parse_path(u'test'), lookup)
-    assert str(e.value) == "<Model> has neither resource nor sub-model: /test"
     
 def traverse_container(container, ns, name):
     if ns != DEFAULT:

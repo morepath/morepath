@@ -1,7 +1,7 @@
-from .interfaces import IResponse, IApp, ResourceError, ModelError
+from .interfaces import (IResponse, ILookup,
+                         IApp, ResourceError, ModelError, IConsumer)
 from .pathstack import parse_path, DEFAULT, RESOURCE
 from .request import Response
-from .resolve import resolve_model, resolve_resource
 from comparch import Lookup
 
 SHORTCUTS = {
@@ -15,14 +15,30 @@ class ResponseSentinel(object):
 
 RESPONSE_SENTINEL = ResponseSentinel()
 
-def get_resource_step(model, stack):
-    unconsumed_amount = len(stack)
-    if unconsumed_amount == 0:
-        return RESOURCE, DEFAULT_NAME
-    elif unconsumed_amount == 1:
-        return stack[0]
-    raise ModelError(
-        "%r has unresolved path %s" % (model, create_path(stack)))
+def resolve_model(obj, stack, lookup):
+    """Resolve path to a model using consumers.
+    """
+    # we need to consume towards a root
+    if not stack:
+        for consumer in IConsumer.all(obj, lookup=lookup):
+            any_consumed, obj, unconsumed = consumer(obj, stack, lookup)
+            if any_consumed:
+                break
+        return obj, stack, lookup
+    # consume steps
+    unconsumed = stack[:]
+    while unconsumed:
+        for consumer in IConsumer.all(obj, lookup=lookup):
+            any_consumed, obj, unconsumed = consumer(
+                obj, unconsumed, lookup)
+            if any_consumed:
+                # get new lookup for whatever we found if it exists
+                lookup = ILookup.adapt(obj, lookup=lookup, default=lookup)
+                break
+        else:
+            # nothing could be consumed
+            break
+    return obj, unconsumed, lookup
 
 def resolve_response(request, model, stack, lookup):
     ns, name = get_resource_step(model, stack)
@@ -40,7 +56,16 @@ def resolve_response(request, model, stack, lookup):
         # XXX lookup error resource and fallback to default
         return Response("Not found", 404)
     return response
-    
+
+def get_resource_step(model, stack):
+    unconsumed_amount = len(stack)
+    if unconsumed_amount == 0:
+        return RESOURCE, DEFAULT_NAME
+    elif unconsumed_amount == 1:
+        return stack[0]
+    raise ModelError(
+        "%r has unresolved path %s" % (model, create_path(stack)))
+
 def publish(request, root, lookup):
     #path = self.base_path(request)
     stack = parse_path(request.path, SHORTCUTS)
