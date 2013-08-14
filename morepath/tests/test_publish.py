@@ -10,7 +10,11 @@ from werkzeug.test import EnvironBuilder
 import py.test
 
 def get_request(*args, **kw):
-    return Request(EnvironBuilder(*args, **kw).get_environ())
+    app = kw.pop('app')
+    lookup = Lookup(app.class_lookup())
+    result = Request(EnvironBuilder(*args, **kw).get_environ())
+    result.lookup = lookup
+    return result
 
 class Model(object):
     pass
@@ -27,7 +31,7 @@ def test_resource():
     register_resource(app, Model, resource, predicates=dict(name=''))
 
     model = Model()
-    result = publish(get_request(path=''), model, Lookup(app.class_lookup()))
+    result = publish(get_request(path='', app=app), model)
     assert result.data == 'Resource!'
 
     
@@ -42,18 +46,18 @@ def test_predicates():
     register_resource(app, Model, post_resource,
                       predicates=dict(name='', request_method='POST'))
 
-    lookup = Lookup(app.class_lookup())
     model = Model()
-    assert publish(get_request(path=''), model, lookup).data == 'all'
-    assert (publish(get_request(path='', method='POST'), model, lookup).data ==
-            'post')
+    
+    assert publish(get_request(path='', app=app), model).data == 'all'
+    
+    assert (publish(get_request(path='', method='POST', app=app),
+                    model).data == 'post')
     
 def test_notfound():
     setup()
     app = App()
     model = Model()
-    lookup = Lookup(app.class_lookup())
-    response = publish(get_request(path=''), model, lookup)
+    response = publish(get_request(path='', app=app), model)
     assert response.status == '404 NOT FOUND'
         
 def test_notfound_with_predicates():
@@ -62,9 +66,8 @@ def test_notfound_with_predicates():
     def resource(request, model):
         return "resource"
     register_resource(app, Model, resource, predicates=dict(name=''))
-    lookup = Lookup(app.class_lookup())
     model = Model()
-    response = publish(get_request(path='foo'), model, lookup)
+    response = publish(get_request(path='foo', app=app), model)
     assert response.status == '404 NOT FOUND'
    
 # def test_model_is_response():

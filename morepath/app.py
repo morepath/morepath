@@ -52,7 +52,7 @@ class App(IApp, Action, ClassRegistry):
         lookup = Lookup(self.class_lookup())
         request = Request(environ)
         request.lookup = lookup
-        response = publish(request, self, lookup)
+        response = publish(request, self)
         return response(environ, start_response)
 
 global_app = App()

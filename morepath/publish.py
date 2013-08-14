@@ -40,7 +40,7 @@ def resolve_model(obj, stack, lookup):
             break
     return obj, unconsumed, lookup
 
-def resolve_response(request, model, stack, lookup):
+def resolve_response(request, model, stack):
     ns, name = get_resource_step(model, stack)
 
     if ns not in (DEFAULT, RESOURCE):
@@ -51,7 +51,7 @@ def resolve_response(request, model, stack, lookup):
     request.set_resolver_info({'name': name})
 
     response = IResponse.adapt(request, model, default=RESPONSE_SENTINEL,
-                               lookup=lookup)
+                               lookup=request.lookup)
     if response is RESPONSE_SENTINEL:
         # XXX lookup error resource and fallback to default
         return Response("Not found", 404)
@@ -66,12 +66,12 @@ def get_resource_step(model, stack):
     raise ModelError(
         "%r has unresolved path %s" % (model, create_path(stack)))
 
-def publish(request, root, lookup):
+def publish(request, root):
     #path = self.base_path(request)
     stack = parse_path(request.path, SHORTCUTS)
-    model, crumbs, lookup = resolve_model(root, stack, lookup)
+    model, crumbs, lookup = resolve_model(root, stack, request.lookup)
     request.lookup = lookup
-    response = resolve_response(request, model, crumbs, lookup)
+    response = resolve_response(request, model, crumbs)
     if isinstance(response, basestring):
         return Response(response)
     return response
