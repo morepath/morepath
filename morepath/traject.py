@@ -1,4 +1,4 @@
-from .interfaces import ITraject, IInverse, IModelBase, TrajectError, IPath
+from .interfaces import IInverse, IModelBase, TrajectError, IPath
 from .pathstack import parse_path, create_path
 from .publish import SHORTCUTS
 from comparch import Registry
@@ -14,14 +14,15 @@ KNOWN_TYPES = {
     'int': int
     }
 
+
 class Traject(object):
     def __init__(self):
         self._step_matchers = set()
         self._conflicting_steps = set()
         self._variable_matchers = {}
         self._model_factories = {}
-        self._inverse = Registry() # XXX caching?
-        
+        self._inverse = Registry()  # XXX caching?
+
     def register(self, path, model_factory, conflicting=False):
         pattern = parse(path)
         seen_names = set()
@@ -65,20 +66,20 @@ class Traject(object):
     def register_inverse(self, model_class, path, get_variables):
         path = interpolation_path(path)
         self._inverse.register(IInverse, (model_class,), (path, get_variables))
-        
+
     def match(self, pattern, step):
         step_pattern = self.match_step(pattern, step)
         if step_pattern is not None:
             return step_pattern, {}
         return self.match_variables(pattern, step)
-        
+
     def match_step(self, pattern, step):
         pattern = pattern + (step,)
         if pattern in self._step_matchers:
             return pattern
         else:
             return None
-        
+
     def match_variables(self, pattern, step):
         variable_pattern = pattern + (VARIABLE,)
         for variable_matcher in self._variable_matchers.get(variable_pattern,
@@ -102,6 +103,7 @@ class Traject(object):
         variables = get_variables(model)
         assert isinstance(variables, dict)
         return path % variables
+
 
 def traject_consumer(base, stack, lookup):
     traject = base.traject
@@ -127,10 +129,11 @@ def traject_consumer(base, stack, lookup):
         return False, base, stack
     return True, model, stack
 
+
 class VariableMatcher(object):
     def __init__(self, step, pattern=None):
         self.step = step
-        self.pattern = pattern # useful to report on conflicts
+        self.pattern = pattern  # useful to report on conflicts
         self.ns, self.name = step
         self.variables_re = create_variables_re(self.name)
         self.generalized = generalize_variables(self.name)
@@ -147,7 +150,7 @@ class VariableMatcher(object):
 
     def __eq__(self, other):
         return self.step == other.step
-    
+
     def __hash__(self):
         return hash(self.step)
 
@@ -157,7 +160,7 @@ class VariableMatcher(object):
         if self.name == other.name:
             return False
         return self.generalized == other.generalized
-    
+
     def has_variables(self):
         return bool(self.names)
 
@@ -169,14 +172,15 @@ class VariableMatcher(object):
         if matched is None:
             return {}
         result = {}
-        for name, converter, match in zip(
-            self.names, self.converters, matched.groups()): 
+        for name, converter, match in zip(self.names,
+                                          self.converters, matched.groups()):
             try:
                 result[name] = converter(match)
             except ValueError:
                 # cannot convert, so isn't a match
                 return {}
         return result
+
 
 class NameParser(object):
     def __init__(self, known_types):
@@ -185,7 +189,8 @@ class NameParser(object):
     def __call__(self, pattern, s):
         parts = s.split(':')
         if len(parts) > 2:
-            raise TrajectError("illegal path '%s', illegal identifier: %s" % (
+            raise TrajectError(
+                "illegal path '%s', illegal identifier: %s" % (
                     pattern, s))
         if len(parts) == 1:
             name = s.strip()
@@ -195,7 +200,8 @@ class NameParser(object):
             name = name.strip()
             type_id = type_id.strip()
         if not is_identifier(name):
-            raise TrajectError("illegal path '%s', illegal identifier: %s" % (
+            raise TrajectError(
+                "illegal path '%s', illegal identifier: %s" % (
                     pattern, name))
         converter = self.known_types.get(type_id)
         if converter is None:
@@ -203,43 +209,53 @@ class NameParser(object):
                                 pattern, type_id))
         return name, converter
 
+
 def normalize(pattern_str):
     if pattern_str.startswith('/'):
         return pattern_str[1:]
     return pattern_str
+
 
 def parse(pattern_str):
     pattern_str = normalize(pattern_str)
     stack = parse_path(pattern_str, SHORTCUTS)
     return tuple(reversed(stack))
 
+
 def create(pattern):
     return create_path(list(reversed(pattern)), SHORTCUTS)[1:]
-    
+
+
 def subpatterns(pattern):
     subpattern = []
     result = []
     for step in pattern:
         subpattern.append(step)
         result.append(tuple(subpattern))
-    return result    
+    return result
+
 
 def is_identifier(s):
     return IDENTIFIER.match(s) is not None
 
+
 def parse_variables(s):
     return PATH_VARIABLE.findall(s)
+
 
 def create_variables_re(s):
     validate_variables(s)
     return re.compile('^' + PATH_VARIABLE.sub(r'(.+)', s) + '$')
 
+
 def generalize_variables(s):
     return PATH_VARIABLE.sub('{}', s)
 
+
 def interpolation_path(s):
     return PATH_VARIABLE.sub(r'%(\1)s', s)
-    
+
+
 def validate_variables(s):
     parts = PATH_VARIABLE.split(s)
     if parts[0] == '':
@@ -250,9 +266,10 @@ def validate_variables(s):
         if part == '':
             # XXX also include path info in error
             raise TrajectError(
-                "path segment '%s' cannot be parsed, variables cannot be concecutive" %
-                s)
-    
+                "path segment '%s' cannot be parsed, variables "
+                "cannot be concecutive" % s)
+
+
 def parse_variable_name(pattern, name):
     parts = name.split(':')
     if len(parts) == 1:
@@ -265,15 +282,20 @@ def parse_variable_name(pattern, name):
     name = name.strip()
     type_id = type_id.strip()
 
+
 def register_root(app, model, model_factory):
+
     def get_base(model):
         return app
+
     def root_path(request, model):
-        return '' # no path for root
+        return ''  # no path for root
+
     from .request import Request
     app.register(IPath, [Request, model], root_path)
     app.register(IModelBase, [model], get_base)
     register_model(app, model, '', lambda model: {}, model_factory)
+
 
 def register_model(app, model, path, variables, model_factory,
                    conflicting=False):
@@ -282,7 +304,8 @@ def register_model(app, model, path, variables, model_factory,
         app.traject = traject = Traject()
     traject.register(path, model_factory, conflicting)
     traject.register_inverse(model, path, variables)
+
     def get_base(model):
         return app
+
     app.register(IModelBase, (model,), get_base)
-    

@@ -4,6 +4,7 @@ from .interfaces import ConfigError
 from .resource import register_resource
 from .traject import register_model, register_root
 
+
 class directive(object):
     def __init__(self, name):
         self.name = name
@@ -12,6 +13,7 @@ class directive(object):
         def method(self, *args, **kw):
             return directive(self, *args, **kw)
         setattr(App, self.name, method)
+
 
 @directive('model')
 class ModelDirective(Directive):
@@ -23,7 +25,7 @@ class ModelDirective(Directive):
         self.variables = variables
         self.base = base
         self.get_base = get_base
-    
+
     def discriminator(self):
         # XXX is wrong
         # a model can only be made available once for a base
@@ -34,8 +36,8 @@ class ModelDirective(Directive):
         if isinstance(obj, type):
             if self.model is not None:
                 raise ConfigError(
-                    "@model decorates class so cannot have explicit model: %s" %
-                    self.model)
+                    "@model decorates class so cannot "
+                    "have explicit model: %s" % self.model)
             self.model = obj
         if self.model is None:
             raise ConfigError(
@@ -44,11 +46,12 @@ class ModelDirective(Directive):
         # XXX check whether get_base is there if base is there
         # XXX check whether variables is there if variable is used in
         # path
-    
-    def perform(self, name, obj):    
+
+    def perform(self, name, obj):
         register_model(self.app, self.model, self.path,
                        self.variables, obj)
-        
+
+
 @directive('resource')
 class ResourceDirective(Directive):
     def __init__(self, app, model, name='', render=None):
@@ -62,12 +65,13 @@ class ResourceDirective(Directive):
 
     def discriminator(self):
         return ('resource', self.model, self.name)
-    
+
     def perform(self, name, obj):
         # XXX kwargs for predicates doesn't seem useful as we unpack
         # them again on the other side
         register_resource(self.app, self.model, obj, self.render,
                           self.predicates)
+
 
 @directive('root')
 class RootDirective(Directive):
@@ -92,10 +96,11 @@ class RootDirective(Directive):
         self.app.root_model = self.model
         # XXX calling things too early?
         self.app.root_obj = obj()
-        
+
     def perform(self, name, obj):
         register_root(self.app, self.model, obj)
-        
+
+
 @directive('component')
 class ComponentDirective(Directive):
     def __init__(self, app, target, sources):
