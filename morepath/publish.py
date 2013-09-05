@@ -1,8 +1,7 @@
 from .interfaces import (IResponse, ILookup,
-                         IApp, ResourceError, ModelError, IConsumer)
-from .pathstack import parse_path, DEFAULT, RESOURCE
+                         ResourceError, ModelError, IConsumer)
+from .pathstack import parse_path, create_path, DEFAULT, RESOURCE
 from .request import Response
-from comparch import Lookup
 
 SHORTCUTS = {
     '@@': RESOURCE,
@@ -10,10 +9,13 @@ SHORTCUTS = {
 
 DEFAULT_NAME = u''
 
+
 class ResponseSentinel(object):
     pass
 
+
 RESPONSE_SENTINEL = ResponseSentinel()
+
 
 def resolve_model(obj, stack, lookup):
     """Resolve path to a model using consumers.
@@ -57,6 +59,7 @@ def resolve_response(request, model, stack):
         return Response("Not found", 404)
     return response
 
+
 def get_resource_step(model, stack):
     unconsumed_amount = len(stack)
     if unconsumed_amount == 0:
@@ -76,6 +79,7 @@ def publish(request, root):
         return Response(response)
     return response
 
+
 # def base_path(self, request):
 #     path = request.path
 #     script_name = request.script_name
@@ -90,11 +94,11 @@ def publish(request, root):
 # request needs to be able to access the publisher now; it
 # might start to make sense to make the publisher part of the request,
 # in which case lookup is too. or should publisher be a global?
-def render(self, request, model, name=''):
-    resource = self.resource_resolver(request, model, [(RESOURCE, name)])
-    factory = IResponseFactory.adapt(resource, lookup=self.lookup)
-    return factory()
-    
+# def render(self, request, model, name=''):
+#     resource = self.resource_resolver(request, model, [(RESOURCE, name)])
+#     factory = IResponseFactory.adapt(resource, lookup=self.lookup)
+#     return factory()
+
         # return resource(request, model)
 
         # this renderer needs to be resolved into an IResponse

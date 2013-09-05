@@ -1,9 +1,10 @@
-from .interfaces import IRoot, IApp
+from .interfaces import IApp
 from .publish import publish
 from .request import Request
 from .traject import Traject
 from .config import Action
 from comparch import ClassRegistry, Lookup, ChainClassLookup
+
 
 class App(IApp, Action, ClassRegistry):
     def __init__(self, name='', parent=None):
@@ -24,7 +25,7 @@ class App(IApp, Action, ClassRegistry):
 
     # XXX clone() isn't right, as we'd actually put things in a traject of
     # cloned?
-    
+
     def perform(self, name, obj):
         if self.parent is None:
             return
@@ -41,12 +42,12 @@ class App(IApp, Action, ClassRegistry):
 
     def add_child(self, app):
         self.child_apps[app.name] = app
-      
+
     def class_lookup(self):
         if self.parent is None:
             return ChainClassLookup(self, global_app)
         return ChainClassLookup(self, self.parent.class_lookup())
-    
+
     def __call__(self, environ, start_response):
         # XXX do caching lookup where?
         lookup = Lookup(self.class_lookup())

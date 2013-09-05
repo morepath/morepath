@@ -3,6 +3,7 @@ from interfaces import IModelBase, IPath
 # XXX introduce ILink interface and make it possible to
 # completely override link getting strategy based on model
 
+
 def link(request, model, name, base, lookup):
     result = []
     if name:
@@ -19,10 +20,10 @@ def link(request, model, name, base, lookup):
     result.reverse()
     return '/'.join(result)
 
+
 def path(request, model):
     return IPath.adapt(request, model, lookup=request.lookup)
 
+
 def get_base(model, lookup):
     return IModelBase.adapt(model, lookup=lookup, default=None)
-
-

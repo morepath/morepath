@@ -2,6 +2,7 @@
 from abc import abstractmethod
 from comparch import Interface
 
+
 class IConsumer(Interface):
     """A consumer consumes steps in a stack to find an object.
     """
@@ -12,18 +13,23 @@ class IConsumer(Interface):
         an object and the rest of unconsumed stack
         """
 
+
 class IResource(Interface):
     pass
+
 
 class IResourceRegistration(Interface):
     pass
 
+
 class IContent(Interface):
     pass
 
+
 class IResponse(Interface):
     pass
-    
+
+
 class IResponseFactory(Interface):
     """When called, a Response instance is returned.
     """
@@ -31,31 +37,39 @@ class IResponseFactory(Interface):
     def __call__(self):
         """Returns a Response instance."""
 
+
 # XXX incomplete
 class ITraject(Interface):
     pass
 
+
 class IInverse(Interface):
     """Marker interface to hook in inverse component in a traject."""
+
 
 class IRoot(Interface):
     """Mark this object as the root.
     """
 
+
 class ILookup(Interface):
     """Mark this model as an model that can change the lookup.
     """
-    
+
+
 class IApp(Interface):
     """An application."""
     # XXX fill in details
-    
+
+
 class IModelBase(Interface):
     """Mark this object as a base of a model.
     """
 
+
 class IPath(Interface):
     """Get the path for a model."""
+
 
 class IConfigAction(Interface):
     """A configuration item.
@@ -76,29 +90,33 @@ class IConfigAction(Interface):
         name - the name of the obj in its module
         obj - the object being registered
         """
-        
+
 
 class ConfigError(Exception):
     """Raised when configuration is bad
     """
-    
+
+
 class ResolveError(Exception):
     """Raised when path cannot be resolved
     """
+
 
 class ModelError(ResolveError):
     """Raised when a model cannot be resolved
     """
 
+
 class ResourceError(ResolveError):
     """Raised when a resource cannot be resolved
     """
+
 
 class TrajectError(Exception):
     """Raised when path supplied to traject is not allowed.
     """
 
+
 class LinkError(Exception):
     """Raised when a link cannot be made.
     """
-    

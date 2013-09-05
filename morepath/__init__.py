@@ -1,3 +1,4 @@
+# flake8: noqa
 from .app import App
 from .implicit import initialize
 from .setup import setup

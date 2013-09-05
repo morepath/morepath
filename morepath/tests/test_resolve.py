@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from comparch import Lookup, ClassRegistry
-from morepath.interfaces import IConsumer, IResource, ResolveError, ModelError
+from morepath.interfaces import IConsumer
 from morepath.pathstack import parse_path, DEFAULT
 from morepath.request import Request
 from morepath.publish import resolve_model
 from werkzeug.test import EnvironBuilder
-import pytest
+
 
 class Traverser(IConsumer):
     """A traverser is a consumer that consumes only a single step.
@@ -30,21 +30,27 @@ class Traverser(IConsumer):
             return False, obj, stack
         return True, next_obj, stack
 
+
 def get_request(*args, **kw):
     return Request(EnvironBuilder(*args, **kw).get_environ())
+
 
 def get_registry():
     return ClassRegistry()
 
+
 def get_lookup(registry):
     return Lookup(registry)
+
 
 class Container(dict):
     pass
 
+
 class Model(object):
     def __repr__(self):
         return "<Model>"
+
 
 def get_structure():
     """A structure of containers and models.
@@ -62,15 +68,16 @@ def get_structure():
 
     a = Model()
     root['a'] = a
-    
+
     sub = Container()
     root['sub'] = sub
-    
+
     b = Model()
     sub['b'] = b
     sub.attr = b
-    
+
     return root
+
 
 def test_resolve_no_consumers():
     lookup = get_lookup(get_registry())
@@ -82,10 +89,11 @@ def test_resolve_no_consumers():
     assert obj is base
     assert unconsumed == [(DEFAULT, u'a')]
     assert lookup is lookup
-    
+
+
 def test_resolve_traverse():
     reg = get_registry()
-    
+
     lookup = get_lookup(reg)
 
     reg.register(IConsumer, (Container,), Traverser(traverse_container))
@@ -95,7 +103,7 @@ def test_resolve_traverse():
     assert resolve_model(base, parse_path(u'/a'), lookup) == (
         base['a'], [], lookup)
     assert resolve_model(base, parse_path(u'/sub'), lookup) == (
-        base['sub'], [], lookup) 
+        base['sub'], [], lookup)
     assert resolve_model(base, parse_path(u'/sub/b'), lookup) == (
         base['sub']['b'], [], lookup)
 
@@ -106,11 +114,13 @@ def test_resolve_traverse():
     # there is a sub, but no c in sub
     assert resolve_model(base, parse_path(u'/sub/c'), lookup) == (
         base['sub'], [(DEFAULT, u'c')], lookup)
-    
+
+
 def traverse_container(container, ns, name):
     if ns != DEFAULT:
         return None
     return container.get(name)
+
 
 def traverse_attributes(container, ns, name):
     if ns != DEFAULT:

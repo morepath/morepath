@@ -2,6 +2,7 @@
 
 from morepath.pathstack import parse_path, create_path, DEFAULT, RESOURCE
 
+
 def test_parse():
     """Parse a path to a stack, default namespaces.
     """
@@ -104,4 +105,3 @@ def test_create_ns_weird_no_open():
             parse_path(u'/a/b/view++c'))
 
 # XXX removing /./ from paths and checking for ../
-

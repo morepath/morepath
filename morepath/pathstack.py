@@ -4,6 +4,7 @@ import re
 DEFAULT = u'default'
 RESOURCE = u'resource'
 
+
 def parse_path(path, shortcuts=None):
     """Parses a path /foo/bar/baz to a stack of steps.
 
@@ -49,6 +50,7 @@ def parse_path(path, shortcuts=None):
         result.append((ns, name))
     result.reverse()
     return result
+
 
 def create_path(stack, shortcuts=None):
     """Rebuilds a path from a stack.

@@ -1,13 +1,11 @@
-from comparch import Registry, Lookup
+from comparch import Lookup
 from morepath.app import App
-from morepath.interfaces import (IResource, IResponseFactory,
-                                 ResourceError, ResolveError)
 from morepath.publish import publish
-from morepath.request import Request, Response
+from morepath.request import Request
 from morepath.resource import register_resource
 from morepath.setup import setup
 from werkzeug.test import EnvironBuilder
-import py.test
+
 
 def get_request(*args, **kw):
     app = kw.pop('app')
@@ -16,8 +14,10 @@ def get_request(*args, **kw):
     result.lookup = lookup
     return result
 
+
 class Model(object):
     pass
+
 
 # XXX these tests have gained more dependencies, on app and setup and
 # lookup generation. see about refactor code so that they can be tested
@@ -25,29 +25,32 @@ class Model(object):
 def test_resource():
     setup()
     app = App()
+
     def resource(request, model):
         return "Resource!"
-    
+
     register_resource(app, Model, resource, predicates=dict(name=''))
 
     model = Model()
     result = publish(get_request(path='', app=app), model)
     assert result.data == 'Resource!'
 
-    
+
 def test_predicates():
     setup()
     app = App()
+
     def resource(request, model):
         return "all"
+
     def post_resource(request, model):
         return "post"
+
     register_resource(app, Model, resource, predicates=dict(name=''))
     register_resource(app, Model, post_resource,
                       predicates=dict(name='', request_method='POST'))
 
     model = Model()
-    
     assert publish(get_request(path='', app=app), model).data == 'all'
     
     assert (publish(get_request(path='', method='POST', app=app),
@@ -59,17 +62,21 @@ def test_notfound():
     model = Model()
     response = publish(get_request(path='', app=app), model)
     assert response.status == '404 NOT FOUND'
-        
+
+
 def test_notfound_with_predicates():
     setup()
     app = App()
+
     def resource(request, model):
         return "resource"
+
     register_resource(app, Model, resource, predicates=dict(name=''))
     model = Model()
     response = publish(get_request(path='foo', app=app), model)
     assert response.status == '404 NOT FOUND'
-   
+
+
 # def test_model_is_response():
 #     class MyModel(Response):
 #         pass
@@ -103,15 +110,15 @@ def test_notfound_with_predicates():
 #         def __init__(self, request, context):
 #             self.request = request
 #             self.context = context
-            
+
 #     class MyResource(IResponseFactory):
 #         def __init__(self, request, context):
 #             self.request = request
 #             self.context = context
-            
+
 #         def __call__(self):
 #             return MyResponse(self.request, self.context)
-        
+
 #     reg.register(IResource, (Request, Model), MyResource)
 
 #     req = get_request(path='')
