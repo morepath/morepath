@@ -2,6 +2,9 @@ from .fixtures import basic, nested
 from morepath import setup
 from morepath.config import Config
 from morepath.request import Response
+from morepath.app import App
+from comparch import Interface
+
 from werkzeug.test import Client
 
 
@@ -79,3 +82,23 @@ def test_nested():
 
     response = c.get('/inner/foo/link')
     assert response.data == 'inner/foo'
+
+def test_imperative():
+    setup()
+
+    class Foo(object):
+        pass
+
+    class ITarget(Interface):
+        pass
+
+    app = App()
+
+    c = Config()
+    c.app(app)
+    foo = Foo()
+    c.action(app.component(ITarget, []), foo)
+    c.commit()
+
+    assert ITarget.component(lookup=app.lookup()) is foo
+

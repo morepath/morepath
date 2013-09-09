@@ -31,7 +31,7 @@ class ModelDirective(Directive):
         # a model can only be made available once for a base
         return ('model', self.base, self.model)
 
-    def prepare(self, name, obj):
+    def prepare(self, obj):
         # XXX check shared with @root
         if isinstance(obj, type):
             if self.model is not None:
@@ -47,7 +47,7 @@ class ModelDirective(Directive):
         # XXX check whether variables is there if variable is used in
         # path
 
-    def perform(self, name, obj):
+    def perform(self, obj):
         register_model(self.app, self.model, self.path,
                        self.variables, obj)
 
@@ -66,7 +66,7 @@ class ResourceDirective(Directive):
     def discriminator(self):
         return ('resource', self.model, self.name)
 
-    def perform(self, name, obj):
+    def perform(self, obj):
         # XXX kwargs for predicates doesn't seem useful as we unpack
         # them again on the other side
         register_resource(self.app, self.model, obj, self.render,
@@ -83,7 +83,7 @@ class RootDirective(Directive):
         # XXX what if model is set through a class decorator?
         return ('app', self.model, self.name)
 
-    def prepare(self, name, obj):
+    def prepare(self, obj):
         if isinstance(obj, type):
             if self.model is not None:
                 raise ConfigError(
@@ -97,7 +97,7 @@ class RootDirective(Directive):
         # XXX calling things too early?
         self.app.root_obj = obj()
 
-    def perform(self, name, obj):
+    def perform(self, obj):
         register_root(self.app, self.model, obj)
 
 
@@ -111,5 +111,5 @@ class ComponentDirective(Directive):
     def discriminator(self):
         return ('component', self.model, self.name)
 
-    def perform(self, name, obj):
+    def perform(self, obj):
         self.app.register(self.target, self.sources, obj)

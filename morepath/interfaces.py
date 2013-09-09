@@ -83,11 +83,16 @@ class IConfigAction(Interface):
         """
 
     @abstractmethod
-    def perform(self, registry, name, obj):
+    def prepare(self, obj):
+        """Prepare action for configuration.
+
+        obj - the object being registered
+        """
+
+    @abstractmethod
+    def perform(self, obj):
         """Register whatever is being configured.
 
-        registry - the registry in which to register
-        name - the name of the obj in its module
         obj - the object being registered
         """
 

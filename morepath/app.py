@@ -26,7 +26,7 @@ class App(IApp, Action, ClassRegistry):
     # XXX clone() isn't right, as we'd actually put things in a traject of
     # cloned?
 
-    def perform(self, name, obj):
+    def perform(self, obj):
         if self.parent is None:
             return
         self.parent.traject.register(
@@ -48,11 +48,13 @@ class App(IApp, Action, ClassRegistry):
             return ChainClassLookup(self, global_app)
         return ChainClassLookup(self, self.parent.class_lookup())
 
+    def lookup(self):
+        # XXX caching where?
+        return Lookup(self.class_lookup())
+
     def __call__(self, environ, start_response):
-        # XXX do caching lookup where?
-        lookup = Lookup(self.class_lookup())
         request = Request(environ)
-        request.lookup = lookup
+        request.lookup = self.lookup()
         response = publish(request, self)
         return response(environ, start_response)
 
