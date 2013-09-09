@@ -5,3 +5,5 @@ develop-eggs
 src
 .mr.developer.cfg
 doc/build
+.coverage
+htmlcov
