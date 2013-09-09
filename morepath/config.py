@@ -38,8 +38,8 @@ class Config(object):
         scanner = venusian.Scanner(config=self)
         scanner.scan(package, ignore=ignore)
 
-    def action(self, directive, name, obj):
-        self.actions.append((directive, name, obj))
+    def action(self, action, name, obj):
+        self.actions.append((action, name, obj))
 
     def validate(self):
         # XXX check for conflicts
