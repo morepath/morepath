@@ -17,6 +17,7 @@ setup(name='morepath',
         'werkzeug',
         ],
       extras_require = dict(
-        test=['pytest >= 2.0'],
+        test=['pytest >= 2.0',
+              'pytest-cov'],
         ),
       )
