@@ -1,7 +1,7 @@
 from comparch import Lookup
 from morepath.app import App
 from morepath.publish import publish
-from morepath.request import Request
+from morepath.request import Request, Response
 from morepath.resource import register_resource
 from morepath.setup import setup
 from werkzeug.test import EnvironBuilder
@@ -52,10 +52,10 @@ def test_predicates():
 
     model = Model()
     assert publish(get_request(path='', app=app), model).data == 'all'
-    
     assert (publish(get_request(path='', method='POST', app=app),
                     model).data == 'post')
-    
+
+
 def test_notfound():
     setup()
     app = App()
@@ -76,6 +76,18 @@ def test_notfound_with_predicates():
     response = publish(get_request(path='foo', app=app), model)
     assert response.status == '404 NOT FOUND'
 
+
+def test_response_returned():
+    setup()
+    app = App()
+
+    def resource(request, model):
+        return Response('Hello world!')
+
+    register_resource(app, Model, resource)
+    model = Model()
+    response = publish(get_request(path='', app=app), model)
+    assert response.data == 'Hello world!'
 
 # def test_model_is_response():
 #     class MyModel(Response):
