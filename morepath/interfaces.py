@@ -18,7 +18,6 @@ class IResource(Interface):
     pass
 
 
-
 class IResponse(Interface):
     pass
 

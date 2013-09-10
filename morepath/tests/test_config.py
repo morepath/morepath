@@ -1,19 +1,25 @@
 from morepath import config
 import py.test
 
+
 def test_action():
     performed = []
+
     class MyAction(config.Action):
         def perform(self, obj):
             performed.append(obj)
+
     c = config.Config()
+
     class Foo(object):
         pass
+
     foo = Foo()
     c.action(MyAction(), foo)
     assert performed == []
     c.commit()
     assert performed == [foo]
+
 
 def test_action_not_implemented():
     class UnimplementedAction(config.Action):
@@ -23,11 +29,14 @@ def test_action_not_implemented():
     with py.test.raises(NotImplementedError):
         c.commit()
 
+
 def test_directive():
     performed = []
+
     class MyDirective(config.Directive):
         def perform(self, obj):
             performed.append(obj)
+
     c = config.Config()
 
     d = MyDirective()

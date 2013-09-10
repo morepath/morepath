@@ -5,7 +5,6 @@ from comparch.interfaces import IMatcher
 import json
 
 
-
 class PredicateLookup(IResource):
     def __init__(self, predicate_registry):
         self.predicate_registry = predicate_registry
@@ -55,6 +54,7 @@ class ResourceMatcher(IMatcher):
         request_predicates = self.get_predicates(request)
         return self.reg.get(request_predicates)
 
+
 def register_resource(registry, model, resource, render=None, predicates=None):
     registration = Resource(resource, render)
     if predicates is not None:
@@ -69,7 +69,7 @@ def register_resource(registry, model, resource, render=None, predicates=None):
 def render_noop(response, content):
     return response
 
+
 def render_json(response, content):
     response.set_data(json.dumps(content))
     return response
-

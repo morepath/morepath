@@ -48,11 +48,6 @@ def root_path(request, model):
 def app_lookup(model):
     return Lookup(model.class_lookup())
 
-def get_registration(request, model):
-    return IResourceRegistration.adapt(request, model,
-                                       lookup=request.lookup,
-                                       default=None)
-
 
 # @global_app.component(IContent, [Request, object])
 # def get_content(request, model):

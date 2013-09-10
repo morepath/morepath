@@ -24,6 +24,7 @@ class Directive(Action):
         venusian.attach(wrapped, callback)
         return wrapped
 
+
 class Config(object):
     def __init__(self):
         self.actions = []
@@ -51,7 +52,7 @@ class Config(object):
     def commit(self):
         actions = []
         for action, obj in self.actions:
-            action = action.clone() # so that prepare starts fresh
+            action = action.clone()  # so that prepare starts fresh
             action.prepare(obj)
             actions.append((action, obj))
 

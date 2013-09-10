@@ -84,6 +84,7 @@ def test_nested():
     response = c.get('/inner/foo/link')
     assert response.data == 'inner/foo'
 
+
 def test_imperative():
     setup()
 
@@ -103,6 +104,7 @@ def test_imperative():
 
     assert ITarget.component(lookup=app.lookup()) is foo
 
+
 def test_basic_imperative():
     setup()
 
@@ -112,35 +114,27 @@ def test_basic_imperative():
         def __init__(self):
             self.value = 'ROOT'
 
-
     class Model(object):
         def __init__(self, id):
             self.id = id
 
-
     def get_model(id):
         return Model(id)
-
 
     def default(request, model):
         return "The resource for model: %s" % model.id
 
-
     def link(request, model):
         return request.link(model)
-
 
     def json(request, model):
         return {'id': model.id}
 
-
     def root_default(request, model):
         return "The root: %s" % model.value
 
-
     def root_link(request, model):
         return request.link(model)
-
 
     c = Config()
     c.app(app)

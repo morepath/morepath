@@ -1,7 +1,6 @@
 from .interfaces import (IResponse, ILookup,
                          ResourceError, ModelError, IConsumer)
 from .pathstack import parse_path, create_path, DEFAULT, RESOURCE
-from .request import Response
 from werkzeug.exceptions import HTTPException, NotFound
 
 SHORTCUTS = {
@@ -43,6 +42,7 @@ def resolve_model(obj, stack, lookup):
             break
     return obj, unconsumed, lookup
 
+
 def resolve_response(request, model, stack):
     ns, name = get_resource_step(model, stack)
 
@@ -69,6 +69,7 @@ def get_resource_step(model, stack):
         return stack[0]
     raise ModelError(
         "%r has unresolved path %s" % (model, create_path(stack)))
+
 
 def publish(request, root):
     #path = self.base_path(request)
