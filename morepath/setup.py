@@ -2,9 +2,8 @@ from .app import global_app
 from .config import Config
 import morepath.directive
 from .interfaces import (IConsumer, ILookup, IModelBase, IRoot,
-                         IPath, LinkError, IApp, IContent, IResponse,
-                         IResourceRegistration)
-from .request import Request
+                         IPath, LinkError, IApp, IResource, IResponse)
+from .request import Request, Response
 from .traject import traject_consumer
 import morepath
 from comparch import Lookup
@@ -49,27 +48,37 @@ def root_path(request, model):
 def app_lookup(model):
     return Lookup(model.class_lookup())
 
-
 def get_registration(request, model):
     return IResourceRegistration.adapt(request, model,
                                        lookup=request.lookup,
                                        default=None)
 
 
-@global_app.component(IContent, [Request, object])
-def get_content(request, model):
-    reg = get_registration(request, model)
-    if reg is None:
-        return None
-    return reg.resource(request, model)
+# @global_app.component(IContent, [Request, object])
+# def get_content(request, model):
+#     reg = get_registration(request, model)
+#     if reg is None:
+#         return None
+#     return reg.resource(request, model)
 
 
 @global_app.component(IResponse, [Request, object])
 def get_response(request, model):
-    reg = get_registration(request, model)
-    if reg is None:
+    resource = IResource.component(request, model, lookup=request.lookup,
+                                   default=None)
+    if resource is None:
         return None
-    content = reg.resource(request, model)
-    if reg.render is None:
-        return content
-    return reg.render(content)
+    content = resource(request, model)
+    response = None
+    if isinstance(content, Response):
+        response = content
+    elif isinstance(content, basestring):
+        response = Response(content)
+    if resource.render is not None:
+        if isinstance(content, Response):
+            content = response.get_data(as_text=True)
+        if response is None:
+            response = Response()
+        response = resource.render(response, content)
+    assert response is not None, "Cannot render content: %r" % content
+    return response

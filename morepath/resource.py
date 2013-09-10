@@ -1,13 +1,12 @@
-from .interfaces import IResourceRegistration
+from .interfaces import IResource
 from .request import Request
-from comparch import PredicateRegistry
+from comparch import PredicateRegistry, KeyPredicate
+from comparch.interfaces import IMatcher
 import json
 
-# XXX hardcoded predicates gotta change
-PREDICATES = ['name', 'request_method']
 
 
-class PredicateLookup(IResourceRegistration):
+class PredicateLookup(IResource):
     def __init__(self, predicate_registry):
         self.predicate_registry = predicate_registry
 
@@ -29,31 +28,48 @@ class PredicateLookup(IResourceRegistration):
         return result
 
 
-class ResourceRegistration(IResourceRegistration):
+class Resource(IResource):
     def __init__(self, resource, render):
         self.resource = resource
         self.render = render
 
+    def __call__(self, request, model):
+        return self.resource(request, model)
+
+
+class ResourceMatcher(IMatcher):
+    def __init__(self):
+        self.reg = PredicateRegistry([KeyPredicate('name'),
+                                      KeyPredicate('request_method')])
+
+    def register(self, predicates, registration):
+        self.reg.register(predicates, registration)
+
+    def get_predicates(self, request):
+        result = {}
+        result['request_method'] = request.method
+        result['name'] = request.resolver_info()['name']
+        return result
+
+    def __call__(self, request, model):
+        request_predicates = self.get_predicates(request)
+        return self.reg.get(request_predicates)
 
 def register_resource(registry, model, resource, render=None, predicates=None):
-    # XXX should predicates ever be None?
-    if predicates is None:
-        predicates = {}
-    lookup = registry.exact_get(IResourceRegistration, (Request, model))
-    if lookup is None:
-        lookup = PredicateLookup(PredicateRegistry(PREDICATES))
-        registry.register(IResourceRegistration, (Request, model), lookup)
-    registration = ResourceRegistration(resource, render)
-    lookup.predicate_registry.register(predicates, registration)
+    registration = Resource(resource, render)
+    if predicates is not None:
+        matcher = registry.exact_get(IResource, (Request, model))
+        if matcher is None:
+            matcher = ResourceMatcher()
+        matcher.register(predicates, registration)
+        registration = matcher
+    registry.register(IResource, (Request, model), registration)
 
 
-def render_noop(content):
-    return content
+def render_noop(response, content):
+    return response
 
+def render_json(response, content):
+    response.set_data(json.dumps(content))
+    return response
 
-# XXX use response object?
-def render_json(content):
-    return json.dumps(content)
-
-
-# we look up IResponseFactory for request and model

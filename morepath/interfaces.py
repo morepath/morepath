@@ -18,13 +18,6 @@ class IResource(Interface):
     pass
 
 
-class IResourceRegistration(Interface):
-    pass
-
-
-class IContent(Interface):
-    pass
-
 
 class IResponse(Interface):
     pass

@@ -2,6 +2,7 @@ from .interfaces import (IResponse, ILookup,
                          ResourceError, ModelError, IConsumer)
 from .pathstack import parse_path, create_path, DEFAULT, RESOURCE
 from .request import Response
+from werkzeug.exceptions import HTTPException, NotFound
 
 SHORTCUTS = {
     '@@': RESOURCE,
@@ -56,7 +57,7 @@ def resolve_response(request, model, stack):
                                lookup=request.lookup)
     if response is RESPONSE_SENTINEL:
         # XXX lookup error resource and fallback to default
-        return Response("Not found", 404)
+        raise NotFound()
     return response
 
 
@@ -74,11 +75,10 @@ def publish(request, root):
     stack = parse_path(request.path, SHORTCUTS)
     model, crumbs, lookup = resolve_model(root, stack, request.lookup)
     request.lookup = lookup
-    response = resolve_response(request, model, crumbs)
-    if isinstance(response, basestring):
-        return Response(response)
-    return response
-
+    try:
+        return resolve_response(request, model, crumbs)
+    except HTTPException as e:
+        return e.get_response(request.environ)
 
 # def base_path(self, request):
 #     path = request.path
