@@ -74,6 +74,6 @@ Morepath contains a reformulation of the Dawnlight system in its
 resolve and publisher modules.
 
 In 2013 I started to work with CONTACT Software and combined these
-lines of developmentw into Morepath: the Comparch registries,
+lines of development into Morepath: the Comparch registries,
 decorator-based configuration using Venusian, and traject-style
 publication of models and resources.
