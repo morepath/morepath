@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from abc import abstractmethod
-from comparch import Interface
+from reg import Interface
 
 
 class IConsumer(Interface):

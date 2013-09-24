@@ -1,7 +1,7 @@
 from .interfaces import IResource
 from .request import Request
-from comparch import PredicateRegistry, KeyPredicate
-from comparch.interfaces import IMatcher
+from reg import PredicateRegistry, KeyPredicate
+from reg.interfaces import IMatcher
 import json
 
 

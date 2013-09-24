@@ -3,7 +3,7 @@ from .publish import publish
 from .request import Request
 from .traject import Traject
 from .config import Action
-from comparch import ClassRegistry, Lookup, ChainClassLookup
+from reg import ClassRegistry, Lookup, ChainClassLookup
 
 
 class App(IApp, Action, ClassRegistry):

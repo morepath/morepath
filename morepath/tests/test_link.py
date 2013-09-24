@@ -1,4 +1,4 @@
-from comparch import Lookup
+from reg import Lookup
 from morepath.app import global_app
 from morepath.interfaces import IRoot, IPath
 from morepath.link import path

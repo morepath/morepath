@@ -1,4 +1,4 @@
-from comparch import Lookup
+from reg import Lookup
 from morepath.app import App
 from morepath.publish import publish
 from morepath.request import Request, Response

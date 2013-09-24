@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from comparch import Lookup, ClassRegistry
+from reg import Lookup, ClassRegistry
 from morepath.interfaces import IConsumer
 from morepath.pathstack import parse_path, DEFAULT
 from morepath.request import Request

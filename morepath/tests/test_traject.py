@@ -1,5 +1,5 @@
 
-from comparch import Lookup, ChainClassLookup
+from reg import Lookup, ChainClassLookup
 from morepath.app import App, global_app
 from morepath.interfaces import TrajectError
 from morepath.link import path, get_base

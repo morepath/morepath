@@ -3,7 +3,7 @@ from morepath import setup
 from morepath.config import Config
 from morepath.request import Response
 from morepath.app import App
-from comparch import Interface
+from reg import Interface
 import morepath
 
 from werkzeug.test import Client

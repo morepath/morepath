@@ -6,7 +6,7 @@ from .interfaces import (IConsumer, ILookup, IModelBase, IRoot,
 from .request import Request, Response
 from .traject import traject_consumer
 import morepath
-from comparch import Lookup
+from reg import Lookup
 
 assert morepath.directive  # we need to make the component directive work
 

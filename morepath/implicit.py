@@ -1,4 +1,4 @@
-from comparch import ClassRegistry, CachedLookup, implicit
+from reg import ClassRegistry, CachedLookup, implicit
 
 
 def initialize():
