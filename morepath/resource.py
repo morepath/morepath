@@ -71,5 +71,13 @@ def render_noop(response, content):
 
 
 def render_json(response, content):
+    response.content_type = 'application/json'
     response.set_data(json.dumps(content))
     return response
+
+
+def render_html(response, content):
+    response.content_type = 'text/html'
+    response.set_data(content)
+    return response
+
