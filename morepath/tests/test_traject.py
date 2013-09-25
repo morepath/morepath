@@ -1,8 +1,7 @@
 
 from reg import Lookup, ChainClassLookup
 from morepath.app import App, global_app
-from morepath.interfaces import TrajectError
-from morepath.link import path, get_base
+from morepath.interfaces import TrajectError, IPath, IModelBase
 from morepath.pathstack import parse_path, DEFAULT
 from morepath.request import Request
 from morepath.traject import (is_identifier,
@@ -355,9 +354,8 @@ def test_register_root():
     register_root(app, Root, lambda: root)
     request = get_request()
     request.lookup = lookup
-    assert path(request, root) == ''
-    base = get_base(root, lookup=lookup)
-    assert base is app
+    assert IPath.adapt(request, root, lookup=lookup) == ''
+    assert IModelBase.adapt(root, lookup=lookup) is app
 
 
 def test_register_model():
@@ -383,10 +381,8 @@ def test_register_model():
     model.id = 'b'
     request = get_request()
     request.lookup = lookup
-    assert path(request, model) == 'b'
-    base = get_base(model, lookup=lookup)
-    assert base is app
-    #assert isinstance(base, Root)
+    assert IPath.adapt(request, model, lookup=lookup) == 'b'
+    assert IModelBase.adapt(model, lookup=lookup) is app
 
 
 # XXX we still need to do a conflict between a model path and an app name

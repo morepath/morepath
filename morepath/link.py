@@ -19,11 +19,3 @@ def link(request, model, name, base, lookup):
         # to mimic what happens during path resolution
     result.reverse()
     return '/'.join(result)
-
-
-def path(request, model):
-    return IPath.adapt(request, model, lookup=request.lookup)
-
-
-def get_base(model, lookup):
-    return IModelBase.adapt(model, lookup=lookup, default=None)
