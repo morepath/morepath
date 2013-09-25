@@ -1,6 +1,6 @@
 from .interfaces import IResource
 from .request import Request
-from reg import PredicateRegistry, KeyPredicate
+from reg import PredicateRegistry, Predicate, KeyIndex
 from reg.interfaces import IMatcher
 import json
 
@@ -38,8 +38,8 @@ class Resource(IResource):
 
 class ResourceMatcher(IMatcher):
     def __init__(self):
-        self.reg = PredicateRegistry([KeyPredicate('name'),
-                                      KeyPredicate('request_method')])
+        self.reg = PredicateRegistry([Predicate('name', KeyIndex),
+                                      Predicate('request_method', KeyIndex)])
 
     def register(self, predicates, registration):
         self.reg.register(predicates, registration)
