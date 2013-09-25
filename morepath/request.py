@@ -1,4 +1,5 @@
 from .link import link
+from .interfaces import IResource
 from werkzeug.wrappers import BaseRequest, BaseResponse
 
 
@@ -13,6 +14,10 @@ class Request(BaseRequest):
     def resolver_info(self):
         return self._resolver_info
 
+    def render(self, model, default=None):
+        return IResource.adapt(
+            self, model, lookup=self.lookup, default=default)
+    
     # XXX add way to easily generate URL parameters too
     def link(self, model, name='', base=None):
         return link(self, model, name, base, self.lookup)
@@ -20,16 +25,3 @@ class Request(BaseRequest):
 
 class Response(BaseResponse):
     pass
-
-    # def render(self, model, name, **predicates):
-    #     predicate_lookup = IResource.component(self, model)
-    #     if predicate_lookup is None:
-    #         raise HttpNotFound()
-    #     resource = predicate_lookup.get(get_predicates(
-    #             request, model, predicates))
-    #     if resource is none:
-    #         raise HttpNotFound()
-    #     return resource(self, model, **get_parameters(self))
-
-    # def link(self, model, name):
-    #     pass

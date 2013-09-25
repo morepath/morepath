@@ -49,14 +49,6 @@ def app_lookup(model):
     return Lookup(model.class_lookup())
 
 
-# @global_app.component(IContent, [Request, object])
-# def get_content(request, model):
-#     reg = get_registration(request, model)
-#     if reg is None:
-#         return None
-#     return reg.resource(request, model)
-
-
 @global_app.component(IResponse, [Request, object])
 def get_response(request, model):
     resource = IResource.component(request, model, lookup=request.lookup,

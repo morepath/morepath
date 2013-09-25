@@ -2,7 +2,7 @@ from reg import Lookup
 from morepath.app import App
 from morepath.publish import publish
 from morepath.request import Request, Response
-from morepath.resource import register_resource
+from morepath.resource import register_resource, render_json
 from morepath.setup import setup
 from werkzeug.test import EnvironBuilder
 
@@ -89,6 +89,24 @@ def test_response_returned():
     response = publish(get_request(path='', app=app), model)
     assert response.data == 'Hello world!'
 
+
+def test_render():
+    setup()
+    app = App()
+
+    def resource(request, model):
+        return { 'hey': 'hey' }
+
+    register_resource(app, Model, resource, render=render_json)
+    
+    request = get_request(path='', app=app)
+    model = Model()
+    response = publish(request, model)
+    # when we get the response, the json will be rendered
+    assert response.data == '{"hey": "hey"}'
+    # but we get the original json out when we render
+    assert request.render(model) == { 'hey': 'hey' }
+    
 # def test_model_is_response():
 #     class MyModel(Response):
 #         pass
