@@ -1,5 +1,6 @@
 from .interfaces import IResource, ILink
-from werkzeug.wrappers import BaseRequest, BaseResponse
+from werkzeug.wrappers import (BaseRequest, BaseResponse,
+                               CommonResponseDescriptorsMixin)
 
 
 class Request(BaseRequest):
@@ -28,5 +29,5 @@ class Request(BaseRequest):
         return result
 
 
-class Response(BaseResponse):
+class Response(BaseResponse, CommonResponseDescriptorsMixin):
     pass
