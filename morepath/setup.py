@@ -2,7 +2,7 @@ from .app import global_app
 from .config import Config
 import morepath.directive
 from .interfaces import (IConsumer, ILookup, IModelBase, IRoot,
-                         IPath, LinkError, IApp, IResource, IResponse)
+                         IPath, ILink, LinkError, IApp, IResource, IResponse)
 from .request import Request, Response
 from .traject import traject_consumer
 import morepath
@@ -42,6 +42,23 @@ def app_base(model):
 @global_app.component(IPath, [Request, IRoot])
 def root_path(request, model):
     return ''
+
+
+@global_app.component(ILink, [Request, object])
+def link(request, model):
+    result = []
+    lookup = request.lookup
+    while True:
+        path = IPath.adapt(request, model, lookup=lookup)
+        if path:
+            result.append(path)
+        model = IModelBase.adapt(model, lookup=lookup, default=None)
+        if model is None:
+            break
+        # XXX should switch lookup back to lookup of base model in order
+        # to mimic what happens during path resolution
+    result.reverse()
+    return '/'.join(result)    
 
 
 @global_app.component(ILookup, [IApp])

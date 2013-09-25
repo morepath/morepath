@@ -1,5 +1,4 @@
-from .link import link
-from .interfaces import IResource
+from .interfaces import IResource, ILink
 from werkzeug.wrappers import BaseRequest, BaseResponse
 
 
@@ -19,8 +18,14 @@ class Request(BaseRequest):
             self, model, lookup=self.lookup, default=default)
     
     # XXX add way to easily generate URL parameters too
-    def link(self, model, name='', base=None):
-        return link(self, model, name, base, self.lookup)
+    # XXX add way to determine application lookup context, or just
+    # modify in request?
+    def link(self, model, name=''):
+        result = ILink.adapt(
+            self, model, lookup=self.lookup)
+        if name:
+            result += '/' + name
+        return result
 
 
 class Response(BaseResponse):

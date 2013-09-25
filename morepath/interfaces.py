@@ -63,6 +63,10 @@ class IPath(Interface):
     """Get the path for a model."""
 
 
+class ILink(Interface):
+    """Get the hyperlink for a model."""
+
+
 class IConfigAction(Interface):
     """A configuration item.
     """
