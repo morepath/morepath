@@ -87,21 +87,3 @@ def publish(request, root):
 #     if path.startswith(script_name):
 #         return path[len(script_name):]
 #     return path
-
-# XXX speculative code that implements request.render. This will
-# use a IRenderFactory instead of a IResponseFactory to get the result
-# in the case of JSON, this will not serialize the JSON; it might
-# simply return the original result in most cases
-# request needs to be able to access the publisher now; it
-# might start to make sense to make the publisher part of the request,
-# in which case lookup is too. or should publisher be a global?
-# def render(self, request, model, name=''):
-#     resource = self.resource_resolver(request, model, [(RESOURCE, name)])
-#     factory = IResponseFactory.adapt(resource, lookup=self.lookup)
-#     return factory()
-
-        # return resource(request, model)
-
-        # this renderer needs to be resolved into an IResponse
-        #factory = IResponseFactory(resource)
-        #return factory()
