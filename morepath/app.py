@@ -7,6 +7,7 @@ from reg import ClassRegistry, Lookup, ChainClassLookup
 
 
 class App(IApp, Action, ClassRegistry):
+    # XXX split path parent from configuration parent
     def __init__(self, name='', parent=None):
         super(App, self).__init__()
         self.name = name
