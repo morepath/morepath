@@ -5,5 +5,6 @@ from .setup import setup
 from morepath import directive # register directive methods
 from .resource import render_json
 from .request import Request, Response
+from .config import Config
 
 #initialize()
