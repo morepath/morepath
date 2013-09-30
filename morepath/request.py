@@ -17,7 +17,7 @@ class Request(BaseRequest):
     def render(self, model, default=None):
         return IResource.adapt(
             self, model, lookup=self.lookup, default=default)
-    
+
     # XXX add way to easily generate URL parameters too
     # XXX add way to determine application lookup context, or just
     # modify in request?
