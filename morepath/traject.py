@@ -14,7 +14,7 @@ KNOWN_TYPES = {
     'int': int
     }
 
-        
+
 class Traject(object):
     def __init__(self):
         self._step_matchers = set()
@@ -106,7 +106,7 @@ class Traject(object):
 
 
 def traject_consumer(base, stack, lookup):
-    traject = ITraject.component(base, lookup=lookup, default=None)
+    traject = ITraject.adapt(base, lookup=lookup, default=None)
     if traject is None:
         return False, base, stack
     variables = {}
@@ -300,12 +300,16 @@ def register_root(app, model, model_factory):
 def register_model(app, model, path, variables, model_factory,
                    base=None, get_base=None,
                    conflicting=False):
-    if base is None:
-        base = app.__class__
-    traject = app.exact_get(ITraject, [base])
-    if traject is None:
-        traject = Traject()
-        app.register(ITraject, [base], traject)
+    if base is not None:
+        traject = app.exact_get(ITraject, [base])
+        if traject is None:
+            traject = Traject()
+            app.register(ITraject, [base], lambda base: traject)
+    else:
+        traject = app.traject
+        if traject is None:
+            traject = Traject()
+            app.traject = traject
     traject.register(path, model_factory, conflicting)
     traject.register_inverse(model, path, variables)
 

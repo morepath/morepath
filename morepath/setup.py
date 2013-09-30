@@ -25,16 +25,16 @@ def traject_path(request, model):
     if base is None:
         raise LinkError(
             "cannot determine model base for %r" % model)
-    traject = ITraject.component(base, lookup=request.lookup, default=None)
+    traject = ITraject.adapt(base, lookup=request.lookup, default=None)
     if traject is None:
         raise LinkError(
             "cannot determine traject path info for base %r" % base)
     return traject.get_path(model)
 
 
-# @global_app.component(ITraject, [IApp])
-# def app_traject(app):
-#     return app.traject
+@global_app.component(ITraject, [IApp])
+def app_traject(app):
+    return app.traject
 
 
 @global_app.component(IPath, [Request, IApp])
