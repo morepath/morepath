@@ -1,8 +1,9 @@
-from morepath.app import App
+from morepath.app import App, global_app
 from morepath.config import Config
 from morepath import setup
-from morepath.request import Response
+from morepath.request import Request, Response
 from werkzeug.test import Client
+
 
 def test_base():
     setup()
@@ -67,8 +68,17 @@ def test_base():
         app.resource(model=Container),
         lambda request, model: 'container: %s' % model.id)
     c.action(
+        app.resource(model=Container, name='link'),
+        lambda request, model: request.link(model))
+    c.action(
         app.resource(model=Item),
         lambda request, model: 'item: %s' % model.id)
+    c.action(
+        app.resource(model=Item, name='link'),
+        lambda request, model: request.link(model))
+    c.action(
+        app.resource(model=Item, name='otherlink'),
+        lambda request, model: request.link(e))
     c.commit()
 
     c = Client(app, Response)
@@ -79,4 +89,14 @@ def test_base():
     assert response.data == 'container: beta'
     response = c.get('/alpha/a')
     assert response.data == 'item: a'
+    response = c.get('/beta/e')
+    assert response.data == 'item: e'
+    response = c.get('/alpha/e')
+    assert response.status == '404 NOT FOUND'
 
+    response = c.get('/alpha/@@link')
+    assert response.data == 'alpha'
+    response = c.get('/alpha/a/link')
+    assert response.data == 'alpha/a'
+    response = c.get('/alpha/a/otherlink')
+    assert response.data == 'beta/e'
