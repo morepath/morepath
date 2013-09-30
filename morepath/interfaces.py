@@ -30,7 +30,6 @@ class IResponseFactory(Interface):
         """Returns a Response instance."""
 
 
-# XXX incomplete
 class ITraject(Interface):
     pass
 

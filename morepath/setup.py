@@ -1,7 +1,7 @@
 from .app import global_app
 from .config import Config
 import morepath.directive
-from .interfaces import (IConsumer, ILookup, IModelBase, IRoot,
+from .interfaces import (IConsumer, ILookup, IModelBase, IRoot, ITraject,
                          IPath, ILink, LinkError, IApp, IResource, IResponse)
 from .request import Request, Response
 from .traject import traject_consumer
@@ -22,11 +22,19 @@ def setup():
 @global_app.component(IPath, [Request, object])
 def traject_path(request, model):
     base = IModelBase.adapt(model, lookup=request.lookup, default=None)
-    traject = base.traject
+    if base is None:
+        raise LinkError(
+            "cannot determine model base for %r" % model)
+    traject = ITraject.component(base, lookup=request.lookup, default=None)
     if traject is None:
         raise LinkError(
             "cannot determine traject path info for base %r" % base)
     return traject.get_path(model)
+
+
+# @global_app.component(ITraject, [IApp])
+# def app_traject(app):
+#     return app.traject
 
 
 @global_app.component(IPath, [Request, IApp])

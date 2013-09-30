@@ -1,7 +1,7 @@
 
 from reg import Lookup, ChainClassLookup
 from morepath.app import App, global_app
-from morepath.interfaces import TrajectError, IPath, IModelBase
+from morepath.interfaces import TrajectError, IPath, IModelBase, ITraject
 from morepath.pathstack import parse_path, DEFAULT
 from morepath.request import Request
 from morepath.traject import (is_identifier,
@@ -83,7 +83,9 @@ def test_variable_matcher_type():
 
 def test_traject_consumer():
     app = App()
-    app.traject.register('sub', Model)
+    traject = Traject()
+    traject.register('sub', Model)
+    app.register(ITraject, [App], traject)
     found, obj, stack = traject_consumer(app, parse_path('sub'), Lookup(app))
     assert found
     assert isinstance(obj, Model)
@@ -101,10 +103,12 @@ def test_traject_consumer_not_found():
 def test_traject_consumer_factory_returns_none():
     app = App()
 
+    traject = Traject()
     def get_model():
         return None
-
-    app.traject.register('sub', get_model)
+    traject.register('sub', get_model)
+    app.register(ITraject, [App], traject)
+    
     found, obj, stack = traject_consumer(app, parse_path('sub'), Lookup(app))
     assert not found
     assert obj is app
@@ -114,12 +118,14 @@ def test_traject_consumer_factory_returns_none():
 def test_traject_consumer_variable():
     app = App()
 
+    traject = Traject()
     def get_model(foo):
         result = Model()
         result.foo = foo
         return result
-
-    app.traject.register('{foo}', get_model)
+    traject.register('{foo}', get_model)
+    app.register(ITraject, [App], traject)
+    
     found, obj, stack = traject_consumer(app, parse_path('something'),
                                          Lookup(app))
     assert found
@@ -131,13 +137,15 @@ def test_traject_consumer_variable():
 def test_traject_consumer_combination():
     app = App()
 
+    traject = Traject()
     def get_model(foo):
         result = Model()
         result.foo = foo
         return result
-
-    app.traject.register('special', Special)
-    app.traject.register('{foo}', get_model)
+    traject.register('special', Special)
+    traject.register('{foo}', get_model)
+    app.register(ITraject, [App], traject)
+    
     found, obj, stack = traject_consumer(app, parse_path('something'),
                                          Lookup(app))
     assert found
@@ -153,8 +161,12 @@ def test_traject_consumer_combination():
 
 def test_traject_nested():
     app = App()
-    app.traject.register('a', Model)
-    app.traject.register('a/b', Special)
+
+    traject = Traject()
+    traject.register('a', Model)
+    traject.register('a/b', Special)
+    app.register(ITraject, [App], traject)
+    
     found, obj, stack = traject_consumer(app, parse_path('a'), Lookup(app))
     assert found
     assert isinstance(obj, Model)
@@ -167,7 +179,10 @@ def test_traject_nested():
 
 def test_traject_nested_not_resolved_entirely_by_consumer():
     app = App()
-    app.traject.register('a', Model)
+    traject = Traject()
+    traject.register('a', Model)
+    app.register(ITraject, [App], traject)
+    
     found, obj, stack = traject_consumer(app, parse_path('a'), Lookup(app))
     assert found
     assert isinstance(obj, Model)
@@ -181,6 +196,8 @@ def test_traject_nested_not_resolved_entirely_by_consumer():
 def test_traject_nested_with_variable():
     app = App()
 
+    traject = Traject()
+    
     def get_model(id):
         result = Model()
         result.id = id
@@ -191,8 +208,10 @@ def test_traject_nested_with_variable():
         result.id = id
         return result
 
-    app.traject.register('{id}', get_model)
-    app.traject.register('{id}/sub', get_special)
+    traject.register('{id}', get_model)
+    traject.register('{id}/sub', get_special)
+    app.register(ITraject, [App], traject)
+    
     found, obj, stack = traject_consumer(app, parse_path('a'), Lookup(app))
     assert found
     assert isinstance(obj, Model)
@@ -210,6 +229,7 @@ def test_traject_nested_with_variable():
 def test_traject_with_multiple_variables():
     app = App()
 
+    traject = Traject()
     def get_model(first_id):
         result = Model()
         result.first_id = first_id
@@ -220,8 +240,10 @@ def test_traject_with_multiple_variables():
         result.first_id = first_id
         result.second_id = second_id
         return result
-    app.traject.register('{first_id}', get_model)
-    app.traject.register('{first_id}/{second_id}', get_special)
+    traject.register('{first_id}', get_model)
+    traject.register('{first_id}/{second_id}', get_special)
+    app.register(ITraject, [App], traject)
+    
     found, obj, stack = traject_consumer(app, parse_path('a'), Lookup(app))
     assert found
     assert isinstance(obj, Model)

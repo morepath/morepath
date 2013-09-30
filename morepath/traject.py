@@ -1,4 +1,4 @@
-from .interfaces import IInverse, IModelBase, TrajectError, IPath
+from .interfaces import IInverse, IModelBase, TrajectError, IPath, ITraject
 from .pathstack import parse_path, create_path
 from .publish import SHORTCUTS
 from reg import Registry
@@ -14,7 +14,7 @@ KNOWN_TYPES = {
     'int': int
     }
 
-
+        
 class Traject(object):
     def __init__(self):
         self._step_matchers = set()
@@ -106,7 +106,7 @@ class Traject(object):
 
 
 def traject_consumer(base, stack, lookup):
-    traject = base.traject
+    traject = ITraject.component(base, lookup=lookup, default=None)
     if traject is None:
         return False, base, stack
     variables = {}
@@ -298,14 +298,19 @@ def register_root(app, model, model_factory):
 
 
 def register_model(app, model, path, variables, model_factory,
+                   base=None, get_base=None,
                    conflicting=False):
-    traject = app.traject
+    if base is None:
+        base = app.__class__
+    traject = app.exact_get(ITraject, [base])
     if traject is None:
-        app.traject = traject = Traject()
+        traject = Traject()
+        app.register(ITraject, [base], traject)
     traject.register(path, model_factory, conflicting)
     traject.register_inverse(model, path, variables)
 
-    def get_base(model):
-        return app
+    if get_base is None:
+        def get_base(model):
+            return app
 
     app.register(IModelBase, (model,), get_base)

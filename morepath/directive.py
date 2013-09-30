@@ -49,7 +49,7 @@ class ModelDirective(Directive):
 
     def perform(self, obj):
         register_model(self.app, self.model, self.path,
-                       self.variables, obj)
+                       self.variables, obj, self.base, self.get_base)
 
 
 @directive('resource')
