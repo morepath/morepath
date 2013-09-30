@@ -3,6 +3,7 @@ from .pathstack import parse_path, create_path
 from .publish import SHORTCUTS
 from reg import Registry
 import re
+import functools
 
 IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
 PATH_VARIABLE = re.compile(r'\{([^}]*)\}')
@@ -23,7 +24,8 @@ class Traject(object):
         self._model_factories = {}
         self._inverse = Registry()  # XXX caching?
 
-    def register(self, path, model_factory, conflicting=False):
+    def register(self, path, model_factory,
+                 base_argument=False, conflicting=False):
         pattern = parse(path)
         seen_names = set()
         for p in subpatterns(pattern):
@@ -56,12 +58,13 @@ class Traject(object):
                 if conflicting:
                     self._conflicting_steps.add(p)
 
-        existing_model_factory = self._model_factories.get(pattern)
-        if existing_model_factory is not None:
+        v = self._model_factories.get(pattern)
+        if v is not None:
+            existing_model_factory, base_argument = v
             raise TrajectError(
                 "path '%s' is already used to register model %r" %
                 (path, existing_model_factory))
-        self._model_factories[pattern] = model_factory
+        self._model_factories[pattern] = model_factory, base_argument
 
     def register_inverse(self, model_class, path, get_variables):
         path = interpolation_path(path)
@@ -91,10 +94,13 @@ class Traject(object):
             return None, {}
         return pattern + (variable_matcher.step,), matched
 
-    def get_model(self, pattern, variables):
-        model_factory = self._model_factories.get(pattern)
-        if model_factory is None:
+    def get_model(self, base, pattern, variables):
+        v = self._model_factories.get(pattern)
+        if v is None:
             return None
+        model_factory, base_argument = v
+        if base_argument:
+            variables['base'] = base
         return model_factory(**variables)
 
     def get_path(self, model):
@@ -122,7 +128,7 @@ def traject_consumer(base, stack, lookup):
             break
         consumed.append(step)
         pattern = next_pattern
-    model = traject.get_model(pattern, variables)
+    model = traject.get_model(base, pattern, variables)
     if model is None:
         # put everything we tried to consume back on stack
         stack.extend(reversed(consumed))
@@ -310,7 +316,7 @@ def register_model(app, model, path, variables, model_factory,
         if traject is None:
             traject = Traject()
             app.traject = traject
-    traject.register(path, model_factory, conflicting)
+    traject.register(path, model_factory, base is not None, conflicting)
     traject.register_inverse(model, path, variables)
 
     if get_base is None:

@@ -9,7 +9,7 @@ def test_base():
 
     class Root(object):
         pass
-    
+
     class Container(object):
         def __init__(self, id):
             self.id = id
@@ -19,7 +19,7 @@ def test_base():
             result = Item(item_id, self)
             self.items[item_id] = result
             return result
-        
+
     class Item(object):
         def __init__(self, id, parent):
             self.id = id
@@ -32,19 +32,19 @@ def test_base():
     c = alpha.add_item('c')
     d = beta.add_item('d')
     e = beta.add_item('e')
-    
+
     app = App()
 
     c = Config()
     c.app(app)
     c.action(app.root(), Root)
-    
+
     def get_container(container_id):
         if container_id == 'alpha':
             return alpha
         elif container_id == 'beta':
             return beta
-        return None    
+        return None
     c.action(
         app.model(
             model=Container,
@@ -68,15 +68,15 @@ def test_base():
         lambda request, model: 'container: %s' % model.id)
     c.action(
         app.resource(model=Item),
-        lambda request, model: 'item: %s' % model.id) 
+        lambda request, model: 'item: %s' % model.id)
     c.commit()
 
     c = Client(app, Response)
-    
+
     response = c.get('/alpha')
     assert response.data == 'container: alpha'
     response = c.get('/beta')
     assert response.data == 'container: beta'
     response = c.get('/alpha/a')
     assert response.data == 'item: a'
-    
+

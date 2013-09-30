@@ -16,7 +16,7 @@ def setup():
     config.scan(morepath, ignore=['.tests'])
     config.commit()
     # XXX could be registered with @component too
-    global_app.register(IConsumer, [IApp], traject_consumer)
+    global_app.register(IConsumer, [object], traject_consumer)
 
 
 @global_app.component(IPath, [Request, object])
