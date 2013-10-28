@@ -1,7 +1,6 @@
 from morepath import generic
 from .request import Request
-from reg import PredicateRegistry, Predicate, KeyIndex
-from reg.lookup import Matcher
+from reg import PredicateRegistry, Predicate, KeyIndex, Matcher
 import json
 
 
