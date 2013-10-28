@@ -1,4 +1,5 @@
-from .interfaces import IInverse, IModelBase, TrajectError, IPath, ITraject
+#from .interfaces import IInverse, IModelBase, TrajectError, IPath, ITraject
+from morepath import generic
 from .pathstack import parse_path, create_path
 from .publish import SHORTCUTS
 from reg import Registry
@@ -68,7 +69,7 @@ class Traject(object):
 
     def register_inverse(self, model_class, path, get_variables):
         path = interpolation_path(path)
-        self._inverse.register(IInverse, (model_class,), (path, get_variables))
+        self._inverse.register('inverse', (model_class,), (path, get_variables))
 
     def match(self, pattern, step):
         step_pattern = self.match_step(pattern, step)
