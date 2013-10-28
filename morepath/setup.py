@@ -4,7 +4,7 @@ import morepath.directive
 from morepath import generic
 # from .interfaces import (IConsumer, ILookup, IModelBase, IRoot, ITraject,
 #                          IPath, ILink, LinkError, IApp, IResource, IResponse)
-from .interfaces import LinkError, IRoot
+from .interfaces import LinkError
 from .app import App
 from .request import Request, Response
 from .traject import traject_consumer
@@ -47,11 +47,6 @@ def app_path(request, model):
 @global_app.function(generic.base, [App])
 def app_base(model):
     return model.parent
-
-
-@global_app.function(generic.path, [Request, IRoot])
-def root_path(request, model):
-    return ''
 
 
 @global_app.function(generic.link, [Request, object])

@@ -16,10 +16,6 @@ class Interface(object):
 #         """
 
 
-class IRoot(Interface):
-    """Mark this object as the root.
-    """
-
 class IConfigAction(Interface):
     """A configuration item.
     """
