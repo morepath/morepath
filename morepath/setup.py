@@ -19,6 +19,7 @@ def setup():
     # XXX could be registered with @component too
     global_app.register(generic.consumer, [object], traject_consumer)
 
+
 @global_app.function(generic.path, [Request, object])
 def traject_path(request, model):
     base = generic.base(model, lookup=request.lookup, default=None)

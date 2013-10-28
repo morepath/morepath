@@ -94,7 +94,7 @@ def test_imperative():
     @reg.generic
     def target():
         pass
-    
+
     app = App()
 
     c = Config()

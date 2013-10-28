@@ -105,8 +105,10 @@ def test_traject_consumer_factory_returns_none():
     app = App()
 
     traject = Traject()
+
     def get_model():
         return None
+
     traject.register('sub', get_model)
     app.register(generic.traject, [App], lambda base: traject)
 
@@ -120,10 +122,12 @@ def test_traject_consumer_variable():
     app = App()
 
     traject = Traject()
+
     def get_model(foo):
         result = Model()
         result.foo = foo
         return result
+
     traject.register('{foo}', get_model)
     app.register(generic.traject, [App], lambda base: traject)
 
@@ -139,10 +143,12 @@ def test_traject_consumer_combination():
     app = App()
 
     traject = Traject()
+
     def get_model(foo):
         result = Model()
         result.foo = foo
         return result
+
     traject.register('special', Special)
     traject.register('{foo}', get_model)
     app.register(generic.traject, [App], lambda base: traject)
@@ -231,6 +237,7 @@ def test_traject_with_multiple_variables():
     app = App()
 
     traject = Traject()
+
     def get_model(first_id):
         result = Model()
         result.first_id = first_id

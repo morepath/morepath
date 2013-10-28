@@ -4,7 +4,6 @@ from .pathstack import parse_path, create_path
 from .publish import SHORTCUTS
 from reg import Registry
 import re
-import functools
 
 IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
 PATH_VARIABLE = re.compile(r'\{([^}]*)\}')
@@ -69,7 +68,7 @@ class Traject(object):
 
     def register_inverse(self, model_class, path, get_variables):
         path = interpolation_path(path)
-        self._inverse.register('inverse', (model_class,), (path, get_variables))
+        self._inverse.register('inverse', [model_class], (path, get_variables))
 
     def match(self, pattern, step):
         step_pattern = self.match_step(pattern, step)

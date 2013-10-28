@@ -1,7 +1,7 @@
-from morepath.app import App, global_app
+from morepath.app import App
 from morepath.config import Config
 from morepath import setup
-from morepath.request import Request, Response
+from morepath.request import Response
 from werkzeug.test import Client
 
 
@@ -28,10 +28,10 @@ def test_base():
 
     alpha = Container('alpha')
     beta = Container('beta')
-    a = alpha.add_item('a')
-    b = alpha.add_item('b')
+    alpha.add_item('a')
+    alpha.add_item('b')
     c = alpha.add_item('c')
-    d = beta.add_item('d')
+    beta.add_item('d')
     e = beta.add_item('e')
 
     app = App()
