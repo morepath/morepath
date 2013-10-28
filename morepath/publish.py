@@ -17,6 +17,16 @@ class ResponseSentinel(object):
 RESPONSE_SENTINEL = ResponseSentinel()
 
 
+# XXX find a better place for this kind of API doc. perhaps revise
+# the way .all works as a keyword argument to function call?
+# a consumer consumes steps in a stack to find an object.
+# a consumer function has this signature:
+# def consumer(obj, stack, lookup):
+#         """Consumes steps.
+#         Returns a boolean meaning that some stack has been consumed,
+#         an object and the rest of unconsumed stack
+#         """
+
 def resolve_model(obj, stack, lookup):
     """Resolve path to a model using consumers.
     """
