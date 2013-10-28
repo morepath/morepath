@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-from abc import ABCMeta, abstractmethod
-
-class Interface(object):
-    __meta__ = ABCMeta
-
 
 # class IConsumer(Interface):
 #     """A consumer consumes steps in a stack to find an object.
