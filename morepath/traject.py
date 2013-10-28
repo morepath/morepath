@@ -1,4 +1,3 @@
-#from .interfaces import IInverse, IModelBase, TrajectError, IPath, ITraject
 from .interfaces import TrajectError
 from morepath import generic
 from .pathstack import parse_path, create_path

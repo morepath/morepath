@@ -1,5 +1,3 @@
-#from .interfaces import (IResponse, ILookup,
-#                         ResourceError, ModelError, IConsumer)
 from .interfaces import ResourceError, ModelError
 from morepath import generic
 from .pathstack import parse_path, create_path, DEFAULT, RESOURCE

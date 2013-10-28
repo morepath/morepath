@@ -1,4 +1,3 @@
-#from .interfaces import IResource
 from morepath import generic
 from .request import Request
 from reg import PredicateRegistry, Predicate, KeyIndex

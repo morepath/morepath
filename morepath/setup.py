@@ -2,8 +2,6 @@ from .app import global_app
 from .config import Config
 import morepath.directive
 from morepath import generic
-# from .interfaces import (IConsumer, ILookup, IModelBase, IRoot, ITraject,
-#                          IPath, ILink, LinkError, IApp, IResource, IResponse)
 from .interfaces import LinkError
 from .app import App
 from .request import Request, Response

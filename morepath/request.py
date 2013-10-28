@@ -1,4 +1,3 @@
-#from .interfaces import IResource, ILink
 from morepath import generic
 from werkzeug.wrappers import (BaseRequest, BaseResponse,
                                CommonResponseDescriptorsMixin)
