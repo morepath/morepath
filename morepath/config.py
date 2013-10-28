@@ -1,19 +1,31 @@
-from .interfaces import IConfigAction
 from copy import copy
 import venusian
 
 
-class Action(IConfigAction):
+class Action(object):
     def discriminator(self):
+        """Returns an immutable that uniquely identifies this config.
+
+        Used for configuration conflict detection.
+        """
         raise NotImplementedError()
 
+    # XXX needs docs
     def clone(self):
         return copy(self)
 
     def prepare(self, obj):
+        """Prepare action for configuration.
+
+        obj - the object being registered
+        """
         pass
 
     def perform(self, obj):
+        """Register whatever is being configured.
+
+        obj - the object being registered
+        """
         raise NotImplementedError()
 
 

@@ -16,32 +16,6 @@ class Interface(object):
 #         """
 
 
-class IConfigAction(Interface):
-    """A configuration item.
-    """
-
-    @abstractmethod
-    def discriminator(self):
-        """Returns an immutable that uniquely identifies this config.
-
-        Used for configuration conflict detection.
-        """
-
-    @abstractmethod
-    def prepare(self, obj):
-        """Prepare action for configuration.
-
-        obj - the object being registered
-        """
-
-    @abstractmethod
-    def perform(self, obj):
-        """Register whatever is being configured.
-
-        obj - the object being registered
-        """
-
-
 class ConfigError(Exception):
     """Raised when configuration is bad
     """
