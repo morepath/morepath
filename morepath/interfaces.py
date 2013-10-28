@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-from abc import abstractmethod
-from reg import Interface
+from abc import ABCMeta, abstractmethod
+
+class Interface(object):
+    __meta__ = ABCMeta
 
 
 class IConsumer(Interface):

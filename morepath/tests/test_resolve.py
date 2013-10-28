@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from reg import Lookup, ClassRegistry
-from morepath.interfaces import IConsumer
+#from morepath.interfaces import IConsumer
+from morepath import generic
 from morepath.pathstack import parse_path, DEFAULT
 from morepath.request import Request
 from morepath.publish import resolve_model
 from werkzeug.test import EnvironBuilder
 
 
-class Traverser(IConsumer):
+class Traverser(object):
     """A traverser is a consumer that consumes only a single step.
 
     Only the top of the stack is popped.
@@ -96,7 +97,7 @@ def test_resolve_traverse():
 
     lookup = get_lookup(reg)
 
-    reg.register(IConsumer, (Container,), Traverser(traverse_container))
+    reg.register(generic.consumer, [Container], Traverser(traverse_container))
 
     base = get_structure()
 

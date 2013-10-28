@@ -101,15 +101,15 @@ class RootDirective(Directive):
         register_root(self.app, self.model, obj)
 
 
-@directive('component')
-class ComponentDirective(Directive):
+@directive('function')
+class FunctionDirective(Directive):
     def __init__(self, app, target, sources):
         self.app = app
         self.target = target
         self.sources = sources
 
     def discriminator(self):
-        return ('component', self.model, self.name)
+        return ('function', self.model, self.name)
 
     def perform(self, obj):
         self.app.register(self.target, self.sources, obj)

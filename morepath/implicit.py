@@ -1,6 +1,6 @@
-from reg import ClassRegistry, CachedLookup, implicit
+from reg import ClassRegistry, CachingClassLookup, Lookup, implicit
 
 
 def initialize():
     registry = ClassRegistry()
-    implicit.initialize(CachedLookup(registry))
+    implicit.initialize(Lookup(CachingClassLookup(registry)))

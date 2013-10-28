@@ -31,7 +31,12 @@ def link(request, model):
     """Create a link (URL) to model.
     """
 
-@generic
+@reg.generic
+def traject(obj):
+    """Get traject for obj.
+    """
+
+@reg.generic
 def resource(request, model):
     """Get the resource that represents the model in the context of a request.
 

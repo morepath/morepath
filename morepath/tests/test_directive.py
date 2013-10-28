@@ -3,8 +3,8 @@ from morepath import setup
 from morepath.config import Config
 from morepath.request import Response
 from morepath.app import App
-from reg import Interface
 import morepath
+import reg
 
 from werkzeug.test import Client
 
@@ -91,18 +91,19 @@ def test_imperative():
     class Foo(object):
         pass
 
-    class ITarget(Interface):
+    @reg.generic
+    def target():
         pass
-
+    
     app = App()
 
     c = Config()
     c.app(app)
     foo = Foo()
-    c.action(app.component(ITarget, []), foo)
+    c.action(app.function(target, []), foo)
     c.commit()
 
-    assert ITarget.component(lookup=app.lookup()) is foo
+    assert target.component(lookup=app.lookup()) is foo
 
 
 def test_basic_imperative():

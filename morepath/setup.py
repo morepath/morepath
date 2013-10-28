@@ -4,6 +4,7 @@ import morepath.directive
 from morepath import generic
 # from .interfaces import (IConsumer, ILookup, IModelBase, IRoot, ITraject,
 #                          IPath, ILink, LinkError, IApp, IResource, IResponse)
+from .interfaces import LinkError, IApp, IRoot
 from .request import Request, Response
 from .traject import traject_consumer
 import morepath
@@ -17,7 +18,7 @@ def setup():
     config.scan(morepath, ignore=['.tests'])
     config.commit()
     # XXX could be registered with @component too
-    global_app.register(IConsumer, [object], traject_consumer)
+    global_app.register(generic.consumer, [object], traject_consumer)
 
 @global_app.function(generic.path, [Request, object])
 def traject_path(request, model):

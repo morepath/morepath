@@ -1,11 +1,12 @@
-from .interfaces import IResource
+#from .interfaces import IResource
+from morepath import generic
 from .request import Request
 from reg import PredicateRegistry, Predicate, KeyIndex
-from reg.interfaces import IMatcher
+from reg.lookup import IMatcher # XXX change this API in reg
 import json
 
 
-class PredicateLookup(IResource):
+class PredicateLookup(object):
     def __init__(self, predicate_registry):
         self.predicate_registry = predicate_registry
 
@@ -27,7 +28,7 @@ class PredicateLookup(IResource):
         return result
 
 
-class Resource(IResource):
+class Resource(object):
     def __init__(self, resource, render):
         self.resource = resource
         self.render = render
@@ -58,12 +59,12 @@ class ResourceMatcher(IMatcher):
 def register_resource(registry, model, resource, render=None, predicates=None):
     registration = Resource(resource, render)
     if predicates is not None:
-        matcher = registry.exact_get(IResource, (Request, model))
+        matcher = registry.exact(generic.resource, (Request, model))
         if matcher is None:
             matcher = ResourceMatcher()
         matcher.register(predicates, registration)
         registration = matcher
-    registry.register(IResource, (Request, model), registration)
+    registry.register(generic.resource, (Request, model), registration)
 
 
 def render_noop(response, content):

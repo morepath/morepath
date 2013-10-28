@@ -1,4 +1,5 @@
-from .interfaces import IResource, ILink
+#from .interfaces import IResource, ILink
+from morepath import generic
 from werkzeug.wrappers import (BaseRequest, BaseResponse,
                                CommonResponseDescriptorsMixin)
 
@@ -15,14 +16,14 @@ class Request(BaseRequest):
         return self._resolver_info
 
     def render(self, model, default=None):
-        return IResource.adapt(
+        return generic.resource(
             self, model, lookup=self.lookup, default=default)
 
     # XXX add way to easily generate URL parameters too
     # XXX add way to determine application lookup context, or just
     # modify in request?
     def link(self, model, name=''):
-        result = ILink.adapt(
+        result = generic.link(
             self, model, lookup=self.lookup)
         if name:
             result += '/' + name

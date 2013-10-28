@@ -1,4 +1,5 @@
 #from .interfaces import IInverse, IModelBase, TrajectError, IPath, ITraject
+from .interfaces import TrajectError
 from morepath import generic
 from .pathstack import parse_path, create_path
 from .publish import SHORTCUTS
@@ -106,14 +107,14 @@ class Traject(object):
 
     def get_path(self, model):
         # XXX what if path cannot be found?
-        path, get_variables = IInverse.component(model, lookup=self._inverse)
+        path, get_variables = self._inverse.component('inverse', [model])
         variables = get_variables(model)
         assert isinstance(variables, dict)
         return path % variables
 
 
 def traject_consumer(base, stack, lookup):
-    traject = ITraject.adapt(base, lookup=lookup, default=None)
+    traject = generic.traject(base, lookup=lookup, default=None)
     if traject is None:
         return False, base, stack
     variables = {}
@@ -299,8 +300,8 @@ def register_root(app, model, model_factory):
         return ''  # no path for root
 
     from .request import Request
-    app.register(IPath, [Request, model], root_path)
-    app.register(IModelBase, [model], get_base)
+    app.register(generic.path, [Request, model], root_path)
+    app.register(generic.base, [model], get_base)
     register_model(app, model, '', lambda model: {}, model_factory)
 
 
@@ -308,10 +309,10 @@ def register_model(app, model, path, variables, model_factory,
                    base=None, get_base=None,
                    conflicting=False):
     if base is not None:
-        traject = app.exact_get(ITraject, [base])
+        traject = app.exact(generic.traject, [base])
         if traject is None:
             traject = Traject()
-            app.register(ITraject, [base], lambda base: traject)
+            app.register(generic.traject, [base], lambda base: traject)
     else:
         traject = app.traject
         if traject is None:
@@ -324,4 +325,4 @@ def register_model(app, model, path, variables, model_factory,
         def get_base(model):
             return app
 
-    app.register(IModelBase, (model,), get_base)
+    app.register(generic.base, [model], get_base)

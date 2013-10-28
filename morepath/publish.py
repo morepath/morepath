@@ -1,5 +1,7 @@
-from .interfaces import (IResponse, ILookup,
-                         ResourceError, ModelError, IConsumer)
+#from .interfaces import (IResponse, ILookup,
+#                         ResourceError, ModelError, IConsumer)
+from .interfaces import ResourceError, ModelError
+from morepath import generic
 from .pathstack import parse_path, create_path, DEFAULT, RESOURCE
 from werkzeug.exceptions import HTTPException, NotFound
 
@@ -22,7 +24,7 @@ def resolve_model(obj, stack, lookup):
     """
     # we need to consume towards a root
     if not stack:
-        for consumer in IConsumer.all(obj, lookup=lookup):
+        for consumer in generic.consumer.all(obj, lookup=lookup):
             any_consumed, obj, unconsumed = consumer(obj, stack, lookup)
             if any_consumed:
                 break
@@ -30,12 +32,12 @@ def resolve_model(obj, stack, lookup):
     # consume steps
     unconsumed = stack[:]
     while unconsumed:
-        for consumer in IConsumer.all(obj, lookup=lookup):
+        for consumer in generic.consumer.all(obj, lookup=lookup):
             any_consumed, obj, unconsumed = consumer(
                 obj, unconsumed, lookup)
             if any_consumed:
                 # get new lookup for whatever we found if it exists
-                lookup = ILookup.adapt(obj, lookup=lookup, default=lookup)
+                lookup = generic.lookup(obj, lookup=lookup, default=lookup)
                 break
         else:
             # nothing could be consumed
@@ -53,8 +55,8 @@ def resolve_response(request, model, stack):
 
     request.set_resolver_info({'name': name})
 
-    response = IResponse.adapt(request, model, default=RESPONSE_SENTINEL,
-                               lookup=request.lookup)
+    response = generic.response(request, model, default=RESPONSE_SENTINEL,
+                                lookup=request.lookup)
     if response is RESPONSE_SENTINEL:
         # XXX lookup error resource and fallback to default
         raise NotFound()
