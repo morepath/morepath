@@ -1,7 +1,7 @@
 
 from reg import Lookup, ChainClassLookup
 from morepath.app import App, global_app
-from morepath.interfaces import TrajectError
+from morepath.error import TrajectError
 from morepath import generic
 from morepath.pathstack import parse_path, DEFAULT
 from morepath.request import Request

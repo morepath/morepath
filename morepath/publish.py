@@ -1,4 +1,4 @@
-from .interfaces import ResourceError, ModelError
+from .error import ResourceError, ModelError
 from morepath import generic
 from .pathstack import parse_path, create_path, DEFAULT, RESOURCE
 from werkzeug.exceptions import HTTPException, NotFound

@@ -1,6 +1,6 @@
 from .app import App
 from .config import Directive
-from .interfaces import ConfigError
+from .error import ConfigError
 from .resource import register_resource
 from .traject import register_model, register_root
 
