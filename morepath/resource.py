@@ -1,7 +1,7 @@
 from morepath import generic
 from .request import Request
 from reg import PredicateRegistry, Predicate, KeyIndex
-from reg.lookup import IMatcher # XXX change this API in reg
+from reg.lookup import Matcher
 import json
 
 
@@ -36,7 +36,7 @@ class Resource(object):
         return self.resource(request, model)
 
 
-class ResourceMatcher(IMatcher):
+class ResourceMatcher(Matcher):
     def __init__(self):
         self.reg = PredicateRegistry([Predicate('name', KeyIndex),
                                       Predicate('request_method', KeyIndex)])
