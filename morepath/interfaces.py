@@ -20,11 +20,6 @@ class IRoot(Interface):
     """Mark this object as the root.
     """
 
-class IApp(Interface):
-    """An application."""
-    # XXX fill in details
-
-
 class IConfigAction(Interface):
     """A configuration item.
     """

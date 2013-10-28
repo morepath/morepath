@@ -4,7 +4,8 @@ import morepath.directive
 from morepath import generic
 # from .interfaces import (IConsumer, ILookup, IModelBase, IRoot, ITraject,
 #                          IPath, ILink, LinkError, IApp, IResource, IResponse)
-from .interfaces import LinkError, IApp, IRoot
+from .interfaces import LinkError, IRoot
+from .app import App
 from .request import Request, Response
 from .traject import traject_consumer
 import morepath
@@ -33,17 +34,17 @@ def traject_path(request, model):
     return traject.get_path(model)
 
 
-@global_app.function(generic.traject, [IApp])
+@global_app.function(generic.traject, [App])
 def app_traject(app):
     return app.traject
 
 
-@global_app.function(generic.path, [Request, IApp])
+@global_app.function(generic.path, [Request, App])
 def app_path(request, model):
     return model.name
 
 
-@global_app.function(generic.base, [IApp])
+@global_app.function(generic.base, [App])
 def app_base(model):
     return model.parent
 
@@ -70,7 +71,7 @@ def link(request, model):
     return '/'.join(result)
 
 
-@global_app.function(generic.lookup, [IApp])
+@global_app.function(generic.lookup, [App])
 def app_lookup(model):
     return Lookup(model.class_lookup())
 

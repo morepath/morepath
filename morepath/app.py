@@ -1,4 +1,3 @@
-from .interfaces import IApp
 from .publish import publish
 from .request import Request
 from .traject import Traject
@@ -6,7 +5,7 @@ from .config import Action
 from reg import ClassRegistry, Lookup, ChainClassLookup
 
 
-class App(IApp, Action, ClassRegistry):
+class App(Action, ClassRegistry):
     # XXX split path parent from configuration parent
     def __init__(self, name='', parent=None):
         super(App, self).__init__()
