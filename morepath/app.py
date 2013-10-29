@@ -44,12 +44,13 @@ class App(Action, ClassRegistry):
         self.child_apps[app.name] = app
 
     def class_lookup(self):
+        # XXX caching needs to be introduced for at least class lookups
+        # and survive multiple requests for caching to be useful
         if self.parent is None:
             return ChainClassLookup(self, global_app)
         return ChainClassLookup(self, self.parent.class_lookup())
 
     def lookup(self):
-        # XXX caching where?
         return Lookup(self.class_lookup())
 
     def __call__(self, environ, start_response):
