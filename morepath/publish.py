@@ -30,14 +30,14 @@ RESPONSE_SENTINEL = ResponseSentinel()
 def resolve_model(obj, stack, lookup):
     """Resolve path to a model using consumers.
     """
-    # we need to consume towards a root
+    # if there is no stack, we consume toward a root model
     if not stack:
         for consumer in generic.consumer.all(obj, lookup=lookup):
             any_consumed, obj, unconsumed = consumer(obj, stack, lookup)
             if any_consumed:
                 break
         return obj, stack, lookup
-    # consume steps
+    # consume steps toward model
     unconsumed = stack[:]
     while unconsumed:
         for consumer in generic.consumer.all(obj, lookup=lookup):
