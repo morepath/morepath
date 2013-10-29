@@ -90,7 +90,7 @@ def test_response_returned():
     assert response.data == 'Hello world!'
 
 
-def test_render():
+def test_request_resource():
     setup()
     app = App()
 
@@ -105,8 +105,8 @@ def test_render():
     # when we get the response, the json will be rendered
     assert response.data == '{"hey": "hey"}'
     assert response.content_type == 'application/json'
-    # but we get the original json out when we render
-    assert request.render(model) == {'hey': 'hey'}
+    # but we get the original json out when we access the resource
+    assert request.resource(model) == {'hey': 'hey'}
 
 
 def test_render_html():
