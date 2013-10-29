@@ -31,7 +31,8 @@ class ResourceMatcher(Matcher):
         request_predicates = self.get_predicates(request)
         return self.reg.get(request_predicates)
 
-
+# XXX what happens if predicates is None for one registration
+# but filled for another?
 def register_resource(registry, model, resource, render=None, predicates=None):
     registration = Resource(resource, render)
     if predicates is not None:
