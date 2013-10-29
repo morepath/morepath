@@ -100,7 +100,7 @@ def test_imperative():
     c = Config()
     c.app(app)
     foo = Foo()
-    c.action(app.function(target, []), foo)
+    c.action(app.function(target), foo)
     c.commit()
 
     assert target.component(lookup=app.lookup()) is foo

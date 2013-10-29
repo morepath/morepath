@@ -20,7 +20,7 @@ def setup():
     global_app.register(generic.consumer, [object], traject_consumer)
 
 
-@global_app.function(generic.path, [Request, object])
+@global_app.function(generic.path, Request, object)
 def traject_path(request, model):
     base = generic.base(model, lookup=request.lookup, default=None)
     if base is None:
@@ -33,22 +33,22 @@ def traject_path(request, model):
     return traject.get_path(model)
 
 
-@global_app.function(generic.traject, [App])
+@global_app.function(generic.traject, App)
 def app_traject(app):
     return app.traject
 
 
-@global_app.function(generic.path, [Request, App])
+@global_app.function(generic.path, Request, App)
 def app_path(request, model):
     return model.name
 
 
-@global_app.function(generic.base, [App])
+@global_app.function(generic.base, App)
 def app_base(model):
     return model.parent
 
 
-@global_app.function(generic.link, [Request, object])
+@global_app.function(generic.link, Request, object)
 def link(request, model):
     result = []
     lookup = request.lookup
@@ -65,12 +65,12 @@ def link(request, model):
     return '/'.join(result)
 
 
-@global_app.function(generic.lookup, [App])
+@global_app.function(generic.lookup, App)
 def app_lookup(model):
     return Lookup(model.class_lookup())
 
 
-@global_app.function(generic.response, [Request, object])
+@global_app.function(generic.response, Request, object)
 def get_response(request, model):
     resource = generic.resource.component(
         request, model, lookup=request.lookup,

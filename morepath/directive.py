@@ -103,7 +103,7 @@ class RootDirective(Directive):
 
 @directive('function')
 class FunctionDirective(Directive):
-    def __init__(self, app, target, sources):
+    def __init__(self, app, target, *sources):
         self.app = app
         self.target = target
         self.sources = sources
