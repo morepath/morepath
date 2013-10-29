@@ -9,7 +9,7 @@ from .traject import traject_consumer
 import morepath
 from reg import Lookup
 
-assert morepath.directive  # we need to make the component directive work
+assert morepath.directive  # we need to make the function directive work
 
 
 def setup():
