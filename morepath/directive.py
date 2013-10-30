@@ -1,7 +1,7 @@
 from .app import App
 from .config import Directive
 from .error import ConfigError
-from .resource import register_resource
+from .resource import register_resource, render_json
 from .traject import register_model, register_root
 
 
@@ -13,11 +13,11 @@ class directive(object):
         def method(self, *args, **kw):
             return directive(self, *args, **kw)
         setattr(App, self.name, method)
-
+        return directive
 
 @directive('model')
 class ModelDirective(Directive):
-    def __init__(self, app, model, path,
+    def __init__(self, app,  path, model=None,
                  variables=None, base=None, get_base=None):
         self.app = app
         self.model = model
@@ -71,6 +71,12 @@ class ResourceDirective(Directive):
         # them again on the other side
         register_resource(self.app, self.model, obj, self.render,
                           self.predicates)
+
+
+@directive('json')
+class JsonDirective(ResourceDirective):
+    def __init__(self, app, model, name='', render=render_json):
+        super(JsonDirective, self).__init__(app, model, name, render)
 
 
 @directive('root')

@@ -173,3 +173,32 @@ def test_basic_imperative():
     # @@ is to make sure we get the view, not the sub-model
     response = c.get('/@@link')
     assert response.data == ''
+
+def test_json_directive():
+    setup()
+
+    app = morepath.App()
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    def default(request, model):
+        return "The resource for model: %s" % model.id
+
+    def json(request, model):
+        return {'id': model.id}
+
+    c = Config()
+    c.app(app)
+    c.action(app.model(path='{id}',
+                       variables=lambda model: {'id': model.id}),
+             Model)
+    c.action(app.json(model=Model),
+             json)
+    c.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/foo')
+    assert response.data == '{"id": "foo"}'
