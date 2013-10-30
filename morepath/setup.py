@@ -16,7 +16,7 @@ def setup():
     config = Config()
     config.scan(morepath, ignore=['.tests'])
     config.commit()
-    # XXX could be registered with @component too
+    # should use a configuration directive for this
     global_app.register(generic.consumer, [object], traject_consumer)
 
 
