@@ -17,6 +17,19 @@ class ResponseSentinel(object):
 RESPONSE_SENTINEL = ResponseSentinel()
 
 
+# XXX
+# want to rethink this module in terms of generic functions.
+# we could introduce a generic.model, generic.response could
+# gain functionality now in resolve_response, and
+# we could have a generic.publish
+# one of the problems is that these generic functions are dependent
+# on request manipulation: something needs to parse the path as
+# a stack, then generic.model expects this stack to be there,
+# and resolve_response expects a view name to be there.
+# this makes the contract between these functions rather tightly
+# coupled. Is there a way to loosen the contract?
+
+
 # XXX find a better place for this kind of API doc. perhaps revise
 # the way .all works as a keyword argument to function call?
 # a consumer consumes steps in a stack to find an object.
