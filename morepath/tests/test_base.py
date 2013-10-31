@@ -37,7 +37,7 @@ def test_base():
     app = App()
 
     c = Config()
-    c.app(app)
+    c.action(app, app)
     c.action(app.root(), Root)
 
     def get_container(container_id):

@@ -41,9 +41,6 @@ class Config(object):
     def __init__(self):
         self.actions = []
 
-    def app(self, app):
-        self.action(app, app)
-
     def scan(self, package, ignore=None):
         scanner = venusian.Scanner(config=self)
         scanner.scan(package, ignore=ignore)

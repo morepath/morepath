@@ -16,7 +16,6 @@ def test_basic():
 
     config = Config()
     config.scan(basic)
-    config.app(basic.app)
     config.commit()
 
     c = Client(basic.app, Response)
@@ -35,7 +34,6 @@ def test_basic_json():
 
     config = Config()
     config.scan(basic)
-    config.app(basic.app)
     config.commit()
 
     c = Client(basic.app, Response)
@@ -51,7 +49,6 @@ def test_basic_root():
 
     config = Config()
     config.scan(basic)
-    config.app(basic.app)
     config.commit()
 
     c = Client(basic.app, Response)
@@ -72,8 +69,6 @@ def test_nested():
 
     config = Config()
     config.scan(nested)
-    config.app(nested.outer_app)
-    config.app(nested.app)
     config.commit()
 
     c = Client(nested.outer_app, Response)
@@ -99,7 +94,7 @@ def test_imperative():
     app = App()
 
     c = Config()
-    c.app(app)
+    c.action(app, app)
     foo = Foo()
     c.action(app.function(target), foo)
     c.commit()
@@ -139,7 +134,7 @@ def test_basic_imperative():
         return request.link(model)
 
     c = Config()
-    c.app(app)
+    c.action(app, app)
     c.action(app.root(), Root)
     c.action(app.model(model=Model, path='{id}',
                        variables=lambda model: {'id': model.id}),
@@ -191,7 +186,7 @@ def test_json_directive():
         return {'id': model.id}
 
     c = Config()
-    c.app(app)
+    c.action(app, app)
     c.action(app.model(path='{id}',
                        variables=lambda model: {'id': model.id}),
              Model)
@@ -217,7 +212,7 @@ def test_redirect():
         return morepath.redirect('/')
 
     c = Config()
-    c.app(app)
+    c.action(app, app)
     c.action(app.root(),
              Root)
     c.action(app.view(model=Root, render=render_html),

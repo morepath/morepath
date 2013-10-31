@@ -3,7 +3,7 @@ from .request import Request
 from .traject import Traject
 from .config import Action
 from reg import ClassRegistry, Lookup, ChainClassLookup
-
+import venusian
 
 class App(Action, ClassRegistry):
     # XXX split path parent from configuration parent
@@ -17,6 +17,10 @@ class App(Action, ClassRegistry):
         self.traject = Traject()
         if self.parent is not None:
             parent.add_child(self)
+        # allow being scanned by venusian
+        def callback(scanner, name, obj):
+            scanner.config.action(self, self)
+        venusian.attach(self, callback)
 
     def discriminator(self):
         # XXX this isn't right, as we could have multiple sub apps

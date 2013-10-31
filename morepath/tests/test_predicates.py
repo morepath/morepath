@@ -20,7 +20,7 @@ def test_view_predicates():
         return 'POST'
 
     c = Config()
-    c.app(app)
+    c.action(app, app)
     c.action(app.root(), Root)
     c.action(app.view(model=Root, name='foo', request_method='GET'),
              get)
