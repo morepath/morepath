@@ -72,22 +72,22 @@ def app_lookup(model):
 
 @global_app.function(generic.response, Request, object)
 def get_response(request, model):
-    resource = generic.resource.component(
+    view = generic.view.component(
         request, model, lookup=request.lookup,
         default=None)
-    if resource is None:
+    if view is None:
         return None
-    content = resource(request, model)
+    content = view(request, model)
     response = None
     if isinstance(content, Response):
         response = content
     elif isinstance(content, basestring):
         response = Response(content)
-    if resource.render is not None:
+    if view.render is not None:
         if isinstance(content, Response):
             content = response.get_data(as_text=True)
         if response is None:
             response = Response()
-        response = resource.render(response, content)
+        response = view.render(response, content)
     assert response is not None, "Cannot render content: %r" % content
     return response

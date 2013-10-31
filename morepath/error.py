@@ -16,8 +16,8 @@ class ModelError(ResolveError):
     """
 
 
-class ResourceError(ResolveError):
-    """Raised when a resource cannot be resolved
+class ViewError(ResolveError):
+    """Raised when a view cannot be resolved
     """
 
 

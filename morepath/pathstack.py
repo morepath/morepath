@@ -2,7 +2,7 @@
 import re
 
 DEFAULT = u'default'
-RESOURCE = u'resource'
+VIEW = u'view'
 
 
 def parse_path(path, shortcuts=None):

@@ -22,7 +22,7 @@ def test_basic():
 
     response = c.get('/foo')
 
-    assert response.data == 'The resource for model: foo'
+    assert response.data == 'The view for model: foo'
 
     response = c.get('/foo/link')
     assert response.data == 'foo'
@@ -79,7 +79,7 @@ def test_nested():
 
     response = c.get('/inner/foo')
 
-    assert response.data == 'The resource for model: foo'
+    assert response.data == 'The view for model: foo'
 
     response = c.get('/inner/foo/link')
     assert response.data == 'inner/foo'
@@ -123,7 +123,7 @@ def test_basic_imperative():
         return Model(id)
 
     def default(request, model):
-        return "The resource for model: %s" % model.id
+        return "The view for model: %s" % model.id
 
     def link(request, model):
         return request.link(model)
@@ -143,23 +143,23 @@ def test_basic_imperative():
     c.action(app.model(model=Model, path='{id}',
                        variables=lambda model: {'id': model.id}),
              get_model)
-    c.action(app.resource(model=Model),
+    c.action(app.view(model=Model),
              default)
-    c.action(app.resource(model=Model, name='link'),
+    c.action(app.view(model=Model, name='link'),
              link)
-    c.action(app.resource(model=Model, name='json',
+    c.action(app.view(model=Model, name='json',
                           render=morepath.render_json),
              json)
-    c.action(app.resource(model=Root),
+    c.action(app.view(model=Root),
              root_default)
-    c.action(app.resource(model=Root, name='link'),
+    c.action(app.view(model=Root, name='link'),
              root_link)
     c.commit()
 
     c = Client(app, Response)
 
     response = c.get('/foo')
-    assert response.data == 'The resource for model: foo'
+    assert response.data == 'The view for model: foo'
 
     response = c.get('/foo/link')
     assert response.data == 'foo'
@@ -184,7 +184,7 @@ def test_json_directive():
             self.id = id
 
     def default(request, model):
-        return "The resource for model: %s" % model.id
+        return "The view for model: %s" % model.id
 
     def json(request, model):
         return {'id': model.id}

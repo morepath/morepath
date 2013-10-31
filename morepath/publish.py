@@ -1,10 +1,10 @@
-from .error import ResourceError, ModelError
+from .error import ViewError, ModelError
 from morepath import generic
-from .pathstack import parse_path, create_path, DEFAULT, RESOURCE
+from .pathstack import parse_path, create_path, DEFAULT, VIEW
 from werkzeug.exceptions import HTTPException, NotFound
 
 SHORTCUTS = {
-    '@@': RESOURCE,
+    '@@': VIEW
     }
 
 DEFAULT_NAME = u''
@@ -67,11 +67,11 @@ def resolve_model(obj, stack, lookup):
 
 
 def resolve_response(request, model, stack):
-    ns, name = get_resource_step(model, stack)
+    ns, name = get_view_step(model, stack)
 
-    if ns not in (DEFAULT, RESOURCE):
-        # XXX also report on resource name
-        raise ResourceError(
+    if ns not in (DEFAULT, VIEW):
+        # XXX also report on view name
+        raise ViewError(
             "namespace %r is not supported:" % ns)
 
     request.set_resolver_info({'name': name})
@@ -79,15 +79,15 @@ def resolve_response(request, model, stack):
     response = generic.response(request, model, default=RESPONSE_SENTINEL,
                                 lookup=request.lookup)
     if response is RESPONSE_SENTINEL:
-        # XXX lookup error resource and fallback to default
+        # XXX lookup error view and fallback to default
         raise NotFound()
     return response
 
 
-def get_resource_step(model, stack):
+def get_view_step(model, stack):
     unconsumed_amount = len(stack)
     if unconsumed_amount == 0:
-        return RESOURCE, DEFAULT_NAME
+        return VIEW, DEFAULT_NAME
     elif unconsumed_amount == 1:
         return stack[0]
     raise ModelError(

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from morepath.pathstack import parse_path, create_path, DEFAULT, RESOURCE
+from morepath.pathstack import parse_path, create_path, DEFAULT, VIEW
 
 
 def test_parse():
@@ -28,33 +28,33 @@ def test_create():
 def test_parse_ns():
     """Parse a path to a stack with namespaces.
     """
-    assert ([(RESOURCE, u'c'),
+    assert ([(VIEW, u'c'),
              (DEFAULT, u'b'),
              (DEFAULT, u'a')] ==
-            parse_path(u'/a/b/++resource++c'))
+            parse_path(u'/a/b/++view++c'))
 
 
 def test_create_ns():
-    assert (u'/a/b/++resource++c' ==
+    assert (u'/a/b/++view++c' ==
             create_path([
-                (RESOURCE, u'c'),
+                (VIEW, u'c'),
                 (DEFAULT, u'b'),
                 (DEFAULT, u'a')]))
 
 
 def test_parse_ns_shortcut():
-    assert ([(RESOURCE, u'c'),
+    assert ([(VIEW, u'c'),
              (DEFAULT, u'b'),
              (DEFAULT, u'a')] ==
-            parse_path(u'/a/b/@@c', shortcuts={u'@@': RESOURCE}))
+            parse_path(u'/a/b/@@c', shortcuts={u'@@': VIEW}))
 
 
 def test_create_ns_shortcut():
     assert (u'/a/b/@@c' ==
             create_path([
-                (RESOURCE, u'c'),
+                (VIEW, u'c'),
                 (DEFAULT, u'b'),
-                (DEFAULT, u'a')], shortcuts={u'@@': RESOURCE}))
+                (DEFAULT, u'a')], shortcuts={u'@@': VIEW}))
 
 
 def test_parse_ns_shortcut_not_at_beginning():
@@ -62,7 +62,7 @@ def test_parse_ns_shortcut_not_at_beginning():
     assert ([(DEFAULT, u'a@@c'),
              (DEFAULT, u'b'),
              (DEFAULT, u'a')] ==
-            parse_path(u'/a/b/a@@c', shortcuts={u'@@': RESOURCE}))
+            parse_path(u'/a/b/a@@c', shortcuts={u'@@': VIEW}))
 
 
 def test_create_ns_shortcut_not_at_beginning():
@@ -70,7 +70,7 @@ def test_create_ns_shortcut_not_at_beginning():
             create_path([
                 (DEFAULT, u'a@@c'),
                 (DEFAULT, u'b'),
-                (DEFAULT, u'a')], shortcuts={u'@@': RESOURCE}))
+                (DEFAULT, u'a')], shortcuts={u'@@': VIEW}))
 
 
 def test_parse_ns_weird_no_close():

@@ -2,7 +2,7 @@ from reg import Lookup
 from morepath.app import App
 from morepath.publish import publish
 from morepath.request import Request, Response
-from morepath.resource import register_resource, render_json, render_html
+from morepath.resource import register_view, render_json, render_html
 from morepath.setup import setup
 from werkzeug.test import EnvironBuilder
 
@@ -22,32 +22,32 @@ class Model(object):
 # XXX these tests have gained more dependencies, on app and setup and
 # lookup generation. see about refactor code so that they can be tested
 # with less heavy installation
-def test_resource():
+def test_view():
     setup()
     app = App()
 
-    def resource(request, model):
-        return "Resource!"
+    def view(request, model):
+        return "View!"
 
-    register_resource(app, Model, resource, predicates=dict(name=''))
+    register_view(app, Model, view, predicates=dict(name=''))
 
     model = Model()
     result = publish(get_request(path='', app=app), model)
-    assert result.data == 'Resource!'
+    assert result.data == 'View!'
 
 
 def test_predicates():
     setup()
     app = App()
 
-    def resource(request, model):
+    def view(request, model):
         return "all"
 
-    def post_resource(request, model):
+    def post_view(request, model):
         return "post"
 
-    register_resource(app, Model, resource, predicates=dict(name=''))
-    register_resource(app, Model, post_resource,
+    register_view(app, Model, view, predicates=dict(name=''))
+    register_view(app, Model, post_view,
                       predicates=dict(name='', request_method='POST'))
 
     model = Model()
@@ -68,10 +68,10 @@ def test_notfound_with_predicates():
     setup()
     app = App()
 
-    def resource(request, model):
-        return "resource"
+    def view(request, model):
+        return "view"
 
-    register_resource(app, Model, resource, predicates=dict(name=''))
+    register_view(app, Model, view, predicates=dict(name=''))
     model = Model()
     response = publish(get_request(path='foo', app=app), model)
     assert response.status == '404 NOT FOUND'
@@ -81,23 +81,23 @@ def test_response_returned():
     setup()
     app = App()
 
-    def resource(request, model):
+    def view(request, model):
         return Response('Hello world!')
 
-    register_resource(app, Model, resource)
+    register_view(app, Model, view)
     model = Model()
     response = publish(get_request(path='', app=app), model)
     assert response.data == 'Hello world!'
 
 
-def test_request_resource():
+def test_request_view():
     setup()
     app = App()
 
-    def resource(request, model):
+    def view(request, model):
         return {'hey': 'hey'}
 
-    register_resource(app, Model, resource, render=render_json)
+    register_view(app, Model, view, render=render_json)
 
     request = get_request(path='', app=app)
     model = Model()
@@ -105,18 +105,18 @@ def test_request_resource():
     # when we get the response, the json will be rendered
     assert response.data == '{"hey": "hey"}'
     assert response.content_type == 'application/json'
-    # but we get the original json out when we access the resource
-    assert request.resource(model) == {'hey': 'hey'}
+    # but we get the original json out when we access the view
+    assert request.view(model) == {'hey': 'hey'}
 
 
 def test_render_html():
     setup()
     app = App()
 
-    def resource(request, model):
+    def view(request, model):
         return '<p>Hello world!</p>'
 
-    register_resource(app, Model, resource, render=render_html)
+    register_view(app, Model, view, render=render_html)
 
     request = get_request(path='', app=app)
     model = Model()

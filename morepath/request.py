@@ -14,8 +14,9 @@ class Request(BaseRequest):
     def resolver_info(self):
         return self._resolver_info
 
-    def resource(self, model, default=None):
-        return generic.resource(
+    # XXX how to make view in other application context?
+    def view(self, model, default=None):
+        return generic.view(
             self, model, lookup=self.lookup, default=default)
 
     # XXX add way to easily generate URL parameters too

@@ -4,16 +4,16 @@ from reg import PredicateRegistry, Predicate, KeyIndex, Matcher
 import json
 
 
-class Resource(object):
-    def __init__(self, resource, render):
-        self.resource = resource
+class View(object):
+    def __init__(self, func, render):
+        self.func = func
         self.render = render
 
     def __call__(self, request, model):
-        return self.resource(request, model)
+        return self.func(request, model)
 
 
-class ResourceMatcher(Matcher):
+class ViewMatcher(Matcher):
     def __init__(self):
         self.reg = PredicateRegistry([Predicate('name', KeyIndex),
                                       Predicate('request_method', KeyIndex)])
@@ -33,15 +33,15 @@ class ResourceMatcher(Matcher):
 
 # XXX what happens if predicates is None for one registration
 # but filled for another?
-def register_resource(registry, model, resource, render=None, predicates=None):
-    registration = Resource(resource, render)
+def register_view(registry, model, view, render=None, predicates=None):
+    registration = View(view, render)
     if predicates is not None:
-        matcher = registry.exact(generic.resource, (Request, model))
+        matcher = registry.exact(generic.view, (Request, model))
         if matcher is None:
-            matcher = ResourceMatcher()
+            matcher = ViewMatcher()
         matcher.register(predicates, registration)
         registration = matcher
-    registry.register(generic.resource, (Request, model), registration)
+    registry.register(generic.view, (Request, model), registration)
 
 
 def render_noop(response, content):

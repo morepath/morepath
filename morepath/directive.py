@@ -1,7 +1,7 @@
 from .app import App
 from .config import Directive
 from .error import ConfigError
-from .resource import register_resource, render_json
+from .resource import register_view, render_json
 from .traject import register_model, register_root
 
 
@@ -52,8 +52,8 @@ class ModelDirective(Directive):
                        self.variables, obj, self.base, self.get_base)
 
 
-@directive('resource')
-class ResourceDirective(Directive):
+@directive('view')
+class ViewDirective(Directive):
     def __init__(self, app, model, name='', render=None):
         self.app = app
         self.model = model
@@ -64,17 +64,17 @@ class ResourceDirective(Directive):
             }
 
     def discriminator(self):
-        return ('resource', self.model, self.name)
+        return ('view', self.model, self.name)
 
     def perform(self, obj):
         # XXX kwargs for predicates doesn't seem useful as we unpack
         # them again on the other side
-        register_resource(self.app, self.model, obj, self.render,
-                          self.predicates)
+        register_view(self.app, self.model, obj, self.render,
+                      self.predicates)
 
 
 @directive('json')
-class JsonDirective(ResourceDirective):
+class JsonDirective(ViewDirective):
     def __init__(self, app, model, name='', render=render_json):
         super(JsonDirective, self).__init__(app, model, name, render)
 

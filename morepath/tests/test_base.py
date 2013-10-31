@@ -65,19 +65,19 @@ def test_base():
         get_item)
 
     c.action(
-        app.resource(model=Container),
+        app.view(model=Container),
         lambda request, model: 'container: %s' % model.id)
     c.action(
-        app.resource(model=Container, name='link'),
+        app.view(model=Container, name='link'),
         lambda request, model: request.link(model))
     c.action(
-        app.resource(model=Item),
+        app.view(model=Item),
         lambda request, model: 'item: %s' % model.id)
     c.action(
-        app.resource(model=Item, name='link'),
+        app.view(model=Item, name='link'),
         lambda request, model: request.link(model))
     c.action(
-        app.resource(model=Item, name='otherlink'),
+        app.view(model=Item, name='otherlink'),
         lambda request, model: request.link(e))
     c.commit()
 

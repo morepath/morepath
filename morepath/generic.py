@@ -51,10 +51,10 @@ def traject(obj):
 
 
 @reg.generic
-def resource(request, model):
-    """Get the resource that represents the model in the context of a request.
+def view(request, model):
+    """Get the view that represents the model in the context of a request.
 
-    This resource is a representation of the model that be rendered to
+    This view is a representation of the model that be rendered to
     a response. It may also return a Response directly. If a string is
     returned, the string is converted to a Response with the string as
     the response body.

@@ -20,11 +20,11 @@ def get_model(id):
     return Model(id)
 
 
-@app.resource(model=Model)
+@app.view(model=Model)
 def default(request, model):
-    return "The resource for model: %s" % model.id
+    return "The view for model: %s" % model.id
 
 
-@app.resource(model=Model, name='link')
+@app.view(model=Model, name='link')
 def link(request, model):
     return request.link(model)
