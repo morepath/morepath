@@ -110,7 +110,7 @@ the same instance could be published once per application, in a URL
 structure optimal for each application.
 
 Again this supports applications working in isolation - they may treat
-database models differently than other applications do. 
+database models differently than other applications do.
 
 Linking to another application
 ------------------------------
