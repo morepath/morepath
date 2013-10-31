@@ -1,5 +1,5 @@
 from morepath import generic
-from .request import Request
+from .request import Request, Response
 from reg import PredicateRegistry, Predicate, KeyIndex, Matcher
 import json
 
@@ -48,13 +48,15 @@ def render_noop(response, content):
     return response
 
 
-def render_json(response, content):
+def render_json(content):
+    response = Response()
     response.content_type = 'application/json'
     response.set_data(json.dumps(content))
     return response
 
 
-def render_html(response, content):
+def render_html(content):
+    response = Response()
     response.content_type = 'text/html'
     response.set_data(content)
     return response

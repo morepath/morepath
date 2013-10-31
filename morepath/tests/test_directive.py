@@ -2,6 +2,7 @@ from .fixtures import basic, nested
 from morepath import setup
 from morepath.config import Config
 from morepath.request import Response
+from morepath.view import render_html
 from morepath.app import App
 import morepath
 import reg
@@ -202,3 +203,28 @@ def test_json_directive():
 
     response = c.get('/foo')
     assert response.data == '{"id": "foo"}'
+
+def test_redirect():
+    setup()
+
+    app = morepath.App()
+
+    class Root(object):
+        def __init__(self):
+            pass
+
+    def default(request, model):
+        return morepath.redirect('/')
+
+    c = Config()
+    c.app(app)
+    c.action(app.root(),
+             Root)
+    c.action(app.view(model=Root, render=render_html),
+             default)
+    c.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/')
+    assert response.status == '302 FOUND'

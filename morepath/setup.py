@@ -5,6 +5,7 @@ from morepath import generic
 from .error import LinkError
 from .app import App
 from .request import Request, Response
+from werkzeug.wrappers import BaseResponse
 from .traject import traject_consumer
 import morepath
 from reg import Lookup
@@ -78,16 +79,13 @@ def get_response(request, model):
     if view is None:
         return None
     content = view(request, model)
-    response = None
-    if isinstance(content, Response):
-        response = content
-    elif isinstance(content, basestring):
-        response = Response(content)
+    if isinstance(content, BaseResponse):
+        # the view took full control over the response
+        return content
+    # XXX consider always setting a default render so that view.render
+    # can never be None
     if view.render is not None:
-        if isinstance(content, Response):
-            content = response.get_data(as_text=True)
-        if response is None:
-            response = Response()
-        response = view.render(response, content)
-    assert response is not None, "Cannot render content: %r" % content
+        response = view.render(content)
+    else:
+        response = Response(content)
     return response
