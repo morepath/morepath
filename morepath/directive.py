@@ -68,8 +68,6 @@ class ViewDirective(Directive):
         return ('view', self.model, self.name)
 
     def perform(self, obj):
-        # XXX kwargs for predicates doesn't seem useful as we unpack
-        # them again on the other side
         register_view(self.app, self.model, obj, self.render,
                       self.predicates)
 
