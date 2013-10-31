@@ -1,7 +1,7 @@
 from .app import App
 from .config import Directive
 from .error import ConfigError
-from .view import register_view, render_json
+from .view import register_view, render_json, render_html
 from .traject import register_model, register_root
 
 
@@ -78,6 +78,12 @@ class ViewDirective(Directive):
 class JsonDirective(ViewDirective):
     def __init__(self, app, model, name='', render=render_json, **kw):
         super(JsonDirective, self).__init__(app, model, name, render, **kw)
+
+
+@directive('html')
+class HtmlDirective(ViewDirective):
+    def __init__(self, app, model, name='', render=render_html, **kw):
+        super(HtmlDirective, self).__init__(app, model, name, render, **kw)
 
 
 @directive('root')
