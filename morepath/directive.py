@@ -1,7 +1,7 @@
 from .app import App
 from .config import Directive
 from .error import ConfigError
-from .resource import register_view, render_json
+from .view import register_view, render_json
 from .traject import register_model, register_root
 
 

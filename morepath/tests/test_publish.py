@@ -2,7 +2,7 @@ from reg import Lookup
 from morepath.app import App
 from morepath.publish import publish
 from morepath.request import Request, Response
-from morepath.resource import register_view, render_json, render_html
+from morepath.view import register_view, render_json, render_html
 from morepath.setup import setup
 from werkzeug.test import EnvironBuilder
 
