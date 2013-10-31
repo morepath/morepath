@@ -13,7 +13,7 @@ relational database and were created with a ORM.
 
 Allowing individual models to be published on separate URLs avoids the
 god object antipattern where all web operations are routed through a
-single object. Instead each model, through resource objects, can
+single object. Instead each model, through view objects, can
 handle model-specific requests and operations. This encourages a more
 modular and reusable application design.
 
@@ -72,15 +72,15 @@ request object and do not have to generate a response object.
 Instead this knowledge is external to the models. Models should be
 optimized for programmatic use in general.
 
-Resource/model separation
+View/model separation
 -------------------------
 
-Resource objects are responsible for translating the model to the web
-and web operations to operations on the model. Resources receive the
-request object and generate the response object. This is again to
-avoid giving the models knowledge about the web. This is a kind of
-model/view separation where the resource (view) is the intermediary
-between the model and the web.
+View objects are responsible for translating the model to the web and
+web operations to operations on the model. Views receive the request
+object and generate the response object. This is again to avoid giving
+the models knowledge about the web. This is a kind of model/view
+separation where the view is the intermediary between the model and
+the web.
 
 Isolation between applications
 ------------------------------
@@ -88,15 +88,15 @@ Isolation between applications
 The system allows multiple applications to be published at the same
 time. Applications work in isolation from each other by default. For
 instance, publishing a model on a URL will not affect another
-application, and publishing a resource for a model will not make that
-resource available in the other application.
+application, and publishing a view for a model will not make that
+view available in the other application.
 
 Sharing between applications
 ----------------------------
 
 In order to support reusable components, it should be possible to
 explicitly break application isolation and make routes to models and
-resources globally available. Each application will share this
+views globally available. Each application will share this
 information.
 
 .. note:: What about a model that's exposed globally and now a
@@ -123,11 +123,11 @@ Reusable components
 -------------------
 
 It should be possible to define a base class (or interface) for a
-model that automatically pulls in (globally registered) resources and
+model that automatically pulls in (globally registered) views and
 sub-paths when you subclass from it. This lets a framework developer
 define APIs that an application developer can implement. By doing so,
 the application developer will automatically get a whole set of
-resources for this resource.
+views for this view.
 
 Declarative
 -----------
