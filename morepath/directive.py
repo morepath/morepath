@@ -54,7 +54,7 @@ class ModelDirective(Directive):
 
 @directive('view')
 class ViewDirective(Directive):
-    def __init__(self, app, model, name='', render=None):
+    def __init__(self, app, model, name='', render=None, **kw):
         self.app = app
         self.model = model
         self.name = name
@@ -62,6 +62,7 @@ class ViewDirective(Directive):
         self.predicates = {
             'name': self.name
             }
+        self.predicates.update(kw)
 
     def discriminator(self):
         return ('view', self.model, self.name)
@@ -75,8 +76,8 @@ class ViewDirective(Directive):
 
 @directive('json')
 class JsonDirective(ViewDirective):
-    def __init__(self, app, model, name='', render=render_json):
-        super(JsonDirective, self).__init__(app, model, name, render)
+    def __init__(self, app, model, name='', render=render_json, **kw):
+        super(JsonDirective, self).__init__(app, model, name, render, **kw)
 
 
 @directive('root')
