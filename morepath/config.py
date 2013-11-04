@@ -70,6 +70,7 @@ class Config(object):
         for action, obj in actions:
             action.perform(obj)
 
+    # XXX consider a load() that does scan & commit
 
 # taken from pyramid.path
 def caller_module(level=2, sys=sys):
