@@ -1,9 +1,10 @@
 Quickstart
 ==========
 
-You should be able to learn how to use a micro-framework quickly. So
-here's a quickstart guide. We assume you've already installed
-Morepath; if not, see the :ref:`installation` section.
+Morepath is a micro-framework, and this makes it small and easy to
+learn. This quickstart guide should help you get started. We assume
+you've already installed Morepath; if not, see the :ref:`installation`
+section.
 
 Hello world
 -----------
