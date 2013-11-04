@@ -4,6 +4,7 @@ from .traject import Traject
 from .config import Action
 from reg import ClassRegistry, Lookup, ChainClassLookup
 import venusian
+from werkzeug.serving import run_simple
 
 class App(Action, ClassRegistry):
     # XXX split path parent from configuration parent
@@ -62,5 +63,12 @@ class App(Action, ClassRegistry):
         request.lookup = self.lookup()
         response = publish(request, self)
         return response(environ, start_response)
+
+    def run(self, host=None, port=None, **options):
+        if host is None:
+            host = '127.0.0.1'
+        if port is None:
+            port = 5000
+        run_simple(host, port, self, **options)
 
 global_app = App()
