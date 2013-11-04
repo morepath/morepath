@@ -415,6 +415,28 @@ def test_register_model():
     assert generic.base(model, lookup=lookup) is app
 
 
+def test_traject_path_with_leading_slash():
+    setup()
+    app = App()
+    root = Root()
+    app.root_model = Root
+    app.root_obj = root
+    lookup = Lookup(ChainClassLookup(app, global_app))
+
+    def get_model(id):
+        model = Model()
+        model.id = id
+        return model
+
+    register_root(app, Root, lambda: root)
+    register_model(app, Model, '/foo/{id}', lambda model: {'id': model.id},
+                   get_model)
+    found, obj, stack = traject_consumer(app, parse_path('foo/a'), lookup)
+    assert obj.id == 'a'
+    found, obj, stack = traject_consumer(app, parse_path('/foo/a'), lookup)
+    assert obj.id == 'a'
+
+
 # XXX we still need to do a conflict between a model path and an app name
 
 # def test_conflict_app_and_model():
