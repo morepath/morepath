@@ -15,6 +15,7 @@ class directive(object):
         setattr(App, self.name, method)
         return directive
 
+
 @directive('model')
 class ModelDirective(Directive):
     def __init__(self, app,  path, model=None,

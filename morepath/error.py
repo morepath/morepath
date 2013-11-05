@@ -10,6 +10,7 @@ def conflict_keyfunc(conflict):
     filename, lineno, function, sourceline = conflict.codeinfo
     return (filename, lineno)
 
+
 class ConflictError(ConfigError):
     """Raised when there is a conflict in configuration.
     """
@@ -24,6 +25,7 @@ class ConflictError(ConfigError):
             result.append('    %s' % sourceline)
         msg = '\n'.join(result)
         super(ConflictError, self).__init__(msg)
+
 
 class ResolveError(Exception):
     """Raised when path cannot be resolved

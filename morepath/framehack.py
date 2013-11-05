@@ -1,5 +1,6 @@
 import sys
 
+
 # taken from pyramid.path
 def caller_module(level=2, sys=sys):
     module_globals = sys._getframe(level).f_globals
@@ -12,7 +13,7 @@ def caller_package(level=2, caller_module=caller_module):
     # caller_module in arglist for tests
     module = caller_module(level+1)
     f = getattr(module, '__file__', '')
-    if (('__init__.py' in f) or ('__init__$py' in f)): # empty at >>>
+    if (('__init__.py' in f) or ('__init__$py' in f)):  # empty at >>>
         # Module is a package
         return module
     # Go up one level to get package

@@ -144,7 +144,7 @@ def test_basic_imperative():
     c.action(app.view(model=Model, name='link'),
              link)
     c.action(app.view(model=Model, name='json',
-                          render=morepath.render_json),
+                      render=morepath.render_json),
              json)
     c.action(app.view(model=Root),
              root_default)
@@ -169,6 +169,7 @@ def test_basic_imperative():
     # @@ is to make sure we get the view, not the sub-model
     response = c.get('/@@link')
     assert response.data == ''
+
 
 def test_json_directive():
     setup()
@@ -198,6 +199,7 @@ def test_json_directive():
 
     response = c.get('/foo')
     assert response.data == '{"id": "foo"}'
+
 
 def test_redirect():
     setup()

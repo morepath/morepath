@@ -9,6 +9,7 @@ def test_action():
     class MyAction(config.Action):
         def perform(self, obj):
             performed.append(obj)
+
         def discriminator(self):
             return ()
 
@@ -41,6 +42,7 @@ def test_directive():
     class MyDirective(config.Directive):
         def perform(self, obj):
             performed.append(obj)
+
         def discriminator(self):
             return ()
 

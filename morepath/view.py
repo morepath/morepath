@@ -31,6 +31,7 @@ class ViewMatcher(Matcher):
         request_predicates = self.get_predicates(request)
         return self.reg.get(request_predicates)
 
+
 # XXX what happens if predicates is None for one registration
 # but filled for another?
 def register_view(registry, model, view, render=None, predicates=None):

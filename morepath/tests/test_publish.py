@@ -48,7 +48,7 @@ def test_predicates():
 
     register_view(app, Model, view, predicates=dict(name=''))
     register_view(app, Model, post_view,
-                      predicates=dict(name='', request_method='POST'))
+                  predicates=dict(name='', request_method='POST'))
 
     model = Model()
     assert publish(get_request(path='', app=app), model).data == 'all'

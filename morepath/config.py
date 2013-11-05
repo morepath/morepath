@@ -1,7 +1,7 @@
 from copy import copy
 import venusian
 from .error import ConflictError
-from .framehack import caller_module
+from .framehack import caller_package
 
 
 class Action(object):
@@ -70,7 +70,6 @@ class Config(object):
         # registry. same for app
         # XXX check that a model registration that has a base that is
         # not an app supplies a get_base
-        pass
 
     def commit(self):
         actions = []
@@ -84,5 +83,3 @@ class Config(object):
             action.perform(obj)
 
     # XXX consider a load() that does scan & commit
-
-
