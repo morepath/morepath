@@ -374,6 +374,29 @@ def test_view_no_conflict_different_names():
     c.commit()
 
 
+def test_view_no_conflict_different_predicates():
+    app = morepath.App()
+
+    class Model(object):
+        pass
+
+    a = app.view(model=Model, name='a', request_method='GET')
+    b = app.view(model=Model, name='a', request_method='POST')
+
+    @a
+    def a_view(request, model):
+        pass
+
+    @b
+    def b_view(request, model):
+        pass
+    
+    c = Config()
+    c.action(a, a_view)
+    c.action(b, b_view)
+    c.commit()
+
+
 def test_view_no_conflict_different_apps():
     app_a = morepath.App()
     app_b = morepath.App()
