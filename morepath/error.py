@@ -7,7 +7,7 @@ class ConfigError(Exception):
 
 
 def conflict_keyfunc(action):
-    filename, lineno, function, sourceline = action.attach_info.codeinfo
+    filename, lineno, function, sourceline = action.codeinfo()
     return (filename, lineno)
 
 
@@ -20,7 +20,7 @@ class ConflictError(ConfigError):
         result = [
             'Conflict between:']
         for action in actions:
-            filename, lineno, function, sourceline = action.attach_info.codeinfo
+            filename, lineno, function, sourceline = action.codeinfo()
             result.append('  File "%s", line %s' % (filename, lineno))
             result.append('    %s' % sourceline)
         msg = '\n'.join(result)

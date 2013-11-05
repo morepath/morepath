@@ -5,15 +5,13 @@ from .framehack import caller_package
 
 
 class Action(object):
-    attach_info = None
-
     def discriminator(self):
         """Returns an immutable that uniquely identifies this config.
 
         Used for configuration conflict detection.
         """
         raise NotImplementedError()
-
+        
     # XXX needs docs
     def clone(self):
         return copy(self)
@@ -34,6 +32,13 @@ class Action(object):
 
 
 class Directive(Action):
+    attach_info = None
+
+    def codeinfo(self):
+        """Information about how the action was invoked.
+        """
+        return self.attach_info.codeinfo
+
     def __call__(self, wrapped):
         def callback(scanner, name, obj):
             scanner.config.action(self, obj)
