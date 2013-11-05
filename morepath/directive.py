@@ -28,6 +28,9 @@ class ModelDirective(Directive):
         self.get_base = get_base
 
     def discriminator(self):
+        # XXX need multiple discriminators
+        # * cannot register multiple models for app
+        # * cannot register conflicting paths in app 
         return ('model', self.app, self.model)
 
     def prepare(self, obj):

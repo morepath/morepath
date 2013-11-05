@@ -299,6 +299,37 @@ def test_model_conflict():
         c.commit()
 
 
+@pytest.mark.xfail
+def test_model_path_conflict():
+    app = morepath.App()
+
+    class A(object):
+        pass
+
+    class B(object):
+        pass
+    
+    a = app.model(model=A, path='a')
+    
+    @a
+    def get_a():
+        return A()
+
+
+    b = app.model(model=B, path='a')
+
+    @b
+    def get_a_again():
+        return A()
+    
+    c = Config()
+    c.action(a, get_a)
+    c.action(b, get_a_again)
+
+    with pytest.raises(ConflictError):
+        c.commit()
+
+
 def test_model_no_conflict_different_apps():
     app_a = morepath.App()
 
