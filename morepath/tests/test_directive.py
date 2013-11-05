@@ -469,3 +469,30 @@ def test_view_conflict_with_html():
 
     with pytest.raises(ConflictError):
         c.commit()
+
+def test_function_conflict():
+    app = morepath.App()
+
+    def func(a):
+        pass
+
+    class A(object):
+        pass
+    
+    a = app.function(func, A)
+    @a
+    def a_func(arequest, model):
+        pass
+
+    a1 = app.function(func, A)
+    @a1
+    def a1_func(request, model):
+        pass
+    
+    c = Config()
+    c.action(a, a_func)
+    c.action(a1, a1_func)
+
+    with pytest.raises(ConflictError):
+        c.commit()
+    
