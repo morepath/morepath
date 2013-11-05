@@ -120,7 +120,7 @@ class FunctionDirective(Directive):
         self.sources = tuple(sources)
 
     def discriminator(self):
-        return ('function', self.target, self.sources)
+        return ('function', self.app, self.target, self.sources)
 
     def perform(self, obj):
         self.app.register(self.target, self.sources, obj)

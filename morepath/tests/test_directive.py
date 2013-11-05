@@ -470,6 +470,7 @@ def test_view_conflict_with_html():
     with pytest.raises(ConflictError):
         c.commit()
 
+
 def test_function_conflict():
     app = morepath.App()
 
@@ -495,4 +496,30 @@ def test_function_conflict():
 
     with pytest.raises(ConflictError):
         c.commit()
+
+
+def test_function_no_conflict_different_apps():
+    app_a = morepath.App()
+    app_b = morepath.App()
+
+    def func(a):
+        pass
+
+    class A(object):
+        pass
     
+    a = app_a.function(func, A)
+    a1 = app_b.function(func, A)
+
+    @a
+    def a_func(a):
+        pass
+
+    @a1
+    def a1_func(a):
+        pass
+    
+    c = Config()
+    c.action(a, a_func)
+    c.action(a1, a1_func)
+    c.commit()
