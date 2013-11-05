@@ -8,7 +8,7 @@ The genesis of Morepath is complex and involves a number of projects.
 Web Framework Inspirations
 --------------------------
 
-Morepath was inspired by Zope, in particular its copmonent
+Morepath was inspired by Zope, in particular its component
 architecture; a reimagined version of this is available in Reg, a core
 dependency of Morepath. An additional inspiration was the Grok web
 framework I helped create, which was based on Zope 3 technologies,
