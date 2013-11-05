@@ -1,5 +1,6 @@
 from .fixtures import basic, nested
 from morepath import setup
+from morepath.error import ConflictError
 from morepath.config import Config
 from morepath.request import Response
 from morepath.view import render_html
@@ -8,7 +9,7 @@ import morepath
 import reg
 
 from werkzeug.test import Client
-
+import pytest
 
 def test_basic():
     setup()
@@ -225,3 +226,173 @@ def test_redirect():
 
     response = c.get('/')
     assert response.status == '302 FOUND'
+
+def test_root_conflict():
+    app = morepath.App()
+
+    a = app.root()
+
+    @a
+    class Root(object):
+        pass
+
+    b = app.root()
+
+    @b
+    class Something(object):
+        pass
+    
+    c = Config()
+    c.action(a, Root)
+    c.action(b, Something)
+
+    with pytest.raises(ConflictError):
+        c.commit()
+
+
+def test_root_no_conflict_different_apps():
+    app_a = morepath.App()
+    app_b = morepath.App()
+
+    a = app_a.root()
+    
+    @a
+    class Root(object):
+        pass
+
+    b = app_b.root()
+
+    @b
+    class Something(object):
+        pass
+    
+    c = Config()
+    c.action(a, Root)
+    c.action(b, Something)
+    c.commit()
+
+
+def test_model_conflict():
+    app = morepath.App()
+
+    class A(object):
+        pass
+
+    a = app.model(model=A, path='a')
+    
+    @a
+    def get_a():
+        return A()
+
+
+    b = app.model(model=A, path='a')
+
+    @b
+    def get_a_again():
+        return A()
+    
+    c = Config()
+    c.action(a, get_a)
+    c.action(b, get_a_again)
+
+    with pytest.raises(ConflictError):
+        c.commit()
+
+
+def test_model_no_conflict_different_apps():
+    app_a = morepath.App()
+
+    class A(object):
+        pass
+
+    a = app_a.model(model=A, path='a')
+    
+    @a
+    def get_a():
+        return A()
+
+
+    app_b = morepath.App()
+    
+    b = app_b.model(model=A, path='a')
+
+    @b
+    def get_a_again():
+        return A()
+    
+    c = Config()
+    c.action(a, get_a)
+    c.action(b, get_a_again)
+    c.commit()
+
+
+def test_view_conflict():
+    app = morepath.App()
+
+    class Model(object):
+        pass
+
+    a = app.view(model=Model, name='a')
+    a1 = app.view(model=Model, name='a')
+
+    @a
+    def a_view(request, model):
+        pass
+
+    @a1
+    def a1_view(request, model):
+        pass
+    
+    c = Config()
+    c.action(a, a_view)
+    c.action(a1, a1_view)
+
+    with pytest.raises(ConflictError):
+        c.commit()
+
+
+def test_view_no_conflict_different_names():
+    app = morepath.App()
+
+    class Model(object):
+        pass
+
+    a = app.view(model=Model, name='a')
+    b = app.view(model=Model, name='b')
+
+    @a
+    def a_view(request, model):
+        pass
+
+    @b
+    def b_view(request, model):
+        pass
+    
+    c = Config()
+    c.action(a, a_view)
+    c.action(b, b_view)
+    c.commit()
+
+
+def test_view_no_conflict_different_apps():
+    app_a = morepath.App()
+    app_b = morepath.App()
+    
+    class Model(object):
+        pass
+
+    a = app_a.view(model=Model, name='a')
+    a1 = app_b.view(model=Model, name='a')
+
+    @a
+    def a_view(request, model):
+        pass
+
+    @a1
+    def a1_view(request, model):
+        pass
+    
+    c = Config()
+    c.action(a, a_view)
+    c.action(a1, a1_view)
+    c.commit()

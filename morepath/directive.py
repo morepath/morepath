@@ -28,9 +28,7 @@ class ModelDirective(Directive):
         self.get_base = get_base
 
     def discriminator(self):
-        # XXX is wrong
-        # a model can only be made available once for a base
-        return ('model', self.base, self.model)
+        return ('model', self.app, self.model)
 
     def prepare(self, obj):
         # XXX check shared with @root
@@ -67,7 +65,8 @@ class ViewDirective(Directive):
 
     def discriminator(self):
         predicates_discriminator = tuple(sorted(self.predicates.items()))
-        return ('view', self.model, self.name, predicates_discriminator)
+        return ('view', self.app, self.model, self.name,
+                predicates_discriminator)
 
     def perform(self, obj):
         register_view(self.app, self.model, obj, self.render,
