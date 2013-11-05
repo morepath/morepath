@@ -24,9 +24,7 @@ class App(Action, ClassRegistry):
         venusian.attach(self, callback)
 
     def discriminator(self):
-        # XXX this isn't right, as we could have multiple sub apps
-        # with the same name
-        return ('app', self.name)
+        return None
 
     # XXX clone() isn't right, as we'd actually put things in a traject of
     # cloned?

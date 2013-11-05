@@ -1,8 +1,12 @@
 from copy import copy
 import venusian
-import sys
+from .error import ConflictError
+from .framehack import caller_module
+
 
 class Action(object):
+    attach_info = None
+
     def discriminator(self):
         """Returns an immutable that uniquely identifies this config.
 
@@ -33,7 +37,7 @@ class Directive(Action):
     def __call__(self, wrapped):
         def callback(scanner, name, obj):
             scanner.config.action(self, obj)
-        venusian.attach(wrapped, callback)
+        self.attach_info = venusian.attach(wrapped, callback)
         return wrapped
 
 
@@ -51,7 +55,15 @@ class Config(object):
         self.actions.append((action, obj))
 
     def validate(self):
-        # XXX check for conflicts
+        discriminators = {}
+        for action, obj in self.actions:
+            disc = action.discriminator()
+            if disc is None:
+                continue
+            other_attach_info = discriminators.get(disc)
+            if other_attach_info is not None:
+                raise ConflictError([action.attach_info, other_attach_info])
+            discriminators[disc] = action.attach_info
         # XXX check that all base of an app is another app,
         # can only do this in the end
         # XXX a model cannot be registered multiple times in the same
@@ -61,6 +73,7 @@ class Config(object):
         pass
 
     def commit(self):
+        self.validate()
         actions = []
         for action, obj in self.actions:
             action = action.clone()  # so that prepare starts fresh
@@ -72,21 +85,4 @@ class Config(object):
 
     # XXX consider a load() that does scan & commit
 
-# taken from pyramid.path
-def caller_module(level=2, sys=sys):
-    module_globals = sys._getframe(level).f_globals
-    module_name = module_globals.get('__name__') or '__main__'
-    module = sys.modules[module_name]
-    return module
 
-
-def caller_package(level=2, caller_module=caller_module):
-    # caller_module in arglist for tests
-    module = caller_module(level+1)
-    f = getattr(module, '__file__', '')
-    if (('__init__.py' in f) or ('__init__$py' in f)): # empty at >>>
-        # Module is a package
-        return module
-    # Go up one level to get package
-    package_name = module.__name__.rsplit('.', 1)[0]
-    return sys.modules[package_name]

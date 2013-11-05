@@ -65,7 +65,8 @@ class ViewDirective(Directive):
         self.predicates.update(kw)
 
     def discriminator(self):
-        return ('view', self.model, self.name)
+        predicates_discriminator = tuple(sorted(self.predicates.items()))
+        return ('view', self.model, self.name, predicates_discriminator)
 
     def perform(self, obj):
         register_view(self.app, self.model, obj, self.render,
@@ -91,8 +92,7 @@ class RootDirective(Directive):
         self.model = model
 
     def discriminator(self):
-        # XXX what if model is set through a class decorator?
-        return ('app', self.model, self.name)
+        return ('root', self.app)
 
     def prepare(self, obj):
         if isinstance(obj, type):
@@ -117,10 +117,10 @@ class FunctionDirective(Directive):
     def __init__(self, app, target, *sources):
         self.app = app
         self.target = target
-        self.sources = sources
+        self.sources = tuple(sources)
 
     def discriminator(self):
-        return ('function', self.model, self.name)
+        return ('function', self.target, self.sources)
 
     def perform(self, obj):
         self.app.register(self.target, self.sources, obj)
