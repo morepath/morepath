@@ -13,6 +13,7 @@ Contents:
 
    quickstart
    design
+   history
 
 
 Indices and tables
