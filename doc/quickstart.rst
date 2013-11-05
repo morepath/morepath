@@ -213,6 +213,15 @@ cannot be found.
 
 Now we've published the model but we can't view it yet.
 
+.. sidebar:: int converter
+
+  A common use case is for path variables to be a database id. These
+  are often integers only. If a non-integer is seen in the path we
+  know it doesn't match. You can specify a path variable contains an
+  integer using the integer converter (``:int``). For instance::
+
+    posts/{post_id:int}
+
 Views
 ~~~~~
 
@@ -305,3 +314,51 @@ This automatically sets the content type to ``text/html``. It doesn't
 do any HTML escaping though, so the use of ``%`` above is unsafe! We
 recommend the use of a HTML template language.
 
+Request object
+--------------
+
+The first argument for a view function is the request object. This is
+a `Werkzeug request`_. We'll give a quick overview of what's possible
+here, but consult the Werkzeug API documentation for more information.
+
+* ``request.args`` contains any URL parameters (``?key=value``).
+
+* ``request.form`` contains any HTTP form data that was submitted.
+
+* ``request.method`` gets the HTTP method (``GET``, ``POST``, etc).
+
+* Uploaded files made available in ``request.files``. The keys are the
+  form fields with which they were uploaded. The values are Python
+  ``file`` style objects, but with a ``save()`` method added that
+  allows you to store that file on the filesystem. There is also a
+  ``filename`` attribute that gives the filename of the file that was
+  uploaded; if you want to use this to store the file, use
+  ``werkzeug.utils.secure_filename()`` to secure it first. Make sure
+  your HTML form has ``enctype="multipart/form-data"`` set to make
+  file uploads work.
+
+* ``request.cookies`` contains the cookies. ``response.set_cookie`` can
+  be used to set cookies.
+
+Redirects
+---------
+
+To redirect to another URL, use ``morepath.redirect``. For example::
+
+  @app.view(model=User, name='extra')
+  def redirecting(request, model):
+      return morepath.redirect(request.link(model, 'other'))
+
+HTTP Errors
+-----------
+
+To trigger an HTTP error response you can raise various `Werkzeug HTTP
+exceptions`_. For instance::
+
+  from werkzeug.exceptions import BadRequest
+
+  @app.view(model=User, name='extra')
+  def erroring(request, model):
+      raise BadRequest()
+
+.. _`Werkzeug HTTP exceptions`: http://werkzeug.pocoo.org/docs/exceptions/
