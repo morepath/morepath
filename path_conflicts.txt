@@ -1,0 +1,28 @@
+
+Automatic ordering:
+
+extra{foo}extra before {foo}: order with prefixes/postfixes before without
+
+{foo}-extra versus {foo}tra: order longer prefix/postfix first
+
+{foo}x versus {foo}y: no conflict
+
+{foo} versus {bar}: conflict
+
+{foo:int} versus {foo:str}: conflict
+
+something versus {foo}: order something before foo
+
+
+view versus path
+
+view should have precedence over path: problem: some steps conflicting
+with view name become impossible. workaround is to contain prefix
+in the view name in this case.
+
+path should have precedence over view: problem: view need special name
+to distinguish @@, always non-clean paths
+
+if default behavior is view have priority over path, then consumer
+procedure should be adjusted: try to consume view, if no view, consume
+step, etc.
