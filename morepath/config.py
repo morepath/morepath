@@ -60,10 +60,10 @@ class Config(object):
             disc = action.discriminator()
             if disc is None:
                 continue
-            other_attach_info = discriminators.get(disc)
-            if other_attach_info is not None:
-                raise ConflictError([action.attach_info, other_attach_info])
-            discriminators[disc] = action.attach_info
+            other_action = discriminators.get(disc)
+            if other_action is not None:
+                raise ConflictError([action, other_action])
+            discriminators[disc] = action
         # XXX check that all base of an app is another app,
         # can only do this in the end
         # XXX a model cannot be registered multiple times in the same
