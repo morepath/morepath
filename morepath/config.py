@@ -54,9 +54,9 @@ class Config(object):
     def action(self, action, obj):
         self.actions.append((action, obj))
 
-    def validate(self):
+    def validate(self, actions):
         discriminators = {}
-        for action, obj in self.actions:
+        for action, obj in actions:
             disc = action.discriminator()
             if disc is None:
                 continue
@@ -73,12 +73,12 @@ class Config(object):
         pass
 
     def commit(self):
-        self.validate()
         actions = []
         for action, obj in self.actions:
             action = action.clone()  # so that prepare starts fresh
             action.prepare(obj)
             actions.append((action, obj))
+        self.validate(actions)
 
         for action, obj in actions:
             action.perform(obj)

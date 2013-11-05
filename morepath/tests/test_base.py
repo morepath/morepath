@@ -46,6 +46,7 @@ def test_base():
         elif container_id == 'beta':
             return beta
         return None
+
     c.action(
         app.model(
             model=Container,
