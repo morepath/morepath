@@ -11,7 +11,7 @@ class Action(object):
         Used for configuration conflict detection.
         """
         raise NotImplementedError()
-        
+
     # XXX needs docs
     def clone(self):
         return copy(self)

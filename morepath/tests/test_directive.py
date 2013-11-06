@@ -11,6 +11,7 @@ import reg
 from werkzeug.test import Client
 import pytest
 
+
 def test_basic():
     setup()
     basic.app.clear()
@@ -227,6 +228,7 @@ def test_redirect():
     response = c.get('/')
     assert response.status == '302 FOUND'
 
+
 def test_root_conflict():
     app = morepath.App()
 
@@ -241,7 +243,7 @@ def test_root_conflict():
     @b
     class Something(object):
         pass
-    
+
     c = Config()
     c.action(a, Root)
     c.action(b, Something)
@@ -255,7 +257,7 @@ def test_root_no_conflict_different_apps():
     app_b = morepath.App()
 
     a = app_a.root()
-    
+
     @a
     class Root(object):
         pass
@@ -265,7 +267,7 @@ def test_root_no_conflict_different_apps():
     @b
     class Something(object):
         pass
-    
+
     c = Config()
     c.action(a, Root)
     c.action(b, Something)
@@ -279,18 +281,17 @@ def test_model_conflict():
         pass
 
     a = app.model(model=A, path='a')
-    
+
     @a
     def get_a():
         return A()
-
 
     b = app.model(model=A, path='a')
 
     @b
     def get_a_again():
         return A()
-    
+
     c = Config()
     c.action(a, get_a)
     c.action(b, get_a_again)
@@ -308,20 +309,19 @@ def test_model_path_conflict():
 
     class B(object):
         pass
-    
+
     a = app.model(model=A, path='a')
-    
+
     @a
     def get_a():
         return A()
-
 
     b = app.model(model=B, path='a')
 
     @b
     def get_a_again():
         return A()
-    
+
     c = Config()
     c.action(a, get_a)
     c.action(b, get_a_again)
@@ -337,20 +337,19 @@ def test_model_no_conflict_different_apps():
         pass
 
     a = app_a.model(model=A, path='a')
-    
+
     @a
     def get_a():
         return A()
 
-
     app_b = morepath.App()
-    
+
     b = app_b.model(model=A, path='a')
 
     @b
     def get_a_again():
         return A()
-    
+
     c = Config()
     c.action(a, get_a)
     c.action(b, get_a_again)
@@ -373,7 +372,7 @@ def test_view_conflict():
     @a1
     def a1_view(request, model):
         pass
-    
+
     c = Config()
     c.action(a, a_view)
     c.action(a1, a1_view)
@@ -398,7 +397,7 @@ def test_view_no_conflict_different_names():
     @b
     def b_view(request, model):
         pass
-    
+
     c = Config()
     c.action(a, a_view)
     c.action(b, b_view)
@@ -421,7 +420,7 @@ def test_view_no_conflict_different_predicates():
     @b
     def b_view(request, model):
         pass
-    
+
     c = Config()
     c.action(a, a_view)
     c.action(b, b_view)
@@ -431,7 +430,7 @@ def test_view_no_conflict_different_predicates():
 def test_view_no_conflict_different_apps():
     app_a = morepath.App()
     app_b = morepath.App()
-    
+
     class Model(object):
         pass
 
@@ -445,7 +444,7 @@ def test_view_no_conflict_different_apps():
     @a1
     def a1_view(request, model):
         pass
-    
+
     c = Config()
     c.action(a, a_view)
     c.action(a1, a1_view)
@@ -468,14 +467,14 @@ def test_view_conflict_with_json():
     @a1
     def a1_view(request, model):
         pass
-    
+
     c = Config()
     c.action(a, a_view)
     c.action(a1, a1_view)
 
     with pytest.raises(ConflictError):
         c.commit()
-    
+
 
 def test_view_conflict_with_html():
     app = morepath.App()
@@ -493,7 +492,7 @@ def test_view_conflict_with_html():
     @a1
     def a1_view(request, model):
         pass
-    
+
     c = Config()
     c.action(a, a_view)
     c.action(a1, a1_view)
@@ -510,17 +509,19 @@ def test_function_conflict():
 
     class A(object):
         pass
-    
+
     a = app.function(func, A)
+
     @a
     def a_func(arequest, model):
         pass
 
     a1 = app.function(func, A)
+
     @a1
     def a1_func(request, model):
         pass
-    
+
     c = Config()
     c.action(a, a_func)
     c.action(a1, a1_func)
@@ -538,7 +539,7 @@ def test_function_no_conflict_different_apps():
 
     class A(object):
         pass
-    
+
     a = app_a.function(func, A)
     a1 = app_b.function(func, A)
 
@@ -549,7 +550,7 @@ def test_function_no_conflict_different_apps():
     @a1
     def a1_func(a):
         pass
-    
+
     c = Config()
     c.action(a, a_func)
     c.action(a1, a1_func)
