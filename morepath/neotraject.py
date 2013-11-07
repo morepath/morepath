@@ -17,9 +17,8 @@ class TrajectError(Exception):
 
 @total_ordering
 class Step(object):
-    def __init__(self, s, weight=0):
+    def __init__(self, s):
         self.s = s
-        self.weight = weight
         self.generalized = generalize_variables(s)
         self.parts = tuple(self.generalized.split('{}'))
         self._variables_re = create_variables_re(s)
@@ -68,8 +67,7 @@ class Step(object):
         return self.generalized == other.generalized
 
     def __lt__(self, other):
-        if self.weight < other.weight:
-            return True
+        # XXX ordering based on converter?
         if self._variables_re.match(other.s) is not None:
             return False
         if other._variables_re.match(self.s) is not None:
@@ -77,6 +75,88 @@ class Step(object):
         if sum([len(p) for p in self.parts]) > sum([len(p) for p in other.parts]):
             return True
         return self.parts > other.parts
+
+
+class Node(object):
+    def __init__(self):
+        self._name_nodes = {}
+        self._variable_nodes = []
+        self.value = None
+
+    def add(self, step):
+        if not step.has_variables():
+            return self.add_name_node(step)
+        return self.add_variable_node(step)
+
+        for i, node in enumerate(self._variable_nodes):
+            pass
+        self._variable_nodes.append(StepNode(step))
+
+    def add_name_node(self, step):
+        node = self._name_nodes.get(step.s)
+        if node is not None:
+            return node
+        node = StepNode(step)
+        self._name_nodes[step.s] = node
+        return node
+
+    def add_variable_node(self, step):
+        for i, node in enumerate(self._variable_nodes):
+            if node.step.generalized == step.generalized:
+                if node.step.s == step.s:
+                    return node
+                raise TrajectError("conflict")
+            if step > node.step:
+                result = StepNode(step)
+                self._variable_nodes.insert(i, result)
+                return result
+        result = StepNode(step)
+        self._variable_nodes.append(result)
+        return result
+
+    def get(self, segment):
+        node = self._name_nodes.get(segment)
+        if node is not None:
+            return node, {}
+        for node in self._variable_nodes:
+            matched, variables = node.match(segment)
+            if matched:
+                return node, variables
+        return None, {}
+
+
+class StepNode(Node):
+    def __init__(self, step):
+        super(StepNode, self).__init__()
+        self.step = step
+
+    def match(self, segment):
+        return self.step.match(segment)
+
+
+class Traject(Node):
+    def __init__(self):
+        self._name_nodes = {}
+        self._variable_nodes = []
+
+    def add_pattern(self, segments, value):
+        node = self
+        for segment in segments:
+            node = node.add(Step(segment))
+        node.value = value
+
+    def __call__(self, stack):
+        stack = stack[:]
+        node = self
+        variables = {}
+        while stack:
+            segment = stack.pop()
+            new_node, new_variables = node.get(segment)
+            if new_node is None:
+                return node.value, stack, variables
+            node = new_node
+            variables.update(new_variables)
+        return node.value, stack, variables
 
 # class Step(object):
 #     def __init__(self, s, data):
