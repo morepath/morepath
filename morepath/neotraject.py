@@ -132,6 +132,14 @@ class Node(object):
                 return node, variables
         return None, {}
 
+    def all(self, segment):
+        node = self._name_nodes.get(segment)
+        if node is not None:
+            yield node, {}
+        for node in self._variable_nodes:
+            matched, variables = node.match(segment)
+            if matched:
+                yield node, variables
 
 class StepNode(Node):
     def __init__(self, step):
