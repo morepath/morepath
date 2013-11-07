@@ -107,9 +107,10 @@ class Node(object):
                     return node
                 raise TrajectError("conflict")
             if step > node.step:
-                result = StepNode(step)
-                self._variable_nodes.insert(i, result)
-                return result
+                continue
+            result = StepNode(step)
+            self._variable_nodes.insert(i, result)
+            return result
         result = StepNode(step)
         self._variable_nodes.append(result)
         return result

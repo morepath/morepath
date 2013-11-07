@@ -153,11 +153,13 @@ def test_name_node():
     assert node.get('foo') == (step_node, {})
     assert node.get('bar') == (None, {})
 
+
 def test_variable_node():
     node = Node()
     step_node = node.add(Step('{x}'))
     assert node.get('foo') == (step_node, {'x': 'foo'})
     assert node.get('bar') == (step_node, {'x': 'bar'})
+
 
 def test_mixed_node():
     node = Node()
@@ -165,6 +167,25 @@ def test_mixed_node():
     assert node.get('prefixfoopostfix') == (step_node, {'x': 'foo'})
     assert node.get('prefixbarpostfix') == (step_node, {'x': 'bar'})
     assert node.get('prefixwhat') == (None, {})
+
+
+def test_variable_node_specific_first():
+    node = Node()
+    x_node = node.add(Step('{x}'))
+    prefix_node = node.add(Step('prefix{x}'))
+    assert node.get('what') == (x_node, {'x': 'what'})
+    assert node.get('prefixwhat') == (prefix_node, {'x': 'what'})
+
+
+def test_variable_node_more_specific_first():
+    node = Node()
+    xy_node = node.add(Step('x{x}y'))
+    xay_node = node.add(Step('xa{x}y'))
+    ay_node = node.add(Step('a{x}y'))
+    assert node.get('xwhaty') == (xy_node, {'x': 'what'})
+    assert node.get('xawhaty') == (xay_node, {'x': 'what'})
+    assert node.get('awhaty') == (ay_node, {'x': 'what'})
+
 
 def test_traject_simple():
     traject = Traject()
@@ -181,4 +202,18 @@ def test_traject_simple():
     assert traject(['d', 'd', 'b', 'a']) == ('abd', ['d'], {})
     assert traject(['3', '2', '1', 'y', 'x']) == ('xy', ['3', '2', '1'], {})
     assert traject(['3', '2', '1']) == (None, ['3', '2', '1'], {})
+    assert traject(['b', 'a']) == (None, [], {})
 
+
+def test_traject_variable_specific_first():
+    traject = Traject()
+    traject.add_pattern(['a', '{x}', 'b'], 'axb')
+    traject.add_pattern(['a', 'prefix{x}', 'b'], 'aprefixxb')
+    assert traject(['b', 'lah', 'a']) == ('axb', [], {'x': 'lah'})
+    assert traject(['b', 'prefixlah', 'a']) == ('aprefixxb', [], {'x': 'lah'})
+
+
+def test_traject_multiple_steps_with_variables():
+    traject = Traject()
+    traject.add_pattern(['{x}', '{y}'], 'xy')
+    assert traject(['y', 'x']) == ('xy', [], {'x': 'x', 'y': 'y'})
