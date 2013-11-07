@@ -11,6 +11,11 @@ KNOWN_CONVERTERS = {
     'int': int
     }
 
+CONVERTER_WEIGHT = {
+    str: 0,
+    int: 1
+    }
+
 class TrajectError(Exception):
     pass
 
@@ -25,6 +30,8 @@ class Step(object):
         parser = NameParser(KNOWN_CONVERTERS)
         self.names, self.converters = parse_variables(s)
         self.validate()
+        self._converter_weight = sum(
+            [CONVERTER_WEIGHT[c] for c in self.converters])
 
     def validate(self):
         self.validate_parts()
@@ -64,15 +71,16 @@ class Step(object):
         return True, result
 
     def __eq__(self, other):
-        return self.generalized == other.generalized
+        return self.s == other.s
 
     def __lt__(self, other):
-        # XXX ordering based on converter?
+        if self.parts == other.parts:
+            # more converter weight is more specific
+            return self._converter_weight > other._converter_weight
+            # XXX what if converter weight is the same?
         if self._variables_re.match(other.s) is not None:
             return False
         if other._variables_re.match(self.s) is not None:
-            return True
-        if sum([len(p) for p in self.parts]) > sum([len(p) for p in other.parts]):
             return True
         return self.parts > other.parts
 
@@ -101,11 +109,10 @@ class Node(object):
         return node
 
     def add_variable_node(self, step):
+        # XXX conflict system should prevent double insertions before this
         for i, node in enumerate(self._variable_nodes):
-            if node.step.generalized == step.generalized:
-                if node.step.s == step.s:
-                    return node
-                raise TrajectError("conflict")
+            if node.step.s == step.s:
+                return node
             if step > node.step:
                 continue
             result = StepNode(step)

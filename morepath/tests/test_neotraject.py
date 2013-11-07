@@ -217,3 +217,38 @@ def test_traject_multiple_steps_with_variables():
     traject = Traject()
     traject.add_pattern(['{x}', '{y}'], 'xy')
     assert traject(['y', 'x']) == ('xy', [], {'x': 'x', 'y': 'y'})
+
+
+def test_traject_with_converter():
+    traject = Traject()
+    traject.add_pattern(['{x:int}'], 'found')
+    assert traject(['1']) == ('found', [], {'x': 1})
+    assert traject(['foo']) == (None, ['foo'], {})
+
+
+def test_traject_with_converter_and_fallback():
+    traject = Traject()
+    traject.add_pattern(['{x:int}'], 'found_int')
+    traject.add_pattern(['{x:str}'], 'found_str')
+
+    assert traject(['1']) == ('found_int', [], {'x': 1})
+    assert traject(['foo']) == ('found_str', [], {'x': 'foo'})
+
+
+def test_traject_with_converter_and_fallback2():
+    traject = Traject()
+    traject.add_pattern(['{x}'], 'found_str')
+    traject.add_pattern(['{x:int}'], 'found_int')
+
+    assert traject(['1']) == ('found_int', [], {'x': 1})
+    assert traject(['foo']) == ('found_str', [], {'x': 'foo'})
+
+
+def test_traject_with_converter_and_fallback3():
+    traject = Traject()
+    # XXX should have a conflict
+    traject.add_pattern(['{x:str}'], 'found_explicit')
+    traject.add_pattern(['{x}'], 'found_implicit')
+
+    assert traject(['foo']) == ('found_explicit', [], {'x': 'foo'})
+
