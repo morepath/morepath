@@ -166,3 +166,19 @@ def test_mixed_node():
     assert node.get('prefixbarpostfix') == (step_node, {'x': 'bar'})
     assert node.get('prefixwhat') == (None, {})
 
+def test_traject_simple():
+    traject = Traject()
+    traject.add_pattern(['a', 'b', 'c'], 'abc')
+    traject.add_pattern(['a', 'b', 'd'], 'abd')
+    traject.add_pattern(['x', 'y'], 'xy')
+    traject.add_pattern(['x', 'z'], 'xz')
+
+    assert traject(['c', 'b', 'a']) == ('abc', [], {})
+    assert traject(['d', 'b', 'a']) == ('abd', [], {})
+    assert traject(['y', 'x']) == ('xy', [], {})
+    assert traject(['z', 'x']) == ('xz', [], {})
+    assert traject(['d', 'c', 'b', 'a']) == ('abc', ['d'], {})
+    assert traject(['d', 'd', 'b', 'a']) == ('abd', ['d'], {})
+    assert traject(['3', '2', '1', 'y', 'x']) == ('xy', ['3', '2', '1'], {})
+    assert traject(['3', '2', '1']) == (None, ['3', '2', '1'], {})
+

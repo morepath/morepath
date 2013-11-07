@@ -136,8 +136,7 @@ class StepNode(Node):
 
 class Traject(Node):
     def __init__(self):
-        self._name_nodes = {}
-        self._variable_nodes = []
+        super(Traject, self).__init__()
 
     def add_pattern(self, segments, value):
         node = self
@@ -153,6 +152,7 @@ class Traject(Node):
             segment = stack.pop()
             new_node, new_variables = node.get(segment)
             if new_node is None:
+                stack.append(segment)
                 return node.value, stack, variables
             node = new_node
             variables.update(new_variables)
