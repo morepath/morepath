@@ -1,5 +1,7 @@
 import re
 from functools import total_ordering
+from morepath import generic
+from reg import Registry
 
 IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
 PATH_VARIABLE = re.compile(r'\{([^}]*)\}')
@@ -32,6 +34,8 @@ class Step(object):
         self.validate()
         self._converter_weight = sum(
             [CONVERTER_WEIGHT[c] for c in self.converters])
+        if len(set(self.names)) != len(self.names):
+            raise TrajectError("Duplicate variable")
 
     def validate(self):
         self.validate_parts()
@@ -96,10 +100,6 @@ class Node(object):
             return self.add_name_node(step)
         return self.add_variable_node(step)
 
-        for i, node in enumerate(self._variable_nodes):
-            pass
-        self._variable_nodes.append(StepNode(step))
-
     def add_name_node(self, step):
         node = self._name_nodes.get(step.s)
         if node is not None:
@@ -132,14 +132,6 @@ class Node(object):
                 return node, variables
         return None, {}
 
-    def all(self, segment):
-        node = self._name_nodes.get(segment)
-        if node is not None:
-            yield node, {}
-        for node in self._variable_nodes:
-            matched, variables = node.match(segment)
-            if matched:
-                yield node, variables
 
 class StepNode(Node):
     def __init__(self, step):
@@ -153,12 +145,24 @@ class StepNode(Node):
 class Traject(Node):
     def __init__(self):
         super(Traject, self).__init__()
+        self._inverse = Registry() # XXX caching
 
     def add_pattern(self, segments, value):
         node = self
+        known_variables = set()
         for segment in segments:
-            node = node.add(Step(segment))
+            step = Step(segment)
+            node = node.add(step)
+            variables = set(step.names)
+            if known_variables.intersection(variables):
+                raise TrajectError("Duplicate variables")
+            known_variables.update(variables)
         node.value = value
+
+    def inverse(self, model_class, path, get_variables):
+        path = interpolation_path(path)
+        self._inverse.register('inverse',
+                               [model_class], (path, get_variables))
 
     def __call__(self, stack):
         stack = stack[:]
@@ -173,6 +177,12 @@ class Traject(Node):
             node = new_node
             variables.update(new_variables)
         return node.value, stack, variables
+
+    def path(self, model):
+        path, get_variables = self._inverse.component('inverse', [model])
+        variables = get_variables(model)
+        assert isinstance(variables, dict)
+        return path % variables
 
 
 class NameParser(object):
@@ -198,6 +208,37 @@ class NameParser(object):
         if converter is None:
             raise TrajectError("unknown converter: %s" % converter_id)
         return name, converter
+
+
+def traject_consumer(base, stack, lookup):
+    traject = generic.traject(base, lookup=lookup, default=None)
+    if traject is None:
+        return False, base, stack
+    original_stack = stack[:]
+    get_model, stack, variables = traject(stack)
+    if get_model is None:
+        return False, base, original_stack
+    model = get_model(**variables)
+    if model is None:
+        return False, base, original_stack
+    return True, model, stack
+
+    while stack:
+        step = stack.pop()
+        next_pattern, matched = traject.match(pattern, step)
+        variables.update(matched)
+        if next_pattern is None:
+            # put the last step back onto the stack
+            stack.append(step)
+            break
+        consumed.append(step)
+        pattern = next_pattern
+    model = traject.get_model(base, pattern, variables)
+    if model is None:
+        # put everything we tried to consume back on stack
+        stack.extend(reversed(consumed))
+        return False, base, stack
+    return True, model, stack
 
 
 def is_identifier(s):

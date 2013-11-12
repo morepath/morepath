@@ -1,5 +1,20 @@
-from morepath.neotraject import Traject, Node, Step, TrajectError
+from morepath.neotraject import (Traject, Node, Step, TrajectError,
+                                 is_identifier, parse_variables,
+                                 interpolation_path,
+                                 traject_consumer)
+from morepath import generic
+from morepath.app import App
+
 import pytest
+
+
+class Model(object):
+    pass
+
+
+class Special(object):
+    pass
+
 
 def test_name_step():
     step = Step('foo')
@@ -262,6 +277,7 @@ def test_traject_greedy_middle_converter():
     assert traject(['z', '1', 'a']) == (None,  ['z'], {'x': 1})
     assert traject(['z', 'x', 'a']) == ('str', [], {'x': 'x'})
 
+
 def test_traject_greedy_middle_prefix():
     traject = Traject()
     traject.add_pattern(['a', 'prefix{x}', 'y'], 'prefix')
@@ -270,6 +286,7 @@ def test_traject_greedy_middle_prefix():
     assert traject(['y', 'prefixX', 'a']) == ('prefix', [], {'x': 'X'})
     assert traject(['z', 'prefixX', 'a']) == (None, ['z'], {'x': 'X'})
     assert traject(['z', 'blah', 'a']) == ('no_prefix', [], {'x': 'blah'})
+
 
 def test_traject_greedy_middle_converter_2():
     traject = Traject()
@@ -282,3 +299,240 @@ def test_traject_greedy_middle_converter_2():
     # this works however for non-int
     assert traject(['blah', 'a']) == ('str', [], {'x': 'blah'})
 
+
+def test_identifier():
+    assert is_identifier('a')
+    not is_identifier('')
+    assert is_identifier('a1')
+    assert not is_identifier('1')
+    assert is_identifier('_')
+    assert is_identifier('_foo')
+    assert is_identifier('foo')
+    assert not is_identifier('.')
+
+
+def test_parse_variables():
+    assert parse_variables('No variables') == ([], [])
+    assert parse_variables('The {foo} is the {bar}.') == (
+        ['foo', 'bar'], [str, str])
+    with pytest.raises(TrajectError):
+        parse_variables('{}')
+    with pytest.raises(TrajectError):
+        parse_variables('{1illegal}')
+
+
+def test_traject_consumer():
+    app = App()
+    traject = Traject()
+    traject.add_pattern(['sub'], Model)
+    app.register(generic.traject, [App], lambda base: traject)
+    found, obj, stack = traject_consumer(app, ['sub'], app.lookup())
+    assert found
+    assert isinstance(obj, Model)
+    assert stack == []
+
+
+def test_traject_consumer_not_found():
+    app = App()
+    found, obj, stack = traject_consumer(app, ['sub'], app.lookup())
+    assert not found
+    assert obj is app
+    assert stack == ['sub']
+
+
+def test_traject_consumer_factory_returns_none():
+    app = App()
+
+    traject = Traject()
+
+    def get_model():
+        return None
+
+    traject.add_pattern(['sub'], get_model)
+    app.register(generic.traject, [App], lambda base: traject)
+
+    found, obj, stack = traject_consumer(app, ['sub'], app.lookup())
+
+    assert not found
+    assert obj is app
+    assert stack == ['sub']
+
+
+def test_traject_consumer_variable():
+    app = App()
+
+    traject = Traject()
+
+    def get_model(foo):
+        result = Model()
+        result.foo = foo
+        return result
+
+    traject.add_pattern(['{foo}'], get_model)
+    app.register(generic.traject, [App], lambda base: traject)
+
+    found, obj, stack = traject_consumer(app, ['something'],
+                                         app.lookup())
+    assert found
+    assert isinstance(obj, Model)
+    assert stack == []
+    assert obj.foo == 'something'
+
+
+def test_traject_consumer_combination():
+    app = App()
+
+    traject = Traject()
+
+    def get_model(foo):
+        result = Model()
+        result.foo = foo
+        return result
+
+    traject.add_pattern(['special'], Special)
+    traject.add_pattern(['{foo}'], get_model)
+    app.register(generic.traject, [App], lambda base: traject)
+
+    found, obj, stack = traject_consumer(app, ['something'],
+                                         app.lookup())
+    assert found
+    assert isinstance(obj, Model)
+    assert stack == []
+    assert obj.foo == 'something'
+    found, obj, stack = traject_consumer(app, ['special'],
+                                         app.lookup())
+    assert found
+    assert isinstance(obj, Special)
+    assert stack == []
+
+
+def test_traject_nested():
+    app = App()
+
+    traject = Traject()
+    traject.add_pattern(['a'], Model)
+    traject.add_pattern(['a', 'b'], Special)
+    app.register(generic.traject, [App], lambda base: traject)
+
+    found, obj, stack = traject_consumer(app, ['a'], app.lookup())
+    assert found
+    assert isinstance(obj, Model)
+    assert stack == []
+    found, obj, stack = traject_consumer(app, ['b', 'a'], app.lookup())
+    assert found
+    assert isinstance(obj, Special)
+    assert stack == []
+
+
+def test_traject_nested_not_resolved_entirely_by_consumer():
+    app = App()
+    traject = Traject()
+    traject.add_pattern(['a'], Model)
+    app.register(generic.traject, [App], lambda base: traject)
+
+    found, obj, stack = traject_consumer(app, ['a'], app.lookup())
+    assert found
+    assert isinstance(obj, Model)
+    assert stack == []
+    found, obj, stack = traject_consumer(app, ['b', 'a'], app.lookup())
+    assert found
+    assert isinstance(obj, Model)
+    assert stack == ['b']
+
+
+def test_traject_nested_with_variable():
+    app = App()
+
+    traject = Traject()
+
+    def get_model(id):
+        result = Model()
+        result.id = id
+        return result
+
+    def get_special(id):
+        result = Special()
+        result.id = id
+        return result
+
+    traject.add_pattern(['{id}'], get_model)
+    traject.add_pattern(['{id}', 'sub'], get_special)
+    app.register(generic.traject, [App], lambda base: traject)
+
+    found, obj, stack = traject_consumer(app, ['a'], app.lookup())
+    assert found
+    assert isinstance(obj, Model)
+    assert stack == []
+    found, obj, stack = traject_consumer(app, ['b'], app.lookup())
+    assert found
+    assert isinstance(obj, Model)
+    assert stack == []
+    found, obj, stack = traject_consumer(app, ['sub', 'a'], app.lookup())
+    assert found
+    assert isinstance(obj, Special)
+    assert stack == []
+
+
+def test_traject_with_multiple_variables():
+    app = App()
+
+    traject = Traject()
+
+    def get_model(first_id):
+        result = Model()
+        result.first_id = first_id
+        return result
+
+    def get_special(first_id, second_id):
+        result = Special()
+        result.first_id = first_id
+        result.second_id = second_id
+        return result
+    traject.add_pattern(['{first_id}'], get_model)
+    traject.add_pattern(['{first_id}', '{second_id}'], get_special)
+    app.register(generic.traject, [App], lambda base: traject)
+
+    found, obj, stack = traject_consumer(app, ['a'], app.lookup())
+    assert found
+    assert isinstance(obj, Model)
+    assert stack == []
+    assert obj.first_id == 'a'
+    assert not hasattr(obj, 'second_id')
+    found, obj, stack = traject_consumer(app, ['b', 'a'], app.lookup())
+    assert found
+    assert isinstance(obj, Special)
+    assert stack == []
+    assert obj.first_id == 'a'
+    assert obj.second_id == 'b'
+
+
+def test_traject_no_concecutive_variables():
+    traject = Traject()
+
+    with pytest.raises(TrajectError):
+        traject.add_pattern(['{foo}{bar}'], 'value')
+
+
+def test_traject_no_duplicate_variables():
+    traject = Traject()
+
+    with pytest.raises(TrajectError):
+        traject.add_pattern(['{foo}-{foo}'], 'value')
+    with pytest.raises(TrajectError):
+        traject.add_pattern(['{foo}', '{foo}'], 'value')
+
+
+def test_interpolation_path():
+    assert interpolation_path('{foo} is {bar}') == '%(foo)s is %(bar)s'
+
+
+def test_path_for_model():
+    traject = Traject()
+
+    class IdModel(object):
+        def __init__(self, id):
+            self.id = id
+
+    traject.inverse(IdModel, 'foo/{id}',
+                    lambda model: {'id': model.id})
+    assert traject.path(IdModel('a')) == 'foo/a'
