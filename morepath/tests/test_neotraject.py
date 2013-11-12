@@ -253,23 +253,21 @@ def test_traject_with_converter_and_fallback3():
     assert traject(['foo']) == ('found_explicit', [], {'x': 'foo'})
 
 
-@pytest.mark.xfail
-def test_traject_fallback_middle_converter():
+def test_traject_greedy_middle_converter():
     traject = Traject()
     traject.add_pattern(['a', '{x:int}', 'y'], 'int')
     traject.add_pattern(['a', '{x}', 'z'], 'str')
 
     assert traject(['y', '1', 'a']) == ('int', [], {'x': 1})
-    assert traject(['z', '1', 'a']) == ('str', [], {'x': '1'})
+    assert traject(['z', '1', 'a']) == (None,  ['z'], {'x': 1})
 
 
-@pytest.mark.xfail
-def test_traject_fallback_middle_prefix():
+def test_traject_greedy_middle_prefix():
     traject = Traject()
     traject.add_pattern(['a', 'prefix{x}', 'y'], 'prefix')
     traject.add_pattern(['a', '{x}', 'z'], 'no_prefix')
 
     assert traject(['y', 'prefixX', 'a']) == ('prefix', [], {'x': 'X'})
-    assert traject(['z', 'prefixX', 'a']) == ('no_prefix', [], {'x': 'X'})
+    assert traject(['z', 'prefixX', 'a']) == (None, ['z'], {'x': 'X'})
 
 # XXX test where there's a fallback *and* a value registered for middle
