@@ -260,7 +260,7 @@ def test_traject_greedy_middle_converter():
 
     assert traject(['y', '1', 'a']) == ('int', [], {'x': 1})
     assert traject(['z', '1', 'a']) == (None,  ['z'], {'x': 1})
-
+    assert traject(['z', 'x', 'a']) == ('str', [], {'x': 'x'})
 
 def test_traject_greedy_middle_prefix():
     traject = Traject()
@@ -269,5 +269,16 @@ def test_traject_greedy_middle_prefix():
 
     assert traject(['y', 'prefixX', 'a']) == ('prefix', [], {'x': 'X'})
     assert traject(['z', 'prefixX', 'a']) == (None, ['z'], {'x': 'X'})
+    assert traject(['z', 'blah', 'a']) == ('no_prefix', [], {'x': 'blah'})
 
-# XXX test where there's a fallback *and* a value registered for middle
+def test_traject_greedy_middle_converter_2():
+    traject = Traject()
+    traject.add_pattern(['a', '{x:int}', 'y'], 'int')
+    traject.add_pattern(['a', '{x}'], 'str')
+
+    assert traject(['y', '1', 'a']) == ('int', [], {'x': 1})
+    # this greedily goes into the int branch, and then doesn't find it
+    assert traject(['1', 'a']) == (None,  [], {'x': 1})
+    # this works however for non-int
+    assert traject(['blah', 'a']) == ('str', [], {'x': 'blah'})
+
