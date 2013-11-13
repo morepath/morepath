@@ -146,7 +146,12 @@ class StepNode(Node):
 class Traject(Node):
     def __init__(self):
         super(Traject, self).__init__()
-        self._inverse = Registry() # XXX caching
+        # XXX caching is not enabled
+        # also could this really be registering things in the main
+        # application registry instead? if it did and we solve caching
+        # for that this would get it automatically. but this would
+        # require each traject base to have its own lookup
+        self._inverse = Registry()
 
     def add_pattern(self, path, value):
         node = self
