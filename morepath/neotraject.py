@@ -6,6 +6,7 @@ from reg import Registry
 IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
 PATH_VARIABLE = re.compile(r'\{([^}]*)\}')
 VARIABLE = '{}'
+PATH_SEPARATOR = re.compile(r'/+')
 
 # XXX need to make this pluggable
 KNOWN_CONVERTERS = {
@@ -239,6 +240,25 @@ def traject_consumer(base, stack, lookup):
         stack.extend(reversed(consumed))
         return False, base, stack
     return True, model, stack
+
+
+def parse_path(path):
+    """Parse a path /foo/bar/baz to a stack of steps.
+
+    A step is a string, such as 'foo', 'bar' and 'baz'.
+    """
+    path = path.strip('/')
+    if not path:
+        return []
+    result = PATH_SEPARATOR.split(path)
+    result.reverse()
+    return result
+
+
+def create_path(stack):
+    """Builds a path from a stack.
+    """
+    return '/' + u'/'.join(reversed(stack))
 
 
 def is_identifier(s):

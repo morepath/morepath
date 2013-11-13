@@ -1,10 +1,15 @@
 from morepath.neotraject import (Traject, Node, Step, TrajectError,
                                  is_identifier, parse_variables,
                                  interpolation_path,
-                                 traject_consumer)
+                                 traject_consumer,
+                                 parse_path, create_path)
 from morepath import generic
-from morepath.app import App
+from morepath.app import App, global_app
 import pytest
+
+
+def setup_module(module):
+    global_app.clear()
 
 
 class Root(object):
@@ -301,6 +306,38 @@ def test_traject_greedy_middle_converter_2():
     assert traject(['1', 'a']) == (None,  [], {'x': 1})
     # this works however for non-int
     assert traject(['blah', 'a']) == ('str', [], {'x': 'blah'})
+
+
+def test_parse_path():
+    assert parse_path(u'/a/b/c') == ['c', 'b', 'a']
+
+
+def test_parse_path_empty():
+    assert parse_path(u'') == []
+
+
+def test_parse_path_slash():
+    assert parse_path(u'/') == []
+
+
+def test_parse_path_no_slash():
+    assert parse_path('a/b/c') == ['c', 'b', 'a']
+
+
+def test_parse_path_end_slash():
+    assert parse_path('a/b/c/') == ['c', 'b', 'a']
+
+
+def test_parse_path_multi_slash():
+    assert parse_path(u'/a/b/c') == parse_path(u'/a//b/c')
+    assert parse_path(u'/a/b/c') == parse_path(u'/a///b/c')
+
+
+def test_create_path():
+    assert create_path(['c', 'b', 'a']) == '/a/b/c'
+
+
+# XXX removing /./ from paths and checking for ../
 
 
 def test_identifier():
