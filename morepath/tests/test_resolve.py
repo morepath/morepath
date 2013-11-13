@@ -2,7 +2,7 @@
 
 from reg import Lookup, ClassRegistry
 from morepath import generic
-from morepath.pathstack import parse_path, DEFAULT
+from morepath.traject import parse_path, VIEW_PREFIX
 from morepath.request import Request
 from morepath.publish import resolve_model
 from werkzeug.test import EnvironBuilder
@@ -23,10 +23,10 @@ class Traverser(object):
         self.func = func
 
     def __call__(self, obj, stack, lookup):
-        ns, name = stack.pop()
-        next_obj = self.func(obj, ns, name)
+        name = stack.pop()
+        next_obj = self.func(obj, name)
         if next_obj is None:
-            stack.append((ns, name))
+            stack.append(name)
             return False, obj, stack
         return True, next_obj, stack
 
@@ -87,7 +87,7 @@ def test_resolve_no_consumers():
     obj, unconsumed, lookup = resolve_model(base, stack, lookup)
 
     assert obj is base
-    assert unconsumed == [(DEFAULT, u'a')]
+    assert unconsumed == [u'a']
     assert lookup is lookup
 
 
@@ -109,20 +109,20 @@ def test_resolve_traverse():
 
     # there is no /c
     assert resolve_model(base, parse_path(u'/c'), lookup) == (
-        base, [(DEFAULT, u'c')], lookup)
+        base, [u'c'], lookup)
 
     # there is a sub, but no c in sub
     assert resolve_model(base, parse_path(u'/sub/c'), lookup) == (
-        base['sub'], [(DEFAULT, u'c')], lookup)
+        base['sub'], [u'c'], lookup)
 
 
-def traverse_container(container, ns, name):
-    if ns != DEFAULT:
+def traverse_container(container, name):
+    if name.startswith(VIEW_PREFIX):
         return None
     return container.get(name)
 
 
-def traverse_attributes(container, ns, name):
-    if ns != DEFAULT:
+def traverse_attributes(container, name):
+    if name.startswith(VIEW_PREFIX):
         return None
     return getattr(container, name, None)
