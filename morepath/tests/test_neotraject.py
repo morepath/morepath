@@ -212,10 +212,10 @@ def test_variable_node_more_specific_first():
 
 def test_traject_simple():
     traject = Traject()
-    traject.add_pattern(['a', 'b', 'c'], 'abc')
-    traject.add_pattern(['a', 'b', 'd'], 'abd')
-    traject.add_pattern(['x', 'y'], 'xy')
-    traject.add_pattern(['x', 'z'], 'xz')
+    traject.add_pattern('a/b/c', 'abc')
+    traject.add_pattern('a/b/d', 'abd')
+    traject.add_pattern('x/y', 'xy')
+    traject.add_pattern('x/z', 'xz')
 
     assert traject(['c', 'b', 'a']) == ('abc', [], {})
     assert traject(['d', 'b', 'a']) == ('abd', [], {})
@@ -230,29 +230,29 @@ def test_traject_simple():
 
 def test_traject_variable_specific_first():
     traject = Traject()
-    traject.add_pattern(['a', '{x}', 'b'], 'axb')
-    traject.add_pattern(['a', 'prefix{x}', 'b'], 'aprefixxb')
+    traject.add_pattern('a/{x}/b', 'axb')
+    traject.add_pattern('a/prefix{x}/b', 'aprefixxb')
     assert traject(['b', 'lah', 'a']) == ('axb', [], {'x': 'lah'})
     assert traject(['b', 'prefixlah', 'a']) == ('aprefixxb', [], {'x': 'lah'})
 
 
 def test_traject_multiple_steps_with_variables():
     traject = Traject()
-    traject.add_pattern(['{x}', '{y}'], 'xy')
+    traject.add_pattern('{x}/{y}', 'xy')
     assert traject(['y', 'x']) == ('xy', [], {'x': 'x', 'y': 'y'})
 
 
 def test_traject_with_converter():
     traject = Traject()
-    traject.add_pattern(['{x:int}'], 'found')
+    traject.add_pattern('{x:int}', 'found')
     assert traject(['1']) == ('found', [], {'x': 1})
     assert traject(['foo']) == (None, ['foo'], {})
 
 
 def test_traject_with_converter_and_fallback():
     traject = Traject()
-    traject.add_pattern(['{x:int}'], 'found_int')
-    traject.add_pattern(['{x:str}'], 'found_str')
+    traject.add_pattern('{x:int}', 'found_int')
+    traject.add_pattern('{x:str}', 'found_str')
 
     assert traject(['1']) == ('found_int', [], {'x': 1})
     assert traject(['foo']) == ('found_str', [], {'x': 'foo'})
@@ -260,8 +260,8 @@ def test_traject_with_converter_and_fallback():
 
 def test_traject_with_converter_and_fallback2():
     traject = Traject()
-    traject.add_pattern(['{x}'], 'found_str')
-    traject.add_pattern(['{x:int}'], 'found_int')
+    traject.add_pattern('{x}', 'found_str')
+    traject.add_pattern('{x:int}', 'found_int')
 
     assert traject(['1']) == ('found_int', [], {'x': 1})
     assert traject(['foo']) == ('found_str', [], {'x': 'foo'})
@@ -270,16 +270,16 @@ def test_traject_with_converter_and_fallback2():
 def test_traject_with_converter_and_fallback3():
     traject = Traject()
     # XXX should have a conflict
-    traject.add_pattern(['{x:str}'], 'found_explicit')
-    traject.add_pattern(['{x}'], 'found_implicit')
+    traject.add_pattern('{x:str}', 'found_explicit')
+    traject.add_pattern('{x}', 'found_implicit')
 
     assert traject(['foo']) == ('found_explicit', [], {'x': 'foo'})
 
 
 def test_traject_greedy_middle_converter():
     traject = Traject()
-    traject.add_pattern(['a', '{x:int}', 'y'], 'int')
-    traject.add_pattern(['a', '{x}', 'z'], 'str')
+    traject.add_pattern('a/{x:int}/y', 'int')
+    traject.add_pattern('a/{x}/z', 'str')
 
     assert traject(['y', '1', 'a']) == ('int', [], {'x': 1})
     assert traject(['z', '1', 'a']) == (None,  ['z'], {'x': 1})
@@ -288,8 +288,8 @@ def test_traject_greedy_middle_converter():
 
 def test_traject_greedy_middle_prefix():
     traject = Traject()
-    traject.add_pattern(['a', 'prefix{x}', 'y'], 'prefix')
-    traject.add_pattern(['a', '{x}', 'z'], 'no_prefix')
+    traject.add_pattern('a/prefix{x}/y', 'prefix')
+    traject.add_pattern('a/{x}/z', 'no_prefix')
 
     assert traject(['y', 'prefixX', 'a']) == ('prefix', [], {'x': 'X'})
     assert traject(['z', 'prefixX', 'a']) == (None, ['z'], {'x': 'X'})
@@ -298,8 +298,8 @@ def test_traject_greedy_middle_prefix():
 
 def test_traject_greedy_middle_converter_2():
     traject = Traject()
-    traject.add_pattern(['a', '{x:int}', 'y'], 'int')
-    traject.add_pattern(['a', '{x}'], 'str')
+    traject.add_pattern('a/{x:int}/y', 'int')
+    traject.add_pattern('a/{x}', 'str')
 
     assert traject(['y', '1', 'a']) == ('int', [], {'x': 1})
     # this greedily goes into the int branch, and then doesn't find it
@@ -364,7 +364,7 @@ def test_parse_variables():
 def test_traject_consumer():
     app = App()
     traject = Traject()
-    traject.add_pattern(['sub'], Model)
+    traject.add_pattern('sub', Model)
     app.register(generic.traject, [App], lambda base: traject)
     found, obj, stack = traject_consumer(app, ['sub'], app.lookup())
     assert found
@@ -388,7 +388,7 @@ def test_traject_consumer_factory_returns_none():
     def get_model():
         return None
 
-    traject.add_pattern(['sub'], get_model)
+    traject.add_pattern('sub', get_model)
     app.register(generic.traject, [App], lambda base: traject)
 
     found, obj, stack = traject_consumer(app, ['sub'], app.lookup())
@@ -408,7 +408,7 @@ def test_traject_consumer_variable():
         result.foo = foo
         return result
 
-    traject.add_pattern(['{foo}'], get_model)
+    traject.add_pattern('{foo}', get_model)
     app.register(generic.traject, [App], lambda base: traject)
 
     found, obj, stack = traject_consumer(app, ['something'],
@@ -429,8 +429,8 @@ def test_traject_consumer_combination():
         result.foo = foo
         return result
 
-    traject.add_pattern(['special'], Special)
-    traject.add_pattern(['{foo}'], get_model)
+    traject.add_pattern('special', Special)
+    traject.add_pattern('{foo}', get_model)
     app.register(generic.traject, [App], lambda base: traject)
 
     found, obj, stack = traject_consumer(app, ['something'],
@@ -450,8 +450,8 @@ def test_traject_nested():
     app = App()
 
     traject = Traject()
-    traject.add_pattern(['a'], Model)
-    traject.add_pattern(['a', 'b'], Special)
+    traject.add_pattern('a', Model)
+    traject.add_pattern('a/b', Special)
     app.register(generic.traject, [App], lambda base: traject)
 
     found, obj, stack = traject_consumer(app, ['a'], app.lookup())
@@ -467,7 +467,7 @@ def test_traject_nested():
 def test_traject_nested_not_resolved_entirely_by_consumer():
     app = App()
     traject = Traject()
-    traject.add_pattern(['a'], Model)
+    traject.add_pattern('a', Model)
     app.register(generic.traject, [App], lambda base: traject)
 
     found, obj, stack = traject_consumer(app, ['a'], app.lookup())
@@ -495,8 +495,8 @@ def test_traject_nested_with_variable():
         result.id = id
         return result
 
-    traject.add_pattern(['{id}'], get_model)
-    traject.add_pattern(['{id}', 'sub'], get_special)
+    traject.add_pattern('{id}', get_model)
+    traject.add_pattern('{id}/sub', get_special)
     app.register(generic.traject, [App], lambda base: traject)
 
     found, obj, stack = traject_consumer(app, ['a'], app.lookup())
@@ -528,8 +528,8 @@ def test_traject_with_multiple_variables():
         result.first_id = first_id
         result.second_id = second_id
         return result
-    traject.add_pattern(['{first_id}'], get_model)
-    traject.add_pattern(['{first_id}', '{second_id}'], get_special)
+    traject.add_pattern('{first_id}', get_model)
+    traject.add_pattern('{first_id}/{second_id}', get_special)
     app.register(generic.traject, [App], lambda base: traject)
 
     found, obj, stack = traject_consumer(app, ['a'], app.lookup())
@@ -550,16 +550,16 @@ def test_traject_no_concecutive_variables():
     traject = Traject()
 
     with pytest.raises(TrajectError):
-        traject.add_pattern(['{foo}{bar}'], 'value')
+        traject.add_pattern('{foo}{bar}', 'value')
 
 
 def test_traject_no_duplicate_variables():
     traject = Traject()
 
     with pytest.raises(TrajectError):
-        traject.add_pattern(['{foo}-{foo}'], 'value')
+        traject.add_pattern('{foo}-{foo}', 'value')
     with pytest.raises(TrajectError):
-        traject.add_pattern(['{foo}', '{foo}'], 'value')
+        traject.add_pattern('{foo}/{foo}', 'value')
 
 
 def test_interpolation_path():

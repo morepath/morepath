@@ -148,10 +148,10 @@ class Traject(Node):
         super(Traject, self).__init__()
         self._inverse = Registry() # XXX caching
 
-    def add_pattern(self, segments, value):
+    def add_pattern(self, path, value):
         node = self
         known_variables = set()
-        for segment in segments:
+        for segment in reversed(parse_path(path)):
             step = Step(segment)
             node = node.add(step)
             variables = set(step.names)
