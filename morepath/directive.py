@@ -2,7 +2,7 @@ from .app import App
 from .config import Directive
 from .error import ConfigError
 from .view import register_view, render_json, render_html
-from .traject import register_model, register_root
+from .model import register_model, register_root
 
 
 class directive(object):

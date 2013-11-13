@@ -1,6 +1,6 @@
 from .publish import publish
 from .request import Request
-from .traject import Traject
+from .neotraject import Traject
 from .config import Action
 from reg import ClassRegistry, Lookup, ChainClassLookup
 import venusian
@@ -34,8 +34,8 @@ class App(Action, ClassRegistry):
     def perform(self, obj):
         if self.parent is None:
             return
-        self.parent.traject.register(
-            self.name, lambda: self, conflicting=True)
+        self.parent.traject.add_pattern(
+            self.name, lambda: self)
 
     def clear(self):
         super(App, self).clear()

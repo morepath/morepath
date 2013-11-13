@@ -59,8 +59,8 @@ def test_basic_root():
 
     assert response.data == 'The root: ROOT'
 
-    # @@ is to make sure we get the view, not the sub-model
-    response = c.get('/@@link')
+    # + is to make sure we get the view, not the sub-model as the model is greedy
+    response = c.get('/+link')
     assert response.data == ''
 
 
@@ -168,8 +168,8 @@ def test_basic_imperative():
     response = c.get('/')
     assert response.data == 'The root: ROOT'
 
-    # @@ is to make sure we get the view, not the sub-model
-    response = c.get('/@@link')
+    # + is to make sure we get the view, not the sub-model
+    response = c.get('/+link')
     assert response.data == ''
 
 

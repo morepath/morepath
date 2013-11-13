@@ -1,7 +1,7 @@
 from .error import TrajectError
 from morepath import generic
 from .pathstack import parse_path, create_path
-from .publish import SHORTCUTS
+#from .publish import SHORTCUTS
 from reg import Registry
 import re
 

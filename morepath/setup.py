@@ -6,7 +6,7 @@ from .error import LinkError
 from .app import App
 from .request import Request, Response
 from werkzeug.wrappers import BaseResponse
-from .traject import traject_consumer
+from .neotraject import traject_consumer
 import morepath
 from reg import Lookup
 
@@ -31,7 +31,7 @@ def traject_path(request, model):
     if traject is None:
         raise LinkError(
             "cannot determine traject path info for base %r" % base)
-    return traject.get_path(model)
+    return traject.path(model)
 
 
 @global_app.function(generic.traject, App)

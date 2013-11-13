@@ -7,6 +7,7 @@ IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
 PATH_VARIABLE = re.compile(r'\{([^}]*)\}')
 VARIABLE = '{}'
 PATH_SEPARATOR = re.compile(r'/+')
+VIEW_PREFIX = '+'
 
 # XXX need to make this pluggable
 KNOWN_CONVERTERS = {
@@ -176,6 +177,9 @@ class Traject(Node):
         variables = {}
         while stack:
             segment = stack.pop()
+            if segment.startswith(VIEW_PREFIX):
+                stack.append(segment)
+                return node.value, stack, variables
             new_node, new_variables = node.get(segment)
             if new_node is None:
                 stack.append(segment)
@@ -228,24 +232,6 @@ def traject_consumer(base, stack, lookup):
     if model is None:
         return False, base, original_stack
     return True, model, stack
-
-    while stack:
-        step = stack.pop()
-        next_pattern, matched = traject.match(pattern, step)
-        variables.update(matched)
-        if next_pattern is None:
-            # put the last step back onto the stack
-            stack.append(step)
-            break
-        consumed.append(step)
-        pattern = next_pattern
-    model = traject.get_model(base, pattern, variables)
-    if model is None:
-        # put everything we tried to consume back on stack
-        stack.extend(reversed(consumed))
-        return False, base, stack
-    return True, model, stack
-
 
 def parse_path(path):
     """Parse a path /foo/bar/baz to a stack of steps.

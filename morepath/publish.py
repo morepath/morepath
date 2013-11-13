@@ -1,11 +1,8 @@
 from .error import ViewError, ModelError
 from morepath import generic
-from .pathstack import parse_path, create_path, DEFAULT, VIEW
+from .neotraject import parse_path, create_path
 from werkzeug.exceptions import HTTPException, NotFound
 
-SHORTCUTS = {
-    '@@': VIEW
-    }
 
 DEFAULT_NAME = u''
 
@@ -67,12 +64,7 @@ def resolve_model(obj, stack, lookup):
 
 
 def resolve_response(request, model, stack):
-    ns, name = get_view_step(model, stack)
-
-    if ns not in (DEFAULT, VIEW):
-        # XXX also report on view name
-        raise ViewError(
-            "namespace %r is not supported:" % ns)
+    name = get_view_step(model, stack)
 
     request.set_resolver_info({'name': name})
 
@@ -87,16 +79,16 @@ def resolve_response(request, model, stack):
 def get_view_step(model, stack):
     unconsumed_amount = len(stack)
     if unconsumed_amount == 0:
-        return VIEW, DEFAULT_NAME
+        return DEFAULT_NAME
     elif unconsumed_amount == 1:
-        return stack[0]
+        return stack[0].lstrip('+')
     raise ModelError(
         "%r has unresolved path %s" % (model, create_path(stack)))
 
 
 def publish(request, root):
     #path = self.base_path(request)
-    stack = parse_path(request.path, SHORTCUTS)
+    stack = parse_path(request.path)
     model, crumbs, lookup = resolve_model(root, stack, request.lookup)
     request.lookup = lookup
     try:
