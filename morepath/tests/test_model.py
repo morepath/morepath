@@ -6,6 +6,7 @@ from morepath import setup
 from morepath import generic
 from morepath.traject import traject_consumer, parse_path
 
+
 def setup_module(module):
     global_app.clear()
 
@@ -34,6 +35,7 @@ def test_register_root():
     request.lookup = lookup
     assert generic.path(request, root, lookup=lookup) == ''
     assert generic.base(root, lookup=lookup) is app
+
 
 def test_register_model():
     setup()

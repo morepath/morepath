@@ -1,4 +1,4 @@
-from .error import ViewError, ModelError
+from .error import ModelError
 from morepath import generic
 from .traject import parse_path, create_path
 from werkzeug.exceptions import HTTPException, NotFound

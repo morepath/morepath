@@ -21,6 +21,7 @@ CONVERTER_WEIGHT = {
     int: 1
     }
 
+
 class TrajectError(Exception):
     pass
 
@@ -32,7 +33,6 @@ class Step(object):
         self.generalized = generalize_variables(s)
         self.parts = tuple(self.generalized.split('{}'))
         self._variables_re = create_variables_re(s)
-        parser = NameParser(KNOWN_CONVERTERS)
         self.names, self.converters = parse_variables(s)
         self.validate()
         self._converter_weight = sum(
@@ -234,6 +234,7 @@ def traject_consumer(base, stack, lookup):
     if model is None:
         return False, base, original_stack
     return True, model, stack
+
 
 def parse_path(path):
     """Parse a path /foo/bar/baz to a stack of steps.

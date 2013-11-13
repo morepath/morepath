@@ -61,6 +61,7 @@ def test_mixed_step():
     assert step.match('yabarbx') == (False, {})
     assert step.match('afoo') == (False, {})
 
+
 def test_multi_mixed_step():
     step = Step('{foo}a{bar}')
     assert step.s == '{foo}a{bar}'
@@ -144,6 +145,7 @@ def test_order_alphabetical():
         'b{f}', 'a{f}']
     assert sorted_steps(['{f}a', '{f}b']) == [
         '{f}b', '{f}a']
+
 
 def test_invalid_step():
     with pytest.raises(TrajectError):
@@ -612,4 +614,3 @@ def test_path_for_model():
     traject.inverse(IdModel, 'foo/{id}',
                     lambda model: {'id': model.id})
     assert traject.path(IdModel('a')) == 'foo/a'
-
