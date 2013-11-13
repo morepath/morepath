@@ -1,6 +1,6 @@
 from .publish import publish
 from .request import Request
-from .neotraject import Traject
+from .traject import Traject
 from .config import Action
 from reg import ClassRegistry, Lookup, ChainClassLookup
 import venusian

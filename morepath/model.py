@@ -1,6 +1,6 @@
 from .request import Request
 from morepath import generic
-from morepath.neotraject import Traject
+from morepath.traject import Traject
 
 def register_root(app, model, model_factory):
 

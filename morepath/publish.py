@@ -1,6 +1,6 @@
 from .error import ViewError, ModelError
 from morepath import generic
-from .neotraject import parse_path, create_path
+from .traject import parse_path, create_path
 from werkzeug.exceptions import HTTPException, NotFound
 
 

@@ -6,7 +6,7 @@ from .error import LinkError
 from .app import App
 from .request import Request, Response
 from werkzeug.wrappers import BaseResponse
-from .neotraject import traject_consumer
+from .traject import traject_consumer
 import morepath
 from reg import Lookup
 

@@ -1,8 +1,8 @@
-from morepath.neotraject import (Traject, Node, Step, TrajectError,
-                                 is_identifier, parse_variables,
-                                 interpolation_path,
-                                 traject_consumer,
-                                 parse_path, create_path)
+from morepath.traject import (Traject, Node, Step, TrajectError,
+                              is_identifier, parse_variables,
+                              interpolation_path,
+                              traject_consumer,
+                              parse_path, create_path)
 from morepath import generic
 from morepath.app import App, global_app
 import pytest

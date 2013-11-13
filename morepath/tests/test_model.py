@@ -4,7 +4,7 @@ from werkzeug.test import EnvironBuilder
 from morepath.request import Request
 from morepath import setup
 from morepath import generic
-from morepath.neotraject import traject_consumer, parse_path
+from morepath.traject import traject_consumer, parse_path
 
 def setup_module(module):
     global_app.clear()
