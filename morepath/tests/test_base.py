@@ -95,7 +95,7 @@ def test_base():
     response = c.get('/alpha/e')
     assert response.status == '404 NOT FOUND'
 
-    response = c.get('/alpha/@@link')
+    response = c.get('/alpha/+link')
     assert response.data == 'alpha'
     response = c.get('/alpha/a/link')
     assert response.data == 'alpha/a'

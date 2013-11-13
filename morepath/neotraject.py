@@ -2,6 +2,7 @@ import re
 from functools import total_ordering
 from morepath import generic
 from reg import Registry
+from reg.mapply import mapply
 
 IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
 PATH_VARIABLE = re.compile(r'\{([^}]*)\}')
@@ -228,7 +229,8 @@ def traject_consumer(base, stack, lookup):
     get_model, stack, variables = traject(stack)
     if get_model is None:
         return False, base, original_stack
-    model = get_model(**variables)
+    variables['base'] = base
+    model = mapply(get_model, **variables)
     if model is None:
         return False, base, original_stack
     return True, model, stack
