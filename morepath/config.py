@@ -76,14 +76,17 @@ class Config(object):
     def validate(self, actions):
         discriminators = {}
         for action, obj in actions:
-            disc = action.discriminator()
-            if disc is None:
+            discs = action.discriminator()
+            if discs is None:
                 continue
-            disc = (action.extra_discriminator(), disc)
-            other_action = discriminators.get(disc)
-            if other_action is not None:
-                raise ConflictError([action, other_action])
-            discriminators[disc] = action
+            if not isinstance(discs, list):
+                discs = [discs]
+            for disc in discs:
+                disc = (action.extra_discriminator(), disc)
+                other_action = discriminators.get(disc)
+                if other_action is not None:
+                    raise ConflictError([action, other_action])
+                discriminators[disc] = action
         # XXX check that all base of an app is another app,
         # can only do this in the end
         # XXX a model cannot be registered multiple times in the same

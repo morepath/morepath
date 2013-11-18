@@ -301,8 +301,7 @@ def test_model_conflict():
         c.commit()
 
 
-@pytest.mark.xfail
-def test_model_path_conflict():
+def test_path_conflict():
     app = morepath.App()
 
     class A(object):
@@ -320,15 +319,72 @@ def test_model_path_conflict():
     b = app.model(model=B, path='a')
 
     @b
-    def get_a_again():
-        return A()
+    def get_b():
+        return B()
 
     c = Config()
     c.action(a, get_a)
-    c.action(b, get_a_again)
+    c.action(b, get_b)
 
     with pytest.raises(ConflictError):
         c.commit()
+
+
+def test_path_conflict_with_variable():
+    app = morepath.App()
+
+    class A(object):
+        pass
+
+    class B(object):
+        pass
+
+    a = app.model(model=A, path='a/{id}')
+
+    @a
+    def get_a(id):
+        return A()
+
+    b = app.model(model=B, path='a/{id2}')
+
+    @b
+    def get_b(id):
+        return B()
+
+    c = Config()
+    c.action(a, get_a)
+    c.action(b, get_b)
+
+    with pytest.raises(ConflictError):
+        c.commit()
+
+
+def test_no_path_conflict_with_variable_different_converters():
+    app = morepath.App()
+
+    class A(object):
+        pass
+
+    class B(object):
+        pass
+
+    a = app.model(model=A, path='a/{id:int}')
+
+    @a
+    def get_a(id):
+        return A()
+
+    b = app.model(model=B, path='a/{id:str}')
+
+    @b
+    def get_b(id):
+        return B()
+
+    c = Config()
+    c.action(a, get_a)
+    c.action(b, get_b)
+
+    c.commit()
 
 
 def test_model_no_conflict_different_apps():

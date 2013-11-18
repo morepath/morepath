@@ -3,6 +3,7 @@ from .config import Directive
 from .error import ConfigError
 from .view import register_view, render_json, render_html
 from .model import register_model, register_root
+from .traject import Path
 
 
 class directive(object):
@@ -28,10 +29,8 @@ class ModelDirective(Directive):
         self.get_base = get_base
 
     def discriminator(self):
-        # XXX need multiple discriminators
-        # * cannot register multiple models for app
-        # * cannot register conflicting paths in app
-        return ('model', self.model)
+        return [('model', self.model),
+                ('path', self.base, Path(self.path).discriminator())]
 
     def prepare(self, obj):
         # XXX check shared with @root

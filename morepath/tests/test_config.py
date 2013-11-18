@@ -1,6 +1,6 @@
 from morepath import config
 from morepath.error import ConflictError
-import py.test
+import pytest
 
 
 def test_action():
@@ -32,7 +32,7 @@ def test_action_not_implemented():
 
     c = config.Config()
     c.action(UnimplementedAction(), None)
-    with py.test.raises(NotImplementedError):
+    with pytest.raises(NotImplementedError):
         c.commit()
 
 
@@ -83,7 +83,7 @@ def test_conflict():
     c.action(a, foo)
     c.action(b, bar)
 
-    with py.test.raises(ConflictError):
+    with pytest.raises(ConflictError):
         c.commit()
 
     try:
@@ -119,3 +119,33 @@ def test_different_apps_no_conflict():
     c.action(b, bar)
 
     c.commit()
+
+
+def test_multiple_discriminators_per_directive():
+    class ADirective(config.Directive):
+        def discriminator(self):
+            return ['a', 1]
+
+    class BDirective(config.Directive):
+        def discriminator(self):
+            return ['b', 1]
+
+    c = config.Config()
+
+    a = ADirective(None)
+
+    @a
+    def foo():
+        pass
+
+    b = BDirective(None)
+
+    @b
+    def bar():
+        pass
+
+    c.action(a, foo)
+    c.action(b, bar)
+
+    with pytest.raises(ConflictError):
+        c.commit()
