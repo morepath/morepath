@@ -20,7 +20,7 @@ class directive(object):
 class ModelDirective(Directive):
     def __init__(self, app,  path, model=None,
                  variables=None, base=None, get_base=None):
-        self.app = app
+        super(ModelDirective, self).__init__(app)
         self.model = model
         self.path = path
         self.variables = variables
@@ -31,7 +31,7 @@ class ModelDirective(Directive):
         # XXX need multiple discriminators
         # * cannot register multiple models for app
         # * cannot register conflicting paths in app
-        return ('model', self.app, self.model)
+        return ('model', self.model)
 
     def prepare(self, obj):
         # XXX check shared with @root
@@ -57,7 +57,7 @@ class ModelDirective(Directive):
 @directive('view')
 class ViewDirective(Directive):
     def __init__(self, app, model, name='', render=None, **kw):
-        self.app = app
+        super(ViewDirective, self).__init__(app)
         self.model = model
         self.name = name
         self.render = render
@@ -68,8 +68,7 @@ class ViewDirective(Directive):
 
     def discriminator(self):
         predicates_discriminator = tuple(sorted(self.predicates.items()))
-        return ('view', self.app, self.model, self.name,
-                predicates_discriminator)
+        return ('view', self.model, self.name, predicates_discriminator)
 
     def perform(self, obj):
         register_view(self.app, self.model, obj, self.render,
@@ -91,11 +90,11 @@ class HtmlDirective(ViewDirective):
 @directive('root')
 class RootDirective(Directive):
     def __init__(self, app, model=None):
-        self.app = app
+        super(RootDirective, self).__init__(app)
         self.model = model
 
     def discriminator(self):
-        return ('root', self.app)
+        return ('root')
 
     def prepare(self, obj):
         if isinstance(obj, type):
@@ -118,12 +117,12 @@ class RootDirective(Directive):
 @directive('function')
 class FunctionDirective(Directive):
     def __init__(self, app, target, *sources):
-        self.app = app
+        super(FunctionDirective, self).__init__(app)
         self.target = target
         self.sources = tuple(sources)
 
     def discriminator(self):
-        return ('function', self.app, self.target, self.sources)
+        return ('function', self.target, self.sources)
 
     def perform(self, obj):
         self.app.register(self.target, self.sources, obj)

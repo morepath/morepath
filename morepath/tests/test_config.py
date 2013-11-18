@@ -48,7 +48,7 @@ def test_directive():
 
     c = config.Config()
 
-    d = MyDirective()
+    d = MyDirective(None)
 
     # but this has no effect without scanning
     @d
@@ -68,13 +68,13 @@ def test_conflict():
             return 1
     c = config.Config()
 
-    a = MyDirective()
+    a = MyDirective(None)
 
     @a
     def foo():
         pass
 
-    b = MyDirective()
+    b = MyDirective(None)
 
     @b
     def bar():

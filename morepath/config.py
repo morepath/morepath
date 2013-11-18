@@ -12,6 +12,14 @@ class Action(object):
         """
         raise NotImplementedError()
 
+    def extra_discriminator(self):
+        """Extra immutable to add to discriminator.
+
+        The framework can use this to add extra information to the
+        discriminator, such as the App for directives.
+        """
+        return None
+
     # XXX needs docs
     def clone(self):
         return copy(self)
@@ -32,12 +40,18 @@ class Action(object):
 
 
 class Directive(Action):
-    attach_info = None
+    def __init__(self, app):
+        self.attach_info = None
+        self.app = app
+        super(Directive, self).__init__()
 
     def codeinfo(self):
         """Information about how the action was invoked.
         """
         return self.attach_info.codeinfo
+
+    def extra_discriminator(self):
+        return self.app
 
     def __call__(self, wrapped):
         def callback(scanner, name, obj):
@@ -65,6 +79,7 @@ class Config(object):
             disc = action.discriminator()
             if disc is None:
                 continue
+            disc = (action.extra_discriminator(), disc)
             other_action = discriminators.get(disc)
             if other_action is not None:
                 raise ConflictError([action, other_action])
