@@ -42,8 +42,8 @@ class Step(object):
         self.named_interpolation_str = interpolation_str(s) % tuple(
             [('%(' + name + ')s') for name in self.names])
         discriminator_converters = {
-            name : '{%s}' % INVERSE_CONVERTERS[converter]
-            for (name, converter) in zip(self.names, self.converters) }
+            name: '{%s}' % INVERSE_CONVERTERS[converter]
+            for (name, converter) in zip(self.names, self.converters)}
         self._discriminator_info = (self.named_interpolation_str %
                                     discriminator_converters)
         self._converter_weight = sum(

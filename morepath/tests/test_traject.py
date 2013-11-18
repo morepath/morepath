@@ -35,6 +35,7 @@ def test_name_step():
     assert step.match('bar') == (False, {})
     assert step.discriminator_info() == 'foo'
 
+
 def test_variable_step():
     step = Step('{foo}')
     assert step.s == '{foo}'
@@ -45,6 +46,7 @@ def test_variable_step():
     assert step.has_variables()
     assert step.match('bar') == (True, {'foo': 'bar'})
     assert step.discriminator_info() == '{str}'
+
 
 def test_mixed_step():
     step = Step('a{foo}b')

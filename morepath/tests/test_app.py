@@ -27,10 +27,12 @@ def test_app_with_parent():
 def test_app_caching_lookup():
     class MockClassLookup(object):
         called = 0
+
         def all(self, key, classes):
             self.called += 1
             return ["answer"]
     mock_class_lookup = MockClassLookup()
+
     class MockApp(App):
         def class_lookup(self):
             return mock_class_lookup
@@ -51,4 +53,3 @@ def test_app_caching_lookup():
     # but different parameters does trigger another call
     lookup.component('bar', [])
     assert mock_class_lookup.called == 2
-

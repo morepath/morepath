@@ -98,6 +98,7 @@ def test_different_apps_no_conflict():
     class MyDirective(config.Directive):
         def discriminator(self):
             return 1
+
         def perform(self, obj):
             pass
 

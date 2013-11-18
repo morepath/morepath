@@ -86,4 +86,3 @@ class AppLookupCache(object):
 global_app = App()
 
 app_lookup_cache = AppLookupCache()
-
