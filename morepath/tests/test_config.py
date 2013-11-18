@@ -92,3 +92,30 @@ def test_conflict():
         s = str(e)
         # XXX how can we test more details? very dependent on code
         assert s.startswith('Conflict between:')
+
+
+def test_different_apps_no_conflict():
+    class MyDirective(config.Directive):
+        def discriminator(self):
+            return 1
+        def perform(self, obj):
+            pass
+
+    c = config.Config()
+
+    a = MyDirective('app_one')
+
+    @a
+    def foo():
+        pass
+
+    b = MyDirective('app_two')
+
+    @b
+    def bar():
+        pass
+
+    c.action(a, foo)
+    c.action(b, bar)
+
+    c.commit()
