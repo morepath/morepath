@@ -22,3 +22,33 @@ def test_app_with_parent():
     assert myapp.name == 'myapp'
     assert myapp.child_apps == {}
     assert parentapp.child_apps == {'myapp': myapp}
+
+
+def test_app_caching_lookup():
+    class MockClassLookup(object):
+        called = 0
+        def all(self, key, classes):
+            self.called += 1
+            return ["answer"]
+    mock_class_lookup = MockClassLookup()
+    class MockApp(App):
+        def class_lookup(self):
+            return mock_class_lookup
+
+    myapp = MockApp()
+    lookup = myapp.lookup()
+    answer = lookup.component('foo', [])
+    assert answer == 'answer'
+    assert mock_class_lookup.called == 1
+
+    # after this the answer will be cached for those parameters
+    answer = lookup.component('foo', [])
+    assert mock_class_lookup.called == 1
+
+    answer = myapp.lookup().component('foo', [])
+    assert mock_class_lookup.called == 1
+
+    # but different parameters does trigger another call
+    lookup.component('bar', [])
+    assert mock_class_lookup.called == 2
+

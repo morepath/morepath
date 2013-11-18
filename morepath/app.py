@@ -2,7 +2,7 @@ from .publish import publish
 from .request import Request
 from .traject import Traject
 from .config import Action
-from reg import ClassRegistry, Lookup, ChainClassLookup
+from reg import ClassRegistry, Lookup, ChainClassLookup, CachingClassLookup
 import venusian
 from werkzeug.serving import run_simple
 
@@ -49,14 +49,12 @@ class App(Action, ClassRegistry):
         self.child_apps[app.name] = app
 
     def class_lookup(self):
-        # XXX caching needs to be introduced for at least class lookups
-        # and survive multiple requests for caching to be useful
         if self.parent is None:
             return ChainClassLookup(self, global_app)
         return ChainClassLookup(self, self.parent.class_lookup())
 
     def lookup(self):
-        return Lookup(self.class_lookup())
+        return app_lookup_cache.get(self)
 
     def __call__(self, environ, start_response):
         request = Request(environ)
@@ -71,4 +69,21 @@ class App(Action, ClassRegistry):
             port = 5000
         run_simple(host, port, self, **options)
 
+
+class AppLookupCache(object):
+    def __init__(self):
+        self.cache = {}
+
+    def get(self, app):
+        lookup = self.cache.get(app)
+        if lookup is not None:
+            return lookup
+        class_lookup = app.class_lookup()
+        caching_class_lookup = CachingClassLookup(class_lookup)
+        result = self.cache[app] = Lookup(caching_class_lookup)
+        return result
+
 global_app = App()
+
+app_lookup_cache = AppLookupCache()
+
