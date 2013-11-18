@@ -126,7 +126,6 @@ class Node(object):
         return node
 
     def add_variable_node(self, step):
-        # XXX conflict system should prevent double insertions before this
         for i, node in enumerate(self._variable_nodes):
             if node.step.s == step.s:
                 return node
@@ -297,7 +296,6 @@ def parse_variables(s):
         name, converter = parser(variable)
         names.append(name)
         converters.append(converter)
-        # XXX error if name is already seen?
     return names, converters
 
 
