@@ -1,7 +1,6 @@
 from morepath.traject import (Traject, Node, Step, TrajectError,
                               is_identifier, parse_variables,
-                              interpolation_path,
-                              traject_consumer,
+                              Path, traject_consumer,
                               parse_path, create_path)
 from morepath import generic
 from morepath.app import App, global_app
@@ -34,7 +33,7 @@ def test_name_step():
     assert not step.has_variables()
     assert step.match('foo') == (True, {})
     assert step.match('bar') == (False, {})
-
+    assert step.discriminator_info() == 'foo'
 
 def test_variable_step():
     step = Step('{foo}')
@@ -45,7 +44,7 @@ def test_variable_step():
     assert step.converters == [str]
     assert step.has_variables()
     assert step.match('bar') == (True, {'foo': 'bar'})
-
+    assert step.discriminator_info() == '{str}'
 
 def test_mixed_step():
     step = Step('a{foo}b')
@@ -60,6 +59,7 @@ def test_mixed_step():
     assert step.match('xbary') == (False, {})
     assert step.match('yabarbx') == (False, {})
     assert step.match('afoo') == (False, {})
+    assert step.discriminator_info() == 'a{str}b'
 
 
 def test_multi_mixed_step():
@@ -70,12 +70,14 @@ def test_multi_mixed_step():
     assert step.names == ['foo', 'bar']
     assert step.converters == [str, str]
     assert step.has_variables()
+    assert step.discriminator_info() == '{str}a{str}'
 
 
 def test_converter():
     step = Step('{foo:int}')
     assert step.match('1') == (True, {'foo': 1})
     assert step.match('x') == (False, {})
+    assert step.discriminator_info() == '{int}'
 
 
 def sorted_steps(l):
@@ -600,8 +602,12 @@ def test_traject_no_duplicate_variables():
         traject.add_pattern('{foo}/{foo}', 'value')
 
 
-def test_interpolation_path():
-    assert interpolation_path('{foo} is {bar}') == '%(foo)s is %(bar)s'
+def test_interpolation_str():
+    assert Path('{foo} is {bar}').interpolation_str() == '%(foo)s is %(bar)s'
+
+
+def test_interpolation_str_with_converters():
+    assert Path('{foo:int}').interpolation_str() == '%(foo)s'
 
 
 def test_path_for_model():
@@ -614,3 +620,20 @@ def test_path_for_model():
     traject.inverse(IdModel, 'foo/{id}',
                     lambda model: {'id': model.id})
     assert traject.path(IdModel('a')) == 'foo/a'
+
+
+def test_path_for_model_with_converter():
+    traject = Traject()
+
+    class IdModel(object):
+        def __init__(self, id):
+            self.id = id
+
+    traject.inverse(IdModel, 'foo/{id:int}',
+                    lambda model: {'id': model.id})
+    assert traject.path(IdModel(1)) == 'foo/1'
+
+
+def test_path_discriminator():
+    p = Path('/foo/{x:int}/bar/{y}')
+    assert p.discriminator() == 'foo/{int}/bar/{str}'

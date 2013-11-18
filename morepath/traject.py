@@ -16,6 +16,10 @@ KNOWN_CONVERTERS = {
     'int': int
     }
 
+INVERSE_CONVERTERS = {
+    value: key for (key, value) in KNOWN_CONVERTERS.items()
+    }
+
 CONVERTER_WEIGHT = {
     str: 0,
     int: 1
@@ -35,6 +39,13 @@ class Step(object):
         self._variables_re = create_variables_re(s)
         self.names, self.converters = parse_variables(s)
         self.validate()
+        self.named_interpolation_str = interpolation_str(s) % tuple(
+            [('%(' + name + ')s') for name in self.names])
+        discriminator_converters = {
+            name : '{%s}' % INVERSE_CONVERTERS[converter]
+            for (name, converter) in zip(self.names, self.converters) }
+        self._discriminator_info = (self.named_interpolation_str %
+                                    discriminator_converters)
         self._converter_weight = sum(
             [CONVERTER_WEIGHT[c] for c in self.converters])
         if len(set(self.names)) != len(self.names):
@@ -60,6 +71,9 @@ class Step(object):
             if part == '':
                 raise TrajectError(
                     "illegal consecutive variables: %s" % self.s)
+
+    def discriminator_info(self):
+        return self._discriminator_info
 
     def has_variables(self):
         return bool(self.names)
@@ -145,6 +159,19 @@ class StepNode(Node):
         return self.step.match(segment)
 
 
+class Path(object):
+    def __init__(self, path):
+        self.path = path
+        self.stack = parse_path(path)
+        self.steps = [Step(segment) for segment in reversed(parse_path(path))]
+
+    def discriminator(self):
+        return '/'.join([step.discriminator_info() for step in self.steps])
+
+    def interpolation_str(self):
+        return '/'.join([step.named_interpolation_str for step in self.steps])
+
+
 class Traject(Node):
     def __init__(self):
         super(Traject, self).__init__()
@@ -168,9 +195,11 @@ class Traject(Node):
         node.value = value
 
     def inverse(self, model_class, path, get_variables):
-        path = interpolation_path(path)
+        # XXX should we do checking for duplicate variables here too?
+        path = Path(path)
         self._inverse.register('inverse',
-                               [model_class], (path, get_variables))
+                               [model_class],
+                               (path.interpolation_str(), get_variables))
 
     def __call__(self, stack):
         stack = stack[:]
@@ -280,5 +309,5 @@ def generalize_variables(s):
     return PATH_VARIABLE.sub('{}', s)
 
 
-def interpolation_path(s):
-    return PATH_VARIABLE.sub(r'%(\1)s', s)
+def interpolation_str(s):
+    return PATH_VARIABLE.sub('%s', s)
