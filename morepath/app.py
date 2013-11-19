@@ -54,6 +54,7 @@ class App(Action, ClassRegistry):
         return ChainClassLookup(self, self.parent.class_lookup())
 
     def lookup(self):
+        # XXX instead of a separate cache we could put caching in here
         return app_lookup_cache.get(self)
 
     def __call__(self, environ, start_response):
