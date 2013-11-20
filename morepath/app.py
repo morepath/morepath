@@ -13,7 +13,6 @@ class App(Action, ClassRegistry):
         super(App, self).__init__()
         self.name = name
         self.root_model = None
-        self.root_obj = None
         self.child_apps = {}
         self.parent = parent
         self.traject = Traject()
@@ -40,7 +39,6 @@ class App(Action, ClassRegistry):
     def clear(self):
         super(App, self).clear()
         self.root_model = None
-        self.root_obj = None
         self.traject = Traject()
         # for child_app in self.child_apps.values():
         #     child_app.clear()

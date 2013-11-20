@@ -27,7 +27,6 @@ def test_register_root():
     app = App()
     root = Root()
     app.root_model = Root
-    app.root_obj = root
     lookup = app.lookup()
 
     register_root(app, Root, lambda: root)
@@ -42,7 +41,6 @@ def test_register_model():
     app = App()
     root = Root()
     app.root_model = Root
-    app.root_obj = root
     lookup = app.lookup()
 
     def get_model(id):
@@ -69,7 +67,6 @@ def test_traject_path_with_leading_slash():
     app = App()
     root = Root()
     app.root_model = Root
-    app.root_obj = root
     lookup = app.lookup()
 
     def get_model(id):
