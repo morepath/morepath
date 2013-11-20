@@ -1,8 +1,11 @@
 import morepath
 
-outer_app = morepath.App()
-app = morepath.App('inner', parent=outer_app)
+outer_app = morepath.App('outer')
+app = morepath.App('inner')
 
+@outer_app.mount('inner', app)
+def dummy():
+    pass
 
 @app.root()
 class Root(object):
