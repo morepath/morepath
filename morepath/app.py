@@ -53,8 +53,13 @@ class App(Action, ClassRegistry):
         # XXX instead of a separate cache we could put caching in here
         return app_lookup_cache.get(self)
 
-    def __call__(self, environ, start_response):
+    def request(self, environ):
         request = Request(environ)
+        request.lookup = self.lookup()
+        return request
+
+    def __call__(self, environ, start_response):
+        request = self.request(environ)
         request.lookup = self.lookup()
         response = publish(request, self)
         return response(environ, start_response)
