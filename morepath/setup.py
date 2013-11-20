@@ -21,13 +21,14 @@ def setup():
     global_app.register(generic.consumer, [object], traject_consumer)
 
 
+# XXX is request parameter needed?
 @global_app.function(generic.path, Request, object)
-def traject_path(request, model):
-    base = generic.base(model, lookup=request.lookup, default=None)
+def traject_path(request, model, lookup):
+    base = generic.base(model, lookup=lookup, default=None)
     if base is None:
         raise LinkError(
             "cannot determine model base for %r" % model)
-    traject = generic.traject(base, lookup=request.lookup, default=None)
+    traject = generic.traject(base, lookup=lookup, default=None)
     if traject is None:
         raise LinkError(
             "cannot determine traject path info for base %r" % base)
