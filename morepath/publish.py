@@ -28,15 +28,14 @@ RESPONSE_SENTINEL = ResponseSentinel()
 #         an object and the rest of unconsumed stack
 #         """
 
-def resolve_model(request, app):
+def resolve_model(request, mount):
     """Resolve path to a model using consumers.
     """
     unconsumed = parse_path(request.path)
     lookup = request.lookup # XXX can get this from argument too
     # consume steps toward model
     mounts = request.mounts
-    context = request.context or {}
-    obj = Mount(app, lambda: context, {})
+    obj = mount
     mounts.append(obj)
     while unconsumed:
         for consumer in generic.consumer.all(obj, lookup=lookup):
@@ -85,8 +84,8 @@ def get_view_step(model, stack):
         "%r has unresolved path %s" % (model, create_path(stack)))
 
 
-def publish(request, app):
-    model = resolve_model(request, app)
+def publish(request, mount):
+    model = resolve_model(request, mount)
     try:
         return resolve_response(request, model)
     except HTTPException as e:

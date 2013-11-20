@@ -85,7 +85,6 @@ def get_structure():
     return root
 
 
-@pytest.mark.xfail
 def test_resolve_no_consumers():
     lookup = get_lookup(get_registry())
     request = get_request(path='/a', lookup=lookup)
@@ -98,7 +97,7 @@ def test_resolve_no_consumers():
     assert request.unconsumed == [u'a']
     assert request.lookup is lookup
 
-@pytest.mark.xfail
+
 def test_resolve_traverse():
     reg = get_registry()
 

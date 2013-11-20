@@ -48,7 +48,6 @@ class App(Action, ClassRegistry):
     def request(self, environ):
         request = Request(environ)
         request.lookup = self.lookup()
-        request.context = None
         request.unconsumed = []
         return request
 
@@ -57,10 +56,13 @@ class App(Action, ClassRegistry):
             return self(environ, start_response, context=d)
         return wsgi
 
+    def mounted(self, context=None):
+        context = context or {}
+        return Mount(self, lambda: context, {})
+
     def __call__(self, environ, start_response, context=None):
         request = self.request(environ)
-        request.context = context
-        response = publish(request, self)
+        response = publish(request, self.mounted(context))
         return response(environ, start_response)
 
     def run(self, host=None, port=None, **options):

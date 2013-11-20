@@ -53,19 +53,14 @@ def link(request, model):
     return '/'.join(result).strip('/')
 
 
-@global_app.function(generic.lookup, App)
-def app_lookup(model):
-    return model.lookup()
+@global_app.function(generic.traject, App)
+def app_traject(app):
+    return app.traject
 
 
 @global_app.function(generic.lookup, Mount)
 def mount_lookup(model):
     return model.app.lookup()
-
-
-@global_app.function(generic.traject, App)
-def app_traject(app):
-    return app.traject
 
 
 @global_app.function(generic.traject, Mount)

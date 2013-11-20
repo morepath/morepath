@@ -58,7 +58,7 @@ def test_notfound():
     setup()
     app = App()
     model = Model()
-    response = publish(app.request(get_environ(path='')), app)
+    response = publish(app.request(get_environ(path='')), app.mounted())
     assert response.status == '404 NOT FOUND'
 
 
