@@ -649,3 +649,40 @@ def test_mount():
 
     response = c.get('/foo/link')
     assert response.data == 'foo'
+
+
+def test_mount_context():
+    setup()
+
+    app = morepath.App('app')
+    mounted = morepath.App('mounted')
+
+    class MountedRoot(object):
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
+
+    def get_mounted_root(mount_id):
+        return MountedRoot(mount_id)
+
+    def root_default(request, model):
+        return "The root for mount id: %s" % model.mount_id
+
+    def get_context(id):
+        return {
+            'mount_id': id
+            }
+
+    c = Config()
+    c.action(app, app)
+    c.action(app.mount(path='{id}', mounted=mounted), get_context)
+    c.action(mounted.root(), MountedRoot)
+    c.action(mounted.view(model=MountedRoot), root_default)
+    c.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/foo')
+    assert response.data == 'The root for mount id: foo'
+    response = c.get('/bar')
+    assert response.data == 'The root for mount id: bar'
+

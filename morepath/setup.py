@@ -73,6 +73,11 @@ def mount_traject(model):
     return model.app.traject
 
 
+@global_app.function(generic.context, Mount)
+def mount_context(mount):
+    return mount.create_context()
+
+
 @global_app.function(generic.response, Request, object)
 def get_response(request, model):
     view = generic.view.component(

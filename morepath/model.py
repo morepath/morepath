@@ -1,12 +1,16 @@
 from .request import Request
 from morepath import generic
 from morepath.traject import Traject
-
+from reg import mapply
 
 class Mount(object):
-    def __init__(self, app, variables):
+    def __init__(self, app, context_factory, variables):
         self.app = app
+        self.context_factory = context_factory
         self.variables = variables
+
+    def create_context(self):
+        return mapply(self.context_factory, **self.variables)
 
     def __repr__(self):
         return '<morepath.Mount of app %r with variables %r>' % (
@@ -43,6 +47,6 @@ def register_mount(app, mounted, path, context_factory):
     # specific class as we want a different one for each mount
     class SpecificMount(Mount):
         def __init__(self, **kw):
-            super(SpecificMount, self).__init__(mounted, kw)
+            super(SpecificMount, self).__init__(mounted, context_factory, kw)
     register_model(app, SpecificMount, path, lambda m: m.variables,
                    SpecificMount)

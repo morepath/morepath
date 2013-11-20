@@ -23,6 +23,13 @@ def base(model):
 
 
 @reg.generic
+def context(model):
+    """Get the context dictionary available for a model.
+    """
+    return {}
+
+
+@reg.generic
 def lookup(obj):
     """Get the lookup that this object is associated with.
     """

@@ -36,7 +36,7 @@ def resolve_model(request, app):
     obj = app
     # consume steps toward model
     mounts = request.mounts
-    mounts.append(Mount(app, {}))
+    mounts.append(Mount(app, lambda: {}, {}))
     while unconsumed:
         for consumer in generic.consumer.all(obj, lookup=lookup):
             any_consumed, obj, unconsumed = consumer(
