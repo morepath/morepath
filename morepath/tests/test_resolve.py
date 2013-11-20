@@ -32,7 +32,10 @@ class Traverser(object):
 
 
 def get_request(*args, **kw):
-    return Request(EnvironBuilder(*args, **kw).get_environ())
+    lookup = kw.pop('lookup')
+    result = Request(EnvironBuilder(*args, **kw).get_environ())
+    result.lookup = lookup
+    return result
 
 
 def get_registry():
@@ -81,14 +84,15 @@ def get_structure():
 
 def test_resolve_no_consumers():
     lookup = get_lookup(get_registry())
+    request = get_request(path='/a', lookup=lookup)
+
     base = object()
 
-    stack = parse_path(u'/a')
-    obj, unconsumed, lookup = resolve_model(base, stack, lookup)
+    obj = resolve_model(request, base)
 
     assert obj is base
-    assert unconsumed == [u'a']
-    assert lookup is lookup
+    assert request.unconsumed == [u'a']
+    assert request.lookup is lookup
 
 
 def test_resolve_traverse():
@@ -99,21 +103,37 @@ def test_resolve_traverse():
     reg.register(generic.consumer, [Container], Traverser(traverse_container))
 
     base = get_structure()
+    request = get_request(path='/a', lookup=lookup)
+    obj = resolve_model(request, base)
+    assert obj is base['a']
+    assert request.unconsumed == []
+    assert request.lookup is lookup
 
-    assert resolve_model(base, parse_path(u'/a'), lookup) == (
-        base['a'], [], lookup)
-    assert resolve_model(base, parse_path(u'/sub'), lookup) == (
-        base['sub'], [], lookup)
-    assert resolve_model(base, parse_path(u'/sub/b'), lookup) == (
-        base['sub']['b'], [], lookup)
+    request = get_request(path='/sub', lookup=lookup)
+    obj = resolve_model(request, base)
+    assert obj is base['sub']
+    assert request.unconsumed == []
+    assert request.lookup is lookup
+
+    request = get_request(path='/sub/b', lookup=lookup)
+    obj = resolve_model(request, base)
+    assert obj is base['sub']['b']
+    assert request.unconsumed == []
+    assert request.lookup is lookup
 
     # there is no /c
-    assert resolve_model(base, parse_path(u'/c'), lookup) == (
-        base, [u'c'], lookup)
+    request = get_request(path='/c', lookup=lookup)
+    obj = resolve_model(request, base)
+    assert obj is base
+    assert request.unconsumed == ['c']
+    assert request.lookup is lookup
 
     # there is a sub, but no c in sub
-    assert resolve_model(base, parse_path(u'/sub/c'), lookup) == (
-        base['sub'], [u'c'], lookup)
+    request = get_request(path='/sub/c', lookup=lookup)
+    obj = resolve_model(request, base)
+    assert obj is base['sub']
+    assert request.unconsumed == ['c']
+    assert request.lookup is lookup
 
 
 def traverse_container(container, name):

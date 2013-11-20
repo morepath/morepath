@@ -13,19 +13,9 @@ class ResponseSentinel(object):
 
 RESPONSE_SENTINEL = ResponseSentinel()
 
+# XXX want to make some of these generic functions?
 
-# XXX
-# want to rethink this module in terms of generic functions.
-# we could introduce a generic.model, generic.response could
-# gain functionality now in resolve_response, and
-# we could have a generic.publish
-# one of the problems is that these generic functions are dependent
-# on request manipulation: something needs to parse the path as
-# a stack, then generic.model expects this stack to be there,
-# and resolve_response expects a view name to be there.
-# this makes the contract between these functions rather tightly
-# coupled. Is there a way to loosen the contract?
-
+# XXX do we need to use all to look up consumers?
 
 # XXX find a better place for this kind of API doc. perhaps revise
 # the way .all works as a keyword argument to function call?
@@ -37,18 +27,22 @@ RESPONSE_SENTINEL = ResponseSentinel()
 #         an object and the rest of unconsumed stack
 #         """
 
-def resolve_model(obj, stack, lookup):
+
+def resolve_model(request, app):
     """Resolve path to a model using consumers.
     """
+    unconsumed = parse_path(request.path)
+    lookup = request.lookup # XXX can get this from argument too
+    obj = app
     # if there is no stack, we consume toward a root model
-    if not stack:
+    if not unconsumed:
         for consumer in generic.consumer.all(obj, lookup=lookup):
-            any_consumed, obj, unconsumed = consumer(obj, stack, lookup)
+            any_consumed, obj, unconsumed = consumer(obj, unconsumed, lookup)
             if any_consumed:
                 break
-        return obj, stack, lookup
+        request.unconsumed = unconsumed
+        return obj
     # consume steps toward model
-    unconsumed = stack[:]
     while unconsumed:
         for consumer in generic.consumer.all(obj, lookup=lookup):
             any_consumed, obj, unconsumed = consumer(
@@ -60,11 +54,13 @@ def resolve_model(obj, stack, lookup):
         else:
             # nothing could be consumed
             break
-    return obj, unconsumed, lookup
+    request.lookup = lookup
+    request.unconsumed = unconsumed
+    return obj
 
 
-def resolve_response(request, model, stack):
-    name = get_view_step(model, stack)
+def resolve_response(request, model):
+    name = get_view_step(model, request.unconsumed)
 
     request.set_resolver_info({'name': name})
 
@@ -86,19 +82,9 @@ def get_view_step(model, stack):
         "%r has unresolved path %s" % (model, create_path(stack)))
 
 
-def publish(request, root):
-    #path = self.base_path(request)
-    stack = parse_path(request.path)
-    model, crumbs, lookup = resolve_model(root, stack, request.lookup)
-    request.lookup = lookup
+def publish(request, app):
+    model = resolve_model(request, app)
     try:
-        return resolve_response(request, model, crumbs)
+        return resolve_response(request, model)
     except HTTPException as e:
         return e.get_response(request.environ)
-
-# def base_path(self, request):
-#     path = request.path
-#     script_name = request.script_name
-#     if path.startswith(script_name):
-#         return path[len(script_name):]
-#     return path
