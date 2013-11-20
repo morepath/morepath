@@ -69,7 +69,7 @@ def link(request, model):
 
 @global_app.function(generic.lookup, App)
 def app_lookup(model):
-    return Lookup(model.class_lookup())
+    return model.lookup()
 
 
 @global_app.function(generic.response, Request, object)
