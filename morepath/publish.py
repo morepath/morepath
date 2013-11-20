@@ -1,5 +1,6 @@
 from .error import ModelError
 from morepath import generic
+from .model import Mount
 from .traject import parse_path, create_path
 from werkzeug.exceptions import HTTPException, NotFound
 
@@ -27,27 +28,15 @@ RESPONSE_SENTINEL = ResponseSentinel()
 #         an object and the rest of unconsumed stack
 #         """
 
-class Mount(object):
-    def __init__(self, app):
-        self.app = app
-
 def resolve_model(request, app):
     """Resolve path to a model using consumers.
     """
     unconsumed = parse_path(request.path)
     lookup = request.lookup # XXX can get this from argument too
     obj = app
-    # if there is no stack, we consume toward a root model
-    if not unconsumed:
-        for consumer in generic.consumer.all(obj, lookup=lookup):
-            any_consumed, obj, unconsumed = consumer(obj, unconsumed, lookup)
-            if any_consumed:
-                break
-        request.unconsumed = unconsumed
-        return obj
     # consume steps toward model
     mounts = request.mounts
-    mounts.append(Mount(app))
+    mounts.append(Mount(app, {}))
     while unconsumed:
         for consumer in generic.consumer.all(obj, lookup=lookup):
             any_consumed, obj, unconsumed = consumer(
@@ -61,6 +50,12 @@ def resolve_model(request, app):
         else:
             # nothing could be consumed
             break
+    # if there is no stack, we consume toward a root model
+    if not unconsumed:
+        for consumer in generic.consumer.all(obj, lookup=lookup):
+            any_consumed, obj, unconsumed = consumer(obj, unconsumed, lookup)
+            if any_consumed:
+                break
     request.lookup = lookup
     request.unconsumed = unconsumed
     return obj

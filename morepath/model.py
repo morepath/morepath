@@ -3,6 +3,16 @@ from morepath import generic
 from morepath.traject import Traject
 
 
+class Mount(object):
+    def __init__(self, app, variables):
+        self.app = app
+        self.variables = variables
+
+    def __repr__(self):
+        return '<morepath.Mount of app %r with variables %r>' % (
+            self.app.name, self.variables)
+
+
 def register_root(app, model, model_factory):
     register_model(app, model, '', lambda model: {}, model_factory)
 
@@ -27,3 +37,12 @@ def register_model(app, model, path, variables, model_factory,
             return app
 
     app.register(generic.base, [model], get_base)
+
+
+def register_mount(app, mounted, path, context_factory):
+    # specific class as we want a different one for each mount
+    class SpecificMount(Mount):
+        def __init__(self, **kw):
+            super(SpecificMount, self).__init__(mounted, kw)
+    register_model(app, SpecificMount, path, lambda m: m.variables,
+                   SpecificMount)

@@ -23,6 +23,8 @@ class Traverser(object):
         self.func = func
 
     def __call__(self, obj, stack, lookup):
+        if not stack:
+            return False, obj, stack
         name = stack.pop()
         next_obj = self.func(obj, name)
         if next_obj is None:

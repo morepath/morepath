@@ -613,3 +613,40 @@ def test_function_no_conflict_different_apps():
     c.action(a, a_func)
     c.action(a1, a1_func)
     c.commit()
+
+
+def test_mount():
+    setup()
+
+    app = morepath.App('app')
+    mounted = morepath.App('mounted')
+
+    class MountedRoot(object):
+        pass
+
+    def root_default(request, model):
+        return "The root"
+
+    def root_link(request, model):
+        return request.link(model)
+
+    def get_context():
+        pass
+
+    c = Config()
+    c.action(app, app)
+    c.action(app.mount(path='{id}', mounted=mounted), get_context)
+    c.action(mounted.root(), MountedRoot)
+    c.action(mounted.view(model=MountedRoot),
+             root_default)
+    c.action(mounted.view(model=MountedRoot, name='link'),
+             root_link)
+    c.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/foo')
+    assert response.data == 'The root'
+
+    response = c.get('/foo/link')
+    assert response.data == 'foo'

@@ -1,5 +1,6 @@
 from .app import global_app
 from .config import Config
+from .model import Mount
 import morepath.directive
 from morepath import generic
 from .error import LinkError
@@ -35,30 +36,41 @@ def app_path(model, lookup):
     return '/'.join(result)
 
 
-@global_app.function(generic.traject, App)
-def app_traject(app):
-    return app.traject
-
-
 @global_app.function(generic.link, Request, object)
 def link(request, model):
     lookup = request.lookup
     result = []
+    # path in inner mount
+    result.append(app_path(model, lookup=lookup))
+    # now path of mounts
     mounts = request.mounts[:]
-    while True:
-        result.append(app_path(model, lookup=lookup))
-        mount = mounts.pop()
-        if not mounts:
-            break
-        model = mount
-        lookup = mount.app.lookup
+    model = mounts.pop()
+    while mounts:
+        model_mount = mounts.pop()
+        result.append(app_path(model, lookup=model_mount.app.lookup()))
+        model = model_mount
     result.reverse()
-    return '/'.join(result)
+    return '/'.join(result).strip('/')
 
 
 @global_app.function(generic.lookup, App)
 def app_lookup(model):
     return model.lookup()
+
+
+@global_app.function(generic.lookup, Mount)
+def mount_lookup(model):
+    return model.app.lookup()
+
+
+@global_app.function(generic.traject, App)
+def app_traject(app):
+    return app.traject
+
+
+@global_app.function(generic.traject, Mount)
+def mount_traject(model):
+    return model.app.traject
 
 
 @global_app.function(generic.response, Request, object)

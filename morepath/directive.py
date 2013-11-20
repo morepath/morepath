@@ -2,7 +2,7 @@ from .app import App
 from .config import Directive
 from .error import ConfigError
 from .view import register_view, render_json, render_html
-from .model import register_model, register_root
+from .model import register_model, register_root, register_mount
 from .traject import Path
 
 
@@ -108,6 +108,21 @@ class RootDirective(Directive):
 
     def perform(self, obj):
         register_root(self.app, self.model, obj)
+
+
+@directive('mount')
+class MountDirective(Directive):
+    def __init__(self, app,  path, mounted):
+        super(MountDirective, self).__init__(app)
+        self.mounted = mounted
+        self.path = path
+
+    def discriminator(self):
+        return [('mount', self.mounted),
+                ('path', Path(self.path).discriminator())]
+
+    def perform(self, obj):
+        register_mount(self.app, self.mounted, self.path, obj)
 
 
 @directive('function')
