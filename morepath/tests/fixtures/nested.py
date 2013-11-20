@@ -4,8 +4,8 @@ outer_app = morepath.App('outer')
 app = morepath.App('inner')
 
 @outer_app.mount('inner', app)
-def dummy():
-    pass
+def inner_context():
+    return {}
 
 @app.root()
 class Root(object):
