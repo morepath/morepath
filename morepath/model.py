@@ -13,8 +13,12 @@ class Mount(object):
         return mapply(self.context_factory, **self.variables)
 
     def __repr__(self):
+        try:
+            name = self.app.name
+        except AttributeError:
+            name = repr(self.app)
         return '<morepath.Mount of app %r with variables %r>' % (
-            self.app.name, self.variables)
+            name, self.variables)
 
 
 def register_root(app, model, model_factory):
