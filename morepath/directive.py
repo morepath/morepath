@@ -93,7 +93,7 @@ class RootDirective(Directive):
         self.model = model
 
     def discriminator(self):
-        return ('root')
+        return ('root',)
 
     def prepare(self, obj):
         if isinstance(obj, type):
