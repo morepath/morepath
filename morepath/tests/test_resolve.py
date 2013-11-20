@@ -22,15 +22,15 @@ class Traverser(object):
     def __init__(self, func):
         self.func = func
 
-    def __call__(self, obj, stack, lookup):
-        if not stack:
-            return False, obj, stack
-        name = stack.pop()
+    def __call__(self, obj, unconsumed, lookup):
+        if not unconsumed:
+            return False, obj, unconsumed
+        name = unconsumed.pop()
         next_obj = self.func(obj, name)
         if next_obj is None:
-            stack.append(name)
-            return False, obj, stack
-        return True, next_obj, stack
+            unconsumed.append(name)
+            return False, obj, unconsumed
+        return True, next_obj, unconsumed
 
 
 def get_request(*args, **kw):
@@ -103,7 +103,7 @@ def test_resolve_traverse():
 
     lookup = get_lookup(reg)
 
-    reg.register(generic.consumer, [Container], Traverser(traverse_container))
+    reg.register(generic.consume, [Container], Traverser(traverse_container))
 
     base = get_structure()
     request = get_request(path='/a', lookup=lookup)

@@ -16,8 +16,10 @@ def setup():
     config = Config()
     config.scan(morepath, ignore=['.tests'])
     config.commit()
-    # should use a configuration directive for this
-    global_app.register(generic.consumer, [object], traject_consumer)
+
+@global_app.function(generic.consume, object)
+def traject_consume(model, unconsumed, lookup):
+    return traject_consumer(model, unconsumed, lookup)
 
 
 @global_app.function(generic.path, object)

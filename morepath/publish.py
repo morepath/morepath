@@ -14,20 +14,6 @@ class ResponseSentinel(object):
 
 RESPONSE_SENTINEL = ResponseSentinel()
 
-# XXX want to make some of these generic functions?
-
-# XXX do we need to use all to look up consumers?
-
-# XXX find a better place for this kind of API doc. perhaps revise
-# the way .all works as a keyword argument to function call?
-# a consumer consumes steps in a stack to find an object.
-# a consumer function has this signature:
-# def consumer(obj, stack, lookup):
-#         """Consumes steps.
-#         Returns a boolean meaning that some stack has been consumed,
-#         an object and the rest of unconsumed stack
-#         """
-
 
 def resolve_model(request, mount):
     """Resolve path to a model using consumers.
@@ -39,24 +25,20 @@ def resolve_model(request, mount):
     obj = mount
     mounts.append(obj)
     while unconsumed:
-        for consumer in generic.consumer.all(obj, lookup=lookup):
-            any_consumed, obj, unconsumed = consumer(
-                obj, unconsumed, lookup)
-            if any_consumed:
-                if isinstance(obj, Mount):
-                    mounts.append(obj)
-                # get new lookup for whatever we found if it exists
-                lookup = generic.lookup(obj, lookup=lookup, default=lookup)
-                break
-        else:
-            # nothing could be consumed
+        any_consumed, obj, unconsumed = generic.consume(obj,
+                                                        unconsumed=unconsumed,
+                                                        lookup=lookup)
+        if not any_consumed:
             break
+        if isinstance(obj, Mount):
+            mounts.append(obj)
+        # get new lookup for whatever we found if it exists
+        lookup = generic.lookup(obj, lookup=lookup, default=lookup)
     # if there is no stack, we consume toward a root model
     if not unconsumed:
-        for consumer in generic.consumer.all(obj, lookup=lookup):
-            any_consumed, obj, unconsumed = consumer(obj, unconsumed, lookup)
-            if any_consumed:
-                break
+        any_consumed, obj, unconsumed = generic.consume(obj,
+                                                        unconsumed=unconsumed,
+                                                        lookup=lookup)
     request.lookup = lookup
     request.unconsumed = unconsumed
     return obj

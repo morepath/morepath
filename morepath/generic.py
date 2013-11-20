@@ -2,10 +2,13 @@ import reg
 
 
 @reg.generic
-def consumer(obj):
-    """A consumer consumes steps in a stack to find an object.
+def consume(obj, unconsumed):
+    """Consume unconsumed to new object starting at obj.
+
+    Returns a boolean meaning that some unconsumed has been consumed,
+    an object and the remaining unconsumed stack
     """
-    raise NotImplementedError
+    return False, obj, unconsumed
 
 
 @reg.generic
