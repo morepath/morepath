@@ -30,15 +30,15 @@ def lookup(obj):
 
 
 @reg.generic
-def path(request, model):
-    """Get the path for a model in the context of a request.
+def path(model):
+    """Get the path for a model in its own application.
     """
     raise NotImplementedError
 
 
 @reg.generic
 def link(request, model):
-    """Create a link (URL) to model.
+    """Create a link (URL) to a model, including any mounted applications.
     """
     raise NotImplementedError
 

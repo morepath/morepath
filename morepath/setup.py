@@ -21,18 +21,18 @@ def setup():
     global_app.register(generic.consumer, [object], traject_consumer)
 
 
-# XXX is request parameter needed?
-@global_app.function(generic.path, Request, object)
-def traject_path(request, model, lookup):
-    base = generic.base(model, lookup=lookup, default=None)
-    if base is None:
-        raise LinkError(
-            "cannot determine model base for %r" % model)
-    traject = generic.traject(base, lookup=lookup, default=None)
-    if traject is None:
-        raise LinkError(
-            "cannot determine traject path info for base %r" % base)
-    return traject.path(model)
+@global_app.function(generic.path, object)
+def app_path(model, lookup):
+    result = []
+    while True:
+        base = generic.base(model, lookup=lookup, default=None)
+        if base is None:
+            break
+        traject = generic.traject(base, lookup=lookup)
+        result.append(traject.path(model))
+        model = base
+    result.reverse()
+    return '/'.join(result)
 
 
 @global_app.function(generic.traject, App)
@@ -40,24 +40,18 @@ def app_traject(app):
     return app.traject
 
 
-@global_app.function(generic.path, Request, App)
-def app_path(request, model):
-    return ''
-
-
 @global_app.function(generic.link, Request, object)
 def link(request, model):
-    result = []
     lookup = request.lookup
+    result = []
+    mounts = request.mounts[:]
     while True:
-        path = generic.path(request, model, lookup=lookup)
-        if path:
-            result.append(path)
-        model = generic.base(model, lookup=lookup, default=None)
-        if model is None:
+        result.append(app_path(model, lookup=lookup))
+        mount = mounts.pop()
+        if not mounts:
             break
-        # XXX should switch lookup back to lookup of base model in order
-        # to mimic what happens during path resolution
+        model = mount
+        lookup = mount.app.lookup
     result.reverse()
     return '/'.join(result)
 

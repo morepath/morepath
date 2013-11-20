@@ -1,4 +1,4 @@
-from .publish import publish
+from .publish import publish, Mount
 from .request import Request
 from .traject import Traject
 from .config import Action
@@ -36,9 +36,6 @@ class App(Action, ClassRegistry):
         super(App, self).clear()
         self.traject = Traject()
 
-    def add_child(self, app):
-        self.child_apps[app.name] = app
-
     def class_lookup(self):
         if self.parent is None:
             return ChainClassLookup(self, global_app)
@@ -56,6 +53,7 @@ class App(Action, ClassRegistry):
     def __call__(self, environ, start_response):
         request = self.request(environ)
         request.lookup = self.lookup()
+        request.mounts.append(Mount(self))
         response = publish(request, self)
         return response(environ, start_response)
 

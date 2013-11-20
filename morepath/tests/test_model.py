@@ -29,9 +29,7 @@ def test_register_root():
     lookup = app.lookup()
 
     register_root(app, Root, lambda: root)
-    request = get_request()
-    request.lookup = lookup
-    assert generic.path(request, root, lookup=lookup) == ''
+    assert generic.path(root, lookup=lookup) == ''
     assert generic.base(root, lookup=lookup) is app
 
 
@@ -54,9 +52,7 @@ def test_register_model():
     assert obj.id == 'a'
     model = Model()
     model.id = 'b'
-    request = get_request()
-    request.lookup = lookup
-    assert generic.path(request, model, lookup=lookup) == 'b'
+    assert generic.path(model, lookup=lookup) == 'b'
     assert generic.base(model, lookup=lookup) is app
 
 

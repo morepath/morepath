@@ -4,15 +4,6 @@ from morepath.traject import Traject
 
 
 def register_root(app, model, model_factory):
-
-    def get_base(model):
-        return app
-
-    def root_path(request, model):
-        return ''  # no path for root
-
-    app.register(generic.path, [Request, model], root_path)
-    app.register(generic.base, [model], get_base)
     register_model(app, model, '', lambda model: {}, model_factory)
 
 

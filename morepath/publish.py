@@ -27,6 +27,9 @@ RESPONSE_SENTINEL = ResponseSentinel()
 #         an object and the rest of unconsumed stack
 #         """
 
+class Mount(object):
+    def __init__(self, app):
+        self.app = app
 
 def resolve_model(request, app):
     """Resolve path to a model using consumers.
@@ -43,11 +46,14 @@ def resolve_model(request, app):
         request.unconsumed = unconsumed
         return obj
     # consume steps toward model
+    mounts = request.mounts
     while unconsumed:
         for consumer in generic.consumer.all(obj, lookup=lookup):
             any_consumed, obj, unconsumed = consumer(
                 obj, unconsumed, lookup)
             if any_consumed:
+                if isinstance(obj, Mount):
+                    mounts.append(obj)
                 # get new lookup for whatever we found if it exists
                 lookup = generic.lookup(obj, lookup=lookup, default=lookup)
                 break
