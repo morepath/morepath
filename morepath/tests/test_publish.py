@@ -9,7 +9,7 @@ from werkzeug.test import EnvironBuilder
 
 def get_request(*args, **kw):
     app = kw.pop('app')
-    lookup = Lookup(app.class_lookup())
+    lookup = app.lookup()
     result = Request(EnvironBuilder(*args, **kw).get_environ())
     result.lookup = lookup
     return result
