@@ -1,7 +1,7 @@
-from .request import Request
 from morepath import generic
 from morepath.traject import Traject
 from reg import mapply
+
 
 class Mount(object):
     def __init__(self, app, context_factory, variables):

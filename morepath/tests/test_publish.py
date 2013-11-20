@@ -1,12 +1,12 @@
-from reg import Lookup
 from morepath.app import App
 from morepath.publish import publish, resolve_response
-from morepath.request import Request, Response
+from morepath.request import Response
 from morepath.view import register_view, render_json, render_html
 from morepath.setup import setup
 from werkzeug.test import EnvironBuilder
 from werkzeug.exceptions import NotFound
 import pytest
+
 
 def get_environ(*args, **kw):
     return EnvironBuilder(*args, **kw).get_environ()
@@ -51,13 +51,12 @@ def test_predicates():
     assert resolve_response(
         app.request(get_environ(path='')), model).data == 'all'
     assert (resolve_response(app.request(get_environ(path='', method='POST')),
-                    model).data == 'post')
+                             model).data == 'post')
 
 
 def test_notfound():
     setup()
     app = App()
-    model = Model()
     response = publish(app.request(get_environ(path='')), app.mounted())
     assert response.status == '404 NOT FOUND'
 
@@ -74,7 +73,7 @@ def test_notfound_with_predicates():
     request = app.request(get_environ())
     request.unconsumed = ['foo']
     with pytest.raises(NotFound):
-        response = resolve_response(request, model)
+        resolve_response(request, model)
     #assert response.status == '404 NOT FOUND'
 
 

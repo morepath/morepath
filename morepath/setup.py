@@ -3,13 +3,11 @@ from .config import Config
 from .model import Mount
 import morepath.directive
 from morepath import generic
-from .error import LinkError
 from .app import App
 from .request import Request, Response
 from werkzeug.wrappers import BaseResponse
 from .traject import traject_consumer
 import morepath
-from reg import Lookup
 
 assert morepath.directive  # we need to make the function directive work
 

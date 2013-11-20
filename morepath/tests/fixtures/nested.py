@@ -3,9 +3,11 @@ import morepath
 outer_app = morepath.App('outer')
 app = morepath.App('inner')
 
+
 @outer_app.mount('inner', app)
 def inner_context():
     return {}
+
 
 @app.root()
 class Root(object):

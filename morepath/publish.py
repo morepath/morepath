@@ -28,11 +28,12 @@ RESPONSE_SENTINEL = ResponseSentinel()
 #         an object and the rest of unconsumed stack
 #         """
 
+
 def resolve_model(request, mount):
     """Resolve path to a model using consumers.
     """
     unconsumed = parse_path(request.path)
-    lookup = request.lookup # XXX can get this from argument too
+    lookup = request.lookup  # XXX can get this from argument too
     # consume steps toward model
     mounts = request.mounts
     obj = mount

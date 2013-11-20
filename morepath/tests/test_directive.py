@@ -711,4 +711,3 @@ def test_mount_context_standalone():
 
     response = c.get('/')
     assert response.data == 'The root for mount id: foo'
-

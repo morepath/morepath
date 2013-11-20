@@ -2,11 +2,11 @@
 
 from reg import Lookup, ClassRegistry
 from morepath import generic
-from morepath.traject import parse_path, VIEW_PREFIX
+from morepath.traject import VIEW_PREFIX
 from morepath.request import Request
 from morepath.publish import resolve_model
 from werkzeug.test import EnvironBuilder
-import pytest
+
 
 class Traverser(object):
     """A traverser is a consumer that consumes only a single step.
