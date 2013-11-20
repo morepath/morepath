@@ -105,7 +105,6 @@ class RootDirective(Directive):
         if self.model is None:
             raise ConfigError(
                 "@root does not decorate class and has no explicit model")
-        self.app.root_model = self.model
 
     def perform(self, obj):
         register_root(self.app, self.model, obj)
