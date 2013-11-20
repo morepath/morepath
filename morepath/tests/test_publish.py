@@ -1,11 +1,12 @@
 from reg import Lookup
 from morepath.app import App
-from morepath.publish import publish
+from morepath.publish import publish, resolve_response
 from morepath.request import Request, Response
 from morepath.view import register_view, render_json, render_html
 from morepath.setup import setup
 from werkzeug.test import EnvironBuilder
-
+from werkzeug.exceptions import NotFound
+import pytest
 
 def get_environ(*args, **kw):
     return EnvironBuilder(*args, **kw).get_environ()
@@ -28,7 +29,7 @@ def test_view():
     register_view(app, Model, view, predicates=dict(name=''))
 
     model = Model()
-    result = publish(app.request(get_environ(path='')), model)
+    result = resolve_response(app.request(get_environ(path='')), model)
     assert result.data == 'View!'
 
 
@@ -47,8 +48,9 @@ def test_predicates():
                   predicates=dict(name='', request_method='POST'))
 
     model = Model()
-    assert publish(app.request(get_environ(path='')), model).data == 'all'
-    assert (publish(app.request(get_environ(path='', method='POST')),
+    assert resolve_response(
+        app.request(get_environ(path='')), model).data == 'all'
+    assert (resolve_response(app.request(get_environ(path='', method='POST')),
                     model).data == 'post')
 
 
@@ -56,7 +58,7 @@ def test_notfound():
     setup()
     app = App()
     model = Model()
-    response = publish(app.request(get_environ(path='')), model)
+    response = publish(app.request(get_environ(path='')), app)
     assert response.status == '404 NOT FOUND'
 
 
@@ -69,8 +71,11 @@ def test_notfound_with_predicates():
 
     register_view(app, Model, view, predicates=dict(name=''))
     model = Model()
-    response = publish(app.request(get_environ(path='foo')), model)
-    assert response.status == '404 NOT FOUND'
+    request = app.request(get_environ())
+    request.unconsumed = ['foo']
+    with pytest.raises(NotFound):
+        response = resolve_response(request, model)
+    #assert response.status == '404 NOT FOUND'
 
 
 def test_response_returned():
@@ -82,7 +87,7 @@ def test_response_returned():
 
     register_view(app, Model, view)
     model = Model()
-    response = publish(app.request(get_environ(path='')), model)
+    response = resolve_response(app.request(get_environ(path='')), model)
     assert response.data == 'Hello world!'
 
 
@@ -97,7 +102,7 @@ def test_request_view():
 
     request = app.request(get_environ(path=''))
     model = Model()
-    response = publish(request, model)
+    response = resolve_response(request, model)
     # when we get the response, the json will be rendered
     assert response.data == '{"hey": "hey"}'
     assert response.content_type == 'application/json'
@@ -116,6 +121,6 @@ def test_render_html():
 
     request = app.request(get_environ(path=''))
     model = Model()
-    response = publish(request, model)
+    response = resolve_response(request, model)
     assert response.data == '<p>Hello world!</p>'
     assert response.content_type == 'text/html'

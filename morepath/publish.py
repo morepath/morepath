@@ -33,10 +33,11 @@ def resolve_model(request, app):
     """
     unconsumed = parse_path(request.path)
     lookup = request.lookup # XXX can get this from argument too
-    obj = app
     # consume steps toward model
     mounts = request.mounts
-    mounts.append(Mount(app, lambda: {}, {}))
+    context = request.context or {}
+    obj = Mount(app, lambda: context, {})
+    mounts.append(obj)
     while unconsumed:
         for consumer in generic.consumer.all(obj, lookup=lookup):
             any_consumed, obj, unconsumed = consumer(

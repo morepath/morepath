@@ -48,11 +48,18 @@ class App(Action, ClassRegistry):
     def request(self, environ):
         request = Request(environ)
         request.lookup = self.lookup()
+        request.context = None
+        request.unconsumed = []
         return request
 
-    def __call__(self, environ, start_response):
+    def context(self, d):
+        def wsgi(environ, start_response):
+            return self(environ, start_response, context=d)
+        return wsgi
+
+    def __call__(self, environ, start_response, context=None):
         request = self.request(environ)
-        request.lookup = self.lookup()
+        request.context = context
         response = publish(request, self)
         return response(environ, start_response)
 
