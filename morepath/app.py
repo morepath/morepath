@@ -53,7 +53,6 @@ class App(Action, ClassRegistry):
     def __call__(self, environ, start_response):
         request = self.request(environ)
         request.lookup = self.lookup()
-        request.mounts.append(Mount(self))
         response = publish(request, self)
         return response(environ, start_response)
 
