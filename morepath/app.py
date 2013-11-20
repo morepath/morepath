@@ -12,16 +12,16 @@ class App(Action, ClassRegistry):
     def __init__(self, name='', parent=None):
         super(App, self).__init__()
         self.name = name
-        self.child_apps = {}
         self.parent = parent
         self.traject = Traject()
-        if self.parent is not None:
-            parent.add_child(self)
 
         # allow being scanned by venusian
         def callback(scanner, name, obj):
             scanner.config.action(self, self)
         venusian.attach(self, callback)
+
+    def __repr__(self):
+        return '<morepath.App %r>' % self.name
 
     def discriminator(self):
         return None
@@ -30,16 +30,11 @@ class App(Action, ClassRegistry):
     # cloned?
 
     def perform(self, obj):
-        if self.parent is None:
-            return
-        self.parent.traject.add_pattern(
-            self.name, lambda: self)
+        pass
 
     def clear(self):
         super(App, self).clear()
         self.traject = Traject()
-        # for child_app in self.child_apps.values():
-        #     child_app.clear()
 
     def add_child(self, app):
         self.child_apps[app.name] = app

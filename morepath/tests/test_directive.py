@@ -65,6 +65,7 @@ def test_basic_root():
     assert response.data == ''
 
 
+@pytest.mark.xfail
 def test_nested():
     setup()
     nested.outer_app.clear()

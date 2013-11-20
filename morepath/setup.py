@@ -42,12 +42,7 @@ def app_traject(app):
 
 @global_app.function(generic.path, Request, App)
 def app_path(request, model):
-    return model.name
-
-
-@global_app.function(generic.base, App)
-def app_base(model):
-    return model.parent
+    return ''
 
 
 @global_app.function(generic.link, Request, object)
