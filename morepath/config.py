@@ -92,14 +92,17 @@ class Config(object):
         # XXX check that a model registration that has a base that is
         # not an app supplies a get_base
 
-    def commit(self):
-        actions = []
+    def prepared(self):
+        result = []
         for action, obj in self.actions:
             action = action.clone()  # so that prepare starts fresh
             action.prepare(obj)
-            actions.append((action, obj))
-        self.validate(actions)
+            result.append((action, obj))
+        return result
 
+    def commit(self):
+        actions = self.prepared()
+        self.validate(actions)
         for action, obj in actions:
             action.perform(obj)
 
