@@ -52,9 +52,9 @@ class App(Action, ClassRegistry):
         request.unconsumed = []
         return request
 
-    def context(self, d):
+    def context(self, **kw):
         def wsgi(environ, start_response):
-            return self(environ, start_response, context=d)
+            return self(environ, start_response, context=kw)
         return wsgi
 
     def mounted(self, context=None):

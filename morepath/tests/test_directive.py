@@ -707,7 +707,7 @@ def test_mount_context_standalone():
     c.action(mounted.view(model=MountedRoot), root_default)
     c.commit()
 
-    c = Client(mounted.context({'mount_id': 'foo'}), Response)
+    c = Client(mounted.context(mount_id='foo'), Response)
 
     response = c.get('/')
     assert response.data == 'The root for mount id: foo'
