@@ -47,10 +47,10 @@ def register_model(app, model, path, variables, model_factory,
     app.register(generic.base, [model], get_base)
 
 
-def register_mount(app, mounted, path, context_factory):
+def register_mount(base_app, app, path, context_factory):
     # specific class as we want a different one for each mount
     class SpecificMount(Mount):
         def __init__(self, **kw):
-            super(SpecificMount, self).__init__(mounted, context_factory, kw)
-    register_model(app, SpecificMount, path, lambda m: m.variables,
+            super(SpecificMount, self).__init__(app, context_factory, kw)
+    register_model(base_app, SpecificMount, path, lambda m: m.variables,
                    SpecificMount)

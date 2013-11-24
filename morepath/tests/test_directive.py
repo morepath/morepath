@@ -634,7 +634,7 @@ def test_mount():
 
     c = Config()
     c.action(app, app)
-    c.action(app.mount(path='{id}', mounted=mounted), get_context)
+    c.action(app.mount(path='{id}', app=mounted), get_context)
     c.action(mounted.root(), MountedRoot)
     c.action(mounted.view(model=MountedRoot),
              root_default)
@@ -674,7 +674,7 @@ def test_mount_context():
 
     c = Config()
     c.action(app, app)
-    c.action(app.mount(path='{id}', mounted=mounted), get_context)
+    c.action(app.mount(path='{id}', app=mounted), get_context)
     c.action(mounted.root(), MountedRoot)
     c.action(mounted.view(model=MountedRoot), root_default)
     c.commit()

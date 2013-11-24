@@ -112,17 +112,17 @@ class RootDirective(Directive):
 
 @directive('mount')
 class MountDirective(Directive):
-    def __init__(self, app,  path, mounted):
-        super(MountDirective, self).__init__(app)
-        self.mounted = mounted
+    def __init__(self, base_app,  path, app):
+        super(MountDirective, self).__init__(base_app)
+        self.mounted_app = app
         self.path = path
 
     def discriminator(self):
-        return [('mount', self.mounted),
+        return [('mount', self.mounted_app),
                 ('path', Path(self.path).discriminator())]
 
     def perform(self, obj):
-        register_mount(self.app, self.mounted, self.path, obj)
+        register_mount(self.app, self.mounted_app, self.path, obj)
 
 
 @directive('function')
