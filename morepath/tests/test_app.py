@@ -2,20 +2,20 @@ from morepath.app import App, global_app
 
 
 def test_global_app():
-    assert global_app.parent is None
+    assert global_app.extends is None
     assert global_app.name == ''
 
 
-def test_app_without_parent():
+def test_app_without_extends():
     myapp = App()
-    assert myapp.parent is None
+    assert myapp.extends is None
     assert myapp.name == ''
 
 
-def test_app_with_parent():
+def test_app_with_extends():
     parentapp = App()
-    myapp = App('myapp', parent=parentapp)
-    assert myapp.parent is parentapp
+    myapp = App('myapp', extends=parentapp)
+    assert myapp.extends is parentapp
     assert myapp.name == 'myapp'
 
 

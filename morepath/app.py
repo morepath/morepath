@@ -9,10 +9,11 @@ from werkzeug.serving import run_simple
 
 class App(Action, ClassRegistry):
     # XXX split path parent from configuration parent
-    def __init__(self, name='', parent=None):
+    # XXX have a way to define parameters for app here
+    def __init__(self, name='', extends=None):
         super(App, self).__init__()
         self.name = name
-        self.parent = parent
+        self.extends = extends
         self.traject = Traject()
 
         # allow being scanned by venusian
@@ -37,9 +38,9 @@ class App(Action, ClassRegistry):
         self.traject = Traject()
 
     def class_lookup(self):
-        if self.parent is None:
+        if not self.extends:
             return ChainClassLookup(self, global_app)
-        return ChainClassLookup(self, self.parent.class_lookup())
+        return ChainClassLookup(result, self.extends.class_lookup())
 
     def lookup(self):
         # XXX instead of a separate cache we could put caching in here
