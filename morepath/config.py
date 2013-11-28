@@ -194,7 +194,6 @@ class Config(object):
         self.count += 1
         self.actions.append((action, obj))
 
-    # XXX should be able to override obj in prepare
     def prepared(self):
         """Prepare configuration actions.
 
