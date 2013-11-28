@@ -369,5 +369,3 @@ def test_root_configurable():
     c.action(MyAction(x, 2), bar)
     c.commit()
     assert performed == [(root, foo), (x, foo), (x, bar)]
-
-# XXX rerun actions after first run; should work
