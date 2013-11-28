@@ -27,9 +27,6 @@ class App(Configurable, ClassRegistry):
         Configurable.clear(self)
         self.traject = Traject()
 
-    def class_lookup(self):
-        return self
-
     def lookup(self):
         # XXX instead of a separate cache we could put caching in here
         return app_lookup_cache.get(self)
@@ -70,8 +67,7 @@ class AppLookupCache(object):
         lookup = self.cache.get(app)
         if lookup is not None:
             return lookup
-        class_lookup = app.class_lookup()
-        caching_class_lookup = CachingClassLookup(class_lookup)
+        caching_class_lookup = CachingClassLookup(app)
         result = self.cache[app] = Lookup(caching_class_lookup)
         return result
 

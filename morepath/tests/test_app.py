@@ -26,25 +26,22 @@ def test_app_caching_lookup():
         def all(self, key, classes):
             self.called += 1
             return ["answer"]
-    mock_class_lookup = MockClassLookup()
-
-    class MockApp(App):
-        def class_lookup(self):
-            return mock_class_lookup
+    class MockApp(MockClassLookup, App):
+        pass
 
     myapp = MockApp()
     lookup = myapp.lookup()
     answer = lookup.component('foo', [])
     assert answer == 'answer'
-    assert mock_class_lookup.called == 1
+    assert myapp.called == 1
 
     # after this the answer will be cached for those parameters
     answer = lookup.component('foo', [])
-    assert mock_class_lookup.called == 1
+    assert myapp.called == 1
 
     answer = myapp.lookup().component('foo', [])
-    assert mock_class_lookup.called == 1
+    assert myapp.called == 1
 
     # but different parameters does trigger another call
     lookup.component('bar', [])
-    assert mock_class_lookup.called == 2
+    assert myapp.called == 2
