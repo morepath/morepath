@@ -46,7 +46,7 @@ class ModelDirective(Directive):
         if model is None:
             raise ConfigError(
                 "@model does not decorate class and has no explicit model")
-        yield self.clone(model=model)
+        yield self.clone(model=model), obj
         # XXX check whether get_base is there if base is there
         # XXX check whether variables is there if variable is used in
         # path
@@ -109,7 +109,7 @@ class RootDirective(Directive):
         if model is None:
             raise ConfigError(
                 "@root does not decorate class and has no explicit model")
-        yield self.clone(model=model)
+        yield self.clone(model=model), obj
 
     def perform(self, app, obj):
         register_root(app, self.model, obj)

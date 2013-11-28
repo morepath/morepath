@@ -324,8 +324,8 @@ def test_prepare_returns_multiple_actions():
             return self.value
 
         def prepare(self, obj):
-            yield MyAction(self.configurable, 1)
-            yield MyAction(self.configurable, 2)
+            yield MyAction(self.configurable, 1), obj
+            yield MyAction(self.configurable, 2), obj
 
     c = config.Config()
     x = config.Configurable()
