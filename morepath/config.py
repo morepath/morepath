@@ -181,8 +181,7 @@ class Config(object):
         self.configurables.append(configurable)
         if (self.root_configurable is not None and
             not configurable.extends and
-            configurable is not self.root_configurable and
-            self.root_configurable not in configurable.extends):
+            configurable is not self.root_configurable):
             configurable.extends.append(self.root_configurable)
 
     def action(self, action, obj):
