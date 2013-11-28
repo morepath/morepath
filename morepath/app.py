@@ -12,6 +12,10 @@ class App(ClassRegistry):
     def __init__(self, name='', extends=None):
         super(App, self).__init__()
         self.name = name
+        if extends is None:
+            extends = []
+        if not isinstance(extends, list):
+            extends = [extends]
         self.extends = extends
         self.traject = Traject()
 

@@ -4,6 +4,14 @@ from .error import ConflictError
 from .framehack import caller_package
 
 
+class Configurable(object):
+    def __init__(self):
+        self._actions = []
+
+    def action(self, action):
+        self._actions.append(action)
+
+
 class Action(object):
     def discriminator(self):
         """Returns an immutable that uniquely identifies this config.
