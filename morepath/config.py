@@ -5,7 +5,12 @@ from .framehack import caller_package
 
 
 class Configurable(object):
-    def __init__(self):
+    def __init__(self, extends):
+        if extends is None:
+            extends = []
+        if not isinstance(extends, list):
+            extends = [extends]
+        self.extends = extends
         self._actions = []
 
     def action(self, action):

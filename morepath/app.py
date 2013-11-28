@@ -1,22 +1,19 @@
 from .publish import publish, Mount
 from .request import Request
 from .traject import Traject
+from .config import Configurable
 from reg import ClassRegistry, Lookup, ChainClassLookup, CachingClassLookup
 import venusian
 from werkzeug.serving import run_simple
 
 
-class App(ClassRegistry):
+class App(Configurable, ClassRegistry):
     # XXX split path parent from configuration parent
     # XXX have a way to define parameters for app here
     def __init__(self, name='', extends=None):
-        super(App, self).__init__()
+        ClassRegistry.__init__(self)
+        Configurable.__init__(self, extends)
         self.name = name
-        if extends is None:
-            extends = []
-        if not isinstance(extends, list):
-            extends = [extends]
-        self.extends = extends
         self.traject = Traject()
 
     def __repr__(self):
