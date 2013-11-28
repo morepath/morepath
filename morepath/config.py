@@ -179,10 +179,11 @@ class Config(object):
         isn't there yet.
         """
         self.configurables.append(configurable)
-        if self.root_configurable is not None:
-            if (configurable is not self.root_configurable and
-                self.root_configurable not in configurable.extends):
-                configurable.extends.append(self.root_configurable)
+        if (self.root_configurable is not None and
+            not configurable.extends and
+            configurable is not self.root_configurable and
+            self.root_configurable not in configurable.extends):
+            configurable.extends.append(self.root_configurable)
 
     def action(self, action, obj):
         """Register an action and obj with this config.
