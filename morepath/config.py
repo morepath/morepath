@@ -9,8 +9,8 @@ class Configurable(object):
 
     The idea is that actions can be added to a configurable. The
     configurable is then prepared. This checks for any conflicts between
-    configurations. Then the configurable is expanded with any configurations
-    from its extends list. Finally the configurable can be performed,
+    configurations and the configurable is expanded with any configurations
+    from its extends list. Then the configurable can be performed,
     meaning all its actions will be applied (to it).
     """
     def __init__(self, extends=None):
@@ -45,6 +45,7 @@ class Configurable(object):
 
         Prepare must be called before perform is called.
         """
+        # check for conflicts and fill action map
         discriminators = {}
         self._action_map = action_map = {}
         for action, obj in self._actions:
@@ -57,6 +58,9 @@ class Configurable(object):
                     raise ConflictError([action, other_action])
                 discriminators[disc] = action
             action_map[id] = action, obj
+        # inherit from extends
+        for extend in self.extends:
+            self.combine(extend)
 
     def combine(self, configurable):
         """Combine actions in another prepared configurable with this one.
@@ -217,8 +221,6 @@ class Config(object):
             configurable.prepare()
 
         for configurable in configurables:
-            for extend in configurable.extends:
-                configurable.combine(extend)
             configurable.perform()
 
 
