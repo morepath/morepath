@@ -8,7 +8,7 @@ def test_global_app():
 
 def test_app_without_extends():
     myapp = App()
-    assert myapp.extends == []
+    assert myapp.extends == [global_app]
     assert myapp.name == ''
 
 

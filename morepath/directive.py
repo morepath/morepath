@@ -1,4 +1,4 @@
-from .app import App
+from .app import AppBase
 from .config import Directive
 from .error import ConfigError
 from .view import register_view, render_json, render_html
@@ -13,7 +13,7 @@ class directive(object):
     def __call__(self, directive):
         def method(self, *args, **kw):
             return directive(self, *args, **kw)
-        setattr(App, self.name, method)
+        setattr(AppBase, self.name, method)
         return directive
 
 

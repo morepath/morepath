@@ -152,13 +152,9 @@ class Directive(Action):
 class Config(object):
     """Config object holds and executes configuration actions.
     """
-    def __init__(self, root_configurable=None):
+    def __init__(self):
         """Initialize Config.
-
-        root_configurable - an optional configurable that extends all
-           other registered configurables.
         """
-        self.root_configurable = root_configurable
         self.configurables = []
         self.actions = []
         self.count = 0
@@ -178,15 +174,8 @@ class Config(object):
 
     def configurable(self, configurable):
         """Register a configurable with this config.
-
-        Automatically adds root_configurable in extends chain if it
-        isn't there yet.
         """
         self.configurables.append(configurable)
-        if (self.root_configurable is not None and
-            not configurable.extends and
-            configurable is not self.root_configurable):
-            configurable.extends.append(self.root_configurable)
 
     def action(self, action, obj):
         """Register an action and obj with this config.
@@ -215,6 +204,7 @@ class Config(object):
         """
         for action, obj in self.prepared():
             action.configurable.action(action, obj)
+
         configurables = sort_configurables(self.configurables)
 
         for configurable in configurables:

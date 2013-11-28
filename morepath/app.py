@@ -6,8 +6,11 @@ from reg import ClassRegistry, Lookup, ChainClassLookup, CachingClassLookup
 import venusian
 from werkzeug.serving import run_simple
 
+def callback(scanner, name, obj):
+    scanner.config.configurable(obj)
 
-class App(Configurable, ClassRegistry):
+
+class AppBase(Configurable, ClassRegistry):
     # XXX have a way to define parameters for app here
     def __init__(self, name='', extends=None):
         ClassRegistry.__init__(self)
@@ -15,8 +18,6 @@ class App(Configurable, ClassRegistry):
         self.name = name
         self.traject = Traject()
         # allow being scanned by venusian
-        def callback(scanner, name, obj):
-            scanner.config.configurable(self)
         venusian.attach(self, callback)
 
     def __repr__(self):
@@ -59,6 +60,15 @@ class App(Configurable, ClassRegistry):
         run_simple(host, port, self, **options)
 
 
+class App(AppBase):
+    def __init__(self, name='', extends=None):
+        if not extends:
+            extends = [global_app]
+        super(App, self).__init__(name, extends)
+        # XXX why does this need to be repeated?
+        venusian.attach(self, callback)
+
+
 class AppLookupCache(object):
     def __init__(self):
         self.cache = {}
@@ -71,6 +81,6 @@ class AppLookupCache(object):
         result = self.cache[app] = Lookup(caching_class_lookup)
         return result
 
-global_app = App('global_app')
+global_app = AppBase('global_app')
 
 app_lookup_cache = AppLookupCache()

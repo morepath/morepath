@@ -13,7 +13,7 @@ assert morepath.directive  # we need to make the function directive work
 
 
 def setup():
-    config = Config(global_app)
+    config = Config()
     config.scan(morepath, ignore=['.tests'])
     return config
 

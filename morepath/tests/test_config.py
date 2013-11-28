@@ -338,34 +338,3 @@ def test_prepare_returns_multiple_actions():
     c.action(MyAction(x, 3), foo)
     c.commit()
     assert performed == [foo, foo]
-
-def test_root_configurable():
-    performed = []
-
-    class MyAction(config.Action):
-        def __init__(self, configurable, value):
-            super(MyAction, self).__init__(configurable)
-            self.value = value
-
-        def perform(self, configurable, obj):
-            performed.append((configurable, obj))
-
-        def identifier(self):
-            return (self.value)
-
-    root = config.Configurable()
-    c = config.Config(root)
-    x = config.Configurable()
-
-    c.configurable(x)
-    c.configurable(root)
-
-    class Foo(object):
-        pass
-
-    foo = Foo()
-    bar = Foo()
-    c.action(MyAction(root, 1), foo)
-    c.action(MyAction(x, 2), bar)
-    c.commit()
-    assert performed == [(root, foo), (x, foo), (x, bar)]
