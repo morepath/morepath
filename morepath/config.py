@@ -79,6 +79,7 @@ class Configurable(object):
         for action, obj in values:
             action.perform(self, obj)
 
+
 class Action(object):
     """A configuration action.
     """
@@ -126,6 +127,7 @@ class Action(object):
         obj - the object being registered
         """
         raise NotImplementedError()
+
 
 class Directive(Action):
     """An action that can be used as a decorator.
@@ -219,6 +221,7 @@ def sort_configurables(configurables):
     """
     result = []
     marked = set()
+
     def visit(n):
         if n in marked:
             return
@@ -229,4 +232,3 @@ def sort_configurables(configurables):
     for n in configurables:
         visit(n)
     return result
-

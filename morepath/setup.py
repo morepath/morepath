@@ -17,6 +17,7 @@ def setup():
     config.scan(morepath, ignore=['.tests'])
     return config
 
+
 @global_app.function(generic.consume, object)
 def traject_consume(model, unconsumed, lookup):
     return traject_consumer(model, unconsumed, lookup)

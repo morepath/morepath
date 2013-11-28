@@ -2,9 +2,10 @@ from .publish import publish, Mount
 from .request import Request
 from .traject import Traject
 from .config import Configurable
-from reg import ClassRegistry, Lookup, ChainClassLookup, CachingClassLookup
+from reg import ClassRegistry, Lookup, CachingClassLookup
 import venusian
 from werkzeug.serving import run_simple
+
 
 def callback(scanner, name, obj):
     scanner.config.configurable(obj)

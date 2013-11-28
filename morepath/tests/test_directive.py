@@ -11,6 +11,7 @@ import reg
 from werkzeug.test import Client
 import pytest
 
+
 def setup_function(function):
     global_app.clear()
 

@@ -172,6 +172,7 @@ def test_extra_discriminators_per_directive():
     with pytest.raises(ConflictError):
         c.commit()
 
+
 def test_configurable_inherit_without_change():
     performed = []
 
@@ -258,6 +259,7 @@ def test_configurable_inherit_overriding():
     class Foo(object):
         def __init__(self, name):
             self.name = name
+
         def __repr__(self):
             return '<Obj %s>' % self.name
 
@@ -297,6 +299,7 @@ def test_configurable_extra_discriminators():
     class Foo(object):
         def __init__(self, name):
             self.name = name
+
         def __repr__(self):
             return '<Obj %s>' % self.name
 
@@ -308,6 +311,7 @@ def test_configurable_extra_discriminators():
     c.action(MyAction(x, 3, 'b'), three)
     with pytest.raises(ConflictError):
         c.commit()
+
 
 def test_prepare_returns_multiple_actions():
     performed = []

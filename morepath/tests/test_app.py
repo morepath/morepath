@@ -26,6 +26,7 @@ def test_app_caching_lookup():
         def all(self, key, classes):
             self.called += 1
             return ["answer"]
+
     class MockApp(MockClassLookup, App):
         pass
 
