@@ -1,13 +1,12 @@
 from .publish import publish, Mount
 from .request import Request
 from .traject import Traject
-from .config import Action
 from reg import ClassRegistry, Lookup, ChainClassLookup, CachingClassLookup
 import venusian
 from werkzeug.serving import run_simple
 
 
-class App(Action, ClassRegistry):
+class App(ClassRegistry):
     # XXX split path parent from configuration parent
     # XXX have a way to define parameters for app here
     def __init__(self, name='', extends=None):
@@ -16,22 +15,13 @@ class App(Action, ClassRegistry):
         self.extends = extends
         self.traject = Traject()
 
-        # allow being scanned by venusian
-        def callback(scanner, name, obj):
-            scanner.config.action(self, self)
-        venusian.attach(self, callback)
-
     def __repr__(self):
         return '<morepath.App %r>' % self.name
 
-    def discriminator(self):
-        return None
 
     # XXX clone() isn't right, as we'd actually put things in a traject of
     # cloned?
 
-    def perform(self, obj):
-        pass
 
     def clear(self):
         super(App, self).clear()

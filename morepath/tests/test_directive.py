@@ -97,7 +97,6 @@ def test_imperative():
     app = App()
 
     c = Config()
-    c.action(app, app)
     foo = Foo()
     c.action(app.function(target), foo)
     c.commit()
@@ -137,7 +136,6 @@ def test_basic_imperative():
         return request.link(model)
 
     c = Config()
-    c.action(app, app)
     c.action(app.root(), Root)
     c.action(app.model(model=Model, path='{id}',
                        variables=lambda model: {'id': model.id}),
@@ -190,7 +188,6 @@ def test_json_directive():
         return {'id': model.id}
 
     c = Config()
-    c.action(app, app)
     c.action(app.model(path='{id}',
                        variables=lambda model: {'id': model.id}),
              Model)
@@ -217,7 +214,6 @@ def test_redirect():
         return morepath.redirect('/')
 
     c = Config()
-    c.action(app, app)
     c.action(app.root(),
              Root)
     c.action(app.view(model=Root, render=render_html),
@@ -633,7 +629,6 @@ def test_mount():
         pass
 
     c = Config()
-    c.action(app, app)
     c.action(app.mount(path='{id}', app=mounted), get_context)
     c.action(mounted.root(), MountedRoot)
     c.action(mounted.view(model=MountedRoot),
@@ -673,7 +668,6 @@ def test_mount_context():
             }
 
     c = Config()
-    c.action(app, app)
     c.action(app.mount(path='{id}', app=mounted), get_context)
     c.action(mounted.root(), MountedRoot)
     c.action(mounted.view(model=MountedRoot), root_default)
