@@ -6,8 +6,6 @@ from werkzeug.test import Client
 
 
 def test_base():
-    setup()
-
     class Root(object):
         pass
 
@@ -36,7 +34,8 @@ def test_base():
 
     app = App()
 
-    c = Config()
+    c = setup()
+    c.configurable(app)
     c.action(app.root(), Root)
 
     def get_container(container_id):

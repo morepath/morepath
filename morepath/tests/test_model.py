@@ -7,7 +7,7 @@ from morepath import generic
 from morepath.traject import traject_consumer, parse_path
 
 
-def setup_module(module):
+def setup_function(function):
     global_app.clear()
 
 
@@ -28,13 +28,16 @@ def test_register_root():
     root = Root()
     lookup = app.lookup()
 
+    c = setup()
+    c.configurable(app)
+    c.commit()
+
     register_root(app, Root, lambda: root)
     assert generic.path(root, lookup=lookup) == ''
     assert generic.base(root, lookup=lookup) is app
 
 
 def test_register_model():
-    setup()
     app = App()
     root = Root()
     lookup = app.lookup()
@@ -43,6 +46,10 @@ def test_register_model():
         model = Model()
         model.id = id
         return model
+
+    c = setup()
+    c.configurable(app)
+    c.commit()
 
     register_root(app, Root, lambda: root)
     register_model(app, Model, '{id}', lambda model: {'id': model.id},
@@ -57,7 +64,6 @@ def test_register_model():
 
 
 def test_traject_path_with_leading_slash():
-    setup()
     app = App()
     root = Root()
     lookup = app.lookup()
@@ -66,6 +72,10 @@ def test_traject_path_with_leading_slash():
         model = Model()
         model.id = id
         return model
+
+    c = setup()
+    c.configurable(app)
+    c.commit()
 
     register_root(app, Root, lambda: root)
     register_model(app, Model, '/foo/{id}', lambda model: {'id': model.id},

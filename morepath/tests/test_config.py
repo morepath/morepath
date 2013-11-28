@@ -7,19 +7,21 @@ def test_action():
     performed = []
 
     class MyAction(config.Action):
-        def perform(self, obj):
+        def perform(self, configurable, obj):
             performed.append(obj)
 
-        def discriminator(self):
+        def identifier(self):
             return ()
 
     c = config.Config()
+    x = config.Configurable()
 
     class Foo(object):
         pass
 
     foo = Foo()
-    c.action(MyAction(), foo)
+    c.configurable(x)
+    c.action(MyAction(x), foo)
     assert performed == []
     c.commit()
     assert performed == [foo]
@@ -27,11 +29,13 @@ def test_action():
 
 def test_action_not_implemented():
     class UnimplementedAction(config.Action):
-        def discriminator(self):
-            return None
+        def identifier(self):
+            return ()
 
     c = config.Config()
-    c.action(UnimplementedAction(), None)
+    x = config.Configurable()
+    c.configurable(x)
+    c.action(UnimplementedAction(x), None)
     with pytest.raises(NotImplementedError):
         c.commit()
 
@@ -40,15 +44,18 @@ def test_directive():
     performed = []
 
     class MyDirective(config.Directive):
-        def perform(self, obj):
+        def perform(self, configurable, obj):
             performed.append(obj)
 
-        def discriminator(self):
+        def identifier(self):
             return ()
 
     c = config.Config()
+    x = config.Configurable()
 
-    d = MyDirective(None)
+    c.configurable(x)
+
+    d = MyDirective(x)
 
     # but this has no effect without scanning
     @d
@@ -64,17 +71,19 @@ def test_directive():
 
 def test_conflict():
     class MyDirective(config.Directive):
-        def discriminator(self):
+        def identifier(self):
             return 1
     c = config.Config()
+    x = config.Configurable()
+    c.configurable(x)
 
-    a = MyDirective(None)
+    a = MyDirective(x)
 
     @a
     def foo():
         pass
 
-    b = MyDirective(None)
+    b = MyDirective(x)
 
     @b
     def bar():
@@ -94,23 +103,27 @@ def test_conflict():
         assert s.startswith('Conflict between:')
 
 
-def test_different_apps_no_conflict():
+def test_different_configurables_no_conflict():
     class MyDirective(config.Directive):
-        def discriminator(self):
+        def identifier(self):
             return 1
 
-        def perform(self, obj):
+        def perform(self, configurable, obj):
             pass
 
     c = config.Config()
+    x1 = config.Configurable()
+    x2 = config.Configurable()
+    c.configurable(x1)
+    c.configurable(x2)
 
-    a = MyDirective('app_one')
+    a = MyDirective(x1)
 
     @a
     def foo():
         pass
 
-    b = MyDirective('app_two')
+    b = MyDirective(x2)
 
     @b
     def bar():
@@ -122,24 +135,32 @@ def test_different_apps_no_conflict():
     c.commit()
 
 
-def test_multiple_discriminators_per_directive():
+def test_extra_discriminators_per_directive():
     class ADirective(config.Directive):
-        def discriminator(self):
-            return ['a', 1]
+        def identifier(self):
+            return 'a'
+
+        def discriminators(self):
+            return [1]
 
     class BDirective(config.Directive):
-        def discriminator(self):
-            return ['b', 1]
+        def identifier(self):
+            return 'b'
+
+        def discriminators(self):
+            return [1]
 
     c = config.Config()
+    x = config.Configurable()
+    c.configurable(x)
 
-    a = ADirective(None)
+    a = ADirective(x)
 
     @a
     def foo():
         pass
 
-    b = BDirective(None)
+    b = BDirective(x)
 
     @b
     def bar():
@@ -150,3 +171,203 @@ def test_multiple_discriminators_per_directive():
 
     with pytest.raises(ConflictError):
         c.commit()
+
+def test_configurable_inherit_without_change():
+    performed = []
+
+    class MyAction(config.Action):
+        def perform(self, configurable, obj):
+            performed.append((configurable, obj))
+
+        def identifier(self):
+            return ()
+
+    c = config.Config()
+    x = config.Configurable()
+    y = config.Configurable(x)
+    c.configurable(x)
+    c.configurable(y)
+
+    class Foo(object):
+        pass
+
+    foo = Foo()
+    c.action(MyAction(x), foo)
+    c.commit()
+
+    assert performed == [(x, foo), (y, foo)]
+
+
+def test_configurable_inherit_extending():
+    a_performed = []
+    b_performed = []
+
+    class AAction(config.Action):
+        def perform(self, configurable, obj):
+            a_performed.append((configurable, obj))
+
+        def identifier(self):
+            return 'a_action'
+
+    class BAction(config.Action):
+        def perform(self, configurable, obj):
+            b_performed.append((configurable, obj))
+
+        def identifier(self):
+            return 'b_action'
+
+    c = config.Config()
+    x = config.Configurable()
+    y = config.Configurable(x)
+    c.configurable(x)
+    c.configurable(y)
+
+    class Foo(object):
+        pass
+
+    foo = Foo()
+    bar = Foo()
+    c.action(AAction(x), foo)
+    c.action(BAction(y), bar)
+    c.commit()
+
+    assert a_performed == [(x, foo), (y, foo)]
+    assert b_performed == [(y, bar)]
+
+
+def test_configurable_inherit_overriding():
+    performed = []
+
+    class MyAction(config.Action):
+        def __init__(self, configurable, value):
+            super(MyAction, self).__init__(configurable)
+            self.value = value
+
+        def perform(self, configurable, obj):
+            performed.append((configurable, obj))
+
+        def identifier(self):
+            return 'action', self.value
+
+    c = config.Config()
+    x = config.Configurable()
+    y = config.Configurable(x)
+    c.configurable(x)
+    c.configurable(y)
+
+    class Foo(object):
+        def __init__(self, name):
+            self.name = name
+        def __repr__(self):
+            return '<Obj %s>' % self.name
+
+    one = Foo('one')
+    two = Foo('two')
+    three = Foo('three')
+    c.action(MyAction(x, 1), one)
+    c.action(MyAction(x, 2), two)
+    c.action(MyAction(y, 1), three)
+    c.commit()
+
+    assert performed == [(x, one), (x, two), (y, two), (y, three)]
+
+
+def test_configurable_extra_discriminators():
+    performed = []
+
+    class MyAction(config.Action):
+        def __init__(self, configurable, value, extra):
+            super(MyAction, self).__init__(configurable)
+            self.value = value
+            self.extra = extra
+
+        def perform(self, configurable, obj):
+            performed.append((configurable, obj))
+
+        def identifier(self):
+            return 'action', self.value
+
+        def discriminators(self):
+            return [('extra', self.extra)]
+
+    c = config.Config()
+    x = config.Configurable()
+    c.configurable(x)
+
+    class Foo(object):
+        def __init__(self, name):
+            self.name = name
+        def __repr__(self):
+            return '<Obj %s>' % self.name
+
+    one = Foo('one')
+    two = Foo('two')
+    three = Foo('three')
+    c.action(MyAction(x, 1, 'a'), one)
+    c.action(MyAction(x, 2, 'b'), two)
+    c.action(MyAction(x, 3, 'b'), three)
+    with pytest.raises(ConflictError):
+        c.commit()
+
+def test_prepare_returns_multiple_actions():
+    performed = []
+
+    class MyAction(config.Action):
+        def __init__(self, configurable, value):
+            super(MyAction, self).__init__(configurable)
+            self.value = value
+
+        def perform(self, configurable, obj):
+            performed.append(obj)
+
+        def identifier(self):
+            return self.value
+
+        def prepare(self, obj):
+            yield MyAction(self.configurable, 1)
+            yield MyAction(self.configurable, 2)
+
+    c = config.Config()
+    x = config.Configurable()
+
+    class Foo(object):
+        pass
+
+    foo = Foo()
+    c.configurable(x)
+    c.action(MyAction(x, 3), foo)
+    c.commit()
+    assert performed == [foo, foo]
+
+def test_root_configurable():
+    performed = []
+
+    class MyAction(config.Action):
+        def __init__(self, configurable, value):
+            super(MyAction, self).__init__(configurable)
+            self.value = value
+
+        def perform(self, configurable, obj):
+            performed.append((configurable, obj))
+
+        def identifier(self):
+            return (self.value)
+
+    root = config.Configurable()
+    c = config.Config(root)
+    x = config.Configurable()
+
+    c.configurable(x)
+    c.configurable(root)
+
+    class Foo(object):
+        pass
+
+    foo = Foo()
+    bar = Foo()
+    c.action(MyAction(root, 1), foo)
+    c.action(MyAction(x, 2), bar)
+    c.commit()
+    assert performed == [(root, foo), (x, foo), (x, bar)]
+
+# XXX rerun actions after first run; should work

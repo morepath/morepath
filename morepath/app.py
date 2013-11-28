@@ -8,30 +8,27 @@ from werkzeug.serving import run_simple
 
 
 class App(Configurable, ClassRegistry):
-    # XXX split path parent from configuration parent
     # XXX have a way to define parameters for app here
     def __init__(self, name='', extends=None):
         ClassRegistry.__init__(self)
         Configurable.__init__(self, extends)
         self.name = name
         self.traject = Traject()
+        # allow being scanned by venusian
+        def callback(scanner, name, obj):
+            scanner.config.configurable(self)
+        venusian.attach(self, callback)
 
     def __repr__(self):
         return '<morepath.App %r>' % self.name
 
-
-    # XXX clone() isn't right, as we'd actually put things in a traject of
-    # cloned?
-
-
     def clear(self):
-        super(App, self).clear()
+        ClassRegistry.clear(self)
+        Configurable.clear(self)
         self.traject = Traject()
 
     def class_lookup(self):
-        if not self.extends:
-            return ChainClassLookup(self, global_app)
-        return ChainClassLookup(result, self.extends.class_lookup())
+        return self
 
     def lookup(self):
         # XXX instead of a separate cache we could put caching in here
@@ -78,6 +75,6 @@ class AppLookupCache(object):
         result = self.cache[app] = Lookup(caching_class_lookup)
         return result
 
-global_app = App()
+global_app = App('global_app')
 
 app_lookup_cache = AppLookupCache()

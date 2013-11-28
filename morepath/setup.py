@@ -13,9 +13,9 @@ assert morepath.directive  # we need to make the function directive work
 
 
 def setup():
-    config = Config()
+    config = Config(global_app)
     config.scan(morepath, ignore=['.tests'])
-    config.commit()
+    return config
 
 @global_app.function(generic.consume, object)
 def traject_consume(model, unconsumed, lookup):

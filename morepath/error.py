@@ -15,6 +15,10 @@ class ConflictError(ConfigError):
     """Raised when there is a conflict in configuration.
     """
     def __init__(self, actions):
+        for action in actions:
+            if not hasattr(action, 'codeinfo'):
+                super(ConflictError, self).__init__('No code info')
+                return
         actions.sort(key=conflict_keyfunc)
         self.actions = actions
         result = [

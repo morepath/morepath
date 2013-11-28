@@ -28,28 +28,31 @@ class ModelDirective(Directive):
         self.base = base
         self.get_base = get_base
 
-    def discriminator(self):
-        return [('model', self.model),
-                ('path', self.base, Path(self.path).discriminator())]
+    def identifier(self):
+        return ('path', self.base, Path(self.path).discriminator())
+
+    def discriminators(self):
+        return [('model', self.model)]
 
     def prepare(self, obj):
         # XXX check shared with @root
+        model = self.model
         if isinstance(obj, type):
-            if self.model is not None:
+            if model is not None:
                 raise ConfigError(
                     "@model decorates class so cannot "
-                    "have explicit model: %s" % self.model)
-            self.model = obj
-        if self.model is None:
+                    "have explicit model: %s" % model)
+            model = obj
+        if model is None:
             raise ConfigError(
                 "@model does not decorate class and has no explicit model")
-
+        yield self.clone(model=model)
         # XXX check whether get_base is there if base is there
         # XXX check whether variables is there if variable is used in
         # path
 
-    def perform(self, obj):
-        register_model(self.app, self.model, self.path,
+    def perform(self, app, obj):
+        register_model(app, self.model, self.path,
                        self.variables, obj, self.base, self.get_base)
 
 
@@ -65,12 +68,12 @@ class ViewDirective(Directive):
             }
         self.predicates.update(kw)
 
-    def discriminator(self):
+    def identifier(self):
         predicates_discriminator = tuple(sorted(self.predicates.items()))
         return ('view', self.model, self.name, predicates_discriminator)
 
-    def perform(self, obj):
-        register_view(self.app, self.model, obj, self.render,
+    def perform(self, app, obj):
+        register_view(app, self.model, obj, self.render,
                       self.predicates)
 
 
@@ -92,22 +95,24 @@ class RootDirective(Directive):
         super(RootDirective, self).__init__(app)
         self.model = model
 
-    def discriminator(self):
+    def identifier(self):
         return ('root',)
 
     def prepare(self, obj):
+        model = self.model
         if isinstance(obj, type):
-            if self.model is not None:
+            if model is not None:
                 raise ConfigError(
                     "@root decorates class so cannot have explicit model: %s" %
-                    self.model)
-            self.model = obj
-        if self.model is None:
+                    model)
+            model = obj
+        if model is None:
             raise ConfigError(
                 "@root does not decorate class and has no explicit model")
+        yield self.clone(model=model)
 
-    def perform(self, obj):
-        register_root(self.app, self.model, obj)
+    def perform(self, app, obj):
+        register_root(app, self.model, obj)
 
 
 @directive('mount')
@@ -117,12 +122,14 @@ class MountDirective(Directive):
         self.mounted_app = app
         self.path = path
 
-    def discriminator(self):
-        return [('mount', self.mounted_app),
-                ('path', Path(self.path).discriminator())]
+    def identifier(self):
+        return ('path', Path(self.path).discriminator())
 
-    def perform(self, obj):
-        register_mount(self.app, self.mounted_app, self.path, obj)
+    def discriminators(self):
+        return [('mount', self.mounted_app)]
+
+    def perform(self, app, obj):
+        register_mount(app, self.mounted_app, self.path, obj)
 
 
 @directive('function')
@@ -132,8 +139,8 @@ class FunctionDirective(Directive):
         self.target = target
         self.sources = tuple(sources)
 
-    def discriminator(self):
+    def identifier(self):
         return ('function', self.target, self.sources)
 
-    def perform(self, obj):
-        self.app.register(self.target, self.sources, obj)
+    def perform(self, app, obj):
+        app.register(self.target, self.sources, obj)

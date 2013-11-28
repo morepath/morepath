@@ -4,19 +4,21 @@ from morepath.error import ConflictError
 from morepath.config import Config
 from morepath.request import Response
 from morepath.view import render_html
-from morepath.app import App
+from morepath.app import App, global_app
 import morepath
 import reg
 
 from werkzeug.test import Client
 import pytest
 
+def setup_function(function):
+    global_app.clear()
+
 
 def test_basic():
-    setup()
     basic.app.clear()
 
-    config = Config()
+    config = setup()
     config.scan(basic)
     config.commit()
 
@@ -31,10 +33,9 @@ def test_basic():
 
 
 def test_basic_json():
-    setup()
     basic.app.clear()
 
-    config = Config()
+    config = setup()
     config.scan(basic)
     config.commit()
 
@@ -46,10 +47,9 @@ def test_basic_json():
 
 
 def test_basic_root():
-    setup()
     basic.app.clear()
 
-    config = Config()
+    config = setup()
     config.scan(basic)
     config.commit()
 
@@ -66,11 +66,10 @@ def test_basic_root():
 
 
 def test_nested():
-    setup()
     nested.outer_app.clear()
     nested.app.clear()
 
-    config = Config()
+    config = setup()
     config.scan(nested)
     config.commit()
 
@@ -85,8 +84,6 @@ def test_nested():
 
 
 def test_imperative():
-    setup()
-
     class Foo(object):
         pass
 
@@ -96,8 +93,9 @@ def test_imperative():
 
     app = App()
 
-    c = Config()
+    c = setup()
     foo = Foo()
+    c.configurable(app)
     c.action(app.function(target), foo)
     c.commit()
 
@@ -105,8 +103,6 @@ def test_imperative():
 
 
 def test_basic_imperative():
-    setup()
-
     app = morepath.App()
 
     class Root(object):
@@ -135,7 +131,8 @@ def test_basic_imperative():
     def root_link(request, model):
         return request.link(model)
 
-    c = Config()
+    c = setup()
+    c.configurable(app)
     c.action(app.root(), Root)
     c.action(app.model(model=Model, path='{id}',
                        variables=lambda model: {'id': model.id}),
@@ -173,8 +170,6 @@ def test_basic_imperative():
 
 
 def test_json_directive():
-    setup()
-
     app = morepath.App()
 
     class Model(object):
@@ -187,7 +182,8 @@ def test_json_directive():
     def json(request, model):
         return {'id': model.id}
 
-    c = Config()
+    c = setup()
+    c.configurable(app)
     c.action(app.model(path='{id}',
                        variables=lambda model: {'id': model.id}),
              Model)
@@ -202,8 +198,6 @@ def test_json_directive():
 
 
 def test_redirect():
-    setup()
-
     app = morepath.App()
 
     class Root(object):
@@ -213,7 +207,8 @@ def test_redirect():
     def default(request, model):
         return morepath.redirect('/')
 
-    c = Config()
+    c = setup()
+    c.configurable(app)
     c.action(app.root(),
              Root)
     c.action(app.view(model=Root, render=render_html),
@@ -242,6 +237,7 @@ def test_root_conflict():
         pass
 
     c = Config()
+    c.configurable(app)
     c.action(a, Root)
     c.action(b, Something)
 
@@ -266,6 +262,8 @@ def test_root_no_conflict_different_apps():
         pass
 
     c = Config()
+    c.configurable(app_a)
+    c.configurable(app_b)
     c.action(a, Root)
     c.action(b, Something)
     c.commit()
@@ -290,6 +288,7 @@ def test_model_conflict():
         return A()
 
     c = Config()
+    c.configurable(app)
     c.action(a, get_a)
     c.action(b, get_a_again)
 
@@ -319,6 +318,7 @@ def test_path_conflict():
         return B()
 
     c = Config()
+    c.configurable(app)
     c.action(a, get_a)
     c.action(b, get_b)
 
@@ -348,6 +348,7 @@ def test_path_conflict_with_variable():
         return B()
 
     c = Config()
+    c.configurable(app)
     c.action(a, get_a)
     c.action(b, get_b)
 
@@ -377,6 +378,7 @@ def test_no_path_conflict_with_variable_different_converters():
         return B()
 
     c = Config()
+    c.configurable(app)
     c.action(a, get_a)
     c.action(b, get_b)
 
@@ -404,6 +406,8 @@ def test_model_no_conflict_different_apps():
         return A()
 
     c = Config()
+    c.configurable(app_a)
+    c.configurable(app_b)
     c.action(a, get_a)
     c.action(b, get_a_again)
     c.commit()
@@ -427,6 +431,7 @@ def test_view_conflict():
         pass
 
     c = Config()
+    c.configurable(app)
     c.action(a, a_view)
     c.action(a1, a1_view)
 
@@ -452,6 +457,7 @@ def test_view_no_conflict_different_names():
         pass
 
     c = Config()
+    c.configurable(app)
     c.action(a, a_view)
     c.action(b, b_view)
     c.commit()
@@ -475,6 +481,7 @@ def test_view_no_conflict_different_predicates():
         pass
 
     c = Config()
+    c.configurable(app)
     c.action(a, a_view)
     c.action(b, b_view)
     c.commit()
@@ -499,6 +506,8 @@ def test_view_no_conflict_different_apps():
         pass
 
     c = Config()
+    c.configurable(app_a)
+    c.configurable(app_b)
     c.action(a, a_view)
     c.action(a1, a1_view)
     c.commit()
@@ -522,6 +531,7 @@ def test_view_conflict_with_json():
         pass
 
     c = Config()
+    c.configurable(app)
     c.action(a, a_view)
     c.action(a1, a1_view)
 
@@ -547,6 +557,7 @@ def test_view_conflict_with_html():
         pass
 
     c = Config()
+    c.configurable(app)
     c.action(a, a_view)
     c.action(a1, a1_view)
 
@@ -576,6 +587,7 @@ def test_function_conflict():
         pass
 
     c = Config()
+    c.configurable(app)
     c.action(a, a_func)
     c.action(a1, a1_func)
 
@@ -605,14 +617,14 @@ def test_function_no_conflict_different_apps():
         pass
 
     c = Config()
+    c.configurable(app_a)
+    c.configurable(app_b)
     c.action(a, a_func)
     c.action(a1, a1_func)
     c.commit()
 
 
 def test_mount():
-    setup()
-
     app = morepath.App('app')
     mounted = morepath.App('mounted')
 
@@ -628,7 +640,9 @@ def test_mount():
     def get_context():
         pass
 
-    c = Config()
+    c = setup()
+    c.configurable(app)
+    c.configurable(mounted)
     c.action(app.mount(path='{id}', app=mounted), get_context)
     c.action(mounted.root(), MountedRoot)
     c.action(mounted.view(model=MountedRoot),
@@ -647,8 +661,6 @@ def test_mount():
 
 
 def test_mount_context():
-    setup()
-
     app = morepath.App('app')
     mounted = morepath.App('mounted')
 
@@ -667,7 +679,9 @@ def test_mount_context():
             'mount_id': id
             }
 
-    c = Config()
+    c = setup()
+    c.configurable(app)
+    c.configurable(mounted)
     c.action(app.mount(path='{id}', app=mounted), get_context)
     c.action(mounted.root(), MountedRoot)
     c.action(mounted.view(model=MountedRoot), root_default)
@@ -682,8 +696,6 @@ def test_mount_context():
 
 
 def test_mount_context_standalone():
-    setup()
-
     mounted = morepath.App('mounted')
 
     class MountedRoot(object):
@@ -696,7 +708,8 @@ def test_mount_context_standalone():
     def root_default(request, model):
         return "The root for mount id: %s" % model.mount_id
 
-    c = Config()
+    c = setup()
+    c.configurable(mounted)
     c.action(mounted.root(), MountedRoot)
     c.action(mounted.view(model=MountedRoot), root_default)
     c.commit()

@@ -1,4 +1,4 @@
-from morepath.app import App
+from morepath.app import App, global_app
 from morepath.publish import publish, resolve_response
 from morepath.request import Response
 from morepath.view import register_view, render_json, render_html
@@ -16,12 +16,16 @@ class Model(object):
     pass
 
 
-# XXX these tests have gained more dependencies, on app and setup and
-# lookup generation. see about refactor code so that they can be tested
-# with less heavy installation
+def setup_function(function):
+    global_app.clear()
+
+
 def test_view():
-    setup()
     app = App()
+
+    c = setup()
+    c.configurable(app)
+    c.commit()
 
     def view(request, model):
         return "View!"
@@ -34,8 +38,11 @@ def test_view():
 
 
 def test_predicates():
-    setup()
     app = App()
+
+    c = setup()
+    c.configurable(app)
+    c.commit()
 
     def view(request, model):
         return "all"
@@ -55,15 +62,22 @@ def test_predicates():
 
 
 def test_notfound():
-    setup()
     app = App()
+
+    c = setup()
+    c.configurable(app)
+    c.commit()
+
     response = publish(app.request(get_environ(path='')), app.mounted())
     assert response.status == '404 NOT FOUND'
 
 
 def test_notfound_with_predicates():
-    setup()
     app = App()
+
+    c = setup()
+    c.configurable(app)
+    c.commit()
 
     def view(request, model):
         return "view"
@@ -78,8 +92,11 @@ def test_notfound_with_predicates():
 
 
 def test_response_returned():
-    setup()
     app = App()
+
+    c = setup()
+    c.configurable(app)
+    c.commit()
 
     def view(request, model):
         return Response('Hello world!')
@@ -91,8 +108,11 @@ def test_response_returned():
 
 
 def test_request_view():
-    setup()
     app = App()
+
+    c = setup()
+    c.configurable(app)
+    c.commit()
 
     def view(request, model):
         return {'hey': 'hey'}
@@ -110,8 +130,11 @@ def test_request_view():
 
 
 def test_render_html():
-    setup()
     app = App()
+
+    c = setup()
+    c.configurable(app)
+    c.commit()
 
     def view(request, model):
         return '<p>Hello world!</p>'
