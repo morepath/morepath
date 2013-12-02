@@ -8,7 +8,7 @@ def test_global_app():
 
 def test_app_without_extends():
     myapp = App()
-    assert myapp.extends == []
+    assert myapp.extends == [global_app]
     assert myapp.name == ''
 
 
@@ -26,6 +26,7 @@ def test_app_caching_lookup():
         def all(self, key, classes):
             self.called += 1
             return ["answer"]
+
     class MockApp(MockClassLookup, App):
         pass
 

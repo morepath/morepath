@@ -9,8 +9,8 @@ class Configurable(object):
 
     The idea is that actions can be added to a configurable. The
     configurable is then prepared. This checks for any conflicts between
-    configurations. Then the configurable is expanded with any configurations
-    from its extends list. Finally the configurable can be performed,
+    configurations and the configurable is expanded with any configurations
+    from its extends list. Then the configurable can be performed,
     meaning all its actions will be applied (to it).
     """
     def __init__(self, extends=None):
@@ -45,6 +45,7 @@ class Configurable(object):
 
         Prepare must be called before perform is called.
         """
+        # check for conflicts and fill action map
         discriminators = {}
         self._action_map = action_map = {}
         for action, obj in self._actions:
@@ -57,6 +58,9 @@ class Configurable(object):
                     raise ConflictError([action, other_action])
                 discriminators[disc] = action
             action_map[id] = action, obj
+        # inherit from extends
+        for extend in self.extends:
+            self.combine(extend)
 
     def combine(self, configurable):
         """Combine actions in another prepared configurable with this one.
@@ -74,6 +78,7 @@ class Configurable(object):
         values.sort(key=lambda (action, obj): action.order)
         for action, obj in values:
             action.perform(self, obj)
+
 
 class Action(object):
     """A configuration action.
@@ -123,6 +128,7 @@ class Action(object):
         """
         raise NotImplementedError()
 
+
 class Directive(Action):
     """An action that can be used as a decorator.
     """
@@ -148,13 +154,9 @@ class Directive(Action):
 class Config(object):
     """Config object holds and executes configuration actions.
     """
-    def __init__(self, root_configurable=None):
+    def __init__(self):
         """Initialize Config.
-
-        root_configurable - an optional configurable that extends all
-           other registered configurables.
         """
-        self.root_configurable = root_configurable
         self.configurables = []
         self.actions = []
         self.count = 0
@@ -174,15 +176,8 @@ class Config(object):
 
     def configurable(self, configurable):
         """Register a configurable with this config.
-
-        Automatically adds root_configurable in extends chain if it
-        isn't there yet.
         """
         self.configurables.append(configurable)
-        if self.root_configurable is not None:
-            if (configurable is not self.root_configurable and
-                self.root_configurable not in configurable.extends):
-                configurable.extends.append(self.root_configurable)
 
     def action(self, action, obj):
         """Register an action and obj with this config.
@@ -194,7 +189,6 @@ class Config(object):
         self.count += 1
         self.actions.append((action, obj))
 
-    # XXX should be able to override obj in prepare
     def prepared(self):
         """Prepare configuration actions.
 
@@ -212,14 +206,13 @@ class Config(object):
         """
         for action, obj in self.prepared():
             action.configurable.action(action, obj)
+
         configurables = sort_configurables(self.configurables)
 
         for configurable in configurables:
             configurable.prepare()
 
         for configurable in configurables:
-            for extend in configurable.extends:
-                configurable.combine(extend)
             configurable.perform()
 
 
@@ -228,6 +221,7 @@ def sort_configurables(configurables):
     """
     result = []
     marked = set()
+
     def visit(n):
         if n in marked:
             return
@@ -238,4 +232,3 @@ def sort_configurables(configurables):
     for n in configurables:
         visit(n)
     return result
-

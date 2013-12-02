@@ -1,11 +1,12 @@
 from morepath.app import App, global_app
-from morepath.config import Config
 from morepath import setup
 from morepath.request import Response
 from werkzeug.test import Client
 
+
 def setup_function(function):
     global_app.clear()
+
 
 def test_view_predicates():
     app = App()
