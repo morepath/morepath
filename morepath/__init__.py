@@ -7,5 +7,6 @@ from .view import render_json, render_html
 from .request import Request, Response
 from .config import Config
 from werkzeug.utils import redirect
+from morepath.autosetup import autoconfig, autosetup
 
 #initialize()

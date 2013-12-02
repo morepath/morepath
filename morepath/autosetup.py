@@ -1,5 +1,17 @@
 import pkg_resources
 from pkgutil import walk_packages
+from morepath.config import Config
+from morepath.setup import setup
+
+def autoconfig(ignore=None):
+    c = setup()
+    for package in morepath_packages():
+        c.scan(package, ignore)
+    return c
+
+def autosetup():
+    c = autoconfig()
+    c.commit()
 
 class DependencyMap(object):
     def __init__(self):
@@ -29,7 +41,8 @@ class DependencyMap(object):
             yield dist
 
 
-def morepath_modules():
+# XXX support for venusian style ignore?
+def morepath_packages():
     namespace_packages = set()
     paths = []
     m = DependencyMap()
@@ -80,4 +93,3 @@ def in_path(m, paths):
 
 def skip_error(pkg):
     pass
-
