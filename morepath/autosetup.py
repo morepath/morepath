@@ -1,7 +1,7 @@
 import pkg_resources
 from pkgutil import walk_packages
-from morepath.config import Config
 from morepath.setup import setup
+
 
 def autoconfig(ignore=None):
     c = setup()
@@ -9,9 +9,11 @@ def autoconfig(ignore=None):
         c.scan(package, ignore)
     return c
 
+
 def autosetup():
     c = autoconfig()
     c.commit()
+
 
 class DependencyMap(object):
     def __init__(self):
@@ -71,12 +73,14 @@ def morepath_packages():
         # more than one namespace package
         # XXX performance
         if in_path(m, paths):
-           yield m
+            yield m
+
 
 def prefixes(dottedname):
     parts = dottedname.split('.')
     for i in range(1, len(parts)):
         yield '.'.join(parts[:i])
+
 
 def known_prefix(dottedname, seen):
     for prefix in prefixes(dottedname):
@@ -84,12 +88,14 @@ def known_prefix(dottedname, seen):
             return True
     return False
 
+
 def in_path(m, paths):
     for path in paths:
-        for p in  m.__path__:
+        for p in m.__path__:
             if p.startswith(path):
                 return True
     return False
+
 
 def skip_error(pkg):
     pass

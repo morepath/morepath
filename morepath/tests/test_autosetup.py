@@ -7,8 +7,10 @@ def setup_function(function):
     global_app.clear()
     app.clear()
 
+
 def test_import():
-    import base, sub
+    import base
+    import sub
     from ns import real
     assert sorted(list(morepath_packages()),
                   key=lambda module: module.__name__) == [base, real, sub]
@@ -27,5 +29,3 @@ def test_autosetup():
     # a way to check whether model in base was registered, could
     # we make this a bit less low-level?
     assert app.traject(['foo']) == (get_foo, [], {})
-
-
