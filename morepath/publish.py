@@ -45,7 +45,7 @@ def resolve_model(request, mount):
 
 
 def resolve_response(request, model):
-    name = get_view_step(model, request.unconsumed)
+    name = get_view_step(request.unconsumed)
 
     request.set_resolver_info({'name': name})
 
@@ -57,14 +57,15 @@ def resolve_response(request, model):
     return response
 
 
-def get_view_step(model, stack):
+def get_view_step(stack):
     unconsumed_amount = len(stack)
-    if unconsumed_amount == 0:
+    if unconsumed_amount > 1:
+        raise NotFound()
+    elif unconsumed_amount == 0:
         return DEFAULT_NAME
     elif unconsumed_amount == 1:
         return stack[0].lstrip('+')
-    raise ModelError(
-        "%r has unresolved path %s" % (model, create_path(stack)))
+    assert False, "Unconsumed stack: %s" % create_path(stack)
 
 
 def publish(request, mount):
