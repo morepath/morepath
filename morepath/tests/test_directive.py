@@ -1,4 +1,4 @@
-from .fixtures import basic, nested
+from .fixtures import basic, nested, abbr
 from morepath import setup
 from morepath.error import ConflictError
 from morepath.config import Config
@@ -82,6 +82,22 @@ def test_nested():
 
     response = c.get('/inner/foo/link')
     assert response.data == 'inner/foo'
+
+
+def test_abbr():
+    abbr.app.clear()
+
+    config = setup()
+    config.scan(abbr)
+    config.commit()
+
+    c = Client(abbr.app, Response)
+
+    response = c.get('/foo')
+    assert response.data == 'Default view: foo'
+
+    response = c.get('/foo/edit')
+    assert response.data == 'Edit view: foo'
 
 
 def test_imperative():

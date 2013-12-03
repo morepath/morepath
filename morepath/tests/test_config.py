@@ -342,3 +342,44 @@ def test_prepare_returns_multiple_actions():
     c.action(MyAction(x, 3), foo)
     c.commit()
     assert performed == [foo, foo]
+
+
+def test_abbreviation():
+    performed = []
+
+    class MyDirective(config.Directive):
+        def __init__(self, configurable, foo=None, bar=None):
+            super(MyDirective, self).__init__(configurable)
+            self.foo = foo
+            self.bar = bar
+
+        def perform(self, configurable, obj):
+            performed.append((obj, self.foo, self.bar))
+
+        def identifier(self):
+            return self.foo, self.bar
+
+    c = config.Config()
+    x = config.Configurable()
+
+    c.configurable(x)
+
+    with MyDirective(x, foo='blah') as d:
+        d1 = d(bar='one')
+
+        @d1
+        def f1():
+            pass
+        c.action(d1, f1)
+
+        d2 = d(bar='two')
+
+        @d2
+        def f2():
+            pass
+        c.action(d2, f2)
+
+    c.commit()
+
+    assert performed == [(f1, 'blah', 'one'), (f2, 'blah', 'two')]
+

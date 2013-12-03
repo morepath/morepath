@@ -66,7 +66,21 @@ class ViewDirective(Directive):
         self.predicates = {
             'name': self.name
             }
+        self.kw = kw
         self.predicates.update(kw)
+
+    def clone(self, **kw):
+        # XXX standard clone doesn't work due to use of predicates
+        # non-immutable in __init__. move this to another phase so
+        # that this more complex clone isn't needed?
+        args = dict(
+            app=self.configurable,
+            model=self.model,
+            name=self.name,
+            render=self.render)
+        args.update(self.kw)
+        args.update(kw)
+        return ViewDirective(**args)
 
     def identifier(self):
         predicates_discriminator = tuple(sorted(self.predicates.items()))

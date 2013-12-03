@@ -142,6 +142,13 @@ class Directive(Action):
         """
         return self.attach_info.codeinfo
 
+    def __enter__(self):
+        return DirectiveAbbreviation(self)
+
+    def __exit__(self, type, value, tb):
+        if tb is not None:
+            return False
+
     def __call__(self, wrapped):
         """Call with function to decorate.
         """
@@ -149,6 +156,14 @@ class Directive(Action):
             scanner.config.action(self, obj)
         self.attach_info = venusian.attach(wrapped, callback)
         return wrapped
+
+
+class DirectiveAbbreviation(object):
+    def __init__(self, directive):
+        self.directive = directive
+
+    def __call__(self, **kw):
+        return self.directive.clone(**kw)
 
 
 class Config(object):
