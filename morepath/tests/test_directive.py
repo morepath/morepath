@@ -1,4 +1,4 @@
-from .fixtures import basic, nested, abbr
+from .fixtures import basic, nested, abbr, mapply_bug
 from morepath import setup
 from morepath.error import ConflictError
 from morepath.config import Config
@@ -735,3 +735,17 @@ def test_mount_context_standalone():
 
     response = c.get('/')
     assert response.data == 'The root for mount id: foo'
+
+
+def test_mapply_bug():
+    mapply_bug.app.clear()
+
+    config = setup()
+    config.scan(mapply_bug)
+    config.commit()
+
+    c = Client(mapply_bug.app, Response)
+
+    response = c.get('/')
+
+    assert response.data == 'the root'
