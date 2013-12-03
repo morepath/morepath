@@ -36,11 +36,6 @@ class ResolveError(Exception):
     """
 
 
-class ModelError(ResolveError):
-    """Raised when a model cannot be resolved
-    """
-
-
 class ViewError(ResolveError):
     """Raised when a view cannot be resolved
     """

@@ -1,4 +1,3 @@
-from .error import ModelError
 from morepath import generic
 from .model import Mount
 from .traject import parse_path, create_path

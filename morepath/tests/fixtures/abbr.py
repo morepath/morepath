@@ -18,6 +18,7 @@ with app.view(model=Model) as view:
     @view()
     def default(request, model):
         return "Default view: %s" % model.id
+
     @view(name='edit')
     def edit(request, model):
         return "Edit view: %s" % model.id

@@ -3,8 +3,10 @@ from werkzeug.test import Client
 from morepath import setup
 from morepath.request import Response
 
+
 def setup_function(function):
     global_app.clear()
+
 
 def test_extends():
     app = App()
@@ -54,6 +56,7 @@ def test_extends():
     assert response.data == 'User: foo'
     response = cl.get('/users/foo/edit')
     assert response.data == 'Edit user: foo'
+
 
 def test_overrides_view():
     app = App()

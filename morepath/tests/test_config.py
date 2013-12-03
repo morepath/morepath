@@ -382,4 +382,3 @@ def test_abbreviation():
     c.commit()
 
     assert performed == [(f1, 'blah', 'one'), (f2, 'blah', 'two')]
-
