@@ -81,6 +81,9 @@ def get_response(request, model):
         default=None)
     if view is None:
         return None
+    if not generic.permission(request, model, view.permission,
+                              lookup=request.lookup):
+        return None
     content = view(request, model)
     if isinstance(content, BaseResponse):
         # the view took full control over the response
@@ -92,3 +95,9 @@ def get_response(request, model):
     else:
         response = Response(content)
     return response
+
+@global_app.function(generic.permission, Request, object, object)
+def has_permission(request, model, permission):
+    if permission is None:
+        return True
+    return False

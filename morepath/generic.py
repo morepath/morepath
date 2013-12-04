@@ -77,3 +77,11 @@ def response(request, model):
     """Get a Response for the model in the context of the request.
     """
     raise NotImplementedError
+
+
+@reg.generic
+def permission(request, model, permission):
+    """Get True if the request has permission on the model.
+    """
+    raise NotImplementedError
+

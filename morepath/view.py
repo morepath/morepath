@@ -8,6 +8,7 @@ class View(object):
     def __init__(self, func, render):
         self.func = func
         self.render = render
+        self.permission = None
 
     def __call__(self, request, model):
         return self.func(request, model)

@@ -58,7 +58,8 @@ class ModelDirective(Directive):
 
 @directive('view')
 class ViewDirective(Directive):
-    def __init__(self, app, model, name='', render=None, **kw):
+    def __init__(self, app, model, name='', render=None, permission=None,
+                 **kw):
         super(ViewDirective, self).__init__(app)
         self.model = model
         self.name = name
@@ -66,6 +67,7 @@ class ViewDirective(Directive):
         self.predicates = {
             'name': self.name
             }
+        self.permission = permission
         self.kw = kw
         self.predicates.update(kw)
 
@@ -77,7 +79,8 @@ class ViewDirective(Directive):
             app=self.configurable,
             model=self.model,
             name=self.name,
-            render=self.render)
+            render=self.render,
+            permission=self.permission)
         args.update(self.kw)
         args.update(kw)
         return ViewDirective(**args)
@@ -93,14 +96,18 @@ class ViewDirective(Directive):
 
 @directive('json')
 class JsonDirective(ViewDirective):
-    def __init__(self, app, model, name='', render=render_json, **kw):
-        super(JsonDirective, self).__init__(app, model, name, render, **kw)
+    def __init__(self, app, model, name='', render=render_json,
+                 permission=None, **kw):
+        super(JsonDirective, self).__init__(app, model, name, render,
+                                            permission, **kw)
 
 
 @directive('html')
 class HtmlDirective(ViewDirective):
-    def __init__(self, app, model, name='', render=render_html, **kw):
-        super(HtmlDirective, self).__init__(app, model, name, render, **kw)
+    def __init__(self, app, model, name='', render=render_html,
+                 permission=None, **kw):
+        super(HtmlDirective, self).__init__(app, model, name, render,
+                                            permission, **kw)
 
 
 @directive('root')
