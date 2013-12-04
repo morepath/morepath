@@ -5,10 +5,10 @@ import json
 
 
 class View(object):
-    def __init__(self, func, render):
+    def __init__(self, func, render, permission):
         self.func = func
         self.render = render
-        self.permission = None
+        self.permission = permission
 
     def __call__(self, request, model):
         return self.func(request, model)
@@ -35,8 +35,12 @@ class ViewMatcher(Matcher):
 
 # XXX what happens if predicates is None for one registration
 # but filled for another?
-def register_view(registry, model, view, render=None, predicates=None):
-    registration = View(view, render)
+def register_view(registry, model, view, render=None, permission=None,
+                  predicates=None):
+    if permission is not None:
+        # instantiate permission class so it can be looked up using reg
+        permission = permission()
+    registration = View(view, render, permission)
     if predicates is not None:
         matcher = registry.exact(generic.view, (Request, model))
         if matcher is None:
@@ -44,6 +48,10 @@ def register_view(registry, model, view, render=None, predicates=None):
         matcher.register(predicates, registration)
         registration = matcher
     registry.register(generic.view, (Request, model), registration)
+
+
+def register_permission_checker(registry, model, permission, func):
+    registry.register(generic.permission, (Request, model, permission), func)
 
 
 def render_noop(response, content):

@@ -1,7 +1,8 @@
 from .app import AppBase
 from .config import Directive
 from .error import ConfigError
-from .view import register_view, render_json, render_html
+from .view import (register_view, render_json, render_html,
+                   register_permission_checker)
 from .model import register_model, register_root, register_mount
 from .traject import Path
 
@@ -55,6 +56,34 @@ class ModelDirective(Directive):
         register_model(app, self.model, self.path,
                        self.variables, obj, self.base, self.get_base)
 
+@directive('permission')
+class PermissionDirective(Directive):
+    def __init__(self, app,  permission, model=None):
+        super(PermissionDirective, self).__init__(app)
+        self.model = model
+        self.permission = permission
+
+    def identifier(self):
+        return ('permission', self.model)
+
+    def prepare(self, obj):
+        # XXX check shared with @root
+        model = self.model
+        if isinstance(obj, type):
+            if model is not None:
+                raise ConfigError(
+                    "@permissionl decorates class so cannot "
+                    "have explicit model: %s" % model)
+            model = obj
+        if model is None:
+            raise ConfigError(
+                "@permission does not decorate class and has no explicit model")
+        yield self.clone(model=model), obj
+
+    def perform(self, app, obj):
+        register_permission_checker(app, self.model, self.permission,
+                                    obj)
+
 
 @directive('view')
 class ViewDirective(Directive):
@@ -90,7 +119,7 @@ class ViewDirective(Directive):
         return ('view', self.model, self.name, predicates_discriminator)
 
     def perform(self, app, obj):
-        register_view(app, self.model, obj, self.render,
+        register_view(app, self.model, obj, self.render, self.permission,
                       self.predicates)
 
 

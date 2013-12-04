@@ -6,6 +6,7 @@ from morepath import generic
 from .app import App
 from .request import Request, Response
 from werkzeug.wrappers import BaseResponse
+from werkzeug.exceptions import Unauthorized
 from .traject import traject_consumer
 import morepath
 
@@ -83,7 +84,7 @@ def get_response(request, model):
         return None
     if not generic.permission(request, model, view.permission,
                               lookup=request.lookup):
-        return None
+        raise Unauthorized()
     content = view(request, model)
     if isinstance(content, BaseResponse):
         # the view took full control over the response
