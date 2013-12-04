@@ -18,6 +18,7 @@ class AppBase(Configurable, ClassRegistry):
         Configurable.__init__(self, extends)
         self.name = name
         self.traject = Traject()
+        self._cached_lookup = None
         # allow being scanned by venusian
         venusian.attach(self, callback)
 
@@ -28,10 +29,13 @@ class AppBase(Configurable, ClassRegistry):
         ClassRegistry.clear(self)
         Configurable.clear(self)
         self.traject = Traject()
+        self._cached_lookup = None
 
     def lookup(self):
-        # XXX instead of a separate cache we could put caching in here
-        return app_lookup_cache.get(self)
+        if self._cached_lookup is not None:
+            return self._cached_lookup
+        self._cached_lookup = result = Lookup(CachingClassLookup(self))
+        return result
 
     def request(self, environ):
         request = Request(environ)
@@ -70,18 +74,4 @@ class App(AppBase):
         venusian.attach(self, callback)
 
 
-class AppLookupCache(object):
-    def __init__(self):
-        self.cache = {}
-
-    def get(self, app):
-        lookup = self.cache.get(app)
-        if lookup is not None:
-            return lookup
-        caching_class_lookup = CachingClassLookup(app)
-        result = self.cache[app] = Lookup(caching_class_lookup)
-        return result
-
 global_app = AppBase('global_app')
-
-app_lookup_cache = AppLookupCache()
