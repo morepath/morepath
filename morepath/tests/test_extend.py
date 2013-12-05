@@ -4,10 +4,6 @@ from morepath import setup
 from morepath.request import Response
 
 
-def setup_function(function):
-    global_app.clear()
-
-
 def test_extends():
     app = App()
     extending = App(extends=[app])

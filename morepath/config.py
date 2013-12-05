@@ -219,6 +219,11 @@ class Config(object):
         First prepares actions, then looks for configuration conflicts,
         then extends all configuration and executes it.
         """
+        # clear all previous configuration; commit can only be run
+        # once during runtime so it's handy to clear this out for tests
+        for configurable in self.configurables:
+            configurable.clear()
+
         for action, obj in self.prepared():
             action.configurable.action(action, obj)
 

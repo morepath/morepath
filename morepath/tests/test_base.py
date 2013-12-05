@@ -4,10 +4,6 @@ from morepath.request import Response
 from werkzeug.test import Client
 
 
-def setup_function(function):
-    global_app.clear()
-
-
 def test_base():
     class Root(object):
         pass

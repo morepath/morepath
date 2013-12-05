@@ -16,10 +16,6 @@ class Model(object):
     pass
 
 
-def setup_function(function):
-    global_app.clear()
-
-
 def test_view():
     app = App()
 

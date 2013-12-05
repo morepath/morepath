@@ -7,10 +7,6 @@ from morepath import generic
 from morepath.traject import traject_consumer, parse_path
 
 
-def setup_function(function):
-    global_app.clear()
-
-
 def get_request(*args, **kw):
     return Request(EnvironBuilder(*args, **kw).get_environ())
 

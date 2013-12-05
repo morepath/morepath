@@ -12,13 +12,7 @@ from werkzeug.test import Client
 import pytest
 
 
-def setup_function(function):
-    global_app.clear()
-
-
 def test_basic():
-    basic.app.clear()
-
     config = setup()
     config.scan(basic)
     config.commit()
@@ -34,8 +28,6 @@ def test_basic():
 
 
 def test_basic_json():
-    basic.app.clear()
-
     config = setup()
     config.scan(basic)
     config.commit()
@@ -48,8 +40,6 @@ def test_basic_json():
 
 
 def test_basic_root():
-    basic.app.clear()
-
     config = setup()
     config.scan(basic)
     config.commit()
@@ -67,9 +57,6 @@ def test_basic_root():
 
 
 def test_nested():
-    nested.outer_app.clear()
-    nested.app.clear()
-
     config = setup()
     config.scan(nested)
     config.commit()
@@ -85,8 +72,6 @@ def test_nested():
 
 
 def test_abbr():
-    abbr.app.clear()
-
     config = setup()
     config.scan(abbr)
     config.commit()
@@ -738,8 +723,6 @@ def test_mount_context_standalone():
 
 
 def test_mapply_bug():
-    mapply_bug.app.clear()
-
     config = setup()
     config.scan(mapply_bug)
     config.commit()

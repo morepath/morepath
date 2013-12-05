@@ -3,11 +3,6 @@ from morepath.autosetup import morepath_packages, autoconfig, autosetup
 from base.m import app, get_foo
 
 
-def setup_function(function):
-    global_app.clear()
-    app.clear()
-
-
 def test_import():
     import base
     import sub

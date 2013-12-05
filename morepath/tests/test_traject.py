@@ -7,10 +7,6 @@ from morepath.app import App, global_app
 import pytest
 
 
-def setup_module(module):
-    global_app.clear()
-
-
 class Root(object):
     pass
 
