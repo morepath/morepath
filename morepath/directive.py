@@ -1,8 +1,9 @@
 from .app import AppBase
 from .config import Directive
 from .error import ConfigError
-from .view import (register_view, render_json, render_html,
-                   register_permission_checker)
+from .view import (register_view, render_json, render_html)
+from .security import (register_permission_checker,
+                       register_identity_policy, Identity, NoIdentity)
 from .model import register_model, register_root, register_mount
 from .traject import Path
 
@@ -56,33 +57,23 @@ class ModelDirective(Directive):
         register_model(app, self.model, self.path,
                        self.variables, obj, self.base, self.get_base)
 
+
 @directive('permission')
 class PermissionDirective(Directive):
-    def __init__(self, app,  permission, model=None):
+    def __init__(self, app,  model, permission, identity=Identity):
         super(PermissionDirective, self).__init__(app)
         self.model = model
         self.permission = permission
+        if identity is None:
+            identity = NoIdentity
+        self.identity = identity
 
     def identifier(self):
-        return ('permission', self.model)
-
-    def prepare(self, obj):
-        # XXX check shared with @root
-        model = self.model
-        if isinstance(obj, type):
-            if model is not None:
-                raise ConfigError(
-                    "@permissionl decorates class so cannot "
-                    "have explicit model: %s" % model)
-            model = obj
-        if model is None:
-            raise ConfigError(
-                "@permission does not decorate class and has no explicit model")
-        yield self.clone(model=model), obj
+        return ('permission', self.model, self.permission, self.identity)
 
     def perform(self, app, obj):
-        register_permission_checker(app, self.model, self.permission,
-                                    obj)
+        register_permission_checker(
+            app, self.identity, self.model, self.permission, obj)
 
 
 @directive('view')
@@ -129,7 +120,6 @@ class JsonDirective(ViewDirective):
                  permission=None, **kw):
         super(JsonDirective, self).__init__(app, model, name, render,
                                             permission, **kw)
-
 
 @directive('html')
 class HtmlDirective(ViewDirective):
@@ -180,6 +170,15 @@ class MountDirective(Directive):
 
     def perform(self, app, obj):
         register_mount(app, self.mounted_app, self.path, obj)
+
+
+@directive('identity_policy')
+class IdentityPolicyDirective(Directive):
+    def identifier(self):
+        return ('identity_policy',)
+
+    def perform(self, app, obj):
+        register_identity_policy(app, obj())
 
 
 @directive('function')

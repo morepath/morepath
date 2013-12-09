@@ -80,8 +80,43 @@ def response(request, model):
 
 
 @reg.generic
-def permission(request, model, permission):
-    """Get True if the request has permission on the model.
+def identify(request):
+    """Returns an Identity or None if no identity can be found.
+
+    Can also return NO_IDENTITY, but None is converted automatically
+    to this.
+    """
+    raise None
+
+
+@reg.generic
+def remember(request, identity):
+    """Get headers to pass to response to remember identity.
     """
     raise NotImplementedError
 
+
+@reg.generic
+def forget(request):
+    """Get headers to pass to response to forget identity in response.
+    """
+    raise NotImplementedError
+
+
+@reg.generic
+def permits(identity, model, permission):
+    """Returns True if identity has permission for model.
+
+    identity can be the special NO_IDENTITY singleton; register for
+    NoIdentity to handle this case separately.
+    """
+    raise NotImplementedError
+
+
+@reg.generic
+def user(identity):
+    """Gives back a user object for the identity given.
+
+    Returns None if the user is not known to the system.
+    """
+    raise NotImplementedError

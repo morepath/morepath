@@ -8,5 +8,6 @@ from .request import Request, Response
 from .config import Config
 from werkzeug.utils import redirect
 from morepath.autosetup import autoconfig, autosetup
+from morepath.security import Identity, NO_IDENTITY
 
 #initialize()

@@ -5,7 +5,8 @@ from .config import Configurable
 from reg import ClassRegistry, Lookup, CachingClassLookup
 import venusian
 from werkzeug.serving import run_simple
-
+from morepath import generic
+from .security import NO_IDENTITY
 
 def callback(scanner, name, obj):
     scanner.config.configurable(obj)
@@ -38,8 +39,11 @@ class AppBase(Configurable, ClassRegistry):
         return result
 
     def request(self, environ):
+        # XXX move this into the morepath Request object instead?
         request = Request(environ)
         request.lookup = self.lookup()
+        request.identity = generic.identify(request, lookup=request.lookup,
+                                            default=NO_IDENTITY)
         request.unconsumed = []
         return request
 

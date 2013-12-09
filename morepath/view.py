@@ -50,10 +50,6 @@ def register_view(registry, model, view, render=None, permission=None,
     registry.register(generic.view, (Request, model), registration)
 
 
-def register_permission_checker(registry, model, permission, func):
-    registry.register(generic.permission, (Request, model, permission), func)
-
-
 def render_noop(response, content):
     return response
 
