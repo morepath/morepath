@@ -171,6 +171,33 @@ def test_basic_imperative():
     assert response.data == ''
 
 
+def test_simple_root():
+    app = morepath.App()
+
+    class Hello(object):
+        pass
+
+    hello = Hello()
+
+    def hello_model():
+        return hello
+
+    def hello_view(request, model):
+        return 'hello'
+
+    c = setup()
+    c.configurable(app)
+    c.action(app.root(model=Hello), hello_model)
+    c.action(app.view(model=Hello),
+             hello_view)
+    c.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/')
+    assert response.data == 'hello'
+
+
 def test_json_directive():
     app = morepath.App()
 
