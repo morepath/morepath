@@ -1,11 +1,11 @@
 import morepath
 from morepath import setup
-from morepath.app import global_app
 from morepath.request import Response
 from werkzeug.test import Client
 from morepath.security import Identity, BasicAuthIdentityPolicy
 from .fixtures import identity_policy
 import pytest
+
 
 def test_no_permission():
     app = morepath.App()
@@ -143,4 +143,3 @@ def test_basic_auth_identity_policy():
     # XXX need a way to construct auth headers here
     response = c.get('/foo')
     assert response.data == 'Model: foo'
-

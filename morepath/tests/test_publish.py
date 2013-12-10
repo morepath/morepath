@@ -1,4 +1,4 @@
-from morepath.app import App, global_app
+from morepath.app import App
 from morepath.publish import publish, resolve_response
 from morepath.request import Response
 from morepath.view import register_view, render_json, render_html

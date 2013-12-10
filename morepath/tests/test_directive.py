@@ -4,7 +4,7 @@ from morepath.error import ConflictError
 from morepath.config import Config
 from morepath.request import Response
 from morepath.view import render_html
-from morepath.app import App, global_app
+from morepath.app import App
 import morepath
 import reg
 

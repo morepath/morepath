@@ -1,5 +1,5 @@
 from morepath.model import register_root, register_model
-from morepath.app import App, global_app
+from morepath.app import App
 from werkzeug.test import EnvironBuilder
 from morepath.request import Request
 from morepath import setup

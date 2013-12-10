@@ -1,7 +1,4 @@
-import reg
 from .request import Request
-import binascii
-import base64
 from morepath import generic
 
 

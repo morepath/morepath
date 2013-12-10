@@ -1,4 +1,4 @@
-from morepath.app import App, global_app
+from morepath.app import App
 from morepath import setup
 from morepath.request import Response
 from werkzeug.test import Client

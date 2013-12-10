@@ -121,6 +121,7 @@ class JsonDirective(ViewDirective):
         super(JsonDirective, self).__init__(app, model, name, render,
                                             permission, **kw)
 
+
 @directive('html')
 class HtmlDirective(ViewDirective):
     def __init__(self, app, model, name='', render=render_html,

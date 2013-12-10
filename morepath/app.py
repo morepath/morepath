@@ -8,6 +8,7 @@ from werkzeug.serving import run_simple
 from morepath import generic
 from .security import NO_IDENTITY
 
+
 def callback(scanner, name, obj):
     scanner.config.configurable(obj)
 

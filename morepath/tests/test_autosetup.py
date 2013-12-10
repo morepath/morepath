@@ -1,4 +1,3 @@
-from morepath.app import global_app
 from morepath.autosetup import morepath_packages, autoconfig, autosetup
 from base.m import app, get_foo
 
