@@ -150,3 +150,9 @@ def test_basic_auth_identity_policy():
     headers.add('Authorization', 'Basic ' + base64.b64encode('user:secret'))
     response = c.get('/foo', headers=headers)
     assert response.data == 'Model: foo'
+
+# XXX nothing about forgetting basic auth
+
+
+
+
