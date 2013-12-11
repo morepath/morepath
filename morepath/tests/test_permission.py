@@ -4,7 +4,9 @@ from morepath.request import Response
 from werkzeug.test import Client
 from morepath.security import Identity, BasicAuthIdentityPolicy
 from .fixtures import identity_policy
+from werkzeug.datastructures import Headers
 import pytest
+import base64
 
 
 def test_no_permission():
@@ -61,7 +63,7 @@ def test_permission_directive():
         pass
 
     class IdentityPolicy(object):
-        def identity(self, request):
+        def identify(self, request):
             return Identity('testidentity')
 
         def remember(self, request, identity):
@@ -103,7 +105,6 @@ def test_policy_action():
     assert response.status == '401 UNAUTHORIZED'
 
 
-@pytest.mark.xfail()
 def test_basic_auth_identity_policy():
     app = morepath.App()
 
@@ -115,7 +116,7 @@ def test_basic_auth_identity_policy():
         return Model(id)
 
     def get_permission(identity, model, permission):
-        return identity.userid == 'one'
+        return identity.userid == 'user' and identity.password == 'secret'
 
     def default(request, model):
         return "Model: %s" % model.id
@@ -140,6 +141,12 @@ def test_basic_auth_identity_policy():
     response = c.get('/foo')
     assert response.status == '401 UNAUTHORIZED'
 
-    # XXX need a way to construct auth headers here
-    response = c.get('/foo')
+    headers = Headers()
+    headers.add('Authorization', 'Basic ' + base64.b64encode('user:wrong'))
+    response = c.get('/foo', headers=headers)
+    assert response.status == '401 UNAUTHORIZED'
+
+    headers = Headers()
+    headers.add('Authorization', 'Basic ' + base64.b64encode('user:secret'))
+    response = c.get('/foo', headers=headers)
     assert response.data == 'Model: foo'

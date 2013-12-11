@@ -29,7 +29,7 @@ def model_permission(identity, model, permission):
 
 
 class IdentityPolicy(object):
-    def identity(self, request):
+    def identify(self, request):
         return morepath.Identity('testidentity')
 
     def remember(self, request, identity):
