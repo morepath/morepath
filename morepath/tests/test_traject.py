@@ -212,6 +212,14 @@ def test_variable_node_more_specific_first():
     assert node.get('awhaty') == (ay_node, {'x': 'what'})
 
 
+def test_variable_node_optional_colon():
+    node = Node()
+    x_node = node.add(Step('{x}'))
+    xy_node = node.add(Step('{x}:{y}'))
+    assert node.get('a') == (x_node, {'x': 'a'})
+    assert node.get('a:b') == (xy_node, {'x': 'a', 'y': 'b'})
+
+
 def test_traject_simple():
     traject = Traject()
     traject.add_pattern('a/b/c', 'abc')
