@@ -5,7 +5,7 @@ from morepath.request import Request
 from morepath import setup
 from morepath import generic
 from morepath.traject import parse_path
-from morepath.setup import traject_consume
+from morepath.core import traject_consume
 
 def consume(app, path):
     request = app.request(EnvironBuilder(path=path).get_environ())

@@ -2,7 +2,7 @@ from morepath.app import App
 from morepath.publish import publish, resolve_response
 from morepath.request import Response
 from morepath.view import register_view, render_json, render_html
-from morepath.setup import setup
+from morepath.core import setup
 from werkzeug.test import EnvironBuilder
 from werkzeug.exceptions import NotFound
 import pytest

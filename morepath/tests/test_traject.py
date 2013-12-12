@@ -3,7 +3,7 @@ from morepath.traject import (Traject, Node, Step, TrajectError,
                               Path, parse_path, create_path)
 from morepath import generic
 from morepath.app import App
-from morepath.setup import traject_consume
+from morepath.core import traject_consume
 import pytest
 from werkzeug.test import EnvironBuilder
 

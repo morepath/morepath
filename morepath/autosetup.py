@@ -1,6 +1,6 @@
 import pkg_resources
 from pkgutil import walk_packages
-from morepath.setup import setup
+from morepath.core import setup
 
 
 def autoconfig(ignore=None):
