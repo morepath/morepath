@@ -12,9 +12,17 @@ NO_IDENTITY = NoIdentity()
 class Identity(object):
     def __init__(self, userid, **kw):
         self.userid = userid
+        self._names = kw.keys()
         for key, value in kw.items():
             setattr(self, key, value)
 
+    def as_dict(self):
+        result = {
+            'userid': self.userid,
+            }
+        for name in self._names:
+            result[name] = getattr(self, name)
+        return result
 
 def register_identity_policy(app, policy):
     # XXX instead should issue sub directives in identity policy directive
