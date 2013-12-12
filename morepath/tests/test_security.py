@@ -215,7 +215,6 @@ def test_basic_auth_forget():
     response = c.get('/foo')
     assert response.status == '200 OK'
     assert response.data == ''
-    print response.headers.items()
     assert sorted(response.headers.items()) == [
         ('Content-Length', '0'),
         ('Content-Type', 'text/plain; charset=utf-8'),
