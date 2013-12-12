@@ -7,7 +7,13 @@ class ConfigError(Exception):
 
 
 def conflict_keyfunc(action):
-    filename, lineno, function, sourceline = action.codeinfo()
+    try:
+        codeinfo = action.codeinfo()
+    except AttributeError:
+        return None
+    if codeinfo is None:
+        return None
+    filename, lineno, function, sourceline = codeinfo
     return (filename, lineno)
 
 
@@ -15,16 +21,18 @@ class ConflictError(ConfigError):
     """Raised when there is a conflict in configuration.
     """
     def __init__(self, actions):
-        for action in actions:
-            if not hasattr(action, 'codeinfo'):
-                super(ConflictError, self).__init__('No code info')
-                return
         actions.sort(key=conflict_keyfunc)
         self.actions = actions
         result = [
             'Conflict between:']
         for action in actions:
-            filename, lineno, function, sourceline = action.codeinfo()
+            try:
+                codeinfo = action.codeinfo()
+            except AttributeError:
+                continue
+            if codeinfo is None:
+                continue
+            filename, lineno, function, sourceline = codeinfo
             result.append('  File "%s", line %s' % (filename, lineno))
             result.append('    %s' % sourceline)
         msg = '\n'.join(result)

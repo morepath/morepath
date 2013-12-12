@@ -140,6 +140,8 @@ class Directive(Action):
     def codeinfo(self):
         """Information about how the action was invoked.
         """
+        if self.attach_info is None:
+            return None
         return self.attach_info.codeinfo
 
     def __enter__(self):
