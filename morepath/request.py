@@ -8,6 +8,7 @@ class Request(BaseRequest):
     def __init__(self, environ, populate_request=True, shallow=False):
         super(Request, self).__init__(environ, populate_request, shallow)
         self._resolver_info = None
+        self.unconsumed = []
         self.mounts = []
 
     @cached_property

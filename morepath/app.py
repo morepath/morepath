@@ -39,10 +39,8 @@ class AppBase(Configurable, ClassRegistry):
         return result
 
     def request(self, environ):
-        # XXX move this into the morepath Request object instead?
         request = Request(environ)
         request.lookup = self.lookup()
-        request.unconsumed = []
         return request
 
     def context(self, **kw):
