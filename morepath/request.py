@@ -2,12 +2,13 @@ from morepath import generic
 from werkzeug.wrappers import (BaseRequest, BaseResponse,
                                CommonResponseDescriptorsMixin)
 from werkzeug.utils import cached_property
+from .traject import parse_path
 
 
 class Request(BaseRequest):
     def __init__(self, environ, populate_request=True, shallow=False):
         super(Request, self).__init__(environ, populate_request, shallow)
-        self.unconsumed = []
+        self.unconsumed = parse_path(self.path)
         self.mounts = []
 
     @cached_property

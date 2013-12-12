@@ -2,13 +2,14 @@ import reg
 
 
 @reg.generic
-def consume(obj, unconsumed):
-    """Consume unconsumed to new object starting at obj.
+def consume(request, model):
+    """Consume request.unconsumed to new model, starting with model.
 
-    Returns a boolean meaning that some unconsumed has been consumed,
-    an object and the remaining unconsumed stack
+    Returns the new model, or None if no new model could be found.
+
+    Adjusts request.unconsumed with the remaining unconsumed stack.
     """
-    return False, obj, unconsumed
+    return None
 
 
 @reg.generic

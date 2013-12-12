@@ -7,8 +7,9 @@ from .app import App
 from .request import Request, Response
 from werkzeug.wrappers import BaseResponse
 from werkzeug.exceptions import Unauthorized
-from .traject import traject_consumer
 import morepath
+from reg import mapply
+
 
 assert morepath.directive  # we need to make the function directive work
 
@@ -19,9 +20,23 @@ def setup():
     return config
 
 
-@global_app.function(generic.consume, object)
-def traject_consume(model, unconsumed, lookup):
-    return traject_consumer(model, unconsumed, lookup)
+@global_app.function(generic.consume, Request, object)
+def traject_consume(request, model, lookup):
+    traject = generic.traject(model, lookup=lookup, default=None)
+    if traject is None:
+        return None
+    get_model, stack, traject_variables = traject(request.unconsumed)
+    if get_model is None:
+        return None
+    variables = generic.context(model, default={}, lookup=lookup)
+    variables['base'] = model
+    variables['request'] = request
+    variables.update(traject_variables)
+    next_model = mapply(get_model, **variables)
+    if next_model is None:
+        return None
+    request.unconsumed = stack
+    return next_model
 
 
 @global_app.function(generic.path, object)

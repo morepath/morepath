@@ -1,11 +1,11 @@
 from morepath.traject import (Traject, Node, Step, TrajectError,
                               is_identifier, parse_variables,
-                              Path, traject_consumer,
-                              parse_path, create_path)
+                              Path, parse_path, create_path)
 from morepath import generic
 from morepath.app import App
+from morepath.setup import traject_consume
 import pytest
-
+from werkzeug.test import EnvironBuilder
 
 class Root(object):
     pass
@@ -371,26 +371,48 @@ def test_parse_variables():
         parse_variables('{1illegal}')
 
 
-def test_traject_consumer():
+def consume(app, path):
+    request = app.request(EnvironBuilder(path=path).get_environ())
+    return traject_consume(request, app, lookup=app.lookup()), request
+
+
+def test_traject_consume():
     app = App()
     traject = Traject()
     traject.add_pattern('sub', Model)
     app.register(generic.traject, [App], lambda base: traject)
-    found, obj, stack = traject_consumer(app, ['sub'], app.lookup())
-    assert found
-    assert isinstance(obj, Model)
-    assert stack == []
+    found, request = consume(app, 'sub')
+    assert isinstance(found, Model)
+    assert request.unconsumed == []
 
 
-def test_traject_consumer_not_found():
+def test_traject_consume_model_factory_gets_request():
     app = App()
-    found, obj, stack = traject_consumer(app, ['sub'], app.lookup())
-    assert not found
-    assert obj is app
-    assert stack == ['sub']
+    traject = Traject()
+
+    class Model(object):
+        def __init__(self, info):
+            self.info = info
+
+    def get_model(request):
+        return Model(request.method)
+
+    traject.add_pattern('sub', get_model)
+    app.register(generic.traject, [App], lambda base: traject)
+    found, request = consume(app, 'sub')
+    assert isinstance(found, Model)
+    assert request.unconsumed == []
+    assert found.info == 'GET'
 
 
-def test_traject_consumer_factory_returns_none():
+def test_traject_consume_not_found():
+    app = App()
+    found, request = consume(app, 'sub')
+    assert found is None
+    assert request.unconsumed == ['sub']
+
+
+def test_traject_consume_factory_returns_none():
     app = App()
 
     traject = Traject()
@@ -401,14 +423,13 @@ def test_traject_consumer_factory_returns_none():
     traject.add_pattern('sub', get_model)
     app.register(generic.traject, [App], lambda base: traject)
 
-    found, obj, stack = traject_consumer(app, ['sub'], app.lookup())
+    found, request = consume(app, 'sub')
 
-    assert not found
-    assert obj is app
-    assert stack == ['sub']
+    assert found is None
+    assert request.unconsumed == ['sub']
 
 
-def test_traject_consumer_variable():
+def test_traject_consume_variable():
     app = App()
 
     traject = Traject()
@@ -421,15 +442,12 @@ def test_traject_consumer_variable():
     traject.add_pattern('{foo}', get_model)
     app.register(generic.traject, [App], lambda base: traject)
 
-    found, obj, stack = traject_consumer(app, ['something'],
-                                         app.lookup())
-    assert found
-    assert isinstance(obj, Model)
-    assert stack == []
-    assert obj.foo == 'something'
+    found, request = consume(app, 'something')
+    assert isinstance(found, Model)
+    assert found.foo == 'something'
+    assert request.unconsumed == []
 
-
-def test_traject_consumer_view():
+def test_traject_consume_view():
     app = App()
 
     traject = Traject()
@@ -443,11 +461,9 @@ def test_traject_consumer_view():
     traject.add_pattern('{foo}', get_model)
     app.register(generic.traject, [App], lambda base: traject)
 
-    found, obj, stack = traject_consumer(app, ['+something'],
-                                         app.lookup())
-    assert found
-    assert isinstance(obj, Root)
-    assert stack == ['+something']
+    found, request = consume(app, '+something')
+    assert isinstance(found, Root)
+    assert request.unconsumed == ['+something']
 
 
 def test_traject_root():
@@ -458,14 +474,12 @@ def test_traject_root():
     traject.add_pattern('', Root)
     app.register(generic.traject, [App], lambda base: traject)
 
-    found, obj, stack = traject_consumer(app, [],
-                                         app.lookup())
-    assert found
-    assert isinstance(obj, Root)
-    assert stack == []
+    found, request = consume(app, '')
+    assert isinstance(found, Root)
+    assert request.unconsumed == []
 
 
-def test_traject_consumer_combination():
+def test_traject_consume_combination():
     app = App()
 
     traject = Traject()
@@ -479,17 +493,14 @@ def test_traject_consumer_combination():
     traject.add_pattern('{foo}', get_model)
     app.register(generic.traject, [App], lambda base: traject)
 
-    found, obj, stack = traject_consumer(app, ['something'],
-                                         app.lookup())
-    assert found
-    assert isinstance(obj, Model)
-    assert stack == []
-    assert obj.foo == 'something'
-    found, obj, stack = traject_consumer(app, ['special'],
-                                         app.lookup())
-    assert found
-    assert isinstance(obj, Special)
-    assert stack == []
+    found, request = consume(app, 'something')
+    assert isinstance(found, Model)
+    assert request.unconsumed == []
+    assert found.foo == 'something'
+
+    found, request = consume(app, 'special')
+    assert isinstance(found, Special)
+    assert request.unconsumed == []
 
 
 def test_traject_nested():
@@ -500,14 +511,12 @@ def test_traject_nested():
     traject.add_pattern('a/b', Special)
     app.register(generic.traject, [App], lambda base: traject)
 
-    found, obj, stack = traject_consumer(app, ['a'], app.lookup())
-    assert found
-    assert isinstance(obj, Model)
-    assert stack == []
-    found, obj, stack = traject_consumer(app, ['b', 'a'], app.lookup())
-    assert found
-    assert isinstance(obj, Special)
-    assert stack == []
+    found, request = consume(app, 'a')
+    assert isinstance(found, Model)
+    assert request.unconsumed == []
+    found, request = consume(app, 'a/b')
+    assert isinstance(found, Special)
+    assert request.unconsumed == []
 
 
 def test_traject_nested_not_resolved_entirely_by_consumer():
@@ -516,14 +525,12 @@ def test_traject_nested_not_resolved_entirely_by_consumer():
     traject.add_pattern('a', Model)
     app.register(generic.traject, [App], lambda base: traject)
 
-    found, obj, stack = traject_consumer(app, ['a'], app.lookup())
-    assert found
-    assert isinstance(obj, Model)
-    assert stack == []
-    found, obj, stack = traject_consumer(app, ['b', 'a'], app.lookup())
-    assert found
-    assert isinstance(obj, Model)
-    assert stack == ['b']
+    found, request = consume(app, 'a')
+    assert isinstance(found, Model)
+    assert request.unconsumed == []
+    found, request = consume(app, 'a/b')
+    assert isinstance(found, Model)
+    assert request.unconsumed == ['b']
 
 
 def test_traject_nested_with_variable():
@@ -545,18 +552,15 @@ def test_traject_nested_with_variable():
     traject.add_pattern('{id}/sub', get_special)
     app.register(generic.traject, [App], lambda base: traject)
 
-    found, obj, stack = traject_consumer(app, ['a'], app.lookup())
-    assert found
-    assert isinstance(obj, Model)
-    assert stack == []
-    found, obj, stack = traject_consumer(app, ['b'], app.lookup())
-    assert found
-    assert isinstance(obj, Model)
-    assert stack == []
-    found, obj, stack = traject_consumer(app, ['sub', 'a'], app.lookup())
-    assert found
-    assert isinstance(obj, Special)
-    assert stack == []
+    found, request = consume(app, 'a')
+    assert isinstance(found, Model)
+    assert request.unconsumed == []
+    found, request = consume(app, 'b')
+    assert isinstance(found, Model)
+    assert request.unconsumed == []
+    found, request = consume(app, 'a/sub')
+    assert isinstance(found, Special)
+    assert request.unconsumed == []
 
 
 def test_traject_with_multiple_variables():
@@ -578,18 +582,17 @@ def test_traject_with_multiple_variables():
     traject.add_pattern('{first_id}/{second_id}', get_special)
     app.register(generic.traject, [App], lambda base: traject)
 
-    found, obj, stack = traject_consumer(app, ['a'], app.lookup())
-    assert found
-    assert isinstance(obj, Model)
-    assert stack == []
-    assert obj.first_id == 'a'
-    assert not hasattr(obj, 'second_id')
-    found, obj, stack = traject_consumer(app, ['b', 'a'], app.lookup())
-    assert found
-    assert isinstance(obj, Special)
-    assert stack == []
-    assert obj.first_id == 'a'
-    assert obj.second_id == 'b'
+    found, request = consume(app, 'a')
+    assert isinstance(found, Model)
+    assert found.first_id == 'a'
+    assert not hasattr(found, 'second_id')
+    assert request.unconsumed == []
+
+    found, request = consume(app, 'a/b')
+    assert isinstance(found, Special)
+    assert found.first_id == 'a'
+    assert found.second_id == 'b'
+    assert request.unconsumed == []
 
 
 def test_traject_no_concecutive_variables():
