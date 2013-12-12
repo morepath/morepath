@@ -44,9 +44,7 @@ def resolve_model(request, mount):
 
 
 def resolve_response(request, model):
-    name = get_view_step(request.unconsumed)
-
-    request.set_resolver_info({'name': name})
+    request.view_name = get_view_name(request.unconsumed)
 
     response = generic.response(request, model, default=RESPONSE_SENTINEL,
                                 lookup=request.lookup)
@@ -56,7 +54,7 @@ def resolve_response(request, model):
     return response
 
 
-def get_view_step(stack):
+def get_view_name(stack):
     unconsumed_amount = len(stack)
     if unconsumed_amount > 1:
         raise NotFound()

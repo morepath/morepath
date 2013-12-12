@@ -25,7 +25,7 @@ class ViewMatcher(Matcher):
     def get_predicates(self, request):
         result = {}
         result['request_method'] = request.method
-        result['name'] = request.resolver_info()['name']
+        result['name'] = request.view_name
         return result
 
     def __call__(self, request, model):

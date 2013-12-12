@@ -7,7 +7,6 @@ from werkzeug.utils import cached_property
 class Request(BaseRequest):
     def __init__(self, environ, populate_request=True, shallow=False):
         super(Request, self).__init__(environ, populate_request, shallow)
-        self._resolver_info = None
         self.unconsumed = []
         self.mounts = []
 
@@ -17,12 +16,6 @@ class Request(BaseRequest):
         from .security import NO_IDENTITY
         return generic.identify(self, lookup=self.lookup,
                                 default=NO_IDENTITY)
-
-    def set_resolver_info(self, info):
-        self._resolver_info = info
-
-    def resolver_info(self):
-        return self._resolver_info
 
     # XXX how to make view in other application context?
     def view(self, model, default=None):
