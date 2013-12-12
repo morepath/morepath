@@ -667,6 +667,42 @@ def test_mount():
         return request.link(model)
 
     def get_context():
+        return {}
+
+    c = setup()
+    c.configurable(app)
+    c.configurable(mounted)
+    c.action(app.mount(path='{id}', app=mounted), get_context)
+    c.action(mounted.root(), MountedRoot)
+    c.action(mounted.view(model=MountedRoot),
+             root_default)
+    c.action(mounted.view(model=MountedRoot, name='link'),
+             root_link)
+    c.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/foo')
+    assert response.data == 'The root'
+
+    response = c.get('/foo/link')
+    assert response.data == 'foo'
+
+
+def test_mount_empty_context():
+    app = morepath.App('app')
+    mounted = morepath.App('mounted')
+
+    class MountedRoot(object):
+        pass
+
+    def root_default(request, model):
+        return "The root"
+
+    def root_link(request, model):
+        return request.link(model)
+
+    def get_context():
         pass
 
     c = setup()

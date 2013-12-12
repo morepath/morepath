@@ -257,7 +257,7 @@ def traject_consumer(base, stack, lookup):
     get_model, stack, traject_variables = traject(stack)
     if get_model is None:
         return False, base, original_stack
-    variables = generic.context(base, lookup=lookup)
+    variables = generic.context(base, default={}, lookup=lookup)
     variables['base'] = base
     variables.update(traject_variables)
     model = mapply(get_model, **variables)
