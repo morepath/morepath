@@ -24,6 +24,7 @@ class Identity(object):
             result[name] = getattr(self, name)
         return result
 
+
 def register_identity_policy(app, policy):
     # XXX instead should issue sub directives in identity policy directive
     app.register(generic.identify, [Request], policy.identify)
