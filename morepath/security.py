@@ -1,4 +1,4 @@
-from .request import Request
+from .request import Request, Response
 from morepath import generic
 from werkzeug import parse_authorization_header
 
@@ -19,8 +19,8 @@ class Identity(object):
 def register_identity_policy(app, policy):
     # XXX instead should issue sub directives in identity policy directive
     app.register(generic.identify, [Request], policy.identify)
-    app.register(generic.remember, [Request, object], policy.remember)
-    app.register(generic.forget, [Request], policy.forget)
+    app.register(generic.remember, [Response, Request, object], policy.remember)
+    app.register(generic.forget, [Response, Request], policy.forget)
 
 
 class BasicAuthIdentityPolicy(object):
@@ -39,41 +39,15 @@ class BasicAuthIdentityPolicy(object):
             return None
         return Identity(userid=auth.username, password=auth.password)
 
-    # XXX I think these should get response to work with werkzeug properly
-    # not sure why they need request too; won't identity be enough?
-    def remember(self, request, identity):
-        return []
+    def remember(self, response, request, identity):
+        pass
 
-    # again response should be put in. why would request be needed. though
-    # perhaps useful to retrieve previous identity
-    def forget(self, request):
+    def forget(self, response, request):
         # XXX werkzeug provides WWWAuthenticate helper class; is
-        # this something to use or not?
-        return [('WWW-Authenticate', 'Basic realm="%s"' % self.realm)]
+        # this something to use or not? but if so, how?
+        response.headers.add('WWW-Authenticate',
+                             'Basic realm="%s"' % self.realm)
 
-
-# class TicketIdentityPolicy(object):
-#     def __init__(self, secret, cookie_name='id_ticket', timeout=None,
-#                  reissue_time=None, max_age=None, path='/',
-#                  parent_domain=False, domain=None, hashalg='sha512'):
-#         self.secret = secret
-#         self.cookie_name = cookie_name
-#         self.timeout = timeout
-#         self.reissue_time = reissue_time
-#         self.max_age = max_age
-#         self.path = path
-#         self.parent_domain = parent_domain
-#         self.domain = domain
-#         self.hashalg = hashalg
-
-#     def identify(self, request):
-#         pass
-
-#     def remember(self, request, identity):
-#         pass
-
-#     def forget(self, request):
-#         pass
 
 def register_permission_checker(registry, identity, model, permission, func):
     registry.register(generic.permits, (identity, model, permission), func)

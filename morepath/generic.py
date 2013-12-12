@@ -90,15 +90,15 @@ def identify(request):
 
 
 @reg.generic
-def remember(request, identity):
-    """Get headers to pass to response to remember identity.
+def remember(response, request, identity):
+    """Modify response so that identity is remembered by client.
     """
     raise NotImplementedError
 
 
 @reg.generic
-def forget(request):
-    """Get headers to pass to response to forget identity in response.
+def forget(response, request):
+    """Modify response so that identity is forgotten by client.
     """
     raise NotImplementedError
 
