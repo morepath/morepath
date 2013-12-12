@@ -1,6 +1,7 @@
 from morepath import generic
 from werkzeug.wrappers import (BaseRequest, BaseResponse,
                                CommonResponseDescriptorsMixin)
+from werkzeug.utils import cached_property
 
 
 class Request(BaseRequest):
@@ -8,6 +9,13 @@ class Request(BaseRequest):
         super(Request, self).__init__(environ, populate_request, shallow)
         self._resolver_info = None
         self.mounts = []
+
+    @cached_property
+    def identity(self):
+        # XXX annoying circular dependency
+        from .security import NO_IDENTITY
+        return generic.identify(self, lookup=self.lookup,
+                                default=NO_IDENTITY)
 
     def set_resolver_info(self, info):
         self._resolver_info = info
