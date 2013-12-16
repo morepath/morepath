@@ -8,13 +8,24 @@ from werkzeug.serving import run_simple
 from morepath import generic
 
 
-def callback(scanner, name, obj):
-    scanner.config.configurable(obj)
-
-
 class AppBase(Configurable, ClassRegistry):
+    """Base for application objects.
+
+    The application base is split from the :class:`App`
+    class so that we can have an :class:`App` class that automatically
+    extends from ``global_app``, which defines the Morepath framework
+    itself.  Normally you would use :class:`App` instead this one.
+    """
     # XXX have a way to define parameters for app here
     def __init__(self, name='', extends=None):
+        """
+        :param name: A name for this application. This is used in
+          error reporting.
+        :type name: str
+        :param extends: :class:`App` objects that this
+          app extends/overrides.
+        :type extends: list, :class:`App` or ``None``
+        """
         ClassRegistry.__init__(self)
         Configurable.__init__(self, extends)
         self.name = name
@@ -66,7 +77,30 @@ class AppBase(Configurable, ClassRegistry):
 
 
 class App(AppBase):
+    """A Morepath-based application object.
+
+    Extends :class:`AppBase`.
+
+    You can configure an application using Morepath decorator directives.
+
+    An application can extend one or more other applications, if
+    desired.  All morepath App's descend from ``global_app`` however,
+    which contains the base configuration of the Morepath framework.
+
+    Conflicting configuration within an app is automatically
+    rejected. An extended app cannot conflict with the apps it is
+    extending however; instead configuration will be considered to be
+    overridden.
+    """
     def __init__(self, name='', extends=None):
+        """
+        :param name: A name for this application. This is used in
+          error reporting.
+        :type name: str
+        :param extends: :class:`App` objects that this
+          app extends/overrides.
+        :type extends: list, :class:`App` or ``None``
+        """
         if not extends:
             extends = [global_app]
         super(App, self).__init__(name, extends)
@@ -74,4 +108,20 @@ class App(AppBase):
         venusian.attach(self, callback)
 
 
+def callback(scanner, name, obj):
+    scanner.config.configurable(obj)
+
+
 global_app = AppBase('global_app')
+"""The global app object.
+
+Instance of :class:`AppBase`.
+
+This is the application object that the Morepath framework is
+registered on. It's automatically included in the extends of any
+:class:`App`` object.
+
+You could add configuration to ``global_app`` but it is recommended
+you don't do so. Instead to extend or override the framework you can
+create your own :class:`App` with this additional configuration.
+"""

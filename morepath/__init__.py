@@ -1,5 +1,5 @@
 # flake8: noqa
-from .app import App
+from .app import App, AppBase, global_app
 from .implicit import initialize
 from .core import setup
 from morepath import directive # register directive methods

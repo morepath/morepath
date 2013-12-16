@@ -12,7 +12,9 @@ Contents:
    :maxdepth: 2
 
    quickstart
+   api
    design
+   developing
    history
 
 
