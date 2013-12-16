@@ -9,6 +9,20 @@ from .traject import Path
 
 
 class directive(object):
+    """Register a new directive with Morepath.
+
+    Instantiate this class with the name of the configuration directive.
+    The instance is a decorator that can be applied to a subclass of
+    :class:`Directive`. For example::
+
+      @directive('foo')
+      class FooDirective(Directive):
+         ...
+
+    This needs to be executed *before* the directive is being used and
+    thus might introduce import dependency issues unlike normal Morepath
+    configuration: beware!
+    """
     def __init__(self, name):
         self.name = name
 

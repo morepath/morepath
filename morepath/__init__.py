@@ -9,6 +9,7 @@ from .config import Config, Directive
 from werkzeug.utils import redirect
 from morepath.autosetup import autoconfig, autosetup
 from morepath.security import Identity, NO_IDENTITY
+from .directive import directive
 from pdb import Pdb
 pdb = Pdb(skip=['reg.*', 'inspect'])
 #initialize()
