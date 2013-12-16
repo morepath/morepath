@@ -13,7 +13,7 @@ class View(object):
     def __call__(self, request, model):
         return self.func(request, model)
 
-
+# XXX want to make predicates not hard coded
 class ViewMatcher(Matcher):
     def __init__(self):
         self.reg = PredicateRegistry([Predicate('name', KeyIndex),
