@@ -19,6 +19,7 @@ class Request(BaseRequest):
                                 default=NO_IDENTITY)
 
     # XXX how to make view in other application context?
+    # XXX how to pass in view name?
     def view(self, model, default=None):
         return generic.view(
             self, model, lookup=self.lookup, default=default)
