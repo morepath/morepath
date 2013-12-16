@@ -11,6 +11,9 @@ from morepath import generic
 class AppBase(Configurable, ClassRegistry):
     """Base for application objects.
 
+    Extends :class:`morepath.config.Configurable` and
+    :class:`reg.ClassRegistry`.
+
     The application base is split from the :class:`App`
     class so that we can have an :class:`App` class that automatically
     extends from ``global_app``, which defines the Morepath framework
@@ -79,7 +82,9 @@ class AppBase(Configurable, ClassRegistry):
 class App(AppBase):
     """A Morepath-based application object.
 
-    Extends :class:`AppBase`.
+    Extends :class:`AppBase` and through it
+    :class:`morepath.config.Configurable` and
+    :class:`reg.ClassRegistry`.
 
     You can configure an application using Morepath decorator directives.
 

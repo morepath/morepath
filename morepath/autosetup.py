@@ -4,14 +4,61 @@ from morepath.core import setup
 
 
 def autoconfig(ignore=None):
+    """Automatically load Morepath configuration from packages.
+
+    Morepath configuration consists of decorator calls on :class:`App`
+    instances, i.e. ``@app.view()`` and ``@app.model()``.
+
+    This function loads all needed Morepath configuration from all
+    packages automatically. These packages do need to be made
+    available using a ``setup.py`` file including currect
+    ``install_requires`` information so that they can be found using
+    setuptools_.
+
+    .. _setuptools: http://pythonhosted.org/setuptools/
+
+    Creates a :class:`Config` object as with :func:`setup`, but
+    before returning it scans all packages, looking for those that
+    depend on Morepath directly or indirectly. This will include the
+    package that calls this function. Those packages are then scanned
+    for configuration as with :meth:`Config.scan`.
+
+    You can add manual :meth:`Config.scan` calls yourself on the
+    returned :class:`Config` object. Finally you need to call
+    :meth:`Config.commit` on the returned :class:`Config` object so
+    the configuration is committed.
+
+    Typically called immediately after startup just before the
+    application starts serving using WSGI.
+
+    See also :func:`autosetup`.
+
+    :param ignore: Venusian_ style ignore to ignore some modules
+      during scanning. Optional.
+    :returns: :class:`Config` object.
+
+    .. _Venusian: http://venusian.readthedocs.org
+    """
     c = setup()
     for package in morepath_packages():
         c.scan(package, ignore)
     return c
 
 
-def autosetup():
-    c = autoconfig()
+def autosetup(ignore=None):
+    """Automatically commit Morepath configuration from packages.
+
+    As with :func:`autoconfig`, but also commits
+    configuration. This can be your one-stop function to load all
+    Morepath configuration automatically.
+
+    Typically called immediately after startup just before the
+    application starts serving using WSGI.
+
+    :param ignore: Venusian_ style ignore to ignore some modules
+      during scanning. Optional.
+    """
+    c = autoconfig(ignore)
     c.commit()
 
 

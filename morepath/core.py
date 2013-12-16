@@ -15,6 +15,16 @@ assert morepath.directive  # we need to make the function directive work
 
 
 def setup():
+    """Set up core Morepath framework configuration.
+
+    Returns a :class:`Config` object; you can then :meth:`Config.scan`
+    the configuration of other packages you want to load and then
+    :meth:`Config.commit` it.
+
+    See also :func:`autoconfig` and :func:`autosetup`.
+
+    :returns: :class:`Config` object.
+    """
     config = Config()
     config.scan(morepath, ignore=['.tests'])
     return config

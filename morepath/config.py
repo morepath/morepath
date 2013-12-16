@@ -5,20 +5,19 @@ from .framehack import caller_package
 
 
 class Configurable(object):
-    """Something configurable.
+    """Object to which configuration actions apply.
 
-    The idea is that actions can be added to a configurable. The
-    configurable is then prepared. This checks for any conflicts between
-    configurations and the configurable is expanded with any configurations
-    from its extends list. Then the configurable can be performed,
-    meaning all its actions will be applied (to it).
+    Actions can be added to a configurable. The configurable is then
+    prepared. This checks for any conflicts between configurations and
+    the configurable is expanded with any configurations from its
+    extends list. Then the configurable can be performed, meaning all
+    its actions will be performed (to it).
     """
     def __init__(self, extends=None):
-        """Initialize configurable.
-
-        extends - the configurables that this configurable extends.
-                  can be a single configurable or a list of configurables.
-                  optional.
+        """
+        :param extends:
+          the configurables that this configurable extends. Optional.
+        :type extends: list of configurables, single configurable.
         """
         if extends is None:
             extends = []
@@ -29,19 +28,33 @@ class Configurable(object):
 
     def clear(self):
         """Clear any previously registered actions.
+
+        This is normally not invoked directly, instead is called
+        indirectly by :meth:`Config.commit`.
         """
         self._actions = []
         self._action_map = None
 
     def action(self, action, obj):
-        """Register an action to object with configurable.
+        """Register an action with configurable.
+
+        This is normally not invoked directly, instead is called
+        indirectly by :meth:`Config.commit`.
+
+        :param action: The action to register with the configurable.
+        :param obj: The object that this action will be performed on.
         """
         self._actions.append((action, obj))
 
     def prepare(self):
         """Prepare configurable.
 
-        Will detect any conflicts between configurations.
+        This is normally not invoked directly, instead is called
+        indirectly by :meth:`Config.commit`.
+
+        Detect any conflicts between actions within this
+        configurable. Merges in configuration of those configurables
+        that this configurable extends.
 
         Prepare must be called before perform is called.
         """
@@ -64,6 +77,13 @@ class Configurable(object):
 
     def combine(self, configurable):
         """Combine actions in another prepared configurable with this one.
+
+        Those configuration actions that would conflict are taken to
+        have precedence over those in the configurable that is being
+        combined with this one. This allows the extending configurable
+        to override configuration in extended configurables.
+
+        :param configurable: the configurable to combine with this one.
         """
         to_combine = configurable._action_map.copy()
         to_combine.update(self._action_map)
@@ -82,8 +102,19 @@ class Configurable(object):
 
 class Action(object):
     """A configuration action.
+
+    A configuration action is performed on an object. Actions can
+    conflict with each other based on their identifier and
+    discriminators. Actions can override each other based on their
+    identifier.
+
+    Can be subclassed to implement concrete configuration actions.
     """
     def __init__(self, configurable):
+        """
+        :param configurable: :class:`morepath.config.Configurable` object
+          for which this action was configured.
+        """
         self.configurable = configurable
         self.order = None
 
@@ -94,16 +125,6 @@ class Action(object):
         """
         raise NotImplementedError()
 
-    def clone(self, **kw):
-        """Make a clone of this action.
-
-        Keyword parameters can be used to override attributes in clone.
-        """
-        action = copy(self)
-        for key, value in kw.items():
-            setattr(action, key, value)
-        return action
-
     def discriminators(self):
         """Returns a list of immutables to detect conflicts.
 
@@ -111,10 +132,22 @@ class Action(object):
         """
         return []
 
+    def clone(self, **kw):
+        """Make a clone of this action.
+
+        Keyword parameters can be used to override attributes in clone.
+
+        Used during preparation to create new fully prepared actions.
+        """
+        action = copy(self)
+        for key, value in kw.items():
+            setattr(action, key, value)
+        return action
+
     def prepare(self, obj):
         """Prepare action for configuration.
 
-        obj - the object being registered
+        :param obj: The object that the action should be performed on.
 
         Returns an iterable of prepared action, obj tuples.
         """
@@ -123,22 +156,41 @@ class Action(object):
     def perform(self, configurable, obj):
         """Register whatever is being configured with configurable.
 
-        configurable - whatever is being configured
-        obj - the object being registered
+        :param configurable: the :class:`morepath.config.Configurable`
+          being configured.
+        :param obj: the object that the action should be performed on.
         """
         raise NotImplementedError()
 
 
 class Directive(Action):
-    """An action that can be used as a decorator.
+    """An :class:`Action` that can be used as a decorator.
+
+    Extends :class:`morepath.config.Action`.
+
+    Base class for concrete Morepath directives such as ``@app.model()``,
+    ``@app.view()``, etc.
+
+    Can be used as a Python decorator.
+
+    Can also be used as a context manager for a Python ``with``
+    statement. This can be used to provide defaults for the directives
+    used within the ``with`` statements context.
+
+    When used as a decorator will track where in the source code
+    the directive was used for the purposes of error reporting.
     """
 
     def __init__(self, configurable):
+        """
+        :param configurable: :class:`morepath.config.Configurable` object
+          for which this action was configured.
+        """
         super(Directive, self).__init__(configurable)
         self.attach_info = None
 
     def codeinfo(self):
-        """Information about how the action was invoked.
+        """Information about where in the source code the directive was invoked.
         """
         if self.attach_info is None:
             return None
@@ -169,22 +221,41 @@ class DirectiveAbbreviation(object):
 
 
 class Config(object):
-    """Config object holds and executes configuration actions.
+    """Contains and executes configuration actions.
+
+    Morepath configuration actions consist of decorator calls on
+    :class:`App` instances, i.e. ``@app.view()`` and
+    ``@app.model()``. The Config object can scan these configuration
+    actions in a package. Once all required configuration is scanned,
+    the configuration can be committed. The configuration is then
+    processed, associated with :class:`morepath.config.Configurable`
+    objects (i.e. :class:`App` objects), conflicts are detected,
+    overrides applied, and the configuration becomes final.
+
+    Once the configuration is committed all configured Morepath
+    :class:`App` objects are ready to be served using WSGI.
+
+    See :func:`setup`, which creates an instance with standard
+    Morepath framework configuration. See also :func:`autoconfig` and
+    :func:`autosetup` which help automatically load configuration from
+    dependencies.
     """
     def __init__(self):
-        """Initialize Config.
-        """
         self.configurables = []
         self.actions = []
         self.count = 0
 
     def scan(self, package=None, ignore=None):
-        """Scan package for configuration directives (decorators).
+        """Scan package for configuration actions (decorators).
 
-        Register any found directives as actions with this config.
+        Register any found configuration actions with this
+        object. This also includes finding any
+        :class:`morepath.config.Configurable` objects.
 
-        package - may be None, in which case the calling package
-          will be scanned.
+        :param package: The Python module or package to scan. Optional; if left
+          empty case the calling package will be scanned.
+        :ignore: A Venusian_ style ignore to ignore some modules during
+          scanning. Optional.
         """
         if package is None:
             package = caller_package()
@@ -193,23 +264,44 @@ class Config(object):
 
     def configurable(self, configurable):
         """Register a configurable with this config.
+
+        This is normally not invoked directly, instead is called
+        indirectly by :meth:`scan`.
+
+        A :class:`App` object is a configurable.
+
+        :param: The :class:`morepath.config.Configurable` to register.
         """
         self.configurables.append(configurable)
 
     def action(self, action, obj):
         """Register an action and obj with this config.
 
-        action - the action to execute
-        obj - the object to execute action over.
+        This is normally not invoked directly, instead is called
+        indirectly by :meth:`scan`.
+
+        A Morepath directive decorator is an action, and obj is the
+        function that was decorated.
+
+        :param: The :class:`Action` to register.
+        :obj: The object to perform action on.
         """
         action.order = self.count
         self.count += 1
         self.actions.append((action, obj))
 
     def prepared(self):
-        """Prepare configuration actions.
+        """Get prepared actions before they are performed.
 
-        Returns an iterable of prepared action, obj combinations.
+        The preparation phase happens as the first stage of a commit.
+        This allows configuration actions to complete their
+        configuration, do error checking, or transform themselves into
+        different configuration actions.
+
+        This calls :meth:`Action.prepare` on all registered configuration
+        actions.
+
+        :returns: An iterable of prepared action, obj combinations.
         """
         for action, obj in self.actions:
             for prepared, prepared_obj in action.prepare(obj):
@@ -218,8 +310,21 @@ class Config(object):
     def commit(self):
         """Commit all configuration.
 
-        First prepares actions, then looks for configuration conflicts,
-        then extends all configuration and executes it.
+        * Clears any previous configuration from all registered
+          :class:`morepath.config.Configurable` objects.
+        * Prepares actions using :meth:`prepared`.
+        * Configuration conflicts within configurables are detected.
+        * The configuration of configurable objects that extend
+          each other is merged.
+        * Finally all configuration actions are performed, completing
+          the configuration process.
+
+        This method should be called only once during the lifetime of
+        a process, before the configuration is first used. After this
+        the configuration is considered to be fixed and cannot be
+        further modified. In tests this method can be executed
+        multiple times as it will automatically clear the
+        configuration of its configurables first.
         """
         # clear all previous configuration; commit can only be run
         # once during runtime so it's handy to clear this out for tests

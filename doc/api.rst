@@ -3,10 +3,28 @@ API
 
 .. py:module:: morepath
 
-.. autoclass:: morepath.App
+.. autoclass:: App
   :members:
 
-.. autoclass:: morepath.AppBase
+.. autoclass:: AppBase
   :members:
 
-.. autodata:: morepath.global_app
+.. autodata:: global_app
+
+.. autofunction:: autoconfig
+
+.. autofunction:: autosetup
+
+.. autofunction:: setup
+
+.. autoclass:: Config
+  :members:
+
+.. autoclass:: morepath.config.Configurable
+  :members:
+
+.. autoclass:: morepath.config.Action
+  :members:
+
+.. autoclass:: morepath.Directive
+  :members:
