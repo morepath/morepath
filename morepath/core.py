@@ -131,11 +131,13 @@ def has_permission(identity, model, permission):
     return False
 
 
-@global_app.predicate(name='name', index=KeyIndex, order=0)
+@global_app.predicate(name='name', index=KeyIndex, order=0,
+                      default='')
 def name_predicate(request, model):
     return request.view_name
 
 
-@global_app.predicate(name='request_method', index=KeyIndex, order=1)
+@global_app.predicate(name='request_method', index=KeyIndex, order=1,
+                      default='GET')
 def request_method_predicate(request, model):
     return request.method

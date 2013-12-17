@@ -25,19 +25,21 @@ def register_view(registry, model, view, render=None, permission=None,
     if predicates is not None:
         matcher = registry.exact(generic.view, (Request, model))
         if matcher is None:
+            predicate_info = registry.exact('predicate_info', ())
+            predicate_info.sort()
             matcher = PredicateMatcher(
-                registry.exact('predicate_info', ()))
+                [predicate for (order, predicate) in predicate_info])
         matcher.register(predicates, registration)
         registration = matcher
     registry.register(generic.view, (Request, model), registration)
 
 
-def register_predicate(registry, func, name, index, order):
+def register_predicate(registry, name, order, default, index, calc):
     predicate_info = registry.exact('predicate_info', ())
     if predicate_info is None:
         predicate_info = []
         registry.register('predicate_info', (), predicate_info)
-    predicate_info.append((Predicate(name, index, -order), func))
+    predicate_info.append((order, Predicate(name, index, calc, default)))
 
 
 def render_noop(response, content):

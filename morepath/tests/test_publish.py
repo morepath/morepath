@@ -125,6 +125,31 @@ def test_request_view():
     assert request.view(model) == {'hey': 'hey'}
 
 
+def test_request_view_with_predicates():
+    app = App()
+
+    c = setup()
+    c.configurable(app)
+    c.commit()
+
+    def view(request, model):
+        return {'hey': 'hey'}
+
+    register_view(app, Model, view, render=render_json,
+                  predicates=dict(name='foo'))
+
+    request = app.request(get_environ(path=''))
+    model = Model()
+    # since the name is set to foo, we get nothing here
+    assert request.view(model) is None
+    # we have to pass the name predicate ourselves
+    assert request.view(model, name='foo') == {'hey': 'hey'}
+    # the predicate information in the request is ignored when we do a
+    # manual view lookup using request.view
+    request = app.request(get_environ(path='foo'))
+    assert request.view(model) is None
+
+
 def test_render_html():
     app = App()
 

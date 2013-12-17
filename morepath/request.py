@@ -19,10 +19,13 @@ class Request(BaseRequest):
                                 default=NO_IDENTITY)
 
     # XXX how to make view in other application context?
-    # XXX how to pass in view name?
-    def view(self, model, default=None):
-        return generic.view(
-            self, model, lookup=self.lookup, default=default)
+    def view(self, model, default=None, **predicates):
+        view = generic.view.component(
+            self, model, lookup=self.lookup, default=default,
+            precalc=predicates)
+        if view is None:
+            return None
+        return view(self, model)
 
     # XXX add way to easily generate URL parameters too
     # XXX add way to determine application lookup context, or just

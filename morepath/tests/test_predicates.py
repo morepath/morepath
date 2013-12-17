@@ -56,7 +56,7 @@ def test_extra_predicates():
              get_a)
     c.action(app.view(model=Model, name='foo', id='b'),
              get_b)
-    c.action(app.predicate(name='id', order=2),
+    c.action(app.predicate(name='id', order=2, default=''),
              get_id)
     c.commit()
 

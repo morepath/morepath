@@ -134,17 +134,19 @@ class ViewDirective(Directive):
 class PredicateDirective(Directive):
     priority = 1000 # execute earlier than view directive
 
-    def __init__(self, app, name, order, index=KeyIndex):
+    def __init__(self, app, name, order, default, index=KeyIndex):
         super(PredicateDirective, self).__init__(app)
         self.name = name
-        self.index = index
         self.order = order
+        self.default = default
+        self.index = index
 
     def identifier(self):
         return ('predicate', self.name)
 
     def perform(self, app, obj):
-        register_predicate(app, obj, self.name, self.index, self.order)
+        register_predicate(app, self.name, self.order, self.default,
+                           self.index, obj)
 
 
 @directive('json')
