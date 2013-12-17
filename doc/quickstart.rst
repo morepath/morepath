@@ -67,7 +67,8 @@ press control-C.
 This application is a bit bigger than you might be used to in other
 web micro-frameworks. That's for a reason: Morepath is not geared to
 create the most succinct "Hello world!" application but to be
-effective for building slightly larger applications.
+effective for building slightly larger applications, all the way up to
+huge ones.
 
 Let's go through the hello world app step by step to gain a better
 understanding.
@@ -101,11 +102,13 @@ Code Walkthrough
 5. The ``if __name__ == '__main__'`` section is a way in Python to
    make the code only run if the ``hello.py`` module is started
    directly with Python as discussed above. In a real-world
-   application you could work with setuptools entry points instead.
+   application you instead use a setuptools entry point so that a
+   startup script for your application is created automatically.
 
-6. ``morepath.setup()`` sets up Morepath's default behavior.
+6. ``morepath.autosetup()`` sets up Morepath's default behavior, and
+   also scans this module.
 
-7. We then create a morepath ``config`` object, ``scan()`` this module
+7. We then We then create a morepath ``config`` object, ``scan()`` this module
    (or package) for configuration decorators (such as ``@app.root``
    and ``@app.view``) and cause the registration to be registered
    using ``commit()``.
@@ -144,7 +147,7 @@ route to views, but routes to models instead.
 Models
 ~~~~~~
 
-A model is any Python object that represents an aspect of your
+A model is any Python object that represents the content of your
 application: say a document, or a user, an address, and so on. A model
 may be a plain in-memory Python object or be backed by a database
 using an ORM such as SQLAlchemy_, or some NoSQL database such as the
@@ -156,8 +159,8 @@ requirements on models.
 .. _ZODB: http://www.zodb.org/en/latest/
 
 Above we've exposed a ``Root`` model to the root route ``/``, which is
-rather boring. Let's imagine we have an application where we want to
-manage users. Here's our ``User`` class::
+rather boring. To make things more interesting, let's imagine we have
+an application to manage users. Here's our ``User`` class::
 
   class User(object):
        def __init__(self, username, fullname, email):
@@ -179,7 +182,7 @@ We also create a simple users database::
 Publishing models
 ~~~~~~~~~~~~~~~~~
 
-We want to have URLs that look like this::
+We want our application to have URLs that look like this::
 
   /user/faassen
 
@@ -192,26 +195,30 @@ Here's the code to expose our users database to such a URL::
   def get_user(username):
       return users.get(username)
 
-Let's examine the ``get_user`` function first: it gets a user model
-from the users database by using the dictionary ``get`` method. If the
-user doesn't exist, it will return ``None``.
+The ``get_user`` function gets a user model from the users database by
+using the dictionary ``get`` method. If the user doesn't exist, it
+will return ``None``. We could've fitted a SQLAlchemy query in here
+instead.
 
-Now let's look at the decorator. We first give the class of the model
-that we're publishing with the ``model`` argument. We then specify the
-path. The path can have variables in it which are between curly braces
+Now let's look at the decorator. The ``model`` argument has the class
+of the model that we're putting on the web. The ``path`` argument has
+the URL path under which it should appear.
+
+The path can have variables in it which are between curly braces
 (``{`` and ``}``). These variables become arguments to the function
-being decorated. Finally we need to supply ``variables``, a function
-that given a model can construct the variables that go into the
-path. In this case, we know we need the username and we can get it
-from the ``user`` object. ``variables`` is important for link
-generation, as we'll see later.
+being decorated. If we have variables in our path, we also need to
+supply ``variables``. This is a function that given a model can
+construct the variables that go into the path. In this case, we know
+we need the username and we can get it from the ``user``
+object. ``variables`` is important for link generation, as we'll see
+later.
 
 What if the user doesn't exist? We want the end-user to see a 404
 error.  Morepath does this automatically for you when you return
 ``None`` for a model, which is what ``get_user`` does when the model
 cannot be found.
 
-Now we've published the model but we can't view it yet.
+Now we've published the model to the web but we can't view it yet.
 
 .. sidebar:: int converter
 
@@ -225,8 +232,8 @@ Now we've published the model but we can't view it yet.
 Views
 ~~~~~
 
-Now we need to show some information about the user, so we create a
-view for it::
+In order to actually see a web page for a user model, we need to
+create a view for it::
 
   @app.view(model=User)
   def user_info(request, model):
@@ -234,11 +241,10 @@ view for it::
 
 The view is a function decorated by ``@app.view`` (or related
 decorators such as ``@app.json`` and ``@app.html``) that gets two
-arguments: ``request`` which is a `Werkzeug request`_ object, and
-``model`` which is the model that this view is working for, so in this
-case an instance of ``User``.
-
-.. _`Werkzeug request`: http://werkzeug.pocoo.org/docs/wrappers/#werkzeug.wrappers.BaseRequest
+arguments: ``request`` which is a :class:`morepath.Request` object (a
+subclass of :class:`werkzeug.wrappers.BaseRequest`), and ``model``
+which is the model that this view is working for, so in this case an
+instance of ``User``.
 
 Now the URLs listed above such as ``/user/faassen`` will work.
 
@@ -256,9 +262,8 @@ Now we have functionality on URLs like ``/user/faassen/edit`` and
 Linking to models
 ~~~~~~~~~~~~~~~~~
 
-Morepath is great at creating paths to models; it can do it for you
-automatically. This is really useful when you want to generate a link
-to something. Previously we've defined an instance of ``User`` called
+Morepath is great at creating links to models: it can do it for you
+automatically. Previously we've defined an instance of ``User`` called
 ``bob``. What now if we want to link to the default view of ``bob``?
 We simply do this::
 
@@ -272,10 +277,10 @@ What if we want to see Bob's edit view? We do this::
 
 And we'll get ``/user/bob/edit``.
 
-Using ``request.link()`` everywhere for link generation is easy. You
-only need models and remember which view names are available, that's
-it. If you ever have to change the path of your model, you won't need
-to adjust any linking code.
+Using :meth:`morepath.Request.link`` everywhere for link generation is
+easy. You only need models and remember which view names are
+available, that's it. If you ever have to change the path of your
+model, you won't need to adjust any linking code.
 
 .. sidebar:: Link generation compared
 
@@ -291,9 +296,9 @@ to adjust any linking code.
 JSON and HTML views
 ~~~~~~~~~~~~~~~~~~~
 
-``@app.view`` is rather bare-bones. You usually know more about
-what you want to return than that. If you want to return JSON,
-you can use the shortcut ``@app.json`` instead to declare your view::
+``@app.view`` is rather bare-bones. You usually know more about what
+you want to return than that. If you want to return JSON, you can use
+the shortcut ``@app.json`` instead to declare your view::
 
   @app.json(model=User, name='info')
   def user_json_info(request, model):
@@ -301,8 +306,8 @@ you can use the shortcut ``@app.json`` instead to declare your view::
               'fullname': model.fullname,
               'email': model.email}
 
-This automatically serializes the dictionary we return to JSON, and
-sets the content-type header to ``application/json``.
+This automatically serializes what is returned from the function JSON,
+and sets the content-type header to ``application/json``.
 
 If we want to return HTML, we can use ``@app.html``::
 
@@ -312,38 +317,45 @@ If we want to return HTML, we can use ``@app.html``::
 
 This automatically sets the content type to ``text/html``. It doesn't
 do any HTML escaping though, so the use of ``%`` above is unsafe! We
-recommend the use of a HTML template language.
+recommend the use of a HTML template language in that case.
 
 Request object
 --------------
 
-The first argument for a view function is the request object. This is
-a `Werkzeug request`_. We'll give a quick overview of what's possible
-here, but consult the Werkzeug API documentation for more information.
+The first argument for a view function is the request object. We'll
+give a quick overview of what's possible here, but consult the
+Werkzeug API documentation for more information.
 
-* ``request.args`` contains any URL parameters (``?key=value``).
+* ``request.args`` contains any URL parameters (``?key=value``). See
+  :attr:`werkzeug.wrappers.BaseRequest.args`.
 
-* ``request.form`` contains any HTTP form data that was submitted.
+* ``request.form`` contains any HTTP form data that was submitted. See
+  :attr:`werkzeug.wrappers.BaseRequest.form`.
 
-* ``request.method`` gets the HTTP method (``GET``, ``POST``, etc).
+* ``request.method`` gets the HTTP method (``GET``, ``POST``, etc). See
+  :attr:`werkzeug.wrappers.BaseRequest.method`.
 
-* Uploaded files made available in ``request.files``. The keys are the
-  form fields with which they were uploaded. The values are Python
-  ``file`` style objects, but with a ``save()`` method added that
-  allows you to store that file on the filesystem. There is also a
-  ``filename`` attribute that gives the filename of the file that was
-  uploaded; if you want to use this to store the file, use
-  ``werkzeug.utils.secure_filename()`` to secure it first. Make sure
-  your HTML form has ``enctype="multipart/form-data"`` set to make
-  file uploads work.
+* Uploaded files made available in ``request.files``. See
+  :attr:`werkzeug.wrappers.BaseRequest.files`.
 
-* ``request.cookies`` contains the cookies. ``response.set_cookie`` can
-  be used to set cookies.
+  The keys are the form fields with which they were uploaded. The
+  values are Python ``file`` style objects, but with a ``save()``
+  method added that allows you to store that file on the
+  filesystem. There is also a ``filename`` attribute that gives the
+  filename of the file that was uploaded; if you want to use this to
+  store the file, use :func:`werkzeug.utils.secure_filename` to secure
+  it first. Make sure your HTML form has
+  ``enctype="multipart/form-data"`` set to make file uploads work.
+
+* ``request.cookies`` contains the cookies. See
+  :attr:`werkzeug.wrappers.BaseRequest.cookies`. ``response.set_cookie``
+  can be used to set cookies. See
+  :meth:`werkzeug.wrappers.BaseResponse.set_cookie`.
 
 Redirects
 ---------
 
-To redirect to another URL, use ``morepath.redirect``. For example::
+To redirect to another URL, use :func:`morepath.redirect`. For example::
 
   @app.view(model=User, name='extra')
   def redirecting(request, model):
@@ -352,13 +364,11 @@ To redirect to another URL, use ``morepath.redirect``. For example::
 HTTP Errors
 -----------
 
-To trigger an HTTP error response you can raise various `Werkzeug HTTP
-exceptions`_. For instance::
+To trigger an HTTP error response you can raise various Werkzeug HTTP
+exceptions (:mod:`werkzeug.exceptions`). For instance::
 
-  from werkzeug.exceptions import BadRequest
+  from werkzeug.exceptions import NotAcceptable
 
   @app.view(model=User, name='extra')
   def erroring(request, model):
-      raise BadRequest()
-
-.. _`Werkzeug HTTP exceptions`: http://werkzeug.pocoo.org/docs/exceptions/
+      raise NotAcceptable()
