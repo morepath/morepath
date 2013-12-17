@@ -8,7 +8,7 @@ from .request import Request, Response
 from werkzeug.wrappers import BaseResponse
 from werkzeug.exceptions import Unauthorized
 import morepath
-from reg import mapply
+from reg import mapply, KeyIndex
 
 
 assert morepath.directive  # we need to make the function directive work
@@ -129,3 +129,13 @@ def has_permission(identity, model, permission):
     if permission is None:
         return True
     return False
+
+
+@global_app.predicate(name='name', index=KeyIndex, order=0)
+def name_predicate(request, model):
+    return request.view_name
+
+
+@global_app.predicate(name='request_method', index=KeyIndex, order=1)
+def request_method_predicate(request, model):
+    return request.method

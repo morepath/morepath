@@ -1,11 +1,13 @@
 from .app import AppBase
 from .config import Directive
 from .error import ConfigError
-from .view import (register_view, render_json, render_html)
+from .view import (register_view, render_json, render_html,
+                   register_predicate)
 from .security import (register_permission_checker,
                        register_identity_policy, Identity, NoIdentity)
 from .model import register_model, register_root, register_mount
 from .traject import Path
+from reg import KeyIndex
 
 
 class directive(object):
@@ -126,6 +128,23 @@ class ViewDirective(Directive):
     def perform(self, app, obj):
         register_view(app, self.model, obj, self.render, self.permission,
                       self.predicates)
+
+
+@directive('predicate')
+class PredicateDirective(Directive):
+    priority = 1000 # execute earlier than view directive
+
+    def __init__(self, app, name, order, index=KeyIndex):
+        super(PredicateDirective, self).__init__(app)
+        self.name = name
+        self.index = index
+        self.order = order
+
+    def identifier(self):
+        return ('predicate', self.name)
+
+    def perform(self, app, obj):
+        register_predicate(app, obj, self.name, self.index, self.order)
 
 
 @directive('json')

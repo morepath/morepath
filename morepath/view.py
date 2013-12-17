@@ -1,6 +1,6 @@
 from morepath import generic
 from .request import Request, Response
-from reg import PredicateRegistry, Predicate, KeyIndex, Matcher
+from reg import PredicateMatcher, Predicate, KeyIndex
 import json
 
 
@@ -12,25 +12,6 @@ class View(object):
 
     def __call__(self, request, model):
         return self.func(request, model)
-
-# XXX want to make predicates not hard coded
-class ViewMatcher(Matcher):
-    def __init__(self):
-        self.reg = PredicateRegistry([Predicate('name', KeyIndex),
-                                      Predicate('request_method', KeyIndex)])
-
-    def register(self, predicates, registration):
-        self.reg.register(predicates, registration)
-
-    def get_predicates(self, request):
-        result = {}
-        result['request_method'] = request.method
-        result['name'] = request.view_name
-        return result
-
-    def __call__(self, request, model):
-        request_predicates = self.get_predicates(request)
-        return self.reg.get(request_predicates)
 
 
 # XXX what happens if predicates is None for one registration
@@ -44,10 +25,19 @@ def register_view(registry, model, view, render=None, permission=None,
     if predicates is not None:
         matcher = registry.exact(generic.view, (Request, model))
         if matcher is None:
-            matcher = ViewMatcher()
+            matcher = PredicateMatcher(
+                registry.exact('predicate_info', ()))
         matcher.register(predicates, registration)
         registration = matcher
     registry.register(generic.view, (Request, model), registration)
+
+
+def register_predicate(registry, func, name, index, order):
+    predicate_info = registry.exact('predicate_info', ())
+    if predicate_info is None:
+        predicate_info = []
+        registry.register('predicate_info', (), predicate_info)
+    predicate_info.append((Predicate(name, index, -order), func))
 
 
 def render_noop(response, content):
