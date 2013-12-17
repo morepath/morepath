@@ -27,6 +27,40 @@ def test_action():
     assert performed == [foo]
 
 
+def test_action_priority():
+    performed = []
+
+    class MyAction(config.Action):
+        def perform(self, configurable, obj):
+            performed.append('myaction')
+
+        def identifier(self):
+            return ()
+
+    class HighPriorityAction(config.Action):
+        priority = 100
+        def perform(self, configurable, obj):
+            performed.append('highpriority')
+
+        def identifier(self):
+            return ('high',)
+
+    c = config.Config()
+    x = config.Configurable()
+
+    class Foo(object):
+        pass
+
+    foo = Foo()
+    bar = Foo()
+    c.configurable(x)
+    c.action(MyAction(x), foo)
+    c.action(HighPriorityAction(x), bar)
+
+    c.commit()
+    assert performed == ['highpriority', 'myaction']
+
+
 def test_action_not_implemented():
     class UnimplementedAction(config.Action):
         def identifier(self):

@@ -95,7 +95,7 @@ class Configurable(object):
         Prepare must be called before calling this.
         """
         values = self._action_map.values()
-        values.sort(key=lambda (action, obj): action.order)
+        values.sort(key=lambda (action, obj): (-action.priority, action.order))
         for action, obj in values:
             action.perform(self, obj)
 
@@ -109,7 +109,14 @@ class Action(object):
     identifier.
 
     Can be subclassed to implement concrete configuration actions.
+
+    Classes (or action instances) can have a ``priority`` attribute.
+    Actions with higher priority will be performed first for a
+    configurable. This makes it possible to design actions that depend
+    on other actions having been performed.
     """
+    priority = 0
+
     def __init__(self, configurable):
         """
         :param configurable: :class:`morepath.config.Configurable` object
