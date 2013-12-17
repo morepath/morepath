@@ -22,7 +22,7 @@ class Request(BaseRequest):
     def view(self, model, default=None, **predicates):
         view = generic.view.component(
             self, model, lookup=self.lookup, default=default,
-            precalc=predicates)
+            predicates=predicates)
         if view is None:
             return None
         return view(self, model)
