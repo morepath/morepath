@@ -4,10 +4,12 @@ from .error import ConfigError
 from .view import (register_view, render_json, render_html,
                    register_predicate)
 from .security import (register_permission_checker,
-                       register_identity_policy, Identity, NoIdentity)
+                       Identity, NoIdentity)
 from .model import register_model, register_root, register_mount
 from .traject import Path
 from reg import KeyIndex
+from .request import Request, Response
+from morepath import generic
 
 
 class directive(object):
@@ -213,8 +215,15 @@ class IdentityPolicyDirective(Directive):
     def identifier(self):
         return ('identity_policy',)
 
-    def perform(self, app, obj):
-        register_identity_policy(app, obj())
+    def prepare(self, obj):
+        policy = obj()
+        app = self.configurable
+        yield app.function(
+            generic.identify, Request), policy.identify
+        yield app.function(
+            generic.remember, Response, Request, object), policy.remember
+        yield app.function(
+            generic.forget, Response, Request), policy.forget
 
 
 @directive('function')

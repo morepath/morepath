@@ -42,14 +42,6 @@ class Identity(object):
         return result
 
 
-def register_identity_policy(app, policy):
-    # XXX instead should issue sub directives in identity policy directive
-    app.register(generic.identify, [Request], policy.identify)
-    app.register(generic.remember, [Response, Request, object],
-                 policy.remember)
-    app.register(generic.forget, [Response, Request], policy.forget)
-
-
 class BasicAuthIdentityPolicy(object):
     """Identity policy that uses HTTP Basic Authentication.
 
