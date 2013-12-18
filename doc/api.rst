@@ -52,6 +52,15 @@ API
 .. autoclass:: morepath.Request
   :members:
 
+.. autoclass:: morepath.Response
+  :members:
+
+.. autoclass:: morepath.security.Identity
+  :members:
+
+.. autoclass:: morepath.security.BasicAuthIdentityPolicy
+  :members:
+
 .. autoclass:: Config
   :members:
 

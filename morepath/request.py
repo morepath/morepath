@@ -74,4 +74,9 @@ class Request(BaseRequest):
 
 
 class Response(BaseResponse, CommonResponseDescriptorsMixin):
-    pass
+    """Response.
+
+    Extends :class:`werkzeug.wrappers.BaseResponse` and
+    :class:`werkzeug.wrappers.CommonResponseDescriptorsMixin`.
+    """
+
