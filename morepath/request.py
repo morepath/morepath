@@ -9,8 +9,6 @@ class Request(BaseRequest):
     """Request.
 
     Extends :class:`werkzeug.wrappers.BaseRequest`
-
-    The Morepath request object adds the ability to 
     """
     def __init__(self, environ, populate_request=True, shallow=False):
         super(Request, self).__init__(environ, populate_request, shallow)
@@ -79,4 +77,3 @@ class Response(BaseResponse, CommonResponseDescriptorsMixin):
     Extends :class:`werkzeug.wrappers.BaseResponse` and
     :class:`werkzeug.wrappers.CommonResponseDescriptorsMixin`.
     """
-

@@ -39,6 +39,7 @@ def test_action_priority():
 
     class HighPriorityAction(config.Action):
         priority = 100
+
         def perform(self, configurable, obj):
             performed.append('highpriority')
 

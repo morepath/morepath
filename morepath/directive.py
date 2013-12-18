@@ -132,7 +132,7 @@ class ViewDirective(Directive):
 
 @directive('predicate')
 class PredicateDirective(Directive):
-    priority = 1000 # execute earlier than view directive
+    priority = 1000  # execute earlier than view directive
 
     def __init__(self, app, name, order, default, index=KeyIndex):
         super(PredicateDirective, self).__init__(app)

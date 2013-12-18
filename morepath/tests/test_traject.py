@@ -7,6 +7,7 @@ from morepath.core import traject_consume
 import pytest
 from werkzeug.test import EnvironBuilder
 
+
 class Root(object):
     pass
 
@@ -446,6 +447,7 @@ def test_traject_consume_variable():
     assert isinstance(found, Model)
     assert found.foo == 'something'
     assert request.unconsumed == []
+
 
 def test_traject_consume_view():
     app = App()

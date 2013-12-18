@@ -197,7 +197,7 @@ class Directive(Action):
         self.attach_info = None
 
     def codeinfo(self):
-        """Information about where in the source code the directive was invoked.
+        """Info about where in the source code the directive was invoked.
         """
         if self.attach_info is None:
             return None

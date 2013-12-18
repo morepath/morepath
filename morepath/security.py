@@ -2,6 +2,7 @@ from .request import Request, Response
 from morepath import generic
 from werkzeug import parse_authorization_header
 
+
 class NoIdentity(object):
     userid = None
 
@@ -44,7 +45,8 @@ class Identity(object):
 def register_identity_policy(app, policy):
     # XXX instead should issue sub directives in identity policy directive
     app.register(generic.identify, [Request], policy.identify)
-    app.register(generic.remember, [Response, Request, object], policy.remember)
+    app.register(generic.remember, [Response, Request, object],
+                 policy.remember)
     app.register(generic.forget, [Response, Request], policy.forget)
 
 

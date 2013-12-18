@@ -7,7 +7,6 @@ from morepath.security import (Identity, BasicAuthIdentityPolicy,
                                NO_IDENTITY)
 from .fixtures import identity_policy
 from werkzeug.datastructures import Headers
-import pytest
 import base64
 import json
 
@@ -153,6 +152,7 @@ def test_basic_auth_identity_policy():
     headers.add('Authorization', 'Basic ' + base64.b64encode('user:secret'))
     response = c.get('/foo', headers=headers)
     assert response.data == 'Model: foo'
+
 
 def test_basic_auth_remember():
     app = morepath.App()
@@ -302,5 +302,3 @@ def test_cookie_identity_policy():
 
     response = c.get('/foo')
     assert response.status == '401 UNAUTHORIZED'
-
-

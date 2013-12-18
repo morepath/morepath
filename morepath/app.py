@@ -5,7 +5,6 @@ from .config import Configurable
 from reg import ClassRegistry, Lookup, CachingClassLookup
 import venusian
 from werkzeug.serving import run_simple
-from morepath import generic
 
 
 class AppBase(Configurable, ClassRegistry):

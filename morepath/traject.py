@@ -1,8 +1,7 @@
 import re
 from functools import total_ordering
-from morepath import generic
 from reg import Registry
-from reg.mapply import mapply
+
 
 IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
 PATH_VARIABLE = re.compile(r'\{([^}]*)\}')

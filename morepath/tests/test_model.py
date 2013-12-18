@@ -1,11 +1,10 @@
 from morepath.model import register_root, register_model
 from morepath.app import App
 from werkzeug.test import EnvironBuilder
-from morepath.request import Request
 from morepath import setup
 from morepath import generic
-from morepath.traject import parse_path
 from morepath.core import traject_consume
+
 
 def consume(app, path):
     request = app.request(EnvironBuilder(path=path).get_environ())
@@ -63,7 +62,6 @@ def test_register_model():
 def test_traject_path_with_leading_slash():
     app = App()
     root = Root()
-    lookup = app.lookup()
 
     def get_model(id):
         model = Model()
