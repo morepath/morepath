@@ -42,10 +42,6 @@ def register_predicate(registry, name, order, default, index, calc):
     predicate_info.append((order, Predicate(name, index, calc, default)))
 
 
-def render_noop(response, content):
-    return response
-
-
 def render_json(content):
     response = Response(json.dumps(content))
     response.content_type = 'application/json'
