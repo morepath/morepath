@@ -49,6 +49,9 @@ API
 
 .. autofunction:: setup
 
+.. autoclass:: morepath.Request
+  :members:
+
 .. autoclass:: Config
   :members:
 
