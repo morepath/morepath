@@ -14,6 +14,7 @@ class Request(BaseRequest):
         super(Request, self).__init__(environ, populate_request, shallow)
         self.unconsumed = parse_path(self.path)
         self.mounts = []
+        self._after = []
 
     @cached_property
     def identity(self):
@@ -69,6 +70,31 @@ class Request(BaseRequest):
         if name:
             result += '/' + name
         return result
+
+    def after(self, func):
+        """Call function with response after this request is done.
+
+        Can be used explicitly::
+
+          def myfunc(response):
+              response.headers.add('blah', 'something')
+          request.after(my_func)
+
+        or as a decorator::
+
+          @request.after
+          def myfunc(response):
+              response.headers.add('blah', 'something')
+
+        :param func: callable that will be called with response
+        :returns: func argument, not wrapped
+        """
+        self._after.append(func)
+        return func
+
+    def run_after(self, response):
+        for after in self._after:
+            after(response)
 
 
 class Response(BaseResponse, CommonResponseDescriptorsMixin):

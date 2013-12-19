@@ -167,3 +167,68 @@ def test_render_html():
     response = resolve_response(request, model)
     assert response.data == '<p>Hello world!</p>'
     assert response.content_type == 'text/html'
+
+
+def test_view_after():
+    app = App()
+
+    c = setup()
+    c.configurable(app)
+    c.commit()
+
+    def view(request, model):
+        @request.after
+        def set_header(response):
+            response.headers.add('Foo', 'FOO')
+        return "View!"
+
+    register_view(app, Model, view, predicates=dict(name=''))
+
+    model = Model()
+    result = resolve_response(app.request(get_environ(path='')), model)
+    assert result.data == 'View!'
+    assert result.headers.get('Foo') == 'FOO'
+
+
+def test_conditional_view_after():
+    app = App()
+
+    c = setup()
+    c.configurable(app)
+    c.commit()
+
+    def view(request, model):
+        if False:
+            @request.after
+            def set_header(response):
+                response.headers.add('Foo', 'FOO')
+        return "View!"
+
+    register_view(app, Model, view, predicates=dict(name=''))
+
+    model = Model()
+    result = resolve_response(app.request(get_environ(path='')), model)
+    assert result.data == 'View!'
+    assert result.headers.get('Foo') is None
+
+
+def test_view_after_non_decorator():
+    app = App()
+
+    c = setup()
+    c.configurable(app)
+    c.commit()
+
+    def set_header(response):
+        response.headers.add('Foo', 'FOO')
+
+    def view(request, model):
+        request.after(set_header)
+        return "View!"
+
+    register_view(app, Model, view, predicates=dict(name=''))
+
+    model = Model()
+    result = resolve_response(app.request(get_environ(path='')), model)
+    assert result.data == 'View!'
+    assert result.headers.get('Foo') == 'FOO'

@@ -50,6 +50,7 @@ def resolve_response(request, model):
     if response is RESPONSE_SENTINEL:
         # XXX lookup error view and fallback to default
         raise NotFound()
+    request.run_after(response)
     return response
 
 
