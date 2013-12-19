@@ -10,7 +10,7 @@ from .traject import Path
 from reg import KeyIndex
 from .request import Request, Response
 from morepath import generic
-
+from functools import update_wrapper
 
 class directive(object):
     """Register a new directive with Morepath.
@@ -33,6 +33,8 @@ class directive(object):
     def __call__(self, directive):
         def method(self, *args, **kw):
             return directive(self, *args, **kw)
+        method.actual_directive = directive
+        update_wrapper(method, directive.__init__)
         setattr(AppBase, self.name, method)
         return directive
 
@@ -41,6 +43,22 @@ class directive(object):
 class ModelDirective(Directive):
     def __init__(self, app,  path, model=None,
                  variables=None, base=None, get_base=None):
+        """Register a model for a path.
+
+        :param path: the route for which the model is registered.
+        :param model: the class of the model that the decorated function
+          should return. If the directive is used on a class instead of a
+          function, the model should not be provided.
+        :param variables: a function that given a model object can construct
+          the variables used in the path. Can be omitted if no variables
+          are used in the path.
+        :param base: the class of the base model from which routing
+          should start.  If omitted, the routing will start from the
+          mounted application's root.
+        :param get_base: if a ``base`` parameter is provided, this should
+          be a function that given the model can return an instance of the
+          ``base``.
+        """
         super(ModelDirective, self).__init__(app)
         self.model = model
         self.path = path
@@ -98,6 +116,18 @@ class PermissionDirective(Directive):
 class ViewDirective(Directive):
     def __init__(self, app, model, name='', render=None, permission=None,
                  **kw):
+        '''Register a view for a model.
+
+        :param model: the class of the model for which this view is registered.
+        :param name: the name of the view as it appears in the URL. If omitted,
+          it is the empty string, meaning the default view for the model.
+        :param render: an optional function that can render the output of the
+          view function to a response, and possibly set headers such as
+          ``Content-Type``, etc.
+        :param permission: a permission class. The model should have this
+          permission, otherwise access to this view is forbidden. If omitted,
+          the view function is public.
+        '''
         super(ViewDirective, self).__init__(app)
         self.model = model
         self.name = name
@@ -212,6 +242,11 @@ class MountDirective(Directive):
 
 @directive('identity_policy')
 class IdentityPolicyDirective(Directive):
+    def __init__(self, app):
+        '''Register identity policy.
+        '''
+        super(IdentityPolicyDirective, self).__init__(app)
+
     def identifier(self):
         return ('identity_policy',)
 
