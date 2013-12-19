@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
 
    quickstart
+   app_reuse
    api
    design
    developing
