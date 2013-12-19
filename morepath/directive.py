@@ -116,8 +116,10 @@ class PermissionDirective(Directive):
         identity exists and has that permission on the model.
 
         :param model: the model class
-        :permission model: permission class
-        :identity: identity to check permission for
+        :param permission: permission class
+        :param identity: identity to check permission for. If ``None``,
+          the identity to check for will be the special
+          :data:`morepath.security.NO_IDENTITY`.
         """
         super(PermissionDirective, self).__init__(app)
         self.model = model
