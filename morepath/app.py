@@ -17,6 +17,9 @@ class AppBase(Configurable, ClassRegistry):
     class so that we can have an :class:`App` class that automatically
     extends from ``global_app``, which defines the Morepath framework
     itself.  Normally you would use :class:`App` instead this one.
+
+    AppBase can be used as a WSGI application, i.e. it can be called
+    with ``environ`` and ``start_response`` arguments.
     """
     # XXX have a way to define parameters for app here
     def __init__(self, name='', extends=None):
@@ -49,6 +52,8 @@ class AppBase(Configurable, ClassRegistry):
 
     def lookup(self):
         """Get the :class:`reg.Lookup` for this application.
+
+        :returns: a :class:`reg.Lookup` instance.
         """
         # XXX use cached property instead?
         if self._cached_lookup is not None:
@@ -57,16 +62,31 @@ class AppBase(Configurable, ClassRegistry):
         return result
 
     def request(self, environ):
+        """Create a :class:`Request` given WSGI environment.
+
+        :param environ: WSGI environment
+        :returns: :class:`morepath.Request` instance
+        """
         request = Request(environ)
         request.lookup = self.lookup()
         return request
 
     def context(self, **kw):
+        """Create WSGI application mounted in context.
+
+        :param kw: the arguments that should go to the mount.
+        :returns: a WSGI application
+        """
         def wsgi(environ, start_response):
             return self(environ, start_response, context=kw)
         return wsgi
 
     def mounted(self, context=None):
+        """Create :class:`morepath.model.Mount` for application.
+
+        :context: context dict
+        :returns: :class:`morepath.model.Mount`
+        """
         context = context or {}
         return Mount(self, lambda: context, {})
 
@@ -76,6 +96,12 @@ class AppBase(Configurable, ClassRegistry):
         return response(environ, start_response)
 
     def run(self, host=None, port=None, **options):
+        """Use Werkzeug WSGI server to run application.
+
+        :param host: hostname
+        :param port: port
+        :param options: options as for :func:`werkzeug.serving.run_simple`
+        """
         if host is None:
             host = '127.0.0.1'
         if port is None:
