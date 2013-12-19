@@ -46,6 +46,15 @@ class ModelDirective(Directive):
                  variables=None, base=None, get_base=None):
         """Register a model for a path.
 
+        Decorate a function or a class (constructor). The function
+        should return an instance of the model class, for instance by
+        querying it from the database, or ``None`` if the model does
+        not exist.
+
+        The decorated function will get as parameters any variables
+        specified in the path. If you declare a ``request`` parameter
+        the function will be able to use that information too.
+
         :param path: the route for which the model is registered.
         :param model: the class of the model that the decorated function
           should return. If the directive is used on a class instead of a
@@ -98,6 +107,18 @@ class ModelDirective(Directive):
 @directive('permission')
 class PermissionDirective(Directive):
     def __init__(self, app,  model, permission, identity=Identity):
+        """Declare whether a model has a permission.
+
+        The decorated function receives ``model``, `permission``
+        (instance of any permission object) and ``identity``
+        (:class:`morepath.security.Identity`) parameters. The
+        decorated function should return ``True`` only if the given
+        identity exists and has that permission on the model.
+
+        :param model: the model class
+        :permission model: permission class
+        :identity: identity to check permission for
+        """
         super(PermissionDirective, self).__init__(app)
         self.model = model
         self.permission = permission
@@ -118,6 +139,20 @@ class ViewDirective(Directive):
     def __init__(self, app, model, name='', render=None, permission=None,
                  **predicates):
         '''Register a view for a model.
+
+        The decorated function gets a ``request``
+        (:class:`morepath.Request`) and ``model`` parameter. The
+        function should return either a (unicode) string that will be
+        the response body, or a :class:`morepath.Response` object.
+
+        If a specific ``render`` function is given the output of the
+        function is passed to this first, and the function could
+        return whatever the ``render`` parameter expects as input.
+        :func:`morepath.render_json` for instance expects a Python
+        object such as a dict that can be serialized to JSON.
+
+        See also :meth:`morepath.AppBase.json`` and
+        :meth:`morepath.AppBase.html`.
 
         :param model: the class of the model for which this view is registered.
         :param name: the name of the view as it appears in the URL. If omitted,
@@ -171,6 +206,13 @@ class PredicateDirective(Directive):
     def __init__(self, app, name, order, default, index=KeyIndex):
         """Register custom view predicate.
 
+        The decorated function gets ``request`` (a
+        :class:`morepath.Request` object) and ``model``
+        parameters. From this information it should calculate a
+        predicate value and return it. You can then pass these extra
+        predicate arguments to :meth:`morepath.AppBase.view` and this
+        view will only be found if the predicate matches.
+
         :param name: the name of the view predicate.
         :param order: when this custom view predicate should be checked
           compared to the others. A lower order means a higher importance.
@@ -201,6 +243,10 @@ class JsonDirective(ViewDirective):
                  permission=None, **predicates):
         """Register JSON view.
 
+        This is like :meth:`morepath.AppBase.view`, but with
+        :func:`morepath.render_json` as default for the `render`
+        function.
+
         Transforms the view output to JSON and sets the content type to
         ``application/json``.
 
@@ -226,6 +272,10 @@ class HtmlDirective(ViewDirective):
                  permission=None, **predicates):
         """Register HTML view.
 
+        This is like :meth:`morepath.AppBase.view`, but with
+        :func:`morepath.render_html` as default for the `render`
+        function.
+
         Sets the content type to ``text/html``.
 
         :param model: the class of the model for which this view is registered.
@@ -248,6 +298,11 @@ class HtmlDirective(ViewDirective):
 class RootDirective(Directive):
     def __init__(self, app, model=None):
         """Register the root model.
+
+        The decorated function or class (constructor) should return
+        the model that will be found when the app is routed to
+        directly, i.e. the empty path ``''``. The decorated function
+        gets no arguments.
 
         :param model: the class of the root model. Should not be supplied
           if this decorates a class.
@@ -280,6 +335,10 @@ class MountDirective(Directive):
     def __init__(self, base_app,  path, app):
         """Mount sub application on path.
 
+        The decorated function gets the variables specified in path as
+        parameters. It should return a dictionary with the context
+        parameters for the mounted app.
+
         :param path: the path to mount the application on.
         :param app: the :class:`morepath.App` instance to mount.
         """
@@ -301,6 +360,10 @@ class MountDirective(Directive):
 class IdentityPolicyDirective(Directive):
     def __init__(self, app):
         '''Register identity policy.
+
+        The decorated function should return an instance of an
+        identity policy, which should have ``identify``, ``remember``
+        and ``forget`` methods.
         '''
         super(IdentityPolicyDirective, self).__init__(app)
 
@@ -322,6 +385,12 @@ class IdentityPolicyDirective(Directive):
 class FunctionDirective(Directive):
     def __init__(self, app, target, *sources):
         '''Register function as implementation of generic function
+
+        The decorated function is an implementation of the generic
+        function supplied to the decorator. This way you can override
+        parts of the Morepath framework, or create new hookable
+        functions of your own. This is a layer over
+        :meth:`reg.IRegistry.register`.
 
         :param target: the generic function to register an implementation for.
         :type target: function object
