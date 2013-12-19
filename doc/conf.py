@@ -30,6 +30,8 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx',
 
 autoclass_content = 'both'
 
+autodoc_member_order = 'groupwise'
+
 intersphinx_mapping = {
     'reg': ('http://reg.readthedocs.org/en/latest', None),
     'werkzeug': ('http://werkzeug.pocoo.org/docs/', None)

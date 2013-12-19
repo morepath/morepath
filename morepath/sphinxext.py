@@ -27,6 +27,7 @@ def setup(app):
     class DirectiveDocumenter(MethodDocumenter):
         objtype = 'morepath_directive'
         priority = 1
+        member_order = 49
 
         @classmethod
         def can_document_member(cls, member, membername, isattr, parent):

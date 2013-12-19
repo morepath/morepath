@@ -40,12 +40,17 @@ class AppBase(Configurable, ClassRegistry):
         return '<morepath.App %r>' % self.name
 
     def clear(self):
+        """Clear all registrations in this application.
+        """
         ClassRegistry.clear(self)
         Configurable.clear(self)
         self.traject = Traject()
         self._cached_lookup = None
 
     def lookup(self):
+        """Get the :class:`reg.Lookup` for this application.
+        """
+        # XXX use cached property instead?
         if self._cached_lookup is not None:
             return self._cached_lookup
         self._cached_lookup = result = Lookup(CachingClassLookup(self))
