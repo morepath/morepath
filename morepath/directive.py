@@ -116,7 +116,7 @@ class PermissionDirective(Directive):
 @directive('view')
 class ViewDirective(Directive):
     def __init__(self, app, model, name='', render=None, permission=None,
-                 **kw):
+                 **predicates):
         '''Register a view for a model.
 
         :param model: the class of the model for which this view is registered.
@@ -128,6 +128,7 @@ class ViewDirective(Directive):
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
+        :param predicates: predicates to match this view on.
         '''
         super(ViewDirective, self).__init__(app)
         self.model = model
@@ -137,8 +138,8 @@ class ViewDirective(Directive):
             'name': self.name
             }
         self.permission = permission
-        self.kw = kw
-        self.predicates.update(kw)
+        self.kw = predicates
+        self.predicates.update(predicates)
 
     def clone(self, **kw):
         # XXX standard clone doesn't work due to use of predicates
@@ -168,6 +169,18 @@ class PredicateDirective(Directive):
     priority = 1000  # execute earlier than view directive
 
     def __init__(self, app, name, order, default, index=KeyIndex):
+        """Register custom view predicate.
+
+        :param name: the name of the view predicate.
+        :param order: when this custom view predicate should be checked
+          compared to the others. A lower order means a higher importance.
+        :type order: int
+        :param default: the default value for this view predicate.
+          This is used when using :meth:`Request.view` to render a view;
+          otherwise the value will be derived from request and model.
+        :param index: the predicate index to use. Default is :class:`reg.KeyIndex`
+          which matches by name.
+        """
         super(PredicateDirective, self).__init__(app)
         self.name = name
         self.order = order
@@ -184,23 +197,61 @@ class PredicateDirective(Directive):
 
 @directive('json')
 class JsonDirective(ViewDirective):
-    def __init__(self, app, model, name='', render=render_json,
-                 permission=None, **kw):
+    def __init__(self, app, model, name='', render=None,
+                 permission=None, **predicates):
+        """Register JSON view.
+
+        Transforms the view output to JSON and sets the content type to
+        ``application/json``.
+
+        :param model: the class of the model for which this view is registered.
+        :param name: the name of the view as it appears in the URL. If omitted,
+          it is the empty string, meaning the default view for the model.
+        :param render: an optional function that can render the output of the
+          view function to a response, and possibly set headers such as
+          ``Content-Type``, etc. Renders as JSON by default.
+        :param permission: a permission class. The model should have this
+          permission, otherwise access to this view is forbidden. If omitted,
+          the view function is public.
+        :param predicates: predicates to match this view on.
+        """
+        render = render or render_json
         super(JsonDirective, self).__init__(app, model, name, render,
-                                            permission, **kw)
+                                            permission, **predicates)
 
 
 @directive('html')
 class HtmlDirective(ViewDirective):
-    def __init__(self, app, model, name='', render=render_html,
-                 permission=None, **kw):
+    def __init__(self, app, model, name='', render=None,
+                 permission=None, **predicates):
+        """Register HTML view.
+
+        Sets the content type to ``text/html``.
+
+        :param model: the class of the model for which this view is registered.
+        :param name: the name of the view as it appears in the URL. If omitted,
+          it is the empty string, meaning the default view for the model.
+        :param render: an optional function that can render the output of the
+          view function to a response, and possibly set headers such as
+          ``Content-Type``, etc. Renders as HTML by default.
+        :param permission: a permission class. The model should have this
+          permission, otherwise access to this view is forbidden. If omitted,
+          the view function is public.
+        :param predicates: predicates to match this view on.
+        """
+        render = render or render_html
         super(HtmlDirective, self).__init__(app, model, name, render,
-                                            permission, **kw)
+                                            permission, **predicates)
 
 
 @directive('root')
 class RootDirective(Directive):
     def __init__(self, app, model=None):
+        """Register the root model.
+
+        :param model: the class of the root model. Should not be supplied
+          if this decorates a class.
+        """
         super(RootDirective, self).__init__(app)
         self.model = model
 
@@ -227,6 +278,11 @@ class RootDirective(Directive):
 @directive('mount')
 class MountDirective(Directive):
     def __init__(self, base_app,  path, app):
+        """Mount sub application on path.
+
+        :param path: the path to mount the application on.
+        :param app: the :class:`morepath.App` instance to mount.
+        """
         super(MountDirective, self).__init__(base_app)
         self.mounted_app = app
         self.path = path
@@ -265,6 +321,12 @@ class IdentityPolicyDirective(Directive):
 @directive('function')
 class FunctionDirective(Directive):
     def __init__(self, app, target, *sources):
+        '''Register function as implementation of generic function
+
+        :param target: the generic function to register an implementation for.
+        :type target: function object
+        :param sources: classes of parameters to register for.
+        '''
         super(FunctionDirective, self).__init__(app)
         self.target = target
         self.sources = tuple(sources)
