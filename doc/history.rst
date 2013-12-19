@@ -97,7 +97,7 @@ Alex Garel):
 http://pypi.dolmen-project.org/pypi/cromlech.dawnlight
 
 Morepath contains a reformulation of the Dawnlight system,
-particularly in its pathstack, and publisher modules.
+particularly in its publisher module.
 
 Combining it all
 ----------------
