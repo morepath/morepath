@@ -26,7 +26,6 @@ def setup(app):
 
     class DirectiveDocumenter(MethodDocumenter):
         objtype = 'morepath_directive'
-
         priority = 1
 
         @classmethod
@@ -42,6 +41,7 @@ def setup(app):
             if object is None:
                 return False
             self.object = object.__init__
+            self.directivetype = 'decorator'
             return True
 
         def format_signature(self):
