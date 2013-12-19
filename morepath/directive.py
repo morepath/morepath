@@ -33,6 +33,7 @@ class directive(object):
     def __call__(self, directive):
         def method(self, *args, **kw):
             return directive(self, *args, **kw)
+        # this is to help morepath.sphinxext to do the right thing
         method.actual_directive = directive
         update_wrapper(method, directive.__init__)
         setattr(AppBase, self.name, method)
