@@ -49,10 +49,10 @@ API
 
 .. autofunction:: setup
 
-.. autoclass:: morepath.Request
+.. autoclass:: Request
   :members:
 
-.. autoclass:: morepath.Response
+.. autoclass:: Response
   :members:
 
 .. autoclass:: morepath.security.Identity
@@ -70,7 +70,7 @@ API
 .. autoclass:: morepath.config.Action
   :members:
 
-.. autoclass:: morepath.Directive
+.. autoclass:: Directive
   :members:
 
 .. autoclass:: directive
