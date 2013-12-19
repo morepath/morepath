@@ -1,5 +1,5 @@
-Morepath Design Notes
-=====================
+Design Notes
+============
 
 Some of the use cases that influenced Morepath's design are documented
 here.

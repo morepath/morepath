@@ -1,5 +1,5 @@
-API
-===
+Morepath API
+============
 
 .. py:module:: morepath
 
@@ -28,6 +28,8 @@ API
 
 .. autoclass:: morepath.security.BasicAuthIdentityPolicy
   :members:
+
+.. autodata:: morepath.security.NO_IDENTITY
 
 .. autoclass:: Config
   :members:
