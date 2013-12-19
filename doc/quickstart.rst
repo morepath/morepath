@@ -24,8 +24,7 @@ Let's look at a minimal "Hello world!" application in Morepath::
       return "Hello world!"
 
   if __name__ == '__main__':
-      morepath.setup()
-      config = morepath.Config()
+      config = morepath.setup()
       config.scan()
       config.commit()
       app.run()
@@ -78,7 +77,7 @@ Code Walkthrough
 
 1. We import ``morepath``.
 
-2. We create an instance of ``morepath.App``. This will be a WSGI
+2. We create an instance of :class:`morepath.App`. This will be a WSGI
    application that we can run. It will also contain our application's
    configuration: what models and views are available.
 
@@ -87,17 +86,18 @@ Code Walkthrough
    this case the empty ``Root`` class.
 
    The simplest way we can expose a model to the web is as the root of
-   the website (``/``). You do this with the ``@app.root()``
-   decorator.
+   the website (``/``). You do this with the
+   :meth:`morepath.AppBase.root` decorator.
 
 4. Now we can create the "Hello world" view. It's just a function that
    takes ``request`` and ``model`` as arguments (we don't need to use
    either in this case), and returns the string ``"Hello world!"``.
 
-   We then need to hook up this view with the ``@app.view()``
-   decorator.  We say it's associated with the ``Root`` model. Since
-   we supply no explicit ``name`` to the decorator, we will be the
-   default view for the ``Root`` model on ``/``.
+   We then need to hook up this view with the
+   :meth:`morepath.AppBase.view` decorator.  We say it's associated
+   with the ``Root`` model. Since we supply no explicit ``name`` to
+   the decorator, we will be the default view for the ``Root`` model
+   on ``/``.
 
 5. The ``if __name__ == '__main__'`` section is a way in Python to
    make the code only run if the ``hello.py`` module is started
@@ -105,13 +105,16 @@ Code Walkthrough
    application you instead use a setuptools entry point so that a
    startup script for your application is created automatically.
 
-6. ``morepath.autosetup()`` sets up Morepath's default behavior, and
-   also scans this module.
+6. func:`morepath.setup` sets up Morepath's default behavior, and
+   returns a Morepath config object. If your app is in a Python
+   package and you've set up the right ``install_requires`` in
+   ``setup.py``, consider using :func:`morepath.autosetup` to be done
+   in one step.
 
-7. We then We then create a morepath ``config`` object, ``scan()`` this module
-   (or package) for configuration decorators (such as ``@app.root``
-   and ``@app.view``) and cause the registration to be registered
-   using ``commit()``.
+7. We then ``scan()`` this module (or package) for configuration
+   decorators (such as :meth:`morepath.AppBase.root` and
+   :meth:`morepath.AppBase.view`) and cause the registration to be
+   registered using :meth:`morepath.Config.commit`.
 
    This step ensures your configuration (model routes, views, etc) is
    loaded exactly once in a way that's reusable and extensible.
@@ -239,12 +242,13 @@ create a view for it::
   def user_info(request, model):
       return "User's full name is: %s" % model.fullname
 
-The view is a function decorated by ``@app.view`` (or related
-decorators such as ``@app.json`` and ``@app.html``) that gets two
-arguments: ``request`` which is a :class:`morepath.Request` object (a
-subclass of :class:`werkzeug.wrappers.BaseRequest`), and ``model``
-which is the model that this view is working for, so in this case an
-instance of ``User``.
+The view is a function decorated by :meth:`morepath.AppBase.view` (or
+related decorators such as :meth:`morepath.AppBase.json` and
+:meth:`morepath.AppBase.html`) that gets two arguments: ``request``
+which is a :class:`morepath.Request` object (a subclass of
+:class:`werkzeug.wrappers.BaseRequest`), and ``model`` which is the
+model that this view is working for, so in this case an instance of
+``User``.
 
 Now the URLs listed above such as ``/user/faassen`` will work.
 
