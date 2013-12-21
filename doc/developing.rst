@@ -17,7 +17,7 @@ guarantees a clean one.
 
 Clone Morepath from github and go to the morepath directory::
 
-  $ git clone XXX
+  $ git clone git@github.com:morepath/morepath.git
   $ cd morepath
 
 Now we need to run bootstrap.py to set up buildout, using the Python from the
