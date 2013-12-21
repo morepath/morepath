@@ -83,3 +83,6 @@ More documentation, please!
 ---------------------------
 
 * :doc:`Read the documentation <toc>`
+
+If you have questions, please join the #morepath IRC channel on
+freenode. Hope to see you there!
