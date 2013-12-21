@@ -99,9 +99,6 @@ explicitly break application isolation and make routes to models and
 views globally available. Each application will share this
 information.
 
-.. note:: What about a model that's exposed globally and now a
-  developer tries to re-expose it locally? Configuration conflict?
-
 Models can be published once per application
 --------------------------------------------
 
