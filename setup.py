@@ -12,9 +12,9 @@ setup(name='morepath',
       zip_safe=False,
       install_requires=[
         'setuptools',
-        'venusian',
+        'venusian >= 1.0a8',
         'reg',
-        'werkzeug',
+        'werkzeug >= 0.9.4',
         ],
       extras_require = dict(
         test=['pytest >= 2.0',
