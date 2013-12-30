@@ -50,6 +50,7 @@ class AppBase(Configurable, ClassRegistry):
         Configurable.clear(self)
         self.traject = Traject()
         self._cached_lookup = None
+        self._mounted = {}
 
     def lookup(self):
         """Get the :class:`reg.Lookup` for this application.
