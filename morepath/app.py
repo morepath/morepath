@@ -35,6 +35,7 @@ class AppBase(Configurable, ClassRegistry):
         Configurable.__init__(self, extends)
         self.name = name
         self.traject = Traject()
+        self._mounted = {}
         self._cached_lookup = None
         # allow being scanned by venusian
         venusian.attach(self, callback)

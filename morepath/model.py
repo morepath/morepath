@@ -20,6 +20,17 @@ class Mount(object):
         return '<morepath.Mount of app %r with variables %r>' % (
             name, self.variables)
 
+    def parent(self):
+        return self.variables.get('base')
+
+    def child(self, app, **context):
+        factory = self.app._mounted.get(app)
+        if factory is None:
+            return None
+        if 'base' not in context:
+            context['base'] = self
+        return factory(**context)
+
 
 def register_root(app, model, model_factory):
     register_model(app, model, '', lambda model: {}, model_factory)
@@ -54,3 +65,8 @@ def register_mount(base_app, app, path, context_factory):
             super(SpecificMount, self).__init__(app, context_factory, kw)
     register_model(base_app, SpecificMount, path, lambda m: m.variables,
                    SpecificMount)
+    register_mounted(base_app, app, SpecificMount)
+
+
+def register_mounted(base_app, app, model_factory):
+    base_app._mounted[app] = model_factory

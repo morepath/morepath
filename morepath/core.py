@@ -63,19 +63,13 @@ def app_path(model, lookup):
     return '/'.join(result)
 
 
-@global_app.function(generic.link, Request, object)
-def link(request, model):
-    lookup = request.lookup
+@global_app.function(generic.link, Request, object, object)
+def link(request, model, mounted):
     result = []
-    # path in inner mount
-    result.append(app_path(model, lookup=lookup))
-    # now path of mounts
-    mounts = request.mounts[:]
-    model = mounts.pop()
-    while mounts:
-        model_mount = mounts.pop()
-        result.append(app_path(model, lookup=model_mount.app.lookup()))
-        model = model_mount
+    while mounted is not None:
+        result.append(app_path(model, lookup=mounted.app.lookup()))
+        model = mounted
+        mounted = mounted.parent()
     result.reverse()
     return '/'.join(result).strip('/')
 

@@ -58,18 +58,24 @@ class Request(BaseRequest):
 
     # XXX add way to easily generate URL parameters too
     # XXX how to make link work in other application context?
-    def link(self, model, name=''):
+    # XXX once lookup is retrieved from mounted, do we want a request.lookup?
+    def link(self, model, name='', mounted=None):
         """Create a link (URL) to a view on a model.
 
         :param model: the model to link to.
         :param name: the name of the view to link to. If omitted, the
           the default view is looked up.
         """
+        if mounted is None:
+            mounted = self.mounts[-1]
         result = generic.link(
-            self, model, lookup=self.lookup)
+            self, model, mounted, lookup=mounted.app.lookup())
         if name:
             result += '/' + name
         return result
+
+    def mounted(self):
+        return self.mounts[-1]
 
     def after(self, func):
         """Call function with response after this request is done.

@@ -733,9 +733,6 @@ def test_mount_context():
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
-    def get_mounted_root(mount_id):
-        return MountedRoot(mount_id)
-
     def root_default(request, model):
         return "The root for mount id: %s" % model.mount_id
 
@@ -767,9 +764,6 @@ def test_mount_context_standalone():
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
-    def get_mounted_root(mount_id):
-        return MountedRoot(mount_id)
-
     def root_default(request, model):
         return "The root for mount id: %s" % model.mount_id
 
@@ -783,6 +777,81 @@ def test_mount_context_standalone():
 
     response = c.get('/')
     assert response.data == 'The root for mount id: foo'
+
+
+def test_mount_parent_link():
+    app = morepath.App('app')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    mounted = morepath.App('mounted')
+
+    class MountedRoot(object):
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
+
+    def root_default(request, model):
+        return request.link(Model('one'), mounted=request.mounted().parent())
+
+    def get_context(id):
+        return {
+            'mount_id': id
+            }
+
+    c = setup()
+    c.configurable(app)
+    c.configurable(mounted)
+    c.action(app.model(path='models/{id}',
+                       variables=lambda m: {'id': m.id}),
+             Model)
+    c.action(app.mount(path='{id}', app=mounted), get_context)
+    c.action(mounted.root(), MountedRoot)
+    c.action(mounted.view(model=MountedRoot), root_default)
+    c.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/foo')
+    assert response.data == 'models/one'
+
+
+def test_mount_child_link():
+    app = morepath.App('app')
+    mounted = morepath.App('mounted')
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    class Root(object):
+        pass
+
+    def app_root_default(request, model):
+        return request.link(
+            Model('one'),
+            mounted=request.mounted().child(mounted, id='foo'))
+
+    def get_context(id):
+        return {
+            'mount_id': id
+            }
+
+    c = setup()
+    c.configurable(app)
+    c.configurable(mounted)
+    c.action(mounted.model(path='models/{id}',
+                           variables=lambda m: {'id': m.id}),
+             Model)
+    c.action(app.mount(path='{id}', app=mounted), get_context)
+    c.action(app.root(), Root)
+    c.action(app.view(model=Root), app_root_default)
+    c.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/')
+    assert response.data == 'foo/models/one'
 
 
 def test_mapply_bug():
