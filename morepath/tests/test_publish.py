@@ -116,6 +116,8 @@ def test_request_view():
     register_view(app, Model, view, render=render_json)
 
     request = app.request(get_environ(path=''))
+    request.mounts = [app]  # XXX should do this centrally
+
     model = Model()
     response = resolve_response(request, model)
     # when we get the response, the json will be rendered
@@ -139,6 +141,8 @@ def test_request_view_with_predicates():
                   predicates=dict(name='foo'))
 
     request = app.request(get_environ(path=''))
+    request.mounts = [app]  # XXX should do this centrally
+
     model = Model()
     # since the name is set to foo, we get nothing here
     assert request.view(model) is None
@@ -147,6 +151,7 @@ def test_request_view_with_predicates():
     # the predicate information in the request is ignored when we do a
     # manual view lookup using request.view
     request = app.request(get_environ(path='foo'))
+    request.mounts = [app]  # XXX should do this centrally
     assert request.view(model) is None
 
 

@@ -20,6 +20,9 @@ class Mount(object):
         return '<morepath.Mount of app %r with variables %r>' % (
             name, self.variables)
 
+    def lookup(self):
+        return self.app.lookup()
+
     def parent(self):
         return self.variables.get('base')
 

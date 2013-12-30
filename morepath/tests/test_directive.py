@@ -854,6 +854,48 @@ def test_mount_child_link():
     assert response.data == 'foo/models/one'
 
 
+def test_request_view_in_mount():
+    app = morepath.App('app')
+    mounted = morepath.App('mounted')
+
+    class Root(object):
+        pass
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    def model_default(request, model):
+        return {'hey': 'Hey'}
+
+    def root_default(request, model):
+        return request.view(
+            Model('x'), mounted=request.mounted().child(
+                mounted, mount_id='foo'))['hey']
+
+    def get_context(id):
+        return {
+            'mount_id': id
+            }
+
+    c = setup()
+    c.configurable(app)
+    c.configurable(mounted)
+    c.action(app.root(), Root)
+    c.action(app.view(model=Root), root_default)
+    c.action(app.mount(path='{id}', app=mounted), get_context)
+    c.action(mounted.model(path='models/{id}',
+                           variables=lambda m: {'id': m.id}),
+             Model)
+    c.action(mounted.view(model=Model), model_default)
+    c.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/')
+    assert response.data == 'Hey'
+
+
 def test_mapply_bug():
     config = setup()
     config.scan(mapply_bug)

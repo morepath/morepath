@@ -67,7 +67,7 @@ def app_path(model, lookup):
 def link(request, model, mounted):
     result = []
     while mounted is not None:
-        result.append(app_path(model, lookup=mounted.app.lookup()))
+        result.append(app_path(model, lookup=mounted.lookup()))
         model = mounted
         mounted = mounted.parent()
     result.reverse()
