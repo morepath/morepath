@@ -3,7 +3,7 @@ Quickstart
 
 Morepath is a micro-framework, and this makes it small and easy to
 learn. This quickstart guide should help you get started. We assume
-you've already installed Morepath; if not, see the :ref:`installation`
+you've already installed Morepath; if not, see the :doc:`installation`
 section.
 
 Hello world

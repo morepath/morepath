@@ -9,6 +9,7 @@ Table of Contents
 
    index
    quickstart
+   installation
    superpowers
    app_reuse
    api
