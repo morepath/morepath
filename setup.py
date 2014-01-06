@@ -13,7 +13,7 @@ setup(name='morepath',
       install_requires=[
         'setuptools',
         'venusian >= 1.0a8',
-        'reg',
+        'reg >= 0.3',
         'werkzeug >= 0.9.4',
         ],
       extras_require = dict(
