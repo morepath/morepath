@@ -3,6 +3,7 @@ from .app import App, AppBase, global_app
 from .implicit import initialize
 from .core import setup
 from morepath import directive # register directive methods
+from .generic import remember, forget
 from .view import render_json, render_html
 from .request import Request, Response
 from .config import Config, Directive
