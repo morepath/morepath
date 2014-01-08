@@ -1,5 +1,6 @@
 from morepath.app import App
 from morepath.publish import publish, resolve_response
+from morepath.model import register_model
 from morepath.request import Response
 from morepath.view import register_view, render_json, render_html
 from morepath.core import setup
@@ -172,6 +173,36 @@ def test_render_html():
     response = resolve_response(request, model)
     assert response.data == '<p>Hello world!</p>'
     assert response.content_type == 'text/html'
+
+
+def test_view_raises_http_error():
+    app = App()
+
+    c = setup()
+    c.configurable(app)
+    c.commit()
+
+    from werkzeug.exceptions import BadRequest
+    def view(request, model):
+        raise BadRequest()
+
+    register_model(app, Model, 'foo', None, Model)
+    register_view(app, Model, view)
+
+    response = publish(app.request(get_environ(path='foo')), app.mounted())
+
+    assert response.status == '400 BAD REQUEST'
+
+
+def test_notfound():
+    app = App()
+
+    c = setup()
+    c.configurable(app)
+    c.commit()
+
+    response = publish(app.request(get_environ(path='')), app.mounted())
+    assert response.status == '404 NOT FOUND'
 
 
 def test_view_after():
