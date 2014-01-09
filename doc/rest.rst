@@ -1,5 +1,5 @@
-REST with Morepath
-==================
+REST
+====
 
 Introduction
 ------------
