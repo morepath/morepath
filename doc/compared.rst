@@ -120,45 +120,49 @@ variable, and in Morepath it's a variable that's passed into view
 functions explicitly. This makes Morepath more similar to Pyramid or
 Django.
 
-Thread locals
--------------
+Testability and Global state
+----------------------------
 
-Don't know what thread locals are about? You probably won't have to
-care. Thread locals are a mechanism to have global state per thread,
-but each thread separately so they don't confuse each other.
+Developers that care about writing code try to avoid global state, in
+particular mutable global state, as it can make testing harder. If the
+framework is required to be in a certain global state before the code
+under test can be run, it becomes harder to test that code, as you
+need to know first what global state to manipulate.
 
-Developers that care about scaling and testability care about global
-state, as it can make both harder.
+Globals can also be a problem when multiple threads try to write the
+global at the same time. Web frameworks avoid this by using *thread
+locals*. Confusingly enough these locals are *globals*, but they're
+isolated from other threads.
 
-Morepath uses thread locals for global state in one place for
-convenience, and even that place is avoidable, just more verbose when
-you do. Morepath's own framework code is entirely explicit, avoiding
-this global state.
+Morepath the framework does not require any global state. Of course
+Morepath's app *are* module globals, but they're not *used* that way
+once Morepath's configuration is loaded and Morepath starts to handle
+requests. Morepath's framework code passes the app along as a variable
+(or attribute of a variable, such as the request) just like everything
+else.
 
-How does Morepath use thread local state? It's actually in the Reg
-generic function library. Reg lets you have more than one registry to
-look up generic functions in, and Morepath builds on that, making the
-App object such a registry. Each App is it own separate registry.
-
-Now when you call a generic function, Morepath needs to know in what
-registry to look for its implementation. You *can* be totally explicit
-by passing a ``lookup`` argument::
+Morepath is built on the Reg generic function library. Implementations
+of generic functions can be plugged in separately per Morepath app:
+each app is a registry. When you call a generic function Reg needs to
+know what registry to use to look it up. You can make this completely
+explicit by using a special ``lookup`` argument::
 
   some_generic_function(doc, 3, lookup=app.lookup())
 
-but Morepath can also use Reg's implicit mode so that the app currently
-active in handling the request is known globally, per thread. And then
-you can just do this::
+That's all right in framework code, but doing that all the time is not
+very pretty in application code. For convenience, Morepath therefore sets up the
+current lookup implicitly as thread local state. Then you can
+simply write this::
 
   some_generic_function(doc, 3)
 
-Flask is quite happy to use them to have a request that you can
-import. Pyramid is generally careful to avoid global state, but does
-use thread local state to get access to the current registry, similar
-to what Morepath does.
+Flask is quite happy to use global state (with thread locals) to have
+a request that you can import. Pyramid is generally careful to avoid
+global state, but does use thread local state to get access to the
+current registry, similar to what Morepath does.
 
-Morepath uses a thread local its generic function support, and you can
-still avoid this if you want to.
+Summary: Morepath does not require any global state, but for allows
+the current lookup to be set up as such for convenience.
 
 Component Architecture
 ----------------------
