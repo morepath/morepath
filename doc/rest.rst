@@ -7,11 +7,13 @@ Introduction
 .. sidebar:: How to think RESTful thoughts
 
   So what does it mean for a web service to be RESTful? It might help to
-  remember this when thinking about REST:
+  remember this when thinking about REST::
 
-    If software interacts with a web service like a human with a browser
-    interacts with a well-designed multi-page web application, then that
-    web service is RESTful.
+    client :: RESTful web service
+
+  is like::
+
+    human with browser :: well-designed multi-page web application
 
   So if you have experience with developing good multi-page web
   applications, then you can apply this experience to REST web service
