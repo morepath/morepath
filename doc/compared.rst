@@ -152,10 +152,13 @@ you can just do this::
 
   some_generic_function(doc, 3)
 
-Pyramid avoids thread locals entirely. Flask is quite happy to use
-them to have a request that you can import. Morepath compromises uses
-them in one place for its generic function support, and that you can
-avoid if you want to.
+Flask is quite happy to use them to have a request that you can
+import. Pyramid is generally careful to avoid global state, but does
+use thread local state to get access to the current registry, similar
+to what Morepath does.
+
+Morepath uses a thread local its generic function support, and you can
+still avoid this if you want to.
 
 Component Architecture
 ----------------------
