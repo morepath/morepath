@@ -202,21 +202,22 @@ down.
 No default database
 -------------------
 
-Morepath is a micro-framework. This means no default database
-integration. This is like Flask and Bottle and Pyramid, but unlike
-Zope or Django, which have built-in database integration.
+Morepath has no default database integration. This is like Flask and
+Bottle and Pyramid, but unlike Zope or Django, which have assumptions
+about the database baked in (ZODB and Django ORM respectively).
 
-Have no database, or plug in your own database. You could
-use SQLAlchemy, or the ZODB. Morepath lets you treat anything as
-models. We're not against writing examples or extensions that help you
-do this, though we haven't done so yet. Contribute!
+You can plug in your own database, or even have no database at
+all. You could use SQLAlchemy, or the ZODB. Morepath lets you treat
+anything as models. We're not against writing examples or extensions
+that help you do this, though we haven't done so yet. Contribute!
 
 No template language
 --------------------
 
 Some micro-frameworks like Flask and Bottle and web.py have template
 languages built-in, some, like CherryPy and the Werkzeug toolkit,
-don't.
+don't. Pyramid doesn't have built-in support either, but has standard
+plugins for the Chameleon and Mako template languages.
 
 Morepath aims to be a good fit for modern, client-side web
 applications written in JavaScript. So we've focused on making it easy
