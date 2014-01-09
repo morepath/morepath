@@ -12,6 +12,7 @@ Table of Contents
    installation
    superpowers
    app_reuse
+   rest
    api
    design
    developing
