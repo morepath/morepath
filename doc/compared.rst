@@ -7,13 +7,56 @@ We hear you ask:
   Morepath compare?
 
 If you're already familiar with another web framework, it's useful to
-learn how Morepath differ, as it will help you understand it
-faster. So we'll try some of that here.
+learn how Morepath is the same and how it is different, as it will
+help you understand it faster. So we'll try to go into some of this
+here.
 
-Our abilities to compare Morepath to other web frameworks are limited
-by lack of familiarity with them and their aforementioned large
+It's also a good way to explain some of Morepath's :doc:`design
+<design>` choices, like `this document
+<http://docs.pylonsproject.org/projects/pyramid/en/latest/designdefense.html>`
+does for the Pyramid web framework (and which makes for a very
+interesting read!). More web frameworks should do that.
+
+Our ability to compare Morepath to other web frameworks is limited by
+our familiarity with them, and also by their aforementioned large
 quantity. But we'll try. Feel free to pitch in new comparisons, or
 tell us where we get it wrong!
+
+Overview
+--------
+
+Morepath aims to be foundational. All web applications are
+different. Some are simple. Some, like CMSes, are like frameworks
+themselves. It's likely that some of you will need to build your own
+frameworky things on top of Morepath. Morepath doesn't get in your
+way. Morepath isn't there to be hidden away under another framework
+though - these extensions will still look like Morepath. The
+orientation towards being foundational makes Morepath more like
+Pyramid, or perhaps Flask, than like Django.
+
+Morepath aims to have a small core. It isn't full stack; it's a
+microframework. It should be easy to pick up. This makes it similar to
+other microframeworks like Flask or CherryPy, but different from
+Django and Zope, which offer a lot of features.
+
+Morepath is opinionated. There is only one way to do routing and one
+way to do configuration. This makes it like a lot of web frameworks,
+but unlike Pyramid, which takes more of a toolkit approach where a lot
+of choices are made available.
+
+Morepath is a routing framework, but it's model-centric. Models have
+URLs. This makes it like a URL traversal framework like Zope or Grok,
+and also like Pyramid when traversal is in use. It makes it unlike
+other routing frameworks like Django or Flask, which have less
+awareness of models.
+
+Paradoxically enough one thing Morepath is opinionated about is
+*flexibility*, as that's part of its mission to be a good foundation.
+That's what is configuration and generic function systems are all
+about. Want to change behavior? You can override everything. Even core
+behavior of Morepath can be changed by overriding its generic
+functions. This makes Morepath like Zope, and especially like
+Pyramid, but less like Django or Flask.
 
 Routing
 -------
@@ -25,10 +68,10 @@ Routing
   <https://en.wikipedia.org/wiki/Monopoly_%28game%29>`__.
 
 Morepath is a *routing* web framework, like Django and Flask and a lot
-of others. This is a common way to use Pyramid too. This is also
-called URL mapping or dispatching. Morepath is to our knowledge,
-unique in that the routes don't directly go to *views*, but go through
-*models* first.
+of others. This is a common way to use Pyramid too (the other is
+traversal). This is also called URL mapping or dispatching. Morepath
+is to our knowledge, unique in that the routes don't directly go to
+*views*, but go through *models* first.
 
 Morepath's route syntax is very similar to Pyramid's,
 i.e. ``/hello/{name}``. Flask is also similar. It's unlike Django's
@@ -86,8 +129,8 @@ WSGI
 ----
 
 Morepath is a WSGI_-based framework, like Flask or Pyramid. It's
-natively WSGI, unlike Django, which also has its own way of doing
-middleware.
+natively WSGI, unlike Django, which while WSGI is supported also has
+its own way of doing middleware.
 
 .. _WSGI: http://wsgi.readthedocs.org/en/latest/
 
@@ -158,46 +201,11 @@ simply write this::
 
 Flask is quite happy to use global state (with thread locals) to have
 a request that you can import. Pyramid is generally careful to avoid
-global state, but does use thread local state to get access to the
-current registry, similar to what Morepath does.
+global state, but does allow using thread local state to get access to
+the current registry in some cases.
 
-Summary: Morepath does not require any global state, but for allows
-the current lookup to be set up as such for convenience.
-
-Component Architecture
-----------------------
-
-Most Python web frameworks don't have a component system. But
-successful web applications tend to get more complicated. And then you
-may want things from the web framework it cannot do. New APIs may grow
-over time, each different. You might end up with a lot of custom
-customization facilities, complete with metaclasses and import-time
-side-effects. Django has suffered from this, and so did Zope 2.
-
-Microframeworks aim for simplicity so don't suffer so much from this,
-but at the cost of some flexibility.
-
-The Zope project made the term "component architecture" (in)famous in
-the Python world. Does it sound impressive, suggesting flexibility and
-reusability? Or does it sound scary, overengineered,
-``RequestProcessorFactoryFactory``-like? At its core it's really a
-system to add functionality to objects without having to change their
-classes, from the outside, and it helps building generic
-functionality.
-
-Part of what made the Zope component architecture scary is that
-configuring components together (i.e "this view goes with this model")
-was cumbersome and verbose. The Grok web framework provided a way to
-make that configuration less cumbersome. Pyramid took a similar
-approach but streamlined it. Pyramid also hid complexities of the
-component framework behind simple function-based APIs
-
-Morepath went one step further and uses generic functions, based on
-the Reg library. These are about as expressive as what you can do with
-the Zope Component Architecture underlying Pyramid and Grok and Zope,
-but much much simpler to use. The simple function-based APIs *are*
-what is pluggable. Morepath is mostly simple functions all the way
-down.
+Summary: Morepath does not require any global state, but allows the
+current lookup to be set up as such for convenience.
 
 No default database
 -------------------
@@ -233,3 +241,102 @@ For now, you can plug in something yourself. CherryPy has a `good document`_
 on how to do that with CherryPy, and it'd look very similar with Morepath.
 
 .. _`good document`: http://cherrypy.readthedocs.org/en/latest/progguide/choosingtemplate.html
+
+Code configuration
+------------------
+
+Most Python web frameworks don't have an explicit code configuration
+system. With "code configuration" I mean expressing things like "this
+function handles this route", "this view works for this model", and
+"this is the current authentication system". It also includes
+extension and overrides, such as "here is an additional route", "use
+this function to handle this route instead of what the core said".
+
+If a web framework doesn't deal with code configuration explicitly, an
+implicit code configuration tends to grow. There is one way to set up
+routes, another way to declare models, another way to do generic
+views, yet another way to configure the permission system, and so
+on. Each system works differently and uses a different API. Config
+files, metaclasses and import-time side effects may all be involved.
+
+On top of this, if the framework want to allow reuse, extension and
+overrides the APIs tends to grow even more distinct with specialised
+use cases, or yet more new APIs will be grown.
+
+Django is an example where configuration gained lots of knobs and
+buttons; another example is the original Zope.
+
+Microframeworks aim for simplicity so don't suffer from this so much,
+though probably at the cost of some flexibility. You can still observe
+this kind of evolution in Flask's pluggable views subsystem, though,
+for instance.
+
+To deal with this problem in an explicit way the Zope project
+pioneered a component configuration mechanism. By having a universal
+mechanism in which code is configured, the configuration API becomes
+general and allows extension and override in a general manner as
+well. Zope uses XML files for this.
+
+The Grok project tried to put a friendlier face on the rather verbose
+configuration system of Zope. Pyramid refined Grok's approach further.
+It offers a range of options for configuration: explicit calls in
+Python code, decorators, and an extension that uses Zope-style XML.
+
+In order to do its decorator based configuration, the Pyramid project
+created the Venusian_ python library. This is in turn a reimagined
+version of the Martian_ python library created by the Grok project.
+
+Morepath has a new configuration system that is based around
+decorators (using Venusian) attached to application objects. These
+application objects can extend other ones. This way it supports a
+range sophisticated extension and override use cases in a general way.
+
+.. _Venusian: http://pypi.python.org/pypi/venusian
+
+.. _Martian: http://pypi.python.org/pypi/martian
+
+Components and Generic functions
+--------------------------------
+
+The Zope project made the term "zope component architecture" (ZCA)
+(in)famous in the Python world. Does it sound impressive, suggesting
+flexibility and reusability? Or does it sound scary, overengineered,
+``RequestProcessorFactoryFactory``-like? Are you intimidated by it? We
+can't blame you.
+
+At its core the ZCA is really a system to add functionality to objects
+from the outside, without having to change their classes. It helps
+when you need to build extensible applications and reusable generic
+functionality. Under the hood, it's just a fancy registry that knows
+about inheritance. Its a really powerful system to help build more
+complicated applications and frameworks. It's used by Zope, Grok and
+Pyramid.
+
+Morepath uses something else: a library called Reg_. This is a new,
+reimagined, streamlined implementation of the idea of the ZCA.
+
+.. _Reg: http://reg.readthedocs.org
+
+The underlying registration APIs of the ZCA is rather involved, with
+quite a few special cases. Reg has a simpler, more general
+registration API that is flexible enough to fulfill a range of use
+cases.
+
+Finally what makes the Zope component architecture rather involved to
+use is its reliance on *interfaces*. An interface is a special kind of
+object introduced by the Zope component architecture that is used to
+describe the API of objects. It's like an abstract base class.
+
+If you want to look up things in a ZCA component registry the ZCA
+requires you to look up an interface. This requires you to *write*
+interfaces for everything you want to be able to look up. The
+interface-based way to do lookups also looks rather odd to the average
+Python developer: it's not considered to be very Pythonic. To mitigate
+the last problem Pyramid creates simple function-based APIs on top of
+the underlying interfaces.
+
+Morepath by using Reg does away with interfaces altogether -- instead
+it uses generic functions. The simple function-based APIs *are* what
+is pluggable; there is no need to deal with interfaces anymore, but
+the system retains the power. Morepath is simple functions all the way
+down.
