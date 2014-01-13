@@ -6,6 +6,7 @@ from morepath.request import Response
 from morepath.view import render_html
 from morepath.app import App
 import morepath
+from morepath.error import LinkError
 import reg
 
 from werkzeug.test import Client
@@ -169,6 +170,57 @@ def test_basic_imperative():
     # + is to make sure we get the view, not the sub-model
     response = c.get('/+link')
     assert response.data == ''
+
+
+def test_link_to_unknown_model():
+    app = morepath.App()
+
+    class Root(object):
+        def __init__(self):
+            self.value = 'ROOT'
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    def root_link(request, model):
+        try:
+            return request.link(Model('foo'))
+        except LinkError:
+            return "Link error"
+
+    c = setup()
+    c.configurable(app)
+    c.action(app.root(), Root)
+    c.action(app.view(model=Root), root_link)
+    c.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/')
+    assert response.data == 'Link error'
+
+def test_convert_exception_to_internal_error():
+    app = morepath.App()
+
+    class Root(object):
+        def __init__(self):
+            self.value = 'ROOT'
+
+    def default(request, model):
+        1/0
+        return ''
+
+    c = setup()
+    c.configurable(app)
+    c.action(app.root(), Root)
+    c.action(app.view(model=Root), default)
+    c.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/')
+    assert response.status == '500 INTERNAL SERVER ERROR'
 
 
 def test_simple_root():

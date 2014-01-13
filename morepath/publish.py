@@ -1,7 +1,9 @@
 from morepath import generic
 from .model import Mount
 from .traject import create_path
-from werkzeug.exceptions import HTTPException, NotFound
+from werkzeug.exceptions import HTTPException, NotFound, InternalServerError
+import sys
+from traceback import print_exc
 
 
 DEFAULT_NAME = u''
@@ -71,3 +73,10 @@ def publish(request, mount):
         return resolve_response(request, model)
     except HTTPException as e:
         return e.get_response(request.environ)
+    except (SystemExit, KeyboardInterrupt) as e:
+        raise
+    except:
+        print_exc(file=sys.stderr)
+        e = InternalServerError()
+        return e.get_response(request.environ)
+

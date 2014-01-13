@@ -3,7 +3,8 @@ from .config import Config
 from .model import Mount
 import morepath.directive
 from morepath import generic
-from .app import App
+from .app import AppBase
+from .error import LinkError
 from .request import Request, Response
 from werkzeug.wrappers import BaseResponse
 from werkzeug.exceptions import Unauthorized
@@ -54,10 +55,14 @@ def app_path(model, lookup):
     result = []
     while True:
         base = generic.base(model, lookup=lookup, default=None)
+        # We cannot construct link at all, so this is an error.
         if base is None:
-            break
+            raise LinkError()
         traject = generic.traject(base, lookup=lookup)
         result.append(traject.path(model))
+        # If the base is an App, we cannot continue constructing link further.
+        if isinstance(base, AppBase):
+            break
         model = base
     result.reverse()
     return '/'.join(result)
@@ -74,7 +79,7 @@ def link(request, model, mounted):
     return '/'.join(result).strip('/')
 
 
-@global_app.function(generic.traject, App)
+@global_app.function(generic.traject, AppBase)
 def app_traject(app):
     return app.traject
 
