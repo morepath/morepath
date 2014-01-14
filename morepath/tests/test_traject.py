@@ -1,12 +1,14 @@
 from morepath.traject import (Traject, Node, Step, TrajectError,
                               is_identifier, parse_variables,
-                              Path, parse_path, create_path)
+                              Path, parse_path, create_path,
+                              ParameterFactory)
 from morepath import generic
 from morepath.app import App
 from morepath.core import traject_consume
+from morepath.request import Request
 import pytest
 from werkzeug.test import EnvironBuilder
-
+from werkzeug.exceptions import BadRequest
 
 class Root(object):
     pass
@@ -376,14 +378,34 @@ def consume(app, path):
     request = app.request(EnvironBuilder(path=path).get_environ())
     return traject_consume(request, app, lookup=app.lookup()), request
 
+paramfac = ParameterFactory({})
 
 def test_traject_consume():
     app = App()
     traject = Traject()
-    traject.add_pattern('sub', Model)
+    traject.add_pattern('sub', (Model, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
     found, request = consume(app, 'sub')
     assert isinstance(found, Model)
+    assert request.unconsumed == []
+
+
+def test_traject_consume_parameter():
+    app = App()
+    traject = Traject()
+    class Model(object):
+        def __init__(self, a):
+            self.a = a
+    get_param = ParameterFactory({'a': 0})
+    traject.add_pattern('sub', (Model, get_param))
+    app.register(generic.traject, [App], lambda base: traject)
+    found, request = consume(app, 'sub?a=1')
+    assert isinstance(found, Model)
+    assert found.a == 1
+    assert request.unconsumed == []
+    found, request = consume(app, 'sub')
+    assert isinstance(found, Model)
+    assert found.a == 0
     assert request.unconsumed == []
 
 
@@ -398,7 +420,7 @@ def test_traject_consume_model_factory_gets_request():
     def get_model(request):
         return Model(request.method)
 
-    traject.add_pattern('sub', get_model)
+    traject.add_pattern('sub', (get_model, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
     found, request = consume(app, 'sub')
     assert isinstance(found, Model)
@@ -421,7 +443,7 @@ def test_traject_consume_factory_returns_none():
     def get_model():
         return None
 
-    traject.add_pattern('sub', get_model)
+    traject.add_pattern('sub', (get_model, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
 
     found, request = consume(app, 'sub')
@@ -440,7 +462,7 @@ def test_traject_consume_variable():
         result.foo = foo
         return result
 
-    traject.add_pattern('{foo}', get_model)
+    traject.add_pattern('{foo}', (get_model, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
 
     found, request = consume(app, 'something')
@@ -459,8 +481,8 @@ def test_traject_consume_view():
         result.foo = foo
         return result
 
-    traject.add_pattern('', Root)
-    traject.add_pattern('{foo}', get_model)
+    traject.add_pattern('', (Root, paramfac))
+    traject.add_pattern('{foo}', (get_model, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
 
     found, request = consume(app, '+something')
@@ -473,7 +495,7 @@ def test_traject_root():
 
     traject = Traject()
 
-    traject.add_pattern('', Root)
+    traject.add_pattern('', (Root, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
 
     found, request = consume(app, '')
@@ -491,8 +513,8 @@ def test_traject_consume_combination():
         result.foo = foo
         return result
 
-    traject.add_pattern('special', Special)
-    traject.add_pattern('{foo}', get_model)
+    traject.add_pattern('special', (Special, paramfac))
+    traject.add_pattern('{foo}', (get_model, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
 
     found, request = consume(app, 'something')
@@ -509,8 +531,8 @@ def test_traject_nested():
     app = App()
 
     traject = Traject()
-    traject.add_pattern('a', Model)
-    traject.add_pattern('a/b', Special)
+    traject.add_pattern('a', (Model, paramfac))
+    traject.add_pattern('a/b', (Special, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
 
     found, request = consume(app, 'a')
@@ -524,7 +546,7 @@ def test_traject_nested():
 def test_traject_nested_not_resolved_entirely_by_consumer():
     app = App()
     traject = Traject()
-    traject.add_pattern('a', Model)
+    traject.add_pattern('a', (Model, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
 
     found, request = consume(app, 'a')
@@ -550,8 +572,8 @@ def test_traject_nested_with_variable():
         result.id = id
         return result
 
-    traject.add_pattern('{id}', get_model)
-    traject.add_pattern('{id}/sub', get_special)
+    traject.add_pattern('{id}', (get_model, paramfac))
+    traject.add_pattern('{id}/sub', (get_special, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
 
     found, request = consume(app, 'a')
@@ -580,8 +602,8 @@ def test_traject_with_multiple_variables():
         result.first_id = first_id
         result.second_id = second_id
         return result
-    traject.add_pattern('{first_id}', get_model)
-    traject.add_pattern('{first_id}/{second_id}', get_special)
+    traject.add_pattern('{first_id}', (get_model, paramfac))
+    traject.add_pattern('{first_id}/{second_id}', (get_special, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
 
     found, request = consume(app, 'a')
@@ -648,3 +670,41 @@ def test_path_for_model_with_converter():
 def test_path_discriminator():
     p = Path('/foo/{x:int}/bar/{y}')
     assert p.discriminator() == 'foo/{int}/bar/{str}'
+
+
+def fake_request(path):
+    return Request(EnvironBuilder(path=path).get_environ())
+
+
+def test_empty_parameter_factory():
+    get_parameters = ParameterFactory({})
+    assert get_parameters(fake_request('')) == {}
+    assert get_parameters(fake_request('?a=A')) == {}
+
+
+def test_single_parameter():
+    get_parameters = ParameterFactory({'a': str})
+    assert get_parameters(fake_request('?a=A')) == {'a': 'A'}
+    assert get_parameters(fake_request('')) == {'a': None}
+
+
+def test_single_parameter_int():
+    get_parameters = ParameterFactory({'a': int})
+    assert get_parameters(fake_request('?a=1')) == {'a': 1}
+    assert get_parameters(fake_request('')) == {'a': None}
+    with pytest.raises(BadRequest):
+        get_parameters(fake_request('?a=A'))
+
+
+def test_single_parameter_default():
+    get_parameters = ParameterFactory({'a': 'default'})
+    assert get_parameters(fake_request('?a=A')) == {'a': 'A'}
+    assert get_parameters(fake_request('')) == {'a': 'default'}
+
+
+def test_single_parameter_int_default():
+    get_parameters = ParameterFactory({'a': 0})
+    assert get_parameters(fake_request('?a=1')) == {'a': 1}
+    assert get_parameters(fake_request('')) == {'a': 0}
+    with pytest.raises(BadRequest):
+        get_parameters(fake_request('?a=A'))

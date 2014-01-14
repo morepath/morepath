@@ -1,7 +1,7 @@
 import re
 from functools import total_ordering
 from reg import Registry
-
+from werkzeug.exceptions import BadRequest
 
 IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
 PATH_VARIABLE = re.compile(r'\{([^}]*)\}')
@@ -10,9 +10,11 @@ PATH_SEPARATOR = re.compile(r'/+')
 VIEW_PREFIX = '+'
 
 # XXX need to make this pluggable
+# XXX need support for encoding, i.e. unicode URL parameters
 KNOWN_CONVERTERS = {
     'str': str,
-    'int': int
+    'int': int,
+    'unicode': unicode,
     }
 
 INVERSE_CONVERTERS = {
@@ -21,9 +23,11 @@ INVERSE_CONVERTERS = {
 
 CONVERTER_WEIGHT = {
     str: 0,
-    int: 1
+    unicode: 1,
+    int: 2
     }
 
+CONVERTER_SET = set(KNOWN_CONVERTERS.values())
 
 class TrajectError(Exception):
     pass
@@ -224,6 +228,34 @@ class Traject(Node):
         assert isinstance(variables, dict)
         parameters = { name: variables[name] for name in parameter_names }
         return path % variables, parameters
+
+
+class ParameterFactory(object):
+    def __init__(self, parameters):
+        self.parameters = parameters
+        self.info = info = []
+        for name, value in parameters.items():
+            if value in CONVERTER_SET:
+                convert = value
+                default = None
+            else:
+                convert = type(value)
+                default = value
+                assert convert in CONVERTER_SET
+            info.append((name, convert, default))
+
+    def __call__(self, request):
+        result = {}
+        for name, convert, default in self.info:
+            value = request.args.get(name)
+            if value is None:
+                result[name] = default
+                continue
+            try:
+                result[name] = convert(value)
+            except ValueError:
+                raise BadRequest()
+        return result
 
 
 class NameParser(object):

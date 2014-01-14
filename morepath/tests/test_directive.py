@@ -200,6 +200,56 @@ def test_link_to_unknown_model():
     response = c.get('/')
     assert response.data == 'Link error'
 
+
+def test_link_with_parameters():
+    app = morepath.App()
+
+    class Root(object):
+        def __init__(self):
+            self.value = 'ROOT'
+
+    class Model(object):
+        def __init__(self, id, param):
+            self.id = id
+            self.param = param
+
+    def get_model(id, param):
+        return Model(id, param)
+
+    def default(request, model):
+        return "The view for model: %s %s" % (model.id, model.param)
+
+    def link(request, model):
+        return request.link(model)
+
+    c = setup()
+    c.configurable(app)
+    c.action(app.root(), Root)
+    c.action(app.model(model=Model, path='{id}', parameters={'param': 0},
+                       variables=lambda model: {'id': model.id,
+                                                'param': model.param}),
+             get_model)
+    c.action(app.view(model=Model),
+             default)
+    c.action(app.view(model=Model, name='link'),
+             link)
+    c.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/foo')
+    assert response.data == 'The view for model: foo 0'
+
+    response = c.get('/foo/link')
+    assert response.data == 'foo?param=0'
+
+    response = c.get('/foo?param=1')
+    assert response.data == 'The view for model: foo 1'
+
+    response = c.get('/foo/link?param=1')
+    assert response.data == 'foo?param=1'
+
+
 def test_convert_exception_to_internal_error():
     app = morepath.App()
 

@@ -1,5 +1,5 @@
 from morepath import generic
-from morepath.traject import Traject
+from morepath.traject import Traject, ParameterFactory
 from reg import mapply
 
 
@@ -52,7 +52,8 @@ def register_model(app, model, path, variables, parameters, model_factory,
         if traject is None:
             traject = Traject()
             app.traject = traject
-    traject.add_pattern(path, model_factory)
+    parameter_factory = ParameterFactory(parameters)
+    traject.add_pattern(path, (model_factory, parameter_factory))
     traject.inverse(model, path, variables, list(parameters.keys()))
 
     if get_base is None:
