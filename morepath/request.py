@@ -3,7 +3,13 @@ from werkzeug.wrappers import (BaseRequest, BaseResponse,
                                CommonResponseDescriptorsMixin)
 from werkzeug.utils import cached_property
 from .traject import parse_path
+from .error import LinkError
 import urllib
+import reg
+
+
+NO_DEFAULT = reg.Sentinel('NO_DEFAULT')
+
 
 class Request(BaseRequest):
     """Request.
@@ -63,7 +69,7 @@ class Request(BaseRequest):
 
     # XXX add way to easily generate URL parameters too
     # XXX once lookup is retrieved from mounted, do we want a request.lookup?
-    def link(self, model, name='', mounted=None):
+    def link(self, model, name='', mounted=None, default=NO_DEFAULT):
         """Create a link (URL) to a view on a model.
 
         :param model: the model to link to.
@@ -72,11 +78,24 @@ class Request(BaseRequest):
         :param mounted: a :class:`morepath.model.Mount` instance for
           which the view should be looked up. If ommitted, this is the
           current mount.
+        :param default: the link that should be used if no link can
+          be constructed for this object. If a tuple, the second value
+          contains the URL parameters. If omitted, a
+          :exc:`morepath.error.LinkError` will be raised instead.
         """
         if mounted is None:
             mounted = self.mounts[-1]
-        result, parameters = generic.link(
-            self, model, mounted, lookup=mounted.lookup())
+        try:
+            result, parameters = generic.link(
+                self, model, mounted, lookup=mounted.lookup())
+        except LinkError:
+            if default is NO_DEFAULT:
+                raise
+            try:
+                result, parameters = default
+            except ValueError:
+                result = default
+                parameters = {}
         if name:
             result += '/' + name
         if parameters:

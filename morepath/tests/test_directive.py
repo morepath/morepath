@@ -189,16 +189,28 @@ def test_link_to_unknown_model():
         except LinkError:
             return "Link error"
 
+    def root_link_with_default(request, model):
+        return request.link(Model('foo'), default='hey')
+
+    def root_link_with_default2(request, model):
+        return request.link(Model('foo'), default=('hey', dict(param=1)))
+
     c = setup()
     c.configurable(app)
     c.action(app.root(), Root)
     c.action(app.view(model=Root), root_link)
+    c.action(app.view(model=Root, name='default'), root_link_with_default)
+    c.action(app.view(model=Root, name='default2'), root_link_with_default2)
     c.commit()
 
     c = Client(app, Response)
 
     response = c.get('/')
     assert response.data == 'Link error'
+    response = c.get('/default')
+    assert response.data == 'hey'
+    response = c.get('/default2')
+    assert response.data == 'hey?param=1'
 
 
 def test_link_with_parameters():
