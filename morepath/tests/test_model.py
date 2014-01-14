@@ -1,11 +1,12 @@
 import urllib
-from morepath.model import register_root, register_model
+from morepath.model import (register_root, register_model,
+                            variables_from_arginfo, parameters_from_arginfo)
 from morepath.app import App
 from werkzeug.test import EnvironBuilder
 from morepath import setup
 from morepath import generic
 from morepath.core import traject_consume
-
+import pytest
 
 def consume(app, path, parameters=None):
     if parameters:
@@ -117,3 +118,24 @@ def test_traject_path_with_leading_slash():
     assert obj.id == 'a'
     obj, request = consume(app, '/foo/a')
     assert obj.id == 'a'
+
+
+def test_variables_from_arginfo():
+    class Model(object):
+        def __init__(self, a, b):
+            self.a = a
+            self.b = b
+    variables = variables_from_arginfo(Model)
+    assert variables(Model('A', 'B')) == {'a': 'A', 'b': 'B'}
+    class WrongModel(object):
+        pass
+    with pytest.raises(AttributeError):
+        variables(WrongModel())
+
+
+def test_parameters_from_arginfo():
+    def foo(a, b):
+        pass
+    assert parameters_from_arginfo('foo/{a}', foo) == {
+        'b': None
+        }

@@ -61,11 +61,14 @@ class ModelDirective(Directive):
           function, the model should not be provided.
         :param variables: a function that given a model object can construct
           the variables used in the path (including any URL parameters).
-          Can be omitted if no variables or parameters are used in the path.
+          If omitted, variables are retrieved from the model by using
+          the arguments of the decorated function.
         :param parameters: a dict with expected URL parameters.
           Keys are names of parameters, values are default values or types.
           Type such as ``str`` or ``int`` are recognized. If default value,
-          expected type is derived from default value. Optional.
+          expected type is derived from default value. If parameters are
+          not passed in explictly, the parameters are deduced from the
+          decorated function (looking at default arguments).
         :param base: the class of the base model from which routing
           should start.  If omitted, the routing will start from the
           mounted application's root.
@@ -77,7 +80,7 @@ class ModelDirective(Directive):
         self.model = model
         self.path = path
         self.variables = variables
-        self.parameters = parameters or {}
+        self.parameters = parameters
         self.base = base
         self.get_base = get_base
 
@@ -315,17 +318,20 @@ class RootDirective(Directive):
         :param model: the class of the root model. Should not be supplied
           if this decorates a class.
         :param variables: a function that given a model object can construct
-          the variables used in the path (including any URL parameters).
-          Can be omitted if no variables or parameters are used in the path.
+          the variables the URL parameters. If omitted, variables are
+          retrieved from the model by using the arguments of the decorated
+          function.
         :param parameters: a dict with expected URL parameters.
           Keys are names of parameters, values are default values or types.
           Type such as ``str`` or ``int`` are recognized. If default value,
-          expected type is derived from default value. Optional.
+          expected type is derived from default value. If parameters are
+          not passed in explictly, the parameters are deduced from the
+          decorated function (looking at default arguments).
         """
         super(RootDirective, self).__init__(app)
         self.model = model
         self.variables = variables
-        self.parameters = parameters or {}
+        self.parameters = parameters
 
     def identifier(self):
         return ('root',)
@@ -358,11 +364,17 @@ class MountDirective(Directive):
 
         :param path: the path to mount the application on.
         :param app: the :class:`morepath.App` instance to mount.
+        :param parameters: a dict with expected URL parameters.
+          Keys are names of parameters, values are default values or types.
+          Type such as ``str`` or ``int`` are recognized. If default value,
+          expected type is derived from default value. If parameters are
+          not passed in explictly, the parameters are deduced from the
+          decorated function (looking at default arguments).
         """
         super(MountDirective, self).__init__(base_app)
         self.mounted_app = app
         self.path = path
-        self.parameters = parameters or {}
+        self.parameters = parameters
 
     def identifier(self):
         return ('path', Path(self.path).discriminator())

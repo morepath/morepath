@@ -708,3 +708,9 @@ def test_single_parameter_int_default():
     assert get_parameters(fake_request('')) == {'a': 0}
     with pytest.raises(BadRequest):
         get_parameters(fake_request('?a=A'))
+
+
+def test_parameter_none_default():
+    get_parameters = ParameterFactory({'a': None})
+    assert get_parameters(fake_request('?a=1')) == {'a': '1'}
+    assert get_parameters(fake_request('')) == {'a': None}

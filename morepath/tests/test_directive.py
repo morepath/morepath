@@ -337,6 +337,90 @@ def test_implicit_variables():
     assert response.data == 'foo'
 
 
+def test_implicit_parameters():
+    app = morepath.App()
+
+    class Root(object):
+        pass
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    def get_model(id):
+        return Model(id)
+
+    def default(request, model):
+        return "The view for model: %s" % model.id
+
+    def link(request, model):
+        return request.link(model)
+
+    c = setup()
+    c.configurable(app)
+    c.action(app.root(), Root)
+    c.action(app.model(model=Model, path='foo'),
+             get_model)
+    c.action(app.view(model=Model),
+             default)
+    c.action(app.view(model=Model, name='link'),
+             link)
+    c.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/foo')
+    assert response.data == 'The view for model: None'
+    response = c.get('/foo?id=bar')
+    assert response.data == 'The view for model: bar'
+    response = c.get('/foo/link')
+    assert response.data == 'foo?id=None'
+    response = c.get('/foo/link?id=bar')
+    assert response.data == 'foo?id=bar'
+
+
+def test_implicit_parameters_default():
+    app = morepath.App()
+
+    class Root(object):
+        pass
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    def get_model(id='default'):
+        return Model(id)
+
+    def default(request, model):
+        return "The view for model: %s" % model.id
+
+    def link(request, model):
+        return request.link(model)
+
+    c = setup()
+    c.configurable(app)
+    c.action(app.root(), Root)
+    c.action(app.model(model=Model, path='foo'),
+             get_model)
+    c.action(app.view(model=Model),
+             default)
+    c.action(app.view(model=Model, name='link'),
+             link)
+    c.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/foo')
+    assert response.data == 'The view for model: default'
+    response = c.get('/foo?id=bar')
+    assert response.data == 'The view for model: bar'
+    response = c.get('/foo/link')
+    assert response.data == 'foo?id=default'
+    response = c.get('/foo/link?id=bar')
+    assert response.data == 'foo?id=bar'
+
+
 def test_convert_exception_to_internal_error():
     app = morepath.App()
 
@@ -977,6 +1061,43 @@ def test_mount_context_parameters():
     assert response.data == 'The root for mount id: 1'
     response = c.get('/mounts')
     assert response.data == 'The root for mount id: 0'
+
+
+def test_mount_context_parameters_empty_context():
+    app = morepath.App('app')
+    mounted = morepath.App('mounted')
+
+    class MountedRoot(object):
+        # use a default parameter
+        def __init__(self, mount_id='default'):
+            self.mount_id = mount_id
+
+    def root_default(request, model):
+        return "The root for mount id: %s" % model.mount_id
+
+    # the context does not in fact construct the context.
+    # this means the parameters are instead constructed from the
+    # arguments of the MountedRoot constructor, and these
+    # default to 'default'
+    def get_context(id):
+        return {
+            }
+
+    c = setup()
+    c.configurable(app)
+    c.configurable(mounted)
+    c.action(app.mount(path='{id}', app=mounted), get_context)
+    c.action(mounted.root(), MountedRoot)
+    c.action(mounted.view(model=MountedRoot), root_default)
+    c.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/foo')
+    assert response.data == 'The root for mount id: default'
+    # we should ignore the URL parameter and fail
+    response = c.get('/bar?mount_id=blah')
+    assert response.data == 'The root for mount id: blah'
 
 
 def test_mount_context_standalone():

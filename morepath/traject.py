@@ -173,6 +173,12 @@ class Path(object):
     def interpolation_str(self):
         return '/'.join([step.named_interpolation_str for step in self.steps])
 
+    def variables(self):
+        result = []
+        for step in self.steps:
+            result.extend(step.names)
+        return result
+
 
 class Traject(Node):
     def __init__(self):
@@ -235,7 +241,10 @@ class ParameterFactory(object):
         self.parameters = parameters
         self.info = info = []
         for name, value in parameters.items():
-            if value in CONVERTER_SET:
+            if value is None:
+                convert = str
+                default = None
+            elif value in CONVERTER_SET:
                 convert = value
                 default = None
             else:
