@@ -11,11 +11,12 @@ learn how Morepath is the same and how it is different, as it will
 help you understand it faster. So we'll try to go into some of this
 here.
 
-It's also a good way to explain some of Morepath's :doc:`design
+This is also a place to explain some of Morepath's :doc:`design
 <design>` choices, like `this document
 <http://docs.pylonsproject.org/projects/pyramid/en/latest/designdefense.html>`
-does for the Pyramid web framework (and which makes for a very
-interesting read!). More web frameworks should do that.
+does for the Pyramid web framework. It makes for a very interesting
+read if you're interested in web framework design, so more web
+frameworks should do that.
 
 Our ability to compare Morepath to other web frameworks is limited by
 our familiarity with them, and also by their aforementioned large
