@@ -54,9 +54,9 @@ def register_model(app, model, path, variables, parameters, model_factory,
     parameter_factory = ParameterFactory(parameters)
     traject.add_pattern(path, (model_factory, parameter_factory))
     if variables is None:
-        argnames, varargs, kwargs = arginfo(model_factory)
+        info = arginfo(model_factory)
         variables = lambda m: { name: getattr(m, name) for
-                                name in argnames }
+                                name in info.args }
     traject.inverse(model, path, variables, list(parameters.keys()))
 
     if get_base is None:
