@@ -91,9 +91,9 @@ class Request(BaseRequest):
         except LinkError:
             if default is NO_DEFAULT:
                 raise
-            try:
+            if isinstance(default, tuple):
                 result, parameters = default
-            except ValueError:
+            else:
                 result = default
                 parameters = {}
         if name:
