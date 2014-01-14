@@ -192,12 +192,13 @@ class Traject(Node):
             known_variables.update(variables)
         node.value = value
 
-    def inverse(self, model_class, path, get_variables):
+    def inverse(self, model_class, path, get_variables, parameter_names):
         # XXX should we do checking for duplicate variables here too?
         path = Path(path)
         self._inverse.register('inverse',
                                [model_class],
-                               (path.interpolation_str(), get_variables))
+                               (path.interpolation_str(), get_variables,
+                                parameter_names))
 
     def __call__(self, stack):
         stack = stack[:]
@@ -217,10 +218,12 @@ class Traject(Node):
         return node.value, stack, variables
 
     def path(self, model):
-        path, get_variables = self._inverse.component('inverse', [model])
+        path, get_variables, parameter_names = self._inverse.component(
+            'inverse', [model])
         variables = get_variables(model)
         assert isinstance(variables, dict)
-        return path % variables
+        parameters = { name: variables[name] for name in parameter_names }
+        return path % variables, parameters
 
 
 class NameParser(object):

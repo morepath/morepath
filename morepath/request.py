@@ -3,7 +3,7 @@ from werkzeug.wrappers import (BaseRequest, BaseResponse,
                                CommonResponseDescriptorsMixin)
 from werkzeug.utils import cached_property
 from .traject import parse_path
-
+import urllib
 
 class Request(BaseRequest):
     """Request.
@@ -75,10 +75,12 @@ class Request(BaseRequest):
         """
         if mounted is None:
             mounted = self.mounts[-1]
-        result = generic.link(
+        result, parameters = generic.link(
             self, model, mounted, lookup=mounted.lookup())
         if name:
             result += '/' + name
+        if parameters:
+            result += '?' + urllib.urlencode(parameters, True)
         return result
 
     def mounted(self):

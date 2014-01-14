@@ -29,7 +29,7 @@ def test_register_root():
     c.commit()
 
     register_root(app, Root, lambda: root)
-    assert generic.path(root, lookup=lookup) == ''
+    assert generic.path(root, lookup=lookup) == ('', {})
     assert generic.base(root, lookup=lookup) is app
 
 
@@ -48,14 +48,14 @@ def test_register_model():
     c.commit()
 
     register_root(app, Root, lambda: root)
-    register_model(app, Model, '{id}', lambda model: {'id': model.id},
+    register_model(app, Model, '{id}', lambda model: {'id': model.id}, {},
                    get_model)
 
     obj, request = consume(app, 'a')
     assert obj.id == 'a'
     model = Model()
     model.id = 'b'
-    assert generic.path(model, lookup=lookup) == 'b'
+    assert generic.path(model, lookup=lookup) == ('b', {})
     assert generic.base(model, lookup=lookup) is app
 
 
@@ -74,7 +74,7 @@ def test_traject_path_with_leading_slash():
 
     register_root(app, Root, lambda: root)
     register_model(app, Model, '/foo/{id}', lambda model: {'id': model.id},
-                   get_model)
+                   {}, get_model)
     obj, request = consume(app, 'foo/a')
     assert obj.id == 'a'
     obj, request = consume(app, '/foo/a')

@@ -53,30 +53,36 @@ def traject_consume(request, model, lookup):
 @global_app.function(generic.path, object)
 def app_path(model, lookup):
     result = []
+    parameters = {}
     while True:
         base = generic.base(model, lookup=lookup, default=None)
         # We cannot construct link at all, so this is an error.
         if base is None:
             raise LinkError()
         traject = generic.traject(base, lookup=lookup)
-        result.append(traject.path(model))
+        path, params = traject.path(model)
+        result.append(path)
+        parameters.update(params)
         # If the base is an App, we cannot continue constructing link further.
         if isinstance(base, AppBase):
             break
         model = base
     result.reverse()
-    return '/'.join(result)
+    return '/'.join(result), parameters
 
 
 @global_app.function(generic.link, Request, object, object)
 def link(request, model, mounted):
     result = []
+    parameters = {}
     while mounted is not None:
-        result.append(app_path(model, lookup=mounted.lookup()))
+        path, params = app_path(model, lookup=mounted.lookup())
+        result.append(path)
+        parameters.update(params)
         model = mounted
         mounted = mounted.parent()
     result.reverse()
-    return '/'.join(result).strip('/')
+    return '/'.join(result).strip('/'), parameters
 
 
 @global_app.function(generic.traject, AppBase)

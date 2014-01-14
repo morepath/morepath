@@ -35,11 +35,12 @@ class Mount(object):
         return factory(**context)
 
 
+# XXX parameters for root should be allowed, which means variables too
 def register_root(app, model, model_factory):
-    register_model(app, model, '', lambda model: {}, model_factory)
+    register_model(app, model, '', lambda model: {}, {}, model_factory)
 
 
-def register_model(app, model, path, variables, model_factory,
+def register_model(app, model, path, variables, parameters, model_factory,
                    base=None, get_base=None):
     if base is not None:
         traject = app.exact(generic.traject, [base])
@@ -52,7 +53,7 @@ def register_model(app, model, path, variables, model_factory,
             traject = Traject()
             app.traject = traject
     traject.add_pattern(path, model_factory)
-    traject.inverse(model, path, variables)
+    traject.inverse(model, path, variables, list(parameters.keys()))
 
     if get_base is None:
         def get_base(model):
@@ -61,13 +62,13 @@ def register_model(app, model, path, variables, model_factory,
     app.register(generic.base, [model], get_base)
 
 
-def register_mount(base_app, app, path, context_factory):
+def register_mount(base_app, app, path, parameters, context_factory):
     # specific class as we want a different one for each mount
     class SpecificMount(Mount):
         def __init__(self, **kw):
             super(SpecificMount, self).__init__(app, context_factory, kw)
     register_model(base_app, SpecificMount, path, lambda m: m.variables,
-                   SpecificMount)
+                   parameters, SpecificMount)
     register_mounted(base_app, app, SpecificMount)
 
 

@@ -43,7 +43,7 @@ class directive(object):
 @directive('model')
 class ModelDirective(Directive):
     def __init__(self, app,  path, model=None,
-                 variables=None, base=None, get_base=None):
+                 variables=None, parameters=None, base=None, get_base=None):
         """Register a model for a path.
 
         Decorate a function or a class (constructor). The function
@@ -60,8 +60,12 @@ class ModelDirective(Directive):
           should return. If the directive is used on a class instead of a
           function, the model should not be provided.
         :param variables: a function that given a model object can construct
-          the variables used in the path. Can be omitted if no variables
-          are used in the path.
+          the variables used in the path (including any URL parameters).
+          Can be omitted if no variables or parameters are used in the path.
+        :param parameters: a dict with expected URL parameters.
+          Keys are names of parameters, values are default values or types.
+          Type such as ``str`` or ``int`` are recognized. If default value,
+          expected type is derived from default value.
         :param base: the class of the base model from which routing
           should start.  If omitted, the routing will start from the
           mounted application's root.
@@ -73,6 +77,7 @@ class ModelDirective(Directive):
         self.model = model
         self.path = path
         self.variables = variables
+        self.parameters = parameters or {}
         self.base = base
         self.get_base = get_base
 
@@ -101,7 +106,8 @@ class ModelDirective(Directive):
 
     def perform(self, app, obj):
         register_model(app, self.model, self.path,
-                       self.variables, obj, self.base, self.get_base)
+                       self.variables, self.parameters,
+                       obj, self.base, self.get_base)
 
 
 @directive('permission')
@@ -355,7 +361,7 @@ class MountDirective(Directive):
         return [('mount', self.mounted_app)]
 
     def perform(self, app, obj):
-        register_mount(app, self.mounted_app, self.path, obj)
+        register_mount(app, self.mounted_app, self.path, {}, obj)
 
 
 @directive('identity_policy')

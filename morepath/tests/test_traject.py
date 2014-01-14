@@ -629,8 +629,8 @@ def test_path_for_model():
             self.id = id
 
     traject.inverse(IdModel, 'foo/{id}',
-                    lambda model: {'id': model.id})
-    assert traject.path(IdModel('a')) == 'foo/a'
+                    lambda model: {'id': model.id}, [])
+    assert traject.path(IdModel('a')) == ('foo/a', {})
 
 
 def test_path_for_model_with_converter():
@@ -641,8 +641,8 @@ def test_path_for_model_with_converter():
             self.id = id
 
     traject.inverse(IdModel, 'foo/{id:int}',
-                    lambda model: {'id': model.id})
-    assert traject.path(IdModel(1)) == 'foo/1'
+                    lambda model: {'id': model.id}, [])
+    assert traject.path(IdModel(1)) == ('foo/1', {})
 
 
 def test_path_discriminator():
