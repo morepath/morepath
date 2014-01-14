@@ -35,9 +35,8 @@ class Mount(object):
         return factory(**context)
 
 
-# XXX parameters for root should be allowed, which means variables too
-def register_root(app, model, model_factory):
-    register_model(app, model, '', lambda model: {}, {}, model_factory)
+def register_root(app, model, variables, parameters, model_factory):
+    register_model(app, model, '', variables, parameters, model_factory)
 
 
 def register_model(app, model, path, variables, parameters, model_factory,
@@ -54,6 +53,8 @@ def register_model(app, model, path, variables, parameters, model_factory,
             app.traject = traject
     parameter_factory = ParameterFactory(parameters)
     traject.add_pattern(path, (model_factory, parameter_factory))
+    if variables is None:
+        variables = lambda m: {}
     traject.inverse(model, path, variables, list(parameters.keys()))
 
     if get_base is None:

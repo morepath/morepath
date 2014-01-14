@@ -65,7 +65,7 @@ class ModelDirective(Directive):
         :param parameters: a dict with expected URL parameters.
           Keys are names of parameters, values are default values or types.
           Type such as ``str`` or ``int`` are recognized. If default value,
-          expected type is derived from default value.
+          expected type is derived from default value. Optional.
         :param base: the class of the base model from which routing
           should start.  If omitted, the routing will start from the
           mounted application's root.
@@ -304,7 +304,7 @@ class HtmlDirective(ViewDirective):
 
 @directive('root')
 class RootDirective(Directive):
-    def __init__(self, app, model=None):
+    def __init__(self, app, model=None, variables=None, parameters=None):
         """Register the root model.
 
         The decorated function or class (constructor) should return
@@ -314,9 +314,18 @@ class RootDirective(Directive):
 
         :param model: the class of the root model. Should not be supplied
           if this decorates a class.
+        :param variables: a function that given a model object can construct
+          the variables used in the path (including any URL parameters).
+          Can be omitted if no variables or parameters are used in the path.
+        :param parameters: a dict with expected URL parameters.
+          Keys are names of parameters, values are default values or types.
+          Type such as ``str`` or ``int`` are recognized. If default value,
+          expected type is derived from default value. Optional.
         """
         super(RootDirective, self).__init__(app)
         self.model = model
+        self.variables = variables
+        self.parameters = parameters or {}
 
     def identifier(self):
         return ('root',)
@@ -335,7 +344,7 @@ class RootDirective(Directive):
         yield self.clone(model=model), obj
 
     def perform(self, app, obj):
-        register_root(app, self.model, obj)
+        register_root(app, self.model, self.variables, self.parameters, obj)
 
 
 @directive('mount')

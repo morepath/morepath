@@ -31,7 +31,7 @@ def test_register_root():
     c.configurable(app)
     c.commit()
 
-    register_root(app, Root, lambda: root)
+    register_root(app, Root, None, {}, lambda: root)
     assert generic.path(root, lookup=lookup) == ('', {})
     assert generic.base(root, lookup=lookup) is app
 
@@ -50,7 +50,7 @@ def test_register_model():
     c.configurable(app)
     c.commit()
 
-    register_root(app, Root, lambda: root)
+    register_root(app, Root, None, {}, lambda: root)
     register_model(app, Model, '{id}', lambda model: {'id': model.id}, {},
                    get_model)
 
@@ -77,7 +77,7 @@ def test_register_model_with_parameters():
     c.configurable(app)
     c.commit()
 
-    register_root(app, Root, lambda: root)
+    register_root(app, Root, None, {}, lambda: root)
     register_model(app, Model, '{id}', lambda model: {'id': model.id,
                                                       'param': model.param },
                    {'param': 'default'}, get_model)
@@ -110,7 +110,7 @@ def test_traject_path_with_leading_slash():
     c.configurable(app)
     c.commit()
 
-    register_root(app, Root, lambda: root)
+    register_root(app, Root, None, {}, lambda: root)
     register_model(app, Model, '/foo/{id}', lambda model: {'id': model.id},
                    {}, get_model)
     obj, request = consume(app, 'foo/a')

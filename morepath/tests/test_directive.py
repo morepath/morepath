@@ -250,6 +250,45 @@ def test_link_with_parameters():
     assert response.data == 'foo?param=1'
 
 
+def test_root_link_with_parameters():
+    app = morepath.App()
+
+    class Root(object):
+        def __init__(self, param):
+            self.param = param
+
+    def default(request, model):
+        return "The view for root: %s" % model.param
+
+    def link(request, model):
+        return request.link(model)
+
+    c = setup()
+    c.configurable(app)
+    c.action(app.root(
+            variables=lambda m: dict(param=m.param),
+            parameters={'param': 0}), Root)
+    c.action(app.view(model=Root),
+             default)
+    c.action(app.view(model=Root, name='link'),
+             link)
+    c.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/')
+    assert response.data == 'The view for root: 0'
+
+    response = c.get('/link')
+    assert response.data == '?param=0'
+
+    response = c.get('/?param=1')
+    assert response.data == 'The view for root: 1'
+
+    response = c.get('/link?param=1')
+    assert response.data == '?param=1'
+
+
 def test_convert_exception_to_internal_error():
     app = morepath.App()
 
