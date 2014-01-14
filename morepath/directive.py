@@ -349,7 +349,7 @@ class RootDirective(Directive):
 
 @directive('mount')
 class MountDirective(Directive):
-    def __init__(self, base_app,  path, app):
+    def __init__(self, base_app, path, app, parameters=None):
         """Mount sub application on path.
 
         The decorated function gets the variables specified in path as
@@ -362,6 +362,7 @@ class MountDirective(Directive):
         super(MountDirective, self).__init__(base_app)
         self.mounted_app = app
         self.path = path
+        self.parameters = parameters or {}
 
     def identifier(self):
         return ('path', Path(self.path).discriminator())
@@ -370,7 +371,7 @@ class MountDirective(Directive):
         return [('mount', self.mounted_app)]
 
     def perform(self, app, obj):
-        register_mount(app, self.mounted_app, self.path, {}, obj)
+        register_mount(app, self.mounted_app, self.path, self.parameters, obj)
 
 
 @directive('identity_policy')
