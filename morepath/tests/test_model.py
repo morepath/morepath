@@ -133,8 +133,26 @@ def test_variables_from_arginfo():
         variables(WrongModel())
 
 
+def test_variables_from_arginfo_with_base_request():
+    class Model(object):
+        def __init__(self, a, b, base, request):
+            self.a = a
+            self.b = b
+    variables = variables_from_arginfo(Model)
+    assert variables(Model('A', 'B',
+                           request=None, base=None)) == {'a': 'A', 'b': 'B'}
+
+
 def test_parameters_from_arginfo():
     def foo(a, b):
+        pass
+    assert parameters_from_arginfo('foo/{a}', foo) == {
+        'b': None
+        }
+
+
+def test_parameters_from_arginfo_with_base_request():
+    def foo(a, b, base, request):
         pass
     assert parameters_from_arginfo('foo/{a}', foo) == {
         'b': None
