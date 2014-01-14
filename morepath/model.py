@@ -1,6 +1,6 @@
 from morepath import generic
 from morepath.traject import Traject, ParameterFactory
-from reg import mapply
+from reg import mapply, arginfo
 
 
 class Mount(object):
@@ -54,7 +54,9 @@ def register_model(app, model, path, variables, parameters, model_factory,
     parameter_factory = ParameterFactory(parameters)
     traject.add_pattern(path, (model_factory, parameter_factory))
     if variables is None:
-        variables = lambda m: {}
+        argnames, varargs, kwargs = arginfo(model_factory)
+        variables = lambda m: { name: getattr(m, name) for
+                                name in argnames }
     traject.inverse(model, path, variables, list(parameters.keys()))
 
     if get_base is None:

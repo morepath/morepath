@@ -289,6 +289,42 @@ def test_root_link_with_parameters():
     assert response.data == '?param=1'
 
 
+def test_implicit_variables():
+    app = morepath.App()
+
+    class Root(object):
+        pass
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    def get_model(id):
+        return Model(id)
+
+    def default(request, model):
+        return "The view for model: %s" % model.id
+
+    def link(request, model):
+        return request.link(model)
+
+    c = setup()
+    c.configurable(app)
+    c.action(app.root(), Root)
+    c.action(app.model(model=Model, path='{id}'),
+             get_model)
+    c.action(app.view(model=Model),
+             default)
+    c.action(app.view(model=Model, name='link'),
+             link)
+    c.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/foo/link')
+    assert response.data == 'foo'
+
+
 def test_convert_exception_to_internal_error():
     app = morepath.App()
 
