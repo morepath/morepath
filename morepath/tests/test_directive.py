@@ -25,7 +25,7 @@ def test_basic():
     assert response.data == 'The view for model: foo'
 
     response = c.get('/foo/link')
-    assert response.data == 'foo'
+    assert response.data == '/foo'
 
 
 def test_basic_json():
@@ -54,7 +54,7 @@ def test_basic_root():
     # + is to make sure we get the view, not the sub-model as
     # the model is greedy
     response = c.get('/+link')
-    assert response.data == ''
+    assert response.data == '/'
 
 
 def test_nested():
@@ -69,7 +69,7 @@ def test_nested():
     assert response.data == 'The view for model: foo'
 
     response = c.get('/inner/foo/link')
-    assert response.data == 'inner/foo'
+    assert response.data == '/inner/foo'
 
 
 def test_abbr():
@@ -159,7 +159,7 @@ def test_basic_imperative():
     assert response.data == 'The view for model: foo'
 
     response = c.get('/foo/link')
-    assert response.data == 'foo'
+    assert response.data == '/foo'
 
     response = c.get('/foo/json')
     assert response.data == '{"id": "foo"}'
@@ -169,7 +169,7 @@ def test_basic_imperative():
 
     # + is to make sure we get the view, not the sub-model
     response = c.get('/+link')
-    assert response.data == ''
+    assert response.data == '/'
 
 
 def test_link_to_unknown_model():
@@ -208,9 +208,9 @@ def test_link_to_unknown_model():
     response = c.get('/')
     assert response.data == 'Link error'
     response = c.get('/default')
-    assert response.data == 'hey'
+    assert response.data == '/hey'
     response = c.get('/default2')
-    assert response.data == 'hey?param=1'
+    assert response.data == '/hey?param=1'
 
 
 def test_link_with_parameters():
@@ -253,13 +253,13 @@ def test_link_with_parameters():
     assert response.data == 'The view for model: foo 0'
 
     response = c.get('/foo/link')
-    assert response.data == 'foo?param=0'
+    assert response.data == '/foo?param=0'
 
     response = c.get('/foo?param=1')
     assert response.data == 'The view for model: foo 1'
 
     response = c.get('/foo/link?param=1')
-    assert response.data == 'foo?param=1'
+    assert response.data == '/foo?param=1'
 
 
 def test_root_link_with_parameters():
@@ -292,13 +292,13 @@ def test_root_link_with_parameters():
     assert response.data == 'The view for root: 0'
 
     response = c.get('/link')
-    assert response.data == '?param=0'
+    assert response.data == '/?param=0'
 
     response = c.get('/?param=1')
     assert response.data == 'The view for root: 1'
 
     response = c.get('/link?param=1')
-    assert response.data == '?param=1'
+    assert response.data == '/?param=1'
 
 
 def test_implicit_variables():
@@ -334,7 +334,7 @@ def test_implicit_variables():
     c = Client(app, Response)
 
     response = c.get('/foo/link')
-    assert response.data == 'foo'
+    assert response.data == '/foo'
 
 
 def test_implicit_parameters():
@@ -374,9 +374,9 @@ def test_implicit_parameters():
     response = c.get('/foo?id=bar')
     assert response.data == 'The view for model: bar'
     response = c.get('/foo/link')
-    assert response.data == 'foo?id=None'
+    assert response.data == '/foo?id=None'
     response = c.get('/foo/link?id=bar')
-    assert response.data == 'foo?id=bar'
+    assert response.data == '/foo?id=bar'
 
 
 def test_implicit_parameters_default():
@@ -416,9 +416,9 @@ def test_implicit_parameters_default():
     response = c.get('/foo?id=bar')
     assert response.data == 'The view for model: bar'
     response = c.get('/foo/link')
-    assert response.data == 'foo?id=default'
+    assert response.data == '/foo?id=default'
     response = c.get('/foo/link?id=bar')
-    assert response.data == 'foo?id=bar'
+    assert response.data == '/foo?id=bar'
 
 
 def test_convert_exception_to_internal_error():
@@ -959,7 +959,7 @@ def test_mount():
     assert response.data == 'The root'
 
     response = c.get('/foo/link')
-    assert response.data == 'foo'
+    assert response.data == '/foo'
 
 
 def test_mount_empty_context():
@@ -995,7 +995,7 @@ def test_mount_empty_context():
     assert response.data == 'The root'
 
     response = c.get('/foo/link')
-    assert response.data == 'foo'
+    assert response.data == '/foo'
 
 
 def test_mount_context():
@@ -1156,7 +1156,7 @@ def test_mount_parent_link():
     c = Client(app, Response)
 
     response = c.get('/foo')
-    assert response.data == 'models/one'
+    assert response.data == '/models/one'
 
 
 def test_mount_child_link():
@@ -1194,7 +1194,7 @@ def test_mount_child_link():
     c = Client(app, Response)
 
     response = c.get('/')
-    assert response.data == 'foo/models/one'
+    assert response.data == '/foo/models/one'
 
 
 def test_request_view_in_mount():

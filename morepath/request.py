@@ -100,7 +100,7 @@ class Request(BaseRequest):
             result += '/' + name
         if parameters:
             result += '?' + urllib.urlencode(parameters, True)
-        return result
+        return '/' + result
 
     def mounted(self):
         return self.mounts[-1]
