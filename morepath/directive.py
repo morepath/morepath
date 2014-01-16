@@ -345,8 +345,9 @@ class MountDirective(Directive):
         """Mount sub application on path.
 
         The decorated function gets the variables specified in path as
-        parameters. It should return a dictionary with the context
-        parameters for the mounted app.
+        parameters. It should return a dictionary with the required
+        variables for the mounted app. The variables are declared in
+        the :class:`morepath.App` constructor.
 
         :param path: the path to mount the application on.
         :param app: the :class:`morepath.App` instance to mount.
