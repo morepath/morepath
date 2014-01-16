@@ -15,11 +15,11 @@ def test_autoconfig():
     c.commit()
     # a way to check whether model in base was registered, could
     # we make this a bit less low-level?
-    assert app.traject(['foo']) is not None
+    assert app.traject.consume(['foo']) is not None
 
 
 def test_autosetup():
     autosetup()
     # a way to check whether model in base was registered, could
     # we make this a bit less low-level?
-    assert app.traject(['foo']) is not None
+    assert app.traject.consume(['foo']) is not None

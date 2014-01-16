@@ -210,7 +210,7 @@ class Traject(Node):
                                (path.interpolation_str(), get_variables,
                                 parameter_names))
 
-    def __call__(self, stack):
+    def consume(self, stack):
         stack = stack[:]
         node = self
         variables = {}

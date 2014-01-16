@@ -230,36 +230,36 @@ def test_traject_simple():
     traject.add_pattern('x/y', 'xy')
     traject.add_pattern('x/z', 'xz')
 
-    assert traject(['c', 'b', 'a']) == ('abc', [], {})
-    assert traject(['d', 'b', 'a']) == ('abd', [], {})
-    assert traject(['y', 'x']) == ('xy', [], {})
-    assert traject(['z', 'x']) == ('xz', [], {})
-    assert traject(['d', 'c', 'b', 'a']) == ('abc', ['d'], {})
-    assert traject(['d', 'd', 'b', 'a']) == ('abd', ['d'], {})
-    assert traject(['3', '2', '1', 'y', 'x']) == ('xy', ['3', '2', '1'], {})
-    assert traject(['3', '2', '1']) == (None, ['3', '2', '1'], {})
-    assert traject(['b', 'a']) == (None, [], {})
+    assert traject.consume(['c', 'b', 'a']) == ('abc', [], {})
+    assert traject.consume(['d', 'b', 'a']) == ('abd', [], {})
+    assert traject.consume(['y', 'x']) == ('xy', [], {})
+    assert traject.consume(['z', 'x']) == ('xz', [], {})
+    assert traject.consume(['d', 'c', 'b', 'a']) == ('abc', ['d'], {})
+    assert traject.consume(['d', 'd', 'b', 'a']) == ('abd', ['d'], {})
+    assert traject.consume(['3', '2', '1', 'y', 'x']) == ('xy', ['3', '2', '1'], {})
+    assert traject.consume(['3', '2', '1']) == (None, ['3', '2', '1'], {})
+    assert traject.consume(['b', 'a']) == (None, [], {})
 
 
 def test_traject_variable_specific_first():
     traject = Traject()
     traject.add_pattern('a/{x}/b', 'axb')
     traject.add_pattern('a/prefix{x}/b', 'aprefixxb')
-    assert traject(['b', 'lah', 'a']) == ('axb', [], {'x': 'lah'})
-    assert traject(['b', 'prefixlah', 'a']) == ('aprefixxb', [], {'x': 'lah'})
+    assert traject.consume(['b', 'lah', 'a']) == ('axb', [], {'x': 'lah'})
+    assert traject.consume(['b', 'prefixlah', 'a']) == ('aprefixxb', [], {'x': 'lah'})
 
 
 def test_traject_multiple_steps_with_variables():
     traject = Traject()
     traject.add_pattern('{x}/{y}', 'xy')
-    assert traject(['y', 'x']) == ('xy', [], {'x': 'x', 'y': 'y'})
+    assert traject.consume(['y', 'x']) == ('xy', [], {'x': 'x', 'y': 'y'})
 
 
 def test_traject_with_converter():
     traject = Traject()
     traject.add_pattern('{x:int}', 'found')
-    assert traject(['1']) == ('found', [], {'x': 1})
-    assert traject(['foo']) == (None, ['foo'], {})
+    assert traject.consume(['1']) == ('found', [], {'x': 1})
+    assert traject.consume(['foo']) == (None, ['foo'], {})
 
 
 def test_traject_with_converter_and_fallback():
@@ -267,8 +267,8 @@ def test_traject_with_converter_and_fallback():
     traject.add_pattern('{x:int}', 'found_int')
     traject.add_pattern('{x:str}', 'found_str')
 
-    assert traject(['1']) == ('found_int', [], {'x': 1})
-    assert traject(['foo']) == ('found_str', [], {'x': 'foo'})
+    assert traject.consume(['1']) == ('found_int', [], {'x': 1})
+    assert traject.consume(['foo']) == ('found_str', [], {'x': 'foo'})
 
 
 def test_traject_with_converter_and_fallback2():
@@ -276,8 +276,8 @@ def test_traject_with_converter_and_fallback2():
     traject.add_pattern('{x}', 'found_str')
     traject.add_pattern('{x:int}', 'found_int')
 
-    assert traject(['1']) == ('found_int', [], {'x': 1})
-    assert traject(['foo']) == ('found_str', [], {'x': 'foo'})
+    assert traject.consume(['1']) == ('found_int', [], {'x': 1})
+    assert traject.consume(['foo']) == ('found_str', [], {'x': 'foo'})
 
 
 def test_traject_with_converter_and_fallback3():
@@ -286,7 +286,7 @@ def test_traject_with_converter_and_fallback3():
     traject.add_pattern('{x:str}', 'found_explicit')
     traject.add_pattern('{x}', 'found_implicit')
 
-    assert traject(['foo']) == ('found_explicit', [], {'x': 'foo'})
+    assert traject.consume(['foo']) == ('found_explicit', [], {'x': 'foo'})
 
 
 def test_traject_greedy_middle_converter():
@@ -294,9 +294,9 @@ def test_traject_greedy_middle_converter():
     traject.add_pattern('a/{x:int}/y', 'int')
     traject.add_pattern('a/{x}/z', 'str')
 
-    assert traject(['y', '1', 'a']) == ('int', [], {'x': 1})
-    assert traject(['z', '1', 'a']) == (None,  ['z'], {'x': 1})
-    assert traject(['z', 'x', 'a']) == ('str', [], {'x': 'x'})
+    assert traject.consume(['y', '1', 'a']) == ('int', [], {'x': 1})
+    assert traject.consume(['z', '1', 'a']) == (None,  ['z'], {'x': 1})
+    assert traject.consume(['z', 'x', 'a']) == ('str', [], {'x': 'x'})
 
 
 def test_traject_greedy_middle_prefix():
@@ -304,9 +304,9 @@ def test_traject_greedy_middle_prefix():
     traject.add_pattern('a/prefix{x}/y', 'prefix')
     traject.add_pattern('a/{x}/z', 'no_prefix')
 
-    assert traject(['y', 'prefixX', 'a']) == ('prefix', [], {'x': 'X'})
-    assert traject(['z', 'prefixX', 'a']) == (None, ['z'], {'x': 'X'})
-    assert traject(['z', 'blah', 'a']) == ('no_prefix', [], {'x': 'blah'})
+    assert traject.consume(['y', 'prefixX', 'a']) == ('prefix', [], {'x': 'X'})
+    assert traject.consume(['z', 'prefixX', 'a']) == (None, ['z'], {'x': 'X'})
+    assert traject.consume(['z', 'blah', 'a']) == ('no_prefix', [], {'x': 'blah'})
 
 
 def test_traject_greedy_middle_converter_2():
@@ -314,11 +314,11 @@ def test_traject_greedy_middle_converter_2():
     traject.add_pattern('a/{x:int}/y', 'int')
     traject.add_pattern('a/{x}', 'str')
 
-    assert traject(['y', '1', 'a']) == ('int', [], {'x': 1})
+    assert traject.consume(['y', '1', 'a']) == ('int', [], {'x': 1})
     # this greedily goes into the int branch, and then doesn't find it
-    assert traject(['1', 'a']) == (None,  [], {'x': 1})
+    assert traject.consume(['1', 'a']) == (None,  [], {'x': 1})
     # this works however for non-int
-    assert traject(['blah', 'a']) == ('str', [], {'x': 'blah'})
+    assert traject.consume(['blah', 'a']) == ('str', [], {'x': 'blah'})
 
 
 def test_parse_path():

@@ -36,7 +36,7 @@ def traject_consume(request, model, lookup):
     traject = generic.traject(model, lookup=lookup, default=None)
     if traject is None:
         return None
-    value, stack, traject_variables = traject(request.unconsumed)
+    value, stack, traject_variables = traject.consume(request.unconsumed)
     if value is None:
         return None
     get_model, get_parameters = value
