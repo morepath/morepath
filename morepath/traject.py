@@ -262,31 +262,6 @@ class ParameterFactory(object):
         return result
 
 
-class NameParser(object):
-    def __init__(self, known_converters):
-        self.known_converters = known_converters
-
-    def __call__(self, s):
-        parts = s.split(':')
-        if len(parts) > 2:
-            raise TrajectError(
-                "illegal variable: %s" % s)
-        if len(parts) == 1:
-            name = s.strip()
-            converter_id = 'str'
-        else:
-            name, converter_id = parts
-            name = name.strip()
-            converter_id = converter_id.strip()
-        if not is_identifier(name):
-            raise TrajectError(
-                "illegal variable identifier: %s" % name)
-        converter = self.known_converters.get(converter_id)
-        if converter is None:
-            raise TrajectError("unknown converter: %s" % converter_id)
-        return name, converter
-
-
 def parse_path(path):
     """Parse a path /foo/bar/baz to a stack of steps.
 
