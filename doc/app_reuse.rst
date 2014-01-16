@@ -233,8 +233,12 @@ like this:
 
 We do need to adjust the wiki app a bit as right now it expects
 ``wiki_id`` to be in its paths, and the wiki id won't show up when
-mounted. This is a simple adjustment: we need to register the model so
-that its path is empty:
+mounted. We need to do two things: tell the wiki app that we expect
+the ``wiki_id`` variable::
+
+  wiki_app = morepath.App(variables=['wiki_id'])
+
+And we need to register the model so that its path is empty:
 
 .. code-block:: python
 
@@ -249,11 +253,13 @@ from the dictionary that we return from ``mount_wiki()``.
 What if we want to use ``wiki_app`` by itself, as a WSGI app? That can
 be useful, also for testing purposes. It needs this ``wiki_id``
 parameter now. We can construct this WSGI app from ``wiki_app`` by
-giving it a context explicitly:
+mounting it explicitly:
 
 .. code-block:: python
 
-  wiki_app.context(wiki_id=5)
+  wsgi_app = wiki_app.mounted(wiki_id=5)
+
+This is a WSGI app that we can run by itself that uses ``wiki_id`` 5.
 
 Application Reuse
 -----------------
