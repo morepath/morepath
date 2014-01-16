@@ -5,6 +5,7 @@ from morepath.config import Config
 from morepath.request import Response
 from morepath.view import render_html
 from morepath.app import App
+from morepath.converter import Converter
 import morepath
 from morepath.error import LinkError
 import reg
@@ -666,13 +667,13 @@ def test_path_conflict_with_variable_different_converters():
     class B(object):
         pass
 
-    a = app.model(model=A, path='a/{id:int}')
+    a = app.model(model=A, path='a/{id}', converters=Converter(decode=int))
 
     @a
     def get_a(id):
         return A()
 
-    b = app.model(model=B, path='a/{id:str}')
+    b = app.model(model=B, path='a/{id}')
 
     @b
     def get_b(id):

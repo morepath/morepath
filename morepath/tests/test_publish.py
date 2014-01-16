@@ -186,7 +186,7 @@ def test_view_raises_http_error():
     def view(request, model):
         raise BadRequest()
 
-    register_model(app, Model, 'foo', None, {}, Model)
+    register_model(app, Model, 'foo', None, None, {}, Model)
     register_view(app, Model, view)
 
     response = publish(app.request(get_environ(path='foo')), app.mounted())

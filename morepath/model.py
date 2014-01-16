@@ -68,10 +68,11 @@ def parameters_from_arginfo(path, callable):
 
 
 def register_root(app, model, variables, parameters, model_factory):
-    register_model(app, model, '', variables, parameters, model_factory)
+    register_model(app, model, '', variables, None, parameters, model_factory)
 
 
-def register_model(app, model, path, variables, parameters, model_factory,
+def register_model(app, model, path, variables, converters,
+                   parameters, model_factory,
                    base=None, get_base=None):
     if base is not None:
         traject = app.exact(generic.traject, [base])
@@ -83,13 +84,16 @@ def register_model(app, model, path, variables, parameters, model_factory,
         if traject is None:
             traject = Traject()
             app.traject = traject
+    if converters is None:
+        converters = {}
     if parameters is None:
         parameters = parameters_from_arginfo(path, model_factory)
     parameter_factory = ParameterFactory(parameters)
-    traject.add_pattern(path, (model_factory, parameter_factory))
+    traject.add_pattern(path, (model_factory, parameter_factory),
+                        converters)
     if variables is None:
         variables = variables_from_arginfo(model_factory)
-    traject.inverse(model, path, variables, list(parameters.keys()))
+    traject.inverse(model, path, variables, converters, list(parameters.keys()))
 
     if get_base is None:
         def get_base(model):
@@ -106,7 +110,7 @@ def register_mount(base_app, app, path, parameters, context_factory):
     if parameters is None:
         parameters = parameters_from_arginfo(path, context_factory)
     register_model(base_app, SpecificMount, path, lambda m: m.variables,
-                   parameters, SpecificMount)
+                   None, parameters, SpecificMount)
     register_mounted(base_app, app, SpecificMount)
 
 

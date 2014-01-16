@@ -6,6 +6,7 @@ from morepath import generic
 from morepath.app import App
 from morepath.core import traject_consume
 from morepath.request import Request
+from morepath.converter import Converter, IDENTITY_CONVERTER
 import pytest
 from werkzeug.test import EnvironBuilder
 from werkzeug.exceptions import BadRequest
@@ -28,7 +29,7 @@ def test_name_step():
     assert step.generalized == 'foo'
     assert step.parts == ('foo',)
     assert step.names == []
-    assert step.converters == []
+    assert step.converters == {}
     assert not step.has_variables()
     assert step.match('foo') == (True, {})
     assert step.match('bar') == (False, {})
@@ -41,7 +42,7 @@ def test_variable_step():
     assert step.generalized == '{}'
     assert step.parts == ('', '')
     assert step.names == ['foo']
-    assert step.converters == [str]
+    assert step.converters == {}
     assert step.has_variables()
     assert step.match('bar') == (True, {'foo': 'bar'})
     assert step.discriminator_info() == '{}'
@@ -53,7 +54,7 @@ def test_mixed_step():
     assert step.generalized == 'a{}b'
     assert step.parts == ('a', 'b')
     assert step.names == ['foo']
-    assert step.converters == [str]
+    assert step.converters == {}
     assert step.has_variables()
     assert step.match('abarb') == (True, {'foo': 'bar'})
     assert step.match('ab') == (False, {})
@@ -69,13 +70,13 @@ def test_multi_mixed_step():
     assert step.generalized == '{}a{}'
     assert step.parts == ('', 'a', '')
     assert step.names == ['foo', 'bar']
-    assert step.converters == [str, str]
+    assert step.converters == {}
     assert step.has_variables()
     assert step.discriminator_info() == '{}a{}'
 
 
 def test_converter():
-    step = Step('{foo:int}')
+    step = Step('{foo}', converters=dict(foo=Converter(int)))
     assert step.match('1') == (True, {'foo': 1})
     assert step.match('x') == (False, {})
     assert step.discriminator_info() == '{}'
@@ -257,37 +258,44 @@ def test_traject_multiple_steps_with_variables():
 
 def test_traject_with_converter():
     traject = Traject()
-    traject.add_pattern('{x:int}', 'found')
+    traject.add_pattern('{x}', 'found', dict(x=Converter(int)))
     assert traject.consume(['1']) == ('found', [], {'x': 1})
     assert traject.consume(['foo']) == (None, ['foo'], {})
 
 
 def test_traject_type_conflict():
     traject = Traject()
-    traject.add_pattern('{x:int}', 'found_int')
+    traject.add_pattern('{x}', 'found_int', dict(x=Converter(int)))
     with pytest.raises(TrajectError):
-        traject.add_pattern('{x:str}', 'found_str')
+        traject.add_pattern('{x}', 'found_str', dict(x=Converter(str)))
 
 
 def test_traject_type_conflict_default_type():
     traject = Traject()
     traject.add_pattern('{x}', 'found_str')
     with pytest.raises(TrajectError):
-        traject.add_pattern('{x:int}', 'found_int')
+        traject.add_pattern('{x}', 'found_int', dict(x=Converter(int)))
 
 
 def test_traject_type_conflict_explicit_default():
     traject = Traject()
-    traject.add_pattern('{x:str}', 'found_explicit')
-    with pytest.raises(TrajectError):
-        traject.add_pattern('{x}', 'found_implicit')
+    traject.add_pattern('{x}', 'found_explicit', dict(x=IDENTITY_CONVERTER))
+    traject.add_pattern('{x}', 'found_implicit')
+    # these add_pattern calls are equivalent so will not result in an error
+    assert True
 
 
 def test_traject_type_conflict_middle():
     traject = Traject()
-    traject.add_pattern('a/{x:int}/y', 'int')
+    traject.add_pattern('a/{x}/y', 'int', dict(x=Converter(int)))
     with pytest.raises(TrajectError):
         traject.add_pattern('a/{x}/z', 'str')
+
+
+def test_traject_no_type_conflict_middle():
+    traject = Traject()
+    traject.add_pattern('a/{x}/y', 'int', dict(x=Converter(int)))
+    traject.add_pattern('a/{x}/z', 'int2', dict(x=Converter(int)))
 
 
 def test_traject_greedy_middle_prefix():
@@ -302,9 +310,16 @@ def test_traject_greedy_middle_prefix():
 
 def test_traject_type_conflict_middle_end():
     traject = Traject()
-    traject.add_pattern('a/{x:int}/y', 'int')
+    traject.add_pattern('a/{x}/y', 'int', dict(x=Converter(int)))
     with pytest.raises(TrajectError):
         traject.add_pattern('a/{x}', 'str')
+
+
+def test_traject_no_type_conflict_middle_end():
+    traject = Traject()
+    traject.add_pattern('a/{x}/y', 'int', dict(x=Converter(int)))
+    traject.add_pattern('a/{x}', 'int2', dict(x=Converter(int)))
+    assert True
 
 
 def test_parse_path():
@@ -351,9 +366,8 @@ def test_identifier():
 
 
 def test_parse_variables():
-    assert parse_variables('No variables') == ([], [])
-    assert parse_variables('The {foo} is the {bar}.') == (
-        ['foo', 'bar'], [str, str])
+    assert parse_variables('No variables') == []
+    assert parse_variables('The {foo} is the {bar}.') == ['foo', 'bar']
     with pytest.raises(TrajectError):
         parse_variables('{}')
     with pytest.raises(TrajectError):
@@ -625,10 +639,6 @@ def test_interpolation_str():
     assert Path('{foo} is {bar}').interpolation_str() == '%(foo)s is %(bar)s'
 
 
-def test_interpolation_str_with_converters():
-    assert Path('{foo:int}').interpolation_str() == '%(foo)s'
-
-
 def test_path_for_model():
     traject = Traject()
 
@@ -637,7 +647,8 @@ def test_path_for_model():
             self.id = id
 
     traject.inverse(IdModel, 'foo/{id}',
-                    lambda model: {'id': model.id}, [])
+                    lambda model: {'id': model.id},
+                    {}, [])
     assert traject.path(IdModel('a')) == ('foo/a', {})
 
 
@@ -648,13 +659,14 @@ def test_path_for_model_with_converter():
         def __init__(self, id):
             self.id = id
 
-    traject.inverse(IdModel, 'foo/{id:int}',
-                    lambda model: {'id': model.id}, [])
+    traject.inverse(IdModel, 'foo/{id}',
+                    lambda model: {'id': model.id},
+                    dict(id=Converter(int)), [])
     assert traject.path(IdModel(1)) == ('foo/1', {})
 
 
 def test_path_discriminator():
-    p = Path('/foo/{x:int}/bar/{y}')
+    p = Path('/foo/{x}/bar/{y}')
     assert p.discriminator() == 'foo/{}/bar/{}'
 
 

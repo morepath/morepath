@@ -2,6 +2,7 @@ import re
 from functools import total_ordering
 from reg import Registry
 from werkzeug.exceptions import BadRequest
+from .converter import IDENTITY_CONVERTER
 
 IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
 PATH_VARIABLE = re.compile(r'\{([^}]*)\}')
@@ -19,18 +20,21 @@ KNOWN_CONVERTERS = {
 
 CONVERTER_SET = set(KNOWN_CONVERTERS.values())
 
+
 class TrajectError(Exception):
     pass
 
 
 @total_ordering
 class Step(object):
-    def __init__(self, s):
+    def __init__(self, s, converters=None):
         self.s = s
+        self.converters = converters or {}
         self.generalized = generalize_variables(s)
         self.parts = tuple(self.generalized.split('{}'))
         self._variables_re = create_variables_re(s)
-        self.names, self.converters = parse_variables(s)
+        self.names = parse_variables(s)
+        self.cmp_converters = [self.get_converter(name) for name in self.names]
         self.validate()
         self.named_interpolation_str = interpolation_str(s) % tuple(
             [('%(' + name + ')s') for name in self.names])
@@ -69,16 +73,21 @@ class Step(object):
         matched = self._variables_re.match(s)
         if matched is None:
             return False, result
-        for name, converter, value in zip(self.names, self.converters,
-                                          matched.groups()):
+        for name, value in zip(self.names, matched.groups()):
+            converter = self.get_converter(name)
             try:
-                result[name] = converter(value)
+                result[name] = converter.decode(value)
             except ValueError:
                 return False, {}
         return True, result
 
+    def get_converter(self, name):
+        return self.converters.get(name, IDENTITY_CONVERTER)
+
     def __eq__(self, other):
-        return self.s == other.s
+        if self.s != other.s:
+            return False
+        return self.cmp_converters == other.cmp_converters
 
     def __lt__(self, other):
         if self.parts == other.parts:
@@ -111,7 +120,7 @@ class Node(object):
 
     def add_variable_node(self, step):
         for i, node in enumerate(self._variable_nodes):
-            if node.step.s == step.s:
+            if node.step == step:
                 return node
             if node.step.generalized == step.generalized:
                 raise TrajectError("step %s and %s are in conflict" %
@@ -175,11 +184,11 @@ class Traject(object):
         self._root = Node()
         self._inverse = Registry()
 
-    def add_pattern(self, path, value):
+    def add_pattern(self, path, value, converters=None):
         node = self._root
         known_variables = set()
         for segment in reversed(parse_path(path)):
-            step = Step(segment)
+            step = Step(segment, converters)
             node = node.add(step)
             variables = set(step.names)
             if known_variables.intersection(variables):
@@ -187,13 +196,14 @@ class Traject(object):
             known_variables.update(variables)
         node.value = value
 
-    def inverse(self, model_class, path, get_variables, parameter_names):
+    def inverse(self, model_class, path, get_variables, converters,
+                parameter_names):
         # XXX should we do checking for duplicate variables here too?
         path = Path(path)
         self._inverse.register('inverse',
                                [model_class],
                                (path.interpolation_str(), get_variables,
-                                parameter_names))
+                                converters, parameter_names))
 
     def consume(self, stack):
         stack = stack[:]
@@ -213,11 +223,18 @@ class Traject(object):
         return node.value, stack, variables
 
     def path(self, model):
-        path, get_variables, parameter_names = self._inverse.component(
+        path, get_variables, converters, parameter_names = self._inverse.component(
             'inverse', [model])
         variables = get_variables(model)
         assert isinstance(variables, dict)
         parameters = { name: variables[name] for name in parameter_names }
+        variables = {
+            name: converters.get(name, IDENTITY_CONVERTER).encode(value) for
+            name, value in variables.items() }
+        parameters = {
+            name: converters.get(name, IDENTITY_CONVERTER).encode(value) for
+            name, value in parameters.items()
+            }
         return path % variables, parameters
 
 
@@ -301,15 +318,12 @@ def is_identifier(s):
 
 
 def parse_variables(s):
-    names = []
-    converters = []
-    parser = NameParser(KNOWN_CONVERTERS)
-    variables = PATH_VARIABLE.findall(s)
-    for variable in variables:
-        name, converter = parser(variable)
-        names.append(name)
-        converters.append(converter)
-    return names, converters
+    result = PATH_VARIABLE.findall(s)
+    for name in result:
+        if not is_identifier(name):
+            raise TrajectError(
+                "illegal variable identifier: %s" % name)
+    return result
 
 
 def create_variables_re(s):

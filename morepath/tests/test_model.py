@@ -52,8 +52,8 @@ def test_register_model():
     c.commit()
 
     register_root(app, Root, None, {}, lambda: root)
-    register_model(app, Model, '{id}', lambda model: {'id': model.id}, {},
-                   get_model)
+    register_model(app, Model, '{id}', lambda model: {'id': model.id}, None,
+                   {}, get_model)
 
     obj, request = consume(app, 'a')
     assert obj.id == 'a'
@@ -81,7 +81,7 @@ def test_register_model_with_parameters():
     register_root(app, Root, None, {}, lambda: root)
     register_model(app, Model, '{id}', lambda model: {'id': model.id,
                                                       'param': model.param },
-                   {'param': 'default'}, get_model)
+                   None, {'param': 'default'}, get_model)
 
     obj, request = consume(app, 'a')
     assert obj.id == 'a'
@@ -113,7 +113,7 @@ def test_traject_path_with_leading_slash():
 
     register_root(app, Root, None, {}, lambda: root)
     register_model(app, Model, '/foo/{id}', lambda model: {'id': model.id},
-                   {}, get_model)
+                   None, {}, get_model)
     obj, request = consume(app, 'foo/a')
     assert obj.id == 'a'
     obj, request = consume(app, '/foo/a')

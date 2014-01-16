@@ -43,7 +43,8 @@ class directive(object):
 @directive('model')
 class ModelDirective(Directive):
     def __init__(self, app,  path, model=None,
-                 variables=None, parameters=None, base=None, get_base=None):
+                 variables=None, converters=None,
+                 parameters=None, base=None, get_base=None):
         """Register a model for a path.
 
         Decorate a function or a class (constructor). The function
@@ -63,6 +64,9 @@ class ModelDirective(Directive):
           the variables used in the path (including any URL parameters).
           If omitted, variables are retrieved from the model by using
           the arguments of the decorated function.
+        :param converters: a dictionary containing converters for variables.
+          The key is the variable name, the value is a
+          :class:`morepath.Converter` instance.
         :param parameters: a dict with expected URL parameters.
           Keys are names of parameters, values are default values or types.
           Type such as ``str`` or ``int`` are recognized. If default value,
@@ -80,6 +84,7 @@ class ModelDirective(Directive):
         self.model = model
         self.path = path
         self.variables = variables
+        self.converters = converters
         self.parameters = parameters
         self.base = base
         self.get_base = get_base
@@ -109,7 +114,7 @@ class ModelDirective(Directive):
 
     def perform(self, app, obj):
         register_model(app, self.model, self.path,
-                       self.variables, self.parameters,
+                       self.variables, self.converters, self.parameters,
                        obj, self.base, self.get_base)
 
 
