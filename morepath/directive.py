@@ -69,23 +69,15 @@ class ModelDirective(Directive):
         :param converters: a dictionary containing converters for variables.
           The key is the variable name, the value is a
           :class:`morepath.Converter` instance.
-        :param base: the class of the base model from which routing
-          should start.  If omitted, the routing will start from the
-          mounted application's root.
-        :param get_base: if a ``base`` parameter is provided, this should
-          be a function that given the model can return an instance of the
-          ``base``.
         """
         super(ModelDirective, self).__init__(app)
         self.model = model
         self.path = path
         self.variables = variables
         self.converters = converters
-        self.base = base
-        self.get_base = get_base
 
     def identifier(self):
-        return ('path', self.base, Path(self.path).discriminator())
+        return ('path', Path(self.path).discriminator())
 
     def discriminators(self):
         return [('model', self.model)]
@@ -103,14 +95,11 @@ class ModelDirective(Directive):
             raise ConfigError(
                 "@model does not decorate class and has no explicit model")
         yield self.clone(model=model), obj
-        # XXX check whether get_base is there if base is there
-        # XXX check whether variables is there if variable is used in
-        # path
 
     def perform(self, app, obj):
         register_model(app, self.model, self.path,
                        self.variables, self.converters,
-                       obj, self.base, self.get_base)
+                       obj)
 
 
 @directive('permission')

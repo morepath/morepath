@@ -20,13 +20,6 @@ def app(obj):
 
 
 @reg.generic
-def base(model):
-    """Get the base that this model is associated with.
-    """
-    raise NotImplementedError
-
-
-@reg.generic
 def context(model):
     """Get the context dictionary available for a model.
     """

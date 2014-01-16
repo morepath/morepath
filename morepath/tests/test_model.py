@@ -35,7 +35,7 @@ def test_register_root():
 
     register_root(app, Root, None, {}, lambda: root)
     assert generic.path(root, lookup=lookup) == ('', {})
-    assert generic.base(root, lookup=lookup) is app
+    assert generic.app(root, lookup=lookup) is app
 
 
 def test_register_model():
@@ -61,7 +61,7 @@ def test_register_model():
     model = Model()
     model.id = 'b'
     assert generic.path(model, lookup=lookup) == ('b', {})
-    assert generic.base(model, lookup=lookup) is app
+    assert generic.app(model, lookup=lookup) is app
 
 
 def test_register_model_with_parameters():
@@ -96,7 +96,7 @@ def test_register_model_with_parameters():
     model.id = 'b'
     model.param = 'other'
     assert generic.path(model, lookup=lookup) == ('b', {'param': 'other'})
-    assert generic.base(model, lookup=lookup) is app
+    assert generic.app(model, lookup=lookup) is app
 
 
 def test_traject_path_with_leading_slash():

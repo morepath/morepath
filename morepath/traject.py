@@ -166,8 +166,7 @@ class Traject(object):
         # XXX caching is not enabled
         # also could this really be registering things in the main
         # application registry instead? if it did and we solve caching
-        # for that this would get it automatically. but this would
-        # require each traject base to have its own lookup
+        # for that this would get it automatically.
         self._root = Node()
         self._inverse = Registry()
 

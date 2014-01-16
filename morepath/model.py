@@ -4,6 +4,8 @@ from morepath.publish import publish
 
 from reg import mapply, arginfo
 
+SPECIAL_ARGUMENTS = ['request', 'parent']
+
 class Mount(object):
     def __init__(self, app, context_factory, variables):
         self.app = app
@@ -30,14 +32,14 @@ class Mount(object):
         return response(environ, start_response)
 
     def parent(self):
-        return self.variables.get('base')
+        return self.variables.get('parent')
 
     def child(self, app, **context):
         factory = self.app._mounted.get(app)
         if factory is None:
             return None
-        if 'base' not in context:
-            context['base'] = self
+        if 'parent' not in context:
+            context['parent'] = self
         return factory(**context)
 
 
@@ -86,21 +88,15 @@ def register_root(app, model, variables, converters, model_factory):
 
 
 def register_model(app, model, path, variables, converters,
-                   model_factory, base=None, get_base=None, arguments=None):
-    if base is not None:
-        traject = app.exact(generic.traject, [base])
-        if traject is None:
-            traject = Traject()
-            app.register(generic.traject, [base], lambda base: traject)
-    else:
-        traject = app.traject
-        if traject is None:
-            traject = Traject()
-            app.traject = traject
+                   model_factory, arguments=None):
+    traject = app.traject
+    if traject is None:
+        traject = Traject()
+        app.traject = traject
 
     converters = converters or {}
     if arguments is None:
-        arguments = get_arguments(model_factory, ['request', 'base'])
+        arguments = get_arguments(model_factory, SPECIAL_ARGUMENTS)
     converters = get_converters(arguments, converters, app.converter_for_value)
     exclude = Path(path).variables()
     exclude.update(app.mount_variables())
@@ -115,11 +111,11 @@ def register_model(app, model, path, variables, converters,
                         converters)
     traject.inverse(model, path, variables, converters, list(parameters.keys()))
 
-    if get_base is None:
-        def get_base(model):
-            return app
 
-    app.register(generic.base, [model], get_base)
+    def get_app(model):
+        return app
+
+    app.register(generic.app, [model], get_app)
 
 
 def register_mount(base_app, app, path, context_factory):
@@ -128,7 +124,7 @@ def register_mount(base_app, app, path, context_factory):
         def __init__(self, **kw):
             super(SpecificMount, self).__init__(app, context_factory, kw)
     # need to construct argument info from context_factory, not SpecificMount
-    arguments = get_arguments(context_factory, ['request', 'base'])
+    arguments = get_arguments(context_factory, SPECIAL_ARGUMENTS)
     register_model(base_app, SpecificMount, path, lambda m: m.variables,
                    None, SpecificMount, arguments=arguments)
     register_mounted(base_app, app, SpecificMount)
