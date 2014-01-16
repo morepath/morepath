@@ -657,9 +657,7 @@ def test_path_conflict_with_variable():
     with pytest.raises(ConflictError):
         c.commit()
 
-
-@pytest.mark.xfail
-def test_no_path_conflict_with_variable_different_converters():
+def test_path_conflict_with_variable_different_converters():
     app = morepath.App()
 
     class A(object):
@@ -685,7 +683,8 @@ def test_no_path_conflict_with_variable_different_converters():
     c.action(a, get_a)
     c.action(b, get_b)
 
-    c.commit()
+    with pytest.raises(ConflictError):
+        c.commit()
 
 
 def test_model_no_conflict_different_apps():

@@ -68,7 +68,7 @@ class Step(object):
                     "illegal consecutive variables: %s" % self.s)
 
     def discriminator_info(self):
-        return self._discriminator_info
+        return self.generalized
 
     def has_variables(self):
         return bool(self.names)

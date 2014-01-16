@@ -44,7 +44,7 @@ def test_variable_step():
     assert step.converters == [str]
     assert step.has_variables()
     assert step.match('bar') == (True, {'foo': 'bar'})
-    assert step.discriminator_info() == '{str}'
+    assert step.discriminator_info() == '{}'
 
 
 def test_mixed_step():
@@ -60,7 +60,7 @@ def test_mixed_step():
     assert step.match('xbary') == (False, {})
     assert step.match('yabarbx') == (False, {})
     assert step.match('afoo') == (False, {})
-    assert step.discriminator_info() == 'a{str}b'
+    assert step.discriminator_info() == 'a{}b'
 
 
 def test_multi_mixed_step():
@@ -71,14 +71,14 @@ def test_multi_mixed_step():
     assert step.names == ['foo', 'bar']
     assert step.converters == [str, str]
     assert step.has_variables()
-    assert step.discriminator_info() == '{str}a{str}'
+    assert step.discriminator_info() == '{}a{}'
 
 
 def test_converter():
     step = Step('{foo:int}')
     assert step.match('1') == (True, {'foo': 1})
     assert step.match('x') == (False, {})
-    assert step.discriminator_info() == '{int}'
+    assert step.discriminator_info() == '{}'
 
 
 def sorted_steps(l):
@@ -655,7 +655,7 @@ def test_path_for_model_with_converter():
 
 def test_path_discriminator():
     p = Path('/foo/{x:int}/bar/{y}')
-    assert p.discriminator() == 'foo/{int}/bar/{str}'
+    assert p.discriminator() == 'foo/{}/bar/{}'
 
 
 def fake_request(path):
