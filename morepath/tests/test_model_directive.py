@@ -1,6 +1,7 @@
 import morepath
 from morepath import setup
 from morepath.request import Response
+from morepath.converter import Converter
 
 from werkzeug.test import Client
 import pytest
@@ -168,7 +169,6 @@ def test_variable_path_two_variables():
     assert response.data == '/foo-one'
 
 
-@pytest.mark.xfail
 def test_variable_path_explicit_type():
     app = morepath.App()
 
@@ -187,7 +187,8 @@ def test_variable_path_explicit_type():
 
     c = setup()
     c.configurable(app)
-    c.action(app.model(model=Model, path='{id}', types=dict(id=int)),
+    c.action(app.model(model=Model, path='{id}',
+                       converters=dict(id=Converter(int))),
              get_model)
     c.action(app.view(model=Model), default)
     c.action(app.view(model=Model, name='link'), link)
@@ -196,10 +197,10 @@ def test_variable_path_explicit_type():
     c = Client(app, Response)
 
     response = c.get('1')
-    assert response.data == 'View: 1 (int)'
+    assert response.data == "View: 1 (<type 'int'>)"
 
     response = c.get('/1/link')
     assert response.data == '/1'
 
     response = c.get('broken')
-    assert response.status == '404'
+    assert response.status == '404 NOT FOUND'

@@ -35,45 +35,52 @@ class Mount(object):
         return factory(**context)
 
 
-def variables_from_arginfo(callable):
-    """Construct variables function automatically from argument info.
-    """
-    info = arginfo(callable)
-    args = set(info.args)
-    args.discard('base')
-    args.discard('request')
-    return lambda model: { name: getattr(model, name) for
-                           name in args }
+def get_arguments(callable, exclude):
+    """Get dictionary with arguments and their default value.
 
-
-def parameters_from_arginfo(path, callable):
-    """Construct parameter information from arguments.
-
-    Parameters are those function arguments that are not
-    path variables.
+    If no default is given, default value is taken to be None.
     """
     info = arginfo(callable)
     result = {}
     defaults = info.defaults or []
     defaults = [None] * (len(info.args) - len(defaults)) + list(defaults)
-    for name, default in zip(info.args, defaults):
-        if name in ['request', 'base']:
+    return { name: default for (name, default) in zip(info.args, defaults)
+             if name not in exclude }
+
+
+def get_converters(arguments, converters, converter_for_value):
+    """Get converters for arguments.
+
+    Use explicitly supplied converter if available, otherwise ask
+    app for converter for the default value of argument.
+    """
+    result = {}
+    for name, value in arguments.items():
+        converter = converters.get(name, None)
+        if converter is not None:
+            result[name] = converter
             continue
-        result[name] = default
-    # Remove those parameters that belong to the path.
-    path = Path(path)
-    for name in path.variables():
-        result.pop(name, None)
+        result[name] = converter_for_value(value)
     return result
 
 
-def register_root(app, model, variables, parameters, model_factory):
-    register_model(app, model, '', variables, None, parameters, model_factory)
+def get_url_parameters(arguments, exclude):
+    return { name: default for (name, default) in arguments.items() if
+             name not in exclude }
+
+
+def get_variables_func(arguments, exclude):
+    names = [name for name in arguments.keys() if name not in exclude]
+    return lambda model: { name: getattr(model, name) for
+                           name in names}
+
+
+def register_root(app, model, variables, converters, model_factory):
+    register_model(app, model, '', variables, converters, model_factory)
 
 
 def register_model(app, model, path, variables, converters,
-                   parameters, model_factory,
-                   base=None, get_base=None):
+                   model_factory, base=None, get_base=None, arguments=None):
     if base is not None:
         traject = app.exact(generic.traject, [base])
         if traject is None:
@@ -84,15 +91,22 @@ def register_model(app, model, path, variables, converters,
         if traject is None:
             traject = Traject()
             app.traject = traject
-    if converters is None:
-        converters = {}
-    if parameters is None:
-        parameters = parameters_from_arginfo(path, model_factory)
-    parameter_factory = ParameterFactory(parameters)
+
+    converters = converters or {}
+    if arguments is None:
+        arguments = get_arguments(model_factory, ['request', 'base'])
+    converters = get_converters(arguments, converters, app.converter_for_value)
+    exclude = Path(path).variables()
+    exclude += app.context_variables()
+    parameters = get_url_parameters(arguments, exclude)
+    required = []
+    parameter_factory = ParameterFactory(parameters, converters, required)
+
+    if variables is None:
+        variables = get_variables_func(arguments, app.context_variables())
+
     traject.add_pattern(path, (model_factory, parameter_factory),
                         converters)
-    if variables is None:
-        variables = variables_from_arginfo(model_factory)
     traject.inverse(model, path, variables, converters, list(parameters.keys()))
 
     if get_base is None:
@@ -102,15 +116,15 @@ def register_model(app, model, path, variables, converters,
     app.register(generic.base, [model], get_base)
 
 
-def register_mount(base_app, app, path, parameters, context_factory):
+def register_mount(base_app, app, path, context_factory):
     # specific class as we want a different one for each mount
     class SpecificMount(Mount):
         def __init__(self, **kw):
             super(SpecificMount, self).__init__(app, context_factory, kw)
-    if parameters is None:
-        parameters = parameters_from_arginfo(path, context_factory)
+    # need to construct argument info from context_factory, not SpecificMount
+    arguments = get_arguments(context_factory, ['request', 'base'])
     register_model(base_app, SpecificMount, path, lambda m: m.variables,
-                   None, parameters, SpecificMount)
+                   None, SpecificMount, arguments=arguments)
     register_mounted(base_app, app, SpecificMount)
 
 

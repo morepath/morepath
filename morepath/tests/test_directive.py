@@ -226,7 +226,8 @@ def test_link_with_parameters():
             self.id = id
             self.param = param
 
-    def get_model(id, param):
+    def get_model(id, param=0):
+        assert isinstance(param, int)
         return Model(id, param)
 
     def default(request, model):
@@ -238,7 +239,7 @@ def test_link_with_parameters():
     c = setup()
     c.configurable(app)
     c.action(app.root(), Root)
-    c.action(app.model(model=Model, path='{id}', parameters={'param': 0},
+    c.action(app.model(model=Model, path='{id}',
                        variables=lambda model: {'id': model.id,
                                                 'param': model.param}),
              get_model)
@@ -267,7 +268,8 @@ def test_root_link_with_parameters():
     app = morepath.App()
 
     class Root(object):
-        def __init__(self, param):
+        def __init__(self, param=0):
+            assert isinstance(param, int)
             self.param = param
 
     def default(request, model):
@@ -278,9 +280,7 @@ def test_root_link_with_parameters():
 
     c = setup()
     c.configurable(app)
-    c.action(app.root(
-            variables=lambda m: dict(param=m.param),
-            parameters={'param': 0}), Root)
+    c.action(app.root(), Root)
     c.action(app.view(model=Root),
              default)
     c.action(app.view(model=Root, name='link'),
@@ -1037,12 +1037,13 @@ def test_mount_context_parameters():
 
     class MountedRoot(object):
         def __init__(self, mount_id):
+            assert isinstance(mount_id, int)
             self.mount_id = mount_id
 
     def root_default(request, model):
         return "The root for mount id: %s" % model.mount_id
 
-    def get_context(mount_id):
+    def get_context(mount_id=0):
         return {
             'mount_id': mount_id
             }
@@ -1050,8 +1051,7 @@ def test_mount_context_parameters():
     c = setup()
     c.configurable(app)
     c.configurable(mounted)
-    c.action(app.mount(path='mounts', app=mounted,
-                       parameters={'mount_id': 0}), get_context)
+    c.action(app.mount(path='mounts', app=mounted), get_context)
     c.action(mounted.root(), MountedRoot)
     c.action(mounted.view(model=MountedRoot), root_default)
     c.commit()

@@ -378,7 +378,7 @@ def consume(app, path):
     request = app.request(EnvironBuilder(path=path).get_environ())
     return traject_consume(request, app, lookup=app.lookup()), request
 
-paramfac = ParameterFactory({})
+paramfac = ParameterFactory({}, {}, [])
 
 def test_traject_consume():
     app = App()
@@ -396,7 +396,7 @@ def test_traject_consume_parameter():
     class Model(object):
         def __init__(self, a):
             self.a = a
-    get_param = ParameterFactory({'a': 0})
+    get_param = ParameterFactory({'a': 0}, {'a': Converter(int)}, [])
     traject.add_pattern('sub', (Model, get_param))
     app.register(generic.traject, [App], lambda base: traject)
     found, request = consume(app, 'sub?a=1')
@@ -675,40 +675,43 @@ def fake_request(path):
 
 
 def test_empty_parameter_factory():
-    get_parameters = ParameterFactory({})
-    assert get_parameters(fake_request('')) == {}
-    assert get_parameters(fake_request('?a=A')) == {}
+    get_parameters = ParameterFactory({}, {}, [])
+    assert get_parameters(fake_request('').args) == {}
+    # unexpected parameter is ignored
+    assert get_parameters(fake_request('?a=A').args) == {}
 
 
 def test_single_parameter():
-    get_parameters = ParameterFactory({'a': str})
-    assert get_parameters(fake_request('?a=A')) == {'a': 'A'}
-    assert get_parameters(fake_request('')) == {'a': None}
+    get_parameters = ParameterFactory({'a': None}, {'a': Converter(str)}, [])
+    assert get_parameters(fake_request('?a=A').args) == {'a': 'A'}
+    assert get_parameters(fake_request('').args) == {'a': None}
 
 
 def test_single_parameter_int():
-    get_parameters = ParameterFactory({'a': int})
-    assert get_parameters(fake_request('?a=1')) == {'a': 1}
-    assert get_parameters(fake_request('')) == {'a': None}
+    get_parameters = ParameterFactory({'a': None}, {'a': Converter(int)}, [])
+    assert get_parameters(fake_request('?a=1').args) == {'a': 1}
+    assert get_parameters(fake_request('').args) == {'a': None}
     with pytest.raises(BadRequest):
-        get_parameters(fake_request('?a=A'))
+        get_parameters(fake_request('?a=A').args)
 
 
 def test_single_parameter_default():
-    get_parameters = ParameterFactory({'a': 'default'})
-    assert get_parameters(fake_request('?a=A')) == {'a': 'A'}
-    assert get_parameters(fake_request('')) == {'a': 'default'}
+    get_parameters = ParameterFactory({'a': 'default'}, {}, [])
+    assert get_parameters(fake_request('?a=A').args) == {'a': 'A'}
+    assert get_parameters(fake_request('').args) == {'a': 'default'}
 
 
 def test_single_parameter_int_default():
-    get_parameters = ParameterFactory({'a': 0})
-    assert get_parameters(fake_request('?a=1')) == {'a': 1}
-    assert get_parameters(fake_request('')) == {'a': 0}
+    get_parameters = ParameterFactory({'a': 0}, {'a': Converter(int)}, [])
+    assert get_parameters(fake_request('?a=1').args) == {'a': 1}
+    assert get_parameters(fake_request('').args) == {'a': 0}
     with pytest.raises(BadRequest):
-        get_parameters(fake_request('?a=A'))
+        get_parameters(fake_request('?a=A').args)
 
 
-def test_parameter_none_default():
-    get_parameters = ParameterFactory({'a': None})
-    assert get_parameters(fake_request('?a=1')) == {'a': '1'}
-    assert get_parameters(fake_request('')) == {'a': None}
+def test_parameter_required():
+    get_parameters = ParameterFactory({'a': None}, {}, ['a'])
+    assert get_parameters(fake_request('?a=foo').args) == {'a': 'foo'}
+    with pytest.raises(BadRequest):
+        get_parameters(fake_request('').args)
+

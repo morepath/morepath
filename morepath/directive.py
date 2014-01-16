@@ -44,7 +44,7 @@ class directive(object):
 class ModelDirective(Directive):
     def __init__(self, app,  path, model=None,
                  variables=None, converters=None,
-                 parameters=None, base=None, get_base=None):
+                 base=None, get_base=None):
         """Register a model for a path.
 
         Decorate a function or a class (constructor). The function
@@ -52,9 +52,11 @@ class ModelDirective(Directive):
         querying it from the database, or ``None`` if the model does
         not exist.
 
-        The decorated function will get as parameters any variables
-        specified in the path. If you declare a ``request`` parameter
-        the function will be able to use that information too.
+        The decorated function will get as arguments any variables
+        specified in the path as well as URL parameters.
+
+        If you declare a ``request`` parameter the function will be
+        able to use that information too.
 
         :param path: the route for which the model is registered.
         :param model: the class of the model that the decorated function
@@ -67,12 +69,6 @@ class ModelDirective(Directive):
         :param converters: a dictionary containing converters for variables.
           The key is the variable name, the value is a
           :class:`morepath.Converter` instance.
-        :param parameters: a dict with expected URL parameters.
-          Keys are names of parameters, values are default values or types.
-          Type such as ``str`` or ``int`` are recognized. If default value,
-          expected type is derived from default value. If parameters are
-          not passed in explictly, the parameters are deduced from the
-          decorated function (looking at default arguments).
         :param base: the class of the base model from which routing
           should start.  If omitted, the routing will start from the
           mounted application's root.
@@ -85,7 +81,6 @@ class ModelDirective(Directive):
         self.path = path
         self.variables = variables
         self.converters = converters
-        self.parameters = parameters
         self.base = base
         self.get_base = get_base
 
@@ -114,7 +109,7 @@ class ModelDirective(Directive):
 
     def perform(self, app, obj):
         register_model(app, self.model, self.path,
-                       self.variables, self.converters, self.parameters,
+                       self.variables, self.converters,
                        obj, self.base, self.get_base)
 
 
@@ -312,7 +307,7 @@ class HtmlDirective(ViewDirective):
 
 @directive('root')
 class RootDirective(Directive):
-    def __init__(self, app, model=None, variables=None, parameters=None):
+    def __init__(self, app, model=None, variables=None, converters=None):
         """Register the root model.
 
         The decorated function or class (constructor) should return
@@ -326,17 +321,14 @@ class RootDirective(Directive):
           the variables the URL parameters. If omitted, variables are
           retrieved from the model by using the arguments of the decorated
           function.
-        :param parameters: a dict with expected URL parameters.
-          Keys are names of parameters, values are default values or types.
-          Type such as ``str`` or ``int`` are recognized. If default value,
-          expected type is derived from default value. If parameters are
-          not passed in explictly, the parameters are deduced from the
-          decorated function (looking at default arguments).
+        :param converters: a dictionary containing converters for variables.
+          The key is the variable name, the value is a
+          :class:`morepath.Converter` instance.
         """
         super(RootDirective, self).__init__(app)
         self.model = model
         self.variables = variables
-        self.parameters = parameters
+        self.converters = converters
 
     def identifier(self):
         return ('root',)
@@ -355,7 +347,7 @@ class RootDirective(Directive):
         yield self.clone(model=model), obj
 
     def perform(self, app, obj):
-        register_root(app, self.model, self.variables, self.parameters, obj)
+        register_root(app, self.model, self.variables, self.converters, obj)
 
 
 @directive('mount')
@@ -369,17 +361,10 @@ class MountDirective(Directive):
 
         :param path: the path to mount the application on.
         :param app: the :class:`morepath.App` instance to mount.
-        :param parameters: a dict with expected URL parameters.
-          Keys are names of parameters, values are default values or types.
-          Type such as ``str`` or ``int`` are recognized. If default value,
-          expected type is derived from default value. If parameters are
-          not passed in explictly, the parameters are deduced from the
-          decorated function (looking at default arguments).
         """
         super(MountDirective, self).__init__(base_app)
         self.mounted_app = app
         self.path = path
-        self.parameters = parameters
 
     def identifier(self):
         return ('path', Path(self.path).discriminator())
@@ -388,7 +373,7 @@ class MountDirective(Directive):
         return [('mount', self.mounted_app)]
 
     def perform(self, app, obj):
-        register_mount(app, self.mounted_app, self.path, self.parameters, obj)
+        register_mount(app, self.mounted_app, self.path, obj)
 
 
 @directive('identity_policy')

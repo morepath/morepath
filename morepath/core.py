@@ -40,7 +40,7 @@ def traject_consume(request, model, lookup):
     if value is None:
         return None
     get_model, get_parameters = value
-    variables = get_parameters(request)
+    variables = get_parameters(request.args)
     variables.update(generic.context(model, default={}, lookup=lookup))
     variables['base'] = model
     variables['request'] = request

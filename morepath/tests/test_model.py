@@ -1,6 +1,7 @@
 import urllib
 from morepath.model import (register_root, register_model,
-                            variables_from_arginfo, parameters_from_arginfo)
+                            get_arguments, get_converters, get_url_parameters)
+from morepath.converter import Converter, IDENTITY_CONVERTER
 from morepath.app import App
 from werkzeug.test import EnvironBuilder
 from morepath import setup
@@ -53,7 +54,7 @@ def test_register_model():
 
     register_root(app, Root, None, {}, lambda: root)
     register_model(app, Model, '{id}', lambda model: {'id': model.id}, None,
-                   {}, get_model)
+                   get_model)
 
     obj, request = consume(app, 'a')
     assert obj.id == 'a'
@@ -68,7 +69,7 @@ def test_register_model_with_parameters():
     root = Root()
     lookup = app.lookup()
 
-    def get_model(id, param):
+    def get_model(id, param='default'):
         model = Model()
         model.id = id
         model.param = param
@@ -81,7 +82,7 @@ def test_register_model_with_parameters():
     register_root(app, Root, None, {}, lambda: root)
     register_model(app, Model, '{id}', lambda model: {'id': model.id,
                                                       'param': model.param },
-                   None, {'param': 'default'}, get_model)
+                   None, get_model)
 
     obj, request = consume(app, 'a')
     assert obj.id == 'a'
@@ -113,47 +114,41 @@ def test_traject_path_with_leading_slash():
 
     register_root(app, Root, None, {}, lambda: root)
     register_model(app, Model, '/foo/{id}', lambda model: {'id': model.id},
-                   None, {}, get_model)
+                   None, get_model)
     obj, request = consume(app, 'foo/a')
     assert obj.id == 'a'
     obj, request = consume(app, '/foo/a')
     assert obj.id == 'a'
 
 
-def test_variables_from_arginfo():
-    class Model(object):
-        def __init__(self, a, b):
-            self.a = a
-            self.b = b
-    variables = variables_from_arginfo(Model)
-    assert variables(Model('A', 'B')) == {'a': 'A', 'b': 'B'}
-    class WrongModel(object):
-        pass
-    with pytest.raises(AttributeError):
-        variables(WrongModel())
-
-
-def test_variables_from_arginfo_with_base_request():
-    class Model(object):
-        def __init__(self, a, b, base, request):
-            self.a = a
-            self.b = b
-    variables = variables_from_arginfo(Model)
-    assert variables(Model('A', 'B',
-                           request=None, base=None)) == {'a': 'A', 'b': 'B'}
-
-
-def test_parameters_from_arginfo():
+def test_get_arguments():
     def foo(a, b):
         pass
-    assert parameters_from_arginfo('foo/{a}', foo) == {
-        'b': None
-        }
+    assert get_arguments(foo, []) == { 'a': None, 'b': None }
 
 
-def test_parameters_from_arginfo_with_base_request():
-    def foo(a, b, base, request):
+def test_get_arguments_defaults():
+    def foo(a, b=1):
         pass
-    assert parameters_from_arginfo('foo/{a}', foo) == {
-        'b': None
-        }
+    assert get_arguments(foo, []) == { 'a': None, 'b': 1 }
+
+
+def test_get_arguments_exclude():
+    def foo(a, b, request):
+        pass
+    assert get_arguments(foo, ['request']) == { 'a': None, 'b': None }
+
+
+def test_get_converters_none_defaults():
+    def converter_for_value(v):
+        return IDENTITY_CONVERTER
+    assert get_converters({'a': None}, {}, converter_for_value) == {
+        'a': IDENTITY_CONVERTER }
+
+
+def test_get_converters_explicit():
+    def converter_for_value(v):
+        return IDENTITY_CONVERTER
+    assert get_converters({'a': None}, {'a': Converter(int)},
+                          converter_for_value) == {
+        'a': Converter(int) }

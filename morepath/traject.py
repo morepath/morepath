@@ -239,33 +239,26 @@ class Traject(object):
 
 
 class ParameterFactory(object):
-    def __init__(self, parameters):
+    def __init__(self, parameters, converters, required):
         self.parameters = parameters
-        self.info = info = []
-        for name, value in parameters.items():
-            if value is None:
-                convert = str
-                default = None
-            elif value in CONVERTER_SET:
-                convert = value
-                default = None
-            else:
-                convert = type(value)
-                default = value
-                assert convert in CONVERTER_SET
-            info.append((name, convert, default))
+        self.converters = converters
+        self.required = required
 
-    def __call__(self, request):
+    def __call__(self, args):
         result = {}
-        for name, convert, default in self.info:
-            value = request.args.get(name)
+        for name, default in self.parameters.items():
+            value = args.get(name)
             if value is None:
+                if name in self.required:
+                    raise BadRequest("Required URL parameter missing: %s" % name)
                 result[name] = default
                 continue
+            converter = self.converters.get(name, IDENTITY_CONVERTER)
             try:
-                result[name] = convert(value)
+                result[name] = converter.decode(value)
             except ValueError:
-                raise BadRequest()
+                raise BadRequest("Cannot decode URL parameter %s: %s" % (
+                        name, value))
         return result
 
 

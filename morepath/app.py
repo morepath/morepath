@@ -2,6 +2,7 @@ from .publish import publish, Mount
 from .request import Request
 from .traject import Traject
 from .config import Configurable
+from .converter import Converter, IDENTITY_CONVERTER
 from reg import ClassRegistry, Lookup, CachingClassLookup
 import venusian
 from werkzeug.serving import run_simple
@@ -109,6 +110,16 @@ class AppBase(Configurable, ClassRegistry):
         if port is None:
             port = 5000
         run_simple(host, port, self, **options)
+
+    def context_variables(self):
+        return set()
+
+    def converter_for_value(self, v):
+        if v is None:
+            return IDENTITY_CONVERTER
+        if type(v) == int:
+            return Converter(int)
+        return IDENTITY_CONVERTER
 
 
 class App(AppBase):
