@@ -3,16 +3,13 @@ from functools import total_ordering
 from reg import Registry
 from werkzeug.exceptions import BadRequest
 from .converter import IDENTITY_CONVERTER
+from .error import TrajectError
 
 IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
 PATH_VARIABLE = re.compile(r'\{([^}]*)\}')
 VARIABLE = '{}'
 PATH_SEPARATOR = re.compile(r'/+')
 VIEW_PREFIX = '+'
-
-
-class TrajectError(Exception):
-    pass
 
 
 @total_ordering
@@ -160,7 +157,7 @@ class Path(object):
         result = []
         for step in self.steps:
             result.extend(step.names)
-        return result
+        return set(result)
 
 
 class Traject(object):

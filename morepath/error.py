@@ -57,3 +57,7 @@ class TrajectError(Exception):
 class LinkError(Exception):
     """Raised when a link cannot be made.
     """
+
+
+class ContextError(Exception):
+    pass

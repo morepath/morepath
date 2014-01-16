@@ -1,6 +1,6 @@
 from .fixtures import basic, nested, abbr, mapply_bug
 from morepath import setup
-from morepath.error import ConflictError
+from morepath.error import ConflictError, ContextError
 from morepath.config import Config
 from morepath.request import Response
 from morepath.view import render_html
@@ -929,7 +929,7 @@ def test_function_no_conflict_different_apps():
 
 def test_mount():
     app = morepath.App('app')
-    mounted = morepath.App('mounted')
+    mounted = morepath.App('mounted', context=[])
 
     class MountedRoot(object):
         pass
@@ -965,7 +965,7 @@ def test_mount():
 
 def test_mount_empty_context():
     app = morepath.App('app')
-    mounted = morepath.App('mounted')
+    mounted = morepath.App('mounted', context=[])
 
     class MountedRoot(object):
         pass
@@ -1001,7 +1001,7 @@ def test_mount_empty_context():
 
 def test_mount_context():
     app = morepath.App('app')
-    mounted = morepath.App('mounted')
+    mounted = morepath.App('mounted', context=['mount_id'])
 
     class MountedRoot(object):
         def __init__(self, mount_id):
@@ -1033,7 +1033,7 @@ def test_mount_context():
 
 def test_mount_context_parameters():
     app = morepath.App('app')
-    mounted = morepath.App('mounted')
+    mounted = morepath.App('mounted', context=['mount_id'])
 
     class MountedRoot(object):
         def __init__(self, mount_id):
@@ -1066,7 +1066,7 @@ def test_mount_context_parameters():
 
 def test_mount_context_parameters_empty_context():
     app = morepath.App('app')
-    mounted = morepath.App('mounted')
+    mounted = morepath.App('mounted', context=['mount_id'])
 
     class MountedRoot(object):
         # use a default parameter
@@ -1096,13 +1096,13 @@ def test_mount_context_parameters_empty_context():
 
     response = c.get('/foo')
     assert response.data == 'The root for mount id: default'
-    # we should ignore the URL parameter and fail
+    # the URL parameter mount_id cannot interfere with the mounting
+    # process
     response = c.get('/bar?mount_id=blah')
-    assert response.data == 'The root for mount id: blah'
-
+    assert response.data == 'The root for mount id: default'
 
 def test_mount_context_standalone():
-    mounted = morepath.App('mounted')
+    mounted = morepath.App('mounted', context=['mount_id'])
 
     class MountedRoot(object):
         def __init__(self, mount_id):
@@ -1129,7 +1129,7 @@ def test_mount_parent_link():
         def __init__(self, id):
             self.id = id
 
-    mounted = morepath.App('mounted')
+    mounted = morepath.App('mounted', context=['mount_id'])
 
     class MountedRoot(object):
         def __init__(self, mount_id):
@@ -1162,7 +1162,7 @@ def test_mount_parent_link():
 
 def test_mount_child_link():
     app = morepath.App('app')
-    mounted = morepath.App('mounted')
+    mounted = morepath.App('mounted', context=['mount_id'])
 
     class Model(object):
         def __init__(self, id):
@@ -1200,7 +1200,7 @@ def test_mount_child_link():
 
 def test_request_view_in_mount():
     app = morepath.App('app')
-    mounted = morepath.App('mounted')
+    mounted = morepath.App('mounted', context=['mount_id'])
 
     class Root(object):
         pass
@@ -1238,6 +1238,18 @@ def test_request_view_in_mount():
 
     response = c.get('/')
     assert response.data == 'Hey'
+
+
+def test_run_app_with_context_without_it():
+    app = morepath.App('app', context=['mount_id'])
+
+    c = setup()
+    c.configurable(app)
+    c.commit()
+
+    c = Client(app, Response)
+    with pytest.raises(ContextError):
+        c.get('/foo')
 
 
 def test_mapply_bug():

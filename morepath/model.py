@@ -97,7 +97,7 @@ def register_model(app, model, path, variables, converters,
         arguments = get_arguments(model_factory, ['request', 'base'])
     converters = get_converters(arguments, converters, app.converter_for_value)
     exclude = Path(path).variables()
-    exclude += app.context_variables()
+    exclude.update(app.context_variables())
     parameters = get_url_parameters(arguments, exclude)
     required = []
     parameter_factory = ParameterFactory(parameters, converters, required)

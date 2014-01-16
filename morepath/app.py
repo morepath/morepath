@@ -3,6 +3,7 @@ from .request import Request
 from .traject import Traject
 from .config import Configurable
 from .converter import Converter, IDENTITY_CONVERTER
+from .error import ContextError
 from reg import ClassRegistry, Lookup, CachingClassLookup
 import venusian
 from werkzeug.serving import run_simple
@@ -22,8 +23,7 @@ class AppBase(Configurable, ClassRegistry):
     AppBase can be used as a WSGI application, i.e. it can be called
     with ``environ`` and ``start_response`` arguments.
     """
-    # XXX have a way to define parameters for app here
-    def __init__(self, name='', extends=None):
+    def __init__(self, name='', extends=None, context=None):
         """
         :param name: A name for this application. This is used in
           error reporting.
@@ -31,10 +31,16 @@ class AppBase(Configurable, ClassRegistry):
         :param extends: :class:`App` objects that this
           app extends/overrides.
         :type extends: list, :class:`App` or ``None``
+        :param context: variable names that
+          this application expects as context. Optional.
+        :type context: list or set
         """
         ClassRegistry.__init__(self)
         Configurable.__init__(self, extends)
         self.name = name
+        if context is None:
+            context = set()
+        self._context = set(context)
         self.traject = Traject()
         self._mounted = {}
         self._cached_lookup = None
@@ -91,6 +97,12 @@ class AppBase(Configurable, ClassRegistry):
         :returns: :class:`morepath.model.Mount`
         """
         context = context or {}
+        # XXX refactor so mounted app is wsgi app instead, so
+        # that this check only has to happen once
+        for name in self._context:
+            if name not in context:
+                raise ContextError(
+                    "Cannot mount app without context variable: %s" % name)
         return Mount(self, lambda: context, {})
 
     def __call__(self, environ, start_response, context=None):
@@ -112,7 +124,7 @@ class AppBase(Configurable, ClassRegistry):
         run_simple(host, port, self, **options)
 
     def context_variables(self):
-        return set()
+        return self._context
 
     def converter_for_value(self, v):
         if v is None:
@@ -140,7 +152,7 @@ class App(AppBase):
     extending however; instead configuration will be considered to be
     overridden.
     """
-    def __init__(self, name='', extends=None):
+    def __init__(self, name='', extends=None, context=None):
         """
         :param name: A name for this application. This is used in
           error reporting.
@@ -151,7 +163,7 @@ class App(AppBase):
         """
         if not extends:
             extends = [global_app]
-        super(App, self).__init__(name, extends)
+        super(App, self).__init__(name, extends, context)
         # XXX why does this need to be repeated?
         venusian.attach(self, callback)
 
