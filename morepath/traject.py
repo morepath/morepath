@@ -10,16 +10,6 @@ VARIABLE = '{}'
 PATH_SEPARATOR = re.compile(r'/+')
 VIEW_PREFIX = '+'
 
-# XXX need to make this pluggable
-# XXX need support for encoding, i.e. unicode URL parameters
-KNOWN_CONVERTERS = {
-    'str': str,
-    'int': int,
-    'unicode': unicode,
-    }
-
-CONVERTER_SET = set(KNOWN_CONVERTERS.values())
-
 
 class TrajectError(Exception):
     pass
