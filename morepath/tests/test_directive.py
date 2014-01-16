@@ -658,6 +658,7 @@ def test_path_conflict_with_variable():
         c.commit()
 
 
+@pytest.mark.xfail
 def test_no_path_conflict_with_variable_different_converters():
     app = morepath.App()
 

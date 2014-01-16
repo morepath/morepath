@@ -99,9 +99,7 @@ class Step(object):
 
     def __lt__(self, other):
         if self.parts == other.parts:
-            # more converter weight is more specific
-            return self._converter_weight > other._converter_weight
-            # XXX what if converter weight is the same?
+            return False
         if self._variables_re.match(other.s) is not None:
             return False
         if other._variables_re.match(self.s) is not None:
@@ -132,6 +130,9 @@ class Node(object):
         for i, node in enumerate(self._variable_nodes):
             if node.step.s == step.s:
                 return node
+            if node.step.generalized == step.generalized:
+                raise TrajectError("step %s and %s are in conflict" %
+                                   (node.step.s, step.s))
             if step > node.step:
                 continue
             result = StepNode(step)

@@ -262,41 +262,32 @@ def test_traject_with_converter():
     assert traject.consume(['foo']) == (None, ['foo'], {})
 
 
-def test_traject_with_converter_and_fallback():
+def test_traject_type_conflict():
     traject = Traject()
     traject.add_pattern('{x:int}', 'found_int')
-    traject.add_pattern('{x:str}', 'found_str')
-
-    assert traject.consume(['1']) == ('found_int', [], {'x': 1})
-    assert traject.consume(['foo']) == ('found_str', [], {'x': 'foo'})
+    with pytest.raises(TrajectError):
+        traject.add_pattern('{x:str}', 'found_str')
 
 
-def test_traject_with_converter_and_fallback2():
+def test_traject_type_conflict_default_type():
     traject = Traject()
     traject.add_pattern('{x}', 'found_str')
-    traject.add_pattern('{x:int}', 'found_int')
-
-    assert traject.consume(['1']) == ('found_int', [], {'x': 1})
-    assert traject.consume(['foo']) == ('found_str', [], {'x': 'foo'})
+    with pytest.raises(TrajectError):
+        traject.add_pattern('{x:int}', 'found_int')
 
 
-def test_traject_with_converter_and_fallback3():
+def test_traject_type_conflict_explicit_default():
     traject = Traject()
-    # XXX should have a conflict
     traject.add_pattern('{x:str}', 'found_explicit')
-    traject.add_pattern('{x}', 'found_implicit')
+    with pytest.raises(TrajectError):
+        traject.add_pattern('{x}', 'found_implicit')
 
-    assert traject.consume(['foo']) == ('found_explicit', [], {'x': 'foo'})
 
-
-def test_traject_greedy_middle_converter():
+def test_traject_type_conflict_middle():
     traject = Traject()
     traject.add_pattern('a/{x:int}/y', 'int')
-    traject.add_pattern('a/{x}/z', 'str')
-
-    assert traject.consume(['y', '1', 'a']) == ('int', [], {'x': 1})
-    assert traject.consume(['z', '1', 'a']) == (None,  ['z'], {'x': 1})
-    assert traject.consume(['z', 'x', 'a']) == ('str', [], {'x': 'x'})
+    with pytest.raises(TrajectError):
+        traject.add_pattern('a/{x}/z', 'str')
 
 
 def test_traject_greedy_middle_prefix():
@@ -309,16 +300,11 @@ def test_traject_greedy_middle_prefix():
     assert traject.consume(['z', 'blah', 'a']) == ('no_prefix', [], {'x': 'blah'})
 
 
-def test_traject_greedy_middle_converter_2():
+def test_traject_type_conflict_middle_end():
     traject = Traject()
     traject.add_pattern('a/{x:int}/y', 'int')
-    traject.add_pattern('a/{x}', 'str')
-
-    assert traject.consume(['y', '1', 'a']) == ('int', [], {'x': 1})
-    # this greedily goes into the int branch, and then doesn't find it
-    assert traject.consume(['1', 'a']) == (None,  [], {'x': 1})
-    # this works however for non-int
-    assert traject.consume(['blah', 'a']) == ('str', [], {'x': 'blah'})
+    with pytest.raises(TrajectError):
+        traject.add_pattern('a/{x}', 'str')
 
 
 def test_parse_path():
