@@ -10,7 +10,7 @@ Morepath needs to be told what variables there are in order to find
 the model, and how to find these variables in order to construct a
 link to the model.
 
-paths
+Paths
 -----
 
 Let's assume we have a model class ``Overview``::
@@ -479,6 +479,9 @@ This allows URls like this::
 When you pass in a broken date, like ``/day/foo``, a ``ValueError`` is
 raised by the date decoder, and a ``404 not Found`` response is given
 by the server: the URL does not resolve to a model.
+
+Default converters
+------------------
 
 Before we said Morepath uses ISO format dates as the default. You can
 register a default ``Converter`` instance for a type using the
