@@ -1,9 +1,9 @@
-from .publish import publish, Mount
+from .model import Mount
 from .request import Request
 from .traject import Traject
 from .config import Configurable
 from .converter import Converter, IDENTITY_CONVERTER
-from .error import ContextError
+from .error import MountError
 from reg import ClassRegistry, Lookup, CachingClassLookup
 import venusian
 from werkzeug.serving import run_simple
@@ -23,7 +23,7 @@ class AppBase(Configurable, ClassRegistry):
     AppBase can be used as a WSGI application, i.e. it can be called
     with ``environ`` and ``start_response`` arguments.
     """
-    def __init__(self, name='', extends=None, context=None):
+    def __init__(self, name='', extends=None, variables=None):
         """
         :param name: A name for this application. This is used in
           error reporting.
@@ -31,18 +31,24 @@ class AppBase(Configurable, ClassRegistry):
         :param extends: :class:`App` objects that this
           app extends/overrides.
         :type extends: list, :class:`App` or ``None``
-        :param context: variable names that
-          this application expects as context. Optional.
-        :type context: list or set
+        :param variables: variable names that
+          this application expects when mounted. Optional.
+        :type variables: list or set
         """
         ClassRegistry.__init__(self)
         Configurable.__init__(self, extends)
         self.name = name
-        if context is None:
-            context = set()
-        self._context = set(context)
+        if variables is None:
+            variables = set()
+        self._variables = set(variables)
         self.traject = Traject()
         self._mounted = {}
+        root_mount = None
+        self._variables = variables or set()
+        if not variables:
+            self._app_mount = self.mounted()
+        else:
+            self._app_mount = FailingWsgi(self)
         self._cached_lookup = None
         # allow being scanned by venusian
         venusian.attach(self, callback)
@@ -80,35 +86,26 @@ class AppBase(Configurable, ClassRegistry):
         request.lookup = self.lookup()
         return request
 
-    def context(self, **kw):
-        """Create WSGI application mounted in context.
-
-        :param kw: the arguments that should go to the mount.
-        :returns: a WSGI application
-        """
-        def wsgi(environ, start_response):
-            return self(environ, start_response, context=kw)
-        return wsgi
-
-    def mounted(self, context=None):
+    def mounted(self, **context):
         """Create :class:`morepath.model.Mount` for application.
 
-        :context: context dict
-        :returns: :class:`morepath.model.Mount`
+        :param kw: the arguments with which to mount the app.
+        :returns: :class:`morepath.model.Mount` instance. This is
+          a WSGI application.
         """
-        context = context or {}
-        # XXX refactor so mounted app is wsgi app instead, so
-        # that this check only has to happen once
-        for name in self._context:
+        for name in self._variables:
             if name not in context:
-                raise ContextError(
+                raise MountError(
                     "Cannot mount app without context variable: %s" % name)
         return Mount(self, lambda: context, {})
 
-    def __call__(self, environ, start_response, context=None):
-        request = self.request(environ)
-        response = publish(request, self.mounted(context))
-        return response(environ, start_response)
+    def __call__(self, environ, start_response):
+        """This app as a WSGI application.
+
+        This is only possible when the app expects no variables; if it
+        does, use ``mount()`` to create a WSGI app first.
+        """
+        return self._app_mount(environ, start_response)
 
     def run(self, host=None, port=None, **options):
         """Use Werkzeug WSGI server to run application.
@@ -123,8 +120,8 @@ class AppBase(Configurable, ClassRegistry):
             port = 5000
         run_simple(host, port, self, **options)
 
-    def context_variables(self):
-        return self._context
+    def mount_variables(self):
+        return self._variables
 
     def converter_for_value(self, v):
         if v is None:
@@ -133,6 +130,14 @@ class AppBase(Configurable, ClassRegistry):
             return Converter(int)
         return IDENTITY_CONVERTER
 
+class FailingWsgi(object):
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        raise MountError("Cannot run WSGI app as this app requires "
+                         "mount variables: %s" % ', '.join(
+                self.app.mount_variables()))
 
 class App(AppBase):
     """A Morepath-based application object.
@@ -152,7 +157,7 @@ class App(AppBase):
     extending however; instead configuration will be considered to be
     overridden.
     """
-    def __init__(self, name='', extends=None, context=None):
+    def __init__(self, name='', extends=None, variables=None):
         """
         :param name: A name for this application. This is used in
           error reporting.
@@ -160,10 +165,13 @@ class App(AppBase):
         :param extends: :class:`App` objects that this
           app extends/overrides.
         :type extends: list, :class:`App` or ``None``
+        :param variables: variable names that
+          this application expects when mounted. Optional.
+        :type variables: list or set
         """
         if not extends:
             extends = [global_app]
-        super(App, self).__init__(name, extends, context)
+        super(App, self).__init__(name, extends, variables)
         # XXX why does this need to be repeated?
         venusian.attach(self, callback)
 

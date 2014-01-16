@@ -1,5 +1,5 @@
 from morepath import generic
-from .model import Mount
+#from .model import Mount
 from .traject import create_path
 from werkzeug.exceptions import HTTPException, NotFound, InternalServerError
 import sys
@@ -24,6 +24,7 @@ def resolve_model(request, mount):
     mounts = request.mounts
     model = mount
     mounts.append(model)
+    from .model import Mount # XXX
     while request.unconsumed:
         next_model = generic.consume(request, model, lookup=lookup)
         if next_model is None:

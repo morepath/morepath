@@ -1,7 +1,8 @@
 from morepath import generic
 from morepath.traject import Traject, ParameterFactory, Path
-from reg import mapply, arginfo
+from morepath.publish import publish
 
+from reg import mapply, arginfo
 
 class Mount(object):
     def __init__(self, app, context_factory, variables):
@@ -22,6 +23,11 @@ class Mount(object):
 
     def lookup(self):
         return self.app.lookup()
+
+    def __call__(self, environ, start_response):
+        request = self.app.request(environ)
+        response = publish(request, self)
+        return response(environ, start_response)
 
     def parent(self):
         return self.variables.get('base')
@@ -97,13 +103,13 @@ def register_model(app, model, path, variables, converters,
         arguments = get_arguments(model_factory, ['request', 'base'])
     converters = get_converters(arguments, converters, app.converter_for_value)
     exclude = Path(path).variables()
-    exclude.update(app.context_variables())
+    exclude.update(app.mount_variables())
     parameters = get_url_parameters(arguments, exclude)
     required = []
     parameter_factory = ParameterFactory(parameters, converters, required)
 
     if variables is None:
-        variables = get_variables_func(arguments, app.context_variables())
+        variables = get_variables_func(arguments, app.mount_variables())
 
     traject.add_pattern(path, (model_factory, parameter_factory),
                         converters)

@@ -1,6 +1,6 @@
 from .fixtures import basic, nested, abbr, mapply_bug
 from morepath import setup
-from morepath.error import ConflictError, ContextError
+from morepath.error import ConflictError, MountError
 from morepath.config import Config
 from morepath.request import Response
 from morepath.view import render_html
@@ -929,7 +929,7 @@ def test_function_no_conflict_different_apps():
 
 def test_mount():
     app = morepath.App('app')
-    mounted = morepath.App('mounted', context=[])
+    mounted = morepath.App('mounted')
 
     class MountedRoot(object):
         pass
@@ -965,7 +965,7 @@ def test_mount():
 
 def test_mount_empty_context():
     app = morepath.App('app')
-    mounted = morepath.App('mounted', context=[])
+    mounted = morepath.App('mounted')
 
     class MountedRoot(object):
         pass
@@ -1001,7 +1001,7 @@ def test_mount_empty_context():
 
 def test_mount_context():
     app = morepath.App('app')
-    mounted = morepath.App('mounted', context=['mount_id'])
+    mounted = morepath.App('mounted', variables=['mount_id'])
 
     class MountedRoot(object):
         def __init__(self, mount_id):
@@ -1033,7 +1033,7 @@ def test_mount_context():
 
 def test_mount_context_parameters():
     app = morepath.App('app')
-    mounted = morepath.App('mounted', context=['mount_id'])
+    mounted = morepath.App('mounted', variables=['mount_id'])
 
     class MountedRoot(object):
         def __init__(self, mount_id):
@@ -1066,7 +1066,7 @@ def test_mount_context_parameters():
 
 def test_mount_context_parameters_empty_context():
     app = morepath.App('app')
-    mounted = morepath.App('mounted', context=['mount_id'])
+    mounted = morepath.App('mounted', variables=['mount_id'])
 
     class MountedRoot(object):
         # use a default parameter
@@ -1102,9 +1102,9 @@ def test_mount_context_parameters_empty_context():
     assert response.data == 'The root for mount id: default'
 
 def test_mount_context_standalone():
-    mounted = morepath.App('mounted', context=['mount_id'])
+    app = morepath.App('mounted', variables=['mount_id'])
 
-    class MountedRoot(object):
+    class Root(object):
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
@@ -1112,12 +1112,12 @@ def test_mount_context_standalone():
         return "The root for mount id: %s" % model.mount_id
 
     c = setup()
-    c.configurable(mounted)
-    c.action(mounted.root(), MountedRoot)
-    c.action(mounted.view(model=MountedRoot), root_default)
+    c.configurable(app)
+    c.action(app.root(), Root)
+    c.action(app.view(model=Root), root_default)
     c.commit()
 
-    c = Client(mounted.context(mount_id='foo'), Response)
+    c = Client(app.mounted(mount_id='foo'), Response)
 
     response = c.get('/')
     assert response.data == 'The root for mount id: foo'
@@ -1129,7 +1129,7 @@ def test_mount_parent_link():
         def __init__(self, id):
             self.id = id
 
-    mounted = morepath.App('mounted', context=['mount_id'])
+    mounted = morepath.App('mounted', variables=['mount_id'])
 
     class MountedRoot(object):
         def __init__(self, mount_id):
@@ -1162,7 +1162,7 @@ def test_mount_parent_link():
 
 def test_mount_child_link():
     app = morepath.App('app')
-    mounted = morepath.App('mounted', context=['mount_id'])
+    mounted = morepath.App('mounted', variables=['mount_id'])
 
     class Model(object):
         def __init__(self, id):
@@ -1200,7 +1200,7 @@ def test_mount_child_link():
 
 def test_request_view_in_mount():
     app = morepath.App('app')
-    mounted = morepath.App('mounted', context=['mount_id'])
+    mounted = morepath.App('mounted', variables=['mount_id'])
 
     class Root(object):
         pass
@@ -1241,14 +1241,14 @@ def test_request_view_in_mount():
 
 
 def test_run_app_with_context_without_it():
-    app = morepath.App('app', context=['mount_id'])
+    app = morepath.App('app', variables=['mount_id'])
 
     c = setup()
     c.configurable(app)
     c.commit()
 
     c = Client(app, Response)
-    with pytest.raises(ContextError):
+    with pytest.raises(MountError):
         c.get('/foo')
 
 

@@ -59,5 +59,5 @@ class LinkError(Exception):
     """
 
 
-class ContextError(Exception):
+class MountError(Exception):
     pass
