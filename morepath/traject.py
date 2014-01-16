@@ -180,7 +180,7 @@ class Path(object):
         return result
 
 
-class Traject(Node):
+class Traject(object):
     def __init__(self):
         super(Traject, self).__init__()
         # XXX caching is not enabled
@@ -188,10 +188,11 @@ class Traject(Node):
         # application registry instead? if it did and we solve caching
         # for that this would get it automatically. but this would
         # require each traject base to have its own lookup
+        self._root = Node()
         self._inverse = Registry()
 
     def add_pattern(self, path, value):
-        node = self
+        node = self._root
         known_variables = set()
         for segment in reversed(parse_path(path)):
             step = Step(segment)
@@ -212,7 +213,7 @@ class Traject(Node):
 
     def consume(self, stack):
         stack = stack[:]
-        node = self
+        node = self._root
         variables = {}
         while stack:
             segment = stack.pop()
