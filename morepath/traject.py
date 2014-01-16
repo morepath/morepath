@@ -21,12 +21,6 @@ INVERSE_CONVERTERS = {
     value: key for (key, value) in KNOWN_CONVERTERS.items()
     }
 
-CONVERTER_WEIGHT = {
-    str: 0,
-    unicode: 1,
-    int: 2
-    }
-
 CONVERTER_SET = set(KNOWN_CONVERTERS.values())
 
 class TrajectError(Exception):
@@ -49,8 +43,6 @@ class Step(object):
             for (name, converter) in zip(self.names, self.converters)}
         self._discriminator_info = (self.named_interpolation_str %
                                     discriminator_converters)
-        self._converter_weight = sum(
-            [CONVERTER_WEIGHT[c] for c in self.converters])
         if len(set(self.names)) != len(self.names):
             raise TrajectError("Duplicate variable")
 
