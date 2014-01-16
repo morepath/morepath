@@ -17,10 +17,6 @@ KNOWN_CONVERTERS = {
     'unicode': unicode,
     }
 
-INVERSE_CONVERTERS = {
-    value: key for (key, value) in KNOWN_CONVERTERS.items()
-    }
-
 CONVERTER_SET = set(KNOWN_CONVERTERS.values())
 
 class TrajectError(Exception):
@@ -38,11 +34,6 @@ class Step(object):
         self.validate()
         self.named_interpolation_str = interpolation_str(s) % tuple(
             [('%(' + name + ')s') for name in self.names])
-        discriminator_converters = {
-            name: '{%s}' % INVERSE_CONVERTERS[converter]
-            for (name, converter) in zip(self.names, self.converters)}
-        self._discriminator_info = (self.named_interpolation_str %
-                                    discriminator_converters)
         if len(set(self.names)) != len(self.names):
             raise TrajectError("Duplicate variable")
 
