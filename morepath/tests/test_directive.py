@@ -482,25 +482,23 @@ def test_convert_exception_to_internal_error():
 
 
 def test_simple_root():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
     class Hello(object):
         pass
 
     hello = Hello()
 
+    @app.root(model=Hello)
     def hello_model():
         return hello
 
+    @app.view(model=Hello)
     def hello_view(request, model):
         return 'hello'
 
-    c = setup()
-    c.configurable(app)
-    c.action(app.root(model=Hello), hello_model)
-    c.action(app.view(model=Hello),
-             hello_view)
-    c.commit()
+    config.commit()
 
     c = Client(app, Response)
 
