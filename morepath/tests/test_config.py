@@ -217,25 +217,16 @@ def test_different_configurables_no_conflict():
             pass
 
     c = config.Config()
-    x1 = config.Configurable()
-    x2 = config.Configurable()
-    c.configurable(x1)
-    c.configurable(x2)
+    x1 = config.Configurable(testing_config=c)
+    x2 = config.Configurable(testing_config=c)
 
-    a = MyDirective(x1)
-
-    @a
+    @MyDirective(x1)
     def foo():
         pass
 
-    b = MyDirective(x2)
-
-    @b
+    @MyDirective(x2)
     def bar():
         pass
-
-    c.action(a, foo)
-    c.action(b, bar)
 
     c.commit()
 
