@@ -40,27 +40,33 @@ def test_no_permission():
 
 
 def test_permission_directive():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
     class Model(object):
         def __init__(self, id):
             self.id = id
 
+   class Permission(object):
+        pass
+
+    @app.model(model=Model, path='{id}',
+               variables=lambda model: {'id': model.id})
     def get_model(id):
         return Model(id)
 
+    @app.permission(model=Model, permission=Permission)
     def get_permission(identity, model, permission):
         if model.id == 'foo':
             return True
         else:
             return False
 
+    @app.view(model=Model, permission=Permission)
     def default(request, model):
         return "Model: %s" % model.id
 
-    class Permission(object):
-        pass
-
+    @app.identity_policy()
     class IdentityPolicy(object):
         def identify(self, request):
             return Identity('testidentity')
@@ -71,17 +77,7 @@ def test_permission_directive():
         def forget(self, response, request):
             pass
 
-    c = setup()
-    c.configurable(app)
-    c.action(app.model(model=Model, path='{id}',
-                       variables=lambda model: {'id': model.id}),
-             get_model)
-    c.action(app.permission(model=Model, permission=Permission),
-             get_permission)
-    c.action(app.view(model=Model, permission=Permission),
-             default)
-    c.action(app.identity_policy(), IdentityPolicy)
-    c.commit()
+    config.commit()
 
     c = Client(app, Response)
 
