@@ -507,26 +507,19 @@ def test_simple_root():
 
 
 def test_json_directive():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
+    @app.model(path='{id}', variables=lambda model: {'id': model.id})
     class Model(object):
         def __init__(self, id):
             self.id = id
 
-    def default(request, model):
-        return "The view for model: %s" % model.id
-
+    @app.json(model=Model)
     def json(request, model):
         return {'id': model.id}
 
-    c = setup()
-    c.configurable(app)
-    c.action(app.model(path='{id}',
-                       variables=lambda model: {'id': model.id}),
-             Model)
-    c.action(app.json(model=Model),
-             json)
-    c.commit()
+    config.commit()
 
     c = Client(app, Response)
 
