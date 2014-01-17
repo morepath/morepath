@@ -6,22 +6,25 @@ We hear you ask:
   There are a *million* Python web frameworks out there. How does
   Morepath compare?
 
+.. sidebar:: Pyramid Design Chocies
+
+  This document is a bit like the `Design Defense Document
+  <http://docs.pylonsproject.org/projects/pyramid/en/latest/designdefense.html>`__
+  of the Pyramid web framework. The Pyramid document makes for a very
+  interesting read if you're interested in web framework design. More
+  web frameworks should do that.
+
 If you're already familiar with another web framework, it's useful to
 learn how Morepath is the same and how it is different, as it will
 help you understand it faster. So we'll try to go into some of this
 here.
 
-This is also a place to explain some of Morepath's :doc:`design
-<design>` choices, like `this document
-<http://docs.pylonsproject.org/projects/pyramid/en/latest/designdefense.html>`
-does for the Pyramid web framework. It makes for a very interesting
-read if you're interested in web framework design, so more web
-frameworks should do that.
-
 Our ability to compare Morepath to other web frameworks is limited by
 our familiarity with them, and also by their aforementioned large
 quantity. But we'll try. Feel free to pitch in new comparisons, or
 tell us where we get it wrong!
+
+You may also want to read the :doc:`design` document.
 
 Overview
 --------

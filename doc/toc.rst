@@ -11,9 +11,11 @@ Table of Contents
    quickstart
    installation
    superpowers
-   app_reuse
+   models_and_linking
    rest
+   app_reuse
    api
+   compared
    design
    developing
    history

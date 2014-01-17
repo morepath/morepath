@@ -12,22 +12,21 @@ Morepath is an Python WSGI microframework. It uses routing, but the
 routing is to models. Morepath is model-driven and **flexible**, which
 makes it **expressive**.
 
-* Does your web framework get in your way?
+* Morepath does not get in your way.
 
-* Can't easily express what you want?
+* It lets you express what you want, easily. See :doc:`quickstart`.
 
-* Or perhaps it's not extensible enough?
+* It's extensible, with a simple, coherent and universal extension and
+  override mechanism, supporting reusable code. See :doc:`app_reuse`.
 
-* Do the extension mechanisms that *are* there feel ad-hoc,
-  underengineered, incoherent, and then fall apart on you?
+* It understands about generating hyperlinks. The web is about
+  hyperlinks and Morepath actually *knows* about them. See
+  :doc:`models_and_linking`.
 
-* Do you wonder why it doesn't just let you override this *one* thing?
+* It has all the tools to develop REST web services in the box. See
+  :doc:`rest`.
 
-* And why does it need a separate framework on top to develop web
-  services?
-
-* **Want a web framework where the difficult is easy instead, even
-  obvious?**
+Sounds interesting?
 
 **Go on the Morepath!**
 
@@ -44,6 +43,9 @@ Morepath Super Powers
 
 * :ref:`Extensible apps. Nestable apps. Override apps, even override
   Morepath itself! <extensible-apps>`
+
+Curious how Morepath compares with other Python web frameworks? See
+:doc:`compared`.
 
 Morepath Knows About Your Models
 --------------------------------
