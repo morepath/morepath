@@ -39,27 +39,26 @@ def test_simple_path_one_step():
 
 
 def test_simple_path_two_steps():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
     class Model(object):
         def __init__(self):
             pass
 
+    @app.model(model=Model, path='one/two')
     def get_model():
         return Model()
 
+    @app.view(model=Model)
     def default(request, model):
         return "View"
 
+    @app.view(model=Model, name='link')
     def link(request, model):
         return request.link(model)
 
-    c = setup()
-    c.configurable(app)
-    c.action(app.model(model=Model, path='one/two'), get_model)
-    c.action(app.view(model=Model), default)
-    c.action(app.view(model=Model, name='link'), link)
-    c.commit()
+    config.commit()
 
     c = Client(app, Response)
 
