@@ -247,23 +247,15 @@ def test_extra_discriminators_per_directive():
             return [1]
 
     c = config.Config()
-    x = config.Configurable()
-    c.configurable(x)
+    x = config.Configurable(testing_config=c)
 
-    a = ADirective(x)
-
-    @a
+    @ADirective(x)
     def foo():
         pass
 
-    b = BDirective(x)
-
-    @b
+    @BDirective(x)
     def bar():
         pass
-
-    c.action(a, foo)
-    c.action(b, bar)
 
     with pytest.raises(ConflictError):
         c.commit()
