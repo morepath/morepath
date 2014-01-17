@@ -528,22 +528,19 @@ def test_json_directive():
 
 
 def test_redirect():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
+    @app.root()
     class Root(object):
         def __init__(self):
             pass
 
+    @app.view(model=Root, render=render_html)
     def default(request, model):
         return morepath.redirect('/')
 
-    c = setup()
-    c.configurable(app)
-    c.action(app.root(),
-             Root)
-    c.action(app.view(model=Root, render=render_html),
-             default)
-    c.commit()
+    config.commit()
 
     c = Client(app, Response)
 
