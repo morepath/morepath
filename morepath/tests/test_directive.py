@@ -1137,11 +1137,9 @@ def test_request_view_in_mount():
 
 
 def test_run_app_with_context_without_it():
-    app = morepath.App('app', variables=['mount_id'])
-
-    c = setup()
-    c.configurable(app)
-    c.commit()
+    config = setup()
+    app = morepath.App('app', variables=['mount_id'], testing_config=config)
+    config.commit()
 
     c = Client(app, Response)
     with pytest.raises(MountError):
