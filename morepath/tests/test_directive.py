@@ -565,58 +565,43 @@ def test_root_conflict():
 
 
 def test_root_no_conflict_different_apps():
-    app_a = morepath.App()
-    app_b = morepath.App()
+    config = setup()
+    app_a = morepath.App(testing_config=config)
+    app_b = morepath.App(testing_config=config)
 
-    a = app_a.root()
-
-    @a
+    @app_a.root()
     class Root(object):
         pass
 
-    b = app_b.root()
-
-    @b
+    @app_b.root()
     class Something(object):
         pass
 
-    c = Config()
-    c.configurable(app_a)
-    c.configurable(app_b)
-    c.action(a, Root)
-    c.action(b, Something)
-    c.commit()
+    config.commit()
 
 
 def test_model_conflict():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
     class A(object):
         pass
 
-    a = app.model(model=A, path='a')
-
-    @a
+    @app.model(model=A, path='a')
     def get_a():
         return A()
 
-    b = app.model(model=A, path='a')
-
-    @b
+    @app.model(model=A, path='a')
     def get_a_again():
         return A()
 
-    c = Config()
-    c.configurable(app)
-    c.action(a, get_a)
-    c.action(b, get_a_again)
-
     with pytest.raises(ConflictError):
-        c.commit()
+        config.commit()
 
 
 def test_path_conflict():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
     class A(object):
         pass
@@ -624,25 +609,16 @@ def test_path_conflict():
     class B(object):
         pass
 
-    a = app.model(model=A, path='a')
-
-    @a
+    @app.model(model=A, path='a')
     def get_a():
         return A()
 
-    b = app.model(model=B, path='a')
-
-    @b
+    @app.model(model=B, path='a')
     def get_b():
         return B()
 
-    c = Config()
-    c.configurable(app)
-    c.action(a, get_a)
-    c.action(b, get_b)
-
     with pytest.raises(ConflictError):
-        c.commit()
+        config.commit()
 
 
 def test_path_conflict_with_variable():
