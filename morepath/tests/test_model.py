@@ -38,7 +38,8 @@ def test_register_root():
 
 
 def test_register_model():
-    app = App()
+    config = setup()
+    app = App(testing_config=config)
     root = Root()
     lookup = app.lookup()
 
@@ -47,9 +48,7 @@ def test_register_model():
         model.id = id
         return model
 
-    c = setup()
-    c.configurable(app)
-    c.commit()
+    config.commit()
 
     register_root(app, Root, None, {}, lambda: root)
     register_model(app, Model, '{id}', lambda model: {'id': model.id}, None,
@@ -64,7 +63,8 @@ def test_register_model():
 
 
 def test_register_model_with_parameters():
-    app = App()
+    config = setup()
+    app = App(testing_config=config)
     root = Root()
     lookup = app.lookup()
 
@@ -74,9 +74,7 @@ def test_register_model_with_parameters():
         model.param = param
         return model
 
-    c = setup()
-    c.configurable(app)
-    c.commit()
+    config.commit()
 
     register_root(app, Root, None, {}, lambda: root)
     register_model(app, Model, '{id}', lambda model: {'id': model.id,
@@ -99,7 +97,8 @@ def test_register_model_with_parameters():
 
 
 def test_traject_path_with_leading_slash():
-    app = App()
+    config = setup()
+    app = App(testing_config=config)
     root = Root()
 
     def get_model(id):
@@ -107,9 +106,7 @@ def test_traject_path_with_leading_slash():
         model.id = id
         return model
 
-    c = setup()
-    c.configurable(app)
-    c.commit()
+    config.commit()
 
     register_root(app, Root, None, {}, lambda: root)
     register_model(app, Model, '/foo/{id}', lambda model: {'id': model.id},
