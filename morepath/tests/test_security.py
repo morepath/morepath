@@ -47,7 +47,7 @@ def test_permission_directive():
         def __init__(self, id):
             self.id = id
 
-   class Permission(object):
+    class Permission(object):
         pass
 
     @app.model(model=Model, path='{id}',
