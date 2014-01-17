@@ -187,23 +187,15 @@ def test_conflict():
         def identifier(self):
             return 1
     c = config.Config()
-    x = config.Configurable()
-    c.configurable(x)
+    x = config.Configurable(testing_config=c)
 
-    a = MyDirective(x)
-
-    @a
+    @MyDirective(x)
     def foo():
         pass
 
-    b = MyDirective(x)
-
-    @b
+    @MyDirective(x)
     def bar():
         pass
-
-    c.action(a, foo)
-    c.action(b, bar)
 
     with pytest.raises(ConflictError):
         c.commit()
