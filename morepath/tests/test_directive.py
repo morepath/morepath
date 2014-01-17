@@ -841,31 +841,27 @@ def test_function_no_conflict_different_apps():
 
 
 def test_mount():
-    app = morepath.App('app')
-    mounted = morepath.App('mounted')
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+    mounted = morepath.App('mounted', testing_config=config)
 
+    @mounted.root()
     class MountedRoot(object):
         pass
 
+    @mounted.view(model=MountedRoot)
     def root_default(request, model):
         return "The root"
 
+    @mounted.view(model=MountedRoot, name='link')
     def root_link(request, model):
         return request.link(model)
 
+    @app.mount(path='{id}', app=mounted)
     def get_context():
         return {}
 
-    c = setup()
-    c.configurable(app)
-    c.configurable(mounted)
-    c.action(app.mount(path='{id}', app=mounted), get_context)
-    c.action(mounted.root(), MountedRoot)
-    c.action(mounted.view(model=MountedRoot),
-             root_default)
-    c.action(mounted.view(model=MountedRoot, name='link'),
-             root_link)
-    c.commit()
+    config.commit()
 
     c = Client(app, Response)
 
