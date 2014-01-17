@@ -164,29 +164,27 @@ def test_variable_path_two_variables():
 
 
 def test_variable_path_explicit_converter():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
     class Model(object):
         def __init__(self, id):
             self.id = id
 
+    @app.model(model=Model, path='{id}',
+               converters=dict(id=Converter(int)))
     def get_model(id):
         return Model(id)
 
+    @app.view(model=Model)
     def default(request, model):
         return "View: %s (%s)" % (model.id, type(model.id))
 
+    @app.view(model=Model, name='link')
     def link(request, model):
         return request.link(model)
 
-    c = setup()
-    c.configurable(app)
-    c.action(app.model(model=Model, path='{id}',
-                       converters=dict(id=Converter(int))),
-             get_model)
-    c.action(app.view(model=Model), default)
-    c.action(app.view(model=Model, name='link'), link)
-    c.commit()
+    config.commit()
 
     c = Client(app, Response)
 
