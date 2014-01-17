@@ -174,8 +174,8 @@ def test_basic_imperative():
 
 
 def test_basic_testing_config():
-    c = setup()
-    app = morepath.App(testing_config=c)
+    config = setup()
+    app = morepath.App(testing_config=config)
 
     @app.root()
     class Root(object):
@@ -211,7 +211,7 @@ def test_basic_testing_config():
     def root_link(request, model):
         return request.link(model)
 
-    c.commit()
+    config.commit()
 
     c = Client(app, Response)
 
@@ -233,8 +233,10 @@ def test_basic_testing_config():
 
 
 def test_link_to_unknown_model():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
+    @app.root()
     class Root(object):
         def __init__(self):
             self.value = 'ROOT'
@@ -243,25 +245,22 @@ def test_link_to_unknown_model():
         def __init__(self, id):
             self.id = id
 
+    @app.view(model=Root)
     def root_link(request, model):
         try:
             return request.link(Model('foo'))
         except LinkError:
             return "Link error"
 
+    @app.view(model=Root, name='default')
     def root_link_with_default(request, model):
         return request.link(Model('foo'), default='hey')
 
+    @app.view(model=Root, name='default2')
     def root_link_with_default2(request, model):
         return request.link(Model('foo'), default=('hey', dict(param=1)))
 
-    c = setup()
-    c.configurable(app)
-    c.action(app.root(), Root)
-    c.action(app.view(model=Root), root_link)
-    c.action(app.view(model=Root, name='default'), root_link_with_default)
-    c.action(app.view(model=Root, name='default2'), root_link_with_default2)
-    c.commit()
+    config.commit()
 
     c = Client(app, Response)
 
@@ -274,8 +273,10 @@ def test_link_to_unknown_model():
 
 
 def test_link_with_parameters():
-    app = morepath.App()
+    c = setup()
+    app = morepath.App(testing_config=c)
 
+    @app.root()
     class Root(object):
         def __init__(self):
             self.value = 'ROOT'
@@ -285,27 +286,19 @@ def test_link_with_parameters():
             self.id = id
             self.param = param
 
+    @app.model(model=Model, path='{id}')
     def get_model(id, param=0):
         assert isinstance(param, int)
         return Model(id, param)
 
+    @app.view(model=Model)
     def default(request, model):
         return "The view for model: %s %s" % (model.id, model.param)
 
+    @app.view(model=Model, name='link')
     def link(request, model):
         return request.link(model)
 
-    c = setup()
-    c.configurable(app)
-    c.action(app.root(), Root)
-    c.action(app.model(model=Model, path='{id}',
-                       variables=lambda model: {'id': model.id,
-                                                'param': model.param}),
-             get_model)
-    c.action(app.view(model=Model),
-             default)
-    c.action(app.view(model=Model, name='link'),
-             link)
     c.commit()
 
     c = Client(app, Response)
