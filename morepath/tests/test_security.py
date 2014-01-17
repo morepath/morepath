@@ -179,12 +179,15 @@ def test_basic_auth_remember():
 
 
 def test_basic_auth_forget():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
+    @app.model(path='{id}')
     class Model(object):
         def __init__(self, id):
             self.id = id
 
+    @app.view(model=Model)
     def default(request, model):
         # will not actually do anything as it's a no-op for basic
         # auth, but at least won't crash
@@ -192,15 +195,11 @@ def test_basic_auth_forget():
         generic.forget(response, request, lookup=request.lookup)
         return response
 
-    c = setup()
-    c.configurable(app)
-    c.action(app.model(path='{id}',
-                       variables=lambda model: {'id': model.id}),
-             Model)
-    c.action(app.view(model=Model),
-             default)
-    c.action(app.identity_policy(), BasicAuthIdentityPolicy)
-    c.commit()
+    @app.identity_policy()
+    def policy():
+        return BasicAuthIdentityPolicy()
+
+    config.commit()
 
     c = Client(app, Response)
 
