@@ -384,8 +384,10 @@ def test_implicit_variables():
 
 
 def test_implicit_parameters():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
+    @app.root()
     class Root(object):
         pass
 
@@ -393,25 +395,19 @@ def test_implicit_parameters():
         def __init__(self, id):
             self.id = id
 
+    @app.model(model=Model, path='foo')
     def get_model(id):
         return Model(id)
 
+    @app.view(model=Model)
     def default(request, model):
         return "The view for model: %s" % model.id
 
+    @app.view(model=Model, name='link')
     def link(request, model):
         return request.link(model)
 
-    c = setup()
-    c.configurable(app)
-    c.action(app.root(), Root)
-    c.action(app.model(model=Model, path='foo'),
-             get_model)
-    c.action(app.view(model=Model),
-             default)
-    c.action(app.view(model=Model, name='link'),
-             link)
-    c.commit()
+    config.commit()
 
     c = Client(app, Response)
 
