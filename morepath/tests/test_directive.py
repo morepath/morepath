@@ -549,27 +549,19 @@ def test_redirect():
 
 
 def test_root_conflict():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
-    a = app.root()
-
-    @a
+    @app.root()
     class Root(object):
         pass
 
-    b = app.root()
-
-    @b
+    @app.root()
     class Something(object):
         pass
 
-    c = Config()
-    c.configurable(app)
-    c.action(a, Root)
-    c.action(b, Something)
-
     with pytest.raises(ConflictError):
-        c.commit()
+        config.commit()
 
 
 def test_root_no_conflict_different_apps():
