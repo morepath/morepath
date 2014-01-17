@@ -234,18 +234,26 @@ class DumbCookieIdentityPolicy(object):
 
 
 def test_cookie_identity_policy():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
+    @app.model(path='{id}')
     class Model(object):
         def __init__(self, id):
             self.id = id
 
+    class Permission(object):
+        pass
+
+    @app.permission(model=Model, permission=Permission)
     def get_permission(identity, model, permission):
         return identity.userid == 'user'
 
+    @app.view(model=Model, permission=Permission)
     def default(request, model):
         return "Model: %s" % model.id
 
+    @app.view(model=Model, name='log_in')
     def log_in(request, model):
         response = Response()
         generic.remember(response, request, Identity(userid='user',
@@ -253,30 +261,17 @@ def test_cookie_identity_policy():
                          lookup=request.lookup)
         return response
 
+    @app.view(model=Model, name='log_out')
     def log_out(request, model):
         response = Response()
         generic.forget(response, request, lookup=request.lookup)
         return response
 
-    class Permission(object):
-        pass
+    @app.identity_policy()
+    def policy():
+        return DumbCookieIdentityPolicy()
 
-    c = setup()
-    c.configurable(app)
-    c.action(app.model(path='{id}',
-                       variables=lambda model: {'id': model.id}),
-             Model)
-    c.action(app.permission(model=Model, permission=Permission),
-             get_permission)
-    c.action(app.view(model=Model, permission=Permission),
-             default)
-    c.action(app.view(model=Model, name='log_in'),
-             log_in)
-    c.action(app.view(model=Model, name='log_out'),
-             log_out)
-
-    c.action(app.identity_policy(), DumbCookieIdentityPolicy)
-    c.commit()
+    config.commit()
 
     c = Client(app, Response)
 
