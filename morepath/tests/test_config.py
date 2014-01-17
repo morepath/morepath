@@ -448,24 +448,16 @@ def test_abbreviation():
             return self.foo, self.bar
 
     c = config.Config()
-    x = config.Configurable()
-
-    c.configurable(x)
+    x = config.Configurable(testing_config=c)
 
     with MyDirective(x, foo='blah') as d:
-        d1 = d(bar='one')
-
-        @d1
+        @d(bar='one')
         def f1():
             pass
-        c.action(d1, f1)
 
-        d2 = d(bar='two')
-
-        @d2
+        @d(bar='two')
         def f2():
             pass
-        c.action(d2, f2)
 
     c.commit()
 
