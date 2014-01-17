@@ -18,11 +18,9 @@ class Model(object):
 
 
 def test_view():
-    app = App()
-
-    c = setup()
-    c.configurable(app)
-    c.commit()
+    config = setup()
+    app = App(testing_config=config)
+    config.commit()
 
     def view(request, model):
         return "View!"
@@ -35,11 +33,9 @@ def test_view():
 
 
 def test_predicates():
-    app = App()
-
-    c = setup()
-    c.configurable(app)
-    c.commit()
+    config = setup()
+    app = App(testing_config=config)
+    config.commit()
 
     def view(request, model):
         return "all"
@@ -59,22 +55,18 @@ def test_predicates():
 
 
 def test_notfound():
-    app = App()
-
-    c = setup()
-    c.configurable(app)
-    c.commit()
+    config = setup()
+    app = App(testing_config=config)
+    config.commit()
 
     response = publish(app.request(get_environ(path='')), app.mounted())
     assert response.status == '404 NOT FOUND'
 
 
 def test_notfound_with_predicates():
-    app = App()
-
-    c = setup()
-    c.configurable(app)
-    c.commit()
+    config = setup()
+    app = App(testing_config=config)
+    config.commit()
 
     def view(request, model):
         return "view"
@@ -89,11 +81,9 @@ def test_notfound_with_predicates():
 
 
 def test_response_returned():
-    app = App()
-
-    c = setup()
-    c.configurable(app)
-    c.commit()
+    config = setup()
+    app = App(testing_config=config)
+    config.commit()
 
     def view(request, model):
         return Response('Hello world!')
@@ -105,11 +95,9 @@ def test_response_returned():
 
 
 def test_request_view():
-    app = App()
-
-    c = setup()
-    c.configurable(app)
-    c.commit()
+    config = setup()
+    app = App(testing_config=config)
+    config.commit()
 
     def view(request, model):
         return {'hey': 'hey'}
@@ -129,11 +117,9 @@ def test_request_view():
 
 
 def test_request_view_with_predicates():
-    app = App()
-
-    c = setup()
-    c.configurable(app)
-    c.commit()
+    config = setup()
+    app = App(testing_config=config)
+    config.commit()
 
     def view(request, model):
         return {'hey': 'hey'}
@@ -157,11 +143,9 @@ def test_request_view_with_predicates():
 
 
 def test_render_html():
-    app = App()
-
-    c = setup()
-    c.configurable(app)
-    c.commit()
+    config = setup()
+    app = App(testing_config=config)
+    config.commit()
 
     def view(request, model):
         return '<p>Hello world!</p>'
@@ -176,11 +160,9 @@ def test_render_html():
 
 
 def test_view_raises_http_error():
-    app = App()
-
-    c = setup()
-    c.configurable(app)
-    c.commit()
+    config = setup()
+    app = App(testing_config=config)
+    config.commit()
 
     from werkzeug.exceptions import BadRequest
     def view(request, model):
@@ -195,22 +177,18 @@ def test_view_raises_http_error():
 
 
 def test_notfound():
-    app = App()
-
-    c = setup()
-    c.configurable(app)
-    c.commit()
+    config = setup()
+    app = App(testing_config=config)
+    config.commit()
 
     response = publish(app.request(get_environ(path='')), app.mounted())
     assert response.status == '404 NOT FOUND'
 
 
 def test_view_after():
-    app = App()
-
-    c = setup()
-    c.configurable(app)
-    c.commit()
+    config = setup()
+    app = App(testing_config=config)
+    config.commit()
 
     def view(request, model):
         @request.after
@@ -227,11 +205,9 @@ def test_view_after():
 
 
 def test_conditional_view_after():
-    app = App()
-
-    c = setup()
-    c.configurable(app)
-    c.commit()
+    config = setup()
+    app = App(testing_config=config)
+    config.commit()
 
     def view(request, model):
         if False:
@@ -249,11 +225,9 @@ def test_conditional_view_after():
 
 
 def test_view_after_non_decorator():
-    app = App()
-
-    c = setup()
-    c.configurable(app)
-    c.commit()
+    config = setup()
+    app = App(testing_config=config)
+    config.commit()
 
     def set_header(response):
         response.headers.add('Foo', 'FOO')
