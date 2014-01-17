@@ -622,7 +622,8 @@ def test_path_conflict():
 
 
 def test_path_conflict_with_variable():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
     class A(object):
         pass
@@ -630,28 +631,20 @@ def test_path_conflict_with_variable():
     class B(object):
         pass
 
-    a = app.model(model=A, path='a/{id}')
-
-    @a
+    @app.model(model=A, path='a/{id}')
     def get_a(id):
         return A()
 
-    b = app.model(model=B, path='a/{id2}')
-
-    @b
+    @app.model(model=B, path='a/{id2}')
     def get_b(id):
         return B()
 
-    c = Config()
-    c.configurable(app)
-    c.action(a, get_a)
-    c.action(b, get_b)
-
     with pytest.raises(ConflictError):
-        c.commit()
+        config.commit()
 
 def test_path_conflict_with_variable_different_converters():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
     class A(object):
         pass
@@ -659,53 +652,36 @@ def test_path_conflict_with_variable_different_converters():
     class B(object):
         pass
 
-    a = app.model(model=A, path='a/{id}', converters=Converter(decode=int))
-
-    @a
+    @app.model(model=A, path='a/{id}', converters=Converter(decode=int))
     def get_a(id):
         return A()
 
-    b = app.model(model=B, path='a/{id}')
-
-    @b
+    @app.model(model=B, path='a/{id}')
     def get_b(id):
         return B()
 
-    c = Config()
-    c.configurable(app)
-    c.action(a, get_a)
-    c.action(b, get_b)
-
     with pytest.raises(ConflictError):
-        c.commit()
+        config.commit()
 
 
 def test_model_no_conflict_different_apps():
-    app_a = morepath.App()
+    config = setup()
+    app_a = morepath.App(testing_config=config)
 
     class A(object):
         pass
 
-    a = app_a.model(model=A, path='a')
-
-    @a
+    @app_a.model(model=A, path='a')
     def get_a():
         return A()
 
-    app_b = morepath.App()
+    app_b = morepath.App(testing_config=config)
 
-    b = app_b.model(model=A, path='a')
-
-    @b
+    @app_b.model(model=A, path='a')
     def get_a_again():
         return A()
 
-    c = Config()
-    c.configurable(app_a)
-    c.configurable(app_b)
-    c.action(a, get_a)
-    c.action(b, get_a_again)
-    c.commit()
+    config.commit()
 
 
 def test_view_conflict():
