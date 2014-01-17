@@ -12,29 +12,26 @@ import json
 
 
 def test_no_permission():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
     class Model(object):
         def __init__(self, id):
             self.id = id
 
-    def get_model(id):
-        return Model(id)
-
-    def default(request, model):
-        return "Model: %s" % model.id
-
     class Permission(object):
         pass
 
-    c = setup()
-    c.configurable(app)
-    c.action(app.model(model=Model, path='{id}',
-                       variables=lambda model: {'id': model.id}),
-             get_model)
-    c.action(app.view(model=Model, permission=Permission),
-             default)
-    c.commit()
+    @app.model(model=Model, path='{id}',
+               variables=lambda model: {'id': model.id})
+    def get_model(id):
+        return Model(id)
+
+    @app.view(model=Model, permission=Permission)
+    def default(request, model):
+        return "Model: %s" % model.id
+
+    config.commit()
 
     c = Client(app, Response)
 
