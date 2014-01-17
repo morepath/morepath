@@ -317,27 +317,24 @@ def test_link_with_parameters():
 
 
 def test_root_link_with_parameters():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
+    @app.root()
     class Root(object):
         def __init__(self, param=0):
             assert isinstance(param, int)
             self.param = param
 
+    @app.view(model=Root)
     def default(request, model):
         return "The view for root: %s" % model.param
 
+    @app.view(model=Root, name='link')
     def link(request, model):
         return request.link(model)
 
-    c = setup()
-    c.configurable(app)
-    c.action(app.root(), Root)
-    c.action(app.view(model=Root),
-             default)
-    c.action(app.view(model=Root, name='link'),
-             link)
-    c.commit()
+    config.commit()
 
     c = Client(app, Response)
 
