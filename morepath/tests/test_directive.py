@@ -936,29 +936,28 @@ def test_mount_context():
 
 
 def test_mount_context_parameters():
-    app = morepath.App('app')
-    mounted = morepath.App('mounted', variables=['mount_id'])
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+    mounted = morepath.App('mounted', variables=['mount_id'],
+                           testing_config=config)
 
+    @mounted.root()
     class MountedRoot(object):
         def __init__(self, mount_id):
             assert isinstance(mount_id, int)
             self.mount_id = mount_id
 
+    @mounted.view(model=MountedRoot)
     def root_default(request, model):
         return "The root for mount id: %s" % model.mount_id
 
+    @app.mount(path='mounts', app=mounted)
     def get_context(mount_id=0):
         return {
             'mount_id': mount_id
             }
 
-    c = setup()
-    c.configurable(app)
-    c.configurable(mounted)
-    c.action(app.mount(path='mounts', app=mounted), get_context)
-    c.action(mounted.root(), MountedRoot)
-    c.action(mounted.view(model=MountedRoot), root_default)
-    c.commit()
+    config.commit()
 
     c = Client(app, Response)
 
