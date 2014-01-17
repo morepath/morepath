@@ -273,8 +273,8 @@ def test_link_to_unknown_model():
 
 
 def test_link_with_parameters():
-    c = setup()
-    app = morepath.App(testing_config=c)
+    config = setup()
+    app = morepath.App(testing_config=config)
 
     @app.root()
     class Root(object):
@@ -299,7 +299,7 @@ def test_link_with_parameters():
     def link(request, model):
         return request.link(model)
 
-    c.commit()
+    config.commit()
 
     c = Client(app, Response)
 
