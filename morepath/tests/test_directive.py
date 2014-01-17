@@ -759,29 +759,22 @@ def test_view_no_conflict_different_apps():
 
 
 def test_view_conflict_with_json():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
     class Model(object):
         pass
 
-    a = app.view(model=Model, name='a')
-    a1 = app.json(model=Model, name='a')
-
-    @a
+    @app.view(model=Model, name='a')
     def a_view(request, model):
         pass
 
-    @a1
+    @app.json(model=Model, name='a')
     def a1_view(request, model):
         pass
 
-    c = Config()
-    c.configurable(app)
-    c.action(a, a_view)
-    c.action(a1, a1_view)
-
     with pytest.raises(ConflictError):
-        c.commit()
+        config.commit()
 
 
 def test_view_conflict_with_html():
