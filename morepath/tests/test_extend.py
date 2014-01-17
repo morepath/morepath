@@ -5,41 +5,26 @@ from morepath.request import Response
 
 
 def test_extends():
-    app = App()
-    extending = App(extends=[app])
+    config = setup()
+    app = App(testing_config=config)
+    extending = App(extends=[app], testing_config=config)
 
-    c = setup()
-    c.configurable(app)
-    c.configurable(extending)
-
+    @app.model(
+        path='users/{username}',
+        variables=lambda model: {'username': model.username})
     class User(object):
         def __init__(self, username):
             self.username = username
 
-    c.action(
-        app.model(
-            path='users/{username}',
-            variables=lambda model: {'username': model.username}),
-        User)
-
+    @app.view(model=User)
     def render_user(request, model):
         return "User: %s" % model.username
 
-    c.action(
-        app.view(
-            model=User),
-        render_user)
-
+    @extending.view(model=User, name='edit')
     def edit_user(request, model):
         return "Edit user: %s" % model.username
 
-    c.action(
-        extending.view(
-            model=User,
-            name='edit'),
-        edit_user)
-
-    c.commit()
+    config.commit()
 
     cl = Client(app, Response)
     response = cl.get('/users/foo')
