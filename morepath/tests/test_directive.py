@@ -1061,36 +1061,34 @@ def test_mount_parent_link():
 
 
 def test_mount_child_link():
-    app = morepath.App('app')
-    mounted = morepath.App('mounted', variables=['mount_id'])
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+    mounted = morepath.App('mounted', variables=['mount_id'],
+                           testing_config=config)
 
+    @mounted.model(path='models/{id}',
+                   variables=lambda m: {'id': m.id})
     class Model(object):
         def __init__(self, id):
             self.id = id
 
+    @app.root()
     class Root(object):
         pass
 
+    @app.view(model=Root)
     def app_root_default(request, model):
         return request.link(
             Model('one'),
             mounted=request.mounted().child(mounted, id='foo'))
 
+    @app.mount(path='{id}', app=mounted)
     def get_context(id):
         return {
             'mount_id': id
             }
 
-    c = setup()
-    c.configurable(app)
-    c.configurable(mounted)
-    c.action(mounted.model(path='models/{id}',
-                           variables=lambda m: {'id': m.id}),
-             Model)
-    c.action(app.mount(path='{id}', app=mounted), get_context)
-    c.action(app.root(), Root)
-    c.action(app.view(model=Root), app_root_default)
-    c.commit()
+    config.commit()
 
     c = Client(app, Response)
 
