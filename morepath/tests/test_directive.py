@@ -740,29 +740,22 @@ def test_view_no_conflict_different_predicates():
 
 
 def test_view_no_conflict_different_apps():
-    app_a = morepath.App()
-    app_b = morepath.App()
+    config = setup()
+    app_a = morepath.App(testing_config=config)
+    app_b = morepath.App(testing_config=config)
 
     class Model(object):
         pass
 
-    a = app_a.view(model=Model, name='a')
-    a1 = app_b.view(model=Model, name='a')
-
-    @a
+    @app_a.view(model=Model, name='a')
     def a_view(request, model):
         pass
 
-    @a1
+    @app_b.view(model=Model, name='a')
     def a1_view(request, model):
         pass
 
-    c = Config()
-    c.configurable(app_a)
-    c.configurable(app_b)
-    c.action(a, a_view)
-    c.action(a1, a1_view)
-    c.commit()
+    config.commit()
 
 
 def test_view_conflict_with_json():
