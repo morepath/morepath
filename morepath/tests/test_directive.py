@@ -460,21 +460,20 @@ def test_implicit_parameters_default():
 
 
 def test_convert_exception_to_internal_error():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
+    @app.root()
     class Root(object):
         def __init__(self):
             self.value = 'ROOT'
 
+    @app.view(model=Root)
     def default(request, model):
         1/0
         return ''
 
-    c = setup()
-    c.configurable(app)
-    c.action(app.root(), Root)
-    c.action(app.view(model=Root), default)
-    c.commit()
+    config.commit()
 
     c = Client(app, Response)
 
