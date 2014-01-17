@@ -819,8 +819,9 @@ def test_function_conflict():
 
 
 def test_function_no_conflict_different_apps():
-    app_a = morepath.App()
-    app_b = morepath.App()
+    config = setup()
+    app_a = morepath.App(testing_config=config)
+    app_b = morepath.App(testing_config=config)
 
     def func(a):
         pass
@@ -828,23 +829,15 @@ def test_function_no_conflict_different_apps():
     class A(object):
         pass
 
-    a = app_a.function(func, A)
-    a1 = app_b.function(func, A)
-
-    @a
+    @app_a.function(func, A)
     def a_func(a):
         pass
 
-    @a1
+    @app_b.function(func, A)
     def a1_func(a):
         pass
 
-    c = Config()
-    c.configurable(app_a)
-    c.configurable(app_b)
-    c.action(a, a_func)
-    c.action(a1, a1_func)
-    c.commit()
+    config.commit()
 
 
 def test_mount():
