@@ -1025,35 +1025,34 @@ def test_mount_context_standalone():
 
 
 def test_mount_parent_link():
-    app = morepath.App('app')
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+
+    @app.model(path='models/{id}',
+               variables=lambda m: {'id': m.id})
     class Model(object):
         def __init__(self, id):
             self.id = id
 
-    mounted = morepath.App('mounted', variables=['mount_id'])
+    mounted = morepath.App('mounted', variables=['mount_id'],
+                           testing_config=config)
 
+    @mounted.root()
     class MountedRoot(object):
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
+    @mounted.view(model=MountedRoot)
     def root_default(request, model):
         return request.link(Model('one'), mounted=request.mounted().parent())
 
+    @app.mount(path='{id}', app=mounted)
     def get_context(id):
         return {
             'mount_id': id
             }
 
-    c = setup()
-    c.configurable(app)
-    c.configurable(mounted)
-    c.action(app.model(path='models/{id}',
-                       variables=lambda m: {'id': m.id}),
-             Model)
-    c.action(app.mount(path='{id}', app=mounted), get_context)
-    c.action(mounted.root(), MountedRoot)
-    c.action(mounted.view(model=MountedRoot), root_default)
-    c.commit()
+    config.commit()
 
     c = Client(app, Response)
 
