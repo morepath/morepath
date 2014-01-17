@@ -173,6 +173,65 @@ def test_basic_imperative():
     assert response.data == '/'
 
 
+def test_basic_testing_config():
+    c = setup()
+    app = morepath.App(testing_config=c)
+
+    @app.root()
+    class Root(object):
+        def __init__(self):
+            self.value = 'ROOT'
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @app.model(model=Model, path='{id}',
+               variables=lambda model: {'id': model.id})
+    def get_model(id):
+        return Model(id)
+
+    @app.view(model=Model)
+    def default(request, model):
+        return "The view for model: %s" % model.id
+
+    @app.view(model=Model, name='link')
+    def link(request, model):
+        return request.link(model)
+
+    @app.view(model=Model, name='json', render=morepath.render_json)
+    def json(request, model):
+        return {'id': model.id}
+
+    @app.view(model=Root)
+    def root_default(request, model):
+        return "The root: %s" % model.value
+
+    @app.view(model=Root, name='link')
+    def root_link(request, model):
+        return request.link(model)
+
+    c.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/foo')
+    assert response.data == 'The view for model: foo'
+
+    response = c.get('/foo/link')
+    assert response.data == '/foo'
+
+    response = c.get('/foo/json')
+    assert response.data == '{"id": "foo"}'
+
+    response = c.get('/')
+    assert response.data == 'The root: ROOT'
+
+    # + is to make sure we get the view, not the sub-model
+    response = c.get('/+link')
+    assert response.data == '/'
+
+
 def test_link_to_unknown_model():
     app = morepath.App()
 

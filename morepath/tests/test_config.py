@@ -104,6 +104,84 @@ def test_directive():
     assert performed == [foo]
 
 
+def test_directive_testing_config():
+    performed = []
+
+    class MyDirective(config.Directive):
+        def perform(self, configurable, obj):
+            performed.append(obj)
+
+        def identifier(self):
+            return ()
+
+    c = config.Config()
+    x = config.Configurable(testing_config=c)
+
+    assert c.configurables == [x]
+
+    # Due to testing_config, now the directive does work without scanning.
+    @MyDirective(x)
+    def foo():
+        pass
+
+    c.commit()
+    assert performed == [foo]
+
+
+def test_directive_without_testing_config_not_found():
+    performed = []
+
+    class MyDirective(config.Directive):
+        def perform(self, configurable, obj):
+            performed.append(obj)
+
+        def identifier(self):
+            return ()
+
+    c = config.Config()
+    x = config.Configurable()
+
+    # The configurable won't be picked up.
+    assert c.configurables == []
+
+    # Since there's no testing_config, the directive does not get picked up,
+    # as it isn't scanned.
+    @MyDirective(x)
+    def foo():
+        pass
+
+    c.commit()
+    assert performed == []
+
+
+def test_directive_testing_config_external():
+    performed = []
+
+    class MyDirective(config.Directive):
+        def perform(self, configurable, obj):
+            performed.append(obj)
+
+        def identifier(self):
+            return ()
+
+    c = config.Config()
+    x = config.Configurable()
+
+    # we set up testing config later
+    x.testing_config = c
+
+    # even setting it up later will find us the configurable
+    assert c.configurables == [x]
+
+    # Due to testing_config, now the directive does work without scanning.
+    @MyDirective(x)
+    def foo():
+        pass
+
+    c.commit()
+    assert performed == [foo]
+
+
 def test_conflict():
     class MyDirective(config.Directive):
         def identifier(self):

@@ -13,18 +13,36 @@ class Configurable(object):
     extends list. Then the configurable can be performed, meaning all
     its actions will be performed (to it).
     """
-    def __init__(self, extends=None):
+    def __init__(self, extends=None, testing_config=None):
         """
         :param extends:
           the configurables that this configurable extends. Optional.
         :type extends: list of configurables, single configurable.
+        :param testing_config:
+          We can pass a config object used during testing. This causes
+          the actions to be issued against the configurable directly
+          instead of waiting for Venusian scanning. This allows
+          the use of directive decorators in tests where scanning is
+          not an option. Optional, default no testing config.
         """
         if extends is None:
             extends = []
         if not isinstance(extends, list):
             extends = [extends]
         self.extends = extends
+        self._testing_config = testing_config
         self.clear()
+        if self._testing_config:
+            self._testing_config.configurable(self)
+
+    @property
+    def testing_config(self):
+        return self._testing_config
+
+    @testing_config.setter
+    def testing_config(self, config):
+        self._testing_config = config
+        config.configurable(self)
 
     def clear(self):
         """Clear any previously registered actions.
@@ -213,6 +231,12 @@ class Directive(Action):
     def __call__(self, wrapped):
         """Call with function to decorate.
         """
+        # If we are in testing mode, we immediately add the
+        # action.
+        if self.configurable._testing_config:
+            self.configurable._testing_config.action(self, wrapped)
+            return wrapped
+        # Normally we only add the action through Venusian scanning.
         def callback(scanner, name, obj):
             scanner.config.action(self, obj)
         self.attach_info = venusian.attach(wrapped, callback)

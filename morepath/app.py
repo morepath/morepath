@@ -23,7 +23,8 @@ class AppBase(Configurable, ClassRegistry):
     AppBase can be used as a WSGI application, i.e. it can be called
     with ``environ`` and ``start_response`` arguments.
     """
-    def __init__(self, name='', extends=None, variables=None):
+    def __init__(self, name='', extends=None, variables=None,
+                 testing_config=None):
         """
         :param name: A name for this application. This is used in
           error reporting.
@@ -34,9 +35,14 @@ class AppBase(Configurable, ClassRegistry):
         :param variables: variable names that
           this application expects when mounted. Optional.
         :type variables: list or set
+        :param testing_config: a :class:`morepath.Config` that actions
+          will be added to directly, instead of waiting for
+          a scanning phase. This is handy during testing. If you want to
+          use decorators inline in a test function, supply a ``testing_config``.
+          It's not useful outside of tests. Optional.
         """
         ClassRegistry.__init__(self)
-        Configurable.__init__(self, extends)
+        Configurable.__init__(self, extends, testing_config)
         self.name = name
         if variables is None:
             variables = set()
@@ -157,7 +163,8 @@ class App(AppBase):
     extending however; instead configuration will be considered to be
     overridden.
     """
-    def __init__(self, name='', extends=None, variables=None):
+    def __init__(self, name='', extends=None, variables=None,
+                 testing_config=None):
         """
         :param name: A name for this application. This is used in
           error reporting.
@@ -168,10 +175,15 @@ class App(AppBase):
         :param variables: variable names that
           this application expects when mounted. Optional.
         :type variables: list or set
+        :param testing_config: a :class:`morepath.Config` that actions
+          will be added to directly, instead of waiting for
+          a scanning phase. This is handy during testing. If you want to
+          use decorators inline in a test function, supply a ``testing_config``.
+          It's not useful outside of tests. Optional.
         """
         if not extends:
             extends = [global_app]
-        super(App, self).__init__(name, extends, variables)
+        super(App, self).__init__(name, extends, variables, testing_config)
         # XXX why does this need to be repeated?
         venusian.attach(self, callback)
 
