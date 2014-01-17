@@ -169,7 +169,7 @@ def test_variable_path_two_variables():
     assert response.data == '/foo-one'
 
 
-def test_variable_path_explicit_type():
+def test_variable_path_explicit_converter():
     app = morepath.App()
 
     class Model(object):
