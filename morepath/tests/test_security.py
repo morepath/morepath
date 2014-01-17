@@ -101,35 +101,34 @@ def test_policy_action():
 
 
 def test_basic_auth_identity_policy():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
     class Model(object):
         def __init__(self, id):
             self.id = id
 
-    def get_model(id):
-        return Model(id)
-
-    def get_permission(identity, model, permission):
-        return identity.userid == 'user' and identity.password == 'secret'
-
-    def default(request, model):
-        return "Model: %s" % model.id
-
     class Permission(object):
         pass
 
-    c = setup()
-    c.configurable(app)
-    c.action(app.model(model=Model, path='{id}',
-                       variables=lambda model: {'id': model.id}),
-             get_model)
-    c.action(app.permission(model=Model, permission=Permission),
-             get_permission)
-    c.action(app.view(model=Model, permission=Permission),
-             default)
-    c.action(app.identity_policy(), BasicAuthIdentityPolicy)
-    c.commit()
+    @app.model(model=Model, path='{id}',
+               variables=lambda model: {'id': model.id})
+    def get_model(id):
+        return Model(id)
+
+    @app.permission(model=Model, permission=Permission)
+    def get_permission(identity, model, permission):
+        return identity.userid == 'user' and identity.password == 'secret'
+
+    @app.view(model=Model, permission=Permission)
+    def default(request, model):
+        return "Model: %s" % model.id
+
+    @app.identity_policy()
+    def policy():
+        return BasicAuthIdentityPolicy()
+
+    config.commit()
 
     c = Client(app, Response)
 
