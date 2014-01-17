@@ -93,7 +93,9 @@ a model instance, like this::
   request.link(mymodel)
 
 That is an easier and less brittle way to make links than having to
-name your routes explicitly.
+name your routes explicitly. Morepath pushes link generation quite
+far: it can construct links with paths and URL parameters
+automatically.
 
 Morepath shares the property of model-based links with traversal based
 web frameworks like Zope and Grok, and also Pyramid in non-routing
