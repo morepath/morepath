@@ -71,44 +71,29 @@ def test_overrides_view():
 
 
 def test_overrides_model():
-    app = App()
-    overriding = App(extends=[app])
+    config = setup()
+    app = App(testing_config=config)
+    overriding = App(extends=[app], testing_config=config)
 
-    c = setup()
-    c.configurable(app)
-    c.configurable(overriding)
-
+    @app.model(
+        path='users/{username}',
+        variables=lambda model: {'username': model.username})
     class User(object):
         def __init__(self, username):
             self.username = username
 
-    c.action(
-        app.model(
-            path='users/{username}',
-            variables=lambda model: {'username': model.username}),
-        User)
-
+    @app.view(model=User)
     def render_user(request, model):
         return "User: %s" % model.username
 
-    c.action(
-        app.view(
-            model=User),
-        render_user)
-
+    @overriding.model(model=User, path='users/{username}',
+                      variables=lambda model: {'username': model.username})
     def get_user(username):
         if username != 'bar':
             return None
         return User(username)
 
-    c.action(
-        overriding.model(
-            model=User,
-            path='users/{username}',
-            variables=lambda model: {'username': model.username}),
-        get_user)
-
-    c.commit()
+    config.commit()
 
     cl = Client(app, Response)
     response = cl.get('/users/foo')
