@@ -25,13 +25,12 @@ class Model(object):
 
 
 def test_register_root():
-    app = App()
+    config = setup()
+    app = App(testing_config=config)
     root = Root()
     lookup = app.lookup()
 
-    c = setup()
-    c.configurable(app)
-    c.commit()
+    config.commit()
 
     register_root(app, Root, None, {}, lambda: root)
     assert generic.path(root, lookup=lookup) == ('', {})
