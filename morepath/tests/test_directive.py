@@ -797,33 +797,25 @@ def test_view_conflict_with_html():
 
 
 def test_function_conflict():
-    app = morepath.App()
-
-    def func(a):
-        pass
+    config = setup()
+    app = morepath.App(testing_config=config)
 
     class A(object):
         pass
 
-    a = app.function(func, A)
+    def func(a):
+        pass
 
-    @a
+    @app.function(func, A)
     def a_func(arequest, model):
         pass
 
-    a1 = app.function(func, A)
-
-    @a1
+    @app.function(func, A)
     def a1_func(request, model):
         pass
 
-    c = Config()
-    c.configurable(app)
-    c.action(a, a_func)
-    c.action(a1, a1_func)
-
     with pytest.raises(ConflictError):
-        c.commit()
+        config.commit()
 
 
 def test_function_no_conflict_different_apps():
