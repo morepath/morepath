@@ -722,27 +722,21 @@ def test_view_no_conflict_different_names():
 
 
 def test_view_no_conflict_different_predicates():
-    app = morepath.App()
+    config = setup()
+    app = morepath.App(testing_config=config)
 
     class Model(object):
         pass
 
-    a = app.view(model=Model, name='a', request_method='GET')
-    b = app.view(model=Model, name='a', request_method='POST')
-
-    @a
+    @app.view(model=Model, name='a', request_method='GET')
     def a_view(request, model):
         pass
 
-    @b
+    @app.view(model=Model, name='a', request_method='POST')
     def b_view(request, model):
         pass
 
-    c = Config()
-    c.configurable(app)
-    c.action(a, a_view)
-    c.action(b, b_view)
-    c.commit()
+    config.commit()
 
 
 def test_view_no_conflict_different_apps():
