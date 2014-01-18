@@ -1,6 +1,7 @@
 from morepath import generic
 from morepath.traject import Traject, ParameterFactory, Path
 from morepath.publish import publish
+from morepath.error import DirectiveError
 
 from reg import mapply, arginfo
 
@@ -65,10 +66,13 @@ def get_converters(arguments, converters, converter_for_value):
     result = {}
     for name, value in arguments.items():
         converter = converters.get(name, None)
-        if converter is not None:
-            result[name] = converter
-            continue
-        result[name] = converter_for_value(value)
+        if converter is None:
+            converter = converter_for_value(value)
+        if converter is None:
+            raise DirectiveError(
+                "Cannot find converter for default value: %r (%s)" %
+                (value, type(value)))
+        result[name] = converter
     return result
 
 

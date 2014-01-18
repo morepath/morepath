@@ -362,22 +362,22 @@ string representations for something exist? Let's examine the case of
 
 We could represent it as a string in ISO 8601 format as returned by
 the :meth:`datetime.date.isoformat` method, i.e. ``2014-01-15`` for
-the 15th of january 2014. But we could also use another
-representation, say ``15/01/2014``. (ISO format is the default
-interpretation used by Morepath.)
+the 15th of january 2014. We could also use ISO 8601 compact format,
+namely ``20140115`` (and this what Morepath defaults to). But we could
+also use another representation, say ``15/01/2014``.
 
-Let's first see how a string with an ISO date can be decoded
+Let's first see how a string with an ISO compact date can be decoded
 (deserialized, loaded) into a ``date`` object::
 
   from datetime import date
   from time import mktime, strptime
 
   def date_decode(s):
-      return date.fromtimestamp(mktime(strptime(s, '%Y-%m-%d')))
+      return date.fromtimestamp(mktime(strptime(s, '%Y%m%d')))
 
 We can try it out::
 
-  >>> date_decode('2014-01-15')
+  >>> date_decode('20140115')
   datetime.date(2014, 1, 15)
 
 Note that this function will raise a ``ValueError`` if we give it a
@@ -395,12 +395,12 @@ We also specify how to encode (serialize, dump) a ``date`` object back
 into a string::
 
   def date_encode(d):
-      return d.isoformat()
+      return d.strftime('%Y%m%d')
 
 We can try it out too::
 
   >>> date_encode(date(2014, 1, 15))
-  '2014-01-15'
+  '20140115'
 
 A encode function should never fail, if at least presented with input
 of the right type, in this case a ``date`` instance.
@@ -454,7 +454,7 @@ matching record ids::
 
 We can now go to URLs like this::
 
-   /records?start=2011-01-10&end=2011-02-15
+   /records?start=20110110&end=20110215
 
 The ``start`` and ``end`` URL parameters will now be decoded into
 ``date`` objects, which get passed into ``get_records``. And when you
@@ -472,9 +472,9 @@ You can also use encode and decode for arguments used in a path::
   def get_day(d):
       return Day(d)
 
-This allows URls like this::
+This will publish the model on a URL like this::
 
-  /day/2011-01-10
+  /day/20110101
 
 When you pass in a broken date, like ``/day/foo``, a ``ValueError`` is
 raised by the date decoder, and a ``404 not Found`` response is given
@@ -483,31 +483,37 @@ by the server: the URL does not resolve to a model.
 Default converters
 ------------------
 
-[this is still science fiction at the time of writing, though almost
-all of the infrastructure is now in place]
+Morepath has a number of default converters registered; we already saw
+examples for int and strings. Morepath also has a default converter
+for ``date`` (compact ISO 8601, i.e. ``20131231``) and ``datetime``
+(i.e. ``20131231T23:59:59``).
 
-Before we said Morepath uses ISO format dates as the default. You can
-register a default ``Converter`` instance for a type using the
-``converter`` decorator::
+You can add new default converters for your own classes, or override
+existing default behavior, by using the
+:meth:`morepath.AppBase.converter` decorator. Let's change the default
+behavior for ``date`` in this example to use ISO 8601 *extended* format,
+so that dashes are there to separate the year, month and day,
+i.e. ``2013-12-31``::
+
+  def extended_date_decode(s):
+      return date.fromtimestamp(mktime(strptime(s, '%Y-%m-%d')))
+
+  def extended_date_encode(d):
+      return d.strftime('%Y-%m-%d')
 
   @app.converter(type=date)
-  class Converter(object):
-      @staticmethod
-      def decode(s):
-          return date.fromtimestamp(mktime(strptime(s, '%Y-%m-%d')))
+  def date_converter():
+      return Converter(extended_date_decode, extended_date_encode)
 
-      @staticmethod
-      def encode(d):
-          return d.isoformat()
-
-Now Morepath will recognize type hints in default arguments::
+Now Morepath understand type hints for ``date`` differently::
 
   @app.model(model=Day, path='day/{d}')
   def get_day(d=date(2011, 1, 1)):
       return Day(d)
 
-Morepath now knows you want to use the converter registered for
-``date`` in to convert the ``d`` variable.
+will have models published on a URL like::
+
+  day/2013-12-31
 
 Required
 --------

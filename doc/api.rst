@@ -31,6 +31,9 @@ Morepath API
 
 .. autodata:: morepath.security.NO_IDENTITY
 
+.. autoclass:: morepath.Converter
+  :members:
+
 .. autoclass:: Config
   :members:
 
@@ -38,6 +41,9 @@ Morepath API
   :members:
 
 .. autoclass:: morepath.config.Action
+  :members:
+
+.. autoclass:: morepath.converter.ConverterRegistry
   :members:
 
 .. autoclass:: Directive

@@ -5,7 +5,6 @@ class ConfigError(Exception):
     """Raised when configuration is bad
     """
 
-
 def conflict_keyfunc(action):
     try:
         codeinfo = action.codeinfo()
@@ -39,6 +38,25 @@ class ConflictError(ConfigError):
         super(ConflictError, self).__init__(msg)
 
 
+class DirectiveReportError(ConfigError):
+    """Raised when there's a problem with a directive.
+    """
+    def __init__(self, message, action):
+        try:
+            codeinfo = action.codeinfo()
+        except AttributeError:
+            codeinfo = None
+        result = [message]
+        if codeinfo is not None:
+            filename, lineno, function, sourceline = codeinfo
+            result.append('  File "%s", line %s' % (filename, lineno))
+            result.append('    %s' % sourceline)
+        msg = '\n'.join(result)
+        super(DirectiveReportError, self).__init__(msg)
+
+class DirectiveError(ConfigError):
+    pass
+
 class ResolveError(Exception):
     """Raised when path cannot be resolved
     """
@@ -61,3 +79,4 @@ class LinkError(Exception):
 
 class MountError(Exception):
     pass
+

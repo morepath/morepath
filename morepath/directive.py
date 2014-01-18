@@ -237,6 +237,33 @@ class PredicateDirective(Directive):
                            self.index, obj)
 
 
+@directive('converter')
+class ConverterDirective(Directive):
+    priority = 1000  # execute earlier than model directive
+
+    def __init__(self, app, type):
+        """Register custom converter for type.
+
+        :param type: the Python type for which to register the
+          converter.  Morepath uses converters when converting path
+          variables and URL parameters when decoding or encoding
+          URLs. Morepath will look up the converter using the
+          type. The type is either given explicitly as the value in
+          the ``converters`` dictionary in the
+          :meth:`morepath.AppBase.model` directive, or is deduced from
+          the value of the default argument of the decorated model
+          function or class using ``type()``.
+        """
+        super(ConverterDirective, self).__init__(app)
+        self.type = type
+
+    def identifier(self):
+        return ('converter', self.type)
+
+    def perform(self, app, obj):
+        app.register_converter(self.type, obj())
+
+
 @directive('json')
 class JsonDirective(ViewDirective):
     def __init__(self, app, model, name='', render=None,

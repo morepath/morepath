@@ -2,18 +2,19 @@ from .model import Mount
 from .request import Request
 from .traject import Traject
 from .config import Configurable
-from .converter import Converter, IDENTITY_CONVERTER
+from .converter import ConverterRegistry
 from .error import MountError
 from reg import ClassRegistry, Lookup, CachingClassLookup
 import venusian
 from werkzeug.serving import run_simple
 
 
-class AppBase(Configurable, ClassRegistry):
+class AppBase(Configurable, ClassRegistry, ConverterRegistry):
     """Base for application objects.
 
-    Extends :class:`morepath.config.Configurable` and
-    :class:`reg.ClassRegistry`.
+    Extends :class:`morepath.config.Configurable`,
+    :class:`reg.ClassRegistry` and
+    :class:`morepath.converter.ConverterRegistry`.
 
     The application base is split from the :class:`App`
     class so that we can have an :class:`App` class that automatically
@@ -43,6 +44,7 @@ class AppBase(Configurable, ClassRegistry):
         """
         ClassRegistry.__init__(self)
         Configurable.__init__(self, extends, testing_config)
+        ConverterRegistry.__init__(self)
         self.name = name
         if variables is None:
             variables = set()
@@ -129,12 +131,6 @@ class AppBase(Configurable, ClassRegistry):
     def mount_variables(self):
         return self._variables
 
-    def converter_for_value(self, v):
-        if v is None:
-            return IDENTITY_CONVERTER
-        if type(v) == int:
-            return Converter(int)
-        return IDENTITY_CONVERTER
 
 class FailingWsgi(object):
     def __init__(self, app):
@@ -149,8 +145,8 @@ class App(AppBase):
     """A Morepath-based application object.
 
     Extends :class:`AppBase` and through it
-    :class:`morepath.config.Configurable` and
-    :class:`reg.ClassRegistry`.
+    :class:`morepath.config.Configurable`, :class:`reg.ClassRegistry`
+    and :class:`morepath.converter.ConverterRegistry`.
 
     You can configure an application using Morepath decorator directives.
 

@@ -2,6 +2,7 @@ import morepath
 from morepath import setup
 from morepath.request import Response
 from morepath.converter import Converter
+from morepath.error import DirectiveReportError
 
 from werkzeug.test import Client
 import pytest
@@ -416,4 +417,168 @@ def test_decode_encode():
 
     response = c.get('/link?id=foo')
     assert response.data == '/?id=foo'
+
+
+def test_unknown_converter():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, d):
+            self.d = d
+
+    class Unknown(object):
+        pass
+
+    @app.model(model=Model, path='/')
+    def get_model(d=Unknown()):
+        return Model(d)
+
+    @app.view(model=Model)
+    def default(request, model):
+        return "View: %s" % model.d
+
+    @app.view(model=Model, name='link')
+    def link(request, model):
+        return request.link(model)
+
+    with pytest.raises(DirectiveReportError):
+        config.commit()
+
+
+def test_default_date_converter():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, d):
+            self.d = d
+
+    from datetime import date
+
+    @app.model(model=Model, path='/')
+    def get_model(d=date(2011, 1, 1)):
+        return Model(d)
+
+    @app.view(model=Model)
+    def default(request, model):
+        return "View: %s" % model.d
+
+    @app.view(model=Model, name='link')
+    def link(request, model):
+        return request.link(model)
+
+    config.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/?d=20121110')
+    assert response.data == "View: 2012-11-10"
+
+    response = c.get('/')
+    assert response.data == "View: 2011-01-01"
+
+    response = c.get('/link?d=20121110')
+    assert response.data == '/?d=20121110'
+
+    response = c.get('/link')
+    assert response.data == '/?d=20110101'
+
+    response = c.get('/?d=broken')
+    assert response.status == '400 BAD REQUEST'
+
+
+def test_default_datetime_converter():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, d):
+            self.d = d
+
+    from datetime import datetime
+
+    @app.model(model=Model, path='/')
+    def get_model(d=datetime(2011, 1, 1, 10, 30)):
+        return Model(d)
+
+    @app.view(model=Model)
+    def default(request, model):
+        return "View: %s" % model.d
+
+    @app.view(model=Model, name='link')
+    def link(request, model):
+        return request.link(model)
+
+    config.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/?d=20121110T144530')
+    assert response.data == "View: 2012-11-10 14:45:30"
+
+    response = c.get('/')
+    assert response.data == "View: 2011-01-01 10:30:00"
+
+    response = c.get('/link?d=20121110T144500')
+    assert response.data == '/?d=20121110T144500'
+
+    response = c.get('/link')
+    assert response.data == '/?d=20110101T103000'
+
+    response = c.get('/?d=broken')
+    assert response.status == '400 BAD REQUEST'
+
+
+def test_custom_date_converter():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, d):
+            self.d = d
+
+    from datetime import date
+    from time import strptime, mktime
+
+    def date_decode(s):
+        return date.fromtimestamp(mktime(strptime(s, '%d-%m-%Y')))
+
+    def date_encode(d):
+        return d.strftime('%d-%m-%Y')
+
+    @app.converter(type=date)
+    def date_converter():
+        return Converter(date_decode, date_encode)
+
+    @app.model(model=Model, path='/')
+    def get_model(d=date(2011, 1, 1)):
+        return Model(d)
+
+    @app.view(model=Model)
+    def default(request, model):
+        return "View: %s" % model.d
+
+    @app.view(model=Model, name='link')
+    def link(request, model):
+        return request.link(model)
+
+    config.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/?d=10-11-2012')
+    assert response.data == "View: 2012-11-10"
+
+    response = c.get('/')
+    assert response.data == "View: 2011-01-01"
+
+    response = c.get('/link?d=10-11-2012')
+    assert response.data == '/?d=10-11-2012'
+
+    response = c.get('/link')
+    assert response.data == '/?d=01-01-2011'
+
+    response = c.get('/?d=broken')
+    assert response.status == '400 BAD REQUEST'
 

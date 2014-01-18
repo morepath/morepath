@@ -1,6 +1,6 @@
 from copy import copy
 import venusian
-from .error import ConflictError
+from .error import ConflictError, DirectiveError, DirectiveReportError
 from .framehack import caller_package
 
 
@@ -115,7 +115,10 @@ class Configurable(object):
         values = self._action_map.values()
         values.sort(key=lambda (action, obj): (-action.priority, action.order))
         for action, obj in values:
-            action.perform(self, obj)
+            try:
+                action.perform(self, obj)
+            except DirectiveError, e:
+                raise DirectiveReportError(unicode(e), action)
 
 
 class Action(object):

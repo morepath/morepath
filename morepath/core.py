@@ -6,10 +6,13 @@ from morepath import generic
 from .app import AppBase
 from .error import LinkError
 from .request import Request, Response
+from .converter import Converter, IDENTITY_CONVERTER
 from werkzeug.wrappers import BaseResponse
 from werkzeug.exceptions import Unauthorized
 import morepath
 from reg import mapply, KeyIndex
+from datetime import datetime, date
+from time import mktime, strptime
 
 
 assert morepath.directive  # we need to make the function directive work
@@ -136,3 +139,45 @@ def name_predicate(request, model):
                       default='GET')
 def request_method_predicate(request, model):
     return request.method
+
+
+@global_app.converter(type=int)
+def int_converter():
+    return Converter(int)
+
+
+@global_app.converter(type=str)
+def str_converter():
+    # XXX do we want to decode/encode unicode?
+    return IDENTITY_CONVERTER
+
+
+@global_app.converter(type=unicode)
+def unicode_converter():
+    return IDENTITY_CONVERTER
+
+
+def date_decode(s):
+    return date.fromtimestamp(mktime(strptime(s, '%Y%m%d')))
+
+
+def date_encode(d):
+      return d.strftime('%Y%m%d')
+
+
+@global_app.converter(type=date)
+def date_converter():
+    return Converter(date_decode, date_encode)
+
+
+def datetime_decode(s):
+    return datetime.fromtimestamp(mktime(strptime(s, '%Y%m%dT%H%M%S')))
+
+
+def datetime_encode(d):
+    return d.strftime('%Y%m%dT%H%M%S')
+
+
+@global_app.converter(type=datetime)
+def datetime_converter():
+    return Converter(datetime_decode, datetime_encode)
