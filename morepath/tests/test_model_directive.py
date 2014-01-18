@@ -196,3 +196,37 @@ def test_variable_path_explicit_converter():
 
     response = c.get('broken')
     assert response.status == '404 NOT FOUND'
+
+
+def test_variable_path_implicit_converter():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @app.model(model=Model, path='{id}')
+    def get_model(id=0):
+        return Model(id)
+
+    @app.view(model=Model)
+    def default(request, model):
+        return "View: %s (%s)" % (model.id, type(model.id))
+
+    @app.view(model=Model, name='link')
+    def link(request, model):
+        return request.link(model)
+
+    config.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('1')
+    assert response.data == "View: 1 (<type 'int'>)"
+
+    response = c.get('/1/link')
+    assert response.data == '/1'
+
+    response = c.get('broken')
+    assert response.status == '404 NOT FOUND'
