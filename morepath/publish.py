@@ -69,8 +69,8 @@ def get_view_name(stack):
 
 
 def publish(request, mount):
-    model = resolve_model(request, mount)
     try:
+        model = resolve_model(request, mount)
         return resolve_response(request, model)
     except HTTPException as e:
         return e.get_response(request.environ)
