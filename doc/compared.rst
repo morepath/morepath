@@ -105,6 +105,8 @@ web frameworks like Zope and Grok, and also Pyramid in non-routing
 traversal mode. Uniquely among them Morepath *does* route, not
 traverse.
 
+For more: :doc:`models_and_linking`.
+
 View lookup
 -----------
 
@@ -159,6 +161,10 @@ what it lets you do.
 This is unlike most other micro-frameworks like Flask, Bottle,
 CherryPy or web.py. It's like Zope, Grok and Pyramid, and has learned
 from them, though Morepath's system is more streamlined.
+
+For more you can check out `this blog entry
+<http://blog.startifact.com/posts/morepath-security.html>`. (It will
+be integrated in this documentation later).
 
 Explicit request
 ----------------
