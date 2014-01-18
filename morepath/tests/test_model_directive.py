@@ -378,3 +378,42 @@ def test_url_parameter_explicit_trumps_implicit():
 
     response = c.get('/')
     assert response.data == "View: foo (<type 'str'>)"
+
+
+def test_decode_encode():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    def my_decode(s):
+        return s + 'ADD'
+
+    def my_encode(s):
+        return s[:-len('ADD')]
+
+    @app.model(model=Model, path='/',
+               converters=dict(id=Converter(my_decode, my_encode)))
+    def get_model(id):
+        return Model(id)
+
+    @app.view(model=Model)
+    def default(request, model):
+        return "View: %s" % model.id
+
+    @app.view(model=Model, name='link')
+    def link(request, model):
+        return request.link(model)
+
+    config.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/?id=foo')
+    assert response.data == "View: fooADD"
+
+    response = c.get('/link?id=foo')
+    assert response.data == '/?id=foo'
+
