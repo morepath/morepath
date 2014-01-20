@@ -133,6 +133,8 @@ This decoupling of views from models helps with expressivity, as it
 lets you write reusable, generic views, and code organisation as
 mentioned before.
 
+For more: :doc:`views`.
+
 WSGI
 ----
 

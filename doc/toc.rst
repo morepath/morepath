@@ -12,6 +12,7 @@ Table of Contents
    installation
    superpowers
    models_and_linking
+   views
    rest
    app_reuse
    api

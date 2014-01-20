@@ -23,6 +23,10 @@ Morepath API
 .. autoclass:: Response
   :members:
 
+.. autofunction:: render_html
+
+.. autofunction:: render_json
+
 .. autoclass:: morepath.security.Identity
   :members:
 

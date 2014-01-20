@@ -23,6 +23,9 @@ makes it **expressive**.
   hyperlinks and Morepath actually *knows* about them. See
   :doc:`models_and_linking`.
 
+* Views are simple functions. Generic views are just views too. See
+  :doc:`views`.
+
 * It has all the tools to develop REST web services in the box. See
   :doc:`rest`.
 
@@ -64,8 +67,7 @@ Morepath Knows About Your Models
   class Root(object):
       pass
 
-  @app.model(path='documents/{id}', model=Document,
-             variables=lambda doc: {'id': doc.id})
+  @app.model(path='documents/{id}', model=Document)
   def get_document(id):
       return Document(id)  # query for doc
 

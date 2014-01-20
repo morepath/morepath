@@ -24,7 +24,7 @@ do::
 If you create links this way everywhere (and why shouldn't you?), you
 know your application's links will never break.
 
-For much more, see :doc:`models_and_linking`
+For much more, see :doc:`models_and_linking`.
 
 .. _generic-ui:
 
@@ -58,6 +58,8 @@ view? Easy::
 
 Morepath leverages the power of the flexible Reg_ generic function
 library to accomplish this.
+
+For much more, see :doc:`views`.
 
 .. _Reg: http://reg.readthedocs.org
 

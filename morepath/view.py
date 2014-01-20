@@ -43,12 +43,16 @@ def register_predicate(registry, name, order, default, index, calc):
 
 
 def render_json(content):
+    """Take dict/list/string/number content and return application/json response.
+    """
     response = Response(json.dumps(content))
     response.content_type = 'application/json'
     return response
 
 
 def render_html(content):
+    """Take string and return text/html response.
+    """
     response = Response(content)
     response.content_type = 'text/html'
     return response

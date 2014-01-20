@@ -232,6 +232,8 @@ Now we've published the model to the web but we can't view it yet.
 
     posts/{post_id:int}
 
+For more on this, see :doc:`models_and_linking`.
+
 Views
 ~~~~~
 
@@ -263,6 +265,8 @@ name::
 Now we have functionality on URLs like ``/user/faassen/edit`` and
 ``/user/bob/edit``.
 
+For more on this, see :doc:`views`.
+
 Linking to models
 ~~~~~~~~~~~~~~~~~
 
@@ -285,6 +289,8 @@ Using :meth:`morepath.Request.link`` everywhere for link generation is
 easy. You only need models and remember which view names are
 available, that's it. If you ever have to change the path of your
 model, you won't need to adjust any linking code.
+
+For more on this, see :doc:`models_and_linking`.
 
 .. sidebar:: Link generation compared
 
