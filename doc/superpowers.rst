@@ -2,7 +2,7 @@ Superpowers
 ===========
 
 We said Morepath has super powers. Are they hard to use, then? No:
-they're not only powerful, but als easy to use, which makes them even
+they're both powerful and also easy to use, which makes them even
 more super!
 
 .. _easy-linking:
@@ -11,7 +11,7 @@ Link with Ease
 --------------
 
 Since Morepath knows about your models, it can generate links to them. If
-you have a model instance (for instance through a database query), you
+you have a model instance (for example through a database query), you
 can get a link to it by calling :meth:`morepath.Request.link`::
 
   request.link(my_model)
