@@ -165,7 +165,7 @@ CherryPy or web.py. It's like Zope, Grok and Pyramid, and has learned
 from them, though Morepath's system is more streamlined.
 
 For more you can check out `this blog entry
-<http://blog.startifact.com/posts/morepath-security.html>`. (It will
+<http://blog.startifact.com/posts/morepath-security.html>`__. (It will
 be integrated in this documentation later).
 
 Explicit request
