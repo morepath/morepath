@@ -211,15 +211,17 @@ class Traject(object):
     def path(self, model):
         path, get_variables, converters, parameter_names = self._inverse.component(
             'inverse', [model])
-        variables = get_variables(model)
-        assert isinstance(variables, dict)
-        parameters = { name: variables[name] for name in parameter_names }
+        all_variables = get_variables(model)
+        assert isinstance(all_variables, dict)
         variables = {
             name: converters.get(name, IDENTITY_CONVERTER).encode(value) for
-            name, value in variables.items() }
+            name, value in all_variables.items() 
+            if name not in parameter_names }
         parameters = {
             name: converters.get(name, IDENTITY_CONVERTER).encode(value) for
-            name, value in parameters.items() if value is not None
+            name, value in all_variables.items()
+            if (name in parameter_names and
+                value is not None)
             }
         return path % variables, parameters
 

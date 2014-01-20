@@ -706,3 +706,33 @@ def test_link_for_none_means_no_parameter():
     response = c.get('/link')
     assert response.data == '/'
 
+
+
+def test_path_and_url_parameter_converter():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, id, param):
+            self.id = id
+            self.param = param
+
+    from datetime import date
+    @app.model(model=Model, path='/{id}', converters=dict(param=date))
+    def get_model(id=0, param=None):
+        return Model(id, param)
+
+    @app.view(model=Model)
+    def default(request, model):
+        return "View: %s %s" % (model.id, model.param)
+
+    @app.view(model=Model, name='link')
+    def link(request, model):
+        return request.link(model)
+
+    config.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/1/link')
+    assert response.data == '/1'
