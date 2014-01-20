@@ -86,23 +86,27 @@ class Request(BaseRequest):
         if mounted is None:
             mounted = self.mounts[-1]
         try:
-            result, parameters = generic.link(
+            path, parameters = generic.link(
                 self, model, mounted, lookup=mounted.lookup())
         except LinkError:
             if default is NO_DEFAULT:
                 raise
             if isinstance(default, tuple):
-                result, parameters = default
+                path, parameters = default
             else:
-                result = default
+                path = default
                 parameters = {}
-        if not isinstance(result, basestring):
+        if not isinstance(path, basestring):
             return None
+        parts = []
+        if path:
+            parts.append(path)
         if name:
-            result += '/' + name
+            parts.append(name)
+        result = '/' + '/'.join(parts)
         if parameters:
             result += '?' + urllib.urlencode(parameters, True)
-        return '/' + result
+        return result
 
     def mounted(self):
         return self.mounts[-1]

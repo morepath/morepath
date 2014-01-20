@@ -736,3 +736,23 @@ def test_path_and_url_parameter_converter():
 
     response = c.get('/1/link')
     assert response.data == '/1'
+
+
+def test_root_named_link():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    @app.root()
+    class Root(object):
+        pass
+
+    @app.view(model=Root)
+    def default(request, model):
+        return request.link(model, 'foo')
+
+    config.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/')
+    assert response.data == '/foo'
