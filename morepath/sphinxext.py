@@ -8,17 +8,6 @@ removed.
 """
 import inspect
 
-# def process_signature(app, what, name, obj, options, signature,
-#                       return_annotation):
-#     actual_directive = getattr(obj, 'actual_directive', None)
-#     if actual_directive is None:
-#         return signature, return_annotation
-#     from sphinx.ext.autodoc import Documenter  # inline to let scanning work
-#     documenter = Documenter('dummy', 'dummy')
-#     documenter.object = actual_directive
-#     signature = documenter.format_signature()
-#     return (signature, return_annotation)
-
 def setup(app):
     # all inline to avoid dependency on sphinx.ext.autodoc which
     # would trip up scanning
