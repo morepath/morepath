@@ -139,7 +139,8 @@ class Action(object):
     priority = 0
 
     def __init__(self, configurable):
-        """
+        """Initialize action.
+
         :param configurable: :class:`morepath.config.Configurable` object
           for which this action was configured.
         """
@@ -210,7 +211,8 @@ class Directive(Action):
     """
 
     def __init__(self, configurable):
-        """
+        """Initialize Directive.
+
         :param configurable: :class:`morepath.config.Configurable` object
           for which this action was configured.
         """
