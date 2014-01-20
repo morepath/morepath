@@ -43,7 +43,7 @@ class directive(object):
 @directive('model')
 class ModelDirective(Directive):
     def __init__(self, app,  path, model=None,
-                 variables=None, converters=None,
+                 variables=None, converters=None, required=None,
                  base=None, get_base=None):
         """Register a model for a path.
 
@@ -69,12 +69,17 @@ class ModelDirective(Directive):
         :param converters: a dictionary containing converters for variables.
           The key is the variable name, the value is a
           :class:`morepath.Converter` instance.
+        :param required: list or set of names of those URL parameters which
+           should be required, i.e. if missing a 400 Bad Request response will
+           be given. Any default value is ignored. Has no effect on path
+           variables. Optional.
         """
         super(ModelDirective, self).__init__(app)
         self.model = model
         self.path = path
         self.variables = variables
         self.converters = converters
+        self.required = required
 
     def identifier(self):
         return ('path', Path(self.path).discriminator())
@@ -98,7 +103,7 @@ class ModelDirective(Directive):
 
     def perform(self, app, obj):
         register_model(app, self.model, self.path,
-                       self.variables, self.converters,
+                       self.variables, self.converters, self.required,
                        obj)
 
 
@@ -368,7 +373,7 @@ class RootDirective(Directive):
 
 @directive('mount')
 class MountDirective(Directive):
-    def __init__(self, base_app, path, app, parameters=None):
+    def __init__(self, base_app, path, app, required=None):
         """Mount sub application on path.
 
         The decorated function gets the variables specified in path as
@@ -378,10 +383,15 @@ class MountDirective(Directive):
 
         :param path: the path to mount the application on.
         :param app: the :class:`morepath.App` instance to mount.
+        :param required: list or set of names of those URL parameters which
+           should be required, i.e. if missing a 400 Bad Request response will
+           be given. Any default value is ignored. Has no effect on path
+           variables. Optional.
         """
         super(MountDirective, self).__init__(base_app)
         self.mounted_app = app
         self.path = path
+        self.required = required
 
     def identifier(self):
         return ('path', Path(self.path).discriminator())
@@ -390,7 +400,7 @@ class MountDirective(Directive):
         return [('mount', self.mounted_app)]
 
     def perform(self, app, obj):
-        register_mount(app, self.mounted_app, self.path, obj)
+        register_mount(app, self.mounted_app, self.path, self.required, obj)
 
 
 @directive('identity_policy')

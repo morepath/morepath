@@ -88,10 +88,10 @@ def get_variables_func(arguments, exclude):
 
 
 def register_root(app, model, variables, converters, model_factory):
-    register_model(app, model, '', variables, converters, model_factory)
+    register_model(app, model, '', variables, converters, [], model_factory)
 
 
-def register_model(app, model, path, variables, converters,
+def register_model(app, model, path, variables, converters, required,
                    model_factory, arguments=None):
     traject = app.traject
     if traject is None:
@@ -105,7 +105,9 @@ def register_model(app, model, path, variables, converters,
     exclude = Path(path).variables()
     exclude.update(app.mount_variables())
     parameters = get_url_parameters(arguments, exclude)
-    required = []
+    if required is None:
+        required = set()
+    required = set(required)
     parameter_factory = ParameterFactory(parameters, converters, required)
 
     if variables is None:
@@ -122,7 +124,7 @@ def register_model(app, model, path, variables, converters,
     app.register(generic.app, [model], get_app)
 
 
-def register_mount(base_app, app, path, context_factory):
+def register_mount(base_app, app, path, required, context_factory):
     # specific class as we want a different one for each mount
     class SpecificMount(Mount):
         def __init__(self, **kw):
@@ -130,7 +132,7 @@ def register_mount(base_app, app, path, context_factory):
     # need to construct argument info from context_factory, not SpecificMount
     arguments = get_arguments(context_factory, SPECIAL_ARGUMENTS)
     register_model(base_app, SpecificMount, path, lambda m: m.variables,
-                   None, SpecificMount, arguments=arguments)
+                   None, required, SpecificMount, arguments=arguments)
     register_mounted(base_app, app, SpecificMount)
 
 

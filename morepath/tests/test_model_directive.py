@@ -582,3 +582,65 @@ def test_custom_date_converter():
     response = c.get('/?d=broken')
     assert response.status == '400 BAD REQUEST'
 
+
+def test_variable_path_parameter_required_no_default():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @app.model(model=Model, path='', required=['id'])
+    def get_model(id):
+        return Model(id)
+
+    @app.view(model=Model)
+    def default(request, model):
+        return "View: %s" % model.id
+
+    @app.view(model=Model, name='link')
+    def link(request, model):
+        return request.link(model)
+
+    config.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/?id=a')
+    assert response.data == "View: a"
+
+    response = c.get('/')
+    assert response.status == '400 BAD REQUEST'
+
+
+def test_variable_path_parameter_required_with_default():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @app.model(model=Model, path='', required=['id'])
+    def get_model(id='b'):
+        return Model(id)
+
+    @app.view(model=Model)
+    def default(request, model):
+        return "View: %s" % model.id
+
+    @app.view(model=Model, name='link')
+    def link(request, model):
+        return request.link(model)
+
+    config.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/?id=a')
+    assert response.data == "View: a"
+
+    response = c.get('/')
+    assert response.status == '400 BAD REQUEST'
+
