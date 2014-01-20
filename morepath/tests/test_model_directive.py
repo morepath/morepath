@@ -676,5 +676,33 @@ def test_type_hints_and_converters():
     response = c.get('/link?d=20140120')
     assert response.data == '/?d=20140120'
 
-# link where default is None; encode will fail
+def test_link_for_none_means_no_parameter():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @app.model(model=Model, path='')
+    def get_model(id):
+        return Model(id)
+
+    @app.view(model=Model)
+    def default(request, model):
+        return "View: %s" % model.id
+
+    @app.view(model=Model, name='link')
+    def link(request, model):
+        return request.link(model)
+
+    config.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/')
+    assert response.data == "View: None"
+
+    response = c.get('/link')
+    assert response.data == '/'
 

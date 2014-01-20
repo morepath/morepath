@@ -219,7 +219,7 @@ class Traject(object):
             name, value in variables.items() }
         parameters = {
             name: converters.get(name, IDENTITY_CONVERTER).encode(value) for
-            name, value in parameters.items()
+            name, value in parameters.items() if value is not None
             }
         return path % variables, parameters
 
@@ -236,7 +236,8 @@ class ParameterFactory(object):
             value = args.get(name)
             if value is None:
                 if name in self.required:
-                    raise BadRequest("Required URL parameter missing: %s" % name)
+                    raise BadRequest("Required URL parameter missing: %s" %
+                                     name)
                 result[name] = default
                 continue
             converter = self.converters.get(name, IDENTITY_CONVERTER)

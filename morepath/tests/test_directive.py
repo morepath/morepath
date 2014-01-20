@@ -416,7 +416,7 @@ def test_implicit_parameters():
     response = c.get('/foo?id=bar')
     assert response.data == 'The view for model: bar'
     response = c.get('/foo/link')
-    assert response.data == '/foo?id=None'
+    assert response.data == '/foo'
     response = c.get('/foo/link?id=bar')
     assert response.data == '/foo?id=bar'
 
