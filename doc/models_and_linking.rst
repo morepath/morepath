@@ -518,9 +518,6 @@ will have models published on a URL like::
 Required
 --------
 
-[this is still science fiction at the time of writing, though almost
-all of the infrastructure is now in place]
-
 Sometimes you may want a URL parameter to be required: when the URL
 parameter is missing, it's an error and a ``400 Bad Request`` should
 be returned. You can do this by passing in a ``required`` argument
