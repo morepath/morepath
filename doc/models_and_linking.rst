@@ -515,6 +515,21 @@ will have models published on a URL like::
 
   day/2013-12-31
 
+Type hints and converters
+-------------------------
+
+You may have a situation where you don't want to add a default
+argument to indicate the type hint, but you know you want to use a
+default converter for a particular type. For those cases you
+can pass the type into the ``converters`` dictionary as a shortcut::
+
+  @app.model(model=Day, path='day/{d}', converters=dict(d=date))
+  def get_day(d):
+      return Day(d)
+
+The variable ``d`` will now be interpreted as a ``date`` and will use
+whatever converter there was registered for that type.
+
 Required
 --------
 

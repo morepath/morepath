@@ -644,3 +644,37 @@ def test_variable_path_parameter_required_with_default():
     response = c.get('/')
     assert response.status == '400 BAD REQUEST'
 
+def test_type_hints_and_converters():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, d):
+            self.d = d
+
+    from datetime import date
+
+    @app.model(model=Model, path='', converters=dict(d=date))
+    def get_model(d):
+        return Model(d)
+
+    @app.view(model=Model)
+    def default(request, model):
+        return "View: %s" % model.d
+
+    @app.view(model=Model, name='link')
+    def link(request, model):
+        return request.link(model)
+
+    config.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/?d=20140120')
+    assert response.data == "View: 2014-01-20"
+
+    response = c.get('/link?d=20140120')
+    assert response.data == '/?d=20140120'
+
+# link where default is None; encode will fail
+

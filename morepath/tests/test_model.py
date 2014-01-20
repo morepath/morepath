@@ -136,15 +136,29 @@ def test_get_arguments_exclude():
 
 
 def test_get_converters_none_defaults():
+    def converter_for_type(t):
+        return IDENTITY_CONVERTER
     def converter_for_value(v):
         return IDENTITY_CONVERTER
-    assert get_converters({'a': None}, {}, converter_for_value) == {
+    assert get_converters({'a': None}, {},
+                          converter_for_type, converter_for_value) == {
         'a': IDENTITY_CONVERTER }
 
 
 def test_get_converters_explicit():
+    def converter_for_type(t):
+        return IDENTITY_CONVERTER
     def converter_for_value(v):
         return IDENTITY_CONVERTER
     assert get_converters({'a': None}, {'a': Converter(int)},
-                          converter_for_value) == {
+                          converter_for_type, converter_for_value) == {
+        'a': Converter(int) }
+
+def test_get_converters_from_type():
+    def converter_for_type(t):
+        return Converter(int)
+    def converter_for_value(v):
+        return IDENTITY_CONVERTER
+    assert get_converters({'a': None}, {'a': int},
+                          converter_for_type, converter_for_value) == {
         'a': Converter(int) }

@@ -4,6 +4,7 @@ from morepath.publish import publish
 from morepath.error import DirectiveError
 
 from reg import mapply, arginfo
+from types import ClassType
 
 SPECIAL_ARGUMENTS = ['request', 'parent']
 
@@ -57,7 +58,8 @@ def get_arguments(callable, exclude):
              if name not in exclude }
 
 
-def get_converters(arguments, converters, converter_for_value):
+def get_converters(arguments, converters,
+                   converter_for_type, converter_for_value):
     """Get converters for arguments.
 
     Use explicitly supplied converter if available, otherwise ask
@@ -65,7 +67,12 @@ def get_converters(arguments, converters, converter_for_value):
     """
     result = {}
     for name, value in arguments.items():
+        # find explicit converter
         converter = converters.get(name, None)
+        # if explicit converter is type, look it up
+        if type(converter) in [type, ClassType]:
+            converter = converter_for_type(converter)
+        # if still no converter, look it up for value
         if converter is None:
             converter = converter_for_value(value)
         if converter is None:
@@ -101,7 +108,8 @@ def register_model(app, model, path, variables, converters, required,
     converters = converters or {}
     if arguments is None:
         arguments = get_arguments(model_factory, SPECIAL_ARGUMENTS)
-    converters = get_converters(arguments, converters, app.converter_for_value)
+    converters = get_converters(arguments, converters,
+                                app.converter_for_type, app.converter_for_value)
     exclude = Path(path).variables()
     exclude.update(app.mount_variables())
     parameters = get_url_parameters(arguments, exclude)
