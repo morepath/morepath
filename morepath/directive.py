@@ -25,7 +25,7 @@ class directive(object):
 
     This needs to be executed *before* the directive is being used and
     thus might introduce import dependency issues unlike normal Morepath
-    configuration: beware!
+    configuration, so beware!
     """
     def __init__(self, name):
         self.name = name
