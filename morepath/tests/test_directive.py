@@ -260,6 +260,10 @@ def test_link_to_unknown_model():
     def root_link_with_default2(request, model):
         return request.link(Model('foo'), default=('hey', dict(param=1)))
 
+    @app.view(model=Root, name='default3')
+    def root_link_with_none_default(request, model):
+        return str(request.link(Model('foo'), default=None) is None)
+
     config.commit()
 
     c = Client(app, Response)
@@ -270,6 +274,8 @@ def test_link_to_unknown_model():
     assert response.data == '/hey'
     response = c.get('/default2')
     assert response.data == '/hey?param=1'
+    response = c.get('/default3')
+    assert response.data == 'True'
 
 
 def test_link_with_parameters():

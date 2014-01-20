@@ -96,6 +96,8 @@ class Request(BaseRequest):
             else:
                 result = default
                 parameters = {}
+        if not isinstance(result, basestring):
+            return None
         if name:
             result += '/' + name
         if parameters:
