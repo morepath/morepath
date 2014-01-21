@@ -193,8 +193,7 @@ We want our application to have URLs that look like this::
 
 Here's the code to expose our users database to such a URL::
 
-  @app.model(model=User, path='/user/{username}',
-             variables=lambda user: { 'username': user.username})
+  @app.model(model=User, path='/user/{username}')
   def get_user(username):
       return users.get(username)
 
@@ -209,12 +208,27 @@ the URL path under which it should appear.
 
 The path can have variables in it which are between curly braces
 (``{`` and ``}``). These variables become arguments to the function
-being decorated. If we have variables in our path, we also need to
-supply ``variables``. This is a function that given a model can
-construct the variables that go into the path. In this case, we know
-we need the username and we can get it from the ``user``
-object. ``variables`` is important for link generation, as we'll see
-later.
+being decorated. Any arguments the function has that are not in the
+path will be interpreted as URL parameters.
+
+.. sidebar:: Custom variables function
+
+  The default behavior is for Morepath to retrieve the variables by
+  name using ``getattr`` from the model objects. This only works if
+  those variables exist on the model under that name. If not, you can
+  supply a custom ``variables`` function that given the model will
+  return a dictionary with all the variables in it. Here's how::
+
+    @app.model(model=User, path='/user/{username}',
+               variables=lambda model: dict(username=model.username))
+    def get_user(username):
+        return users.get(username)
+
+  Of course this ``variables`` is not necessary as it has the same
+  behavior as the default, but you can do whatever you want in the
+  variables function in order to get the username.
+
+  Getting ``variables`` right is important for link generation.
 
 What if the user doesn't exist? We want the end-user to see a 404
 error.  Morepath does this automatically for you when you return
@@ -223,14 +237,23 @@ cannot be found.
 
 Now we've published the model to the web but we can't view it yet.
 
-.. sidebar:: int converter
+.. sidebar:: converters
 
   A common use case is for path variables to be a database id. These
   are often integers only. If a non-integer is seen in the path we
   know it doesn't match. You can specify a path variable contains an
-  integer using the integer converter (``:int``). For instance::
+  integer using the integer converter. For instance::
 
-    posts/{post_id:int}
+    @app.model(model=Post, path='posts/{post_id}', converters=dict(post_id=int))
+    def get_post(post_id):
+        return query_post(post_id)
+
+  You can do this more succinctly too by using a default parameter for
+  ``post_id`` that is an int, for instance::
+
+    @app.model(model=Post, path='posts/{post_id}')
+    def get_post(post_id=0):
+        return query_post(post_id)
 
 For more on this, see :doc:`models_and_linking`.
 
@@ -299,9 +322,16 @@ For more on this, see :doc:`models_and_linking`.
   involved. You need to give each route a name, and then refer back to
   this route name when you want to generate a link. You also need to
   supply the variables that go into the route. With Morepath, you
-  don't need a route name, and you only need to explain once how to
+  don't need a route name, and if the default way of getting variables
+  from a model is not correct, you only need to explain once how to
   create the variables for a route, with the ``variables`` argument to
   ``@app.model``.
+
+  In addition, Morepath links are completely generic: you can pass in
+  anything linkable. This means that writing a generic view that uses
+  links becomes easier -- there is no dependency on particular named
+  URL paths anymore.
+
 
 JSON and HTML views
 ~~~~~~~~~~~~~~~~~~~

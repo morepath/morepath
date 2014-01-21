@@ -32,8 +32,7 @@ views:
 
 .. code-block:: python
 
-  @app.model(model=User, path='user/{username}',
-             variables=lambda user: { 'username': user.username })
+  @app.model(model=User, path='user/{username}')
   def get_user(username):
       return query_for_user(username)
 

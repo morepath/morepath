@@ -87,8 +87,7 @@ We could for instance have a ``Document`` model in our application::
 
 We can expose it on a URL::
 
-  @app.model(model=Document, path='documents/{id}',
-    variables=lambda doc: dict(id=doc.id))
+  @app.model(model=Document, path='documents/{id}')
   def get_document(id):
      return document_by_id(id)
 
