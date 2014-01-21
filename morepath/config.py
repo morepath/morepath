@@ -55,19 +55,25 @@ class Configurable(object):
         self._class_to_actions = None
 
     def group_actions(self):
+        # group actions by class (in fact deepest base class before Directive)
         d = {}
         for action, obj in self._actions:
             d.setdefault(group_key(action), []).append((action, obj))
-        # make sure we don't forget about actions in extends
+        # make sure we don't forget about action classes in extends
         for configurable in self.extends:
-            for action_class in configurable._class_to_actions.keys():
+            for action_class in configurable.action_classes():
                 if action_class not in d:
                     d[action_class] = []
+        # do the final grouping into Actions objects
         self._class_to_actions = {}
         for action_class, actions in d.items():
-            extends = [configurable._class_to_actions.get(action_class, Actions([], []))
-                       for configurable in self.extends]
-            self._class_to_actions[action_class] = Actions(actions, extends)
+            self._class_to_actions[action_class] = Actions(
+                actions, self.action_extends(action_class))
+
+    def action_extends(self, action_class):
+        return [
+            configurable._class_to_actions.get(action_class, Actions([], []))
+            for configurable in self.extends]
 
     def action_classes(self):
         return sort_action_classes(self._class_to_actions.keys())
@@ -91,62 +97,6 @@ class Configurable(object):
         :param obj: The object that this action will be performed on.
         """
         self._actions.append((action, obj))
-
-    def prepare(self):
-        """Prepare configurable.
-
-        This is normally not invoked directly, instead is called
-        indirectly by :meth:`Config.commit`.
-
-        Detect any conflicts between actions within this
-        configurable. Merges in configuration of those configurables
-        that this configurable extends.
-
-        Prepare must be called before perform is called.
-        """
-        # check for conflicts and fill action map
-        discriminators = {}
-        self._action_map = action_map = {}
-        for action, obj in self._actions:
-            id = action.identifier()
-            discs = [id]
-            discs.extend(action.discriminators())
-            for disc in discs:
-                other_action = discriminators.get(disc)
-                if other_action is not None:
-                    raise ConflictError([action, other_action])
-                discriminators[disc] = action
-            action_map[id] = action, obj
-        # inherit from extends
-        for extend in self.extends:
-            self.combine(extend)
-
-    def combine(self, configurable):
-        """Combine actions in another prepared configurable with this one.
-
-        Those configuration actions that would conflict are taken to
-        have precedence over those in the configurable that is being
-        combined with this one. This allows the extending configurable
-        to override configuration in extended configurables.
-
-        :param configurable: the configurable to combine with this one.
-        """
-        to_combine = configurable._action_map.copy()
-        to_combine.update(self._action_map)
-        self._action_map = to_combine
-
-    def perform(self, configurable):
-        """Perform actions in this configurable.
-
-        Prepare must be called before calling this.
-        """
-        values = self._action_map.values()
-        values.sort(key=lambda (action, obj): action.order)
-        for action, obj in values:
-            try:
-                action.perform(configurable, obj)
-            except DirectiveError, e:
-                raise DirectiveReportError(unicode(e), action)
 
 def group_key(action):
     """We group actions by their deepest base class that's still a real action.
@@ -477,44 +427,27 @@ class Config(object):
         for configurable in configurables:
             configurable.execute()
 
-            #configurable.sort()
-        #    for actions in configurable.actions():
-        #        actions.prepare()
-        #        actions.perform()
+def topological_sort(l, get_depends):
+    result = []
+    marked = set()
 
-            #configurable.prepare()
-            #configurable.perform()
-
-        #for configurable in configurables:
-
+    def visit(n):
+        if n in marked:
+            return
+        for m in get_depends(n):
+            visit(m)
+        marked.add(n)
+        result.append(n)
+    for n in l:
+        visit(n)
+    return result
 
 def sort_configurables(configurables):
     """Sort configurables topologically by extends.
     """
-    result = []
-    marked = set()
-
-    def visit(n):
-        if n in marked:
-            return
-        for m in n.extends:
-            visit(m)
-        marked.add(n)
-        result.append(n)
-    for n in configurables:
-        visit(n)
-    return result
+    return topological_sort(configurables, lambda c: c.extends)
 
 def sort_action_classes(action_classes):
-    result = []
-    marked = set()
-    def visit(n):
-        if n in marked:
-            return
-        for m in n.depends:
-            visit(m)
-        marked.add(n)
-        result.append(n)
-    for n in action_classes:
-        visit(n)
-    return result
+    """Sort action classes topologically by depends.
+    """
+    return topological_sort(action_classes, lambda c: c.depends)
