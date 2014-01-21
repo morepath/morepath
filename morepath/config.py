@@ -52,17 +52,14 @@ class Configurable(object):
         This is normally not invoked directly, instead is called
         indirectly by :meth:`Config.commit`.
         """
-        self._actions = []
-        self._action_map = None
-        self._class_to_actions = None
+        self._grouped_actions = {}
+        self._class_to_actions = {}
 
     def group_actions(self):
         """Group actions into :class:`Actions` by class.
         """
         # group actions by class (in fact deepest base class before Directive)
-        d = {}
-        for action, obj in self._actions:
-            d.setdefault(group_key(action), []).append((action, obj))
+        d = self._grouped_actions
         # make sure we don't forget about action classes in extends
         for configurable in self.extends:
             for action_class in configurable.action_classes():
@@ -106,7 +103,8 @@ class Configurable(object):
         :param action: The action to register with the configurable.
         :param obj: The object that this action will be performed on.
         """
-        self._actions.append((action, obj))
+        self._grouped_actions.setdefault(
+            group_key(action), []).append((action, obj))
 
 def group_key(action):
     """We group actions by their deepest base class that's still a real action.
