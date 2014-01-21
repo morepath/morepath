@@ -2,7 +2,7 @@ from .app import AppBase
 from .config import Directive
 from .error import ConfigError
 from .view import (register_view, render_json, render_html,
-                   register_predicate)
+                   register_predicate, get_predicates_with_defaults)
 from .security import (register_permission_checker,
                        Identity, NoIdentity)
 from .model import register_model, register_root, register_mount
@@ -39,9 +39,35 @@ class directive(object):
         setattr(AppBase, self.name, method)
         return directive
 
+@directive('converter')
+class ConverterDirective(Directive):
+    def __init__(self, app, type):
+        """Register custom converter for type.
+
+        :param type: the Python type for which to register the
+          converter.  Morepath uses converters when converting path
+          variables and URL parameters when decoding or encoding
+          URLs. Morepath will look up the converter using the
+          type. The type is either given explicitly as the value in
+          the ``converters`` dictionary in the
+          :meth:`morepath.AppBase.model` directive, or is deduced from
+          the value of the default argument of the decorated model
+          function or class using ``type()``.
+        """
+        super(ConverterDirective, self).__init__(app)
+        self.type = type
+
+    def identifier(self, app):
+        return ('converter', self.type)
+
+    def perform(self, app, obj):
+        app.register_converter(self.type, obj())
+
 
 @directive('model')
 class ModelDirective(Directive):
+    depends = [ConverterDirective]
+
     def __init__(self, app,  path, model=None,
                  variables=None, converters=None, required=None,
                  base=None, get_base=None):
@@ -81,7 +107,7 @@ class ModelDirective(Directive):
         self.converters = converters
         self.required = required
 
-    def identifier(self):
+    def identifier(self, app):
         return ('path', Path(self.path).discriminator())
 
     def discriminators(self):
@@ -131,7 +157,7 @@ class PermissionDirective(Directive):
             identity = NoIdentity
         self.identity = identity
 
-    def identifier(self):
+    def identifier(self, app):
         return ('permission', self.model, self.permission, self.identity)
 
     def perform(self, app, obj):
@@ -139,8 +165,49 @@ class PermissionDirective(Directive):
             app, self.identity, self.model, self.permission, obj)
 
 
+
+@directive('predicate')
+class PredicateDirective(Directive):
+    def __init__(self, app, name, order, default, index=KeyIndex):
+        """Register custom view predicate.
+
+        The decorated function gets ``request`` (a
+        :class:`morepath.Request` object) and ``model``
+        parameters. From this information it should calculate a
+        predicate value and return it. You can then pass these extra
+        predicate arguments to :meth:`morepath.AppBase.view` and this
+        view will only be found if the predicate matches.
+
+        :param name: the name of the view predicate.
+        :param order: when this custom view predicate should be checked
+          compared to the others. A lower order means a higher importance.
+        :type order: int
+        :param default: the default value for this view predicate.
+          This is used when the predicate is omitted or ``None`` when
+          supplied to the :meth:`morepath.AppBase.view` directive.
+          This is also used when using :meth:`Request.view` to render
+          a view.
+        :param index: the predicate index to use. Default is
+          :class:`reg.KeyIndex` which matches by name.
+        """
+        super(PredicateDirective, self).__init__(app)
+        self.name = name
+        self.order = order
+        self.default = default
+        self.index = index
+
+    def identifier(self, app):
+        return ('predicate', self.name)
+
+    def perform(self, app, obj):
+        register_predicate(app, self.name, self.order, self.default,
+                           self.index, obj)
+
+
 @directive('view')
 class ViewDirective(Directive):
+    depends = [PredicateDirective]
+
     def __init__(self, app, model, name=None, render=None, permission=None,
                  **predicates):
         '''Register a view for a model.
@@ -198,80 +265,15 @@ class ViewDirective(Directive):
         args.update(kw)
         return ViewDirective(**args)
 
-    def identifier(self):
-        predicates_discriminator = tuple(sorted(self.predicates.items()))
-        return ('view', self.model, self.name, predicates_discriminator)
+    def identifier(self, app):
+        predicates = get_predicates_with_defaults(
+           self.predicates, app.exact('predicate_info', ()))
+        predicates_discriminator = tuple(sorted(predicates.items()))
+        return ('view', self.model, predicates_discriminator)
 
     def perform(self, app, obj):
         register_view(app, self.model, obj, self.render, self.permission,
                       self.predicates)
-
-
-@directive('predicate')
-class PredicateDirective(Directive):
-    priority = 1000  # execute earlier than view directive
-
-    def __init__(self, app, name, order, default, index=KeyIndex):
-        """Register custom view predicate.
-
-        The decorated function gets ``request`` (a
-        :class:`morepath.Request` object) and ``model``
-        parameters. From this information it should calculate a
-        predicate value and return it. You can then pass these extra
-        predicate arguments to :meth:`morepath.AppBase.view` and this
-        view will only be found if the predicate matches.
-
-        :param name: the name of the view predicate.
-        :param order: when this custom view predicate should be checked
-          compared to the others. A lower order means a higher importance.
-        :type order: int
-        :param default: the default value for this view predicate.
-          This is used when the predicate is omitted or ``None`` when
-          supplied to the :meth:`morepath.AppBase.view` directive.
-          This is also used when using :meth:`Request.view` to render
-          a view.
-        :param index: the predicate index to use. Default is
-          :class:`reg.KeyIndex` which matches by name.
-        """
-        super(PredicateDirective, self).__init__(app)
-        self.name = name
-        self.order = order
-        self.default = default
-        self.index = index
-
-    def identifier(self):
-        return ('predicate', self.name)
-
-    def perform(self, app, obj):
-        register_predicate(app, self.name, self.order, self.default,
-                           self.index, obj)
-
-
-@directive('converter')
-class ConverterDirective(Directive):
-    priority = 1000  # execute earlier than model directive
-
-    def __init__(self, app, type):
-        """Register custom converter for type.
-
-        :param type: the Python type for which to register the
-          converter.  Morepath uses converters when converting path
-          variables and URL parameters when decoding or encoding
-          URLs. Morepath will look up the converter using the
-          type. The type is either given explicitly as the value in
-          the ``converters`` dictionary in the
-          :meth:`morepath.AppBase.model` directive, or is deduced from
-          the value of the default argument of the decorated model
-          function or class using ``type()``.
-        """
-        super(ConverterDirective, self).__init__(app)
-        self.type = type
-
-    def identifier(self):
-        return ('converter', self.type)
-
-    def perform(self, app, obj):
-        app.register_converter(self.type, obj())
 
 
 @directive('json')
@@ -333,6 +335,7 @@ class HtmlDirective(ViewDirective):
 
 @directive('mount')
 class MountDirective(Directive):
+    depends = [ConverterDirective]
     def __init__(self, base_app, path, app, required=None):
         """Mount sub application on path.
 
@@ -353,7 +356,7 @@ class MountDirective(Directive):
         self.path = path
         self.required = required
 
-    def identifier(self):
+    def identifier(self, app):
         return ('path', Path(self.path).discriminator())
 
     def discriminators(self):
@@ -374,7 +377,7 @@ class IdentityPolicyDirective(Directive):
         '''
         super(IdentityPolicyDirective, self).__init__(app)
 
-    def identifier(self):
+    def identifier(self, app):
         return ('identity_policy',)
 
     def prepare(self, obj):
@@ -407,7 +410,7 @@ class FunctionDirective(Directive):
         self.target = target
         self.sources = tuple(sources)
 
-    def identifier(self):
+    def identifier(self, app):
         return ('function', self.target, self.sources)
 
     def perform(self, app, obj):

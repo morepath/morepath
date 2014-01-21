@@ -10,7 +10,7 @@ def test_action():
         def perform(self, configurable, obj):
             performed.append(obj)
 
-        def identifier(self):
+        def identifier(self, configurable):
             return ()
 
     c = config.Config()
@@ -27,44 +27,9 @@ def test_action():
     assert performed == [foo]
 
 
-def test_action_priority():
-    performed = []
-
-    class MyAction(config.Action):
-        def perform(self, configurable, obj):
-            performed.append('myaction')
-
-        def identifier(self):
-            return ()
-
-    class HighPriorityAction(config.Action):
-        priority = 100
-
-        def perform(self, configurable, obj):
-            performed.append('highpriority')
-
-        def identifier(self):
-            return ('high',)
-
-    c = config.Config()
-    x = config.Configurable()
-
-    class Foo(object):
-        pass
-
-    foo = Foo()
-    bar = Foo()
-    c.configurable(x)
-    c.action(MyAction(x), foo)
-    c.action(HighPriorityAction(x), bar)
-
-    c.commit()
-    assert performed == ['highpriority', 'myaction']
-
-
 def test_action_not_implemented():
     class UnimplementedAction(config.Action):
-        def identifier(self):
+        def identifier(self, configurable):
             return ()
 
     c = config.Config()
@@ -82,7 +47,7 @@ def test_directive():
         def perform(self, configurable, obj):
             performed.append(obj)
 
-        def identifier(self):
+        def identifier(self, configurable):
             return ()
 
     c = config.Config()
@@ -111,7 +76,7 @@ def test_directive_testing_config():
         def perform(self, configurable, obj):
             performed.append(obj)
 
-        def identifier(self):
+        def identifier(self, configurable):
             return ()
 
     c = config.Config()
@@ -135,7 +100,7 @@ def test_directive_without_testing_config_not_found():
         def perform(self, configurable, obj):
             performed.append(obj)
 
-        def identifier(self):
+        def identifier(self, configurable):
             return ()
 
     c = config.Config()
@@ -161,7 +126,7 @@ def test_directive_testing_config_external():
         def perform(self, configurable, obj):
             performed.append(obj)
 
-        def identifier(self):
+        def identifier(self, configurable):
             return ()
 
     c = config.Config()
@@ -184,7 +149,7 @@ def test_directive_testing_config_external():
 
 def test_conflict():
     class MyDirective(config.Directive):
-        def identifier(self):
+        def identifier(self, configurable):
             return 1
     c = config.Config()
     x = config.Configurable(testing_config=c)
@@ -210,7 +175,7 @@ def test_conflict():
 
 def test_different_configurables_no_conflict():
     class MyDirective(config.Directive):
-        def identifier(self):
+        def identifier(self, configurable):
             return 1
 
         def perform(self, configurable, obj):
@@ -233,27 +198,27 @@ def test_different_configurables_no_conflict():
 
 def test_extra_discriminators_per_directive():
     class ADirective(config.Directive):
-        def identifier(self):
+        def __init__(self, configurable, v):
+            super(ADirective, self).__init__(configurable)
+            self.v = v
+
+        def identifier(self, configurable):
             return 'a'
 
         def discriminators(self):
-            return [1]
+            return [self.v]
 
-    class BDirective(config.Directive):
-        def identifier(self):
-            return 'b'
-
-        def discriminators(self):
-            return [1]
+        def perform(self, configurable, obj):
+            pass
 
     c = config.Config()
     x = config.Configurable(testing_config=c)
 
-    @ADirective(x)
+    @ADirective(x, 1)
     def foo():
         pass
 
-    @BDirective(x)
+    @ADirective(x, 1)
     def bar():
         pass
 
@@ -268,7 +233,7 @@ def test_configurable_inherit_without_change():
         def perform(self, configurable, obj):
             performed.append((configurable, obj))
 
-        def identifier(self):
+        def identifier(self, configurable):
             return ()
 
     c = config.Config()
@@ -295,14 +260,14 @@ def test_configurable_inherit_extending():
         def perform(self, configurable, obj):
             a_performed.append((configurable, obj))
 
-        def identifier(self):
+        def identifier(self, configurable):
             return 'a_action'
 
     class BAction(config.Action):
         def perform(self, configurable, obj):
             b_performed.append((configurable, obj))
 
-        def identifier(self):
+        def identifier(self, configurable):
             return 'b_action'
 
     c = config.Config()
@@ -335,7 +300,7 @@ def test_configurable_inherit_overriding():
         def perform(self, configurable, obj):
             performed.append((configurable, obj))
 
-        def identifier(self):
+        def identifier(self, configurable):
             return 'action', self.value
 
     c = config.Config()
@@ -374,7 +339,7 @@ def test_configurable_extra_discriminators():
         def perform(self, configurable, obj):
             performed.append((configurable, obj))
 
-        def identifier(self):
+        def identifier(self, configurable):
             return 'action', self.value
 
         def discriminators(self):
@@ -412,7 +377,7 @@ def test_prepare_returns_multiple_actions():
         def perform(self, configurable, obj):
             performed.append(obj)
 
-        def identifier(self):
+        def identifier(self, configurable):
             return self.value
 
         def prepare(self, obj):
@@ -444,7 +409,7 @@ def test_abbreviation():
         def perform(self, configurable, obj):
             performed.append((obj, self.foo, self.bar))
 
-        def identifier(self):
+        def identifier(self, configurable):
             return self.foo, self.bar
 
     c = config.Config()
@@ -462,3 +427,93 @@ def test_abbreviation():
     c.commit()
 
     assert performed == [(f1, 'blah', 'one'), (f2, 'blah', 'two')]
+
+
+def test_config_phases():
+    # when an action has a higher priority than another one,
+    # we want it to be completely prepared and performed before
+    # the other one even gets prepared and performed. This allows
+    # directives that set up information that other directives use
+    # during identifier and preparation stages (such as is the
+    # case for view predicates)
+
+    early_performed = []
+    late_performed = []
+
+    class EarlyAction(config.Action):
+        def perform(self, configurable, obj):
+            early_performed.append(obj)
+
+        def identifier(self, configurable):
+            return ('early',)
+
+    class LateAction(config.Action):
+        depends = [EarlyAction]
+
+        # default priority
+        def perform(self, configurable, obj):
+            # make a copy of the early_performed list to
+            # demonstrate it was already there when it's
+            # in late_performed
+            late_performed.append(list(early_performed))
+
+        def identifier(self, configurable):
+            # at this stage we already should have performed early
+            assert early_performed == ['foo']
+            return ('late')
+
+    c = config.Config()
+    x = config.Configurable()
+
+    c.configurable(x)
+    c.action(EarlyAction(x), 'foo')
+    c.action(LateAction(x), 'bar')
+    c.commit()
+    assert early_performed == ['foo']
+    assert late_performed == [['foo']]
+
+
+def test_config_phases_extends():
+    # when an action has a higher priority than another one,
+    # we want it to be completely prepared and performed before
+    # the other one even gets prepared and performed. This allows
+    # directives that set up information that other directives use
+    # during identifier and preparation stages (such as is the
+    # case for view predicates)
+
+    early_performed = []
+    late_performed = []
+
+    class EarlyAction(config.Action):
+        def perform(self, configurable, obj):
+            early_performed.append((configurable, obj))
+
+        def identifier(self, configurable):
+            return ('early',)
+
+    class LateAction(config.Action):
+        depends = [EarlyAction]
+
+        # default priority
+        def perform(self, configurable, obj):
+            # make a copy of the early_performed list to
+            # demonstrate it was already there when it's
+            # in late_performed
+            late_performed.append((configurable, list(early_performed)))
+
+        def identifier(self, configurable):
+            # at this stage we already should have performed early
+            assert len(early_performed)
+            return ('late',)
+
+    c = config.Config()
+    x = config.Configurable()
+    y = config.Configurable(x)
+
+    c.configurable(x)
+    c.configurable(y)
+    c.action(EarlyAction(x), 'foo')
+    c.action(LateAction(y), 'bar')
+    c.commit()
+    assert early_performed == [(x, 'foo'), (y, 'foo')]
+    assert late_performed == [(y, early_performed)]
