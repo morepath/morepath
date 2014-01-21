@@ -58,7 +58,7 @@ class Configurable(object):
     def group_actions(self):
         """Group actions into :class:`Actions` by class.
         """
-        # group actions by class (in fact deepest base class before Directive)
+        # grouped actions by class (in fact deepest base class before Directive)
         d = self._grouped_actions
         # make sure we don't forget about action classes in extends
         for configurable in self.extends:
