@@ -326,51 +326,6 @@ class HtmlDirective(ViewDirective):
                                             permission, **predicates)
 
 
-@directive('root')
-class RootDirective(Directive):
-    def __init__(self, app, model=None, variables=None, converters=None):
-        """Register the root model.
-
-        The decorated function or class (constructor) should return
-        the model that will be found when the app is routed to
-        directly, i.e. the empty path ``''``. The decorated function
-        gets no arguments.
-
-        :param model: the class of the root model. Should not be supplied
-          if this decorates a class.
-        :param variables: a function that given a model object can construct
-          the variables the URL parameters. If omitted, variables are
-          retrieved from the model by using the arguments of the decorated
-          function.
-        :param converters: a dictionary containing converters for variables.
-          The key is the variable name, the value is a
-          :class:`morepath.Converter` instance.
-        """
-        super(RootDirective, self).__init__(app)
-        self.model = model
-        self.variables = variables
-        self.converters = converters
-
-    def identifier(self):
-        return ('root',)
-
-    def prepare(self, obj):
-        model = self.model
-        if isinstance(obj, type):
-            if model is not None:
-                raise ConfigError(
-                    "@root decorates class so cannot have explicit model: %s" %
-                    model)
-            model = obj
-        if model is None:
-            raise ConfigError(
-                "@root does not decorate class and has no explicit model")
-        yield self.clone(model=model), obj
-
-    def perform(self, app, obj):
-        register_root(app, self.model, self.variables, self.converters, obj)
-
-
 @directive('mount')
 class MountDirective(Directive):
     def __init__(self, base_app, path, app, required=None):

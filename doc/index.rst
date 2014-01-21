@@ -63,7 +63,7 @@ Morepath Knows About Your Models
       def __init__(self, id):
           self.id = id
 
-  @app.root()
+  @app.model(path='')
   class Root(object):
       pass
 

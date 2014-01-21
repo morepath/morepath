@@ -15,7 +15,7 @@ Let's look at a minimal "Hello world!" application in Morepath::
 
   app = morepath.App()
 
-  @app.root()
+  @app.model(path='')
   class Root(object):
       pass
 
@@ -85,9 +85,9 @@ Code Walkthrough
    order to create any views, we first need at least one model, in
    this case the empty ``Root`` class.
 
-   The simplest way we can expose a model to the web is as the root of
-   the website (``/``). You do this with the
-   :meth:`morepath.AppBase.root` decorator.
+   We set up the model as the root of the website (the empty string
+   ``''`` indicates the root, but ``'/'`` would have worked too) using
+   the :meth:`morepath.AppBase.model` decorator.
 
 4. Now we can create the "Hello world" view. It's just a function that
    takes ``request`` and ``model`` as arguments (we don't need to use
@@ -112,7 +112,7 @@ Code Walkthrough
    in one step.
 
 7. We then ``scan()`` this module (or package) for configuration
-   decorators (such as :meth:`morepath.AppBase.root` and
+   decorators (such as :meth:`morepath.AppBase.model` and
    :meth:`morepath.AppBase.view`) and cause the registration to be
    registered using :meth:`morepath.Config.commit`.
 

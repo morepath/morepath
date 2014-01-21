@@ -3,7 +3,7 @@ import morepath
 app = morepath.App()
 
 
-@app.root()
+@app.model(path='/')
 class Root(object):
     def __init__(self):
         self.value = 'ROOT'

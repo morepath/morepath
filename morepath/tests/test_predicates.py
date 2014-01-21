@@ -8,7 +8,7 @@ def test_view_predicates():
     config = setup()
     app = App(testing_config=config)
 
-    @app.root()
+    @app.model(path='')
     class Root(object):
         pass
 

@@ -137,7 +137,7 @@ def test_basic_imperative():
 
     c = setup()
     c.configurable(app)
-    c.action(app.root(), Root)
+    c.action(app.model(path=''), Root)
     c.action(app.model(model=Model, path='{id}',
                        variables=lambda model: {'id': model.id}),
              get_model)
@@ -177,7 +177,7 @@ def test_basic_testing_config():
     config = setup()
     app = morepath.App(testing_config=config)
 
-    @app.root()
+    @app.model(path='')
     class Root(object):
         def __init__(self):
             self.value = 'ROOT'
@@ -236,7 +236,7 @@ def test_link_to_unknown_model():
     config = setup()
     app = morepath.App(testing_config=config)
 
-    @app.root()
+    @app.model(path='')
     class Root(object):
         def __init__(self):
             self.value = 'ROOT'
@@ -282,7 +282,7 @@ def test_link_with_parameters():
     config = setup()
     app = morepath.App(testing_config=config)
 
-    @app.root()
+    @app.model(path='')
     class Root(object):
         def __init__(self):
             self.value = 'ROOT'
@@ -326,7 +326,7 @@ def test_root_link_with_parameters():
     config = setup()
     app = morepath.App(testing_config=config)
 
-    @app.root()
+    @app.model(path='')
     class Root(object):
         def __init__(self, param=0):
             assert isinstance(param, int)
@@ -361,7 +361,7 @@ def test_implicit_variables():
     config = setup()
     app = morepath.App(testing_config=config)
 
-    @app.root()
+    @app.model(path='')
     class Root(object):
         pass
 
@@ -393,7 +393,7 @@ def test_implicit_parameters():
     config = setup()
     app = morepath.App(testing_config=config)
 
-    @app.root()
+    @app.model(path='')
     class Root(object):
         pass
 
@@ -431,7 +431,7 @@ def test_implicit_parameters_default():
     config = setup()
     app = morepath.App(testing_config=config)
 
-    @app.root()
+    @app.model(path='')
     class Root(object):
         pass
 
@@ -469,7 +469,7 @@ def test_convert_exception_to_internal_error():
     config = setup()
     app = morepath.App(testing_config=config)
 
-    @app.root()
+    @app.model(path='')
     class Root(object):
         def __init__(self):
             self.value = 'ROOT'
@@ -496,7 +496,7 @@ def test_simple_root():
 
     hello = Hello()
 
-    @app.root(model=Hello)
+    @app.model(model=Hello, path='')
     def hello_model():
         return hello
 
@@ -537,7 +537,7 @@ def test_redirect():
     config = setup()
     app = morepath.App(testing_config=config)
 
-    @app.root()
+    @app.model(path='')
     class Root(object):
         def __init__(self):
             pass
@@ -558,11 +558,27 @@ def test_root_conflict():
     config = setup()
     app = morepath.App(testing_config=config)
 
-    @app.root()
+    @app.model(path='')
     class Root(object):
         pass
 
-    @app.root()
+    @app.model(path='')
+    class Something(object):
+        pass
+
+    with pytest.raises(ConflictError):
+        config.commit()
+
+
+def test_root_conflict2():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    @app.model(path='')
+    class Root(object):
+        pass
+
+    @app.model(path='/')
     class Something(object):
         pass
 
@@ -575,11 +591,11 @@ def test_root_no_conflict_different_apps():
     app_a = morepath.App(testing_config=config)
     app_b = morepath.App(testing_config=config)
 
-    @app_a.root()
+    @app_a.model(path='')
     class Root(object):
         pass
 
-    @app_b.root()
+    @app_b.model(path='')
     class Something(object):
         pass
 
@@ -851,7 +867,7 @@ def test_mount():
     app = morepath.App('app', testing_config=config)
     mounted = morepath.App('mounted', testing_config=config)
 
-    @mounted.root()
+    @mounted.model(path='')
     class MountedRoot(object):
         pass
 
@@ -883,7 +899,7 @@ def test_mount_empty_context():
     app = morepath.App('app', testing_config=config)
     mounted = morepath.App('mounted', testing_config=config)
 
-    @mounted.root()
+    @mounted.model(path='')
     class MountedRoot(object):
         pass
 
@@ -916,7 +932,7 @@ def test_mount_context():
     mounted = morepath.App('mounted', variables=['mount_id'],
                            testing_config=config)
 
-    @mounted.root()
+    @mounted.model(path='')
     class MountedRoot(object):
         def __init__(self, mount_id):
             self.mount_id = mount_id
@@ -947,7 +963,7 @@ def test_mount_context_parameters():
     mounted = morepath.App('mounted', variables=['mount_id'],
                            testing_config=config)
 
-    @mounted.root()
+    @mounted.model(path='')
     class MountedRoot(object):
         def __init__(self, mount_id):
             assert isinstance(mount_id, int)
@@ -979,7 +995,7 @@ def test_mount_context_parameters_empty_context():
     mounted = morepath.App('mounted', variables=['mount_id'],
                            testing_config=config)
 
-    @mounted.root()
+    @mounted.model(path='')
     class MountedRoot(object):
         # use a default parameter
         def __init__(self, mount_id='default'):
@@ -1013,7 +1029,7 @@ def test_mount_context_standalone():
     app = morepath.App('mounted', variables=['mount_id'],
                        testing_config=config)
 
-    @app.root()
+    @app.model(path='')
     class Root(object):
         def __init__(self, mount_id):
             self.mount_id = mount_id
@@ -1043,7 +1059,7 @@ def test_mount_parent_link():
     mounted = morepath.App('mounted', variables=['mount_id'],
                            testing_config=config)
 
-    @mounted.root()
+    @mounted.model(path='')
     class MountedRoot(object):
         def __init__(self, mount_id):
             self.mount_id = mount_id
@@ -1078,7 +1094,7 @@ def test_mount_child_link():
         def __init__(self, id):
             self.id = id
 
-    @app.root()
+    @app.model(path='')
     class Root(object):
         pass
 
@@ -1108,7 +1124,7 @@ def test_request_view_in_mount():
     mounted = morepath.App('mounted', variables=['mount_id'],
                            testing_config=config)
 
-    @app.root()
+    @app.model(path='')
     class Root(object):
         pass
 

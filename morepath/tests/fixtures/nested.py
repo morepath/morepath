@@ -9,7 +9,7 @@ def inner_context():
     return {}
 
 
-@app.root()
+@app.model(path='')
 class Root(object):
     pass
 

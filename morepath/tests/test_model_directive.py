@@ -742,7 +742,7 @@ def test_root_named_link():
     config = setup()
     app = morepath.App(testing_config=config)
 
-    @app.root()
+    @app.model(path='')
     class Root(object):
         pass
 
