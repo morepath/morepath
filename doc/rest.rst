@@ -129,7 +129,7 @@ A collection resource could be modelled like this::
 We now want to expose this collection to a URL path ``/documents``. We
 want:
 
-* a resource ``/documents`` to get the ids of all documents in the
+* a resource ``/documents`` to GET the ids of all documents in the
   collection.
 
 * a resource ``/documents/add`` that lets you POST an ``id`` to it so that
@@ -157,7 +157,7 @@ that::
 Then we want to allow people to POST the document id (as a URL
 parameter) to the ``/documents/add`` resource::
 
-  @app.json(model=DocumentCollection, name='add')
+  @app.json(model=DocumentCollection, name='add', request_method='POST')
   def collection_add_document(request, model):
       doc = document_by_id(request.args['id'])
       model.add(doc)
@@ -166,39 +166,34 @@ parameter) to the ``/documents/add`` resource::
 We again use the ``document_by_id`` function. We also return an empty
 JSON object in the response; not very useful, but in this simple view
 we don't have anything more interesting to report when the POST
-succeeds
+succeeds.
 
-There are a few things missing in this picture. We've left out HTTP
-methods. We've also left out giving back a proper response with status
-codes, and error handling when things go wrong.
+Note the use of ``request_method``, which we'll talk about
+more next.
+
+Note also that there are some things still missing: giving back a
+proper response with status codes, and error handling when things go
+wrong.
 
 HTTP methods
 ------------
 
-While our web application responds the right way when we access
-``/documents`` with ``GET`` and ``/documents/add`` with ``POST``, we
-actually do too much:
+As you saw above, we've used ``request_method`` to make sure that
+``/documents/add`` only works for ``POST`` requests.
 
-* we allow ``POST`` requests to ``/documents`` and treat them like ``GET``
-
-* we allow ``GET`` requests to ``/documents/add`` and treat them like ``POST``.
-
-To fix this we can add ``request_method`` predicate parameters::
+By default, ``request_method`` is ``GET``, meaning that ``/documents``
+only responds to a ``GET`` request, which is what we want. Let's
+make it explicit::
 
   @app.json(model=DocumentCollection, request_method='GET')
   def collection_default(request, model):
       ...
 
-  @app.json(model=DocumentCollection, name='add', request_method='POST')
-  def collection_add_document(request, model):
-      ...
-
-Now you can only access the resources above as specified.
-
 What if we had defined our web service differently, and instead of
 having a ``/documents/add`` we wanted to allow the POSTing of document
 ids on ``/documents`` directly? Here's how you would rewrite
-``collection_add_document`` to be the view directly on ``/documents```::
+``collection_add_document`` to be the view directly on
+``/documents```::
 
   @app.json(model=DocumentCollection, request_method='POST')
   def collection_add_document(request, model):

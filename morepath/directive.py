@@ -141,7 +141,7 @@ class PermissionDirective(Directive):
 
 @directive('view')
 class ViewDirective(Directive):
-    def __init__(self, app, model, name='', render=None, permission=None,
+    def __init__(self, app, model, name=None, render=None, permission=None,
                  **predicates):
         '''Register a view for a model.
 
@@ -168,7 +168,10 @@ class ViewDirective(Directive):
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
-        :param predicates: predicates to match this view on.
+        :param predicates: predicates to match this view on. Use
+           :data:`morepath.ANY` for a predicate if you don't care what
+           the value is. If you don't specify a predicate, the default
+           value will be used.
         '''
         super(ViewDirective, self).__init__(app)
         self.model = model
@@ -223,10 +226,12 @@ class PredicateDirective(Directive):
           compared to the others. A lower order means a higher importance.
         :type order: int
         :param default: the default value for this view predicate.
-          This is used when using :meth:`Request.view` to render a view;
-          otherwise the value will be derived from request and model.
-        :param index: the predicate index to use. Default is :class:`reg.KeyIndex`
-          which matches by name.
+          This is used when the predicate is omitted or ``None`` when
+          supplied to the :meth:`morepath.AppBase.view` directive.
+          This is also used when using :meth:`Request.view` to render
+          a view.
+        :param index: the predicate index to use. Default is
+          :class:`reg.KeyIndex` which matches by name.
         """
         super(PredicateDirective, self).__init__(app)
         self.name = name

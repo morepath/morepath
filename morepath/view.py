@@ -29,14 +29,21 @@ def register_view(registry, model, view, render=None, permission=None,
 
 
 def get_predicate_registration(registry, model, predicates, registration):
+    new_predicates = {}
+    predicate_info = registry.exact('predicate_info', ())
+    for order, predicate in predicate_info:
+        value = predicates.get(predicate.name)
+        if value is None:
+            value = predicate.default
+        new_predicates[predicate.name] = value
     matcher = registry.exact(generic.view, (Request, model))
     if matcher is None:
-        predicate_info = registry.exact('predicate_info', ())
         predicate_info.sort()
         matcher = PredicateMatcher(
             [predicate for (order, predicate) in predicate_info])
-    matcher.register(predicates, registration)
+    matcher.register(new_predicates, registration)
     return matcher
+
 
 def register_predicate(registry, name, order, default, index, calc):
     predicate_info = registry.exact('predicate_info', ())

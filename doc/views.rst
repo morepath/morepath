@@ -321,9 +321,13 @@ the `Something`` header is ``special``::
   def document_default(request, model):
       return "Only if request header Something is set to special."
 
-If you have add a predicate and you *don't* use it in a view, the view
-will work for all values of that predicate, i.e. it won't care what
-the predicate function return.
+If you have a predicate and you *don't* use it in a ``@app.view``, or
+set it to ``None``, the view will work for the ``default`` value for
+that predicate. If you don't care what the predicate is and want the
+view to match for any value, you can pass in the special sentinel
+:data:`morepath.ANY`. The ``default`` parameter will also be used when
+rendering a view using :meth:`morepath.Request.view` and you don't
+pass in a particular value for that predicate.
 
 The ``order`` parameter for the predicate will determine which
 predicates match more strongly than another; lower order will match
@@ -331,9 +335,6 @@ more strongly. If there are two view candidates that would match the
 predicates for a request and model, the strongest match will be
 picked.
 
-The ``default`` parameter for the predicate will be used when
-rendering a view using :meth:`morepath.Request.view` and you don't
-pass in a particular value for that predicate.
 
 request.view
 ------------

@@ -56,5 +56,5 @@ def test_extra_predicates():
 
     response = c.get('/a/foo')
     assert response.data == 'a'
-    response = c.post('/b/foo')
+    response = c.get('/b/foo')
     assert response.data == 'b'
