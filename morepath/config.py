@@ -141,7 +141,7 @@ class Actions(object):
         for action, obj in self._actions:
             id = action.identifier(configurable)
             discs = [id]
-            discs.extend(action.discriminators())
+            discs.extend(action.discriminators(configurable))
             for disc in discs:
                 other_action = discriminators.get(disc)
                 if other_action is not None:
@@ -209,12 +209,18 @@ class Action(object):
     def identifier(self, configurable):
         """Returns an immutable that uniquely identifies this config.
 
+        :param configurable: :class:`morepath.config.Configurable` object
+          for which this action is being executed.
+
         Used for overrides and conflict detection.
         """
         raise NotImplementedError()
 
-    def discriminators(self):
+    def discriminators(self, configurable):
         """Returns a list of immutables to detect conflicts.
+
+        :param configurable: :class:`morepath.config.Configurable` object
+          for which this action is being executed.
 
         Used for additional configuration conflict detection.
         """

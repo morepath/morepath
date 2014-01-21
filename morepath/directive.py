@@ -109,7 +109,7 @@ class ModelDirective(Directive):
     def identifier(self, app):
         return ('path', Path(self.path).discriminator())
 
-    def discriminators(self):
+    def discriminators(self, app):
         return [('model', self.model)]
 
     def prepare(self, obj):
@@ -364,7 +364,7 @@ class MountDirective(ModelDirective):
     def prepare(self, obj):
         yield self.clone(), obj
 
-    def discriminators(self):
+    def discriminators(self, app):
         return [('mount', self.mounted_app)]
 
     def perform(self, app, obj):

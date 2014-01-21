@@ -205,7 +205,7 @@ def test_extra_discriminators_per_directive():
         def identifier(self, configurable):
             return 'a'
 
-        def discriminators(self):
+        def discriminators(self, configurable):
             return [self.v]
 
         def perform(self, configurable, obj):
@@ -342,7 +342,7 @@ def test_configurable_extra_discriminators():
         def identifier(self, configurable):
             return 'action', self.value
 
-        def discriminators(self):
+        def discriminators(self, configurable):
             return [('extra', self.extra)]
 
     c = config.Config()
