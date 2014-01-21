@@ -69,8 +69,7 @@ class ModelDirective(Directive):
     depends = [ConverterDirective]
 
     def __init__(self, app,  path, model=None,
-                 variables=None, converters=None, required=None,
-                 base=None, get_base=None):
+                 variables=None, converters=None, required=None):
         """Register a model for a path.
 
         Decorate a function or a class (constructor). The function
@@ -158,7 +157,7 @@ class PermissionDirective(Directive):
         self.identity = identity
 
     def identifier(self, app):
-        return ('permission', self.model, self.permission, self.identity)
+        return (self.model, self.permission, self.identity)
 
     def perform(self, app, obj):
         register_permission_checker(
@@ -197,7 +196,7 @@ class PredicateDirective(Directive):
         self.index = index
 
     def identifier(self, app):
-        return ('predicate', self.name)
+        return self.name
 
     def perform(self, app, obj):
         register_predicate(app, self.name, self.order, self.default,
@@ -269,7 +268,7 @@ class ViewDirective(Directive):
         predicates = get_predicates_with_defaults(
            self.predicates, app.exact('predicate_info', ()))
         predicates_discriminator = tuple(sorted(predicates.items()))
-        return ('view', self.model, predicates_discriminator)
+        return (self.model, predicates_discriminator)
 
     def perform(self, app, obj):
         register_view(app, self.model, obj, self.render, self.permission,
@@ -334,9 +333,10 @@ class HtmlDirective(ViewDirective):
 
 
 @directive('mount')
-class MountDirective(Directive):
+class MountDirective(ModelDirective):
     depends = [ConverterDirective]
-    def __init__(self, base_app, path, app, required=None):
+    def __init__(self, base_app, path, app, converters=None,
+                 required=None):
         """Mount sub application on path.
 
         The decorated function gets the variables specified in path as
@@ -346,18 +346,23 @@ class MountDirective(Directive):
 
         :param path: the path to mount the application on.
         :param app: the :class:`morepath.App` instance to mount.
+        :param converters: converters as for the
+          :meth:`morepath.AppBase.model` directive.
         :param required: list or set of names of those URL parameters which
-           should be required, i.e. if missing a 400 Bad Request response will
-           be given. Any default value is ignored. Has no effect on path
-           variables. Optional.
+          should be required, i.e. if missing a 400 Bad Request response will
+          be given. Any default value is ignored. Has no effect on path
+          variables. Optional.
         """
-        super(MountDirective, self).__init__(base_app)
+        super(MountDirective, self).__init__(base_app, path,
+                                             converters=converters,
+                                             required=required)
         self.mounted_app = app
-        self.path = path
-        self.required = required
 
-    def identifier(self, app):
-        return ('path', Path(self.path).discriminator())
+    # XXX it's a bit of a hack to make the mount directive
+    # group with the model directive so we get conflicts,
+    # we need to override prepare to shut it up again
+    def prepare(self, obj):
+        yield self.clone(), obj
 
     def discriminators(self):
         return [('mount', self.mounted_app)]
@@ -378,7 +383,8 @@ class IdentityPolicyDirective(Directive):
         super(IdentityPolicyDirective, self).__init__(app)
 
     def identifier(self, app):
-        return ('identity_policy',)
+        # there can be only one
+        return None
 
     def prepare(self, obj):
         policy = obj()
@@ -411,7 +417,7 @@ class FunctionDirective(Directive):
         self.sources = tuple(sources)
 
     def identifier(self, app):
-        return ('function', self.target, self.sources)
+        return (self.target, self.sources)
 
     def perform(self, app, obj):
         app.register(self.target, self.sources, obj)

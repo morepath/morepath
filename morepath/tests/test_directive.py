@@ -621,6 +621,26 @@ def test_model_conflict():
         config.commit()
 
 
+def test_model_mount_conflict():
+    config = setup()
+    app = morepath.App(testing_config=config)
+    app2 = morepath.App(testing_config=config)
+
+    class A(object):
+        pass
+
+    @app.model(model=A, path='a')
+    def get_a():
+        return A()
+
+    @app.mount(app=app2, path='a')
+    def get_mount():
+        return {}
+
+    with pytest.raises(ConflictError):
+        config.commit()
+
+
 def test_path_conflict():
     config = setup()
     app = morepath.App(testing_config=config)
