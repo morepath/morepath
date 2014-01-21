@@ -432,9 +432,8 @@ class Config(object):
 
         for action, obj in self.prepared():
             action.configurable.action(action, obj)
-        configurables = sort_configurables(self.configurables)
 
-        for configurable in configurables:
+        for configurable in sort_configurables(self.configurables):
             configurable.execute()
 
 def topological_sort(l, get_depends):
