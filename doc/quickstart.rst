@@ -187,13 +187,13 @@ Publishing models
 
 We want our application to have URLs that look like this::
 
-  /user/faassen
+  /users/faassen
 
-  /user/bob
+  /users/bob
 
 Here's the code to expose our users database to such a URL::
 
-  @app.model(model=User, path='/user/{username}')
+  @app.model(model=User, path='/users/{username}')
   def get_user(username):
       return users.get(username)
 
@@ -219,7 +219,7 @@ path will be interpreted as URL parameters.
   supply a custom ``variables`` function that given the model will
   return a dictionary with all the variables in it. Here's how::
 
-    @app.model(model=User, path='/user/{username}',
+    @app.model(model=User, path='/users/{username}',
                variables=lambda model: dict(username=model.username))
     def get_user(username):
         return users.get(username)
@@ -275,7 +275,7 @@ which is a :class:`morepath.Request` object (a subclass of
 model that this view is working for, so in this case an instance of
 ``User``.
 
-Now the URLs listed above such as ``/user/faassen`` will work.
+Now the URLs listed above such as ``/users/faassen`` will work.
 
 What if we want to provide an alternative view for the user, such as
 an ``edit`` view which allows us to edit it? We need to give it a
@@ -285,8 +285,8 @@ name::
   def edit_user(request, model):
       return "An editing UI goes here"
 
-Now we have functionality on URLs like ``/user/faassen/edit`` and
-``/user/bob/edit``.
+Now we have functionality on URLs like ``/users/faassen/edit`` and
+``/users/bob/edit``.
 
 For more on this, see :doc:`views`.
 
@@ -300,13 +300,13 @@ We simply do this::
 
   request.link(bob)
 
-which will generate the path ``/user/bob`` for us.
+which will generate the path ``/users/bob`` for us.
 
 What if we want to see Bob's edit view? We do this::
 
   request.link(bob, 'edit')
 
-And we'll get ``/user/bob/edit``.
+And we'll get ``/users/bob/edit``.
 
 Using :meth:`morepath.Request.link`` everywhere for link generation is
 easy. You only need models and remember which view names are

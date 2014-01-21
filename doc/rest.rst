@@ -126,24 +126,24 @@ A collection resource could be modelled like this::
       def add(self, doc):
           self.documents.append(doc)
 
-We now want to expose this collection to a URL path ``/foo``. We
+We now want to expose this collection to a URL path ``/documents``. We
 want:
 
-* a resource ``/foo`` to get the ids of all documents in the
+* a resource ``/documents`` to get the ids of all documents in the
   collection.
 
-* a resource ``/foo/add`` that lets you POST an ``id`` to it so that
+* a resource ``/documents/add`` that lets you POST an ``id`` to it so that
   this document is added to the collection.
 
-Here is how we could make ``foo`` available on a URL::
+Here is how we could make ``documents`` available on a URL::
 
-  foo = DocumentCollection()
+  documents = DocumentCollection()
 
-  @app.model(model=DocumentCollection, path='foo')
-  def foo_collection():
-     return foo
+  @app.model(model=DocumentCollection, path='documents')
+  def documents_collection():
+     return documents
 
-When someone accesses ``/foo`` they should get a JSON structure which
+When someone accesses ``/documents`` they should get a JSON structure which
 includes ids of all documents in the collection. Here's how to do
 that::
 
@@ -155,7 +155,7 @@ that::
       }
 
 Then we want to allow people to POST the document id (as a URL
-parameter) to the ``/foo/add`` resource::
+parameter) to the ``/documents/add`` resource::
 
   @app.json(model=DocumentCollection, name='add')
   def collection_add_document(request, model):
@@ -175,12 +175,13 @@ codes, and error handling when things go wrong.
 HTTP methods
 ------------
 
-While our web application responds the right way when we access ``/foo``
-with ``GET`` and ``/foo/add`` with ``POST``, we actually do too much:
+While our web application responds the right way when we access
+``/documents`` with ``GET`` and ``/documents/add`` with ``POST``, we
+actually do too much:
 
-* we allow ``POST`` requests to ``/foo`` and treat them like ``GET``
+* we allow ``POST`` requests to ``/documents`` and treat them like ``GET``
 
-* we allow ``GET`` requests to ``/foo/add`` and treat them like ``POST``.
+* we allow ``GET`` requests to ``/documents/add`` and treat them like ``POST``.
 
 To fix this we can add ``request_method`` predicate parameters::
 
@@ -195,9 +196,9 @@ To fix this we can add ``request_method`` predicate parameters::
 Now you can only access the resources above as specified.
 
 What if we had defined our web service differently, and instead of
-having a ``/foo/add`` we wanted to allow the POSTing of document ids
-on ``/foo`` directly? Here's how you would rewrite
-``collection_add_document`` to be the view directly on ``/foo```::
+having a ``/documents/add`` we wanted to allow the POSTing of document
+ids on ``/documents`` directly? Here's how you would rewrite
+``collection_add_document`` to be the view directly on ``/documents```::
 
   @app.json(model=DocumentCollection, request_method='POST')
   def collection_add_document(request, model):
@@ -311,10 +312,10 @@ the collection so it also has a link to the ``add`` resource::
       return {
          'type': 'document_collection',
          'ids': [doc.id for doc in model.documents],
-         'add': request.link(foo, 'add')
+         'add': request.link(documents, 'add')
       }
 
-``foo``, if you can remember, is the instance of
+``documents``, if you can remember, is the instance of
 ``DocumentCollection`` we were working with, and we want
 to link to its ``add`` view.
 
@@ -327,7 +328,7 @@ this so we return a list of document URLs instead::
       return {
          'type': 'document_collection',
          'documents': [request.link(doc) for doc in model.documents],
-         'add': request.link(foo, 'add')
+         'add': request.link(documents, 'add')
       }
 
 Or perhaps better, include the id *and* the URL::
@@ -338,7 +339,7 @@ Or perhaps better, include the id *and* the URL::
          'type': 'document_collection',
          'documents': [dict(id=doc.id, link=request.link(doc))
                        for doc in model.documents],
-         'add': request.link(foo, 'add')
+         'add': request.link(documents, 'add')
       }
 
 Now we've got HATEOAS: the collection links to the documents it

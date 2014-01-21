@@ -40,9 +40,9 @@ Let's try a single variable now. We have a class ``Document``::
       def __init__(self, name):
           self.name = name
 
-Let's expose it to the web under ``document/{name}``::
+Let's expose it to the web under ``documents/{name}``::
 
-  @app.model(model=Document, path='document/{name}')
+  @app.model(model=Document, path='documents/{name}')
   def get_document(name):
       return query_document_by_name(name)
 
@@ -66,7 +66,7 @@ We can also have multiple variables in a path. We have a
 We could expose this to the web like this::
 
   @app.model(model=VersionedDocument,
-             path='versioned_document/{name}-{version}')
+             path='versioned_documents/{name}-{version}')
   def get_versioned_document(name, version):
       return query_versioned_document(name, version)
 
@@ -83,15 +83,15 @@ URL parameters
 What if we want to use URL parameters to expose models? That is
 possible too. Let's look at the ``Document`` case first::
 
-  @app.model(model=Document, path='document')
+  @app.model(model=Document, path='documents')
   def get_document(name):
       return query_document_by_name(name)
 
 ``get_document`` has an argument ``name``, but it doesn't appear in
 the path. This argument is now taken to be a URL parameter. So, this
-exposes URLs of the type ``document?name=foo``. That's not as nice as
-``document/foo``, so we recommend against parameters in this case: you
-should use paths to identify something.
+exposes URLs of the type ``documents?name=foo``. That's not as nice as
+``documents/foo``, so we recommend against parameters in this case:
+you should use paths to identify something.
 
 URL parameters are more useful for queries. Let's imagine we have a
 collection of documents and we have an API on it that allows us to
@@ -157,7 +157,7 @@ Here is a simple case involving ``Document`` again::
       def __init__(self, name):
           self.name = name
 
-  @app.model(model=Document, path='document/{name}')
+  @app.model(model=Document, path='documents/{name}')
   def get_document(name):
       return query_document_by_name(name)
 
@@ -167,8 +167,8 @@ We add a named view called ``link`` that links to the document itself::
   def document_self_link(request, model):
       return request.link(model)
 
-The view at ``/document/foo/link`` will produce the link
-``/document/foo``. That's the right one!
+The view at ``/documents/foo/link`` will produce the link
+``/documents/foo``. That's the right one!
 
 So, it constructs a link to the document itself. This view is not very
 useful, but the principle is the same everywhere in any view: as long
@@ -182,8 +182,8 @@ You can also give ``link`` a name to link to a named view. Here's a
   def document_self_link(request, model):
       return request.link(model, name='link')
 
-So the view ``document/foo/link2`` will produce the link
-``document/foo/link``.
+So the view ``documents/foo/link2`` will produce the link
+``documents/foo/link``.
 
 Linking with path variables
 ---------------------------
@@ -208,7 +208,7 @@ extracted from the model.
 As an example, here is the ``variables`` function for the ``Document``
 case made explicit::
 
-  @app.model(model=Document, path='document/{name}',
+  @app.model(model=Document, path='documents/{name}',
              variables=lambda model: dict(name=model.name))
   def get_document(name):
       return query_document_by_name(name)
@@ -218,7 +218,7 @@ Or to spell it out without the use of ``lambda``::
   def document_variables(model):
       return dict(name=model.name)
 
-  @app.model(model=Document, path='document/{name}',
+  @app.model(model=Document, path='documents/{name}',
              variables=document_variables)
   def get_document(name):
       return query_document_by_name(name)
@@ -233,7 +233,7 @@ attribute::
 Our automatic ``variables`` won't cut it anymore, so we have to be explicit::
 attribute, we can do this::
 
-  @app.model(model=DifferentDocument, path='document/{name}',
+  @app.model(model=DifferentDocument, path='documents/{name}',
              variables=lambda model: dict(name=model.id))
   def get_document(name):
       return query_document_by_name(name)
@@ -246,7 +246,7 @@ the explicit ``variables`` for the ``VersionedDocument`` case that
 takes multiple variables::
 
   @app.model(model=VersionedDocument,
-             path='versioned_document/{name}-{version}',
+             path='versioned_documents/{name}-{version}',
              variables=lambda model: dict(name=model.name,
                                           version=model.version))
   def get_versioned_document(name, version):
@@ -261,7 +261,7 @@ variables.
 Here's a ``get_model`` that takes the document name as a URL
 parameter, using an implicit ``variables``::
 
-  @app.model(model=Document, path='document')
+  @app.model(model=Document, path='documents')
   def get_document(name):
       return query_document_by_name(name)
 
@@ -273,7 +273,7 @@ Now we add back the same ``self_link`` view as we had before::
 
 Here's ``get_document`` with an explicit ``variables``::
 
-  @app.model(model=Document, path='document',
+  @app.model(model=Document, path='documents',
              variables=lambda model: dict(name=model.name))
   def get_document(name):
       return query_document_by_name(name)
@@ -282,13 +282,13 @@ i.e. exactly the same as for the path variable case.
 
 Let's look at a document exposed on this URL::
 
-  /document?name=foo
+  /documents?name=foo
 
-Then the view ``document/link?name=foo`` will construct the link::
+Then the view ``documents/link?name=foo`` will construct the link::
 
-  /document?name=foo
+  /documents?name=foo
 
-The ``document/link?name=foo`` is interesting: the ``name=foo``
+The ``documents/link?name=foo`` is interesting: the ``name=foo``
 parameters are added to the end, but they are used by the
 ``get_document`` function, *not* by its views. Here's ``link2`` again
 to further demonstrate this behavior::
@@ -297,8 +297,8 @@ to further demonstrate this behavior::
   def document_self_link(request, model):
       return request.link(model, name='link')
 
-When we now go to ``document/link2?name=foo`` we get the link
-``document/link?name=foo``.
+When we now go to ``documents/link2?name=foo`` we get the link
+``documents/link?name=foo``.
 
 Type hints
 ----------
@@ -315,7 +315,7 @@ has an ``int`` id like this::
 
 We could do this to expose it::
 
-  @app.model(model=Record, path='record/{id}')
+  @app.model(model=Record, path='records/{id}')
   def get_record(id):
       try:
           id = int(id)
@@ -327,7 +327,7 @@ But Morepath offers a better way. We can tell Morepath we expect an
 int and only an int, and if something else is supplied, the path
 should not match. Here's how::
 
-  @app.model(model=Record, path='record/{id}')
+  @app.model(model=Record, path='records/{id}')
   def get_record(id=0):
       return record_by_id(id)
 
@@ -335,17 +335,17 @@ We've added a default parameter (``id=0``) here that Morepath will use
 as an indication that only an int is expected. Morepath will now
 automatically convert ``id`` to an int before it enters the
 function. It will also give a ``404 Not Found`` response for URLs that
-don't have an int. So it will accept ``/record/100`` but give a 404
-for ``/record/foo``.
+don't have an int. So it will accept ``/records/100`` but give a 404
+for ``/records/foo``.
 
 Let's examine the same case for an ``id`` URL parameter::
 
-  @app.model(model=Record, path='record')
+  @app.model(model=Record, path='records')
   def get_record(id=0):
       return record_by_id(id)
 
-This responds to an URL like this ``/record?id=100``, but will reject
-``/record/id=foo`` as ``foo`` cannot be converted to an int. It will
+This responds to an URL like this ``/records?id=100``, but will reject
+``/records/id=foo`` as ``foo`` cannot be converted to an int. It will
 reject a request with the latter path with a ``400 Bad Request``
 error.
 
@@ -468,15 +468,15 @@ response.
 
 You can also use encode and decode for arguments used in a path::
 
-  @app.model(model=Day, path='day/{d}', converters=dict(d=date_converter))
+  @app.model(model=Day, path='days/{d}', converters=dict(d=date_converter))
   def get_day(d):
       return Day(d)
 
 This will publish the model on a URL like this::
 
-  /day/20110101
+  /days/20110101
 
-When you pass in a broken date, like ``/day/foo``, a ``ValueError`` is
+When you pass in a broken date, like ``/days/foo``, a ``ValueError`` is
 raised by the date decoder, and a ``404 not Found`` response is given
 by the server: the URL does not resolve to a model.
 
@@ -507,13 +507,13 @@ i.e. ``2013-12-31``::
 
 Now Morepath understand type hints for ``date`` differently::
 
-  @app.model(model=Day, path='day/{d}')
+  @app.model(model=Day, path='days/{d}')
   def get_day(d=date(2011, 1, 1)):
       return Day(d)
 
 will have models published on a URL like::
 
-  day/2013-12-31
+  days/2013-12-31
 
 Type hints and converters
 -------------------------
@@ -523,7 +523,7 @@ argument to indicate the type hint, but you know you want to use a
 default converter for a particular type. For those cases you
 can pass the type into the ``converters`` dictionary as a shortcut::
 
-  @app.model(model=Day, path='day/{d}', converters=dict(d=date))
+  @app.model(model=Day, path='days/{d}', converters=dict(d=date))
   def get_day(d):
       return Day(d)
 
@@ -538,7 +538,7 @@ parameter is missing, it's an error and a ``400 Bad Request`` should
 be returned. You can do this by passing in a ``required`` argument
 to the model decorator::
 
-  @app.model(model=Record, path='record', required=['id'])
+  @app.model(model=Record, path='records', required=['id'])
   def get_record(id):
       return query_record(id)
 

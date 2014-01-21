@@ -13,11 +13,11 @@ Named views
 
 Let's examine a path::
 
-  /document/1/edit
+  /documents/1/edit
 
 If there's a model like this::
 
-  @app.model(model=Document, path='/document/{id}')
+  @app.model(model=Document, path='/documents/{id}')
   def get_document(id):
       return query_for_document(id)
 
@@ -33,9 +33,9 @@ Default views
 
 Let's examine this path::
 
-  /document/1
+  /documents/1
 
-If the model is published on the path ``/document/{id}``, then this is
+If the model is published on the path ``/documents/{id}``, then this is
 a path to the *default* view of the model. Here's how that view is
 defined::
 

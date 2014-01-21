@@ -32,7 +32,7 @@ views:
 
 .. code-block:: python
 
-  @app.model(model=User, path='user/{username}')
+  @app.model(model=User, path='users/{username}')
   def get_user(username):
       return query_for_user(username)
 
@@ -41,7 +41,7 @@ views:
       return "User: %s" % model.username
 
 Here we've exposed the ``User`` model class under the path
-``/user/{username}``. When you go to such a URL, the default (unnamed)
+``/users/{username}``. When you go to such a URL, the default (unnamed)
 view will be found, and we've provided that too: it just renders
 "User: {username}".
 
@@ -143,12 +143,12 @@ our overriding app:
 
 .. code-block:: python
 
-  @extended_app.model(model=OtherUser, path='user/{username}')
+  @extended_app.model(model=OtherUser, path='users/{username}')
   def get_user_differently(username):
       return OtherUser(username)
 
 To make ``OtherUser`` actually be published on the web under
-``/user/{username}`` it either needs to be a subclass of ``User``, for
+``/users/{username}`` it either needs to be a subclass of ``User``, for
 which we've already registered a default view, or we need to register
 a new default view for ``OtherUser``.
 
@@ -162,15 +162,15 @@ Nesting Applications
 Let's talk about application composition: nesting one app in another.
 
 Imagine our user app allows users to have wikis associated with them.
-You would have paths like ``/user/faassen/wiki`` and
-``/user/bob/wiki``.
+You would have paths like ``/users/faassen/wiki`` and
+``/users/bob/wiki``.
 
 One approach might be to implement a wiki application within the user
 application we already have, along these lines:
 
 .. code-block:: python
 
-  @app.model(model=Wiki, path='user/{username}/wiki')
+  @app.model(model=Wiki, path='users/{username}/wiki')
   def get_wiki(username):
       return wiki_for_user(username)
 
@@ -217,14 +217,14 @@ This is an app that exposes wikis on URLs using ``wiki_id``, like
 ``/my_wiki``, ``/another_wiki``.
 
 But that won't work if we want to associate wikis with users. What if
-we want the paths we had before, like ``/user/faassen/wiki``?
+we want the paths we had before, like ``/users/faassen/wiki``?
 
 Morepath has a solution. We can *mount* the wiki app in the user app,
 like this:
 
 .. code-block:: python
 
-  @app.mount(app=wiki_app, path='user/{username}/wiki')
+  @app.mount(app=wiki_app, path='users/{username}/wiki')
   def mount_wiki(username):
       return {
          'wiki_id': get_wiki_id_for_username(username)
