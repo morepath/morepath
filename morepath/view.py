@@ -1,6 +1,6 @@
 from morepath import generic
 from .request import Request, Response
-from reg import PredicateMatcher, Predicate
+from reg import PredicateMatcher, Predicate, ANY
 import json
 
 
@@ -33,16 +33,26 @@ def get_predicate_registration(registry, model, predicates, registration):
     predicates = get_predicates_with_defaults(predicates, predicate_info)
     matcher = registry.exact(generic.view, (Request, model))
     if matcher is None:
-        predicate_info.sort()
+        predicate_infos = predicate_info.values()
+        predicate_infos.sort()
         matcher = PredicateMatcher(
-            [predicate for (order, predicate) in predicate_info])
+            [predicate for (order, predicate) in predicate_infos])
     matcher.register(predicates, registration)
+    for order, predicate in predicate_info.values():
+        fallback = getattr(predicate, 'fallback', None)
+        if fallback is None:
+            continue
+        if predicates[predicate.name] is ANY:
+            continue
+        p = predicates.copy()
+        p[predicate.name] = ANY
+        matcher.register(p, View(fallback, None, None))
     return matcher
 
 
 def get_predicates_with_defaults(predicates, predicate_info):
     result = {}
-    for order, predicate in predicate_info:
+    for order, predicate in predicate_info.values():
         value = predicates.get(predicate.name)
         if value is None:
             value = predicate.default
@@ -53,9 +63,18 @@ def get_predicates_with_defaults(predicates, predicate_info):
 def register_predicate(registry, name, order, default, index, calc):
     predicate_info = registry.exact('predicate_info', ())
     if predicate_info is None:
-        predicate_info = []
+        predicate_info = {}
         registry.register('predicate_info', (), predicate_info)
-    predicate_info.append((order, Predicate(name, index, calc, default)))
+    predicate_info[name] = order, Predicate(name, index, calc, default)
+
+
+def register_predicate_fallback(registry, name, obj):
+    predicate_info = registry.exact('predicate_info', ())
+    # XXX raise configuration error
+    info = predicate_info.get(name)
+    assert info is not None
+    order, predicate = info
+    predicate.fallback = obj
 
 
 def render_json(content):

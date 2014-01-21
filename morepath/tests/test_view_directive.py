@@ -25,7 +25,7 @@ def test_view_get_only():
 
     # XXX should be giving 405 method not allowed
     response = c.post('/')
-    assert response.status == '404 NOT FOUND'
+    assert response.status == '405 METHOD NOT ALLOWED'
 
 
 def test_view_any():

@@ -2,7 +2,8 @@ from .app import AppBase
 from .config import Directive
 from .error import ConfigError
 from .view import (register_view, render_json, render_html,
-                   register_predicate, get_predicates_with_defaults)
+                   register_predicate, register_predicate_fallback,
+                   get_predicates_with_defaults)
 from .security import (register_permission_checker,
                        Identity, NoIdentity)
 from .model import register_model, register_root, register_mount
@@ -203,9 +204,24 @@ class PredicateDirective(Directive):
                            self.index, obj)
 
 
+@directive('predicate_fallback')
+class PredicateFallbackDirective(Directive):
+    depends = [PredicateDirective]
+
+    def __init__(self, app, name):
+        super(PredicateFallbackDirective, self).__init__(app)
+        self.name = name
+
+    def identifier(self, app):
+        return self.name
+
+    def perform(self, app, obj):
+        register_predicate_fallback(app, self.name, obj)
+
+
 @directive('view')
 class ViewDirective(Directive):
-    depends = [PredicateDirective]
+    depends = [PredicateDirective, PredicateFallbackDirective]
 
     def __init__(self, app, model, name=None, render=None, permission=None,
                  **predicates):

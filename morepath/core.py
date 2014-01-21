@@ -8,7 +8,7 @@ from .error import LinkError
 from .request import Request, Response
 from .converter import Converter, IDENTITY_CONVERTER
 from werkzeug.wrappers import BaseResponse
-from werkzeug.exceptions import Unauthorized
+from werkzeug.exceptions import Unauthorized, MethodNotAllowed
 import morepath
 from reg import mapply, KeyIndex
 from datetime import datetime, date
@@ -139,6 +139,11 @@ def name_predicate(request, model):
                       default='GET')
 def request_method_predicate(request, model):
     return request.method
+
+
+@global_app.predicate_fallback(name='request_method')
+def method_not_allowed(request, model):
+    raise MethodNotAllowed()
 
 
 @global_app.converter(type=int)
