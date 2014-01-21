@@ -412,9 +412,11 @@ class Config(object):
         * Clears any previous configuration from all registered
           :class:`morepath.config.Configurable` objects.
         * Prepares actions using :meth:`prepared`.
-        * Configuration conflicts within configurables are detected.
-        * The configuration of configurable objects that extend
-          each other is merged.
+        * Actions are grouped by type of action (action class).
+        * The action groups are executed in order of ``depends``
+          between their action classes.
+        * Per action group, configuration conflicts are detected.
+        * Per action group, extending configuration is merged.
         * Finally all configuration actions are performed, completing
           the configuration process.
 
