@@ -7,10 +7,12 @@ from .framehack import caller_package
 class Configurable(object):
     """Object to which configuration actions apply.
 
-    Actions can be added to a configurable. The configurable is then
-    prepared. This checks for any conflicts between configurations and
+    Actions can be added to a configurable.
+
+    Once all actions are added, the configurable is executed.
+    This checks for any conflicts between configurations and
     the configurable is expanded with any configurations from its
-    extends list. Then the configurable can be performed, meaning all
+    extends list. Then the configurable is performed, meaning all
     its actions will be performed (to it).
     """
     def __init__(self, extends=None, testing_config=None):
@@ -55,6 +57,8 @@ class Configurable(object):
         self._class_to_actions = None
 
     def group_actions(self):
+        """Group actions into :class:`Actions` by class.
+        """
         # group actions by class (in fact deepest base class before Directive)
         d = {}
         for action, obj in self._actions:
@@ -71,14 +75,20 @@ class Configurable(object):
                 actions, self.action_extends(action_class))
 
     def action_extends(self, action_class):
+        """Get actions for action class in extends.
+        """
         return [
             configurable._class_to_actions.get(action_class, Actions([], []))
             for configurable in self.extends]
 
     def action_classes(self):
+        """Get action classes sorted in dependency order.
+        """
         return sort_action_classes(self._class_to_actions.keys())
 
     def execute(self):
+        """Execute actions for configurable.
+        """
         self.group_actions()
         for action_class in self.action_classes():
             actions = self._class_to_actions.get(action_class)
@@ -118,14 +128,10 @@ class Actions(object):
         self.extends = extends
 
     def prepare(self, configurable):
-        """Prepare configurable.
+        """Prepare.
 
-        This is normally not invoked directly, instead is called
-        indirectly by :meth:`Config.commit`.
-
-        Detect any conflicts between actions within this
-        configurable. Merges in configuration of those configurables
-        that this configurable extends.
+        Detect any conflicts between actions.
+        Merges in configuration of what this action extends.
 
         Prepare must be called before perform is called.
         """
@@ -147,14 +153,14 @@ class Actions(object):
             self.combine(extend)
 
     def combine(self, actions):
-        """Combine actions in another prepared configurable with this one.
+        """Combine another prepared actions with this one.
 
         Those configuration actions that would conflict are taken to
-        have precedence over those in the configurable that is being
-        combined with this one. This allows the extending configurable
-        to override configuration in extended configurables.
+        have precedence over those being combined with this one. This
+        allows the extending actions to override actions in
+        extended actions.
 
-        :param configurable: the configurable to combine with this one.
+        :param actions: the :class:`Actions` to combine with this one.
         """
         to_combine = actions._action_map.copy()
         to_combine.update(self._action_map)
