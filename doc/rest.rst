@@ -100,11 +100,11 @@ Now we want a ``metadata`` resource that exposes its metadata as
 JSON::
 
   @app.json(model=Document, name='metadata')
-  def document_metadata(request, model):
+  def document_metadata(self, request):
       return {
-        'id': model.id,
-        'title': model.title,
-        'author': model.author
+        'id': self.id,
+        'title': self.title,
+        'author': self.author
       }
 
 Modeling as resources
@@ -148,19 +148,19 @@ includes ids of all documents in the collection. Here's how to do
 that::
 
   @app.json(model=DocumentCollection)
-  def collection_default(request, model):
+  def collection_default(self, request):
       return {
          'type': 'document_collection',
-         'ids': [doc.id for doc in model.documents]
+         'ids': [doc.id for doc in self.documents]
       }
 
 Then we want to allow people to POST the document id (as a URL
 parameter) to the ``/documents/add`` resource::
 
   @app.json(model=DocumentCollection, name='add', request_method='POST')
-  def collection_add_document(request, model):
+  def collection_add_document(self, request):
       doc = document_by_id(request.args['id'])
-      model.add(doc)
+      self.add(doc)
       return {}
 
 We again use the ``document_by_id`` function. We also return an empty
@@ -186,7 +186,7 @@ only responds to a ``GET`` request, which is what we want. Let's
 make it explicit::
 
   @app.json(model=DocumentCollection, request_method='GET')
-  def collection_default(request, model):
+  def collection_default(self, request):
       ...
 
 What if we had defined our web service differently, and instead of
@@ -196,7 +196,7 @@ ids on ``/documents`` directly? Here's how you would rewrite
 ``/documents```::
 
   @app.json(model=DocumentCollection, request_method='POST')
-  def collection_add_document(request, model):
+  def collection_add_document(self, request):
       ...
 
 It's just a matter of removing the ``name`` parameter so that it becomes
@@ -213,9 +213,9 @@ But what if the view did not manage to do something successfully? Let's
 get back to this view::
 
   @app.json(model=DocumentCollection, name='add', request_method='POST')
-  def collection_add_document(request, model):
+  def collection_add_document(self, request):
       doc = document_by_id(request.args['id'])
-      model.add(doc)
+      self.add(doc)
       return {}
 
 What if there is no ``id`` parameter in the request? That's something
@@ -241,12 +241,12 @@ our view so it is raised if there was no id::
   from werkzeug.exceptions import BadRequest
 
   @app.json(model=DocumentCollection, name='add', request_method='POST')
-  def collection_add_document(request, model):
+  def collection_add_document(self, request):
       id = request.args.get('id')
       if id is None:
           raise BadRequest()
       doc = document_by_id(id)
-      model.add(doc)
+      self.add(doc)
       return {}
 
 We also want to deal with the situation where an id was given, but no
@@ -254,14 +254,14 @@ document with that id exists. Let's handle that with 400 Bad Request
 too::
 
   @app.json(model=DocumentCollection, name='add', request_method='POST')
-  def collection_add_document(request, model):
+  def collection_add_document(self, request):
       id = request.args.get('id')
       if id is None:
           raise BadRequest()
       doc = document_by_id(id)
       if doc is None:
           raise BadRequest()
-      model.add(doc)
+      self.add(doc)
       return {}
 
 Linking: HATEOAS
@@ -303,10 +303,10 @@ have to do much. Let's first modify our default ``GET`` view for
 the collection so it also has a link to the ``add`` resource::
 
   @app.json(model=DocumentCollection)
-  def collection_default(request, model):
+  def collection_default(self, request):
       return {
          'type': 'document_collection',
-         'ids': [doc.id for doc in model.documents],
+         'ids': [doc.id for doc in self.documents],
          'add': request.link(documents, 'add')
       }
 
@@ -319,21 +319,21 @@ view for the collection return a list of document ids. We can change
 this so we return a list of document URLs instead::
 
   @app.json(model=DocumentCollection)
-  def collection_default(request, model):
+  def collection_default(self, request):
       return {
          'type': 'document_collection',
-         'documents': [request.link(doc) for doc in model.documents],
+         'documents': [request.link(doc) for doc in self.documents],
          'add': request.link(documents, 'add')
       }
 
 Or perhaps better, include the id *and* the URL::
 
   @app.json(model=DocumentCollection)
-  def collection_default(request, model):
+  def collection_default(self, request):
       return {
          'type': 'document_collection',
          'documents': [dict(id=doc.id, link=request.link(doc))
-                       for doc in model.documents],
+                       for doc in self.documents],
          'add': request.link(documents, 'add')
       }
 

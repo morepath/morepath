@@ -45,15 +45,15 @@ We can easily define a generic default view that works for all
 subclasses::
 
   @app.view(model=ContainerBase)
-  def overview(request, model):
-      return ', '.join([entry.title for entry in model.entries()])
+  def overview(self, request):
+      return ', '.join([entry.title for entry in self.entries()])
 
 But what if you want to do something different for a particular
 subclass? What if ``MySpecialContainer`` needs it own custom default
 view? Easy::
 
   @app.view(model=MySpecialContainer):
-  def special_overview(request, model):
+  def special_overview(self, request):
       return "A special overview!"
 
 Morepath leverages the power of the flexible Reg_ generic function
@@ -78,7 +78,7 @@ And we have a view for some ``Document`` class that we only want to be
 accessible if the user has an edit permission::
 
   @app.view(model=Document, permission=Edit)
-  def edit_document(request, model):
+  def edit_document(self, request):
       return "Editable"
 
 How does Morepath know whether someone has ``Edit`` permission? We
@@ -100,16 +100,16 @@ Composable Views
 Let's say you have a JSON view for a ``Document`` class::
 
   @app.json(model=Document)
-  def document_json(request, model):
-      return {'title': model.title}
+  def document_json(self, request):
+      return {'title': self.title}
 
 And now we have a view for a container that contains documents. We want
 to automatically render the JSON views of the documents in a list. We
 can write this::
 
   @app.json(model=DocumentContainer)
-  def document_container_json(request, model):
-     return [document_json(request, doc) for doc in model.entries()]
+  def document_container_json(self, request):
+     return [document_json(request, doc) for doc in self.entries()]
 
 Here we've used ``document_json`` ourselves. But what now if the container
 does not only contain ``Document`` instances? What if one of them is
@@ -117,8 +117,8 @@ a ``SpecialDocument``? Our ``document_container_json`` function would
 break. How to fix it? Easy, we can use :meth:`morepath.Request.view`::
 
   @app.json(model=DocumentContainer)
-  def document_container_json(request, model):
-     return [request.view(doc) for doc in model.entries()]
+  def document_container_json(sel, request):
+     return [request.view(doc) for doc in self.entries()]
 
 Now ``document_container_json`` will work for anything in the
 container model that has a default view!
@@ -133,7 +133,7 @@ of stuff that does exactly what you want, and one view that *doesn't*
 do what you want::
 
   @app.view(model=Document)
-  def recalcitrant_view(request, model):
+  def recalcitrant_view(self, request):
       return "The wrong thing!"
 
 Ugh! We can't just change the application as it needs to continue to
@@ -147,7 +147,7 @@ We now have an application that does exactly what ``app`` does. Now
 to override that one view to do what we want::
 
   @app.view(model=Document)
-  def whatwewant(request, model):
+  def whatwewant(self, request):
      return "The right thing!"
 
 And we're done!

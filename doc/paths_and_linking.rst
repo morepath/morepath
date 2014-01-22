@@ -28,7 +28,7 @@ And let's give it a default view so we can see it when we go to its
 URL::
 
   @app.view(model=Overview)
-  def overview_default(request, model):
+  def overview_default(self, request):
       return "Overview"
 
 No variables are involved yet: they aren't in the ``path`` and the
@@ -47,8 +47,8 @@ Let's expose it to the web under ``documents/{name}``::
       return query_document_by_name(name)
 
   @app.view(model=Document)
-  def document_default(request, model):
-      return "Document: " + model.name
+  def document_default(self, request):
+      return "Document: " + self.name
 
 Here we declare a variable in the path (``{name}``), and it gets
 passed into the ``get_document`` function. The function does some kind
@@ -71,8 +71,8 @@ We could expose this to the web like this::
       return query_versioned_document(name, version)
 
   @app.view(model=VersionedDocument)
-  def versioned_document_default(request, model):
-      return "Versioned document: %s %s" % (model.name, model.version)
+  def versioned_document_default(self, request):
+      return "Versioned document: %s %s" % (self.name, self.version)
 
 The rule is that all variables declared in the path can be used as
 arguments in the model function.
@@ -116,8 +116,8 @@ To be able to see something, we add a view that returns a comma
 separated string with the names of all matching documents::
 
   @app.view(model=DocumentCollection)
-  def document_collection_default(request, model):
-      return ', '.join([document.name for document in model.search()])
+  def document_collection_default(self, request):
+      return ', '.join([document.name for document in self.search()])
 
 As you can see it uses the ``DocumentCollection.search`` method.
 
@@ -164,8 +164,8 @@ Here is a simple case involving ``Document`` again::
 We add a named view called ``link`` that links to the document itself::
 
   @app.view(model=Document, name='link')
-  def document_self_link(request, model):
-      return request.link(model)
+  def document_self_link(self, request):
+      return request.link(self)
 
 The view at ``/documents/foo/link`` will produce the link
 ``/documents/foo``. That's the right one!
@@ -179,8 +179,8 @@ You can also give ``link`` a name to link to a named view. Here's a
 ``link2`` view creates a  link to the ``link`` view::
 
   @app.view(model=Document, name='link2')
-  def document_self_link(request, model):
-      return request.link(model, name='link')
+  def document_self_link(self, request):
+      return request.link(self, name='link')
 
 So the view ``documents/foo/link2`` will produce the link
 ``documents/foo/link``.
@@ -268,8 +268,8 @@ parameter, using an implicit ``variables``::
 Now we add back the same ``self_link`` view as we had before::
 
   @app.view(model=Document, name='link')
-  def document_self_link(request, model):
-      return request.link(model)
+  def document_self_link(self, request):
+      return request.link(self)
 
 Here's ``get_document`` with an explicit ``variables``::
 
@@ -294,8 +294,8 @@ parameters are added to the end, but they are used by the
 to further demonstrate this behavior::
 
   @app.view(model=Document, name='link2')
-  def document_self_link(request, model):
-      return request.link(model, name='link')
+  def document_self_link(self, request):
+      return request.link(self, name='link')
 
 When we now go to ``documents/link2?name=foo`` we get the link
 ``documents/link?name=foo``.
@@ -449,7 +449,7 @@ We also add a simple view that gives us comma-separated list of
 matching record ids::
 
   @app.view(model=Records):
-  def records_view(request, model):
+  def records_view(self, request):
       return ', '.join([str(record.id) for record in self.query()])
 
 We can now go to URLs like this::

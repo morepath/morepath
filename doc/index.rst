@@ -72,12 +72,12 @@ Morepath Knows About Your Models
       return Document(id)  # query for doc
 
   @app.html(model=Root)
-  def hello_root(request, model):
+  def hello_root(self, request):
       return '<a href="%s">Go to doc</a>' % request.link(Document('foo'))
 
   @app.html(model=Document)
-  def hello_doc(request, model):
-      return '<p>Hello document: %s!</p>' % model.id
+  def hello_doc(self, request):
+      return '<p>Hello document: %s!</p>' % self.id
 
   if __name__ == '__main__':
       config = morepath.setup()

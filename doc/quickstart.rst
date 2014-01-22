@@ -20,7 +20,7 @@ Let's look at a minimal "Hello world!" application in Morepath::
       pass
 
   @app.view(model=Root)
-  def hello_world(request, model):
+  def hello_world(self, request):
       return "Hello world!"
 
   if __name__ == '__main__':
@@ -90,7 +90,7 @@ Code Walkthrough
    the :meth:`morepath.AppBase.path` decorator.
 
 4. Now we can create the "Hello world" view. It's just a function that
-   takes ``request`` and ``model`` as arguments (we don't need to use
+   takes ``self`` and ``request`` as arguments (we don't need to use
    either in this case), and returns the string ``"Hello world!"``.
 
    We then need to hook up this view with the
@@ -264,16 +264,16 @@ In order to actually see a web page for a user model, we need to
 create a view for it::
 
   @app.view(model=User)
-  def user_info(request, model):
-      return "User's full name is: %s" % model.fullname
+  def user_info(self, request):
+      return "User's full name is: %s" % self.fullname
 
 The view is a function decorated by :meth:`morepath.AppBase.view` (or
 related decorators such as :meth:`morepath.AppBase.json` and
-:meth:`morepath.AppBase.html`) that gets two arguments: ``request``
-which is a :class:`morepath.Request` object (a subclass of
-:class:`werkzeug.wrappers.BaseRequest`), and ``model`` which is the
-model that this view is working for, so in this case an instance of
-``User``.
+:meth:`morepath.AppBase.html`) that gets two arguments: ``self``,
+which is the model that this view is working for, so in this case an
+instance of ``User``, and ``request` which is the current
+request. ``request`` is a :class:`morepath.Request` object (a subclass
+of :class:`werkzeug.wrappers.BaseRequest`).
 
 Now the URLs listed above such as ``/users/faassen`` will work.
 
@@ -282,7 +282,7 @@ an ``edit`` view which allows us to edit it? We need to give it a
 name::
 
   @app.view(model=User, name='edit')
-  def edit_user(request, model):
+  def edit_user(self, request):
       return "An editing UI goes here"
 
 Now we have functionality on URLs like ``/users/faassen/edit`` and
@@ -341,10 +341,10 @@ you want to return than that. If you want to return JSON, you can use
 the shortcut ``@app.json`` instead to declare your view::
 
   @app.json(model=User, name='info')
-  def user_json_info(request, model):
-      return {'username': model.username,
-              'fullname': model.fullname,
-              'email': model.email}
+  def user_json_info(self, request):
+      return {'username': self.username,
+              'fullname': self.fullname,
+              'email': self.email}
 
 This automatically serializes what is returned from the function JSON,
 and sets the content-type header to ``application/json``.
@@ -352,8 +352,8 @@ and sets the content-type header to ``application/json``.
 If we want to return HTML, we can use ``@app.html``::
 
   @app.html(model=User)
-  def user_info(request, model):
-      return "<p>User's full name is: %s</p>" % model.fullname
+  def user_info(self, request):
+      return "<p>User's full name is: %s</p>" % self.fullname
 
 This automatically sets the content type to ``text/html``. It doesn't
 do any HTML escaping though, so the use of ``%`` above is unsafe! We
@@ -398,8 +398,8 @@ Redirects
 To redirect to another URL, use :func:`morepath.redirect`. For example::
 
   @app.view(model=User, name='extra')
-  def redirecting(request, model):
-      return morepath.redirect(request.link(model, 'other'))
+  def redirecting(self, request):
+      return morepath.redirect(request.link(self, 'other'))
 
 HTTP Errors
 -----------
@@ -410,5 +410,5 @@ exceptions (:mod:`werkzeug.exceptions`). For instance::
   from werkzeug.exceptions import NotAcceptable
 
   @app.view(model=User, name='extra')
-  def erroring(request, model):
+  def erroring(self, request):
       raise NotAcceptable()

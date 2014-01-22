@@ -27,8 +27,7 @@ Morepath lets you create app objects like this:
 
 These app objects are WSGI applications, but also serve as registries
 for application configuration information. This configuration is
-specify used decorators. Typically apps consist of models and
-views:
+specify used decorators. Apps consist of paths and views for models:
 
 .. code-block:: python
 
@@ -37,8 +36,8 @@ views:
       return query_for_user(username)
 
   @app.view(model=User)
-  def render_user(request, model):
-      return "User: %s" % model.username
+  def render_user(self, request):
+      return "User: %s" % self.username
 
 Here we've exposed the ``User`` model class under the path
 ``/users/{username}``. When you go to such a URL, the default (unnamed)
@@ -56,8 +55,8 @@ different way? No problem, we can just create one:
       return different_query_for_user(username)
 
   @other_app.view(model=User)
-  def render_user(request, model):
-      return "Differently Displayed User: %s" % model.username
+  def render_user(self, request):
+      return "Differently Displayed User: %s" % self.username
 
 Here we expose ``User`` to the web again, but use a different path and
 a different view. If you run this app (even in the same runtime), this
@@ -79,8 +78,8 @@ This is simple; we can add a new ``edit`` view to ``app``:
 .. code-block:: python
 
   @app.view(model=User, name='edit')
-  def edit_user(request, model):
-      return 'Edit user: %s' % model.username
+  def edit_user(self, request):
+      return 'Edit user: %s' % self.username
 
 The string we return here is of course useless for a *real* edit view,
 but you get the idea.
@@ -108,8 +107,8 @@ And then we can add the view to the extended app:
 .. code-block:: python
 
   @extended_app.view(model=User, name='edit')
-  def edit_user(request, model):
-      return 'Edit user: %s' % model.username
+  def edit_user(self, request):
+      return 'Edit user: %s' % self.username
 
 Now when we publish ``extended_app`` using WSGI, the new ``edit`` view
 will be there, but when we publish ``app`` it won't be.
@@ -131,8 +130,8 @@ Here's how we would do that:
 .. code-block:: python
 
   @extended_app.view(model=User)
-  def render_user_differently(request, model):
-      return 'Different view for user: %s' % model.username
+  def render_user_differently(self, request):
+      return 'Different view for user: %s' % self.username
 
 We've now overridden the default view for ``User`` to a new view that
 renders it differently.
@@ -210,7 +209,7 @@ wiki app by itself:
       return query_wiki(wiki_id)
 
   @wiki_app.view(model=Wiki)
-  def wiki_default_view(request, model):
+  def wiki_default_view(self, request):
       return "Default view for wiki"
 
 This is an app that exposes wikis on URLs using ``wiki_id``, like

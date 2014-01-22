@@ -25,8 +25,8 @@ then ``/edit`` identifies a view named ``edit`` on the ``Document`` model (or
 on one of its base classes). Here's how we define it::
 
   @app.view(model=Document, name='edit')
-  def document_edit(request, model):
-      return "edit view on model: %s" % model.id
+  def document_edit(self, request):
+      return "edit view on model: %s" % self.id
 
 Default views
 -------------
@@ -40,8 +40,8 @@ a path to the *default* view of the model. Here's how that view is
 defined::
 
   @app.view(model=Document)
-  def document_default(request, model):
-      return "default view on model: %s" % model.id
+  def document_default(self, request):
+      return "default view on model: %s" % self.id
 
 The default view is the view that gets triggered if there is no
 special path segment in the URL that indicates a specific view. The
@@ -49,8 +49,8 @@ default view has as its name the empty string ``""``, so this
 registration is the equivalent of the one above::
 
   @app.view(model=Document, name="")
-  def document_default(request, model):
-      return "default view on model: %s" % model.id
+  def document_default(self, request):
+      return "default view on model: %s" % self.id
 
 Generic views
 -------------
@@ -82,8 +82,8 @@ We can create a view to this abstract collection that displays the
 ids of the things in it in a comma separated list::
 
   @app.view(model=Collection)
-  def collection_default(request, model):
-      return ", ".join([str(item.id) for item in model.query()])
+  def collection_default(self, request):
+      return ", ".join([str(item.id) for item in self.query()])
 
 This view is generic: it works for any kind of collection.
 
@@ -117,7 +117,11 @@ representing, and ``name``, which is the name of the view in the URL
 path.
 
 The ``@app.view`` decorator decorates a function that takes two arguments:
-a ``request`` and a ``model``.
+a ``self`` and a ``request``.
+
+The ``self`` object is the model that's being viewed, i.e. the one
+found by the ``get_document`` function. It is going to be an instance
+of the class given by the ``model`` parameter.
 
 The ``request`` object is an instance of :class:`morepath.Request`,
 which in turn is a special kind of
@@ -125,14 +129,11 @@ which in turn is a special kind of
 from it like arguments or form data, and it also exposes a few special
 methods, such as :meth:`morepath.Request.link`.
 
-The ``model`` object is the model that's being viewed, i.e. the one
-found by the ``get_document`` function.
-
-The ``@app.model`` and ``@app.view`` decorators are associated by
+The ``@app.path`` and ``@app.view`` decorators are associated by
 indirectly their ``model`` parameters: the view works for a given
 model path if the ``model`` parameter is the same, or if the view is
 associated with a base class of the model exposed by the
-``@app.model`` decorator.
+``@app.path`` decorator.
 
 Ambiguity between path and view
 -------------------------------
@@ -187,7 +188,7 @@ want a view that sets the ``content-type`` to ``text/html``. You can
 do this by passing a ``render`` parameter to the ``@app.view`` decorator::
 
   @app.view(class=Document, render=morepath.render_html)
-  def document_default(request, model):
+  def document_default(self, request):
       return "<p>Some html</p>"
 
 :func:`morepath.render_html` is a very simple function::
@@ -213,7 +214,7 @@ Another render function is :func:`morepath.render_json`. Here it is::
 We'd use it like this::
 
   @app.view(class=Document, render=morepath.render_json)
-  def document_default(request, model):
+  def document_default(self, request):
       return {'my': 'json'}
 
 HTML views and JSON views are so common we have special shortcut decorators:
@@ -225,11 +226,11 @@ HTML views and JSON views are so common we have special shortcut decorators:
 Here's how you use them::
 
   @app.html(class=Document)
-  def document_default(request, model):
+  def document_default(self, request):
       return "<p>Some html</p>"
 
   @app.json(class=Document)
-  def document_default(request, model):
+  def document_default(self, request):
       return {'my': 'json'}
 
 Permissions
@@ -246,7 +247,7 @@ The class doesn't do anything; it's just a marker for permission.
 You can use such a class with a view::
 
   @app.view(model=Document, name='edit', permission=Edit)
-  def document_edit(request, model):
+  def document_edit(self, request):
       return 'edit document'
 
 You can define which users have what permission on which models by using
@@ -267,7 +268,7 @@ is ready using the :meth:`morepath.Request.after` decorator. Here's
 how::
 
   @app.view(model=Document)
-  def document_default(request, model):
+  def document_default(self, request):
       @request.after
       def manipulate_response(response):
           response.set_cookie('my_cookie', 'cookie_data')
@@ -283,8 +284,8 @@ write a view that handles another request method you need to be explicit and
 pass in the ``request_method`` parameter::
 
   @app.view(model=Document, name='edit', request_method='POST')
-  def document_edit(request, model):
-      return "edit view on model: %s" % model.id
+  def document_edit(self, request):
+      return "edit view on model: %s" % self.id
 
 Now we have a view that handles ``POST``. Normally you cannot have
 multiple views for the same document with the same name: the Morepath
@@ -292,12 +293,12 @@ configuration engine will reject that. But you can if you make sure
 they each have a different request method::
 
   @app.view(model=Document, name='edit', request_method='GET')
-  def document_edit_get(request, model):
-      return "get edit view on model: %s" % model.id
+  def document_edit_get(self, request):
+      return "get edit view on model: %s" % self.id
 
   @app.view(model=Document, name='edit', request_method='POST')
-  def document_edit_post(request, model):
-      return "post edit view on model: %s" % model.id
+  def document_edit_post(self, request):
+      return "post edit view on model: %s" % self.id
 
 Predicates
 ----------
@@ -318,7 +319,7 @@ predicate. Now you can use it to make a view that only kicks in when
 the `Something`` header is ``special``::
 
   @app.view(model=Document, something='special')
-  def document_default(request, model):
+  def document_default(self, request):
       return "Only if request header Something is set to special."
 
 If you have a predicate and you *don't* use it in a ``@app.view``, or
@@ -345,8 +346,8 @@ we wanted a generic view for our collection that included the views
 for its content? This is easiest demonstrated using a JSON view::
 
   @app.json(model=Collection)
-  def collection_default(request, model):
-      return [request.view(item) for item in model.query()]
+  def collection_default(self, request):
+      return [request.view(item) for item in self.query()]
 
 Here we have a view that for all items returned by query includes its
 view in the resulting list. Since this view is generic, we cannot
@@ -357,8 +358,8 @@ we can use :meth:`morepath.Request.view`.
 We could for instance have a particular item with a view like this::
 
   @app.json(model=ParticularItem)
-  def particular_item_default(request, model):
-      return {'id': model.id}
+  def particular_item_default(self, request):
+      return {'id': self.id}
 
 And then the result of ``collection_default`` will be something like::
 
@@ -367,8 +368,8 @@ And then the result of ``collection_default`` will be something like::
 but if we have a some other item with a view like this::
 
   @app.json(model=SomeOtherItem)
-  def some_other_item_default(request, model):
-      return model.name
+  def some_other_item_default(self, request):
+      return self.name
 
 where the name is some string like ``alpha`` or ``beta``.
 
