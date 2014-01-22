@@ -1,5 +1,5 @@
 import urllib
-from morepath.path import (register_root, register_model,
+from morepath.path import (register_model,
                            get_arguments, get_converters, get_url_parameters)
 from morepath.converter import Converter, IDENTITY_CONVERTER
 from morepath.app import App
@@ -24,19 +24,6 @@ class Model(object):
     pass
 
 
-def test_register_root():
-    config = setup()
-    app = App(testing_config=config)
-    root = Root()
-    lookup = app.lookup()
-
-    config.commit()
-
-    register_root(app, Root, None, {}, lambda: root)
-    assert generic.path(root, lookup=lookup) == ('', {})
-    assert generic.app(root, lookup=lookup) is app
-
-
 def test_register_model():
     config = setup()
     app = App(testing_config=config)
@@ -50,7 +37,7 @@ def test_register_model():
 
     config.commit()
 
-    register_root(app, Root, None, {}, lambda: root)
+    register_model(app, Root, '', lambda m: {}, None, None, lambda: root)
     register_model(app, Model, '{id}', lambda model: {'id': model.id},
                    None, None, get_model)
 
@@ -76,7 +63,7 @@ def test_register_model_with_parameters():
 
     config.commit()
 
-    register_root(app, Root, None, {}, lambda: root)
+    register_model(app, Root,  '', lambda m: {}, None, None, lambda: root)
     register_model(app, Model, '{id}', lambda model: {'id': model.id,
                                                       'param': model.param },
                    None, None, get_model)
@@ -108,7 +95,7 @@ def test_traject_path_with_leading_slash():
 
     config.commit()
 
-    register_root(app, Root, None, {}, lambda: root)
+    register_model(app, Root, '', lambda m: {}, None, None, lambda: root)
     register_model(app, Model, '/foo/{id}', lambda model: {'id': model.id},
                    None, None, get_model)
     obj, request = consume(app, 'foo/a')

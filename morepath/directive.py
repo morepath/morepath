@@ -6,7 +6,7 @@ from .view import (register_view, render_json, render_html,
                    get_predicates_with_defaults)
 from .security import (register_permission_checker,
                        Identity, NoIdentity)
-from .path import register_model, register_root, register_mount
+from .path import register_model, register_mount
 from .traject import Path
 from reg import KeyIndex
 from .request import Request, Response

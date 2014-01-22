@@ -94,10 +94,6 @@ def get_variables_func(arguments, exclude):
                            name in names}
 
 
-def register_root(app, model, variables, converters, model_factory):
-    register_model(app, model, '', variables, converters, [], model_factory)
-
-
 def register_model(app, model, path, variables, converters, required,
                    model_factory, arguments=None):
     traject = app.traject
