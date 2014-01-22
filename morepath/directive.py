@@ -171,12 +171,13 @@ class PredicateDirective(Directive):
     def __init__(self, app, name, order, default, index=KeyIndex):
         """Register custom view predicate.
 
-        The decorated function gets ``request`` (a
-        :class:`morepath.Request` object) and ``model``
-        parameters. From this information it should calculate a
-        predicate value and return it. You can then pass these extra
-        predicate arguments to :meth:`morepath.AppBase.view` and this
-        view will only be found if the predicate matches.
+        The decorated function gets ``model`` and ``request`` (a
+        :class:`morepath.Request` object) parameters.
+
+        From this information it should calculate a predicate value
+        and return it. You can then pass these extra predicate
+        arguments to :meth:`morepath.AppBase.view` and this view will
+        only be found if the predicate matches.
 
         :param name: the name of the view predicate.
         :param order: when this custom view predicate should be checked
@@ -227,10 +228,10 @@ class ViewDirective(Directive):
                  **predicates):
         '''Register a view for a model.
 
-        The decorated function gets a ``request``
-        (:class:`morepath.Request`) and ``model`` parameter. The
-        function should return either a (unicode) string that will be
-        the response body, or a :class:`morepath.Response` object.
+        The decorated function gets ``model`` and``request``
+        (:class:`morepath.Request`) parameters. The function should
+        return either a (unicode) string that will be the response
+        body, or a :class:`morepath.Response` object.
 
         If a specific ``render`` function is given the output of the
         function is passed to this first, and the function could
