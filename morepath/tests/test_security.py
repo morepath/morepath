@@ -28,8 +28,8 @@ def test_no_permission():
         return Model(id)
 
     @app.view(model=Model, permission=Permission)
-    def default(request, model):
-        return "Model: %s" % model.id
+    def default(self, request):
+        return "Model: %s" % self.id
 
     config.commit()
 
@@ -63,8 +63,8 @@ def test_permission_directive():
             return False
 
     @app.view(model=Model, permission=Permission)
-    def default(request, model):
-        return "Model: %s" % model.id
+    def default(self, request):
+        return "Model: %s" % self.id
 
     @app.identity_policy()
     class IdentityPolicy(object):
@@ -121,8 +121,8 @@ def test_basic_auth_identity_policy():
         return identity.userid == 'user' and identity.password == 'secret'
 
     @app.view(model=Model, permission=Permission)
-    def default(request, model):
-        return "Model: %s" % model.id
+    def default(self, request):
+        return "Model: %s" % self.id
 
     @app.identity_policy()
     def policy():
@@ -157,7 +157,7 @@ def test_basic_auth_remember():
             self.id = id
 
     @app.view(model=Model)
-    def default(request, model):
+    def default(self, request):
         # will not actually do anything as it's a no-op for basic
         # auth, but at least won't crash
         response = Response()
@@ -188,7 +188,7 @@ def test_basic_auth_forget():
             self.id = id
 
     @app.view(model=Model)
-    def default(request, model):
+    def default(self, request):
         # will not actually do anything as it's a no-op for basic
         # auth, but at least won't crash
         response = Response()
@@ -250,11 +250,11 @@ def test_cookie_identity_policy():
         return identity.userid == 'user'
 
     @app.view(model=Model, permission=Permission)
-    def default(request, model):
-        return "Model: %s" % model.id
+    def default(self, request):
+        return "Model: %s" % self.id
 
     @app.view(model=Model, name='log_in')
-    def log_in(request, model):
+    def log_in(self, request):
         response = Response()
         generic.remember(response, request, Identity(userid='user',
                                                      payload='Amazing'),
@@ -262,7 +262,7 @@ def test_cookie_identity_policy():
         return response
 
     @app.view(model=Model, name='log_out')
-    def log_out(request, model):
+    def log_out(self, request):
         response = Response()
         generic.forget(response, request, lookup=request.lookup)
         return response

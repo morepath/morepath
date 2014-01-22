@@ -10,5 +10,5 @@ class Root(object):
 
 
 @app.html(model=Root)
-def index(request, model):
+def index(self, request):
     return "the root"

@@ -11,7 +11,10 @@ class View(object):
         self.permission = permission
 
     def __call__(self, request, model):
-        return self.func(request, model)
+        # the argument order is reversed here for the actual view function
+        # this still makes request weigh stronger in multiple dispatch,
+        # but lets view authors write 'self, request'.
+        return self.func(model, request)
 
 
 # XXX what happens if predicates is None for one registration
@@ -61,11 +64,15 @@ def get_predicates_with_defaults(predicates, predicate_info):
 
 
 def register_predicate(registry, name, order, default, index, calc):
+    # reverse parameters to be consistent with view
+    def self_request_calc(self, request):
+        return calc(request, self)
     predicate_info = registry.exact('predicate_info', ())
     if predicate_info is None:
         predicate_info = {}
         registry.register('predicate_info', (), predicate_info)
-    predicate_info[name] = order, Predicate(name, index, calc, default)
+    predicate_info[name] = order, Predicate(name, index,
+                                            self_request_calc, default)
 
 
 def register_predicate_fallback(registry, name, obj):

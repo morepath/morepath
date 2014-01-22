@@ -25,10 +25,10 @@ def get_model(id):
 
 
 @app.view(model=Model)
-def default(request, model):
-    return "The view for model: %s" % model.id
+def default(self, request):
+    return "The view for model: %s" % self.id
 
 
 @app.view(model=Model, name='link')
-def link(request, model):
-    return request.link(model)
+def link(self, request):
+    return request.link(self)

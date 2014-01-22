@@ -22,7 +22,7 @@ def test_view():
     app = App(testing_config=config)
     config.commit()
 
-    def view(request, model):
+    def view(self, request):
         return "View!"
 
     register_view(app, Model, view, predicates=dict(name=''))
@@ -37,10 +37,10 @@ def test_predicates():
     app = App(testing_config=config)
     config.commit()
 
-    def view(request, model):
+    def view(self, request):
         return "all"
 
-    def post_view(request, model):
+    def post_view(self, request):
         return "post"
 
     register_view(app, Model, view, predicates=dict(name=''))
@@ -68,7 +68,7 @@ def test_notfound_with_predicates():
     app = App(testing_config=config)
     config.commit()
 
-    def view(request, model):
+    def view(self, request):
         return "view"
 
     register_view(app, Model, view, predicates=dict(name=''))
@@ -85,7 +85,7 @@ def test_response_returned():
     app = App(testing_config=config)
     config.commit()
 
-    def view(request, model):
+    def view(self, request):
         return Response('Hello world!')
 
     register_view(app, Model, view)
@@ -99,7 +99,7 @@ def test_request_view():
     app = App(testing_config=config)
     config.commit()
 
-    def view(request, model):
+    def view(self, request):
         return {'hey': 'hey'}
 
     register_view(app, Model, view, render=render_json)
@@ -121,7 +121,7 @@ def test_request_view_with_predicates():
     app = App(testing_config=config)
     config.commit()
 
-    def view(request, model):
+    def view(self, request):
         return {'hey': 'hey'}
 
     register_view(app, Model, view, render=render_json,
@@ -147,7 +147,7 @@ def test_render_html():
     app = App(testing_config=config)
     config.commit()
 
-    def view(request, model):
+    def view(self, request):
         return '<p>Hello world!</p>'
 
     register_view(app, Model, view, render=render_html)
@@ -165,7 +165,7 @@ def test_view_raises_http_error():
     config.commit()
 
     from werkzeug.exceptions import BadRequest
-    def view(request, model):
+    def view(self, request):
         raise BadRequest()
 
     register_path(app, Model, 'foo', None, None, None, Model)
@@ -190,7 +190,7 @@ def test_view_after():
     app = App(testing_config=config)
     config.commit()
 
-    def view(request, model):
+    def view(self, request):
         @request.after
         def set_header(response):
             response.headers.add('Foo', 'FOO')
@@ -209,7 +209,7 @@ def test_conditional_view_after():
     app = App(testing_config=config)
     config.commit()
 
-    def view(request, model):
+    def view(self, request):
         if False:
             @request.after
             def set_header(response):
@@ -232,7 +232,7 @@ def test_view_after_non_decorator():
     def set_header(response):
         response.headers.add('Foo', 'FOO')
 
-    def view(request, model):
+    def view(self, request):
         request.after(set_header)
         return "View!"
 

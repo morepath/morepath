@@ -15,12 +15,12 @@ def test_extends():
             self.username = username
 
     @app.view(model=User)
-    def render_user(request, model):
-        return "User: %s" % model.username
+    def render_user(self, request):
+        return "User: %s" % self.username
 
     @extending.view(model=User, name='edit')
-    def edit_user(request, model):
-        return "Edit user: %s" % model.username
+    def edit_user(self, request):
+        return "Edit user: %s" % self.username
 
     config.commit()
 
@@ -48,12 +48,12 @@ def test_overrides_view():
             self.username = username
 
     @app.view(model=User)
-    def render_user(request, model):
-        return "User: %s" % model.username
+    def render_user(self, request):
+        return "User: %s" % self.username
 
     @overriding.view(model=User)
-    def render_user2(request, model):
-        return "USER: %s" % model.username
+    def render_user2(self, request):
+        return "USER: %s" % self.username
 
     config.commit()
 
@@ -77,8 +77,8 @@ def test_overrides_model():
             self.username = username
 
     @app.view(model=User)
-    def render_user(request, model):
-        return "User: %s" % model.username
+    def render_user(self, request):
+        return "User: %s" % self.username
 
     @overriding.path(model=User, path='users/{username}')
     def get_user(username):

@@ -21,12 +21,12 @@ def test_simple_path_one_step():
         return Model()
 
     @app.view(model=Model)
-    def default(request, model):
+    def default(self, request):
         return "View"
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -52,12 +52,12 @@ def test_simple_path_two_steps():
         return Model()
 
     @app.view(model=Model)
-    def default(request, model):
+    def default(self, request):
         return "View"
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -83,12 +83,12 @@ def test_variable_path_one_step():
         return Model(name)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s" % model.name
+    def default(self, request):
+        return "View: %s" % self.name
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -114,12 +114,12 @@ def test_variable_path_two_steps():
         return Model(name)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s" % model.name
+    def default(self, request):
+        return "View: %s" % self.name
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -146,12 +146,12 @@ def test_variable_path_two_variables():
         return Model(name, version)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s %s" % (model.name, model.version)
+    def default(self, request):
+        return "View: %s %s" % (self.name, self.version)
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -178,12 +178,12 @@ def test_variable_path_explicit_converter():
         return Model(id)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s (%s)" % (model.id, type(model.id))
+    def default(self, request):
+        return "View: %s (%s)" % (self.id, type(self.id))
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -212,12 +212,12 @@ def test_variable_path_implicit_converter():
         return Model(id)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s (%s)" % (model.id, type(model.id))
+    def default(self, request):
+        return "View: %s (%s)" % (self.id, type(self.id))
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -247,12 +247,12 @@ def test_variable_path_explicit_trumps_implicit():
         return Model(id)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s (%s)" % (model.id, type(model.id))
+    def default(self, request):
+        return "View: %s (%s)" % (self.id, type(self.id))
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -282,12 +282,12 @@ def test_url_parameter_explicit_converter():
         return Model(id)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s (%s)" % (model.id, type(model.id))
+    def default(self, request):
+        return "View: %s (%s)" % (self.id, type(self.id))
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -319,12 +319,12 @@ def test_url_parameter_implicit_converter():
         return Model(id)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s (%s)" % (model.id, type(model.id))
+    def default(self, request):
+        return "View: %s (%s)" % (self.id, type(self.id))
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -357,12 +357,12 @@ def test_url_parameter_explicit_trumps_implicit():
         return Model(id)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s (%s)" % (model.id, type(model.id))
+    def default(self, request):
+        return "View: %s (%s)" % (self.id, type(self.id))
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -401,12 +401,12 @@ def test_decode_encode():
         return Model(id)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s" % model.id
+    def default(self, request):
+        return "View: %s" % self.id
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -435,12 +435,12 @@ def test_unknown_converter():
         return Model(d)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s" % model.d
+    def default(self, request):
+        return "View: %s" % self.d
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     with pytest.raises(DirectiveReportError):
         config.commit()
@@ -461,12 +461,12 @@ def test_default_date_converter():
         return Model(d)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s" % model.d
+    def default(self, request):
+        return "View: %s" % self.d
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -503,12 +503,12 @@ def test_default_datetime_converter():
         return Model(d)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s" % model.d
+    def default(self, request):
+        return "View: %s" % self.d
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -556,12 +556,12 @@ def test_custom_date_converter():
         return Model(d)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s" % model.d
+    def default(self, request):
+        return "View: %s" % self.d
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -596,12 +596,12 @@ def test_variable_path_parameter_required_no_default():
         return Model(id)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s" % model.id
+    def default(self, request):
+        return "View: %s" % self.id
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -627,12 +627,12 @@ def test_variable_path_parameter_required_with_default():
         return Model(id)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s" % model.id
+    def default(self, request):
+        return "View: %s" % self.id
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -659,12 +659,12 @@ def test_type_hints_and_converters():
         return Model(d)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s" % model.d
+    def default(self, request):
+        return "View: %s" % self.d
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -689,12 +689,12 @@ def test_link_for_none_means_no_parameter():
         return Model(id)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s" % model.id
+    def default(self, request):
+        return "View: %s" % self.id
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -723,12 +723,12 @@ def test_path_and_url_parameter_converter():
         return Model(id, param)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "View: %s %s" % (model.id, model.param)
+    def default(self, request):
+        return "View: %s %s" % (self.id, self.param)
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -747,8 +747,8 @@ def test_root_named_link():
         pass
 
     @app.view(model=Root)
-    def default(request, model):
-        return request.link(model, 'foo')
+    def default(self, request):
+        return request.link(self, 'foo')
 
     config.commit()
 

@@ -13,11 +13,11 @@ def test_view_predicates():
         pass
 
     @app.view(model=Root, name='foo', request_method='GET')
-    def get(request, model):
+    def get(self, request):
         return 'GET'
 
     @app.view(model=Root, name='foo', request_method='POST')
-    def post(request, model):
+    def post(self, request):
         return 'POST'
 
     config.commit()
@@ -40,16 +40,16 @@ def test_extra_predicates():
             self.id = id
 
     @app.view(model=Model, name='foo', id='a')
-    def get_a(request, model):
+    def get_a(self, request):
         return 'a'
 
     @app.view(model=Model, name='foo', id='b')
-    def get_b(request, model):
+    def get_b(self, request):
         return 'b'
 
     @app.predicate(name='id', order=2, default='')
-    def get_id(request, model):
-        return model.id
+    def get_id(self, request):
+        return self.id
     config.commit()
 
     c = Client(app, Response)

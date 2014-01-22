@@ -20,25 +20,25 @@ def get_model(id):
 
 
 @app.view(model=Model)
-def default(request, model):
-    return "The view for model: %s" % model.id
+def default(self, request):
+    return "The view for model: %s" % self.id
 
 
 @app.view(model=Model, name='link')
-def link(request, model):
-    return request.link(model)
+def link(self, request):
+    return request.link(self)
 
 
 @app.view(model=Model, name='json', render=morepath.render_json)
-def json(request, model):
-    return {'id': model.id}
+def json(self, request):
+    return {'id': self.id}
 
 
 @app.view(model=Root)
-def root_default(request, model):
-    return "The root: %s" % model.value
+def root_default(self, request):
+    return "The root: %s" % self.value
 
 
 @app.view(model=Root, name='link')
-def root_link(request, model):
-    return request.link(model)
+def root_link(self, request):
+    return request.link(self)

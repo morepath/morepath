@@ -131,18 +131,18 @@ def has_permission(identity, model, permission):
 
 @global_app.predicate(name='name', index=KeyIndex, order=0,
                       default='')
-def name_predicate(request, model):
+def name_predicate(self, request):
     return request.view_name
 
 
 @global_app.predicate(name='request_method', index=KeyIndex, order=1,
                       default='GET')
-def request_method_predicate(request, model):
+def request_method_predicate(self, request):
     return request.method
 
 
 @global_app.predicate_fallback(name='request_method')
-def method_not_allowed(request, model):
+def method_not_allowed(self, request):
     raise MethodNotAllowed()
 
 

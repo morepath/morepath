@@ -15,9 +15,9 @@ def get_model(id):
 
 with app.view(model=Model) as view:
     @view()
-    def default(request, model):
-        return "Default view: %s" % model.id
+    def default(self, request):
+        return "Default view: %s" % self.id
 
     @view(name='edit')
-    def edit(request, model):
-        return "Edit view: %s" % model.id
+    def edit(self, request):
+        return "Edit view: %s" % self.id

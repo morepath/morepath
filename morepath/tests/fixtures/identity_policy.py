@@ -18,8 +18,8 @@ def get_model(id):
 
 
 @app.view(model=Model, permission=Permission)
-def default(request, model):
-    return "Model: %s" % model.id
+def default(self, request):
+    return "Model: %s" % self.id
 
 
 @app.permission(model=Model, permission=Permission)

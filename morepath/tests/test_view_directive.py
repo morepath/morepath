@@ -14,7 +14,7 @@ def test_view_get_only():
             pass
 
     @app.view(model=Model)
-    def default(request, model):
+    def default(self, request):
         return "View"
     config.commit()
 
@@ -38,7 +38,7 @@ def test_view_any():
             pass
 
     @app.view(model=Model, request_method=morepath.ANY)
-    def default(request, model):
+    def default(self, request):
         return "View"
     config.commit()
 
@@ -61,11 +61,11 @@ def test_view_name_conflict_involving_default():
             pass
 
     @app.view(model=Model)
-    def default(request, model):
+    def default(self, request):
         return "View"
 
     @app.view(model=Model, name='')
-    def default2(request, model):
+    def default2(self, request):
         return "View"
 
     with pytest.raises(ConflictError):
@@ -87,11 +87,11 @@ def test_view_custom_predicate_conflict_involving_default_extends():
             pass
 
     @app.view(model=Model)
-    def default(request, model):
+    def default(self, request):
         return "View"
 
     @app.view(model=Model, foo='DEFAULT')
-    def default2(request, model):
+    def default2(self, request):
         return "View"
 
     with pytest.raises(ConflictError):

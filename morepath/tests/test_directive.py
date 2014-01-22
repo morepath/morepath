@@ -120,20 +120,20 @@ def test_basic_imperative():
     def get_model(id):
         return Model(id)
 
-    def default(request, model):
-        return "The view for model: %s" % model.id
+    def default(self, request):
+        return "The view for model: %s" % self.id
 
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
-    def json(request, model):
-        return {'id': model.id}
+    def json(self, request):
+        return {'id': self.id}
 
-    def root_default(request, model):
-        return "The root: %s" % model.value
+    def root_default(self, request):
+        return "The root: %s" % self.value
 
-    def root_link(request, model):
-        return request.link(model)
+    def root_link(self, request):
+        return request.link(self)
 
     c = setup()
     c.configurable(app)
@@ -190,24 +190,24 @@ def test_basic_testing_config():
         return Model(id)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "The view for model: %s" % model.id
+    def default(self, request):
+        return "The view for model: %s" % self.id
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     @app.view(model=Model, name='json', render=morepath.render_json)
-    def json(request, model):
-        return {'id': model.id}
+    def json(self, request):
+        return {'id': self.id}
 
     @app.view(model=Root)
-    def root_default(request, model):
-        return "The root: %s" % model.value
+    def root_default(self, request):
+        return "The root: %s" % self.value
 
     @app.view(model=Root, name='link')
-    def root_link(request, model):
-        return request.link(model)
+    def root_link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -244,22 +244,22 @@ def test_link_to_unknown_model():
             self.id = id
 
     @app.view(model=Root)
-    def root_link(request, model):
+    def root_link(self, request):
         try:
             return request.link(Model('foo'))
         except LinkError:
             return "Link error"
 
     @app.view(model=Root, name='default')
-    def root_link_with_default(request, model):
+    def root_link_with_default(self, request):
         return request.link(Model('foo'), default='hey')
 
     @app.view(model=Root, name='default2')
-    def root_link_with_default2(request, model):
+    def root_link_with_default2(self, request):
         return request.link(Model('foo'), default=('hey', dict(param=1)))
 
     @app.view(model=Root, name='default3')
-    def root_link_with_none_default(request, model):
+    def root_link_with_none_default(self, request):
         return str(request.link(Model('foo'), default=None) is None)
 
     config.commit()
@@ -296,12 +296,12 @@ def test_link_with_parameters():
         return Model(id, param)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "The view for model: %s %s" % (model.id, model.param)
+    def default(self, request):
+        return "The view for model: %s %s" % (self.id, self.param)
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -331,12 +331,12 @@ def test_root_link_with_parameters():
             self.param = param
 
     @app.view(model=Root)
-    def default(request, model):
-        return "The view for root: %s" % model.param
+    def default(self, request):
+        return "The view for root: %s" % self.param
 
     @app.view(model=Root, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -372,12 +372,12 @@ def test_implicit_variables():
         return Model(id)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "The view for model: %s" % model.id
+    def default(self, request):
+        return "The view for model: %s" % self.id
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -404,12 +404,12 @@ def test_implicit_parameters():
         return Model(id)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "The view for model: %s" % model.id
+    def default(self, request):
+        return "The view for model: %s" % self.id
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -442,12 +442,12 @@ def test_implicit_parameters_default():
         return Model(id)
 
     @app.view(model=Model)
-    def default(request, model):
-        return "The view for model: %s" % model.id
+    def default(self, request):
+        return "The view for model: %s" % self.id
 
     @app.view(model=Model, name='link')
-    def link(request, model):
-        return request.link(model)
+    def link(self, request):
+        return request.link(self)
 
     config.commit()
 
@@ -473,7 +473,7 @@ def test_convert_exception_to_internal_error():
             self.value = 'ROOT'
 
     @app.view(model=Root)
-    def default(request, model):
+    def default(self, request):
         1/0
         return ''
 
@@ -499,7 +499,7 @@ def test_simple_root():
         return hello
 
     @app.view(model=Hello)
-    def hello_view(request, model):
+    def hello_view(self, request):
         return 'hello'
 
     config.commit()
@@ -520,8 +520,8 @@ def test_json_directive():
             self.id = id
 
     @app.json(model=Model)
-    def json(request, model):
-        return {'id': model.id}
+    def json(self, request):
+        return {'id': self.id}
 
     config.commit()
 
@@ -541,7 +541,7 @@ def test_redirect():
             pass
 
     @app.view(model=Root, render=render_html)
-    def default(request, model):
+    def default(self, request):
         return morepath.redirect('/')
 
     config.commit()
@@ -732,11 +732,11 @@ def test_view_conflict():
         pass
 
     @app.view(model=Model, name='a')
-    def a_view(request, model):
+    def a_view(self, request):
         pass
 
     @app.view(model=Model, name='a')
-    def a1_view(request, model):
+    def a1_view(self, request):
         pass
 
     with pytest.raises(ConflictError):
@@ -751,11 +751,11 @@ def test_view_no_conflict_different_names():
         pass
 
     @app.view(model=Model, name='a')
-    def a_view(request, model):
+    def a_view(self, request):
         pass
 
     @app.view(model=Model, name='b')
-    def b_view(request, model):
+    def b_view(self, request):
         pass
 
     config.commit()
@@ -769,11 +769,11 @@ def test_view_no_conflict_different_predicates():
         pass
 
     @app.view(model=Model, name='a', request_method='GET')
-    def a_view(request, model):
+    def a_view(self, request):
         pass
 
     @app.view(model=Model, name='a', request_method='POST')
-    def b_view(request, model):
+    def b_view(self, request):
         pass
 
     config.commit()
@@ -788,11 +788,11 @@ def test_view_no_conflict_different_apps():
         pass
 
     @app_a.view(model=Model, name='a')
-    def a_view(request, model):
+    def a_view(self, request):
         pass
 
     @app_b.view(model=Model, name='a')
-    def a1_view(request, model):
+    def a1_view(self, request):
         pass
 
     config.commit()
@@ -806,11 +806,11 @@ def test_view_conflict_with_json():
         pass
 
     @app.view(model=Model, name='a')
-    def a_view(request, model):
+    def a_view(self, request):
         pass
 
     @app.json(model=Model, name='a')
-    def a1_view(request, model):
+    def a1_view(self, request):
         pass
 
     with pytest.raises(ConflictError):
@@ -825,11 +825,11 @@ def test_view_conflict_with_html():
         pass
 
     @app.view(model=Model, name='a')
-    def a_view(request, model):
-        pass
+    def a_view(self, request):
+        pass 
 
     @app.html(model=Model, name='a')
-    def a1_view(request, model):
+    def a1_view(self, request):
         pass
 
     with pytest.raises(ConflictError):
@@ -847,11 +847,11 @@ def test_function_conflict():
         pass
 
     @app.function(func, A)
-    def a_func(arequest, model):
+    def a_func(self, request):
         pass
 
     @app.function(func, A)
-    def a1_func(request, model):
+    def a1_func(self, request):
         pass
 
     with pytest.raises(ConflictError):
@@ -890,12 +890,12 @@ def test_mount():
         pass
 
     @mounted.view(model=MountedRoot)
-    def root_default(request, model):
+    def root_default(self, request):
         return "The root"
 
     @mounted.view(model=MountedRoot, name='link')
-    def root_link(request, model):
-        return request.link(model)
+    def root_link(self, request):
+        return request.link(self)
 
     @app.mount(path='{id}', app=mounted)
     def get_context():
@@ -922,12 +922,12 @@ def test_mount_empty_context():
         pass
 
     @mounted.view(model=MountedRoot)
-    def root_default(request, model):
+    def root_default(self, request):
         return "The root"
 
     @mounted.view(model=MountedRoot, name='link')
-    def root_link(request, model):
-        return request.link(model)
+    def root_link(self, request):
+        return request.link(self)
 
     @app.mount(path='{id}', app=mounted)
     def get_context():
@@ -956,8 +956,8 @@ def test_mount_context():
             self.mount_id = mount_id
 
     @mounted.view(model=MountedRoot)
-    def root_default(request, model):
-        return "The root for mount id: %s" % model.mount_id
+    def root_default(self, request):
+        return "The root for mount id: %s" % self.mount_id
 
     @app.mount(path='{id}', app=mounted)
     def get_context(id):
@@ -988,8 +988,8 @@ def test_mount_context_parameters():
             self.mount_id = mount_id
 
     @mounted.view(model=MountedRoot)
-    def root_default(request, model):
-        return "The root for mount id: %s" % model.mount_id
+    def root_default(self, request):
+        return "The root for mount id: %s" % self.mount_id
 
     @app.mount(path='mounts', app=mounted)
     def get_context(mount_id=0):
@@ -1020,8 +1020,8 @@ def test_mount_context_parameters_empty_context():
             self.mount_id = mount_id
 
     @mounted.view(model=MountedRoot)
-    def root_default(request, model):
-        return "The root for mount id: %s" % model.mount_id
+    def root_default(self, request):
+        return "The root for mount id: %s" % self.mount_id
 
     # the context does not in fact construct the context.
     # this means the parameters are instead constructed from the
@@ -1053,8 +1053,8 @@ def test_mount_context_standalone():
             self.mount_id = mount_id
 
     @app.view(model=Root)
-    def root_default(request, model):
-        return "The root for mount id: %s" % model.mount_id
+    def root_default(self, request):
+        return "The root for mount id: %s" % self.mount_id
 
     config.commit()
 
@@ -1082,7 +1082,7 @@ def test_mount_parent_link():
             self.mount_id = mount_id
 
     @mounted.view(model=MountedRoot)
-    def root_default(request, model):
+    def root_default(self, request):
         return request.link(Model('one'), mounted=request.mounted().parent())
 
     @app.mount(path='{id}', app=mounted)
@@ -1115,7 +1115,7 @@ def test_mount_child_link():
         pass
 
     @app.view(model=Root)
-    def app_root_default(request, model):
+    def app_root_default(self, request):
         return request.link(
             Model('one'),
             mounted=request.mounted().child(mounted, id='foo'))
@@ -1150,11 +1150,11 @@ def test_request_view_in_mount():
             self.id = id
 
     @mounted.view(model=Model)
-    def model_default(request, model):
+    def model_default(self, request):
         return {'hey': 'Hey'}
 
     @app.view(model=Root)
-    def root_default(request, model):
+    def root_default(self, request):
         return request.view(
             Model('x'), mounted=request.mounted().child(
                 mounted, mount_id='foo'))['hey']
