@@ -1,6 +1,6 @@
 from morepath.app import App
 from morepath.publish import publish, resolve_response
-from morepath.path import register_model
+from morepath.path import register_path
 from morepath.request import Response
 from morepath.view import register_view, render_json, render_html
 from morepath.core import setup
@@ -168,7 +168,7 @@ def test_view_raises_http_error():
     def view(request, model):
         raise BadRequest()
 
-    register_model(app, Model, 'foo', None, None, None, Model)
+    register_path(app, Model, 'foo', None, None, None, Model)
     register_view(app, Model, view)
 
     response = publish(app.request(get_environ(path='foo')), app.mounted())

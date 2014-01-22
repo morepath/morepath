@@ -6,7 +6,7 @@ from .view import (register_view, render_json, render_html,
                    get_predicates_with_defaults)
 from .security import (register_permission_checker,
                        Identity, NoIdentity)
-from .path import register_model, register_mount
+from .path import register_path, register_mount
 from .traject import Path
 from reg import KeyIndex
 from .request import Request, Response
@@ -128,9 +128,9 @@ class PathDirective(Directive):
         yield self.clone(model=model), obj
 
     def perform(self, app, obj):
-        register_model(app, self.model, self.path,
-                       self.variables, self.converters, self.required,
-                       obj)
+        register_path(app, self.model, self.path,
+                      self.variables, self.converters, self.required,
+                      obj)
 
 
 @directive('permission')

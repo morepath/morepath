@@ -94,8 +94,8 @@ def get_variables_func(arguments, exclude):
                            name in names}
 
 
-def register_model(app, model, path, variables, converters, required,
-                   model_factory, arguments=None):
+def register_path(app, model, path, variables, converters, required,
+                  model_factory, arguments=None):
     traject = app.traject
     if traject is None:
         traject = Traject()
@@ -135,8 +135,8 @@ def register_mount(base_app, app, path, required, context_factory):
             super(SpecificMount, self).__init__(app, context_factory, kw)
     # need to construct argument info from context_factory, not SpecificMount
     arguments = get_arguments(context_factory, SPECIAL_ARGUMENTS)
-    register_model(base_app, SpecificMount, path, lambda m: m.variables,
-                   None, required, SpecificMount, arguments=arguments)
+    register_path(base_app, SpecificMount, path, lambda m: m.variables,
+                  None, required, SpecificMount, arguments=arguments)
     register_mounted(base_app, app, SpecificMount)
 
 
