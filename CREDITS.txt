@@ -1,8 +1,10 @@
 CREDITS
 =======
 
-* Martijn Faassen
+* Martijn Faassen (creator and main developer)
 
-* CONTACT Software
+* Michael Bernstein (feedback)
 
-* contributions by Souheil Chelfouh, Alex Garel, Wolfgang Schnerring
+* Contributions by Souheil Chelfouh, Alex Garel, Wolfgang Schnerring
+
+* Special thanks to CONTACT software.
