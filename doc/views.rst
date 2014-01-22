@@ -311,8 +311,8 @@ Let's say we have a view that we only want to kick in when a certain
 request header is set to something::
 
   @app.predicate(name='something', order=100, default=None)
-  def get_something_header(request, model):
-      return headers.get('Something')
+  def get_something_header(self, request):
+      return request.headers.get('Something')
 
 We can use any information in the request and model to construct the
 predicate. Now you can use it to make a view that only kicks in when
