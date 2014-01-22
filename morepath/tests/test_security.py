@@ -22,8 +22,8 @@ def test_no_permission():
     class Permission(object):
         pass
 
-    @app.model(model=Model, path='{id}',
-               variables=lambda model: {'id': model.id})
+    @app.path(model=Model, path='{id}',
+              variables=lambda model: {'id': model.id})
     def get_model(id):
         return Model(id)
 
@@ -50,8 +50,8 @@ def test_permission_directive():
     class Permission(object):
         pass
 
-    @app.model(model=Model, path='{id}',
-               variables=lambda model: {'id': model.id})
+    @app.path(model=Model, path='{id}',
+              variables=lambda model: {'id': model.id})
     def get_model(id):
         return Model(id)
 
@@ -111,8 +111,8 @@ def test_basic_auth_identity_policy():
     class Permission(object):
         pass
 
-    @app.model(model=Model, path='{id}',
-               variables=lambda model: {'id': model.id})
+    @app.path(model=Model, path='{id}',
+              variables=lambda model: {'id': model.id})
     def get_model(id):
         return Model(id)
 
@@ -150,8 +150,8 @@ def test_basic_auth_remember():
     config = setup()
     app = morepath.App(testing_config=config)
 
-    @app.model(path='{id}',
-               variables=lambda model: {'id': model.id})
+    @app.path(path='{id}',
+              variables=lambda model: {'id': model.id})
     class Model(object):
         def __init__(self, id):
             self.id = id
@@ -182,7 +182,7 @@ def test_basic_auth_forget():
     config = setup()
     app = morepath.App(testing_config=config)
 
-    @app.model(path='{id}')
+    @app.path(path='{id}')
     class Model(object):
         def __init__(self, id):
             self.id = id
@@ -237,7 +237,7 @@ def test_cookie_identity_policy():
     config = setup()
     app = morepath.App(testing_config=config)
 
-    @app.model(path='{id}')
+    @app.path(path='{id}')
     class Model(object):
         def __init__(self, id):
             self.id = id

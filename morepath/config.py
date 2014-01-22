@@ -260,7 +260,7 @@ class Directive(Action):
 
     Extends :class:`morepath.config.Action`.
 
-    Base class for concrete Morepath directives such as ``@app.model()``,
+    Base class for concrete Morepath directives such as ``@app.path()``,
     ``@app.view()``, etc.
 
     Can be used as a Python decorator.
@@ -324,7 +324,7 @@ class Config(object):
 
     Morepath configuration actions consist of decorator calls on
     :class:`App` instances, i.e. ``@app.view()`` and
-    ``@app.model()``. The Config object can scan these configuration
+    ``@app.path()``. The Config object can scan these configuration
     actions in a package. Once all required configuration is scanned,
     the configuration can be committed. The configuration is then
     processed, associated with :class:`morepath.config.Configurable`

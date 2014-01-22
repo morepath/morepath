@@ -8,7 +8,7 @@ def test_view_get_only():
     config = morepath.setup()
     app = morepath.App(testing_config=config)
 
-    @app.model(path='')
+    @app.path(path='')
     class Model(object):
         def __init__(self):
             pass
@@ -32,7 +32,7 @@ def test_view_any():
     config = morepath.setup()
     app = morepath.App(testing_config=config)
 
-    @app.model(path='')
+    @app.path(path='')
     class Model(object):
         def __init__(self):
             pass
@@ -55,7 +55,7 @@ def test_view_name_conflict_involving_default():
     config = morepath.setup()
     app = morepath.App(testing_config=config)
 
-    @app.model(path='')
+    @app.path(path='')
     class Model(object):
         def __init__(self):
             pass
@@ -81,7 +81,7 @@ def test_view_custom_predicate_conflict_involving_default_extends():
     def get_foo(request, model):
         return 'foo'
 
-    @app.model(path='')
+    @app.path(path='')
     class Model(object):
         def __init__(self):
             pass

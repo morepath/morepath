@@ -8,7 +8,7 @@ def test_view_predicates():
     config = setup()
     app = App(testing_config=config)
 
-    @app.model(path='')
+    @app.path(path='')
     class Root(object):
         pass
 
@@ -34,7 +34,7 @@ def test_extra_predicates():
     config = setup()
     app = App(testing_config=config)
 
-    @app.model(path='{id}')
+    @app.path(path='{id}')
     class Model(object):
         def __init__(self, id):
             self.id = id

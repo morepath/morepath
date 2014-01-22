@@ -9,9 +9,7 @@ def test_extends():
     app = App(testing_config=config)
     extending = App(extends=[app], testing_config=config)
 
-    @app.model(
-        path='users/{username}',
-        variables=lambda model: {'username': model.username})
+    @app.path(path='users/{username}')
     class User(object):
         def __init__(self, username):
             self.username = username
@@ -44,9 +42,7 @@ def test_overrides_view():
     app = App(testing_config=config)
     overriding = App(extends=[app], testing_config=config)
 
-    @app.model(
-        path='users/{username}',
-        variables=lambda model: {'username': model.username})
+    @app.path(path='users/{username}')
     class User(object):
         def __init__(self, username):
             self.username = username
@@ -75,9 +71,7 @@ def test_overrides_model():
     app = App(testing_config=config)
     overriding = App(extends=[app], testing_config=config)
 
-    @app.model(
-        path='users/{username}',
-        variables=lambda model: {'username': model.username})
+    @app.path(path='users/{username}')
     class User(object):
         def __init__(self, username):
             self.username = username
@@ -86,8 +80,7 @@ def test_overrides_model():
     def render_user(request, model):
         return "User: %s" % model.username
 
-    @overriding.model(model=User, path='users/{username}',
-                      variables=lambda model: {'username': model.username})
+    @overriding.path(model=User, path='users/{username}')
     def get_user(username):
         if username != 'bar':
             return None

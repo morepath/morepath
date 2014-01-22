@@ -3,7 +3,7 @@ import morepath
 app = morepath.App()
 
 
-@app.model(path='/')
+@app.path(path='/')
 class Root(object):
     def __init__(self):
         self.value = 'ROOT'
@@ -14,8 +14,7 @@ class Model(object):
         self.id = id
 
 
-@app.model(model=Model, path='{id}',
-           variables=lambda model: {'id': model.id})
+@app.path(model=Model, path='{id}')
 def get_model(id):
     return Model(id)
 

@@ -8,8 +8,7 @@ class Model(object):
         self.id = id
 
 
-@app.model(model=Model, path='{id}',
-           variables=lambda model: {'id': model.id})
+@app.path(model=Model, path='{id}')
 def get_model(id):
     return Model(id)
 

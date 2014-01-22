@@ -7,7 +7,7 @@ def autoconfig(ignore=None):
     """Automatically load Morepath configuration from packages.
 
     Morepath configuration consists of decorator calls on :class:`App`
-    instances, i.e. ``@app.view()`` and ``@app.model()``.
+    instances, i.e. ``@app.view()`` and ``@app.path()``.
 
     This function loads all needed Morepath configuration from all
     packages automatically. These packages do need to be made

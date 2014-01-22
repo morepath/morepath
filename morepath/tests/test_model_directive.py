@@ -16,7 +16,7 @@ def test_simple_path_one_step():
         def __init__(self):
             pass
 
-    @app.model(model=Model, path='simple')
+    @app.path(model=Model, path='simple')
     def get_model():
         return Model()
 
@@ -47,7 +47,7 @@ def test_simple_path_two_steps():
         def __init__(self):
             pass
 
-    @app.model(model=Model, path='one/two')
+    @app.path(model=Model, path='one/two')
     def get_model():
         return Model()
 
@@ -78,7 +78,7 @@ def test_variable_path_one_step():
         def __init__(self, name):
             self.name = name
 
-    @app.model(model=Model, path='{name}')
+    @app.path(model=Model, path='{name}')
     def get_model(name):
         return Model(name)
 
@@ -109,7 +109,7 @@ def test_variable_path_two_steps():
         def __init__(self, name):
             self.name = name
 
-    @app.model(model=Model, path='document/{name}')
+    @app.path(model=Model, path='document/{name}')
     def get_model(name):
         return Model(name)
 
@@ -141,7 +141,7 @@ def test_variable_path_two_variables():
             self.name = name
             self.version = version
 
-    @app.model(model=Model, path='{name}-{version}')
+    @app.path(model=Model, path='{name}-{version}')
     def get_model(name, version):
         return Model(name, version)
 
@@ -172,8 +172,8 @@ def test_variable_path_explicit_converter():
         def __init__(self, id):
             self.id = id
 
-    @app.model(model=Model, path='{id}',
-               converters=dict(id=Converter(int)))
+    @app.path(model=Model, path='{id}',
+              converters=dict(id=Converter(int)))
     def get_model(id):
         return Model(id)
 
@@ -207,7 +207,7 @@ def test_variable_path_implicit_converter():
         def __init__(self, id):
             self.id = id
 
-    @app.model(model=Model, path='{id}')
+    @app.path(model=Model, path='{id}')
     def get_model(id=0):
         return Model(id)
 
@@ -241,8 +241,8 @@ def test_variable_path_explicit_trumps_implicit():
         def __init__(self, id):
             self.id = id
 
-    @app.model(model=Model, path='{id}',
-               converters=dict(id=Converter(int)))
+    @app.path(model=Model, path='{id}',
+              converters=dict(id=Converter(int)))
     def get_model(id='foo'):
         return Model(id)
 
@@ -276,8 +276,8 @@ def test_url_parameter_explicit_converter():
         def __init__(self, id):
             self.id = id
 
-    @app.model(model=Model, path='/',
-               converters=dict(id=Converter(int)))
+    @app.path(model=Model, path='/',
+              converters=dict(id=Converter(int)))
     def get_model(id):
         return Model(id)
 
@@ -314,7 +314,7 @@ def test_url_parameter_implicit_converter():
         def __init__(self, id):
             self.id = id
 
-    @app.model(model=Model, path='/')
+    @app.path(model=Model, path='/')
     def get_model(id=0):
         return Model(id)
 
@@ -351,8 +351,8 @@ def test_url_parameter_explicit_trumps_implicit():
         def __init__(self, id):
             self.id = id
 
-    @app.model(model=Model, path='/',
-               converters=dict(id=Converter(int)))
+    @app.path(model=Model, path='/',
+              converters=dict(id=Converter(int)))
     def get_model(id='foo'):
         return Model(id)
 
@@ -395,8 +395,8 @@ def test_decode_encode():
     def my_encode(s):
         return s[:-len('ADD')]
 
-    @app.model(model=Model, path='/',
-               converters=dict(id=Converter(my_decode, my_encode)))
+    @app.path(model=Model, path='/',
+              converters=dict(id=Converter(my_decode, my_encode)))
     def get_model(id):
         return Model(id)
 
@@ -430,7 +430,7 @@ def test_unknown_converter():
     class Unknown(object):
         pass
 
-    @app.model(model=Model, path='/')
+    @app.path(model=Model, path='/')
     def get_model(d=Unknown()):
         return Model(d)
 
@@ -456,7 +456,7 @@ def test_default_date_converter():
 
     from datetime import date
 
-    @app.model(model=Model, path='/')
+    @app.path(model=Model, path='/')
     def get_model(d=date(2011, 1, 1)):
         return Model(d)
 
@@ -498,7 +498,7 @@ def test_default_datetime_converter():
 
     from datetime import datetime
 
-    @app.model(model=Model, path='/')
+    @app.path(model=Model, path='/')
     def get_model(d=datetime(2011, 1, 1, 10, 30)):
         return Model(d)
 
@@ -551,7 +551,7 @@ def test_custom_date_converter():
     def date_converter():
         return Converter(date_decode, date_encode)
 
-    @app.model(model=Model, path='/')
+    @app.path(model=Model, path='/')
     def get_model(d=date(2011, 1, 1)):
         return Model(d)
 
@@ -591,7 +591,7 @@ def test_variable_path_parameter_required_no_default():
         def __init__(self, id):
             self.id = id
 
-    @app.model(model=Model, path='', required=['id'])
+    @app.path(model=Model, path='', required=['id'])
     def get_model(id):
         return Model(id)
 
@@ -622,7 +622,7 @@ def test_variable_path_parameter_required_with_default():
         def __init__(self, id):
             self.id = id
 
-    @app.model(model=Model, path='', required=['id'])
+    @app.path(model=Model, path='', required=['id'])
     def get_model(id='b'):
         return Model(id)
 
@@ -654,7 +654,7 @@ def test_type_hints_and_converters():
 
     from datetime import date
 
-    @app.model(model=Model, path='', converters=dict(d=date))
+    @app.path(model=Model, path='', converters=dict(d=date))
     def get_model(d):
         return Model(d)
 
@@ -684,7 +684,7 @@ def test_link_for_none_means_no_parameter():
         def __init__(self, id):
             self.id = id
 
-    @app.model(model=Model, path='')
+    @app.path(model=Model, path='')
     def get_model(id):
         return Model(id)
 
@@ -718,7 +718,7 @@ def test_path_and_url_parameter_converter():
             self.param = param
 
     from datetime import date
-    @app.model(model=Model, path='/{id}', converters=dict(param=date))
+    @app.path(model=Model, path='/{id}', converters=dict(param=date))
     def get_model(id=0, param=None):
         return Model(id, param)
 
@@ -742,7 +742,7 @@ def test_root_named_link():
     config = setup()
     app = morepath.App(testing_config=config)
 
-    @app.model(path='')
+    @app.path(path='')
     class Root(object):
         pass
 
