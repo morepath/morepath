@@ -91,7 +91,9 @@ Code Walkthrough
 
 4. Now we can create the "Hello world" view. It's just a function that
    takes ``self`` and ``request`` as arguments (we don't need to use
-   either in this case), and returns the string ``"Hello world!"``.
+   either in this case), and returns the string ``"Hello
+   world!"``. The ``self`` argument is the instance of the ``model``
+   class that is being viewed.
 
    We then need to hook up this view with the
    :meth:`morepath.AppBase.view` decorator.  We say it's associated
@@ -185,6 +187,25 @@ We also create a simple users database::
 Publishing models
 ~~~~~~~~~~~~~~~~~
 
+.. sidebar:: Custom variables function
+
+  The default behavior is for Morepath to retrieve the variables by
+  name using ``getattr`` from the model objects. This only works if
+  those variables exist on the model under that name. If not, you can
+  supply a custom ``variables`` function that given the model will
+  return a dictionary with all the variables in it. Here's how::
+
+    @app.path(model=User, path='/users/{username}',
+              variables=lambda model: dict(username=model.username))
+    def get_user(username):
+        return users.get(username)
+
+  Of course this ``variables`` is not necessary as it has the same
+  behavior as the default, but you can do whatever you want in the
+  variables function in order to get the username.
+
+  Getting ``variables`` right is important for link generation.
+
 We want our application to have URLs that look like this::
 
   /users/faassen
@@ -210,25 +231,6 @@ The path can have variables in it which are between curly braces
 (``{`` and ``}``). These variables become arguments to the function
 being decorated. Any arguments the function has that are not in the
 path will be interpreted as URL parameters.
-
-.. sidebar:: Custom variables function
-
-  The default behavior is for Morepath to retrieve the variables by
-  name using ``getattr`` from the model objects. This only works if
-  those variables exist on the model under that name. If not, you can
-  supply a custom ``variables`` function that given the model will
-  return a dictionary with all the variables in it. Here's how::
-
-    @app.path(model=User, path='/users/{username}',
-              variables=lambda model: dict(username=model.username))
-    def get_user(username):
-        return users.get(username)
-
-  Of course this ``variables`` is not necessary as it has the same
-  behavior as the default, but you can do whatever you want in the
-  variables function in order to get the username.
-
-  Getting ``variables`` right is important for link generation.
 
 What if the user doesn't exist? We want the end-user to see a 404
 error.  Morepath does this automatically for you when you return

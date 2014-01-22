@@ -117,7 +117,7 @@ a ``SpecialDocument``? Our ``document_container_json`` function would
 break. How to fix it? Easy, we can use :meth:`morepath.Request.view`::
 
   @app.json(model=DocumentContainer)
-  def document_container_json(sel, request):
+  def document_container_json(self, request):
      return [request.view(doc) for doc in self.entries()]
 
 Now ``document_container_json`` will work for anything in the
