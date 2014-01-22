@@ -15,7 +15,7 @@ Let's look at a minimal "Hello world!" application in Morepath::
 
   app = morepath.App()
 
-  @app.model(path='')
+  @app.path(path='')
   class Root(object):
       pass
 
@@ -87,7 +87,7 @@ Code Walkthrough
 
    We set up the model as the root of the website (the empty string
    ``''`` indicates the root, but ``'/'`` would have worked too) using
-   the :meth:`morepath.AppBase.model` decorator.
+   the :meth:`morepath.AppBase.path` decorator.
 
 4. Now we can create the "Hello world" view. It's just a function that
    takes ``request`` and ``model`` as arguments (we don't need to use
@@ -112,7 +112,7 @@ Code Walkthrough
    in one step.
 
 7. We then ``scan()`` this module (or package) for configuration
-   decorators (such as :meth:`morepath.AppBase.model` and
+   decorators (such as :meth:`morepath.AppBase.path` and
    :meth:`morepath.AppBase.view`) and cause the registration to be
    registered using :meth:`morepath.Config.commit`.
 
@@ -193,7 +193,7 @@ We want our application to have URLs that look like this::
 
 Here's the code to expose our users database to such a URL::
 
-  @app.model(model=User, path='/users/{username}')
+  @app.path(model=User, path='/users/{username}')
   def get_user(username):
       return users.get(username)
 
@@ -219,8 +219,8 @@ path will be interpreted as URL parameters.
   supply a custom ``variables`` function that given the model will
   return a dictionary with all the variables in it. Here's how::
 
-    @app.model(model=User, path='/users/{username}',
-               variables=lambda model: dict(username=model.username))
+    @app.path(model=User, path='/users/{username}',
+              variables=lambda model: dict(username=model.username))
     def get_user(username):
         return users.get(username)
 
@@ -244,18 +244,18 @@ Now we've published the model to the web but we can't view it yet.
   know it doesn't match. You can specify a path variable contains an
   integer using the integer converter. For instance::
 
-    @app.model(model=Post, path='posts/{post_id}', converters=dict(post_id=int))
+    @app.path(model=Post, path='posts/{post_id}', converters=dict(post_id=int))
     def get_post(post_id):
         return query_post(post_id)
 
   You can do this more succinctly too by using a default parameter for
   ``post_id`` that is an int, for instance::
 
-    @app.model(model=Post, path='posts/{post_id}')
+    @app.path(model=Post, path='posts/{post_id}')
     def get_post(post_id=0):
         return query_post(post_id)
 
-For more on this, see :doc:`models_and_linking`.
+For more on this, see :doc:`paths_and_linking`.
 
 Views
 ~~~~~
@@ -313,7 +313,7 @@ easy. You only need models and remember which view names are
 available, that's it. If you ever have to change the path of your
 model, you won't need to adjust any linking code.
 
-For more on this, see :doc:`models_and_linking`.
+For more on this, see :doc:`paths_and_linking`.
 
 .. sidebar:: Link generation compared
 
@@ -325,7 +325,7 @@ For more on this, see :doc:`models_and_linking`.
   don't need a route name, and if the default way of getting variables
   from a model is not correct, you only need to explain once how to
   create the variables for a route, with the ``variables`` argument to
-  ``@app.model``.
+  ``@app.path``.
 
   In addition, Morepath links are completely generic: you can pass in
   anything linkable. This means that writing a generic view that uses

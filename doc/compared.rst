@@ -105,7 +105,7 @@ web frameworks like Zope and Grok, and also Pyramid in non-routing
 traversal mode. Uniquely among them Morepath *does* route, not
 traverse.
 
-For more: :doc:`models_and_linking`.
+For more: :doc:`paths_and_linking`.
 
 View lookup
 -----------

@@ -17,7 +17,7 @@ Let's examine a path::
 
 If there's a model like this::
 
-  @app.model(model=Document, path='/documents/{id}')
+  @app.path(model=Document, path='/documents/{id}')
   def get_document(id):
       return query_for_document(id)
 
@@ -100,7 +100,7 @@ We can now create a concrete collection that fulfills the requirements::
 
 When we now publish the concrete ``MyCollection`` on some URL::
 
-  @app.model(model=MyCollection, path='my_collection')
+  @app.path(model=MyCollection, path='my_collection')
   def get_my_collection():
       return MyCollection()
 

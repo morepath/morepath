@@ -65,8 +65,8 @@ class ConverterDirective(Directive):
         app.register_converter(self.type, obj())
 
 
-@directive('model')
-class ModelDirective(Directive):
+@directive('path')
+class PathDirective(Directive):
     depends = [ConverterDirective]
 
     def __init__(self, app,  path, model=None,
@@ -100,7 +100,7 @@ class ModelDirective(Directive):
            be given. Any default value is ignored. Has no effect on path
            variables. Optional.
         """
-        super(ModelDirective, self).__init__(app)
+        super(PathDirective, self).__init__(app)
         self.model = model
         self.path = path
         self.variables = variables
@@ -119,12 +119,12 @@ class ModelDirective(Directive):
         if isinstance(obj, type):
             if model is not None:
                 raise ConfigError(
-                    "@model decorates class so cannot "
+                    "@path decorates class so cannot "
                     "have explicit model: %s" % model)
             model = obj
         if model is None:
             raise ConfigError(
-                "@model does not decorate class and has no explicit model")
+                "@path does not decorate class and has no explicit model")
         yield self.clone(model=model), obj
 
     def perform(self, app, obj):
@@ -349,7 +349,7 @@ class HtmlDirective(ViewDirective):
 
 
 @directive('mount')
-class MountDirective(ModelDirective):
+class MountDirective(PathDirective):
     depends = [ConverterDirective]
     def __init__(self, base_app, path, app, converters=None,
                  required=None):
@@ -375,7 +375,7 @@ class MountDirective(ModelDirective):
         self.mounted_app = app
 
     # XXX it's a bit of a hack to make the mount directive
-    # group with the model directive so we get conflicts,
+    # group with the path directive so we get conflicts,
     # we need to override prepare to shut it up again
     def prepare(self, obj):
         yield self.clone(), obj

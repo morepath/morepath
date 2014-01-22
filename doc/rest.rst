@@ -87,7 +87,7 @@ We could for instance have a ``Document`` model in our application::
 
 We can expose it on a URL::
 
-  @app.model(model=Document, path='documents/{id}')
+  @app.path(model=Document, path='documents/{id}')
   def get_document(id):
      return document_by_id(id)
 
@@ -113,8 +113,8 @@ Modeling as resources
 Modeling a web service as multiple resources comes pretty naturally to
 Morepath, as it's model-oriented in the first place. You can think
 carefully about how to place models in the URL space and expose them
-using :meth:`morepath.AppBase.model`. In Morepath each model class
-can only be exposed on a single URL (per app), which gives them a
+using :meth:`morepath.AppBase.path`. In Morepath each model class can
+only be exposed on a single URL (per app), which gives them a
 canonical URL automatically.
 
 A collection resource could be modelled like this::
@@ -139,7 +139,7 @@ Here is how we could make ``documents`` available on a URL::
 
   documents = DocumentCollection()
 
-  @app.model(model=DocumentCollection, path='documents')
+  @app.path(model=DocumentCollection, path='documents')
   def documents_collection():
      return documents
 

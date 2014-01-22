@@ -21,7 +21,7 @@ makes it **expressive**.
 
 * It understands about generating hyperlinks. The web is about
   hyperlinks and Morepath actually *knows* about them. See
-  :doc:`models_and_linking`.
+  :doc:`paths_and_linking`.
 
 * Views are simple functions. Generic views are just views too. See
   :doc:`views`.
@@ -63,11 +63,11 @@ Morepath Knows About Your Models
       def __init__(self, id):
           self.id = id
 
-  @app.model(path='')
+  @app.path(path='')
   class Root(object):
       pass
 
-  @app.model(path='documents/{id}', model=Document)
+  @app.path(path='documents/{id}', model=Document)
   def get_document(id):
       return Document(id)  # query for doc
 

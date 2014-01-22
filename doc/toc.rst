@@ -11,7 +11,7 @@ Table of Contents
    quickstart
    installation
    superpowers
-   models_and_linking
+   paths_and_linking
    views
    rest
    app_reuse

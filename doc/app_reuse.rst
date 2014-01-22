@@ -32,7 +32,7 @@ views:
 
 .. code-block:: python
 
-  @app.model(model=User, path='users/{username}')
+  @app.path(model=User, path='users/{username}')
   def get_user(username):
       return query_for_user(username)
 
@@ -51,7 +51,7 @@ different way? No problem, we can just create one:
 .. code-block:: python
 
   other_app = morepath.App()
-  @other_app.model(model=User, path='different_path/{username}')
+  @other_app.path(model=User, path='different_path/{username}')
   def get_user(username):
       return different_query_for_user(username)
 
@@ -143,7 +143,7 @@ our overriding app:
 
 .. code-block:: python
 
-  @extended_app.model(model=OtherUser, path='users/{username}')
+  @extended_app.path(model=OtherUser, path='users/{username}')
   def get_user_differently(username):
       return OtherUser(username)
 
@@ -170,7 +170,7 @@ application we already have, along these lines:
 
 .. code-block:: python
 
-  @app.model(model=Wiki, path='users/{username}/wiki')
+  @app.path(model=Wiki, path='users/{username}/wiki')
   def get_wiki(username):
       return wiki_for_user(username)
 
@@ -205,7 +205,7 @@ wiki app by itself:
 
   wiki_app = morepath.App()
 
-  @wiki_app.model(model=Wiki, path='{wiki_id}')
+  @wiki_app.path(model=Wiki, path='{wiki_id}')
   def get_wiki(wiki_id):
       return query_wiki(wiki_id)
 
@@ -241,7 +241,7 @@ And we need to register the model so that its path is empty:
 
 .. code-block:: python
 
-  @wiki_app.model(model=Wiki, path='')
+  @wiki_app.path(model=Wiki, path='')
   def get_wiki(wiki_id):
       return query_wiki(wiki_id)
 

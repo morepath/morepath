@@ -1,14 +1,14 @@
-Models and Linking
-==================
+Paths and Linking
+=================
 
 Introduction
 ------------
 
-Morepath lets you publish Python functions to the web as models, and
-then allows you to create links to such models. To be able do so
-Morepath needs to be told what variables there are in order to find
-the model, and how to find these variables in order to construct a
-link to the model.
+Morepath lets you publish model classes on paths using Python
+functions. It also lets you create links to model instances. To be
+able do so Morepath needs to be told what variables there are in the
+path in order to find the model, and how to find these variables again
+in the model in order to construct a link to it.
 
 Paths
 -----
@@ -20,7 +20,7 @@ Let's assume we have a model class ``Overview``::
 
 Here's how we could expose it to the web under the path ``overview``::
 
-  @app.model(model=Overview, path='overview')
+  @app.path(model=Overview, path='overview')
   def get_overview():
       return Overview()
 
@@ -42,7 +42,7 @@ Let's try a single variable now. We have a class ``Document``::
 
 Let's expose it to the web under ``documents/{name}``::
 
-  @app.model(model=Document, path='documents/{name}')
+  @app.path(model=Document, path='documents/{name}')
   def get_document(name):
       return query_document_by_name(name)
 
@@ -65,8 +65,8 @@ We can also have multiple variables in a path. We have a
 
 We could expose this to the web like this::
 
-  @app.model(model=VersionedDocument,
-             path='versioned_documents/{name}-{version}')
+  @app.path(model=VersionedDocument,
+            path='versioned_documents/{name}-{version}')
   def get_versioned_document(name, version):
       return query_versioned_document(name, version)
 
@@ -83,7 +83,7 @@ URL parameters
 What if we want to use URL parameters to expose models? That is
 possible too. Let's look at the ``Document`` case first::
 
-  @app.model(model=Document, path='documents')
+  @app.path(model=Document, path='documents')
   def get_document(name):
       return query_document_by_name(name)
 
@@ -108,7 +108,7 @@ search in it for some ``text``::
 
 We now publish this collection, making it searchable::
 
-  @app.model(model=DocumentCollection, path='search')
+  @app.path(model=DocumentCollection, path='search')
   def document_search(text):
       return DocumentCollection(text)
 
@@ -132,7 +132,7 @@ parameter is supplied (instead of ``None``). We make a default
 available by supplying a default value in the ``document_search``
 function::
 
-  @app.model(model=DocumentCollection, path='search')
+  @app.path(model=DocumentCollection, path='search')
   def document_search(text='all'):
       return DocumentCollection(text)
 
@@ -157,7 +157,7 @@ Here is a simple case involving ``Document`` again::
       def __init__(self, name):
           self.name = name
 
-  @app.model(model=Document, path='documents/{name}')
+  @app.path(model=Document, path='documents/{name}')
   def get_document(name):
       return query_document_by_name(name)
 
@@ -208,8 +208,8 @@ extracted from the model.
 As an example, here is the ``variables`` function for the ``Document``
 case made explicit::
 
-  @app.model(model=Document, path='documents/{name}',
-             variables=lambda model: dict(name=model.name))
+  @app.path(model=Document, path='documents/{name}',
+            variables=lambda model: dict(name=model.name))
   def get_document(name):
       return query_document_by_name(name)
 
@@ -218,8 +218,8 @@ Or to spell it out without the use of ``lambda``::
   def document_variables(model):
       return dict(name=model.name)
 
-  @app.model(model=Document, path='documents/{name}',
-             variables=document_variables)
+  @app.path(model=Document, path='documents/{name}',
+            variables=document_variables)
   def get_document(name):
       return query_document_by_name(name)
 
@@ -233,8 +233,8 @@ attribute::
 Our automatic ``variables`` won't cut it anymore, so we have to be explicit::
 attribute, we can do this::
 
-  @app.model(model=DifferentDocument, path='documents/{name}',
-             variables=lambda model: dict(name=model.id))
+  @app.path(model=DifferentDocument, path='documents/{name}',
+            variables=lambda model: dict(name=model.id))
   def get_document(name):
       return query_document_by_name(name)
 
@@ -245,10 +245,10 @@ Getting variables works for multiple variables too of course. Here's
 the explicit ``variables`` for the ``VersionedDocument`` case that
 takes multiple variables::
 
-  @app.model(model=VersionedDocument,
-             path='versioned_documents/{name}-{version}',
-             variables=lambda model: dict(name=model.name,
-                                          version=model.version))
+  @app.path(model=VersionedDocument,
+            path='versioned_documents/{name}-{version}',
+            variables=lambda model: dict(name=model.name,
+                                         version=model.version))
   def get_versioned_document(name, version):
       return query_versioned_document(name, version)
 
@@ -261,7 +261,7 @@ variables.
 Here's a ``get_model`` that takes the document name as a URL
 parameter, using an implicit ``variables``::
 
-  @app.model(model=Document, path='documents')
+  @app.path(model=Document, path='documents')
   def get_document(name):
       return query_document_by_name(name)
 
@@ -273,8 +273,8 @@ Now we add back the same ``self_link`` view as we had before::
 
 Here's ``get_document`` with an explicit ``variables``::
 
-  @app.model(model=Document, path='documents',
-             variables=lambda model: dict(name=model.name))
+  @app.path(model=Document, path='documents',
+            variables=lambda model: dict(name=model.name))
   def get_document(name):
       return query_document_by_name(name)
 
@@ -315,7 +315,7 @@ has an ``int`` id like this::
 
 We could do this to expose it::
 
-  @app.model(model=Record, path='records/{id}')
+  @app.path(model=Record, path='records/{id}')
   def get_record(id):
       try:
           id = int(id)
@@ -327,7 +327,7 @@ But Morepath offers a better way. We can tell Morepath we expect an
 int and only an int, and if something else is supplied, the path
 should not match. Here's how::
 
-  @app.model(model=Record, path='records/{id}')
+  @app.path(model=Record, path='records/{id}')
   def get_record(id=0):
       return record_by_id(id)
 
@@ -340,7 +340,7 @@ for ``/records/foo``.
 
 Let's examine the same case for an ``id`` URL parameter::
 
-  @app.model(model=Record, path='records')
+  @app.path(model=Record, path='records')
   def get_record(id=0):
       return record_by_id(id)
 
@@ -440,8 +440,8 @@ with ``start`` and ``end`` to select records in a date range::
 
 We expose it to the web::
 
-  @app.model(model=Records, path='records',
-             converters=dict(start=date_converter, end=date_converter))
+  @app.path(model=Records, path='records',
+            converters=dict(start=date_converter, end=date_converter))
   def get_records(start, end):
       return Records(start, end)
 
@@ -468,7 +468,7 @@ response.
 
 You can also use encode and decode for arguments used in a path::
 
-  @app.model(model=Day, path='days/{d}', converters=dict(d=date_converter))
+  @app.path(model=Day, path='days/{d}', converters=dict(d=date_converter))
   def get_day(d):
       return Day(d)
 
@@ -507,7 +507,7 @@ i.e. ``2013-12-31``::
 
 Now Morepath understand type hints for ``date`` differently::
 
-  @app.model(model=Day, path='days/{d}')
+  @app.path(model=Day, path='days/{d}')
   def get_day(d=date(2011, 1, 1)):
       return Day(d)
 
@@ -523,7 +523,7 @@ argument to indicate the type hint, but you know you want to use a
 default converter for a particular type. For those cases you
 can pass the type into the ``converters`` dictionary as a shortcut::
 
-  @app.model(model=Day, path='days/{d}', converters=dict(d=date))
+  @app.path(model=Day, path='days/{d}', converters=dict(d=date))
   def get_day(d):
       return Day(d)
 
@@ -538,7 +538,7 @@ parameter is missing, it's an error and a ``400 Bad Request`` should
 be returned. You can do this by passing in a ``required`` argument
 to the model decorator::
 
-  @app.model(model=Record, path='records', required=['id'])
+  @app.path(model=Record, path='records', required=['id'])
   def get_record(id):
       return query_record(id)
 

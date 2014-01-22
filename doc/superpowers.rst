@@ -24,7 +24,7 @@ do::
 If you create links this way everywhere (and why shouldn't you?), you
 know your application's links will never break.
 
-For much more, see :doc:`models_and_linking`.
+For much more, see :doc:`paths_and_linking`.
 
 .. _generic-ui:
 
