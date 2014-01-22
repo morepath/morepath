@@ -6,7 +6,7 @@ from .view import (register_view, render_json, render_html,
                    get_predicates_with_defaults)
 from .security import (register_permission_checker,
                        Identity, NoIdentity)
-from .model import register_model, register_root, register_mount
+from .path import register_model, register_root, register_mount
 from .traject import Path
 from reg import KeyIndex
 from .request import Request, Response
@@ -51,7 +51,7 @@ class ConverterDirective(Directive):
           URLs. Morepath will look up the converter using the
           type. The type is either given explicitly as the value in
           the ``converters`` dictionary in the
-          :meth:`morepath.AppBase.model` directive, or is deduced from
+          :meth:`morepath.AppBase.path` directive, or is deduced from
           the value of the default argument of the decorated model
           function or class using ``type()``.
         """
@@ -363,7 +363,7 @@ class MountDirective(PathDirective):
         :param path: the path to mount the application on.
         :param app: the :class:`morepath.App` instance to mount.
         :param converters: converters as for the
-          :meth:`morepath.AppBase.model` directive.
+          :meth:`morepath.AppBase.path` directive.
         :param required: list or set of names of those URL parameters which
           should be required, i.e. if missing a 400 Bad Request response will
           be given. Any default value is ignored. Has no effect on path

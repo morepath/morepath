@@ -1,6 +1,6 @@
 from .app import global_app
 from .config import Config
-from .model import Mount
+from .path import Mount
 import morepath.directive
 from morepath import generic
 from .app import AppBase

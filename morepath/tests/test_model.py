@@ -1,6 +1,6 @@
 import urllib
-from morepath.model import (register_root, register_model,
-                            get_arguments, get_converters, get_url_parameters)
+from morepath.path import (register_root, register_model,
+                           get_arguments, get_converters, get_url_parameters)
 from morepath.converter import Converter, IDENTITY_CONVERTER
 from morepath.app import App
 from werkzeug.test import EnvironBuilder

@@ -1,6 +1,6 @@
 from morepath.app import App
 from morepath.publish import publish, resolve_response
-from morepath.model import register_model
+from morepath.path import register_model
 from morepath.request import Response
 from morepath.view import register_view, render_json, render_html
 from morepath.core import setup
