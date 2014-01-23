@@ -27,7 +27,8 @@ def test_basic():
 
     response = c.get('/foo/link')
     assert response.data == '/foo'
-
+    response = c.get('/blah')
+    assert response.data == 'Blah'
 
 def test_basic_json():
     config = setup()

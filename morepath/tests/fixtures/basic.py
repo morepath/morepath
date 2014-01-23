@@ -3,11 +3,21 @@ import morepath
 app = morepath.App()
 
 
-@app.path(path='/')
+class Blah(object):
+    pass
+
+#@app.path(path='/')
 class Root(object):
     def __init__(self):
         self.value = 'ROOT'
 
+    @app.path(model=Blah, path='blah')
+    def blah():
+        return Blah()
+
+@app.view(model=Blah)
+def blah_default(self, request):
+    return "Blah"
 
 class Model(object):
     def __init__(self, id):

@@ -517,3 +517,87 @@ def test_config_phases_extends():
     c.commit()
     assert early_performed == [(x, 'foo'), (y, 'foo')]
     assert late_performed == [(y, early_performed)]
+
+
+def test_directive_on_method():
+    performed = []
+
+    class MyDirective(config.Directive):
+        def __init__(self, configurable, foo=None):
+            super(MyDirective, self).__init__(configurable)
+            self.foo = foo
+
+        def perform(self, configurable, obj):
+            performed.append((obj, self.foo))
+
+        def identifier(self, configurable):
+            return self.foo
+
+    c = config.Config()
+    x = config.Configurable(testing_config=c)
+
+    class Something(object):
+        @MyDirective(x, 'A')
+        def method(self):
+            return "Result"
+
+    c.commit()
+
+    #assert performed == [(Something.method, 'A')]
+
+def test_directive_on_staticmethod():
+    performed = []
+
+    class MyDirective(config.Directive):
+        def __init__(self, configurable, foo=None):
+            super(MyDirective, self).__init__(configurable)
+            self.foo = foo
+
+        def perform(self, configurable, obj):
+            performed.append((obj, self.foo))
+
+        def identifier(self, configurable):
+            return self.foo
+
+    c = config.Config()
+    x = config.Configurable(testing_config=c)
+
+    class Something(object):
+        @MyDirective(x, 'A')
+        @staticmethod
+        def method():
+            return 'result'
+
+    c.commit()
+
+    #assert performed == [(Something.method, 'A')]
+    assert performed[0][0]() == 'result'
+
+
+def test_directive_on_classmethod():
+    performed = []
+
+    class MyDirective(config.Directive):
+        def __init__(self, configurable, foo=None):
+            super(MyDirective, self).__init__(configurable)
+            self.foo = foo
+
+        def perform(self, configurable, obj):
+            performed.append((obj, self.foo))
+
+        def identifier(self, configurable):
+            return self.foo
+
+    c = config.Config()
+    x = config.Configurable(testing_config=c)
+
+    class Something(object):
+        @classmethod
+        @MyDirective(x, 'A')
+        def method(cls):
+            return cls, 'result'
+
+    c.commit()
+
+    #assert performed == [(Something.method, 'A')]
+    assert performed[0][0]() == Something, 'result'
