@@ -1,6 +1,6 @@
-from .fixtures import basic, nested, abbr, mapply_bug
+from .fixtures import basic, nested, abbr, mapply_bug, normalmethod, method
 from morepath import setup
-from morepath.error import ConflictError, MountError
+from morepath.error import ConflictError, MountError, DirectiveError
 from morepath.config import Config
 from morepath.request import Response
 from morepath.view import render_html
@@ -27,8 +27,7 @@ def test_basic():
 
     response = c.get('/foo/link')
     assert response.data == '/foo'
-    response = c.get('/blah')
-    assert response.data == 'Blah'
+
 
 def test_basic_json():
     config = setup()
@@ -86,6 +85,40 @@ def test_abbr():
 
     response = c.get('/foo/edit')
     assert response.data == 'Edit view: foo'
+
+
+def test_scanned_normal_method():
+    config = setup()
+    with pytest.raises(DirectiveError):
+        config.scan(normalmethod)
+
+
+def test_scanned_static_method():
+    config = setup()
+    config.scan(method)
+    config.commit()
+
+    c = Client(method.app, Response)
+
+    response = c.get('/static')
+    assert response.data == 'Static Method'
+
+    root = method.Root()
+    assert isinstance(root.static_method(), method.StaticMethod)
+
+
+def test_scanned_class_method():
+    config = setup()
+    config.scan(method)
+    config.commit()
+
+    c = Client(method.app, Response)
+
+    response = c.get('/class')
+    assert response.data == 'Class Method'
+
+    root = method.Root()
+    assert isinstance(root.class_method(), method.ClassMethod)
 
 
 def test_imperative():

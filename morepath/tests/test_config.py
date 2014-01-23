@@ -536,14 +536,13 @@ def test_directive_on_method():
     c = config.Config()
     x = config.Configurable(testing_config=c)
 
+    # This should error and does in Venusian mode,
+    # but doesn't in testing_config mode.
     class Something(object):
         @MyDirective(x, 'A')
-        def method(self):
+        def method():
             return "Result"
 
-    c.commit()
-
-    #assert performed == [(Something.method, 'A')]
 
 def test_directive_on_staticmethod():
     performed = []
@@ -562,16 +561,14 @@ def test_directive_on_staticmethod():
     c = config.Config()
     x = config.Configurable(testing_config=c)
 
-    class Something(object):
-        @MyDirective(x, 'A')
-        @staticmethod
-        def method():
-            return 'result'
-
-    c.commit()
-
-    #assert performed == [(Something.method, 'A')]
-    assert performed[0][0]() == 'result'
+    # in Venusian code this will work, but we cannot support it in
+    # testing_config mode, so we'll fail.
+    with pytest.raises(config.DirectiveError):
+        class Something(object):
+            @MyDirective(x, 'A')
+            @staticmethod
+            def method():
+                return 'result'
 
 
 def test_directive_on_classmethod():
@@ -591,13 +588,11 @@ def test_directive_on_classmethod():
     c = config.Config()
     x = config.Configurable(testing_config=c)
 
-    class Something(object):
-        @classmethod
-        @MyDirective(x, 'A')
-        def method(cls):
-            return cls, 'result'
-
-    c.commit()
-
-    #assert performed == [(Something.method, 'A')]
-    assert performed[0][0]() == Something, 'result'
+    # in Venusian mode this will work, but we cannot support it in
+    # testing_config mode so we'll fail.
+    with pytest.raises(config.DirectiveError):
+        class Something(object):
+            @MyDirective(x, 'A')
+            @classmethod
+            def method(cls):
+                return cls, 'result'
