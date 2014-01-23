@@ -209,6 +209,16 @@ class PredicateFallbackDirective(Directive):
     depends = [PredicateDirective]
 
     def __init__(self, app, name):
+        """For a given predicate name, register fallback view.
+
+        The decorated function gets ``self`` and ``request`` parameters.
+
+        The fallback view is a view that gets called when the
+        named predicate does not match and no view has been registered
+        that can handle that case.
+
+        :param name: the name of the predicate.
+        """
         super(PredicateFallbackDirective, self).__init__(app)
         self.name = name
 
@@ -227,10 +237,10 @@ class ViewDirective(Directive):
                  **predicates):
         '''Register a view for a model.
 
-        The decorated function gets ``model`` and``request``
-        (:class:`morepath.Request`) parameters. The function should
-        return either a (unicode) string that will be the response
-        body, or a :class:`morepath.Response` object.
+        The decorated function gets ``self`` (model instance) and
+        ``request`` (:class:`morepath.Request`) parameters. The
+        function should return either a (unicode) string that will be
+        the response body, or a :class:`morepath.Response` object.
 
         If a specific ``render`` function is given the output of the
         function is passed to this first, and the function could
@@ -242,6 +252,8 @@ class ViewDirective(Directive):
         :meth:`morepath.AppBase.html`.
 
         :param model: the class of the model for which this view is registered.
+          The ``self`` passed into the view function will be an instance
+          of the model (or of a subclass).
         :param name: the name of the view as it appears in the URL. If omitted,
           it is the empty string, meaning the default view for the model.
         :param render: an optional function that can render the output of the
