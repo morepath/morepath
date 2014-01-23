@@ -223,7 +223,7 @@ class PredicateFallbackDirective(Directive):
 class ViewDirective(Directive):
     depends = [PredicateDirective, PredicateFallbackDirective]
 
-    def __init__(self, app, model, name=None, render=None, permission=None,
+    def __init__(self, app, model, render=None, permission=None,
                  **predicates):
         '''Register a view for a model.
 
@@ -257,14 +257,9 @@ class ViewDirective(Directive):
         '''
         super(ViewDirective, self).__init__(app)
         self.model = model
-        self.name = name
         self.render = render
-        self.predicates = {
-            'name': self.name
-            }
         self.permission = permission
-        self.kw = predicates
-        self.predicates.update(predicates)
+        self.predicates = predicates
 
     def clone(self, **kw):
         # XXX standard clone doesn't work due to use of predicates
@@ -273,10 +268,9 @@ class ViewDirective(Directive):
         args = dict(
             app=self.configurable,
             model=self.model,
-            name=self.name,
             render=self.render,
             permission=self.permission)
-        args.update(self.kw)
+        args.update(self.predicates)
         args.update(kw)
         return ViewDirective(**args)
 
@@ -293,8 +287,7 @@ class ViewDirective(Directive):
 
 @directive('json')
 class JsonDirective(ViewDirective):
-    def __init__(self, app, model, name='', render=None,
-                 permission=None, **predicates):
+    def __init__(self, app, model, render=None, permission=None, **predicates):
         """Register JSON view.
 
         This is like :meth:`morepath.AppBase.view`, but with
@@ -316,14 +309,13 @@ class JsonDirective(ViewDirective):
         :param predicates: predicates to match this view on.
         """
         render = render or render_json
-        super(JsonDirective, self).__init__(app, model, name, render,
-                                            permission, **predicates)
+        super(JsonDirective, self).__init__(app, model, render, permission,
+                                            **predicates)
 
 
 @directive('html')
 class HtmlDirective(ViewDirective):
-    def __init__(self, app, model, name='', render=None,
-                 permission=None, **predicates):
+    def __init__(self, app, model, render=None, permission=None, **predicates):
         """Register HTML view.
 
         This is like :meth:`morepath.AppBase.view`, but with
@@ -344,8 +336,8 @@ class HtmlDirective(ViewDirective):
         :param predicates: predicates to match this view on.
         """
         render = render or render_html
-        super(HtmlDirective, self).__init__(app, model, name, render,
-                                            permission, **predicates)
+        super(HtmlDirective, self).__init__(app, model, render, permission,
+                                            **predicates)
 
 
 @directive('mount')
