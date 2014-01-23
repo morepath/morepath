@@ -117,7 +117,6 @@ class PathDirective(Directive):
         model = self.model
         if isinstance(obj, type):
             if model is not None:
-                import pdb; pdb.set_trace()
                 raise ConfigError(
                     "@path decorates class so cannot "
                     "have explicit model: %s" % model)
