@@ -306,7 +306,7 @@ class Directive(Action):
             return wrapped
         # Normally we only add the action through Venusian scanning.
         def callback(scanner, name, obj):
-            scanner.config.action(self, obj)
+            scanner.config.action(self, wrapped)
         self.attach_info = venusian.attach(wrapped, callback)
         return wrapped
 
