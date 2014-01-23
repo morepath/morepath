@@ -15,7 +15,7 @@ def setup(app):
 
     class DirectiveDocumenter(MethodDocumenter):
         objtype = 'morepath_directive'
-        priority = 1
+        priority = MethodDocumenter.priority + 1
         member_order = 49
 
         @classmethod
@@ -42,4 +42,13 @@ def setup(app):
             result = result.replace('(app)', '()')
             return result
 
+    def decide_to_skip(app, what, name, obj, skip, options):
+        if what != 'class':
+            return skip
+        directive = getattr(obj, 'actual_directive', None)
+        if directive is not None:
+            return False
+        return skip
+
+    app.connect('autodoc-skip-member', decide_to_skip)
     app.add_autodocumenter(DirectiveDocumenter)
