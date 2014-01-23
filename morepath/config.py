@@ -306,6 +306,8 @@ class Directive(Action):
             # It's broken for methods as well, but we cannot detect it
             # without Venusian, so unfortunately we're going to have to
             # let that pass.
+            # XXX could we use something like Venusian's f_locals hack
+            # to determine the class scope here and do the right thing?
             if isinstance(wrapped, staticmethod):
                 raise DirectiveError(
                     "Cannot use staticmethod with testing_config.")
