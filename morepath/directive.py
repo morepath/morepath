@@ -248,7 +248,7 @@ class ViewDirective(Directive):
         :func:`morepath.render_json` for instance expects a Python
         object such as a dict that can be serialized to JSON.
 
-        See also :meth:`morepath.AppBase.json`` and
+        See also :meth:`morepath.AppBase.json` and
         :meth:`morepath.AppBase.html`.
 
         :param model: the class of the model for which this view is registered.
@@ -265,7 +265,9 @@ class ViewDirective(Directive):
         :param predicates: predicates to match this view on. Use
            :data:`morepath.ANY` for a predicate if you don't care what
            the value is. If you don't specify a predicate, the default
-           value will be used.
+           value will be used. Standard predicate values are
+           ``name`` and ``request_method``, but you can install your
+           own using the :meth:`morepath.AppBase.predicate` directive.
         '''
         super(ViewDirective, self).__init__(app)
         self.model = model
