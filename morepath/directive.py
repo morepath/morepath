@@ -254,20 +254,24 @@ class ViewDirective(Directive):
         :param model: the class of the model for which this view is registered.
           The ``self`` passed into the view function will be an instance
           of the model (or of a subclass).
-        :param name: the name of the view as it appears in the URL. If omitted,
-          it is the empty string, meaning the default view for the model.
         :param render: an optional function that can render the output of the
           view function to a response, and possibly set headers such as
           ``Content-Type``, etc.
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
+        :param name: the name of the view as it appears in the URL. If omitted,
+          it is the empty string, meaning the default view for the model.
+          This is a predicate.
+        :param request_method: the request method to which this view should
+          answer, i.e. GET, POST, etc. If omitted, this view will respond to
+          GET requests only. This is a predicate.
         :param predicates: predicates to match this view on. Use
-           :data:`morepath.ANY` for a predicate if you don't care what
-           the value is. If you don't specify a predicate, the default
-           value will be used. Standard predicate values are
-           ``name`` and ``request_method``, but you can install your
-           own using the :meth:`morepath.AppBase.predicate` directive.
+          :data:`morepath.ANY` for a predicate if you don't care what
+          the value is. If you don't specify a predicate, the default
+          value will be used. Standard predicate values are
+          ``name`` and ``request_method``, but you can install your
+          own using the :meth:`morepath.AppBase.predicate` directive.
         '''
         super(ViewDirective, self).__init__(app)
         self.model = model
@@ -320,7 +324,14 @@ class JsonDirective(ViewDirective):
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
-        :param predicates: predicates to match this view on.
+        :param name: the name of the view as it appears in the URL. If omitted,
+          it is the empty string, meaning the default view for the model.
+          This is a predicate.
+        :param request_method: the request method to which this view should
+          answer, i.e. GET, POST, etc. If omitted, this view will respond to
+          GET requests only. This is a predicate.
+        :param predicates: predicates to match this view on. See the
+          documentation of :meth:`AppBase.view` for more information.
         """
         render = render or render_json
         super(JsonDirective, self).__init__(app, model, render, permission,
@@ -347,7 +358,14 @@ class HtmlDirective(ViewDirective):
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
-        :param predicates: predicates to match this view on.
+        :param name: the name of the view as it appears in the URL. If omitted,
+          it is the empty string, meaning the default view for the model.
+          This is a predicate.
+        :param request_method: the request method to which this view should
+          answer, i.e. GET, POST, etc. If omitted, this view will respond to
+          GET requests only. This is a predicate.
+        :param predicates: predicates to match this view on. See the
+          documentation of :meth:`AppBase.view` for more information.
         """
         render = render or render_html
         super(HtmlDirective, self).__init__(app, model, render, permission,
