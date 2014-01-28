@@ -67,37 +67,31 @@ class Request(BaseRequest):
             return None
         return view(self, model)
 
-    # XXX add way to easily generate URL parameters too
     # XXX once lookup is retrieved from mounted, do we want a request.lookup?
-    def link(self, model, name='', mounted=None, default=NO_DEFAULT):
+    def link(self, model, name='', mounted=None, default=None):
         """Create a link (URL) to a view on a model.
 
-        :param model: the model to link to.
+        If no link can be constructed for the model instance, a
+        :exc:``morepath.LinkError`` will be raised. ``None`` is treated
+        specially: if ``None`` is passed in the default value will be
+        returned.
+
+        :param model: the model instance to link to, or ``None``.
         :param name: the name of the view to link to. If omitted, the
           the default view is looked up.
         :param mounted: a :class:`morepath.path.Mount` instance for
           which the view should be looked up. If ommitted, this is the
           current mount.
-        :param default: the link that should be used if no link can
-          be constructed for this object. If a tuple, the second value
-          contains the URL parameters. If omitted, a
-          :exc:`morepath.error.LinkError` will be raised instead.
+        :param default: if ``None`` is passed in, the default value will
+          be returned. By default this is ``None``.
+
         """
+        if model is None:
+            return default
         if mounted is None:
             mounted = self.mounts[-1]
-        try:
-            path, parameters = generic.link(
-                self, model, mounted, lookup=mounted.lookup())
-        except LinkError:
-            if default is NO_DEFAULT:
-                raise
-            if isinstance(default, tuple):
-                path, parameters = default
-            else:
-                path = default
-                parameters = {}
-        if not isinstance(path, basestring):
-            return None
+        path, parameters = generic.link(
+            self, model, mounted, lookup=mounted.lookup())
         parts = []
         if path:
             parts.append(path)

@@ -286,15 +286,10 @@ def test_link_to_unknown_model():
 
     @app.view(model=Root, name='default')
     def root_link_with_default(self, request):
-        return request.link(Model('foo'), default='hey')
-
-    @app.view(model=Root, name='default2')
-    def root_link_with_default2(self, request):
-        return request.link(Model('foo'), default=('hey', dict(param=1)))
-
-    @app.view(model=Root, name='default3')
-    def root_link_with_none_default(self, request):
-        return str(request.link(Model('foo'), default=None) is None)
+        try:
+            return request.link(Model('foo'), default='hey')
+        except LinkError:
+            return "Link Error"
 
     config.commit()
 
@@ -303,11 +298,38 @@ def test_link_to_unknown_model():
     response = c.get('/')
     assert response.data == 'Link error'
     response = c.get('/default')
-    assert response.data == '/hey'
-    response = c.get('/default2')
-    assert response.data == '/hey?param=1'
-    response = c.get('/default3')
+    assert response.data == 'Link Error'
+
+
+def test_link_to_none():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    @app.path(path='')
+    class Root(object):
+        def __init__(self):
+            self.value = 'ROOT'
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @app.view(model=Root)
+    def root_link(self, request):
+        return str(request.link(None) is None)
+
+    @app.view(model=Root, name='default')
+    def root_link_with_default(self, request):
+        return request.link(None, default='unknown')
+
+    config.commit()
+
+    c = Client(app, Response)
+
+    response = c.get('/')
     assert response.data == 'True'
+    response = c.get('/default')
+    assert response.data == 'unknown'
 
 
 def test_link_with_parameters():
