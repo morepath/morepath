@@ -125,6 +125,9 @@ Code Walkthrough
    ``app`` is a WSGI app you can also plug it into any other WSGI
    server.
 
+This example presents a compact way to organize your code, but for a
+real project we recommend you read :doc:`organizing_your_project`.
+
 Routing
 -------
 

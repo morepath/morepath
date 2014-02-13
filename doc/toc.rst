@@ -14,6 +14,7 @@ Table of Contents
    paths_and_linking
    views
    rest
+   organizing_your_project
    app_reuse
    api
    compared
