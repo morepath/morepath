@@ -41,9 +41,12 @@ to build framework-like applications and application-like frameworks.
 
 The document doc:`app_reuse` describes some basic facilities for
 application reuse. The document :doc:`organizing_your_project`
-describes how a single application project can be organized. This
-document sketches out a concrete example of larger application that
-consists of multiple sub-projects and sub-apps.
+describes how a single application project can be organized, and we
+will follow its guidelines in this document.
+
+This document sketches out a concrete example of a larger application
+that consists of multiple sub-projects and sub-apps, and that needs
+customization.
 
 A Code Hosting Site
 -------------------
@@ -236,7 +239,7 @@ Now that we have an independent ``issues_app`` and ``wiki_app``, we want
 to be able to mount these under the right URLs under ``core_app``. We
 do this using the mount directive::
 
-  @core_app.mount('{user_name}/{repository_name}/issues',
+  @core_app.mount(path='{user_name}/{repository_name}/issues',
                   app=issues_app)
   def mount_issues(user_name, repository_name):
       return { 'issues_id': get_issues_id(user_name, repository_name) }
@@ -259,7 +262,7 @@ Let's look at what this does:
 
 Mounting the wiki is very similar::
 
-  @core_app.mount('{user_name}/{repository_name}/wiki',
+  @core_app.mount(path='{user_name}/{repository_name}/wiki',
                   app=wiki_app)
   def mount_wiki(user_name, repository_name):
       return { 'wiki_id': get_wiki_id(user_name, repository_name) }
@@ -316,10 +319,11 @@ for instance:
 Each would be organized as described in
 :doc:`organizing_your_code`.
 
-``myproject.core`` would have an ``install_requires`` that depends on
-``myproject.issues`` and ``myproject.wiki``. To get ``issues_app`` and
-``wiki_app`` in order to mount them in the core, we would simply
-import them (for instance in ``myproject.core.main``)::
+``myproject.core`` would have an ``install_requires`` in its
+``setup.py`` that depends on ``myproject.issues`` and
+``myproject.wiki``. To get ``issues_app`` and ``wiki_app`` in order to
+mount them in the core, we would simply import them (for instance in
+``myproject.core.main``)::
 
   from myproject.issues.main import issues_app
   from myproject.wiki.main import wiki_app
@@ -346,7 +350,7 @@ Perhaps a different, better wiki implementation is developed. Let's
 call it ``shiny_new_wiki_app``. Swapping in the new sub application
 is easy: it's just a matter of changing the mount directive::
 
-  @core_app.mount('{user_name}/{repository_name}/wiki',
+  @core_app.mount(path='{user_name}/{repository_name}/wiki',
                   app=shiny_new_wiki_app)
   def mount_wiki(user_name, repository_name):
       return { 'wiki_id': get_wiki_id(user_name, repository_name) }
@@ -354,44 +358,125 @@ is easy: it's just a matter of changing the mount directive::
 Customizing an app
 ------------------
 
-What if a particular customer wanted *exactly* core app, really, it's
-perfect, but then ... wait for it ... they actually need a minor
-change. Let's say they want an extra view on ``Repository`` that shows
-some important customer-specific metadata. This metadata is retrieved
-from a customer-specific extra database. This means we cannot just
-modify the core app and add the view there; besides, this new view
-isn't useful to any other customers.
+Let's change gears and talk about customization now.
 
-XXX example code
+Imagine a scenario where a particular customer wants *exactly* core
+app, really, it's perfect, but then ... wait for it ... they actually
+need a minor tweak.
+
+Let's say they want an extra view on ``Repository`` that shows some
+important customer-specific metadata. This metadata is retrieved from
+a customer-specific extra database, so we cannot just add it to core
+app. Besides, this new view isn't useful to other customers.
+
+What we need to do is create a new customer specific core app in a
+separate project that is exactly like the original core app by
+extending it, but with the one extra view added. Let's call the
+project ``important_customer.core``. ``important_customer.core`` has
+an ``install_requires`` in its ``setup.py`` that depends on
+``myproject.core`` and also the customer database (which we imagine is
+called ``customerdatabase``).
+
+Now we can import ``core_app`` from it in
+``important_customer.core``'s ``main.py`` module, and extend from it::
+
+  from myproject.core.main import core_app
+
+  customer_app = morepath.App(extends=[core_app])
+
+At this point ``customer_app`` will behave identically to ``core_app``. Now
+let's make our customization and add a new JSON view to ``Repository``::
+
+  from myproject.core.model import Repository
+  # customer specific database
+  from customerdatabase import query_metadata
+
+  @customer_app.json(model=Repository, name='customer_metadata')
+  def repository_customer_metadata(self, request):
+      metadata = query_metadata(self.id) # use repository id to find it
+      return {
+        'special_marketing_info': medata.marketing_info,
+        'internal_description': metadata.description
+      }
+
+You can now run ``customer_app`` and get the core app with exactly the
+one tweak the customer wanted: a view with the extra metadata. The
+``important_customer.core`` project depends on ``customerdatabase``,
+but ``myproject.core`` remains unchanged.
+
+We've now made exactly the tweak necessary without having to modify
+our original project, so this will continue to work the same way for
+other customers.
+
+Swapping in for one customer
+----------------------------
+
+Morepath lets you add any directive, not just views. It also lets you
+*override* things in the applications you extend. What if we had a new
+wiki like before, but we only want to upgrade one particular to it,
+and leave the others with the original? Perhaps our important customer
+needs *exactly* the wiki app mounted in core app, really, it's
+perfect... but they actually need a minor tweak to the wiki too.
+
+We'd tweak the wiki just as we would tweak the core app. We end up
+with a ``tweaked_wiki_app``::
+
+  from myproject.wiki.main import wiki_app
+
+  tweaked_wiki_app = morepath.App(extends=[wiki_app])
+
+  # some kind of tweak
+  @tweaked_wiki_app.json(model=WikiPage, name='extra_info')
+  def page_extra_info(self, request):
+      ...
+
+We now want a new version of ``core_app`` just for this customer that
+mounts ``tweaked_wiki_app`` instead of ``wiki_app``::
+
+  important_customer_app = morepath.App(extends=[core_app])
+
+  @important_customer_app.mount(path='{user_name}/{repository_name}/wiki',
+                                app=tweaked_wiki_app)
+  def mount_wiki(user_name, repository_name):
+      return { 'wiki_id': get_wiki_id(user_name, repository_name) }
+
+The ``mount`` directive above overrides the one in the ``core_app``
+that we're extending, because it uses the same ``path`` but mounts
+``tweaked_wiki_app`` instead.
+
+You can override any other directive (path, view, etc) the same way.
 
 Framework apps
 --------------
 
+A ``morepath.App`` instance does not need to be a full working web
+application. Instead it can be a framework consisting of just a few
+with only those paths, subpaths and views that we intend to be
+reusable.
 
+For views this works together well with Morepath's understanding of
+inheritance. We could for instance have a base class ``Metadata``, and
+whenever any model subclasses from it, we want it to gain a
+``metadata`` view that returns this metadata as JSON data. Let's write
+some code for that::
 
+  framework = morepath.App()
+
+  class Metadata(object):
+      def __init__(self, d):
+          self.d = d # metadata dictionary
+
+      def get_metadata(self):
+          return self.d
+
+  @framework.json(model=Metadata, name='metadata')
+  def metadata_view(self, request):
+      return self.get_metadata()
+
+XXX Complete example
 
 Note that Morepath itself is actually a framework app that your apps
 extend automatically. This means you can override parts of it (say,
 how links are generated) just like you would override a framework app!
 We did our best to make Morepath do the right thing already, but if
 not, you *can* customize it.
-
-Organize for Customization
---------------------------
-
-
-
-By splitting up the application into separate ones, we've also
-organized our code to support various customizations better, like
-swapping in a whole new sub-application.
-
-
-
- and we
-want to upgrade one customer (but only that customer) to use this
-better implementation. To do so we can extend ``core_app`` for this
-particular customer only::
-
-  
-
-What if a particular client insists on using a different wiki
