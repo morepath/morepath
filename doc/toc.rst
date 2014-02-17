@@ -16,6 +16,7 @@ Table of Contents
    rest
    organizing_your_project
    app_reuse
+   building_large_applications
    api
    compared
    design

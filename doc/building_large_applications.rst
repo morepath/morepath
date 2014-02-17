@@ -239,7 +239,7 @@ earlier. Next we need to explore the :meth:`AppBase.mount` directive
 to see how they are actually obtained.
 
 Mounting apps
-------------
+-------------
 
 Now that we have an independent ``issues_app`` and ``wiki_app``, we want
 to be able to mount these under the right URLs under ``core_app``. We
@@ -324,7 +324,7 @@ for instance:
 * ``myproject.wiki``
 
 Each would be organized as described in
-:doc:`organizing_your_code`.
+:doc:`organizing_your_project`.
 
 ``myproject.core`` would have an ``install_requires`` in its
 ``setup.py`` that depends on ``myproject.issues`` and

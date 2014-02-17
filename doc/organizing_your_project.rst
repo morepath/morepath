@@ -85,7 +85,7 @@ is automatically generated that you can use to start up the web
 server. It calls the ``main()`` function in the ``myproject.main``
 module. Let's create this next.
 
-See also the `setuptools documententation`_.
+See also the `setuptools documentation`_.
 
 .. _`setuptools documentation`: https://pythonhosted.org/setuptools/
 
