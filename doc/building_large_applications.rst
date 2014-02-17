@@ -39,22 +39,23 @@ take on framework-like properties. Morepath recognizes that there is a
 large gray area between application and framework, and offers support
 to build framework-like applications and application-like frameworks.
 
-The document doc:`app_reuse` describes some basic facilities for
-application reuse. The document :doc:`organizing_your_project`
-describes how a single application project can be organized, and we
-will follow its guidelines in this document.
+The document doc:`app_reuse` describes the basic facilities Morepath
+offers for application reuse. The document
+:doc:`organizing_your_project` describes how a single application
+project can be organized, and we will follow its guidelines in this
+document.
 
-This document sketches out a concrete example of a larger application
-that consists of multiple sub-projects and sub-apps, and that needs
+This document sketches out an example of a larger application that
+consists of multiple sub-projects and sub-apps, and that needs
 customization.
 
 A Code Hosting Site
 -------------------
 
-As an example of a large application composed of multiple parts we
-will describe how we could build a code hosting site with Morepath
-along the lines of Github or Bitbucket. We focus on the paths, not
-views.
+Our example large application will be a code hosting site along the
+lines of Github or Bitbucket. This example will be a sketch, focusing
+on the structure of the application as opposed to the details of the
+UI.
 
 Let's examine the URL structure of a code hosting site. Our hypothetical
 code hosting site lives on ``example.com``::
@@ -131,6 +132,9 @@ i.e. ``example.com/faassen/myproject/issues/12``::
   def get_issue(user, repository, issue_id):
       ...
 
+Problems
+--------
+
 This approach works perfectly well, and it's often the right way to
 start, but there are some problems with it:
 
@@ -156,14 +160,15 @@ start, but there are some problems with it:
   tracker or a wiki under the same paths, without having to change a lot
   of code.
 
-We're going to show now how Morepath can solve these problems by
-partitioning a larger app into smaller ones, and mounting them. This
-is more involved than simply declaring all paths under a single core
-app. If you feel more comfortable doing that, by all means do so; you
-don't have these problems. But if your application is successful and
-grows larger it's likely you will start feeling some of these
-problems. Morepath is there to help. We'll now show what changes
-you'd make.
+We're going to show how Morepath can solve these problems by
+partitioning a larger app into smaller ones, and mounting them. The
+code to accomplish this is more involved than simply declaring all
+paths under a single core app as we did before. If you feel more
+comfortable doing that, by all means do so; you don't have these
+problems. But if your application is successful and grows larger you
+may encounter these problems, and Morepath is there to help.
+
+We'll now show what changes you would make.
 
 Multiple sub-apps
 -----------------
@@ -187,7 +192,8 @@ In code::
 
   wiki_app = morepath.App(variables=['wiki_id'])
 
-We will see what the ``variables`` argument is about soon.
+Note that ``issues_app`` and ``wiki_app`` expect variables; we'll
+learn more about this later.
 
 We now can group our paths into three. First we have the core app,
 which includes the repository and its settings::
@@ -229,8 +235,8 @@ We have drastically simplified the paths in ``issues_app`` and
 anymore. Instead we get a ``issues_id`` and ``wiki_id``, but not from
 the path. Where does they come from? They are specified by the
 ``variables`` argument for :class:`morepath.App` that we saw
-earlier. We now need to explore the :meth:`AppBase.mount` directive to
-see how they are actually obtained.
+earlier. Next we need to explore the :meth:`AppBase.mount` directive
+to see how they are actually obtained.
 
 Mounting apps
 ------------
@@ -270,9 +276,9 @@ Mounting the wiki is very similar::
 No more path repetition
 -----------------------
 
-But we have solved the repetition of paths issue now; the issue
-tracker and wiki can consist of many paths, but there is no more need
-to repeat '{user_name}/{repository_name}' everywhere.
+We have solved the repetition of paths issue now; the issue tracker
+and wiki can consist of many paths, but there is no more need to
+repeat '{user_name}/{repository_name}' everywhere.
 
 Testing in isolation
 --------------------
@@ -281,31 +287,32 @@ To test the issue tracker by itself, we can run it as a separate WSGI app.
 To do this we first need to mount it using an ``issues_id``::
 
   def run_issue_tracker():
-      mounted = issues_app.mount(issues_id='foo')
+      mounted = issues_app.mount(issues_id=4)
       mounted.run()
 
 Here we mount and run the ``issues_app`` with issue tracker id
-``foo``.
+``4``. We can hook the ``run_issue_tracker` function up to a script
+by using an entry point in ``setup.py`` as we've seen in
+:doc:`organizing_your_project`.
 
 XXX implement ``run`` on ``mounted``.
-
-XXX what about a converter for ``issues_id`` to make it an int?
 
 Reusing an app
 --------------
 
 We can now reuse the issue tracker app in the sense that we can mount
-it in different apps too now; all we need is a way to get
-``issues_id``. But what if we want to mount the issue tracker app in a
-separate project altogether? To use it now we'd need to import it from
-a project that also contains the core app and the wiki app, meaning
-that the new project would need to depend on all of this.
+it in different apps; all we need is a way to get ``issues_id``. But
+what if we want to mount the issue tracker app in a separate project
+altogether? To use it we would need to import it from our project that
+also contains the core app and the wiki app, meaning that the new
+project would need to depend on all of this code. That can hinder
+reuse.
 
-To make it truly reusable across projects we should maintain the code
-for the issue tracker app in a separate project, and the same for the
-wiki app. The core app can then depend on the issue tracker and wiki
-projects. Another app that also wants to have an issue tracker can
-also depend on the issue tracker app.
+To make it more reusable across projects we can instead maintain the
+code for the issue tracker app in a separate project, and the same for
+the wiki app. The core app can then depend on the issue tracker and
+wiki projects. Another app that also wants to have an issue tracker
+can depend on the issue tracker project too.
 
 To do this we'd split our code into three separate Python projects,
 for instance:
@@ -408,8 +415,8 @@ We've now made exactly the tweak necessary without having to modify
 our original project, so this will continue to work the same way for
 other customers.
 
-Swapping in for one customer
-----------------------------
+Swapping in, for one customer
+-----------------------------
 
 Morepath lets you add any directive, not just views. It also lets you
 *override* things in the applications you extend. What if we had a new
@@ -455,10 +462,10 @@ with only those paths, subpaths and views that we intend to be
 reusable.
 
 For views this works together well with Morepath's understanding of
-inheritance. We could for instance have a base class ``Metadata``, and
-whenever any model subclasses from it, we want it to gain a
-``metadata`` view that returns this metadata as JSON data. Let's write
-some code for that::
+inheritance. We could for instance have a base class
+``Metadata``. Whenever any model subclasses from it, we want that
+model to gain a ``metadata`` view that returns this metadata as JSON
+data. Let's write some code for that::
 
   framework = morepath.App()
 
@@ -473,7 +480,29 @@ some code for that::
   def metadata_view(self, request):
       return self.get_metadata()
 
-XXX Complete example
+We want to use this framework in our own application::
+
+  app = morepath.App(extends=[framework])
+
+Let's have a model that subclasses from ``Metadata``::
+
+  class Document(Metadata):
+      ...
+
+Let's put the model on a path::
+
+  @app.path(path='documents/{id}', model=Document)
+  def get_document(id):
+      ...
+
+Since ``app`` extends ``framework``, all documents published this way
+will have a ``metadata`` view automatically. Apps that don't extend
+``framework`` won't have this behavior, of course.
+
+As we mentioned before, there is a gray area between application and
+framework; applications tend to gain attributes of a framework, and
+larger frameworks start to look more like applications. Don't worry
+too much about which is which, but enjoy the creative possibilities!
 
 Note that Morepath itself is actually a framework app that your apps
 extend automatically. This means you can override parts of it (say,
