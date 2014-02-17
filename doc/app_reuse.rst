@@ -11,8 +11,7 @@ facilities.
 
 We'll talk about how Morepath lets you isolate applications, extend
 and override applications, and compose applications together. Morepath
-tries to make these possibilities simple, even obvious. *Morepath
-strives to make the possible as obvious as possible*.
+tries to make these things simple.
 
 .. _Reg: http://blog.startifact.com/posts/reg-now-with-more-generic.html
 
@@ -257,7 +256,7 @@ mounting it explicitly:
 
   wsgi_app = wiki_app.mounted(wiki_id=5)
 
-This is a WSGI app that we can run by itself that uses ``wiki_id`` 5.
+This is a WSGI app that we can run by itself that uses ``wiki_id``.
 
 Application Reuse
 -----------------
@@ -272,3 +271,10 @@ use to create new applications. Any normal Morepath app can without
 extra effort be reused. Anything registered in a Morepath app can be
 overridden. This is because Morepath builds on a powerful general
 configuration system.
+
+Further reading
+---------------
+
+To see an extended example of how you can structure larger
+applications to support reuse, see :doc:`building_large_applications`.
+
