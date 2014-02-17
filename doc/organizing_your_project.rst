@@ -42,6 +42,7 @@ in this document::
       setup.py
       myproject
            __init__.py
+          main.py
           model.py
           [collection.py]
           path.py
