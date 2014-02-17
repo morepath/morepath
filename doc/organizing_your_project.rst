@@ -35,8 +35,8 @@ more easily.
 Project layout
 --------------
 
-Here's a quick overview of a Morepath project that follows the guidelines
-in this document::
+Here's a quick overview of the files and directories of Morepath
+project that follows the guidelines in this document::
 
   myproject
       setup.py
@@ -84,6 +84,73 @@ system). When you install this project, a ``myproject-start`` script
 is automatically generated that you can use to start up the web
 server. It calls the ``main()`` function in the ``myproject.main``
 module. Let's create this next.
+
+See also the `setuptools documententation`_.
+
+.. _`setuptools documentation`: https://pythonhosted.org/setuptools/
+
+Project naming
+--------------
+
+Its possible to name your project differently than you name your
+Python package; you could for instance have the name ``ThisProject``
+in ``setup.py``, and then have your Python package be still called
+``myproject``. We recommend naming the project the same as the Python
+package to avoid confusion.
+
+Namespace packages
+------------------
+
+Sometimes you have projects that are grouped in some way: they are all
+created by the same organization or they are part of the same larger
+project. In that case you can use Python namespace packages to make
+this relationship clear. Let's say you have a larger project called
+``myproject``. The namespace package itself may not contain any code,
+so unlike the example everywhere else in this document the
+``myproject`` directory is always empty but for a ``__init__.py``.
+
+Different sub-projects could then be called ``myproject.core``,
+``myproject.wiki``, etc. Let's examine the files and directories of
+``myproject.core``::
+
+  myproject.core
+      setup.py
+      myproject
+          __init__.py
+          core
+              __init__.py
+              main.py
+              model.py
+              [collection.py]
+              path.py
+              view.py
+
+The change is the namespace package directory ``myproject`` that contains
+a single file, ``__init__.py``, that contains the following code to declare
+it is a namespace package::
+
+  __import__('pkg_resources').declare_namespace(__name__)
+
+Inside is the normal package called ``core``.
+
+``setup.py`` is modified too to include a declaration in
+``namespace_packages``, and we've changed the entry point::
+
+  setup(name='myproject.core',
+        packages=find_packages(),
+        namespace_packages=['myproject'],
+        install_requires=[
+           'morepath'
+        ],
+        entry_points={
+           'console_scripts': [
+            'myproject.core-start = myproject.core.main:main'
+            ]
+        })
+
+See also the `namespace packages documentation`_.
+
+.. _`namespace packages documentation`: http://pythonhosted.org/setuptools/setuptools.html#namespace-packages
 
 Main Module
 -----------
