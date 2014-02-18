@@ -30,13 +30,13 @@ environment::
 
   $ bin/buildout
 
-This will download and install various dependencies and tools.
+This downloads and installs various dependencies and tools.
 
 Running the tests
 -----------------
 
-You can run the tests using `py.test`_. Buildout will have installed
-it for you in the ``bin`` subdirectory of your project::
+You can run the tests using `py.test`_. Buildout has installed it for
+you in the ``bin`` subdirectory of your project::
 
   $ bin/py.test morepath
 
@@ -53,7 +53,7 @@ information.
 Various checking tools
 ----------------------
 
-The buildout will also have installed flake8_, which is a tool that
+The buildout also installs flake8_, which is a tool that
 can do various checks for common Python mistakes using pyflakes_,
 check for PEP8_ style compliance and can do `cyclomatic complexity`_
 checking. To do pyflakes and pep8 checking do::

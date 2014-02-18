@@ -29,7 +29,7 @@ class Request(BaseRequest):
         The identity is established using the identity policy. Normally
         this would be an instance of :class:`morepath.security.Identity`.
 
-        If no identity is claimed or established, the identity will be
+        If no identity is claimed or established, the identity is the
         the special value :attr:`morepath.security.NO_IDENTITY`.
 
         The identity can be used for authentication/authorization of
@@ -72,8 +72,8 @@ class Request(BaseRequest):
         """Create a link (URL) to a view on a model.
 
         If no link can be constructed for the model instance, a
-        :exc:``morepath.LinkError`` will be raised. ``None`` is treated
-        specially: if ``None`` is passed in the default value will be
+        :exc:``morepath.LinkError`` is raised. ``None`` is treated
+        specially: if ``None`` is passed in the default value is
         returned.
 
         :param model: the model instance to link to, or ``None``.
@@ -82,8 +82,8 @@ class Request(BaseRequest):
         :param mounted: a :class:`morepath.path.Mount` instance for
           which the view should be looked up. If ommitted, this is the
           current mount.
-        :param default: if ``None`` is passed in, the default value will
-          be returned. By default this is ``None``.
+        :param default: if ``None`` is passed in, the default value is
+          returned. By default this is ``None``.
 
         """
         if model is None:
@@ -120,7 +120,7 @@ class Request(BaseRequest):
           def myfunc(response):
               response.headers.add('blah', 'something')
 
-        :param func: callable that will be called with response
+        :param func: callable that is called with response
         :returns: func argument, not wrapped
         """
         self._after.append(func)

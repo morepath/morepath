@@ -32,7 +32,7 @@ Generic UI
 ----------
 
 Morepath knows about model inheritance. It lets you define views for a
-base class that will automatically also become available for all
+base class that automatically become available for all
 subclasses. This is a powerful mechanism to let you write generic UIs.
 
 For example, if we have this generic base class::
@@ -120,8 +120,8 @@ break. How to fix it? Easy, we can use :meth:`morepath.Request.view`::
   def document_container_json(self, request):
      return [request.view(doc) for doc in self.entries()]
 
-Now ``document_container_json`` will work for anything in the
-container model that has a default view!
+Now ``document_container_json`` works for anything in the container
+model that has a default view!
 
 .. _extensible-apps:
 

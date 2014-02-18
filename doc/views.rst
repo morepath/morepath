@@ -104,9 +104,9 @@ When we now publish the concrete ``MyCollection`` on some URL::
   def get_my_collection():
       return MyCollection()
 
-it will automatically gain a default view for it that represents the
-ids in it as a comma separated list. So the view
-``collection_default`` is *generic*.
+it automatically gains a default view for it that represents the ids
+in it as a comma separated list. So the view ``collection_default`` is
+*generic*.
 
 Details
 -------
@@ -170,7 +170,7 @@ a ``+`` character::
   /folder/+edit
 
 Now Morepath won't try to interpret ``+edit`` as a named item in the
-folder, but instead will look up the view.
+folder, but instead looks up the view.
 
 Any view can be addressed not just by name but also by its name with a
 ``+`` prefix. To generate a link to a name with a ``+`` prefix you can
@@ -260,12 +260,12 @@ Manipulating the response
 Sometimes you want to do things to the response specific to the view,
 so that you cannot do it in a ``render`` function. Let's say you want
 to add a cookie using
-:meth:`werkzeug.wrappers.BaseResponse.set_cookie`. You don't have access
-to the response object in the view, as it has not been created yet. It
-will only be created *after* the view has returned. We can register a
-callback function to be called after the view is done and the response
-is ready using the :meth:`morepath.Request.after` decorator. Here's
-how::
+:meth:`werkzeug.wrappers.BaseResponse.set_cookie`. You don't have
+access to the response object in the view, as it has not been created
+yet. It is only created *after* the view has returned. We can register
+a callback function to be called after the view is done and the
+response is ready using the :meth:`morepath.Request.after`
+decorator. Here's how::
 
   @app.view(model=Document)
   def document_default(self, request):
@@ -289,8 +289,8 @@ pass in the ``request_method`` parameter::
 
 Now we have a view that handles ``POST``. Normally you cannot have
 multiple views for the same document with the same name: the Morepath
-configuration engine will reject that. But you can if you make sure
-they each have a different request method::
+configuration engine rejects that. But you can if you make sure they
+each have a different request method::
 
   @app.view(model=Document, name='edit', request_method='GET')
   def document_edit_get(self, request):
@@ -323,18 +323,17 @@ the `Something`` header is ``special``::
       return "Only if request header Something is set to special."
 
 If you have a predicate and you *don't* use it in a ``@app.view``, or
-set it to ``None``, the view will work for the ``default`` value for
-that predicate. If you don't care what the predicate is and want the
-view to match for any value, you can pass in the special sentinel
-:data:`morepath.ANY`. The ``default`` parameter will also be used when
+set it to ``None``, the view works for the ``default`` value for that
+predicate. If you don't care what the predicate is and want the view
+to match for any value, you can pass in the special sentinel
+:data:`morepath.ANY`. The ``default`` parameter is also used when
 rendering a view using :meth:`morepath.Request.view` and you don't
 pass in a particular value for that predicate.
 
-The ``order`` parameter for the predicate will determine which
-predicates match more strongly than another; lower order will match
-more strongly. If there are two view candidates that would match the
-predicates for a request and model, the strongest match will be
-picked.
+The ``order`` parameter for the predicate determines which predicates
+match more strongly than another; lower order matches more strongly. If
+there are two view candidates that would match the predicates for a
+request and model, the strongest match is picked.
 
 
 request.view
@@ -361,7 +360,7 @@ We could for instance have a particular item with a view like this::
   def particular_item_default(self, request):
       return {'id': self.id}
 
-And then the result of ``collection_default`` will be something like::
+And then the result of ``collection_default`` is something like::
 
   [{'id': 1}, {'id': 2}]
 

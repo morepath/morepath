@@ -50,7 +50,7 @@ class ConverterRegistry(object):
         """Get converter for type.
 
         Is aware of inheritance; if nothing is registered for given
-        type will return converter registered for base class.
+        type it returns the converter registered for its base class.
 
         :param type: The type for which to look up the converter.
         :returns: a :class:`morepath.Converter` instance.
@@ -61,7 +61,7 @@ class ConverterRegistry(object):
         """Get converter for value.
 
         Is aware of inheritance; if nothing is registered for type of
-        given value will return converter registered for base class.
+        given value it returns the converter registered for its base class.
 
         :param value: The value for which to look up the converter.
         :returns: a :class:`morepath.Converter` instance.

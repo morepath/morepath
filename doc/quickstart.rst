@@ -77,8 +77,8 @@ Code Walkthrough
 
 1. We import ``morepath``.
 
-2. We create an instance of :class:`morepath.App`. This will be a WSGI
-   application that we can run. It will also contain our application's
+2. We create an instance of :class:`morepath.App`. This is a WSGI
+   application that we can run. It also contains our application's
    configuration: what models and views are available.
 
 3. We then set up a ``Root`` class. Morepath is model-driven and in
@@ -98,8 +98,8 @@ Code Walkthrough
    We then need to hook up this view with the
    :meth:`morepath.AppBase.view` decorator.  We say it's associated
    with the ``Root`` model. Since we supply no explicit ``name`` to
-   the decorator, we will be the default view for the ``Root`` model
-   on ``/``.
+   the decorator, the function is the default view for the ``Root``
+   model on ``/``.
 
 5. The ``if __name__ == '__main__'`` section is a way in Python to
    make the code only run if the ``hello.py`` module is started
@@ -195,8 +195,8 @@ Publishing models
   The default behavior is for Morepath to retrieve the variables by
   name using ``getattr`` from the model objects. This only works if
   those variables exist on the model under that name. If not, you can
-  supply a custom ``variables`` function that given the model will
-  return a dictionary with all the variables in it. Here's how::
+  supply a custom ``variables`` function that given the model returns
+  a dictionary with all the variables in it. Here's how::
 
     @app.path(model=User, path='/users/{username}',
               variables=lambda model: dict(username=model.username))
@@ -223,7 +223,7 @@ Here's the code to expose our users database to such a URL::
 
 The ``get_user`` function gets a user model from the users database by
 using the dictionary ``get`` method. If the user doesn't exist, it
-will return ``None``. We could've fitted a SQLAlchemy query in here
+returns ``None``. We could've fitted a SQLAlchemy query in here
 instead.
 
 Now let's look at the decorator. The ``model`` argument has the class
@@ -233,7 +233,7 @@ the URL path under which it should appear.
 The path can have variables in it which are between curly braces
 (``{`` and ``}``). These variables become arguments to the function
 being decorated. Any arguments the function has that are not in the
-path will be interpreted as URL parameters.
+path are interpreted as URL parameters.
 
 What if the user doesn't exist? We want the end-user to see a 404
 error.  Morepath does this automatically for you when you return
@@ -305,7 +305,7 @@ We simply do this::
 
   request.link(bob)
 
-which will generate the path ``/users/bob`` for us.
+which generates the path ``/users/bob`` for us.
 
 What if we want to see Bob's edit view? We do this::
 

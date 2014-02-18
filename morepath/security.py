@@ -72,8 +72,8 @@ class BasicAuthIdentityPolicy(object):
     def remember(self, response, request, identity):
         """Remember identity on response.
 
-        This is a no-op for basic auth, as the browser will re-identify
-        upon each request.
+        This is a no-op for basic auth, as the browser re-identifies
+        upon each request in that case.
 
         :param response: response object on which to store identity.
         :type response: :class:`morepath.Response`
@@ -86,14 +86,15 @@ class BasicAuthIdentityPolicy(object):
     def forget(self, response, request):
         """Forget identity on response.
 
-        This will cause the browser to issue a basic authentication dialog.
-        Warning: for basic auth, the browser will in fact not forget
-        the information even if ``forget`` is called.
+        This causes the browser to issue a basic authentication
+        dialog.  Warning: for basic auth, the browser in fact does not
+        forget the information even if ``forget`` is called.
 
         :param response: response object on which to forget identity.
         :type response: :class:`morepath.Response`
         :param request: request object.
         :type request: :class:`morepath.Request`
+
         """
         # XXX werkzeug provides WWWAuthenticate helper class; is
         # this something to use or not? but if so, how?

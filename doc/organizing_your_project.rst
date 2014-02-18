@@ -51,8 +51,8 @@ project that follows the guidelines in this document::
 Project setup
 -------------
 
-Here we will give an example of your project's ``setup.py`` with only
-those things relevant to Morepath shown and everything else cut out::
+Here is an example of your project's ``setup.py`` with only those
+things relevant to Morepath shown and everything else cut out::
 
   from setuptools import setup, find_packages
 
@@ -69,8 +69,8 @@ those things relevant to Morepath shown and everything else cut out::
 
 This ``setup.py`` assumes you also have a ``myproject`` subdirectory
 in your project directory that is a Python package, i.e. it contains
-an ``__init__.py``. This is the directory where you will be putting
-your code. The ``find_packages()`` call will find it for you.
+an ``__init__.py``. This is the directory where you put your code. The
+``find_packages()`` call finds it for you.
 
 The ``install_requires`` section declares the dependency on
 Morepath. Doing this makes everybody who installs your project
@@ -182,8 +182,8 @@ for the application, such as setting up a database connection.
 Variation: no or multiple entry points
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Not all packages will have an entry point to start it up: a framework
-app that isn't intended to be run directly may not define one. Some
+Not all packages have an entry point to start it up: a framework app
+that isn't intended to be run directly may not define one. Some
 packages may define multiple apps and multiple entry points.
 
 Variation: waitress

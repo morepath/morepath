@@ -4,7 +4,7 @@ Building Large Applications
 Introduction
 ------------
 
-A small web application is relatively easy to understand. It will do
+A small web application is relatively easy to understand. It does
 less stuff. That makes the application easier to understand: the UI
 (or REST web service) is smaller, and the codebase too.
 
@@ -27,14 +27,14 @@ applications:
 
 There is also the case of reusable *applications*. Larger applications
 are often deployed multiple times. An open source CMS is a good
-example: different organization will each have their own
-installation. Or imagine a company with an application that it sells
-to its customers: each customer can have its own special deployment.
+example: different organizations each have their own installation. Or
+imagine a company with an application that it sells to its customers:
+each customer can have its own special deployment.
 
 Different deployments of an application have real differences as every
 organization has different requirements. This means that you need to
 be able to customize and extend the application to fit the purposes of
-each particular deployment. As a result the application will have to
+each particular deployment. As a result the application has to
 take on framework-like properties. Morepath recognizes that there is a
 large gray area between application and framework, and offers support
 to build framework-like applications and application-like frameworks.
@@ -52,10 +52,10 @@ customization.
 A Code Hosting Site
 -------------------
 
-Our example large application will be a code hosting site along the
-lines of Github or Bitbucket. This example will be a sketch, focusing
-on the structure of the application as opposed to the details of the
-UI.
+Our example large application is a code hosting site along the lines
+of Github or Bitbucket. This example is a sketch, not a complete
+working application. We focus on the structure of the application as
+opposed to the details of the UI.
 
 Let's examine the URL structure of a code hosting site. Our hypothetical
 code hosting site lives on ``example.com``::
@@ -257,7 +257,8 @@ Let's look at what this does:
 * ``app=issues_app``: We are mounting ``issues_app``.
 
 * ``path='{user_name}/{repository_name}/issues'``: We are mounting it
-  on that path. All sub-paths in the issues app will be here.
+  on that path. All sub-paths in the issue tracker app will fall under
+  it.
 
 * The ``mount_issues`` function takes the path variables ``user_name``
   and ``repository_name`` as arguments. It then returns a dictionary
@@ -391,8 +392,9 @@ Now we can import ``core_app`` from it in
 
   customer_app = morepath.App(extends=[core_app])
 
-At this point ``customer_app`` will behave identically to ``core_app``. Now
-let's make our customization and add a new JSON view to ``Repository``::
+At this point ``customer_app`` behaves identically to
+``core_app``. Now let's make our customization and add a new JSON view
+to ``Repository``::
 
   from myproject.core.model import Repository
   # customer specific database
@@ -412,8 +414,8 @@ one tweak the customer wanted: a view with the extra metadata. The
 but ``myproject.core`` remains unchanged.
 
 We've now made exactly the tweak necessary without having to modify
-our original project, so this will continue to work the same way for
-other customers.
+our original project. The original project continues to work the same
+way it always did.
 
 Swapping in, for one customer
 -----------------------------
@@ -496,7 +498,7 @@ Let's put the model on a path::
       ...
 
 Since ``app`` extends ``framework``, all documents published this way
-will have a ``metadata`` view automatically. Apps that don't extend
+have a ``metadata`` view automatically. Apps that don't extend
 ``framework`` won't have this behavior, of course.
 
 As we mentioned before, there is a gray area between application and

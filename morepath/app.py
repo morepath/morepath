@@ -37,7 +37,7 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry):
           this application expects when mounted. Optional.
         :type variables: list or set
         :param testing_config: a :class:`morepath.Config` that actions
-          will be added to directly, instead of waiting for
+          are added to directly, instead of waiting for
           a scanning phase. This is handy during testing. If you want to
           use decorators inline in a test function, supply a ``testing_config``.
           It's not useful outside of tests. Optional.
@@ -156,8 +156,7 @@ class App(AppBase):
 
     Conflicting configuration within an app is automatically
     rejected. An extended app cannot conflict with the apps it is
-    extending however; instead configuration will be considered to be
-    overridden.
+    extending however; instead configuration is overridden.
     """
     def __init__(self, name='', extends=None, variables=None,
                  testing_config=None):
@@ -172,7 +171,7 @@ class App(AppBase):
           this application expects when mounted. Optional.
         :type variables: list or set
         :param testing_config: a :class:`morepath.Config` that actions
-          will be added to directly, instead of waiting for
+          are added to directly, instead of waiting for
           a scanning phase. This is handy during testing. If you want to
           use decorators inline in a test function, supply a ``testing_config``.
           It's not useful outside of tests. Optional.

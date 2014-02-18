@@ -123,7 +123,7 @@ As you can see it uses the ``DocumentCollection.search`` method.
 
 Unlike path variables, URL parameters can be omitted, i.e. we can have
 a plain ``search`` path without a ``text`` parameter. In that case
-``text`` will be the value ``None``. The ``search`` method has code to
+``text`` has the value ``None``. The ``search`` method has code to
 handle this special case: it returns the empty list.
 
 Often it's useful to have a default instead. Let's imagine we have a
@@ -136,10 +136,9 @@ function::
   def document_search(text='all'):
       return DocumentCollection(text)
 
-Note that defaults have no meaning for path variables, because for the
-path to be resolved in the first place a variable will be found; path
-variables cannot be omitted. They can be used as type hints however;
-we'll talk more about those soon.
+Note that defaults have no meaning for path variables, because
+whenever a path is resolved, all variables in it have been found. They
+can be used as type hints however; we'll talk more about those soon.
 
 Like with path variables, you can have as many URL parameters as you
 want.
@@ -167,7 +166,7 @@ We add a named view called ``link`` that links to the document itself::
   def document_self_link(self, request):
       return request.link(self)
 
-The view at ``/documents/foo/link`` will produce the link
+The view at ``/documents/foo/link`` produces the link
 ``/documents/foo``. That's the right one!
 
 So, it constructs a link to the document itself. This view is not very
@@ -182,7 +181,7 @@ You can also give ``link`` a name to link to a named view. Here's a
   def document_self_link(self, request):
       return request.link(self, name='link')
 
-So the view ``documents/foo/link2`` will produce the link
+So the view ``documents/foo/link2`` produces the link
 ``documents/foo/link``.
 
 Linking with path variables
@@ -284,7 +283,7 @@ Let's look at a document exposed on this URL::
 
   /documents?name=foo
 
-Then the view ``documents/link?name=foo`` will construct the link::
+Then the view ``documents/link?name=foo`` constructs the link::
 
   /documents?name=foo
 
@@ -331,12 +330,12 @@ should not match. Here's how::
   def get_record(id=0):
       return record_by_id(id)
 
-We've added a default parameter (``id=0``) here that Morepath will use
-as an indication that only an int is expected. Morepath will now
+We've added a default parameter (``id=0``) here that Morepath uses as
+an indication that only an int is expected. Morepath will now
 automatically convert ``id`` to an int before it enters the
-function. It will also give a ``404 Not Found`` response for URLs that
-don't have an int. So it will accept ``/records/100`` but give a 404
-for ``/records/foo``.
+function. It also gives a ``404 Not Found`` response for URLs that
+don't have an int. So it accepts ``/records/100`` but gives a 404 for
+``/records/foo``.
 
 Let's examine the same case for an ``id`` URL parameter::
 
@@ -344,9 +343,9 @@ Let's examine the same case for an ``id`` URL parameter::
   def get_record(id=0):
       return record_by_id(id)
 
-This responds to an URL like this ``/records?id=100``, but will reject
-``/records/id=foo`` as ``foo`` cannot be converted to an int. It will
-reject a request with the latter path with a ``400 Bad Request``
+This responds to an URL like ``/records?id=100``, but rejects
+``/records/id=foo`` as ``foo`` cannot be converted to an int. It
+rejects a request with the latter path with a ``400 Bad Request``
 error.
 
 By supplying a default for a URL parameter we've accomplished two in
@@ -380,8 +379,8 @@ We can try it out::
   >>> date_decode('20140115')
   datetime.date(2014, 1, 15)
 
-Note that this function will raise a ``ValueError`` if we give it a
-string that cannot be converted into a date::
+Note that this function raises a ``ValueError`` if we give it a string
+that cannot be converted into a date::
 
   >>> date_decode('blah')
   Traceback (most recent call last):
@@ -456,15 +455,14 @@ We can now go to URLs like this::
 
    /records?start=20110110&end=20110215
 
-The ``start`` and ``end`` URL parameters will now be decoded into
-``date`` objects, which get passed into ``get_records``. And when you
-generate a link to a ``Records`` object, the ``start`` and ``end``
-dates are encoded into strings.
+The ``start`` and ``end`` URL parameters now be decoded into ``date``
+objects, which get passed into ``get_records``. And when you generate
+a link to a ``Records`` object, the ``start`` and ``end`` dates are
+encoded into strings.
 
 What happens when a decode raises a ``ValueError``, i.e. improper
 dates were passed in? In that case, the URL parameters cannot be
-decoded properly, and Morepath will return a ``400 Bad Request``
-response.
+decoded properly, and Morepath returns a ``400 Bad Request`` response.
 
 You can also use encode and decode for arguments used in a path::
 
@@ -472,7 +470,7 @@ You can also use encode and decode for arguments used in a path::
   def get_day(d):
       return Day(d)
 
-This will publish the model on a URL like this::
+This publishes the model on a URL like this::
 
   /days/20110101
 
@@ -511,7 +509,7 @@ Now Morepath understand type hints for ``date`` differently::
   def get_day(d=date(2011, 1, 1)):
       return Day(d)
 
-will have models published on a URL like::
+has models published on a URL like::
 
   days/2013-12-31
 
@@ -527,8 +525,8 @@ can pass the type into the ``converters`` dictionary as a shortcut::
   def get_day(d):
       return Day(d)
 
-The variable ``d`` will now be interpreted as a ``date`` and will use
-whatever converter there was registered for that type.
+The variable ``d`` is now interpreted as a ``date``. Morepath uses
+whatever converter that was registered for that type.
 
 Required
 --------

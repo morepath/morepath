@@ -87,8 +87,8 @@ Isolation between applications
 
 The system allows multiple applications to be published at the same
 time. Applications work in isolation from each other by default. For
-instance, publishing a model on a URL will not affect another
-application, and publishing a view for a model will not make that
+instance, publishing a model on a URL does not affect another
+application, and publishing a view for a model does not make that
 view available in the other application.
 
 Sharing between applications
@@ -96,8 +96,10 @@ Sharing between applications
 
 In order to support reusable components, it should be possible to
 explicitly break application isolation and make routes to models and
-views globally available. Each application will share this
-information.
+views globally available. Each application will share this information.
+
+[Morepath in fact now allows more controlled sharing; only Morepath
+itself is globally shared]
 
 Models can be published once per application
 --------------------------------------------
@@ -123,8 +125,8 @@ It should be possible to define a base class (or interface) for a
 model that automatically pulls in (globally registered) views and
 sub-paths when you subclass from it. This lets a framework developer
 define APIs that an application developer can implement. By doing so,
-the application developer will automatically get a whole set of
-views for this view.
+the application developer automatically gets a whole set of views for
+their models.
 
 Declarative
 -----------

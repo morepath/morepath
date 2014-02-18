@@ -39,8 +39,8 @@ specify used decorators. Apps consist of paths and views for models:
       return "User: %s" % self.username
 
 Here we've exposed the ``User`` model class under the path
-``/users/{username}``. When you go to such a URL, the default (unnamed)
-view will be found, and we've provided that too: it just renders
+``/users/{username}``. When you go to such a URL, the default
+(unnamed) view is found. We've provided that too: it just renders
 "User: {username}".
 
 What now if we have another app where we want to publish ``User`` in a
@@ -58,8 +58,8 @@ different way? No problem, we can just create one:
       return "Differently Displayed User: %s" % self.username
 
 Here we expose ``User`` to the web again, but use a different path and
-a different view. If you run this app (even in the same runtime), this
-will be separate.
+a different view. If you run ``other_app`` (even in the same runtime), it
+functions independently from ``app``.
 
 This app isolation is nothing really special; it's kind of obvious
 that this is possible. But that's what we wanted. Let's look at a few
@@ -110,7 +110,7 @@ And then we can add the view to the extended app:
       return 'Edit user: %s' % self.username
 
 Now when we publish ``extended_app`` using WSGI, the new ``edit`` view
-will be there, but when we publish ``app`` it won't be.
+is there, but when we publish ``app`` it won't be.
 
 Kind of obvious, perhaps. Good. Let's move on.
 
@@ -186,8 +186,8 @@ But this feels bad. Why?
   application should really be an app by itself, that we can use
   byitself and also test by itself.
 
-* There's the issue of the username: it will appear in all paths that
-  go to wiki-related models (the wiki itself, any wiki pages). But why
+* There's the issue of the username: it appears in all paths that go
+  to wiki-related models (the wiki itself, any wiki pages). But why
   should we have to care about the username of a user when we are
   thinking about wikis?
 

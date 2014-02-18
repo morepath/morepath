@@ -48,7 +48,7 @@ class ConverterDirective(Directive):
         :param type: the Python type for which to register the
           converter.  Morepath uses converters when converting path
           variables and URL parameters when decoding or encoding
-          URLs. Morepath will look up the converter using the
+          URLs. Morepath looks up the converter using the
           type. The type is either given explicitly as the value in
           the ``converters`` dictionary in the
           :meth:`morepath.AppBase.path` directive, or is deduced from
@@ -78,10 +78,10 @@ class PathDirective(Directive):
         querying it from the database, or ``None`` if the model does
         not exist.
 
-        The decorated function will get as arguments any variables
+        The decorated function gets as arguments any variables
         specified in the path as well as URL parameters.
 
-        If you declare a ``request`` parameter the function will be
+        If you declare a ``request`` parameter the function is
         able to use that information too.
 
         :param path: the route for which the model is registered.
@@ -96,8 +96,8 @@ class PathDirective(Directive):
           The key is the variable name, the value is a
           :class:`morepath.Converter` instance.
         :param required: list or set of names of those URL parameters which
-           should be required, i.e. if missing a 400 Bad Request response will
-           be given. Any default value is ignored. Has no effect on path
+           should be required, i.e. if missing a 400 Bad Request response is
+           given. Any default value is ignored. Has no effect on path
            variables. Optional.
         """
         super(PathDirective, self).__init__(app)
@@ -146,7 +146,7 @@ class PermissionDirective(Directive):
         :param model: the model class
         :param permission: permission class
         :param identity: identity to check permission for. If ``None``,
-          the identity to check for will be the special
+          the identity to check for is the special
           :data:`morepath.security.NO_IDENTITY`.
         """
         super(PermissionDirective, self).__init__(app)
@@ -175,8 +175,8 @@ class PredicateDirective(Directive):
 
         From this information it should calculate a predicate value
         and return it. You can then pass these extra predicate
-        arguments to :meth:`morepath.AppBase.view` and this view will
-        only be found if the predicate matches.
+        arguments to :meth:`morepath.AppBase.view` and this view is
+        only found if the predicate matches.
 
         :param name: the name of the view predicate.
         :param order: when this custom view predicate should be checked
@@ -189,6 +189,7 @@ class PredicateDirective(Directive):
           a view.
         :param index: the predicate index to use. Default is
           :class:`reg.KeyIndex` which matches by name.
+
         """
         super(PredicateDirective, self).__init__(app)
         self.name = name
@@ -239,7 +240,7 @@ class ViewDirective(Directive):
 
         The decorated function gets ``self`` (model instance) and
         ``request`` (:class:`morepath.Request`) parameters. The
-        function should return either a (unicode) string that will be
+        function should return either a (unicode) string that is
         the response body, or a :class:`morepath.Response` object.
 
         If a specific ``render`` function is given the output of the
@@ -252,7 +253,7 @@ class ViewDirective(Directive):
         :meth:`morepath.AppBase.html`.
 
         :param model: the class of the model for which this view is registered.
-          The ``self`` passed into the view function will be an instance
+          The ``self`` passed into the view function is an instance
           of the model (or of a subclass).
         :param render: an optional function that can render the output of the
           view function to a response, and possibly set headers such as
@@ -264,12 +265,12 @@ class ViewDirective(Directive):
           it is the empty string, meaning the default view for the model.
           This is a predicate.
         :param request_method: the request method to which this view should
-          answer, i.e. GET, POST, etc. If omitted, this view will respond to
+          answer, i.e. GET, POST, etc. If omitted, this view responds to
           GET requests only. This is a predicate.
         :param predicates: predicates to match this view on. Use
           :data:`morepath.ANY` for a predicate if you don't care what
           the value is. If you don't specify a predicate, the default
-          value will be used. Standard predicate values are
+          value is used. Standard predicate values are
           ``name`` and ``request_method``, but you can install your
           own using the :meth:`morepath.AppBase.predicate` directive.
         '''
@@ -389,8 +390,8 @@ class MountDirective(PathDirective):
         :param converters: converters as for the
           :meth:`morepath.AppBase.path` directive.
         :param required: list or set of names of those URL parameters which
-          should be required, i.e. if missing a 400 Bad Request response will
-          be given. Any default value is ignored. Has no effect on path
+          should be required, i.e. if missing a 400 Bad Request response is
+          given. Any default value is ignored. Has no effect on path
           variables. Optional.
         """
         super(MountDirective, self).__init__(base_app, path,

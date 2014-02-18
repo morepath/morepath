@@ -207,7 +207,7 @@ HTTP response status codes
 
 When a view did its thing with success, Morepath automatically returns
 the HTTP status code ``200``. When you try to access a URL that cannot
-be routed to a model or a view, a ``404`` error will be raised.
+be routed to a model or a view, a ``404`` error is raised.
 
 But what if the view did not manage to do something successfully? Let's
 get back to this view::
@@ -286,7 +286,7 @@ hyperlinks. That ugly acronym HATEOAS_ thing.
     server, and what data to send to the server.
 
   Now add HATEOAS and get true REST. Now the client is coupled to the
-  server in only one way: data. The URLs needed it will get from the
+  server in only one way: data. It gets the URLs it needs from the
   data. We gain looser coupling between server and client: the server
   can change all its URLs and the client will continue to work.
 
@@ -340,7 +340,7 @@ Or perhaps better, include the id *and* the URL::
 Now we've got HATEOAS: the collection links to the documents it
 contains, and also to the ``add`` URL that can be used to add a new
 document. The developers looking at the responses your web service
-sends will get a few clues about where to go next. Coupling is looser.
+sends get a few clues about where to go next. Coupling is looser.
 
 We got HATEOAS, so at last we got true REST. Why is hyperlinking so
 often ignored? Why don't more systems implement HATEOAS? Perhaps

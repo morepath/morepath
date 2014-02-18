@@ -17,11 +17,11 @@ def autoconfig(ignore=None):
 
     .. _setuptools: http://pythonhosted.org/setuptools/
 
-    Creates a :class:`Config` object as with :func:`setup`, but
-    before returning it scans all packages, looking for those that
-    depend on Morepath directly or indirectly. This will include the
-    package that calls this function. Those packages are then scanned
-    for configuration as with :meth:`Config.scan`.
+    Creates a :class:`Config` object as with :func:`setup`, but before
+    returning it scans all packages, looking for those that depend on
+    Morepath directly or indirectly. This includes the package that
+    calls this function. Those packages are then scanned for
+    configuration as with :meth:`Config.scan`.
 
     You can add manual :meth:`Config.scan` calls yourself on the
     returned :class:`Config` object. Finally you need to call
@@ -38,6 +38,7 @@ def autoconfig(ignore=None):
     :returns: :class:`Config` object.
 
     .. _Venusian: http://venusian.readthedocs.org
+
     """
     c = setup()
     for package in morepath_packages():

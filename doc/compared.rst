@@ -15,9 +15,8 @@ We hear you ask:
   web frameworks should do that.
 
 If you're already familiar with another web framework, it's useful to
-learn how Morepath is the same and how it is different, as it will
-help you understand it faster. So we'll try to go into some of this
-here.
+learn how Morepath is the same and how it is different, as that helps
+you understand it faster. So we'll try to go into some of this here.
 
 Our ability to compare Morepath to other web frameworks is limited by
 our familiarity with them, and also by their aforementioned large
@@ -34,9 +33,9 @@ different. Some are simple. Some, like CMSes, are like frameworks
 themselves. It's likely that some of you will need to build your own
 frameworky things on top of Morepath. Morepath doesn't get in your
 way. Morepath isn't there to be hidden away under another framework
-though - these extensions will still look like Morepath. The
-orientation towards being foundational makes Morepath more like
-Pyramid, or perhaps Flask, than like Django.
+though - these extensions still look like Morepath. The orientation
+towards being foundational makes Morepath more like Pyramid, or
+perhaps Flask, than like Django.
 
 Morepath aims to have a small core. It isn't full stack; it's a
 microframework. It should be easy to pick up. This makes it similar to
@@ -275,7 +274,7 @@ files, metaclasses and import-time side effects may all be involved.
 
 On top of this, if the framework want to allow reuse, extension and
 overrides the APIs tends to grow even more distinct with specialised
-use cases, or yet more new APIs will be grown.
+use cases, or yet more new APIs are grown.
 
 Django is an example where configuration gained lots of knobs and
 buttons; another example is the original Zope.

@@ -13,7 +13,7 @@ class Configurable(object):
     This checks for any conflicts between configurations and
     the configurable is expanded with any configurations from its
     extends list. Then the configurable is performed, meaning all
-    its actions will be performed (to it).
+    its actions are performed (to it).
     """
     def __init__(self, extends=None, testing_config=None):
         """
@@ -101,7 +101,7 @@ class Configurable(object):
         indirectly by :meth:`Config.commit`.
 
         :param action: The action to register with the configurable.
-        :param obj: The object that this action will be performed on.
+        :param obj: The object that this action is performed on.
         """
         self._grouped_actions.setdefault(
             group_key(action), []).append((action, obj))
@@ -109,7 +109,7 @@ class Configurable(object):
 def group_key(action):
     """We group actions by their deepest base class that's still a real action.
 
-    This way subclasses of for instance the ViewDirective will still
+    This way subclasses of for instance the ViewDirective still
     group with the ViewDirective, so that conflicts can be detected.
     """
     found = None
@@ -269,7 +269,7 @@ class Directive(Action):
     statement. This can be used to provide defaults for the directives
     used within the ``with`` statements context.
 
-    When used as a decorator will track where in the source code
+    When used as a decorator this tracks where in the source code
     the directive was used for the purposes of error reporting.
     """
 
@@ -376,7 +376,7 @@ class Config(object):
         :class:`morepath.config.Configurable` objects.
 
         :param package: The Python module or package to scan. Optional; if left
-          empty case the calling package will be scanned.
+          empty case the calling package is scanned.
         :ignore: A Venusian_ style ignore to ignore some modules during
           scanning. Optional.
         """
@@ -448,7 +448,7 @@ class Config(object):
         a process, before the configuration is first used. After this
         the configuration is considered to be fixed and cannot be
         further modified. In tests this method can be executed
-        multiple times as it will automatically clear the
+        multiple times as it automatically clears the
         configuration of its configurables first.
         """
         # clear all previous configuration; commit can only be run
