@@ -158,4 +158,7 @@ decorator you could even override the core functionality of Morepath
 itself!
 
 Morepath also lets you mount one application within another, allowing
-composition-based reuse. See :doc:`app_reuse` for more information.
+composition-based reuse. See :doc:`app_reuse` for more
+information. Using these techniques you can build large applications,
+see :doc:`building_large_applications`.
+
