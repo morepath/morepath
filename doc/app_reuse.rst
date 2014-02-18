@@ -124,7 +124,7 @@ if instead of adding an extension to a core application you want to
 override part of it? For instance, what if we want to change the
 default view for ``User``?
 
-Here's how we would do that:
+Here's how we can do that:
 
 .. code-block:: python
 
@@ -160,8 +160,7 @@ Nesting Applications
 Let's talk about application composition: nesting one app in another.
 
 Imagine our user app allows users to have wikis associated with them.
-You would have paths like ``/users/faassen/wiki`` and
-``/users/bob/wiki``.
+It has paths like ``/users/faassen/wiki`` and ``/users/bob/wiki``.
 
 One approach might be to implement a wiki application within the user
 application we already have, along these lines:

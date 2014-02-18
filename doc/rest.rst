@@ -191,7 +191,7 @@ make it explicit::
 
 What if we had defined our web service differently, and instead of
 having a ``/documents/add`` we wanted to allow the POSTing of document
-ids on ``/documents`` directly? Here's how you would rewrite
+ids on ``/documents`` directly? Here's how you rewrite
 ``collection_add_document`` to be the view directly on
 ``/documents```::
 

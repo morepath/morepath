@@ -291,8 +291,8 @@ An application tends to contain two kinds of models:
 
 Since collection models tend to not be backed by a database directly
 but are often application-specific classes, it can make sense to
-maintain them in a separate ``collection.py`` module. This module
-still would not have any dependencies on Morepath.
+maintain them in a separate ``collection.py`` module. This module,
+like ``model.py`` also does not have any dependencies on Morepath.
 
 Path module
 -----------

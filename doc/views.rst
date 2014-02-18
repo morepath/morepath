@@ -150,7 +150,7 @@ This means::
 
   /folder/some_item
 
-would be a path if there is an item in the folder with the name
+is a path if there is an item in the folder with the name
 ``some_item``.
 
 Now what if we also want to have a path that allows you to edit the
@@ -331,9 +331,9 @@ rendering a view using :meth:`morepath.Request.view` and you don't
 pass in a particular value for that predicate.
 
 The ``order`` parameter for the predicate determines which predicates
-match more strongly than another; lower order matches more strongly. If
-there are two view candidates that would match the predicates for a
-request and model, the strongest match is picked.
+match more strongly than another; lower order matches more
+strongly. If there are two view candidates that both match the
+predicates for a request and model, the strongest match is picked.
 
 
 request.view
@@ -370,9 +370,8 @@ but if we have a some other item with a view like this::
   def some_other_item_default(self, request):
       return self.name
 
-where the name is some string like ``alpha`` or ``beta``.
-
-Then the output of ``collection_default`` would be something like::
+where the name is some string like ``alpha`` or ``beta``, then the
+output of ``collection_default`` is something like::
 
   ['alpha', 'beta']
 

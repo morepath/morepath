@@ -111,10 +111,11 @@ can write this::
   def document_container_json(self, request):
      return [document_json(request, doc) for doc in self.entries()]
 
-Here we've used ``document_json`` ourselves. But what now if the container
-does not only contain ``Document`` instances? What if one of them is
-a ``SpecialDocument``? Our ``document_container_json`` function would
-break. How to fix it? Easy, we can use :meth:`morepath.Request.view`::
+Here we've used ``document_json`` ourselves. But what now if the
+container does not only contain ``Document`` instances? What if one of
+them is a ``SpecialDocument``? Our ``document_container_json``
+function breaks. How to fix it? Easy, we can use
+:meth:`morepath.Request.view`::
 
   @app.json(model=DocumentContainer)
   def document_container_json(self, request):

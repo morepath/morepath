@@ -49,9 +49,9 @@ You can save this as ``hello.py`` and then run it with Python:
 
     app.run(host='0.0.0.0')
 
-  Note that for more sophisticated deployment scenarios you wouldn't
-  use ``run()`` at all, but instead use an external WSGI server such
-  as waitress_, `Apache mod_wsgi`_ or `nginx mod_wsgi`_.
+  Note that for more sophisticated deployment scenarios you don't use
+  ``run()`` at all, but instead use an external WSGI server such as
+  waitress_, `Apache mod_wsgi`_ or `nginx mod_wsgi`_.
 
   .. _waitress: http://pylons.readthedocs.org/projects/waitress/en/latest/
 
@@ -86,7 +86,7 @@ Code Walkthrough
    this case the empty ``Root`` class.
 
    We set up the model as the root of the website (the empty string
-   ``''`` indicates the root, but ``'/'`` would have worked too) using
+   ``''`` indicates the root, but ``'/'`` works too) using
    the :meth:`morepath.AppBase.path` decorator.
 
 4. Now we can create the "Hello world" view. It's just a function that
