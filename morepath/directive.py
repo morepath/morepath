@@ -1,5 +1,6 @@
 from .app import AppBase
 from .config import Directive
+from .settings import SettingSection
 from .error import ConfigError
 from .view import (register_view, render_json, render_html,
                    register_predicate, register_predicate_fallback,
@@ -41,6 +42,24 @@ class directive(object):
         update_wrapper(method, directive.__init__)
         setattr(AppBase, self.name, method)
         return directive
+
+
+@directive('setting')
+class SettingDirective(Directive):
+    def __init__(self, app, section, name):
+        super(Directive, self).__init__(app)
+        self.section = section
+        self.name = name
+
+    def identifier(self, app):
+        return self.section, self.name
+
+    def perform(self, app, obj):
+        section = getattr(app.settings, self.section, None)
+        if section is None:
+            section = SettingSection()
+            setattr(app.settings, self.section, section)
+        setattr(section, self.name, obj())
 
 
 @directive('converter')

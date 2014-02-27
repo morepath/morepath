@@ -2,6 +2,7 @@ from .mount import Mount
 from .request import Request
 from .traject import Traject
 from .config import Configurable
+from .settings import SettingSectionContainer
 from .converter import ConverterRegistry
 from .error import MountError
 from .tween import TweenRegistry
@@ -53,6 +54,7 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
             variables = set()
         self._variables = set(variables)
         self.traject = Traject()
+        self.settings = SettingSectionContainer()
         self._mounted = {}
         self._variables = variables or set()
         if not variables:
@@ -73,6 +75,7 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
         Configurable.clear(self)
         TweenRegistry.clear(self)
         self.traject = Traject()
+        self.settings = SettingSectionContainer()
         self._cached_lookup = None
         self._mounted = {}
 
