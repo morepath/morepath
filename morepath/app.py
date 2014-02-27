@@ -4,12 +4,14 @@ from .traject import Traject
 from .config import Configurable
 from .converter import ConverterRegistry
 from .error import MountError
+from .tween import TweenRegistry
 from reg import ClassRegistry, Lookup, CachingClassLookup
 import venusian
 from werkzeug.serving import run_simple
 
 
-class AppBase(Configurable, ClassRegistry, ConverterRegistry):
+class AppBase(Configurable, ClassRegistry, ConverterRegistry,
+              TweenRegistry):
     """Base for application objects.
 
     Extends :class:`morepath.config.Configurable`,
@@ -45,6 +47,7 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry):
         ClassRegistry.__init__(self)
         Configurable.__init__(self, extends, testing_config)
         ConverterRegistry.__init__(self)
+        TweenRegistry.__init__(self)
         self.name = name
         if variables is None:
             variables = set()

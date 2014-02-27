@@ -1,6 +1,7 @@
 from copy import copy
 import venusian
-from .error import ConflictError, DirectiveError, DirectiveReportError
+from .error import (ConflictError, DirectiveError, DirectiveReportError,
+                    TopologicalSortError)
 from .framehack import caller_package
 
 
@@ -462,13 +463,18 @@ class Config(object):
         for configurable in sort_configurables(self.configurables):
             configurable.execute()
 
+
 def topological_sort(l, get_depends):
     result = []
     marked = set()
+    temporary_marked = set()
 
     def visit(n):
         if n in marked:
             return
+        if n in temporary_marked:
+            raise TopologicalSortError("Not a DAG")
+        temporary_marked.add(n)
         for m in get_depends(n):
             visit(m)
         marked.add(n)

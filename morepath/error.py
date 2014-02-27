@@ -80,3 +80,7 @@ class LinkError(Exception):
 class MountError(Exception):
     pass
 
+
+class TopologicalSortError(Exception):
+    pass
+
