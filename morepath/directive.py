@@ -47,6 +47,20 @@ class directive(object):
 @directive('setting')
 class SettingDirective(Directive):
     def __init__(self, app, section, name):
+        """Register application setting.
+
+        An application setting is registered under the ``settings``
+        attribute of :class:`morepath.app.AppBase`. It will
+        be executed early in configuration so other configuration
+        directives can depend on it.
+
+        The decorated function returns the setting value when executed.
+
+        :param section: the name of the section the setting should go
+          under.
+        :param name: the name of the setting in its section.
+        """
+
         super(Directive, self).__init__(app)
         self.section = section
         self.name = name
