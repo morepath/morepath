@@ -1,3 +1,4 @@
+import sys
 from copy import copy
 import venusian
 from .error import (ConflictError, DirectiveError, DirectiveReportError)
@@ -348,6 +349,11 @@ class DirectiveAbbreviation(object):
         return self.directive.clone(**kw)
 
 
+def ignore_import_error(pkg):
+    if not issubclass(sys.exc_info()[0], ImportError):
+        raise # reraise the last exception
+
+
 class Config(object):
     """Contains and executes configuration actions.
 
@@ -388,7 +394,7 @@ class Config(object):
         if package is None:
             package = caller_package()
         scanner = venusian.Scanner(config=self)
-        scanner.scan(package, ignore=ignore)
+        scanner.scan(package, ignore=ignore, onerror=ignore_import_error)
 
     def configurable(self, configurable):
         """Register a configurable with this config.
