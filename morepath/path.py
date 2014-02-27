@@ -30,7 +30,7 @@ class Mount(object):
 
     def __call__(self, environ, start_response):
         request = self.app.request(environ)
-        response = publish(request, self)
+        response = self.app.publish(request, self)
         return response(environ, start_response)
 
     def parent(self):

@@ -1,6 +1,8 @@
+import morepath
 from morepath.tween import TweenRegistry
 from morepath.error import TopologicalSortError
 import pytest
+from werkzeug.test import Client
 
 
 def test_tween_sorting_no_tweens():
@@ -140,3 +142,31 @@ def test_tween_sorting_dag_error4():
     with pytest.raises(TopologicalSortError):
         reg.sorted_tween_factories()
 
+
+def test_tween_directive():
+    config = morepath.setup()
+    app = morepath.App(testing_config=config)
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @app.view(model=Root)
+    def default(self, request):
+        return "View"
+
+    @app.tween_factory()
+    def get_modify_response_tween(app, handler):
+        def plusplustween(request, mount):
+            response = handler(request, mount)
+            response.headers['Tween-Header'] = 'FOO'
+            return response
+        return plusplustween
+
+    config.commit()
+
+    c = Client(app, morepath.Response)
+
+    response = c.get('/')
+    assert response.data == 'View'
+    assert response.headers['Tween-Header'] == 'FOO'

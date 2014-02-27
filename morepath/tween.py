@@ -1,6 +1,6 @@
 from .config import topological_sort
-
-tween_factory_id = 0
+from .publish import publish
+from werkzeug.utils import cached_property
 
 class TweenRegistry(object):
     def __init__(self):
@@ -8,6 +8,9 @@ class TweenRegistry(object):
 
     def register_tween_factory(self, tween_factory, over, under):
         self._tween_factories[tween_factory] = over, under
+
+    def clear(self):
+        self._tween_factories = {}
 
     def sorted_tween_factories(self):
         tween_factory_depends = {}
@@ -27,6 +30,9 @@ class TweenRegistry(object):
             lambda tween_factory:
                 tween_factory_depends.get(tween_factory, []))
 
-    def tweened_publish(self, publish):
-        pass
-
+    @cached_property
+    def publish(self):
+        result = publish
+        for tween_factory in reversed(self.sorted_tween_factories()):
+            result = tween_factory(self, result)
+        return result

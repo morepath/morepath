@@ -412,6 +412,30 @@ class MountDirective(PathDirective):
         register_mount(app, self.mounted_app, self.path, self.required, obj)
 
 
+tween_factory_id = 0
+
+@directive('tween_factory')
+class TweenFactoryDirective(Directive):
+    def __init__(self, app, under=None, over=None, name=None):
+        '''Register tween factory.
+        '''
+        super(TweenFactoryDirective, self).__init__(app)
+        global tween_factory_id
+        self.app = app
+        self.under = under
+        self.over = over
+        if name is None:
+            name = unicode('tween_factory_%s' % tween_factory_id)
+            tween_factory_id += 1
+        self.name = name
+
+    def identifier(self, app):
+        return self.name
+
+    def perform(self, app, obj):
+        app.register_tween_factory(obj, over=self.over, under=self.under)
+
+
 @directive('identity_policy')
 class IdentityPolicyDirective(Directive):
     def __init__(self, app):

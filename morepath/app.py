@@ -72,6 +72,7 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
         """
         ClassRegistry.clear(self)
         Configurable.clear(self)
+        TweenRegistry.clear(self)
         self.traject = Traject()
         self._cached_lookup = None
         self._mounted = {}
