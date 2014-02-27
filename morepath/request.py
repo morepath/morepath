@@ -47,7 +47,7 @@ class Request(BaseRequest):
         view function and returns its result.
 
         :param model: the model to call the view on.
-        :param mounted: a :class:`morepath.path.Mount` instance for
+        :param mounted: a :class:`morepath.mount.Mount` instance for
           which the view should be looked up. If ommitted, this is the
           current mount.
         :param default: default value if view is not found.
@@ -78,7 +78,7 @@ class Request(BaseRequest):
         :param model: the model instance to link to, or ``None``.
         :param name: the name of the view to link to. If omitted, the
           the default view is looked up.
-        :param mounted: a :class:`morepath.path.Mount` instance for
+        :param mounted: a :class:`morepath.mount.Mount` instance for
           which the view should be looked up. If ommitted, this is the
           current mount.
         :param default: if ``None`` is passed in, the default value is

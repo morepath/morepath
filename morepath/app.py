@@ -1,4 +1,4 @@
-from .path import Mount
+from .mount import Mount
 from .request import Request
 from .traject import Traject
 from .config import Configurable
@@ -98,10 +98,10 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
         return request
 
     def mounted(self, **context):
-        """Create :class:`morepath.path.Mount` for application.
+        """Create :class:`morepath.mount.Mount` for application.
 
         :param kw: the arguments with which to mount the app.
-        :returns: :class:`morepath.path.Mount` instance. This is
+        :returns: :class:`morepath.mount.Mount` instance. This is
           a WSGI application.
         """
         for name in self._variables:
