@@ -52,7 +52,7 @@ class SettingDirective(Directive):
         An application setting is registered under the ``settings``
         attribute of :class:`morepath.app.AppBase`. It will
         be executed early in configuration so other configuration
-        directives can depend on it.
+        directives can depend on the settings being there.
 
         The decorated function returns the setting value when executed.
 
@@ -74,6 +74,45 @@ class SettingDirective(Directive):
             section = SettingSection()
             setattr(app.settings, self.section, section)
         setattr(section, self.name, obj())
+
+
+class SettingValue(object):
+    def __init__(self, value):
+        self.value = value
+
+    def __call__(self):
+        return self.value
+
+
+@directive('setting_section')
+class SettingSectionDirective(Directive):
+    def __init__(self, app, section):
+        """Register application setting in a section.
+
+        An application settings are registered under the ``settings``
+        attribute of :class:`morepath.app.AppBase`. It will
+        be executed early in configuration so other configuration
+        directives can depend on the settings being there.
+
+        The decorated function returns a dictionary with as keys the
+        setting names and as values the settings.
+
+        :param section: the name of the section the setting should go
+          under.
+        """
+
+        super(Directive, self).__init__(app)
+        self.section = section
+
+    def identifier(self, app):
+        return self.section
+
+    def prepare(self, obj):
+        section = obj()
+        app = self.configurable
+        for name, value in section.items():
+            yield (app.setting(section=self.section, name=name),
+                   SettingValue(value))
 
 
 @directive('converter')
