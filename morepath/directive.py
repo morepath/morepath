@@ -64,6 +64,8 @@ class SettingDirective(Directive):
 
 @directive('converter')
 class ConverterDirective(Directive):
+    depends = [SettingDirective]
+
     def __init__(self, app, type):
         """Register custom converter for type.
 
@@ -89,7 +91,7 @@ class ConverterDirective(Directive):
 
 @directive('path')
 class PathDirective(Directive):
-    depends = [ConverterDirective]
+    depends = [SettingDirective, ConverterDirective]
 
     def __init__(self, app,  path, model=None,
                  variables=None, converters=None, required=None):
@@ -156,6 +158,8 @@ class PathDirective(Directive):
 
 @directive('permission')
 class PermissionDirective(Directive):
+    depends = [SettingDirective]
+
     def __init__(self, app,  model, permission, identity=Identity):
         """Declare whether a model has a permission.
 
@@ -188,6 +192,8 @@ class PermissionDirective(Directive):
 
 @directive('predicate')
 class PredicateDirective(Directive):
+    depends = [SettingDirective]
+
     def __init__(self, app, name, order, default, index=KeyIndex):
         """Register custom view predicate.
 
@@ -228,7 +234,7 @@ class PredicateDirective(Directive):
 
 @directive('predicate_fallback')
 class PredicateFallbackDirective(Directive):
-    depends = [PredicateDirective]
+    depends = [SettingDirective, PredicateDirective]
 
     def __init__(self, app, name):
         """For a given predicate name, register fallback view.
@@ -253,7 +259,8 @@ class PredicateFallbackDirective(Directive):
 
 @directive('view')
 class ViewDirective(Directive):
-    depends = [PredicateDirective, PredicateFallbackDirective]
+    depends = [SettingDirective, PredicateDirective,
+               PredicateFallbackDirective]
 
     def __init__(self, app, model, render=None, permission=None,
                  **predicates):
@@ -396,7 +403,7 @@ class HtmlDirective(ViewDirective):
 
 @directive('mount')
 class MountDirective(PathDirective):
-    depends = [ConverterDirective]
+    depends = [SettingDirective, ConverterDirective]
 
     def __init__(self, base_app, path, app, converters=None,
                  required=None):
@@ -439,6 +446,8 @@ tween_factory_id = 0
 
 @directive('tween_factory')
 class TweenFactoryDirective(Directive):
+    depends = [SettingDirective]
+
     def __init__(self, app, under=None, over=None, name=None):
         '''Register tween factory.
 
@@ -483,6 +492,8 @@ class TweenFactoryDirective(Directive):
 
 @directive('identity_policy')
 class IdentityPolicyDirective(Directive):
+    depends = [SettingDirective]
+
     def __init__(self, app):
         '''Register identity policy.
 
@@ -509,6 +520,8 @@ class IdentityPolicyDirective(Directive):
 
 @directive('function')
 class FunctionDirective(Directive):
+    depends = [SettingDirective]
+
     def __init__(self, app, target, *sources):
         '''Register function as implementation of generic function
 
