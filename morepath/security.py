@@ -1,4 +1,3 @@
-from .request import Request, Response
 from morepath import generic
 from werkzeug import parse_authorization_header
 

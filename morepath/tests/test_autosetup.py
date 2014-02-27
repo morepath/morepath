@@ -1,5 +1,5 @@
 from morepath.autosetup import morepath_packages, autoconfig, autosetup
-from base.m import app, get_foo
+from base.m import app
 
 
 def test_import():

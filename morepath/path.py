@@ -1,12 +1,12 @@
 from morepath import generic
 from morepath.traject import Traject, ParameterFactory, Path
-from morepath.publish import publish
 from morepath.error import DirectiveError
 
 from reg import mapply, arginfo
 from types import ClassType
 
 SPECIAL_ARGUMENTS = ['request', 'parent']
+
 
 class Mount(object):
     def __init__(self, app, context_factory, variables):
@@ -51,11 +51,10 @@ def get_arguments(callable, exclude):
     If no default is given, default value is taken to be None.
     """
     info = arginfo(callable)
-    result = {}
     defaults = info.defaults or []
     defaults = [None] * (len(info.args) - len(defaults)) + list(defaults)
-    return { name: default for (name, default) in zip(info.args, defaults)
-             if name not in exclude }
+    return {name: default for (name, default) in zip(info.args, defaults)
+            if name not in exclude}
 
 
 def get_converters(arguments, converters,
@@ -84,14 +83,14 @@ def get_converters(arguments, converters,
 
 
 def get_url_parameters(arguments, exclude):
-    return { name: default for (name, default) in arguments.items() if
-             name not in exclude }
+    return {name: default for (name, default) in arguments.items() if
+            name not in exclude}
 
 
 def get_variables_func(arguments, exclude):
     names = [name for name in arguments.keys() if name not in exclude]
-    return lambda model: { name: getattr(model, name) for
-                           name in names}
+    return lambda model: {name: getattr(model, name) for
+                          name in names}
 
 
 def register_path(app, model, path, variables, converters, required,
@@ -105,7 +104,8 @@ def register_path(app, model, path, variables, converters, required,
     if arguments is None:
         arguments = get_arguments(model_factory, SPECIAL_ARGUMENTS)
     converters = get_converters(arguments, converters,
-                                app.converter_for_type, app.converter_for_value)
+                                app.converter_for_type,
+                                app.converter_for_value)
     exclude = Path(path).variables()
     exclude.update(app.mount_variables())
     parameters = get_url_parameters(arguments, exclude)
@@ -119,8 +119,8 @@ def register_path(app, model, path, variables, converters, required,
 
     traject.add_pattern(path, (model_factory, parameter_factory),
                         converters)
-    traject.inverse(model, path, variables, converters, list(parameters.keys()))
-
+    traject.inverse(model, path, variables,
+                    converters, list(parameters.keys()))
 
     def get_app(model):
         return app

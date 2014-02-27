@@ -167,7 +167,7 @@ def date_decode(s):
 
 
 def date_encode(d):
-      return d.strftime('%Y%m%d')
+    return d.strftime('%Y%m%d')
 
 
 @global_app.converter(type=date)

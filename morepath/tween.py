@@ -2,6 +2,7 @@ from .toposort import topological_sort
 from .publish import publish
 from werkzeug.utils import cached_property
 
+
 class TweenRegistry(object):
     def __init__(self):
         self._tween_factories = {}
@@ -27,8 +28,7 @@ class TweenRegistry(object):
                 depends.append(tween_factory)
         return topological_sort(
             self._tween_factories.keys(),
-            lambda tween_factory:
-                tween_factory_depends.get(tween_factory, []))
+            lambda tween_factory: tween_factory_depends.get(tween_factory, []))
 
     @cached_property
     def publish(self):

@@ -41,8 +41,8 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
         :param testing_config: a :class:`morepath.Config` that actions
           are added to directly, instead of waiting for
           a scanning phase. This is handy during testing. If you want to
-          use decorators inline in a test function, supply a ``testing_config``.
-          It's not useful outside of tests. Optional.
+          use decorators inline in a test function, supply a
+          ``testing_config``. It's not useful outside of tests. Optional.
         """
         ClassRegistry.__init__(self)
         Configurable.__init__(self, extends, testing_config)
@@ -54,7 +54,6 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
         self._variables = set(variables)
         self.traject = Traject()
         self._mounted = {}
-        root_mount = None
         self._variables = variables or set()
         if not variables:
             self._app_mount = self.mounted()
@@ -141,9 +140,11 @@ class FailingWsgi(object):
         self.app = app
 
     def __call__(self, environ, start_response):
-        raise MountError("Cannot run WSGI app as this app requires "
-                         "mount variables: %s" % ', '.join(
+        raise MountError(
+            "Cannot run WSGI app as this app requires "
+            "mount variables: %s" % ', '.join(
                 self.app.mount_variables()))
+
 
 class App(AppBase):
     """A Morepath-based application object.
@@ -177,8 +178,8 @@ class App(AppBase):
         :param testing_config: a :class:`morepath.Config` that actions
           are added to directly, instead of waiting for
           a scanning phase. This is handy during testing. If you want to
-          use decorators inline in a test function, supply a ``testing_config``.
-          It's not useful outside of tests. Optional.
+          use decorators inline in a test function, supply a
+          ``testing_config``. It's not useful outside of tests. Optional.
         """
         if not extends:
             extends = [global_app]

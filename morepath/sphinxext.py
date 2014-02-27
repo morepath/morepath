@@ -8,6 +8,7 @@ removed.
 """
 import inspect
 
+
 def setup(app):
     # all inline to avoid dependency on sphinx.ext.autodoc which
     # would trip up scanning

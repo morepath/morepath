@@ -3,7 +3,6 @@ from werkzeug.wrappers import (BaseRequest, BaseResponse,
                                CommonResponseDescriptorsMixin)
 from werkzeug.utils import cached_property
 from .traject import parse_path
-from .error import LinkError
 import urllib
 import reg
 

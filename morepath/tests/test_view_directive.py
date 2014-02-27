@@ -96,4 +96,3 @@ def test_view_custom_predicate_conflict_involving_default_extends():
 
     with pytest.raises(ConflictError):
         config.commit()
-

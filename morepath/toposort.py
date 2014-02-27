@@ -1,5 +1,6 @@
 from .error import TopologicalSortError
 
+
 def topological_sort(l, get_depends):
     result = []
     marked = set()

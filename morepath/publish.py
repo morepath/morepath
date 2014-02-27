@@ -23,7 +23,7 @@ def resolve_model(request, mount):
     mounts = request.mounts
     model = mount
     mounts.append(model)
-    from .path import Mount # XXX
+    from .path import Mount  # XXX
     while request.unconsumed:
         next_model = generic.consume(request, model, lookup=lookup)
         if next_model is None:
@@ -79,4 +79,3 @@ def publish(request, mount):
         print_exc(file=sys.stderr)
         e = InternalServerError()
         return e.get_response(request.environ)
-

@@ -1,17 +1,16 @@
 import urllib
-from morepath.path import (register_path,
-                           get_arguments, get_converters, get_url_parameters)
+from morepath.path import register_path, get_arguments, get_converters
 from morepath.converter import Converter, IDENTITY_CONVERTER
 from morepath.app import App
 from werkzeug.test import EnvironBuilder
 from morepath import setup
 from morepath import generic
 from morepath.core import traject_consume
-import pytest
+
 
 def consume(app, path, parameters=None):
     if parameters:
-       path += '?' + urllib.urlencode(parameters, True)
+        path += '?' + urllib.urlencode(parameters, True)
     request = app.request(EnvironBuilder(path=path).get_environ())
     return traject_consume(request, app, lookup=app.lookup()), request
 
@@ -65,7 +64,7 @@ def test_register_path_with_parameters():
 
     register_path(app, Root,  '', lambda m: {}, None, None, lambda: root)
     register_path(app, Model, '{id}', lambda model: {'id': model.id,
-                                                     'param': model.param },
+                                                     'param': model.param},
                   None, None, get_model)
 
     obj, request = consume(app, 'a')
@@ -107,45 +106,52 @@ def test_traject_path_with_leading_slash():
 def test_get_arguments():
     def foo(a, b):
         pass
-    assert get_arguments(foo, []) == { 'a': None, 'b': None }
+    assert get_arguments(foo, []) == {'a': None, 'b': None}
 
 
 def test_get_arguments_defaults():
     def foo(a, b=1):
         pass
-    assert get_arguments(foo, []) == { 'a': None, 'b': 1 }
+    assert get_arguments(foo, []) == {'a': None, 'b': 1}
 
 
 def test_get_arguments_exclude():
     def foo(a, b, request):
         pass
-    assert get_arguments(foo, ['request']) == { 'a': None, 'b': None }
+    assert get_arguments(foo, ['request']) == {'a': None, 'b': None}
 
 
 def test_get_converters_none_defaults():
     def converter_for_type(t):
         return IDENTITY_CONVERTER
+
     def converter_for_value(v):
         return IDENTITY_CONVERTER
+
     assert get_converters({'a': None}, {},
                           converter_for_type, converter_for_value) == {
-        'a': IDENTITY_CONVERTER }
+        'a': IDENTITY_CONVERTER}
 
 
 def test_get_converters_explicit():
     def converter_for_type(t):
         return IDENTITY_CONVERTER
+
     def converter_for_value(v):
         return IDENTITY_CONVERTER
+
     assert get_converters({'a': None}, {'a': Converter(int)},
                           converter_for_type, converter_for_value) == {
-        'a': Converter(int) }
+        'a': Converter(int)}
+
 
 def test_get_converters_from_type():
     def converter_for_type(t):
         return Converter(int)
+
     def converter_for_value(v):
         return IDENTITY_CONVERTER
+
     assert get_converters({'a': None}, {'a': int},
                           converter_for_type, converter_for_value) == {
-        'a': Converter(int) }
+        'a': Converter(int)}

@@ -59,7 +59,8 @@ class Configurable(object):
     def group_actions(self):
         """Group actions into :class:`Actions` by class.
         """
-        # grouped actions by class (in fact deepest base class before Directive)
+        # grouped actions by class (in fact deepest base class before
+        # Directive)
         d = self._grouped_actions
         # make sure we don't forget about action classes in extends
         for configurable in self.extends:
@@ -107,6 +108,7 @@ class Configurable(object):
         self._grouped_actions.setdefault(
             group_key(action), []).append((action, obj))
 
+
 def group_key(action):
     """We group actions by their deepest base class that's still a real action.
 
@@ -119,6 +121,7 @@ def group_key(action):
             return found
         found = c
     assert False
+
 
 class Actions(object):
     def __init__(self, actions, extends):
@@ -317,6 +320,7 @@ class Directive(Action):
                     "Cannot use classmethod with testing_config.")
             self.configurable._testing_config.action(self, wrapped)
             return wrapped
+
         # Normally we only add the action through Venusian scanning.
         def callback(scanner, name, obj):
             if self.attach_info.scope == 'class':
@@ -326,8 +330,8 @@ class Directive(Action):
                     func = wrapped.__get__(obj, obj)
                 else:
                     raise DirectiveError(
-                        "Cannot use directive on normal method %s of class %s. "
-                        "Use staticmethod or classmethod first."
+                        "Cannot use directive on normal method %s of "
+                        "class %s. Use staticmethod or classmethod first."
                         % (wrapped, obj))
             else:
                 func = wrapped
@@ -468,6 +472,7 @@ def sort_configurables(configurables):
     """Sort configurables topologically by extends.
     """
     return topological_sort(configurables, lambda c: c.extends)
+
 
 def sort_action_classes(action_classes):
     """Sort action classes topologically by depends.

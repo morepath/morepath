@@ -13,6 +13,7 @@ from .request import Request, Response
 from morepath import generic
 from functools import update_wrapper
 
+
 class directive(object):
     """Register a new directive with Morepath.
 
@@ -39,6 +40,7 @@ class directive(object):
         update_wrapper(method, directive.__init__)
         setattr(AppBase, self.name, method)
         return directive
+
 
 @directive('converter')
 class ConverterDirective(Directive):
@@ -162,7 +164,6 @@ class PermissionDirective(Directive):
     def perform(self, app, obj):
         register_permission_checker(
             app, self.identity, self.model, self.permission, obj)
-
 
 
 @directive('predicate')
@@ -295,7 +296,7 @@ class ViewDirective(Directive):
 
     def identifier(self, app):
         predicates = get_predicates_with_defaults(
-           self.predicates, app.exact('predicate_info', ()))
+            self.predicates, app.exact('predicate_info', ()))
         predicates_discriminator = tuple(sorted(predicates.items()))
         return (self.model, predicates_discriminator)
 
@@ -376,6 +377,7 @@ class HtmlDirective(ViewDirective):
 @directive('mount')
 class MountDirective(PathDirective):
     depends = [ConverterDirective]
+
     def __init__(self, base_app, path, app, converters=None,
                  required=None):
         """Mount sub application on path.
@@ -413,6 +415,7 @@ class MountDirective(PathDirective):
 
 
 tween_factory_id = 0
+
 
 @directive('tween_factory')
 class TweenFactoryDirective(Directive):

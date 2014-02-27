@@ -644,6 +644,7 @@ def test_variable_path_parameter_required_with_default():
     response = c.get('/')
     assert response.status == '400 BAD REQUEST'
 
+
 def test_type_hints_and_converters():
     config = setup()
     app = morepath.App(testing_config=config)
@@ -676,6 +677,7 @@ def test_type_hints_and_converters():
     response = c.get('/link?d=20140120')
     assert response.data == '/?d=20140120'
 
+
 def test_link_for_none_means_no_parameter():
     config = setup()
     app = morepath.App(testing_config=config)
@@ -707,7 +709,6 @@ def test_link_for_none_means_no_parameter():
     assert response.data == '/'
 
 
-
 def test_path_and_url_parameter_converter():
     config = setup()
     app = morepath.App(testing_config=config)
@@ -718,6 +719,7 @@ def test_path_and_url_parameter_converter():
             self.param = param
 
     from datetime import date
+
     @app.path(model=Model, path='/{id}', converters=dict(param=date))
     def get_model(id=0, param=None):
         return Model(id, param)

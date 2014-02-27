@@ -1,7 +1,6 @@
 from .fixtures import basic, nested, abbr, mapply_bug, normalmethod, method
 from morepath import setup
 from morepath.error import ConflictError, MountError, DirectiveError
-from morepath.config import Config
 from morepath.request import Response
 from morepath.view import render_html
 from morepath.app import App
@@ -738,6 +737,7 @@ def test_path_conflict_with_variable():
     with pytest.raises(ConflictError):
         config.commit()
 
+
 def test_path_conflict_with_variable_different_converters():
     config = setup()
     app = morepath.App(testing_config=config)
@@ -882,7 +882,7 @@ def test_view_conflict_with_html():
 
     @app.view(model=Model, name='a')
     def a_view(self, request):
-        pass 
+        pass
 
     @app.html(model=Model, name='a')
     def a1_view(self, request):
@@ -1097,6 +1097,7 @@ def test_mount_context_parameters_empty_context():
     # process
     response = c.get('/bar?mount_id=blah')
     assert response.data == 'The root for mount id: default'
+
 
 def test_mount_context_standalone():
     config = setup()

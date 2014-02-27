@@ -20,4 +20,3 @@ class Root(object):
 @app.view(model=NormalMethod)
 def normal_method_default(self, request):
     return "Normal Method"
-

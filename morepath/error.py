@@ -5,6 +5,7 @@ class ConfigError(Exception):
     """Raised when configuration is bad
     """
 
+
 def conflict_keyfunc(action):
     try:
         codeinfo = action.codeinfo()
@@ -54,8 +55,10 @@ class DirectiveReportError(ConfigError):
         msg = '\n'.join(result)
         super(DirectiveReportError, self).__init__(msg)
 
+
 class DirectiveError(ConfigError):
     pass
+
 
 class ResolveError(Exception):
     """Raised when path cannot be resolved
@@ -83,4 +86,3 @@ class MountError(Exception):
 
 class TopologicalSortError(Exception):
     pass
-

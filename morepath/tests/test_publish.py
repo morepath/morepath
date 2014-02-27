@@ -165,6 +165,7 @@ def test_view_raises_http_error():
     config.commit()
 
     from werkzeug.exceptions import BadRequest
+
     def view(self, request):
         raise BadRequest()
 
@@ -174,15 +175,6 @@ def test_view_raises_http_error():
     response = publish(app.request(get_environ(path='foo')), app.mounted())
 
     assert response.status == '400 BAD REQUEST'
-
-
-def test_notfound():
-    config = setup()
-    app = App(testing_config=config)
-    config.commit()
-
-    response = publish(app.request(get_environ(path='')), app.mounted())
-    assert response.status == '404 NOT FOUND'
 
 
 def test_view_after():

@@ -209,14 +209,15 @@ class Traject(object):
         return node.value, stack, variables
 
     def path(self, model):
-        path, get_variables, converters, parameter_names = self._inverse.component(
+        (path, get_variables,
+         converters, parameter_names) = self._inverse.component(
             'inverse', [model])
         all_variables = get_variables(model)
         assert isinstance(all_variables, dict)
         variables = {
             name: converters.get(name, IDENTITY_CONVERTER).encode(value) for
-            name, value in all_variables.items() 
-            if name not in parameter_names }
+            name, value in all_variables.items()
+            if name not in parameter_names}
         parameters = {
             name: converters.get(name, IDENTITY_CONVERTER).encode(value) for
             name, value in all_variables.items()
@@ -246,7 +247,8 @@ class ParameterFactory(object):
             try:
                 result[name] = converter.decode(value)
             except ValueError:
-                raise BadRequest("Cannot decode URL parameter %s: %s" % (
+                raise BadRequest(
+                    "Cannot decode URL parameter %s: %s" % (
                         name, value))
         return result
 

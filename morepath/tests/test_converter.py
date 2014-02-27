@@ -1,6 +1,7 @@
 from morepath.converter import (ConverterRegistry, Converter,
                                 IDENTITY_CONVERTER)
 
+
 def test_converter_registry():
     r = ConverterRegistry()
 
@@ -10,6 +11,7 @@ def test_converter_registry():
     assert r.converter_for_value(1) is c
     assert r.converter_for_value(None) is IDENTITY_CONVERTER
     assert r.converter_for_value('s') is None
+
 
 def test_converter_registry_inheritance():
     r = ConverterRegistry()

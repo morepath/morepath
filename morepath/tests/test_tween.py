@@ -12,14 +12,17 @@ def test_tween_sorting_no_tweens():
 
 def test_tween_sorting_one_tween():
     reg = TweenRegistry()
+
     def foo():
         pass
+
     reg.register_tween_factory(foo, over=None, under=None)
     assert reg.sorted_tween_factories() == [foo]
 
 
 def test_tween_sorting_two_tweens_under():
     reg = TweenRegistry()
+
     def top():
         pass
 
@@ -33,6 +36,7 @@ def test_tween_sorting_two_tweens_under():
 
 def test_tween_sorting_two_tweens_under_reverse_reg():
     reg = TweenRegistry()
+
     def top():
         pass
 
@@ -46,6 +50,7 @@ def test_tween_sorting_two_tweens_under_reverse_reg():
 
 def test_tween_sorting_two_tweens_over():
     reg = TweenRegistry()
+
     def top():
         pass
 
@@ -59,6 +64,7 @@ def test_tween_sorting_two_tweens_over():
 
 def test_tween_sorting_two_tweens_over_reverse_reg():
     reg = TweenRegistry()
+
     def top():
         pass
 
@@ -72,6 +78,7 @@ def test_tween_sorting_two_tweens_over_reverse_reg():
 
 def test_tween_sorting_three():
     reg = TweenRegistry()
+
     def a():
         pass
 
@@ -89,6 +96,7 @@ def test_tween_sorting_three():
 
 def test_tween_sorting_dag_error():
     reg = TweenRegistry()
+
     def a():
         pass
 
@@ -100,6 +108,7 @@ def test_tween_sorting_dag_error():
 
 def test_tween_sorting_dag_error2():
     reg = TweenRegistry()
+
     def a():
         pass
 
@@ -111,6 +120,7 @@ def test_tween_sorting_dag_error2():
 
 def test_tween_sorting_dag_error3():
     reg = TweenRegistry()
+
     def a():
         pass
 
@@ -126,6 +136,7 @@ def test_tween_sorting_dag_error3():
 
 def test_tween_sorting_dag_error4():
     reg = TweenRegistry()
+
     def a():
         pass
 

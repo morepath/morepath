@@ -11,6 +11,7 @@ import pytest
 from werkzeug.test import EnvironBuilder
 from werkzeug.exceptions import BadRequest
 
+
 class Root(object):
     pass
 
@@ -237,7 +238,8 @@ def test_traject_simple():
     assert traject.consume(['z', 'x']) == ('xz', [], {})
     assert traject.consume(['d', 'c', 'b', 'a']) == ('abc', ['d'], {})
     assert traject.consume(['d', 'd', 'b', 'a']) == ('abd', ['d'], {})
-    assert traject.consume(['3', '2', '1', 'y', 'x']) == ('xy', ['3', '2', '1'], {})
+    assert traject.consume(['3', '2', '1', 'y', 'x']) == (
+        'xy', ['3', '2', '1'], {})
     assert traject.consume(['3', '2', '1']) == (None, ['3', '2', '1'], {})
     assert traject.consume(['b', 'a']) == (None, [], {})
 
@@ -247,7 +249,8 @@ def test_traject_variable_specific_first():
     traject.add_pattern('a/{x}/b', 'axb')
     traject.add_pattern('a/prefix{x}/b', 'aprefixxb')
     assert traject.consume(['b', 'lah', 'a']) == ('axb', [], {'x': 'lah'})
-    assert traject.consume(['b', 'prefixlah', 'a']) == ('aprefixxb', [], {'x': 'lah'})
+    assert traject.consume(['b', 'prefixlah', 'a']) == (
+        'aprefixxb', [], {'x': 'lah'})
 
 
 def test_traject_multiple_steps_with_variables():
@@ -305,7 +308,8 @@ def test_traject_greedy_middle_prefix():
 
     assert traject.consume(['y', 'prefixX', 'a']) == ('prefix', [], {'x': 'X'})
     assert traject.consume(['z', 'prefixX', 'a']) == (None, ['z'], {'x': 'X'})
-    assert traject.consume(['z', 'blah', 'a']) == ('no_prefix', [], {'x': 'blah'})
+    assert traject.consume(['z', 'blah', 'a']) == (
+        'no_prefix', [], {'x': 'blah'})
 
 
 def test_traject_type_conflict_middle_end():
@@ -380,6 +384,7 @@ def consume(app, path):
 
 paramfac = ParameterFactory({}, {}, [])
 
+
 def test_traject_consume():
     app = App()
     traject = Traject()
@@ -393,9 +398,11 @@ def test_traject_consume():
 def test_traject_consume_parameter():
     app = App()
     traject = Traject()
+
     class Model(object):
         def __init__(self, a):
             self.a = a
+
     get_param = ParameterFactory({'a': 0}, {'a': Converter(int)}, [])
     traject.add_pattern('sub', (Model, get_param))
     app.register(generic.traject, [App], lambda base: traject)
@@ -714,4 +721,3 @@ def test_parameter_required():
     assert get_parameters(fake_request('?a=foo').args) == {'a': 'foo'}
     with pytest.raises(BadRequest):
         get_parameters(fake_request('').args)
-
