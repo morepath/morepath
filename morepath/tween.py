@@ -1,4 +1,4 @@
-from .config import topological_sort
+from .toposort import topological_sort
 from .publish import publish
 from werkzeug.utils import cached_property
 
