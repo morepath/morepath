@@ -418,6 +418,28 @@ tween_factory_id = 0
 class TweenFactoryDirective(Directive):
     def __init__(self, app, under=None, over=None, name=None):
         '''Register tween factory.
+
+        The tween system allows the creation of lightweight middleware
+        for Morepath that is aware of the request and the application.
+
+        The decorated function is a tween factory. It should return a tween.
+        It gets two arguments: the app for which this tween is in use,
+        and another tween that this tween can wrap.
+
+        A tween is a function that takes a request and a mounted
+        application as arguments.
+
+        Tween factories can be set to be over or under each other to
+        control the order in which the produced tweens are wrapped.
+
+        :param under: This tween factory produces a tween that wants to
+          be wrapped by the tween produced by the ``under`` tween factory.
+          Optional.
+        :param over: This tween factory produces a tween that wants to
+          wrap the tween produced by the over ``tween`` factory. Optional.
+        :param name: The name under which to register this tween factory,
+          so that it can be overridden by applications that extend this one.
+          If no name is supplied a default name is generated.
         '''
         super(TweenFactoryDirective, self).__init__(app)
         global tween_factory_id
