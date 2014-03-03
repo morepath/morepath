@@ -91,7 +91,9 @@ def test_resolve_no_consumers():
 
     base = object()
 
-    obj = resolve_model(request, base)
+    request.mounts.append(base)
+
+    obj = resolve_model(request)
 
     assert obj is base
     assert request.unconsumed == [u'a']
@@ -108,33 +110,42 @@ def test_resolve_traverse():
 
     base = get_structure()
     request = get_request(path='/a', lookup=lookup)
-    obj = resolve_model(request, base)
+    request.mounts.append(base)
+    obj = resolve_model(request)
     assert obj is base['a']
     assert request.unconsumed == []
     assert request.lookup is lookup
 
     request = get_request(path='/sub', lookup=lookup)
-    obj = resolve_model(request, base)
+    request.mounts.append(base)
+
+    obj = resolve_model(request)
     assert obj is base['sub']
     assert request.unconsumed == []
     assert request.lookup is lookup
 
     request = get_request(path='/sub/b', lookup=lookup)
-    obj = resolve_model(request, base)
+    request.mounts.append(base)
+
+    obj = resolve_model(request)
     assert obj is base['sub']['b']
     assert request.unconsumed == []
     assert request.lookup is lookup
 
     # there is no /c
     request = get_request(path='/c', lookup=lookup)
-    obj = resolve_model(request, base)
+    request.mounts.append(base)
+
+    obj = resolve_model(request)
     assert obj is base
     assert request.unconsumed == ['c']
     assert request.lookup is lookup
 
     # there is a sub, but no c in sub
     request = get_request(path='/sub/c', lookup=lookup)
-    obj = resolve_model(request, base)
+    request.mounts.append(base)
+
+    obj = resolve_model(request)
     assert obj is base['sub']
     assert request.unconsumed == ['c']
     assert request.lookup is lookup

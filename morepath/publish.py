@@ -16,14 +16,12 @@ class ResponseSentinel(object):
 RESPONSE_SENTINEL = ResponseSentinel()
 
 
-def resolve_model(request, mount):
+def resolve_model(request):
     """Resolve path to a model using consumers.
     """
     lookup = request.lookup  # XXX can get this from argument too
-    # consume steps toward model
     mounts = request.mounts
-    model = mount
-    mounts.append(model)
+    model = mounts[-1]
     while request.unconsumed:
         next_model = generic.consume(request, model, lookup=lookup)
         if next_model is None:
@@ -67,9 +65,9 @@ def get_view_name(stack):
     assert False, "Unconsumed stack: %s" % create_path(stack)
 
 
-def publish(request, mount):
+def publish(request):
     try:
-        model = resolve_model(request, mount)
+        model = resolve_model(request)
         return resolve_response(request, model)
     except HTTPException as e:
         return e.get_response(request.environ)

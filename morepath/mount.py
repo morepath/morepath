@@ -24,7 +24,8 @@ class Mount(object):
 
     def __call__(self, environ, start_response):
         request = self.app.request(environ)
-        response = self.app.publish(request, self)
+        request.mounts.append(self)
+        response = self.app.publish(request)
         return response(environ, start_response)
 
     def parent(self):

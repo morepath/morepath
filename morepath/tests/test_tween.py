@@ -168,8 +168,8 @@ def test_tween_directive():
 
     @app.tween_factory()
     def get_modify_response_tween(app, handler):
-        def plusplustween(request, mount):
-            response = handler(request, mount)
+        def plusplustween(request):
+            response = handler(request)
             response.headers['Tween-Header'] = 'FOO'
             return response
         return plusplustween

@@ -59,7 +59,10 @@ def test_notfound():
     app = App(testing_config=config)
     config.commit()
 
-    response = publish(app.request(get_environ(path='')), app.mounted())
+    request = app.request(get_environ(path=''))
+    request.mounts.append(app.mounted())
+
+    response = publish(request)
     assert response.status == '404 NOT FOUND'
 
 
@@ -172,7 +175,10 @@ def test_view_raises_http_error():
     register_path(app, Model, 'foo', None, None, None, Model)
     register_view(app, Model, view)
 
-    response = publish(app.request(get_environ(path='foo')), app.mounted())
+    request = app.request(get_environ(path='foo'))
+    request.mounts.append(app.mounted())
+
+    response = publish(request)
 
     assert response.status == '400 BAD REQUEST'
 
