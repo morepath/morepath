@@ -57,6 +57,16 @@ class Configurable(object):
         self._grouped_actions = {}
         self._class_to_actions = {}
 
+    def actions(self):
+        """Actions the configurable wants to register as it is scanned.
+
+        A configurable may want to register some actions as it is registered
+        with the config system.
+
+        Should return a sequence of action, obj tuples.
+        """
+        return []
+
     def group_actions(self):
         """Group actions into :class:`Actions` by class.
         """
@@ -407,6 +417,8 @@ class Config(object):
         :param: The :class:`morepath.config.Configurable` to register.
         """
         self.configurables.append(configurable)
+        for action, obj in configurable.actions():
+            self.action(action, obj)
 
     def action(self, action, obj):
         """Register an action and obj with this config.

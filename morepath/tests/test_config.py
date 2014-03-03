@@ -601,3 +601,26 @@ def test_directive_on_classmethod():
             @classmethod
             def method(cls):
                 return cls, 'result'
+
+
+def test_configurable_actions():
+    performed = []
+
+    class MyAction(config.Action):
+        def perform(self, configurable, obj):
+            performed.append(obj)
+
+        def identifier(self, configurable):
+            return ()
+
+    class App(config.Configurable):
+        def actions(self):
+            yield MyAction(self), self
+
+    c = config.Config()
+    x = App()
+
+    c.configurable(x)
+    assert performed == []
+    c.commit()
+    assert performed == [x]

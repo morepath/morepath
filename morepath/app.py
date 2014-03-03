@@ -6,6 +6,7 @@ from .settings import SettingSectionContainer
 from .converter import ConverterRegistry
 from .error import MountError
 from .tween import TweenRegistry
+from morepath import generic
 from reg import ClassRegistry, Lookup, CachingClassLookup, implicit
 import venusian
 from werkzeug.serving import run_simple
@@ -77,6 +78,9 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
         self.traject = Traject()
         self.settings = SettingSectionContainer()
         self._mounted = {}
+
+    def actions(self):
+        yield self.function(generic.settings), lambda: self.settings
 
     @cached_property
     def lookup(self):

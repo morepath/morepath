@@ -1,7 +1,7 @@
 import morepath
 from morepath.error import ConflictError
 import pytest
-
+from werkzeug.test import Client
 
 def setup_module(module):
     morepath.disable_implicit()
@@ -108,3 +108,31 @@ def test_app_section_settings_conflict():
 
     with pytest.raises(ConflictError):
         config.commit()
+
+
+def test_settings_function():
+    morepath.enable_implicit()
+
+    config = morepath.setup()
+
+    app = morepath.App(testing_config=config)
+
+    @app.setting('section', 'name')
+    def setting():
+        return 'LAH'
+
+    @app.path(path='')
+    class Model(object):
+        def __init__(self):
+            pass
+
+    @app.view(model=Model)
+    def default(self, request):
+        return morepath.settings().section.name
+
+    config.commit()
+
+    c = Client(app, morepath.Response)
+
+    response = c.get('/')
+    assert response.data == 'LAH'

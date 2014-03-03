@@ -74,6 +74,13 @@ def response(request, model):
 
 
 @reg.generic
+def settings():
+    """Return current settings object.
+    """
+    raise NotImplementedError
+
+
+@reg.generic
 def identify(request):
     """Returns an Identity or None if no identity can be found.
 
