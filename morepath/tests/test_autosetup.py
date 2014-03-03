@@ -1,5 +1,10 @@
 from morepath.autosetup import morepath_packages, autoconfig, autosetup
 from base.m import app
+import morepath
+
+
+def setup_module(module):
+    morepath.disable_implicit()
 
 
 def test_import():

@@ -1,6 +1,11 @@
 from morepath import config
 from morepath.error import ConflictError
 import pytest
+import morepath
+
+
+def setup_module(module):
+    morepath.disable_implicit()
 
 
 def test_action():

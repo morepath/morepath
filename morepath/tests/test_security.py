@@ -11,6 +11,10 @@ import base64
 import json
 
 
+def setup_module(module):
+    morepath.disable_implicit()
+
+
 def test_no_permission():
     config = setup()
     app = morepath.App(testing_config=config)

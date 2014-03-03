@@ -13,6 +13,10 @@ from werkzeug.test import Client
 import pytest
 
 
+def setup_module(module):
+    morepath.disable_implicit()
+
+
 def test_basic():
     config = setup()
     config.scan(basic)

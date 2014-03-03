@@ -8,6 +8,10 @@ from werkzeug.test import Client
 import pytest
 
 
+def setup_module(module):
+    morepath.disable_implicit()
+
+
 def test_simple_path_one_step():
     config = setup()
     app = morepath.App(testing_config=config)

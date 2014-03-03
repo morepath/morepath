@@ -5,6 +5,10 @@ import pytest
 from werkzeug.test import Client
 
 
+def setup_module(module):
+    morepath.disable_implicit()
+
+
 def test_tween_sorting_no_tweens():
     reg = TweenRegistry()
     assert reg.sorted_tween_factories() == []

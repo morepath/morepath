@@ -1,3 +1,4 @@
+import morepath
 from morepath.app import App
 from morepath.publish import publish, resolve_response
 from morepath.path import register_path
@@ -7,6 +8,10 @@ from morepath.core import setup
 from werkzeug.test import EnvironBuilder
 from werkzeug.exceptions import NotFound
 import pytest
+
+
+def setup_module(module):
+    morepath.disable_implicit()
 
 
 def get_environ(*args, **kw):

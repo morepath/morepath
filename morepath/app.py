@@ -6,10 +6,11 @@ from .settings import SettingSectionContainer
 from .converter import ConverterRegistry
 from .error import MountError
 from .tween import TweenRegistry
-from reg import ClassRegistry, Lookup, CachingClassLookup
+from reg import ClassRegistry, Lookup, CachingClassLookup, implicit
 import venusian
 from werkzeug.serving import run_simple
 from werkzeug.utils import cached_property
+
 
 class AppBase(Configurable, ClassRegistry, ConverterRegistry,
               TweenRegistry):
@@ -84,6 +85,9 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
         :returns: a :class:`reg.Lookup` instance.
         """
         return Lookup(CachingClassLookup(self))
+
+    def set_implicit(self):
+        pass
 
     def request(self, environ):
         """Create a :class:`Request` given WSGI environment.
@@ -188,6 +192,22 @@ class App(AppBase):
 
 def callback(scanner, name, obj):
     scanner.config.configurable(obj)
+
+
+def set_implicit(self):
+    implicit.lookup = self.lookup
+
+
+def enable_implicit():
+    AppBase.set_implicit = set_implicit
+
+
+def no_set_implicit(self):
+    pass
+
+
+def disable_implicit():
+    AppBase.set_implicit = no_set_implicit
 
 
 global_app = AppBase('global_app')

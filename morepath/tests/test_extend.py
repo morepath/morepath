@@ -2,6 +2,11 @@ from morepath.app import App
 from werkzeug.test import Client
 from morepath import setup
 from morepath.request import Response
+import morepath
+
+
+def setup_module(module):
+    morepath.disable_implicit()
 
 
 def test_extends():

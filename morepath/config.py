@@ -351,7 +351,7 @@ class DirectiveAbbreviation(object):
 
 def ignore_import_error(pkg):
     if not issubclass(sys.exc_info()[0], ImportError):
-        raise # reraise the last exception
+        raise  # reraise the last exception
 
 
 class Config(object):

@@ -1,6 +1,5 @@
 # flake8: noqa
-from .app import App, AppBase, global_app
-from .implicit import initialize
+from .app import App, AppBase, global_app, enable_implicit, disable_implicit
 from .core import setup
 from morepath import directive # register directive methods
 from .generic import remember, forget
@@ -12,7 +11,8 @@ from morepath.autosetup import autoconfig, autosetup
 from morepath.security import Identity, NO_IDENTITY
 from .directive import directive
 from .converter import Converter
-from reg import ANY
+from reg import ANY, implicit
 from pdb import Pdb
 pdb = Pdb(skip=['reg.*', 'inspect'])
-#initialize()
+implicit.initialize(None)
+enable_implicit()

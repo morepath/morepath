@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from reg import Lookup, ClassRegistry
+import morepath
 from morepath import generic
 from morepath.traject import VIEW_PREFIX
 from morepath.request import Request
 from morepath.publish import resolve_model
 from werkzeug.test import EnvironBuilder
+
+
+def setup_module(module):
+    morepath.disable_implicit()
 
 
 class Traverser(object):
@@ -50,7 +55,10 @@ def get_lookup(registry):
 
 
 class Container(dict):
-    pass
+    lookup = None
+
+    def set_implicit(self):
+        pass
 
 
 class Model(object):
@@ -89,7 +97,13 @@ def test_resolve_no_consumers():
     lookup = get_lookup(get_registry())
     request = get_request(path='/a', lookup=lookup)
 
-    base = object()
+    class DummyBase(object):
+        lookup = None
+
+        def set_implicit(self):
+            pass
+
+    base = DummyBase()
 
     request.mounts.append(base)
 

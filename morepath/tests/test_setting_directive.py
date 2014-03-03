@@ -3,15 +3,21 @@ from morepath.error import ConflictError
 import pytest
 
 
+def setup_module(module):
+    morepath.disable_implicit()
+
+
 def test_app_extends_settings():
     config = morepath.setup()
 
     alpha = morepath.App(testing_config=config)
     beta = morepath.App(extends=[alpha],
                         testing_config=config)
+
     @alpha.setting('one', 'foo')
     def get_foo_setting():
         return 'FOO'
+
     @beta.setting('one', 'bar')
     def get_bar_setting():
         return 'BAR'
@@ -35,6 +41,7 @@ def test_app_overrides_settings():
     @alpha.setting('one', 'foo')
     def get_foo_setting():
         return 'FOO'
+
     @beta.setting('one', 'foo')
     def get_bar_setting():
         return 'OVERRIDE'
@@ -56,6 +63,7 @@ def test_app_overrides_settings_three():
     @alpha.setting('one', 'foo')
     def get_foo_setting():
         return 'FOO'
+
     @beta.setting('one', 'foo')
     def get_bar_setting():
         return 'OVERRIDE'

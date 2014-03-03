@@ -2,6 +2,7 @@ from .path import register_path, get_arguments, SPECIAL_ARGUMENTS
 from reg import mapply
 from werkzeug.utils import cached_property
 
+
 class Mount(object):
     def __init__(self, app, context_factory, variables):
         self.app = app
@@ -22,6 +23,9 @@ class Mount(object):
     @cached_property
     def lookup(self):
         return self.app.lookup
+
+    def set_implicit(self):
+        self.app.set_implicit()
 
     def __call__(self, environ, start_response):
         request = self.app.request(environ)

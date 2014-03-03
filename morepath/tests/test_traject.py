@@ -1,3 +1,4 @@
+import morepath
 from morepath.traject import (Traject, Node, Step, TrajectError,
                               is_identifier, parse_variables,
                               Path, parse_path, create_path,
@@ -10,6 +11,10 @@ from morepath.converter import Converter, IDENTITY_CONVERTER
 import pytest
 from werkzeug.test import EnvironBuilder
 from werkzeug.exceptions import BadRequest
+
+
+def setup_module(module):
+    morepath.disable_implicit()
 
 
 class Root(object):

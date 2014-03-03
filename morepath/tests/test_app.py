@@ -1,4 +1,9 @@
 from morepath.app import App, global_app
+import morepath
+
+
+def setup_module(module):
+    morepath.disable_implicit()
 
 
 def test_global_app():

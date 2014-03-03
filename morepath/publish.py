@@ -22,12 +22,14 @@ def resolve_model(request):
     lookup = request.lookup  # XXX can get this from argument too
     mounts = request.mounts
     model = mounts[-1]
+    model.set_implicit()
     while request.unconsumed:
         next_model = generic.consume(request, model, lookup=lookup)
         if next_model is None:
             return model
         model = next_model
         if isinstance(model, Mount):
+            model.set_implicit()
             mounts.append(model)
         # get new lookup for whatever we found if it exists
         lookup = generic.lookup(model, lookup=lookup, default=lookup)

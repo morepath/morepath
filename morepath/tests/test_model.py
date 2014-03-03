@@ -6,6 +6,11 @@ from werkzeug.test import EnvironBuilder
 from morepath import setup
 from morepath import generic
 from morepath.core import traject_consume
+import morepath
+
+
+def setup_module(module):
+    morepath.disable_implicit()
 
 
 def consume(app, path, parameters=None):
