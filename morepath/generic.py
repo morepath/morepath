@@ -76,6 +76,13 @@ def response(request, model):
 @reg.generic
 def settings():
     """Return current settings object.
+
+    In it are sections, and inside of the sections are the setting values.
+    If there is a ``logging`` section and a ``loglevel`` setting in it,
+    this is how you would access it::
+
+      settings().logging.loglevel
+
     """
     raise NotImplementedError
 

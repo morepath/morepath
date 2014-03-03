@@ -45,13 +45,15 @@ under the ``logging`` section.
 Accessing a setting
 -------------------
 
-In configuration time, you can access a setting through the ``app``
-object::
+During runtime, you can access the settings of the current application
+using the :func:`morepath.settings` function, like this::
+
+  settings().logging.logfile
+
+In a tween factory (see :doc:tweens) or a directive implementation,
+you can access a setting through the ``app`` object like this::
 
   app.settings.logging.logfile
-
-XXX accessing setting during proper runtime when no app object is available,
-or during configuration when app extension is in play?
 
 Defining multiple settings
 --------------------------

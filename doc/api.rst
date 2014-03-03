@@ -17,6 +17,8 @@ Morepath API
 
 .. autofunction:: setup
 
+.. autofunction:: settings
+
 .. autoclass:: Request
   :members:
 
