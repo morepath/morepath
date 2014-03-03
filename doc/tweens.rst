@@ -33,7 +33,7 @@ Under and over
 Given a handler, we can create a factory that creates a tween that
 wraps around it::
 
-  def make_tween(handler):
+  def make_tween(app, handler):
       def my_tween(request):
           print "Enter"
           response = handler(request)
@@ -75,7 +75,7 @@ register a tween factory using the :meth:`AppBase.tween_factory`
 directive::
 
   @app.tween_factory()
-  def make_tween(handler):
+  def make_tween(app, handler):
       def my_tween(request):
           print "Enter"
           response = handler(request)
@@ -92,7 +92,7 @@ It can be useful to control the order of the tween chain. You can do this
 by passing ``under`` or ``over`` to `tween_factory`::
 
   @app.tween_factory(over=make_tween)
-  def make_another_tween(request):
+  def make_another_tween(app, handler):
       def another_tween(request):
           print "Another"
           return handler(request)
@@ -106,7 +106,7 @@ The tween chain is now:
 If instead you used ``under``::
 
   @app.tween_factory(under=make_tween)
-  def make_another_tween(request):
+  def make_another_tween(app, handler):
       def another_tween(request):
           print "Another"
           return handler(request)
@@ -116,6 +116,17 @@ Then the tween chain is:
 .. code-block:: none
 
   my_tween -> another_tween -> publish
+
+Tweens and settings
+-------------------
+
+A tween factory may need access to some application settings in order
+to construct its tweens. A logging tween for instance needs access to
+a setting that indicates the path of the logfile.
+
+The tween factory gets two arguments: the app and the handler. You can
+then access the app's settings using ``app.settings``. See also the
+:doc:`settings` section.
 
 Tweens and apps
 ---------------

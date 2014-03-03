@@ -14,6 +14,7 @@ Table of Contents
    paths_and_linking
    views
    rest
+   settings
    organizing_your_project
    app_reuse
    building_large_applications
