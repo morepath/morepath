@@ -6,11 +6,14 @@ from morepath.traject import (Traject, Node, Step, TrajectError,
 from morepath import generic
 from morepath.app import App
 from morepath.core import traject_consume
-from morepath.request import Request
+from werkzeug.wrappers import BaseRequest as Request
+#from morepath.request import Request
 from morepath.converter import Converter, IDENTITY_CONVERTER
 import pytest
 from werkzeug.test import EnvironBuilder
-from werkzeug.exceptions import BadRequest
+from webob.exc import HTTPBadRequest as BadRequest
+
+#from werkzeug.exceptions import BadRequest
 
 
 def setup_module(module):

@@ -1,7 +1,7 @@
 import re
 from functools import total_ordering
 from reg import Registry
-from werkzeug.exceptions import BadRequest
+from webob.exc import HTTPBadRequest as BadRequest
 from .converter import IDENTITY_CONVERTER
 from .error import TrajectError
 

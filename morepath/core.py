@@ -7,8 +7,8 @@ from .app import AppBase
 from .error import LinkError
 from .request import Request, Response
 from .converter import Converter, IDENTITY_CONVERTER
-from werkzeug.wrappers import BaseResponse
-from werkzeug.exceptions import Unauthorized, MethodNotAllowed
+from webob import Response as BaseResponse
+from webob.exc import HTTPUnauthorized as Unauthorized, HTTPMethodNotAllowed as MethodNotAllowed
 import morepath
 from reg import mapply, KeyIndex
 from datetime import datetime, date
@@ -43,7 +43,7 @@ def traject_consume(request, model, lookup):
     if value is None:
         return None
     get_model, get_parameters = value
-    variables = get_parameters(request.args)
+    variables = get_parameters(request.GET)
     variables.update(generic.context(model, default={}, lookup=lookup))
     variables['parent'] = model
     variables['request'] = request
@@ -118,7 +118,7 @@ def get_response(request, model):
     if view.render is not None:
         response = view.render(content)
     else:
-        response = Response(content)
+        response = Response(content, content_type='text/plain')
     return response
 
 

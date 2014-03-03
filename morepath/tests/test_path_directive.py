@@ -1,6 +1,7 @@
 import morepath
 from morepath import setup
-from morepath.request import Response
+from werkzeug.wrappers import BaseResponse as Response
+#from morepath.request import Response
 from morepath.converter import Converter
 from morepath.error import DirectiveReportError
 
@@ -200,7 +201,7 @@ def test_variable_path_explicit_converter():
     assert response.data == '/1'
 
     response = c.get('broken')
-    assert response.status == '404 NOT FOUND'
+    assert response.status == '404 Not Found'
 
 
 def test_variable_path_implicit_converter():
@@ -234,7 +235,7 @@ def test_variable_path_implicit_converter():
     assert response.data == '/1'
 
     response = c.get('broken')
-    assert response.status == '404 NOT FOUND'
+    assert response.status == '404 Not Found'
 
 
 def test_variable_path_explicit_trumps_implicit():
@@ -269,7 +270,7 @@ def test_variable_path_explicit_trumps_implicit():
     assert response.data == '/1'
 
     response = c.get('broken')
-    assert response.status == '404 NOT FOUND'
+    assert response.status == '404 Not Found'
 
 
 def test_url_parameter_explicit_converter():
@@ -304,7 +305,7 @@ def test_url_parameter_explicit_converter():
     assert response.data == '/?id=1'
 
     response = c.get('/?id=broken')
-    assert response.status == '400 BAD REQUEST'
+    assert response.status == '400 Bad Request'
 
     response = c.get('/')
     assert response.data == "View: None (<type 'NoneType'>)"
@@ -341,7 +342,7 @@ def test_url_parameter_implicit_converter():
     assert response.data == '/?id=1'
 
     response = c.get('/?id=broken')
-    assert response.status == '400 BAD REQUEST'
+    assert response.status == '400 Bad Request'
 
     response = c.get('/')
     assert response.data == "View: 0 (<type 'int'>)"
@@ -379,7 +380,7 @@ def test_url_parameter_explicit_trumps_implicit():
     assert response.data == '/?id=1'
 
     response = c.get('/?id=broken')
-    assert response.status == '400 BAD REQUEST'
+    assert response.status == '400 Bad Request'
 
     response = c.get('/')
     assert response.data == "View: foo (<type 'str'>)"
@@ -489,7 +490,7 @@ def test_default_date_converter():
     assert response.data == '/?d=20110101'
 
     response = c.get('/?d=broken')
-    assert response.status == '400 BAD REQUEST'
+    assert response.status == '400 Bad Request'
 
 
 def test_default_datetime_converter():
@@ -531,7 +532,7 @@ def test_default_datetime_converter():
     assert response.data == '/?d=20110101T103000'
 
     response = c.get('/?d=broken')
-    assert response.status == '400 BAD REQUEST'
+    assert response.status == '400 Bad Request'
 
 
 def test_custom_date_converter():
@@ -584,7 +585,7 @@ def test_custom_date_converter():
     assert response.data == '/?d=01-01-2011'
 
     response = c.get('/?d=broken')
-    assert response.status == '400 BAD REQUEST'
+    assert response.status == '400 Bad Request'
 
 
 def test_variable_path_parameter_required_no_default():
@@ -615,7 +616,7 @@ def test_variable_path_parameter_required_no_default():
     assert response.data == "View: a"
 
     response = c.get('/')
-    assert response.status == '400 BAD REQUEST'
+    assert response.status == '400 Bad Request'
 
 
 def test_variable_path_parameter_required_with_default():
@@ -646,7 +647,7 @@ def test_variable_path_parameter_required_with_default():
     assert response.data == "View: a"
 
     response = c.get('/')
-    assert response.status == '400 BAD REQUEST'
+    assert response.status == '400 Bad Request'
 
 
 def test_type_hints_and_converters():

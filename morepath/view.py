@@ -87,14 +87,10 @@ def register_predicate_fallback(registry, name, obj):
 def render_json(content):
     """Take dict/list/string/number content and return json response.
     """
-    response = Response(json.dumps(content))
-    response.content_type = 'application/json'
-    return response
+    return Response(json.dumps(content), content_type='application/json')
 
 
 def render_html(content):
     """Take string and return text/html response.
     """
-    response = Response(content)
-    response.content_type = 'text/html'
-    return response
+    return Response(content, content_type='text/html')

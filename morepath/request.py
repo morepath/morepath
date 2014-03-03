@@ -1,6 +1,5 @@
 from morepath import generic
-from werkzeug.wrappers import (BaseRequest, BaseResponse,
-                               CommonResponseDescriptorsMixin)
+from webob import Request as BaseRequest, Response as BaseResponse
 from werkzeug.utils import cached_property
 from .traject import parse_path
 import urllib
@@ -15,9 +14,9 @@ class Request(BaseRequest):
 
     Extends :class:`werkzeug.wrappers.BaseRequest`
     """
-    def __init__(self, environ, populate_request=True, shallow=False):
-        super(Request, self).__init__(environ, populate_request, shallow)
-        self.unconsumed = parse_path(self.path)
+    def __init__(self, environ):
+        super(Request, self).__init__(environ)
+        self.unconsumed = parse_path(self.path_info)
         self.mounts = []
         self._after = []
 
@@ -130,7 +129,7 @@ class Request(BaseRequest):
             after(response)
 
 
-class Response(BaseResponse, CommonResponseDescriptorsMixin):
+class Response(BaseResponse):
     """Response.
 
     Extends :class:`werkzeug.wrappers.BaseResponse` and

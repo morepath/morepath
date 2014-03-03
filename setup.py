@@ -12,6 +12,7 @@ setup(name='morepath',
       zip_safe=False,
       install_requires=[
         'setuptools',
+        'webob >= 1.3.1',
         'venusian >= 1.0a8',
         'reg >= 0.5',
         'werkzeug >= 0.9.4',

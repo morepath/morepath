@@ -6,7 +6,9 @@ from morepath.request import Response
 from morepath.view import register_view, render_json, render_html
 from morepath.core import setup
 from werkzeug.test import EnvironBuilder
-from werkzeug.exceptions import NotFound
+from webob.exc import HTTPNotFound as NotFound
+
+#from werkzeug.exceptions import NotFound
 import pytest
 
 
@@ -34,7 +36,7 @@ def test_view():
 
     model = Model()
     result = resolve_response(app.request(get_environ(path='')), model)
-    assert result.data == 'View!'
+    assert result.body == 'View!'
 
 
 def test_predicates():
@@ -54,9 +56,9 @@ def test_predicates():
 
     model = Model()
     assert resolve_response(
-        app.request(get_environ(path='')), model).data == 'all'
+        app.request(get_environ(path='')), model).body == 'all'
     assert (resolve_response(app.request(get_environ(path='', method='POST')),
-                             model).data == 'post')
+                             model).body == 'post')
 
 
 def test_notfound():
@@ -68,7 +70,7 @@ def test_notfound():
     request.mounts.append(app.mounted())
 
     response = publish(request)
-    assert response.status == '404 NOT FOUND'
+    assert response.status == '404 Not Found'
 
 
 def test_notfound_with_predicates():
@@ -85,7 +87,7 @@ def test_notfound_with_predicates():
     request.unconsumed = ['foo']
     with pytest.raises(NotFound):
         resolve_response(request, model)
-    #assert response.status == '404 NOT FOUND'
+    #assert response.status == '404 NoT Found'
 
 
 def test_response_returned():
@@ -99,7 +101,7 @@ def test_response_returned():
     register_view(app, Model, view)
     model = Model()
     response = resolve_response(app.request(get_environ(path='')), model)
-    assert response.data == 'Hello world!'
+    assert response.body == 'Hello world!'
 
 
 def test_request_view():
@@ -118,7 +120,7 @@ def test_request_view():
     model = Model()
     response = resolve_response(request, model)
     # when we get the response, the json will be rendered
-    assert response.data == '{"hey": "hey"}'
+    assert response.body == '{"hey": "hey"}'
     assert response.content_type == 'application/json'
     # but we get the original json out when we access the view
     assert request.view(model) == {'hey': 'hey'}
@@ -163,7 +165,7 @@ def test_render_html():
     request = app.request(get_environ(path=''))
     model = Model()
     response = resolve_response(request, model)
-    assert response.data == '<p>Hello world!</p>'
+    assert response.body == '<p>Hello world!</p>'
     assert response.content_type == 'text/html'
 
 
@@ -172,7 +174,8 @@ def test_view_raises_http_error():
     app = App(testing_config=config)
     config.commit()
 
-    from werkzeug.exceptions import BadRequest
+    from webob.exc import HTTPBadRequest as BadRequest
+    #from werkzeug.exceptions import BadRequest
 
     def view(self, request):
         raise BadRequest()
@@ -185,7 +188,7 @@ def test_view_raises_http_error():
 
     response = publish(request)
 
-    assert response.status == '400 BAD REQUEST'
+    assert response.status == '400 Bad Request'
 
 
 def test_view_after():
@@ -203,7 +206,7 @@ def test_view_after():
 
     model = Model()
     result = resolve_response(app.request(get_environ(path='')), model)
-    assert result.data == 'View!'
+    assert result.body == 'View!'
     assert result.headers.get('Foo') == 'FOO'
 
 
@@ -223,7 +226,7 @@ def test_conditional_view_after():
 
     model = Model()
     result = resolve_response(app.request(get_environ(path='')), model)
-    assert result.data == 'View!'
+    assert result.body == 'View!'
     assert result.headers.get('Foo') is None
 
 
@@ -243,5 +246,5 @@ def test_view_after_non_decorator():
 
     model = Model()
     result = resolve_response(app.request(get_environ(path='')), model)
-    assert result.data == 'View!'
+    assert result.body == 'View!'
     assert result.headers.get('Foo') == 'FOO'

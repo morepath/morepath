@@ -1,7 +1,7 @@
 from morepath import generic
 from .mount import Mount
 from .traject import create_path
-from werkzeug.exceptions import HTTPException, NotFound, InternalServerError
+from webob.exc import HTTPException, HTTPNotFound as NotFound, HTTPInternalServerError as InternalServerError
 import sys
 from traceback import print_exc
 
@@ -72,10 +72,10 @@ def publish(request):
         model = resolve_model(request)
         return resolve_response(request, model)
     except HTTPException as e:
-        return e.get_response(request.environ)
+        return e
     except (SystemExit, KeyboardInterrupt) as e:
         raise
     except:
         print_exc(file=sys.stderr)
         e = InternalServerError()
-        return e.get_response(request.environ)
+        return e

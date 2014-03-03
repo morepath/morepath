@@ -1,7 +1,8 @@
 from morepath.app import App
 from werkzeug.test import Client
 from morepath import setup
-from morepath.request import Response
+from werkzeug.wrappers import BaseResponse as Response
+#from morepath.request import Response
 import morepath
 
 
@@ -33,7 +34,7 @@ def test_extends():
     response = cl.get('/users/foo')
     assert response.data == 'User: foo'
     response = cl.get('/users/foo/edit')
-    assert response.status == '404 NOT FOUND'
+    assert response.status == '404 Not Found'
 
     cl = Client(extending, Response)
     response = cl.get('/users/foo')
@@ -101,6 +102,6 @@ def test_overrides_model():
 
     cl = Client(overriding, Response)
     response = cl.get('/users/foo')
-    assert response.status == '404 NOT FOUND'
+    assert response.status == '404 Not Found'
     response = cl.get('/users/bar')
     assert response.data == 'User: bar'

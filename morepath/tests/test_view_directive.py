@@ -1,6 +1,7 @@
 import morepath
 from morepath.error import ConflictError
 from werkzeug.test import Client
+from werkzeug.wrappers import BaseResponse as Response
 import pytest
 
 
@@ -22,14 +23,13 @@ def test_view_get_only():
         return "View"
     config.commit()
 
-    c = Client(app, morepath.Response)
+    c = Client(app, Response)
 
     response = c.get('/')
     assert response.data == 'View'
 
-    # XXX should be giving 405 method not allowed
     response = c.post('/')
-    assert response.status == '405 METHOD NOT ALLOWED'
+    assert response.status == '405 Method Not Allowed'
 
 
 def test_view_any():
@@ -46,7 +46,7 @@ def test_view_any():
         return "View"
     config.commit()
 
-    c = Client(app, morepath.Response)
+    c = Client(app, Response)
 
     response = c.get('/')
     assert response.data == 'View'

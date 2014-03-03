@@ -1,6 +1,7 @@
 from morepath.app import App
 from morepath import setup
-from morepath.request import Response
+from werkzeug.wrappers import BaseResponse as Response
+#from morepath.request import Response
 from werkzeug.test import Client
 import morepath
 

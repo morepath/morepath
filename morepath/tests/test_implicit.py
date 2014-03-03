@@ -1,7 +1,7 @@
 import morepath
 from werkzeug.test import Client
 import reg
-
+from werkzeug.wrappers import BaseResponse as Response
 
 def setup_module(module):
     morepath.enable_implicit()
@@ -42,7 +42,7 @@ def test_implicit_function():
 
     config.commit()
 
-    c = Client(app, morepath.Response)
+    c = Client(app, Response)
 
     response = c.get('/')
     assert response.data == 'The real two'
@@ -98,7 +98,7 @@ def test_implicit_function_mounted():
 
     config.commit()
 
-    c = Client(alpha, morepath.Response)
+    c = Client(alpha, Response)
 
     response = c.get('/mounted/1')
     assert response.data == 'View for 1, message: The real two'
@@ -130,7 +130,7 @@ def test_implicit_disabled():
 
     config.commit()
 
-    c = Client(app, morepath.Response)
+    c = Client(app, Response)
 
     response = c.get('/')
     assert response.data == 'No implicit found'

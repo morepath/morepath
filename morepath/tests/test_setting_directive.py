@@ -2,6 +2,7 @@ import morepath
 from morepath.error import ConflictError
 import pytest
 from werkzeug.test import Client
+from werkzeug.wrappers import BaseResponse as Response
 
 def setup_module(module):
     morepath.disable_implicit()
@@ -132,7 +133,7 @@ def test_settings_function():
 
     config.commit()
 
-    c = Client(app, morepath.Response)
+    c = Client(app, Response)
 
     response = c.get('/')
     assert response.data == 'LAH'

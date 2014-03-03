@@ -1,7 +1,8 @@
 from .fixtures import basic, nested, abbr, mapply_bug, normalmethod, method
 from morepath import setup
 from morepath.error import ConflictError, MountError, DirectiveError
-from morepath.request import Response
+#from morepath.request import Response
+from werkzeug.wrappers import BaseResponse as Response
 from morepath.view import render_html
 from morepath.app import App
 from morepath.converter import Converter
@@ -541,7 +542,7 @@ def test_convert_exception_to_internal_error():
     c = Client(app, Response)
 
     response = c.get('/')
-    assert response.status == '500 INTERNAL SERVER ERROR'
+    assert response.status == '500 Internal Server Error'
 
 
 def test_simple_root():
@@ -608,7 +609,7 @@ def test_redirect():
     c = Client(app, Response)
 
     response = c.get('/')
-    assert response.status == '302 FOUND'
+    assert response.status == '302 Found'
 
 
 def test_root_conflict():
