@@ -61,7 +61,6 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
             self._app_mount = self.mounted()
         else:
             self._app_mount = FailingWsgi(self)
-        self._cached_lookup = None
         # allow being scanned by venusian
         venusian.attach(self, callback)
 
@@ -76,7 +75,6 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
         TweenRegistry.clear(self)
         self.traject = Traject()
         self.settings = SettingSectionContainer()
-        self._cached_lookup = None
         self._mounted = {}
 
     @cached_property
@@ -86,12 +84,6 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
         :returns: a :class:`reg.Lookup` instance.
         """
         return Lookup(CachingClassLookup(self))
-
-        # # XXX use cached property instead?
-        # if self._cached_lookup is not None:
-        #     return self._cached_lookup
-        # self._cached_lookup = result = Lookup(CachingClassLookup(self))
-        # return result
 
     def request(self, environ):
         """Create a :class:`Request` given WSGI environment.
