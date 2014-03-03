@@ -1,5 +1,5 @@
 from morepath import generic
-from webob import Request as BaseRequest, Response as BaseResponse
+from webob import BaseRequest, Response as BaseResponse
 from werkzeug.utils import cached_property
 from .traject import parse_path
 import urllib
