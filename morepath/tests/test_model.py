@@ -12,7 +12,7 @@ def consume(app, path, parameters=None):
     if parameters:
         path += '?' + urllib.urlencode(parameters, True)
     request = app.request(EnvironBuilder(path=path).get_environ())
-    return traject_consume(request, app, lookup=app.lookup()), request
+    return traject_consume(request, app, lookup=app.lookup), request
 
 
 class Root(object):
@@ -27,7 +27,7 @@ def test_register_path():
     config = setup()
     app = App(testing_config=config)
     root = Root()
-    lookup = app.lookup()
+    lookup = app.lookup
 
     def get_model(id):
         model = Model()
@@ -52,7 +52,7 @@ def test_register_path_with_parameters():
     config = setup()
     app = App(testing_config=config)
     root = Root()
-    lookup = app.lookup()
+    lookup = app.lookup
 
     def get_model(id, param='default'):
         model = Model()

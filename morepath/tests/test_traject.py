@@ -380,7 +380,7 @@ def test_parse_variables():
 
 def consume(app, path):
     request = app.request(EnvironBuilder(path=path).get_environ())
-    return traject_consume(request, app, lookup=app.lookup()), request
+    return traject_consume(request, app, lookup=app.lookup), request
 
 paramfac = ParameterFactory({}, {}, [])
 

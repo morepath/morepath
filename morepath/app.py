@@ -9,7 +9,7 @@ from .tween import TweenRegistry
 from reg import ClassRegistry, Lookup, CachingClassLookup
 import venusian
 from werkzeug.serving import run_simple
-
+from werkzeug.utils import cached_property
 
 class AppBase(Configurable, ClassRegistry, ConverterRegistry,
               TweenRegistry):
@@ -79,16 +79,19 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
         self._cached_lookup = None
         self._mounted = {}
 
+    @cached_property
     def lookup(self):
         """Get the :class:`reg.Lookup` for this application.
 
         :returns: a :class:`reg.Lookup` instance.
         """
-        # XXX use cached property instead?
-        if self._cached_lookup is not None:
-            return self._cached_lookup
-        self._cached_lookup = result = Lookup(CachingClassLookup(self))
-        return result
+        return Lookup(CachingClassLookup(self))
+
+        # # XXX use cached property instead?
+        # if self._cached_lookup is not None:
+        #     return self._cached_lookup
+        # self._cached_lookup = result = Lookup(CachingClassLookup(self))
+        # return result
 
     def request(self, environ):
         """Create a :class:`Request` given WSGI environment.
@@ -97,7 +100,7 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
         :returns: :class:`morepath.Request` instance
         """
         request = Request(environ)
-        request.lookup = self.lookup()
+        request.lookup = self.lookup
         return request
 
     def mounted(self, **context):

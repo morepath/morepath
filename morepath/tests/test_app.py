@@ -31,7 +31,7 @@ def test_app_caching_lookup():
         pass
 
     myapp = MockApp()
-    lookup = myapp.lookup()
+    lookup = myapp.lookup
     answer = lookup.component('foo', [])
     assert answer == 'answer'
     assert myapp.called == 1
@@ -40,7 +40,7 @@ def test_app_caching_lookup():
     answer = lookup.component('foo', [])
     assert myapp.called == 1
 
-    answer = myapp.lookup().component('foo', [])
+    answer = myapp.lookup.component('foo', [])
     assert myapp.called == 1
 
     # but different parameters does trigger another call

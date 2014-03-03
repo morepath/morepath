@@ -136,7 +136,7 @@ def test_imperative():
     c.action(app.function(target), foo)
     c.commit()
 
-    assert target.component(lookup=app.lookup()) is foo
+    assert target.component(lookup=app.lookup) is foo
 
 
 def test_basic_imperative():

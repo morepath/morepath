@@ -69,7 +69,7 @@ def link(request, model, mounted):
     result = []
     parameters = {}
     while mounted is not None:
-        path, params = generic.path(model, lookup=mounted.lookup())
+        path, params = generic.path(model, lookup=mounted.lookup)
         result.append(path)
         parameters.update(params)
         model = mounted
@@ -85,7 +85,7 @@ def app_traject(app):
 
 @global_app.function(generic.lookup, Mount)
 def mount_lookup(model):
-    return model.app.lookup()
+    return model.app.lookup
 
 
 @global_app.function(generic.traject, Mount)

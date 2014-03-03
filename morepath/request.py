@@ -60,7 +60,7 @@ class Request(BaseRequest):
         if mounted is None:
             mounted = self.mounts[-1]
         view = generic.view.component(
-            self, model, lookup=mounted.lookup(), default=default,
+            self, model, lookup=mounted.lookup, default=default,
             predicates=predicates)
         if view is None:
             return None
@@ -90,7 +90,7 @@ class Request(BaseRequest):
         if mounted is None:
             mounted = self.mounts[-1]
         path, parameters = generic.link(
-            self, model, mounted, lookup=mounted.lookup())
+            self, model, mounted, lookup=mounted.lookup)
         parts = []
         if path:
             parts.append(path)
