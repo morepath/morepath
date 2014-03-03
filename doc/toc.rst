@@ -17,6 +17,7 @@ Table of Contents
    organizing_your_project
    app_reuse
    building_large_applications
+   tweens
    api
    compared
    design
