@@ -105,8 +105,9 @@ def get_response(request, model):
         default=None)
     if view is None:
         return None
-    if not generic.permits(request.identity, model, view.permission,
-                           lookup=request.lookup):
+    if (view.permission is not None and
+        not generic.permits(request.identity, model, view.permission,
+                           lookup=request.lookup)):
         # XXX needs to become forbidden?
         raise HTTPUnauthorized()
     content = view(request, model)
