@@ -135,7 +135,7 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
         if port is None:
             port = 5000
         server = make_server(host, port, self)
-        serve.serve_forever()
+        server.serve_forever()
 
     def mount_variables(self):
         return self._variables
