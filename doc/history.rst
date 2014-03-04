@@ -10,13 +10,21 @@ Web Framework Inspirations
 
 Morepath was inspired by Zope, in particular its component
 architecture; a reimagined version of this is available in Reg, a core
-dependency of Morepath. An additional inspiration was the Grok web
-framework I helped create, which was based on Zope 3 technologies, and
-Pyramid, a reimagined version of Zope 3, created by Chris
-McDonough. Once the core of Morepath had been created I found there
-had been quite a bit of parallel evolution with Flask, and Flask
-served as a later inspiration in its capabilities and documentation,
-plus the shared Werkzeug dependency.
+dependency of Morepath.
+
+An additional inspiration was the Grok web framework I helped create,
+which was based on Zope 3 technologies, and Pyramid, a reimagined
+version of Zope 3, created by Chris McDonough.
+
+Pyramid in particular has been the source of a lot of ideas, including
+bits of implementation.
+
+Once the core of Morepath had been created I found there had been
+quite a bit of parallel evolution with Flask. Flask served as a later
+inspiration in its capabilities and documentation. Morepath also used
+Werkzeug (basis for Flask) for a while to implement its request and
+response objects, but eventually I found WebOb the better fit for
+Morepath and switched to that.
 
 Configuration system
 --------------------

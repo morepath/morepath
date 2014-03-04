@@ -233,18 +233,18 @@ our application cannot handle: a bad request, status code 400.
   But no matter what kind of HTTP error you pick, how you cause them
   to happen is the same: just raise the appropriate exception.
 
-Werkzeug, the library upon which Morepath is built, defines a set of
-HTTP exception classes :mod:`werkzeug.exceptions` that we can use. In
-this case we need :exc:`werkzeug.exceptions.BadRequest`. We modify
+WebOb, the request/response library upon which Morepath is built,
+defines a set of HTTP exception classes :mod:`webob.exc` that we can
+use. In this case we need :exc:`webob.exc.HTTPBadRequest`. We modify
 our view so it is raised if there was no id::
 
-  from werkzeug.exceptions import BadRequest
+  from webob.exc import HTTPBadRequest
 
   @app.json(model=DocumentCollection, name='add', request_method='POST')
   def collection_add_document(self, request):
       id = request.args.get('id')
       if id is None:
-          raise BadRequest()
+          raise HTTPBadRequest()
       doc = document_by_id(id)
       self.add(doc)
       return {}

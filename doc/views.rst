@@ -125,7 +125,7 @@ of the class given by the ``model`` parameter.
 
 The ``request`` object is an instance of :class:`morepath.Request`,
 which in turn is a special kind of
-:class:`werkzeug.wrappers.Request`. You can get request information
+:class:`webob.request.BaseRequest`. You can get request information
 from it like arguments or form data, and it also exposes a few special
 methods, such as :meth:`morepath.Request.link`.
 
@@ -259,12 +259,11 @@ Manipulating the response
 
 Sometimes you want to do things to the response specific to the view,
 so that you cannot do it in a ``render`` function. Let's say you want
-to add a cookie using
-:meth:`werkzeug.wrappers.BaseResponse.set_cookie`. You don't have
-access to the response object in the view, as it has not been created
-yet. It is only created *after* the view has returned. We can register
-a callback function to be called after the view is done and the
-response is ready using the :meth:`morepath.Request.after`
+to add a cookie using :meth:`webob.Response.set_cookie`. You don't
+have access to the response object in the view, as it has not been
+created yet. It is only created *after* the view has returned. We can
+register a callback function to be called after the view is done and
+the response is ready using the :meth:`morepath.Request.after`
 decorator. Here's how::
 
   @app.view(model=Document)

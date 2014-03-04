@@ -12,7 +12,7 @@ NO_DEFAULT = reg.Sentinel('NO_DEFAULT')
 class Request(BaseRequest):
     """Request.
 
-    Extends :class:`webob.BaseRequest`
+    Extends :class:`webob.request.BaseRequest`
     """
     def __init__(self, environ):
         super(Request, self).__init__(environ)
@@ -132,5 +132,5 @@ class Request(BaseRequest):
 class Response(BaseResponse):
     """Response.
 
-    Extends :class:`webob.Response`.
+    Extends :class:`webob.response.Response`.
     """

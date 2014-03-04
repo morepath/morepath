@@ -174,7 +174,9 @@ in ``setup.py``. This main function does two things:
   of your code.
 
 * start a WSGI server for ``app`` on port localhost, port 5000. This
-  uses Werkzeug's built-in WSGI server.
+  uses the standard library wsgiref WSGI server. Note that this should
+  only used for testing purposes, not production! For production, use
+  an external WSGI server.
 
 The main module is also a good place to do other general configuration
 for the application, such as setting up a database connection.
@@ -189,9 +191,11 @@ packages may define multiple apps and multiple entry points.
 Variation: waitress
 ~~~~~~~~~~~~~~~~~~~
 
-Instead of using Werkzeug's built-in WSGI server you could use another
-WSGI server. Here's how you'd use Waitress_. First we adjust ``setup.py``
-so we also require waitress::
+Instead of using Morepath's simple built-in WSGI server you can use
+another WSGI server. The built-in WSGI server is only meant for
+testing, so we strongly recommend doing so in production. Here's how
+you'd use Waitress_. First we adjust ``setup.py`` so we also require
+waitress::
 
   ...
         install_requires=[

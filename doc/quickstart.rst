@@ -34,7 +34,7 @@ You can save this as ``hello.py`` and then run it with Python:
 .. code-block:: sh
 
   $ python hello.py
-  * Running on http://127.0.0.1:5000/
+  * Running wsgiref.simple_server on http://127.0.0.1:5000
 
 .. sidebar:: Making the server externally accessible
 
@@ -276,9 +276,9 @@ The view is a function decorated by :meth:`morepath.AppBase.view` (or
 related decorators such as :meth:`morepath.AppBase.json` and
 :meth:`morepath.AppBase.html`) that gets two arguments: ``self``,
 which is the model that this view is working for, so in this case an
-instance of ``User``, and ``request` which is the current
-request. ``request`` is a :class:`morepath.Request` object (a subclass
-of :class:`werkzeug.wrappers.BaseRequest`).
+instance of ``User``, and ``request`` which is the current
+request. ``request`` is a :class:`morepath.request.Request` object (a
+subclass of :class:`webob.request.BaseRequest`).
 
 Now the URLs listed above such as ``/users/faassen`` will work.
 
@@ -369,33 +369,20 @@ Request object
 
 The first argument for a view function is the request object. We'll
 give a quick overview of what's possible here, but consult the
-Werkzeug API documentation for more information.
+WebOb API documentation for more information.
 
-* ``request.args`` contains any URL parameters (``?key=value``). See
-  :attr:`werkzeug.wrappers.BaseRequest.args`.
+* ``request.GET`` contains any URL parameters (``?key=value``). See
+  :attr:`webob.request.BaseRequest.GET`.
 
-* ``request.form`` contains any HTTP form data that was submitted. See
-  :attr:`werkzeug.wrappers.BaseRequest.form`.
+* ``request.POST`` contains any HTTP form data that was submitted. See
+  :attr:`webob.request.BaseRequest.POST`.
 
 * ``request.method`` gets the HTTP method (``GET``, ``POST``, etc). See
-  :attr:`werkzeug.wrappers.BaseRequest.method`.
-
-* Uploaded files made available in ``request.files``. See
-  :attr:`werkzeug.wrappers.BaseRequest.files`.
-
-  The keys are the form fields with which they were uploaded. The
-  values are Python ``file`` style objects, but with a ``save()``
-  method added that allows you to store that file on the
-  filesystem. There is also a ``filename`` attribute that gives the
-  filename of the file that was uploaded; if you want to use this to
-  store the file, use :func:`werkzeug.utils.secure_filename` to secure
-  it first. Make sure your HTML form has
-  ``enctype="multipart/form-data"`` set to make file uploads work.
+  :attr:`webob.request.BaseRequest.method`.
 
 * ``request.cookies`` contains the cookies. See
-  :attr:`werkzeug.wrappers.BaseRequest.cookies`. ``response.set_cookie``
-  can be used to set cookies. See
-  :meth:`werkzeug.wrappers.BaseResponse.set_cookie`.
+  :attr:`webob.request.BaseRequest.cookies`. ``response.set_cookie`` can be
+  used to set cookies. See :meth:`webob.response.Response.set_cookie`.
 
 Redirects
 ---------
@@ -409,11 +396,11 @@ To redirect to another URL, use :func:`morepath.redirect`. For example::
 HTTP Errors
 -----------
 
-To trigger an HTTP error response you can raise various Werkzeug HTTP
-exceptions (:mod:`werkzeug.exceptions`). For instance::
+To trigger an HTTP error response you can raise various WebOb HTTP
+exceptions (:mod:`webob.exc`). For instance::
 
-  from werkzeug.exceptions import NotAcceptable
+  from webob.exc import HTTPNotAcceptable
 
   @app.view(model=User, name='extra')
   def erroring(self, request):
-      raise NotAcceptable()
+      raise HTTPNotAcceptable()

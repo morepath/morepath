@@ -34,7 +34,7 @@ autodoc_member_order = 'groupwise'
 
 intersphinx_mapping = {
     'reg': ('http://reg.readthedocs.org/en/latest', None),
-    'werkzeug': ('http://werkzeug.pocoo.org/docs/', None)
+    'webob': ('http://docs.webob.org/en/latest', None),
     }
 
 # Add any paths that contain templates here, relative to this directory.
