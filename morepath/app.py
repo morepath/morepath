@@ -135,6 +135,7 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
         if port is None:
             port = 5000
         server = make_server(host, port, self)
+        print "Starting server on http://%s:%s" % (host, port)
         server.serve_forever()
 
     def mount_variables(self):
