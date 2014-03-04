@@ -1,6 +1,6 @@
 from morepath import generic
 from webob import BaseRequest, Response as BaseResponse
-from werkzeug.utils import cached_property
+from .reify import reify
 from .traject import parse_path
 import urllib
 import reg
@@ -12,7 +12,7 @@ NO_DEFAULT = reg.Sentinel('NO_DEFAULT')
 class Request(BaseRequest):
     """Request.
 
-    Extends :class:`werkzeug.wrappers.BaseRequest`
+    Extends :class:`webob.BaseRequest`
     """
     def __init__(self, environ):
         super(Request, self).__init__(environ)
@@ -20,7 +20,7 @@ class Request(BaseRequest):
         self.mounts = []
         self._after = []
 
-    @cached_property
+    @reify
     def identity(self):
         """Self-proclaimed identity of the user.
 
@@ -132,6 +132,5 @@ class Request(BaseRequest):
 class Response(BaseResponse):
     """Response.
 
-    Extends :class:`werkzeug.wrappers.BaseResponse` and
-    :class:`werkzeug.wrappers.CommonResponseDescriptorsMixin`.
+    Extends :class:`webob.Response`.
     """

@@ -1,15 +1,13 @@
 import morepath
 from morepath import setup
-from werkzeug import BaseResponse as Response
-from morepath.request import Response as WebobResponse
-from werkzeug.test import Client
+from morepath.request import Response
 from morepath import generic
 from morepath.security import (Identity, BasicAuthIdentityPolicy,
                                NO_IDENTITY)
 from .fixtures import identity_policy
-from werkzeug.datastructures import Headers
 import base64
 import json
+from webobtoolkit.client import Client, client_pipeline
 
 
 def setup_module(module):
@@ -38,7 +36,7 @@ def test_no_permission():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo')
     assert response.status == '401 Unauthorized'
@@ -84,10 +82,10 @@ def test_permission_directive():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo')
-    assert response.data == 'Model: foo'
+    assert response.body == 'Model: foo'
     response = c.get('/bar')
     assert response.status == '401 Unauthorized'
 
@@ -97,10 +95,10 @@ def test_policy_action():
     config.scan(identity_policy)
     config.commit()
 
-    c = Client(identity_policy.app, Response)
+    c = Client(identity_policy.app)
 
     response = c.get('/foo')
-    assert response.data == 'Model: foo'
+    assert response.body == 'Model: foo'
     response = c.get('/bar')
     assert response.status == '401 Unauthorized'
 
@@ -135,20 +133,18 @@ def test_basic_auth_identity_policy():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo')
     assert response.status == '401 Unauthorized'
 
-    headers = Headers()
-    headers.add('Authorization', 'Basic ' + base64.b64encode('user:wrong'))
+    headers = {'Authorization': 'Basic ' + base64.b64encode('user:wrong')}
     response = c.get('/foo', headers=headers)
     assert response.status == '401 Unauthorized'
 
-    headers = Headers()
-    headers.add('Authorization', 'Basic ' + base64.b64encode('user:secret'))
+    headers = {'Authorization': 'Basic ' + base64.b64encode('user:secret')}
     response = c.get('/foo', headers=headers)
-    assert response.data == 'Model: foo'
+    assert response.body == 'Model: foo'
 
 
 def test_basic_auth_remember():
@@ -165,7 +161,7 @@ def test_basic_auth_remember():
     def default(self, request):
         # will not actually do anything as it's a no-op for basic
         # auth, but at least won't crash
-        response = WebobResponse()
+        response = Response()
         generic.remember(response, request, Identity('foo'),
                          lookup=request.lookup)
         return response
@@ -176,11 +172,11 @@ def test_basic_auth_remember():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo')
     assert response.status == '200 OK'
-    assert response.data == ''
+    assert response.body == ''
 
 
 def test_basic_auth_forget():
@@ -196,7 +192,7 @@ def test_basic_auth_forget():
     def default(self, request):
         # will not actually do anything as it's a no-op for basic
         # auth, but at least won't crash
-        response = WebobResponse(content_type='text/plain')
+        response = Response(content_type='text/plain')
         generic.forget(response, request, lookup=request.lookup)
         return response
 
@@ -206,11 +202,11 @@ def test_basic_auth_forget():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo')
     assert response.status == '200 OK'
-    assert response.data == ''
+    assert response.body == ''
 
     assert sorted(response.headers.items()) == [
         ('Content-Length', '0'),
@@ -261,7 +257,7 @@ def test_cookie_identity_policy():
 
     @app.view(model=Model, name='log_in')
     def log_in(self, request):
-        response = WebobResponse()
+        response = Response()
         generic.remember(response, request, Identity(userid='user',
                                                      payload='Amazing'),
                          lookup=request.lookup)
@@ -269,7 +265,7 @@ def test_cookie_identity_policy():
 
     @app.view(model=Model, name='log_out')
     def log_out(self, request):
-        response = WebobResponse()
+        response = Response()
         generic.forget(response, request, lookup=request.lookup)
         return response
 
@@ -279,7 +275,7 @@ def test_cookie_identity_policy():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(client_pipeline(app, cookie_support=True))
 
     response = c.get('/foo')
     assert response.status == '401 Unauthorized'
@@ -288,7 +284,7 @@ def test_cookie_identity_policy():
 
     response = c.get('/foo')
     assert response.status == '200 OK'
-    assert response.data == 'Model: foo'
+    assert response.body == 'Model: foo'
 
     response = c.get('/foo/log_out')
 

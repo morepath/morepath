@@ -2,12 +2,11 @@ import urllib
 from morepath.path import register_path, get_arguments, get_converters
 from morepath.converter import Converter, IDENTITY_CONVERTER
 from morepath.app import App
-from werkzeug.test import EnvironBuilder
 from morepath import setup
 from morepath import generic
 from morepath.core import traject_consume
 import morepath
-
+import webob
 
 def setup_module(module):
     morepath.disable_implicit()
@@ -16,7 +15,7 @@ def setup_module(module):
 def consume(app, path, parameters=None):
     if parameters:
         path += '?' + urllib.urlencode(parameters, True)
-    request = app.request(EnvironBuilder(path=path).get_environ())
+    request = app.request(webob.Request.blank(path).environ)
     return traject_consume(request, app, lookup=app.lookup), request
 
 

@@ -1,7 +1,6 @@
 import morepath
 from morepath.error import ConflictError
-from werkzeug.test import Client
-from werkzeug.wrappers import BaseResponse as Response
+from webobtoolkit.client import Client
 import pytest
 
 
@@ -23,10 +22,10 @@ def test_view_get_only():
         return "View"
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/')
-    assert response.data == 'View'
+    assert response.body == 'View'
 
     response = c.post('/')
     assert response.status == '405 Method Not Allowed'
@@ -46,13 +45,13 @@ def test_view_any():
         return "View"
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/')
-    assert response.data == 'View'
+    assert response.body == 'View'
 
     response = c.post('/')
-    assert response.data == 'View'
+    assert response.body == 'View'
 
 
 def test_view_name_conflict_involving_default():

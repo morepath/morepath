@@ -1,6 +1,8 @@
 from morepath import generic
-from werkzeug import parse_authorization_header
-
+from webob.descriptors import parse_auth
+from .compat import bytes_
+import binascii
+import base64
 
 class NoIdentity(object):
     userid = None
@@ -60,7 +62,7 @@ class BasicAuthIdentityPolicy(object):
         header = request.headers.get('Authorization')
         if header is None:
             return None
-        auth = parse_authorization_header(header)
+        auth = parse_basic_auth(header)
         if auth is None:
             return None
         if auth.password is None:
@@ -95,8 +97,6 @@ class BasicAuthIdentityPolicy(object):
         :type request: :class:`morepath.Request`
 
         """
-        # XXX werkzeug provides WWWAuthenticate helper class; is
-        # this something to use or not? but if so, how?
         response.headers.add('WWW-Authenticate',
                              'Basic realm="%s"' % self.realm)
 
@@ -105,4 +105,37 @@ def register_permission_checker(registry, identity, model, permission, func):
     registry.register(generic.permits, (identity, model, permission), func)
 
 
-# XXX request.user property
+class BasicAuthInfo(object):
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+
+
+# code taken from
+# pyramid.authentication.BasicAuthenticationPolicy._get_credentials
+def parse_basic_auth(value):
+    authtype, params = parse_auth(value)
+    if authtype != 'Basic':
+        return None
+    try:
+        authbytes = b64decode(params.strip())
+    except (TypeError, binascii.Error):  # can't decode
+        return None
+
+    # try utf-8 first, then latin-1; see discussion in
+    # https://github.com/Pylons/pyramid/issues/898
+    try:
+        auth = authbytes.decode('utf-8')
+    except UnicodeDecodeError:
+        auth = authbytes.decode('latin-1')
+
+    try:
+        username, password = auth.split(':', 1)
+    except ValueError:  # not enough values to unpack
+        return None
+
+    return BasicAuthInfo(username, password)
+
+
+def b64decode(v):
+    return base64.b64decode(bytes_(v))

@@ -1,6 +1,6 @@
 from .toposort import topological_sort
 from .publish import publish
-from werkzeug.utils import cached_property
+from .reify import reify
 
 
 class TweenRegistry(object):
@@ -30,7 +30,7 @@ class TweenRegistry(object):
             self._tween_factories.keys(),
             lambda tween_factory: tween_factory_depends.get(tween_factory, []))
 
-    @cached_property
+    @reify
     def publish(self):
         result = publish
         for tween_factory in reversed(self.sorted_tween_factories()):

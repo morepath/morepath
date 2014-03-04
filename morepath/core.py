@@ -8,7 +8,7 @@ from .error import LinkError
 from .request import Request, Response
 from .converter import Converter, IDENTITY_CONVERTER
 from webob import Response as BaseResponse
-from webob.exc import HTTPUnauthorized as Unauthorized, HTTPMethodNotAllowed as MethodNotAllowed
+from webob.exc import HTTPUnauthorized, HTTPMethodNotAllowed
 import morepath
 from reg import mapply, KeyIndex
 from datetime import datetime, date
@@ -108,7 +108,7 @@ def get_response(request, model):
     if not generic.permits(request.identity, model, view.permission,
                            lookup=request.lookup):
         # XXX needs to become forbidden?
-        raise Unauthorized()
+        raise HTTPUnauthorized()
     content = view(request, model)
     if isinstance(content, BaseResponse):
         # the view took full control over the response
@@ -143,7 +143,7 @@ def request_method_predicate(self, request):
 
 @global_app.predicate_fallback(name='request_method')
 def method_not_allowed(self, request):
-    raise MethodNotAllowed()
+    raise HTTPMethodNotAllowed()
 
 
 @global_app.converter(type=int)

@@ -1,8 +1,6 @@
 from morepath.app import App
-from werkzeug.test import Client
 from morepath import setup
-from werkzeug.wrappers import BaseResponse as Response
-#from morepath.request import Response
+from webobtoolkit.client import Client
 import morepath
 
 
@@ -30,17 +28,17 @@ def test_extends():
 
     config.commit()
 
-    cl = Client(app, Response)
+    cl = Client(app)
     response = cl.get('/users/foo')
-    assert response.data == 'User: foo'
+    assert response.body == 'User: foo'
     response = cl.get('/users/foo/edit')
     assert response.status == '404 Not Found'
 
-    cl = Client(extending, Response)
+    cl = Client(extending)
     response = cl.get('/users/foo')
-    assert response.data == 'User: foo'
+    assert response.body == 'User: foo'
     response = cl.get('/users/foo/edit')
-    assert response.data == 'Edit user: foo'
+    assert response.body == 'Edit user: foo'
 
 
 def test_overrides_view():
@@ -63,13 +61,13 @@ def test_overrides_view():
 
     config.commit()
 
-    cl = Client(app, Response)
+    cl = Client(app)
     response = cl.get('/users/foo')
-    assert response.data == 'User: foo'
+    assert response.body == 'User: foo'
 
-    cl = Client(overriding, Response)
+    cl = Client(overriding)
     response = cl.get('/users/foo')
-    assert response.data == 'USER: foo'
+    assert response.body == 'USER: foo'
 
 
 def test_overrides_model():
@@ -94,14 +92,14 @@ def test_overrides_model():
 
     config.commit()
 
-    cl = Client(app, Response)
+    cl = Client(app)
     response = cl.get('/users/foo')
-    assert response.data == 'User: foo'
+    assert response.body == 'User: foo'
     response = cl.get('/users/bar')
-    assert response.data == 'User: bar'
+    assert response.body == 'User: bar'
 
-    cl = Client(overriding, Response)
+    cl = Client(overriding)
     response = cl.get('/users/foo')
     assert response.status == '404 Not Found'
     response = cl.get('/users/bar')
-    assert response.data == 'User: bar'
+    assert response.body == 'User: bar'

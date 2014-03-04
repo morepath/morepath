@@ -5,10 +5,9 @@ from morepath.path import register_path
 from morepath.request import Response
 from morepath.view import register_view, render_json, render_html
 from morepath.core import setup
-from werkzeug.test import EnvironBuilder
-from webob.exc import HTTPNotFound as NotFound
+from webob.exc import HTTPNotFound, HTTPBadRequest
+import webob
 
-#from werkzeug.exceptions import NotFound
 import pytest
 
 
@@ -16,8 +15,8 @@ def setup_module(module):
     morepath.disable_implicit()
 
 
-def get_environ(*args, **kw):
-    return EnvironBuilder(*args, **kw).get_environ()
+def get_environ(path, **kw):
+    return webob.Request.blank(path, **kw).environ
 
 
 class Model(object):
@@ -83,9 +82,9 @@ def test_notfound_with_predicates():
 
     register_view(app, Model, view, predicates=dict(name=''))
     model = Model()
-    request = app.request(get_environ())
+    request = app.request(get_environ(''))
     request.unconsumed = ['foo']
-    with pytest.raises(NotFound):
+    with pytest.raises(HTTPNotFound):
         resolve_response(request, model)
     #assert response.status == '404 NoT Found'
 
@@ -174,11 +173,8 @@ def test_view_raises_http_error():
     app = App(testing_config=config)
     config.commit()
 
-    from webob.exc import HTTPBadRequest as BadRequest
-    #from werkzeug.exceptions import BadRequest
-
     def view(self, request):
-        raise BadRequest()
+        raise HTTPBadRequest()
 
     register_path(app, Model, 'foo', None, None, None, Model)
     register_view(app, Model, view)

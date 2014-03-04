@@ -6,7 +6,7 @@ from morepath import generic
 from morepath.traject import VIEW_PREFIX
 from morepath.request import Request
 from morepath.publish import resolve_model
-from werkzeug.test import EnvironBuilder
+import webob
 
 
 def setup_module(module):
@@ -38,12 +38,10 @@ class Traverser(object):
         return next_model
 
 
-def get_request(*args, **kw):
-    lookup = kw.pop('lookup')
-    result = Request(EnvironBuilder(*args, **kw).get_environ())
-    result.lookup = lookup
-    result.context = None
-    return result
+def get_request(path, lookup):
+    request = Request(webob.Request.blank(path).environ)
+    request.lookup = lookup
+    return request
 
 
 def get_registry():

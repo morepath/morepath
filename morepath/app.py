@@ -9,8 +9,8 @@ from .tween import TweenRegistry
 from morepath import generic
 from reg import ClassRegistry, Lookup, CachingClassLookup, implicit
 import venusian
-from werkzeug.serving import run_simple
-from werkzeug.utils import cached_property
+from .reify import reify
+from wsgiref.simple_server import make_server
 
 
 class AppBase(Configurable, ClassRegistry, ConverterRegistry,
@@ -82,7 +82,7 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
     def actions(self):
         yield self.function(generic.settings), lambda: self.settings
 
-    @cached_property
+    @reify
     def lookup(self):
         """Get the :class:`reg.Lookup` for this application.
 
@@ -124,18 +124,18 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
         """
         return self._app_mount(environ, start_response)
 
-    def run(self, host=None, port=None, **options):
-        """Use Werkzeug WSGI server to run application.
+    def run(self, host=None, port=None):
+        """Use wsgiref.simple_server to run application.
 
         :param host: hostname
         :param port: port
-        :param options: options as for :func:`werkzeug.serving.run_simple`
         """
         if host is None:
             host = '127.0.0.1'
         if port is None:
             port = 5000
-        run_simple(host, port, self, **options)
+        server = make_server(host, port, self)
+        serve.serve_forever()
 
     def mount_variables(self):
         return self._variables

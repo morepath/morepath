@@ -6,9 +6,7 @@ from .generic import remember, forget, settings
 from .view import render_json, render_html
 from .request import Request, Response
 from .config import Config, Directive
-from webob.exc import HTTPFound
-def redirect(location):
-    return HTTPFound(location=location)
+from .view import redirect
 from morepath.autosetup import autoconfig, autosetup
 from morepath.security import Identity, NO_IDENTITY
 from .directive import directive

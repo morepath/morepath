@@ -5,15 +5,12 @@ from morepath.traject import (Traject, Node, Step, TrajectError,
                               ParameterFactory)
 from morepath import generic
 from morepath.app import App
+from morepath.request import Request
 from morepath.core import traject_consume
-from werkzeug.wrappers import BaseRequest as Request
-#from morepath.request import Request
 from morepath.converter import Converter, IDENTITY_CONVERTER
 import pytest
-from werkzeug.test import EnvironBuilder
-from webob.exc import HTTPBadRequest as BadRequest
-
-#from werkzeug.exceptions import BadRequest
+from webob.exc import HTTPBadRequest
+import webob
 
 
 def setup_module(module):
@@ -387,7 +384,7 @@ def test_parse_variables():
 
 
 def consume(app, path):
-    request = app.request(EnvironBuilder(path=path).get_environ())
+    request = app.request(webob.Request.blank(path).environ)
     return traject_consume(request, app, lookup=app.lookup), request
 
 paramfac = ParameterFactory({}, {}, [])
@@ -686,46 +683,46 @@ def test_path_discriminator():
 
 
 def fake_request(path):
-    return Request(EnvironBuilder(path=path).get_environ())
+    return Request(webob.Request.blank(path).environ)
 
 
 def test_empty_parameter_factory():
     get_parameters = ParameterFactory({}, {}, [])
-    assert get_parameters(fake_request('').args) == {}
+    assert get_parameters(fake_request('').GET) == {}
     # unexpected parameter is ignored
-    assert get_parameters(fake_request('?a=A').args) == {}
+    assert get_parameters(fake_request('?a=A').GET) == {}
 
 
 def test_single_parameter():
     get_parameters = ParameterFactory({'a': None}, {'a': Converter(str)}, [])
-    assert get_parameters(fake_request('?a=A').args) == {'a': 'A'}
-    assert get_parameters(fake_request('').args) == {'a': None}
+    assert get_parameters(fake_request('?a=A').GET) == {'a': 'A'}
+    assert get_parameters(fake_request('').GET) == {'a': None}
 
 
 def test_single_parameter_int():
     get_parameters = ParameterFactory({'a': None}, {'a': Converter(int)}, [])
-    assert get_parameters(fake_request('?a=1').args) == {'a': 1}
-    assert get_parameters(fake_request('').args) == {'a': None}
-    with pytest.raises(BadRequest):
-        get_parameters(fake_request('?a=A').args)
+    assert get_parameters(fake_request('?a=1').GET) == {'a': 1}
+    assert get_parameters(fake_request('').GET) == {'a': None}
+    with pytest.raises(HTTPBadRequest):
+        get_parameters(fake_request('?a=A').GET)
 
 
 def test_single_parameter_default():
     get_parameters = ParameterFactory({'a': 'default'}, {}, [])
-    assert get_parameters(fake_request('?a=A').args) == {'a': 'A'}
-    assert get_parameters(fake_request('').args) == {'a': 'default'}
+    assert get_parameters(fake_request('?a=A').GET) == {'a': 'A'}
+    assert get_parameters(fake_request('').GET) == {'a': 'default'}
 
 
 def test_single_parameter_int_default():
     get_parameters = ParameterFactory({'a': 0}, {'a': Converter(int)}, [])
-    assert get_parameters(fake_request('?a=1').args) == {'a': 1}
-    assert get_parameters(fake_request('').args) == {'a': 0}
-    with pytest.raises(BadRequest):
-        get_parameters(fake_request('?a=A').args)
+    assert get_parameters(fake_request('?a=1').GET) == {'a': 1}
+    assert get_parameters(fake_request('').GET) == {'a': 0}
+    with pytest.raises(HTTPBadRequest):
+        get_parameters(fake_request('?a=A').GET)
 
 
 def test_parameter_required():
     get_parameters = ParameterFactory({'a': None}, {}, ['a'])
-    assert get_parameters(fake_request('?a=foo').args) == {'a': 'foo'}
-    with pytest.raises(BadRequest):
-        get_parameters(fake_request('').args)
+    assert get_parameters(fake_request('?a=foo').GET) == {'a': 'foo'}
+    with pytest.raises(HTTPBadRequest):
+        get_parameters(fake_request('').GET)

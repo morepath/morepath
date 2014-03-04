@@ -1,8 +1,8 @@
 import morepath
 from morepath.error import ConflictError
 import pytest
-from werkzeug.test import Client
-from werkzeug.wrappers import BaseResponse as Response
+from webobtoolkit.client import Client
+
 
 def setup_module(module):
     morepath.disable_implicit()
@@ -133,7 +133,7 @@ def test_settings_function():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/')
-    assert response.data == 'LAH'
+    assert response.body == 'LAH'

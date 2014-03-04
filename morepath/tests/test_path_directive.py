@@ -1,11 +1,9 @@
 import morepath
 from morepath import setup
-from werkzeug.wrappers import BaseResponse as Response
-#from morepath.request import Response
 from morepath.converter import Converter
 from morepath.error import DirectiveReportError
 
-from werkzeug.test import Client
+from webobtoolkit.client import Client
 import pytest
 
 
@@ -35,13 +33,13 @@ def test_simple_path_one_step():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/simple')
-    assert response.data == 'View'
+    assert response.body == 'View'
 
     response = c.get('/simple/link')
-    assert response.data == '/simple'
+    assert response.body == '/simple'
 
 
 def test_simple_path_two_steps():
@@ -66,13 +64,13 @@ def test_simple_path_two_steps():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/one/two')
-    assert response.data == 'View'
+    assert response.body == 'View'
 
     response = c.get('/one/two/link')
-    assert response.data == '/one/two'
+    assert response.body == '/one/two'
 
 
 def test_variable_path_one_step():
@@ -97,13 +95,13 @@ def test_variable_path_one_step():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo')
-    assert response.data == 'View: foo'
+    assert response.body == 'View: foo'
 
     response = c.get('/foo/link')
-    assert response.data == '/foo'
+    assert response.body == '/foo'
 
 
 def test_variable_path_two_steps():
@@ -128,13 +126,13 @@ def test_variable_path_two_steps():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/document/foo')
-    assert response.data == 'View: foo'
+    assert response.body == 'View: foo'
 
     response = c.get('/document/foo/link')
-    assert response.data == '/document/foo'
+    assert response.body == '/document/foo'
 
 
 def test_variable_path_two_variables():
@@ -160,13 +158,13 @@ def test_variable_path_two_variables():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('foo-one')
-    assert response.data == 'View: foo one'
+    assert response.body == 'View: foo one'
 
     response = c.get('/foo-one/link')
-    assert response.data == '/foo-one'
+    assert response.body == '/foo-one'
 
 
 def test_variable_path_explicit_converter():
@@ -192,13 +190,13 @@ def test_variable_path_explicit_converter():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('1')
-    assert response.data == "View: 1 (<type 'int'>)"
+    assert response.body == "View: 1 (<type 'int'>)"
 
     response = c.get('/1/link')
-    assert response.data == '/1'
+    assert response.body == '/1'
 
     response = c.get('broken')
     assert response.status == '404 Not Found'
@@ -226,13 +224,13 @@ def test_variable_path_implicit_converter():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('1')
-    assert response.data == "View: 1 (<type 'int'>)"
+    assert response.body == "View: 1 (<type 'int'>)"
 
     response = c.get('/1/link')
-    assert response.data == '/1'
+    assert response.body == '/1'
 
     response = c.get('broken')
     assert response.status == '404 Not Found'
@@ -261,13 +259,13 @@ def test_variable_path_explicit_trumps_implicit():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('1')
-    assert response.data == "View: 1 (<type 'int'>)"
+    assert response.body == "View: 1 (<type 'int'>)"
 
     response = c.get('/1/link')
-    assert response.data == '/1'
+    assert response.body == '/1'
 
     response = c.get('broken')
     assert response.status == '404 Not Found'
@@ -296,19 +294,19 @@ def test_url_parameter_explicit_converter():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/?id=1')
-    assert response.data == "View: 1 (<type 'int'>)"
+    assert response.body == "View: 1 (<type 'int'>)"
 
     response = c.get('/link?id=1')
-    assert response.data == '/?id=1'
+    assert response.body == '/?id=1'
 
     response = c.get('/?id=broken')
     assert response.status == '400 Bad Request'
 
     response = c.get('/')
-    assert response.data == "View: None (<type 'NoneType'>)"
+    assert response.body == "View: None (<type 'NoneType'>)"
 
 
 def test_url_parameter_implicit_converter():
@@ -333,19 +331,19 @@ def test_url_parameter_implicit_converter():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/?id=1')
-    assert response.data == "View: 1 (<type 'int'>)"
+    assert response.body == "View: 1 (<type 'int'>)"
 
     response = c.get('/link?id=1')
-    assert response.data == '/?id=1'
+    assert response.body == '/?id=1'
 
     response = c.get('/?id=broken')
     assert response.status == '400 Bad Request'
 
     response = c.get('/')
-    assert response.data == "View: 0 (<type 'int'>)"
+    assert response.body == "View: 0 (<type 'int'>)"
 
 
 def test_url_parameter_explicit_trumps_implicit():
@@ -371,19 +369,19 @@ def test_url_parameter_explicit_trumps_implicit():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/?id=1')
-    assert response.data == "View: 1 (<type 'int'>)"
+    assert response.body == "View: 1 (<type 'int'>)"
 
     response = c.get('/link?id=1')
-    assert response.data == '/?id=1'
+    assert response.body == '/?id=1'
 
     response = c.get('/?id=broken')
     assert response.status == '400 Bad Request'
 
     response = c.get('/')
-    assert response.data == "View: foo (<type 'str'>)"
+    assert response.body == "View: foo (<type 'str'>)"
 
 
 def test_decode_encode():
@@ -415,13 +413,13 @@ def test_decode_encode():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/?id=foo')
-    assert response.data == "View: fooADD"
+    assert response.body == "View: fooADD"
 
     response = c.get('/link?id=foo')
-    assert response.data == '/?id=foo'
+    assert response.body == '/?id=foo'
 
 
 def test_unknown_converter():
@@ -475,19 +473,19 @@ def test_default_date_converter():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/?d=20121110')
-    assert response.data == "View: 2012-11-10"
+    assert response.body == "View: 2012-11-10"
 
     response = c.get('/')
-    assert response.data == "View: 2011-01-01"
+    assert response.body == "View: 2011-01-01"
 
     response = c.get('/link?d=20121110')
-    assert response.data == '/?d=20121110'
+    assert response.body == '/?d=20121110'
 
     response = c.get('/link')
-    assert response.data == '/?d=20110101'
+    assert response.body == '/?d=20110101'
 
     response = c.get('/?d=broken')
     assert response.status == '400 Bad Request'
@@ -517,19 +515,19 @@ def test_default_datetime_converter():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/?d=20121110T144530')
-    assert response.data == "View: 2012-11-10 14:45:30"
+    assert response.body == "View: 2012-11-10 14:45:30"
 
     response = c.get('/')
-    assert response.data == "View: 2011-01-01 10:30:00"
+    assert response.body == "View: 2011-01-01 10:30:00"
 
     response = c.get('/link?d=20121110T144500')
-    assert response.data == '/?d=20121110T144500'
+    assert response.body == '/?d=20121110T144500'
 
     response = c.get('/link')
-    assert response.data == '/?d=20110101T103000'
+    assert response.body == '/?d=20110101T103000'
 
     response = c.get('/?d=broken')
     assert response.status == '400 Bad Request'
@@ -570,19 +568,19 @@ def test_custom_date_converter():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/?d=10-11-2012')
-    assert response.data == "View: 2012-11-10"
+    assert response.body == "View: 2012-11-10"
 
     response = c.get('/')
-    assert response.data == "View: 2011-01-01"
+    assert response.body == "View: 2011-01-01"
 
     response = c.get('/link?d=10-11-2012')
-    assert response.data == '/?d=10-11-2012'
+    assert response.body == '/?d=10-11-2012'
 
     response = c.get('/link')
-    assert response.data == '/?d=01-01-2011'
+    assert response.body == '/?d=01-01-2011'
 
     response = c.get('/?d=broken')
     assert response.status == '400 Bad Request'
@@ -610,10 +608,10 @@ def test_variable_path_parameter_required_no_default():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/?id=a')
-    assert response.data == "View: a"
+    assert response.body == "View: a"
 
     response = c.get('/')
     assert response.status == '400 Bad Request'
@@ -641,10 +639,10 @@ def test_variable_path_parameter_required_with_default():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/?id=a')
-    assert response.data == "View: a"
+    assert response.body == "View: a"
 
     response = c.get('/')
     assert response.status == '400 Bad Request'
@@ -674,13 +672,13 @@ def test_type_hints_and_converters():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/?d=20140120')
-    assert response.data == "View: 2014-01-20"
+    assert response.body == "View: 2014-01-20"
 
     response = c.get('/link?d=20140120')
-    assert response.data == '/?d=20140120'
+    assert response.body == '/?d=20140120'
 
 
 def test_link_for_none_means_no_parameter():
@@ -705,13 +703,13 @@ def test_link_for_none_means_no_parameter():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/')
-    assert response.data == "View: None"
+    assert response.body == "View: None"
 
     response = c.get('/link')
-    assert response.data == '/'
+    assert response.body == '/'
 
 
 def test_path_and_url_parameter_converter():
@@ -739,10 +737,10 @@ def test_path_and_url_parameter_converter():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/1/link')
-    assert response.data == '/1'
+    assert response.body == '/1'
 
 
 def test_root_named_link():
@@ -759,7 +757,7 @@ def test_root_named_link():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/')
-    assert response.data == '/foo'
+    assert response.body == '/foo'

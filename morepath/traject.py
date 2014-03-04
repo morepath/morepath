@@ -1,7 +1,7 @@
 import re
 from functools import total_ordering
 from reg import Registry
-from webob.exc import HTTPBadRequest as BadRequest
+from webob.exc import HTTPBadRequest
 from .converter import IDENTITY_CONVERTER
 from .error import TrajectError
 
@@ -239,15 +239,16 @@ class ParameterFactory(object):
             value = args.get(name)
             if value is None:
                 if name in self.required:
-                    raise BadRequest("Required URL parameter missing: %s" %
-                                     name)
+                    raise HTTPBadRequest(
+                        "Required URL parameter missing: %s" %
+                        name)
                 result[name] = default
                 continue
             converter = self.converters.get(name, IDENTITY_CONVERTER)
             try:
                 result[name] = converter.decode(value)
             except ValueError:
-                raise BadRequest(
+                raise HTTPBadRequest(
                     "Cannot decode URL parameter %s: %s" % (
                         name, value))
         return result

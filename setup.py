@@ -14,11 +14,11 @@ setup(name='morepath',
         'setuptools',
         'webob >= 1.3.1',
         'venusian >= 1.0a8',
-        'reg >= 0.5',
-        'werkzeug >= 0.9.4',
+        'reg >= 0.5'
         ],
       extras_require = dict(
         test=['pytest >= 2.0',
-              'pytest-cov'],
+              'pytest-cov',
+              'webobtoolkit'],
         ),
       )

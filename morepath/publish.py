@@ -1,7 +1,7 @@
 from morepath import generic
 from .mount import Mount
 from .traject import create_path
-from webob.exc import HTTPException, HTTPNotFound as NotFound, HTTPInternalServerError as InternalServerError
+from webob.exc import HTTPException, HTTPNotFound, HTTPInternalServerError
 import sys
 from traceback import print_exc
 
@@ -51,7 +51,7 @@ def resolve_response(request, model):
                                 lookup=request.lookup)
     if response is RESPONSE_SENTINEL:
         # XXX lookup error view and fallback to default
-        raise NotFound()
+        raise HTTPNotFound()
     request.run_after(response)
     return response
 
@@ -59,7 +59,7 @@ def resolve_response(request, model):
 def get_view_name(stack):
     unconsumed_amount = len(stack)
     if unconsumed_amount > 1:
-        raise NotFound()
+        raise HTTPNotFound()
     elif unconsumed_amount == 0:
         return DEFAULT_NAME
     elif unconsumed_amount == 1:
@@ -77,5 +77,4 @@ def publish(request):
         raise
     except:
         print_exc(file=sys.stderr)
-        e = InternalServerError()
-        return e
+        return HTTPInternalServerError()

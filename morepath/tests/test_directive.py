@@ -1,17 +1,16 @@
 from .fixtures import basic, nested, abbr, mapply_bug, normalmethod, method
 from morepath import setup
 from morepath.error import ConflictError, MountError, DirectiveError
-#from morepath.request import Response
-from werkzeug.wrappers import BaseResponse as Response
 from morepath.view import render_html
 from morepath.app import App
 from morepath.converter import Converter
 import morepath
 from morepath.error import LinkError
 import reg
+import webob
 
-from werkzeug.test import Client
 import pytest
+from webobtoolkit.client import Client
 
 
 def setup_module(module):
@@ -23,14 +22,14 @@ def test_basic():
     config.scan(basic)
     config.commit()
 
-    c = Client(basic.app, Response)
+    c = Client(basic.app)
 
     response = c.get('/foo')
 
-    assert response.data == 'The view for model: foo'
+    assert response.body == 'The view for model: foo'
 
     response = c.get('/foo/link')
-    assert response.data == '/foo'
+    assert response.body == '/foo'
 
 
 def test_basic_json():
@@ -38,11 +37,11 @@ def test_basic_json():
     config.scan(basic)
     config.commit()
 
-    c = Client(basic.app, Response)
+    c = Client(basic.app)
 
     response = c.get('/foo/json')
 
-    assert response.data == '{"id": "foo"}'
+    assert response.body == '{"id": "foo"}'
 
 
 def test_basic_root():
@@ -50,16 +49,16 @@ def test_basic_root():
     config.scan(basic)
     config.commit()
 
-    c = Client(basic.app, Response)
+    c = Client(basic.app)
 
     response = c.get('/')
 
-    assert response.data == 'The root: ROOT'
+    assert response.body == 'The root: ROOT'
 
     # + is to make sure we get the view, not the sub-model as
     # the model is greedy
     response = c.get('/+link')
-    assert response.data == '/'
+    assert response.body == '/'
 
 
 def test_nested():
@@ -67,14 +66,14 @@ def test_nested():
     config.scan(nested)
     config.commit()
 
-    c = Client(nested.outer_app, Response)
+    c = Client(nested.outer_app)
 
     response = c.get('/inner/foo')
 
-    assert response.data == 'The view for model: foo'
+    assert response.body == 'The view for model: foo'
 
     response = c.get('/inner/foo/link')
-    assert response.data == '/inner/foo'
+    assert response.body == '/inner/foo'
 
 
 def test_abbr():
@@ -82,13 +81,13 @@ def test_abbr():
     config.scan(abbr)
     config.commit()
 
-    c = Client(abbr.app, Response)
+    c = Client(abbr.app)
 
     response = c.get('/foo')
-    assert response.data == 'Default view: foo'
+    assert response.body == 'Default view: foo'
 
     response = c.get('/foo/edit')
-    assert response.data == 'Edit view: foo'
+    assert response.body == 'Edit view: foo'
 
 
 def test_scanned_normal_method():
@@ -102,10 +101,10 @@ def test_scanned_static_method():
     config.scan(method)
     config.commit()
 
-    c = Client(method.app, Response)
+    c = Client(method.app)
 
     response = c.get('/static')
-    assert response.data == 'Static Method'
+    assert response.body == 'Static Method'
 
     root = method.Root()
     assert isinstance(root.static_method(), method.StaticMethod)
@@ -116,10 +115,10 @@ def test_scanned_class_method():
     config.scan(method)
     config.commit()
 
-    c = Client(method.app, Response)
+    c = Client(method.app)
 
     response = c.get('/class')
-    assert response.data == 'Class Method'
+    assert response.body == 'Class Method'
 
     root = method.Root()
     assert isinstance(root.class_method(), method.ClassMethod)
@@ -191,23 +190,23 @@ def test_basic_imperative():
              root_link)
     c.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo')
-    assert response.data == 'The view for model: foo'
+    assert response.body == 'The view for model: foo'
 
     response = c.get('/foo/link')
-    assert response.data == '/foo'
+    assert response.body == '/foo'
 
     response = c.get('/foo/json')
-    assert response.data == '{"id": "foo"}'
+    assert response.body == '{"id": "foo"}'
 
     response = c.get('/')
-    assert response.data == 'The root: ROOT'
+    assert response.body == 'The root: ROOT'
 
     # + is to make sure we get the view, not the sub-model
     response = c.get('/+link')
-    assert response.data == '/'
+    assert response.body == '/'
 
 
 def test_basic_testing_config():
@@ -249,23 +248,23 @@ def test_basic_testing_config():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo')
-    assert response.data == 'The view for model: foo'
+    assert response.body == 'The view for model: foo'
 
     response = c.get('/foo/link')
-    assert response.data == '/foo'
+    assert response.body == '/foo'
 
     response = c.get('/foo/json')
-    assert response.data == '{"id": "foo"}'
+    assert response.body == '{"id": "foo"}'
 
     response = c.get('/')
-    assert response.data == 'The root: ROOT'
+    assert response.body == 'The root: ROOT'
 
     # + is to make sure we get the view, not the sub-model
     response = c.get('/+link')
-    assert response.data == '/'
+    assert response.body == '/'
 
 
 def test_link_to_unknown_model():
@@ -297,12 +296,12 @@ def test_link_to_unknown_model():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/')
-    assert response.data == 'Link error'
+    assert response.body == 'Link error'
     response = c.get('/default')
-    assert response.data == 'Link Error'
+    assert response.body == 'Link Error'
 
 
 def test_link_to_none():
@@ -328,12 +327,12 @@ def test_link_to_none():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/')
-    assert response.data == 'True'
+    assert response.body == 'True'
     response = c.get('/default')
-    assert response.data == 'unknown'
+    assert response.body == 'unknown'
 
 
 def test_link_with_parameters():
@@ -365,19 +364,19 @@ def test_link_with_parameters():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo')
-    assert response.data == 'The view for model: foo 0'
+    assert response.body == 'The view for model: foo 0'
 
     response = c.get('/foo/link')
-    assert response.data == '/foo?param=0'
+    assert response.body == '/foo?param=0'
 
     response = c.get('/foo?param=1')
-    assert response.data == 'The view for model: foo 1'
+    assert response.body == 'The view for model: foo 1'
 
     response = c.get('/foo/link?param=1')
-    assert response.data == '/foo?param=1'
+    assert response.body == '/foo?param=1'
 
 
 def test_root_link_with_parameters():
@@ -400,19 +399,19 @@ def test_root_link_with_parameters():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/')
-    assert response.data == 'The view for root: 0'
+    assert response.body == 'The view for root: 0'
 
     response = c.get('/link')
-    assert response.data == '/?param=0'
+    assert response.body == '/?param=0'
 
     response = c.get('/?param=1')
-    assert response.data == 'The view for root: 1'
+    assert response.body == 'The view for root: 1'
 
     response = c.get('/link?param=1')
-    assert response.data == '/?param=1'
+    assert response.body == '/?param=1'
 
 
 def test_implicit_variables():
@@ -441,10 +440,10 @@ def test_implicit_variables():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo/link')
-    assert response.data == '/foo'
+    assert response.body == '/foo'
 
 
 def test_implicit_parameters():
@@ -473,16 +472,16 @@ def test_implicit_parameters():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo')
-    assert response.data == 'The view for model: None'
+    assert response.body == 'The view for model: None'
     response = c.get('/foo?id=bar')
-    assert response.data == 'The view for model: bar'
+    assert response.body == 'The view for model: bar'
     response = c.get('/foo/link')
-    assert response.data == '/foo'
+    assert response.body == '/foo'
     response = c.get('/foo/link?id=bar')
-    assert response.data == '/foo?id=bar'
+    assert response.body == '/foo?id=bar'
 
 
 def test_implicit_parameters_default():
@@ -511,16 +510,16 @@ def test_implicit_parameters_default():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo')
-    assert response.data == 'The view for model: default'
+    assert response.body == 'The view for model: default'
     response = c.get('/foo?id=bar')
-    assert response.data == 'The view for model: bar'
+    assert response.body == 'The view for model: bar'
     response = c.get('/foo/link')
-    assert response.data == '/foo?id=default'
+    assert response.body == '/foo?id=default'
     response = c.get('/foo/link?id=bar')
-    assert response.data == '/foo?id=bar'
+    assert response.body == '/foo?id=bar'
 
 
 def test_convert_exception_to_internal_error():
@@ -539,7 +538,7 @@ def test_convert_exception_to_internal_error():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/')
     assert response.status == '500 Internal Server Error'
@@ -564,10 +563,10 @@ def test_simple_root():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/')
-    assert response.data == 'hello'
+    assert response.body == 'hello'
 
 
 def test_json_directive():
@@ -585,10 +584,10 @@ def test_json_directive():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo')
-    assert response.data == '{"id": "foo"}'
+    assert response.body == '{"id": "foo"}'
 
 
 def test_redirect():
@@ -606,7 +605,7 @@ def test_redirect():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/')
     assert response.status == '302 Found'
@@ -964,13 +963,13 @@ def test_mount():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo')
-    assert response.data == 'The root'
+    assert response.body == 'The root'
 
     response = c.get('/foo/link')
-    assert response.data == '/foo'
+    assert response.body == '/foo'
 
 
 def test_mount_empty_context():
@@ -996,13 +995,13 @@ def test_mount_empty_context():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo')
-    assert response.data == 'The root'
+    assert response.body == 'The root'
 
     response = c.get('/foo/link')
-    assert response.data == '/foo'
+    assert response.body == '/foo'
 
 
 def test_mount_context():
@@ -1028,12 +1027,12 @@ def test_mount_context():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo')
-    assert response.data == 'The root for mount id: foo'
+    assert response.body == 'The root for mount id: foo'
     response = c.get('/bar')
-    assert response.data == 'The root for mount id: bar'
+    assert response.body == 'The root for mount id: bar'
 
 
 def test_mount_context_parameters():
@@ -1060,12 +1059,12 @@ def test_mount_context_parameters():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/mounts?mount_id=1')
-    assert response.data == 'The root for mount id: 1'
+    assert response.body == 'The root for mount id: 1'
     response = c.get('/mounts')
-    assert response.data == 'The root for mount id: 0'
+    assert response.body == 'The root for mount id: 0'
 
 
 def test_mount_context_parameters_empty_context():
@@ -1094,14 +1093,14 @@ def test_mount_context_parameters_empty_context():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo')
-    assert response.data == 'The root for mount id: default'
+    assert response.body == 'The root for mount id: default'
     # the URL parameter mount_id cannot interfere with the mounting
     # process
     response = c.get('/bar?mount_id=blah')
-    assert response.data == 'The root for mount id: default'
+    assert response.body == 'The root for mount id: default'
 
 
 def test_mount_context_standalone():
@@ -1120,10 +1119,10 @@ def test_mount_context_standalone():
 
     config.commit()
 
-    c = Client(app.mounted(mount_id='foo'), Response)
+    c = Client(app.mounted(mount_id='foo'))
 
     response = c.get('/')
-    assert response.data == 'The root for mount id: foo'
+    assert response.body == 'The root for mount id: foo'
 
 
 def test_mount_parent_link():
@@ -1155,10 +1154,10 @@ def test_mount_parent_link():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo')
-    assert response.data == '/models/one'
+    assert response.body == '/models/one'
 
 
 def test_mount_child_link():
@@ -1190,10 +1189,10 @@ def test_mount_child_link():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/')
-    assert response.data == '/foo/models/one'
+    assert response.body == '/foo/models/one'
 
 
 def test_request_view_in_mount():
@@ -1229,10 +1228,10 @@ def test_request_view_in_mount():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/')
-    assert response.data == 'Hey'
+    assert response.body == 'Hey'
 
 
 def test_run_app_with_context_without_it():
@@ -1240,7 +1239,7 @@ def test_run_app_with_context_without_it():
     app = morepath.App('app', variables=['mount_id'], testing_config=config)
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
     with pytest.raises(MountError):
         c.get('/foo')
 
@@ -1250,8 +1249,8 @@ def test_mapply_bug():
     config.scan(mapply_bug)
     config.commit()
 
-    c = Client(mapply_bug.app, Response)
+    c = Client(mapply_bug.app)
 
     response = c.get('/')
 
-    assert response.data == 'the root'
+    assert response.body == 'the root'

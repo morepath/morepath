@@ -2,6 +2,7 @@ from morepath import generic
 from .request import Request, Response
 from reg import PredicateMatcher, Predicate, ANY
 import json
+from webob.exc import HTTPFound
 
 
 class View(object):
@@ -94,3 +95,7 @@ def render_html(content):
     """Take string and return text/html response.
     """
     return Response(content, content_type='text/html')
+
+
+def redirect(location):
+    return HTTPFound(location=location)

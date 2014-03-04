@@ -1,6 +1,6 @@
 from .path import register_path, get_arguments, SPECIAL_ARGUMENTS
+from .reify import reify
 from reg import mapply
-from werkzeug.utils import cached_property
 
 
 class Mount(object):
@@ -20,7 +20,7 @@ class Mount(object):
         return '<morepath.Mount of app %r with variables %r>' % (
             name, self.variables)
 
-    @cached_property
+    @reify
     def lookup(self):
         return self.app.lookup
 

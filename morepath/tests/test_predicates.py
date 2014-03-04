@@ -1,8 +1,7 @@
 from morepath.app import App
 from morepath import setup
-from werkzeug.wrappers import BaseResponse as Response
-#from morepath.request import Response
-from werkzeug.test import Client
+
+from webobtoolkit.client import Client
 import morepath
 
 
@@ -28,12 +27,12 @@ def test_view_predicates():
 
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/foo')
-    assert response.data == 'GET'
+    assert response.body == 'GET'
     response = c.post('/foo')
-    assert response.data == 'POST'
+    assert response.body == 'POST'
 
 
 def test_extra_predicates():
@@ -58,9 +57,9 @@ def test_extra_predicates():
         return self.id
     config.commit()
 
-    c = Client(app, Response)
+    c = Client(app)
 
     response = c.get('/a/foo')
-    assert response.data == 'a'
+    assert response.body == 'a'
     response = c.get('/b/foo')
-    assert response.data == 'b'
+    assert response.body == 'b'
