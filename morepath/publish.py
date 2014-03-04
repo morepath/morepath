@@ -35,7 +35,7 @@ def resolve_model(request):
         lookup = generic.lookup(model, lookup=lookup, default=lookup)
         request.lookup = lookup
     # if there is nothing (left), we consume toward a root model
-    if not request.unconsumed:
+    if not request.unconsumed and isinstance(model, Mount):
         root_model = generic.consume(request, model, lookup=lookup)
         if root_model is not None:
             model = root_model
