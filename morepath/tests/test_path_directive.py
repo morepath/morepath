@@ -1,7 +1,7 @@
 import morepath
 from morepath import setup
 from morepath.converter import Converter
-from morepath.error import DirectiveReportError
+from morepath.error import DirectiveReportError, ConfigError
 
 from webobtoolkit.client import Client
 import pytest
@@ -761,3 +761,33 @@ def test_root_named_link():
 
     response = c.get('/')
     assert response.body == '/foo'
+
+
+def test_path_class_and_model_argument():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Foo(object):
+        pass
+
+
+    @app.path(path='', model=Foo)
+    class Root(object):
+        pass
+
+    with pytest.raises(ConfigError):
+        config.commit()
+
+
+def test_path_no_class_and_no_model_argument():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    @app.path(path='')
+    def get_foo():
+        return None
+
+    with pytest.raises(ConfigError):
+        config.commit()
+
+
