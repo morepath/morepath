@@ -9,7 +9,7 @@ removed.
 import inspect
 
 
-def setup(app):
+def setup(app):  # pragma: nocoverage
     # all inline to avoid dependency on sphinx.ext.autodoc which
     # would trip up scanning
     from sphinx.ext.autodoc import ModuleDocumenter, MethodDocumenter
