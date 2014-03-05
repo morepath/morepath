@@ -132,11 +132,22 @@ def test_scanned_conflict():
         config.commit()
 
 
-
 def test_scanned_some_error():
     config = setup()
     with pytest.raises(ZeroDivisionError):
         config.scan(pkg)
+
+
+def test_scanned_caller_package():
+    from .fixtures import callerpkg
+    callerpkg.main()
+
+    from .fixtures.callerpkg.other import app
+
+    c = Client(app)
+
+    response = c.get('/')
+    assert response.body == 'Hello world'
 
 
 def test_imperative():
