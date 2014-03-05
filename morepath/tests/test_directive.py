@@ -158,6 +158,18 @@ def test_scanned_caller_package():
     assert response.body == 'Hello world'
 
 
+def test_scanned_caller_package_scan_module():
+    from .fixtures import callerpkg2
+    callerpkg2.main()
+
+    from .fixtures.callerpkg2.other import app
+
+    c = Client(app)
+
+    response = c.get('/')
+    assert response.body == 'Hello world'
+
+
 def test_imperative():
     class Foo(object):
         pass
