@@ -90,6 +90,43 @@ def test_permission_directive():
     assert response.status == '401 Unauthorized'
 
 
+def test_permission_directive_no_identity():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    class Permission(object):
+        pass
+
+    @app.path(model=Model, path='{id}',
+              variables=lambda model: {'id': model.id})
+    def get_model(id):
+        return Model(id)
+
+    @app.permission(model=Model, permission=Permission, identity=None)
+    def get_permission(identity, model, permission):
+        if model.id == 'foo':
+            return True
+        else:
+            return False
+
+    @app.view(model=Model, permission=Permission)
+    def default(self, request):
+        return "Model: %s" % self.id
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/foo')
+    assert response.body == 'Model: foo'
+    response = c.get('/bar')
+    assert response.status == '401 Unauthorized'
+
+
 def test_policy_action():
     config = setup()
     config.scan(identity_policy)
