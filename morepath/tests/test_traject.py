@@ -93,6 +93,28 @@ def sorted_steps(l):
     return [step.s for step in sorted(steps)]
 
 
+def test_steps_the_same():
+    step1 = Step('{foo}')
+    step2 = Step('{foo}')
+    assert step1 == step2
+    assert not step1 != step2
+    assert not step1 < step2
+    assert not step1 > step2
+    assert step1 >= step2
+    assert step1 <= step2
+
+
+def test_step_different():
+    step1 = Step('{foo}')
+    step2 = Step('bar')
+    assert step1 != step2
+    assert not step1 == step2
+    assert not step1 < step2
+    assert step1 > step2
+    assert step1 >= step2
+    assert not step1 <= step2
+
+
 def test_order_prefix_earlier():
     assert sorted_steps(['{foo}', 'prefix{foo}']) == [
         'prefix{foo}', '{foo}']

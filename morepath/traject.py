@@ -76,6 +76,11 @@ class Step(object):
             return False
         return self.cmp_converters == other.cmp_converters
 
+    def __ne__(self, other):
+        if self.s != other.s:
+            return True
+        return self.cmp_converters != other.cmp_converters
+
     def __lt__(self, other):
         if self.parts == other.parts:
             return False
