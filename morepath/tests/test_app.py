@@ -1,5 +1,7 @@
 from morepath.app import App, global_app
+from morepath.error import MountError
 import morepath
+import pytest
 
 
 def setup_module(module):
@@ -57,3 +59,15 @@ def test_app_name():
     app = morepath.App(name='foo')
     assert repr(app) == "<morepath.App 'foo'>"
 
+
+def test_app_set_implicit():
+    app = morepath.App()
+    app.set_implicit()
+
+
+def test_app_mounted():
+    app = morepath.App(variables=['foo'])
+    with pytest.raises(MountError):
+        app.mounted()
+
+ 
