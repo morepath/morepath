@@ -29,7 +29,7 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
     AppBase can be used as a WSGI application, i.e. it can be called
     with ``environ`` and ``start_response`` arguments.
     """
-    def __init__(self, name='', extends=None, variables=None,
+    def __init__(self, name=None, extends=None, variables=None,
                  testing_config=None):
         """
         :param name: A name for this application. This is used in
@@ -67,6 +67,8 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
         venusian.attach(self, callback)
 
     def __repr__(self):
+        if self.name is None:
+            return '<morepath.App at 0x%x>' % id(self)
         return '<morepath.App %r>' % self.name
 
     def clear(self):
@@ -174,7 +176,7 @@ class App(AppBase):
     rejected. An extended app cannot conflict with the apps it is
     extending however; instead configuration is overridden.
     """
-    def __init__(self, name='', extends=None, variables=None,
+    def __init__(self, name=None, extends=None, variables=None,
                  testing_config=None):
         """
         :param name: A name for this application. This is used in

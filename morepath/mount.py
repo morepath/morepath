@@ -13,12 +13,15 @@ class Mount(object):
         return mapply(self.context_factory, **self.variables)
 
     def __repr__(self):
-        try:
-            name = self.app.name
-        except AttributeError:
-            name = repr(self.app)
-        return '<morepath.Mount of app %r with variables %r>' % (
-            name, self.variables)
+        variable_info = ', '.join(["%s=%r" % t for t in
+                                   sorted(self.variables.items())])
+        result = '<morepath.Mount of %s' % repr(self.app)
+        if variable_info:
+            result += ' with variables: %s>' % variable_info
+        else:
+            result += '>'
+        return result
+
 
     @reify
     def lookup(self):

@@ -16,7 +16,7 @@ def test_global_app():
 def test_app_without_extends():
     myapp = App()
     assert myapp.extends == [global_app]
-    assert myapp.name == ''
+    assert myapp.name == None
 
 
 def test_app_with_extends():
@@ -55,9 +55,14 @@ def test_app_caching_lookup():
     assert myapp.called == 2
 
 
-def test_app_name():
+def test_app_name_repr():
     app = morepath.App(name='foo')
     assert repr(app) == "<morepath.App 'foo'>"
+
+
+def test_app_unnamed_repr():
+    app = morepath.App()
+    assert repr(app).startswith("<morepath.App at 0x")
 
 
 def test_app_set_implicit():
@@ -69,5 +74,3 @@ def test_app_mounted():
     app = morepath.App(variables=['foo'])
     with pytest.raises(MountError):
         app.mounted()
-
- 
