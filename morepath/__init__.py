@@ -11,6 +11,7 @@ from morepath.autosetup import autoconfig, autosetup
 from morepath.security import Identity, NO_IDENTITY
 from .directive import directive
 from .converter import Converter
+from .reify import reify
 from reg import ANY, implicit
 from pdb import Pdb
 pdb = Pdb(skip=['reg.*', 'inspect'])
