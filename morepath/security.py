@@ -1,5 +1,4 @@
 from morepath import generic
-from webob.descriptors import parse_auth
 from .compat import bytes_
 import binascii
 import base64
@@ -59,10 +58,14 @@ class BasicAuthIdentityPolicy(object):
         :type request: :class:`morepath.Request`.
         :returns: :class:`morepath.security.Identity` instance.
         """
-        header = request.headers.get('Authorization')
-        if header is None:
+        try:
+            authorization = request.authorization
+        except ValueError:
             return None
-        auth = parse_basic_auth(header)
+        if authorization is None:
+            return None
+        authtype, params = authorization
+        auth = parse_basic_auth(authtype, params)
         if auth is None:
             return None
         return Identity(userid=auth.username, password=auth.password)
@@ -110,11 +113,11 @@ class BasicAuthInfo(object):
 
 # code taken from
 # pyramid.authentication.BasicAuthenticationPolicy._get_credentials
-def parse_basic_auth(value):
-    try:
-        authtype, params = parse_auth(value)
-    except ValueError:
-        return None
+def parse_basic_auth(authtype, params):
+    # try:
+    #     authtype, params = parse_auth(value)
+    # except ValueError:
+    #     return None
 
     if authtype != 'Basic':
         return None
