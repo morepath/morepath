@@ -2,7 +2,7 @@ from .fixtures import (basic, nested, abbr, mapply_bug,
                        normalmethod, method, conflict, pkg, noconverter)
 from morepath import setup
 from morepath.error import (ConflictError, MountError, DirectiveError,
-                            DirectiveReportError)
+                            LinkError, DirectiveReportError)
 from morepath.view import render_html
 from morepath.app import App
 from morepath.converter import Converter
@@ -1239,6 +1239,40 @@ def test_mount_child_link():
 
     response = c.get('/')
     assert response.body == '/foo/models/one'
+
+
+def test_mount_child_link_unknown_app():
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+    mounted = morepath.App('mounted', variables=['mount_id'],
+                           testing_config=config)
+
+    @mounted.path(path='models/{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @app.view(model=Root)
+    def app_root_default(self, request):
+        try:
+            return request.link(
+                Model('one'),
+                mounted=request.mounted().child(mounted, id='foo'))
+        except LinkError:
+            return "link error"
+
+    # no mounting, so mounted is unknown when making link
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/')
+    assert response.body == 'link error'
 
 
 def test_request_view_in_mount():
