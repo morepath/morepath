@@ -227,7 +227,7 @@ class Action(object):
 
         Used for overrides and conflict detection.
         """
-        raise NotImplementedError()
+        raise NotImplementedError()  # pragma: nocoverage
 
     def discriminators(self, configurable):
         """Returns a list of immutables to detect conflicts.
@@ -360,8 +360,10 @@ class DirectiveAbbreviation(object):
 
 
 def ignore_import_error(pkg):
-    if not issubclass(sys.exc_info()[0], ImportError):
-        raise  # reraise the last exception
+    # ignore import errors
+    if issubclass(sys.exc_info()[0], ImportError):
+        return
+    raise  # reraise last exception
 
 
 class Config(object):

@@ -5,8 +5,7 @@ app = morepath.App()
 
 @app.path(path='/')
 class Root(object):
-    def __init__(self):
-        self.value = 'ROOT'
+    pass
 
 
 @app.path(path='/', model=Root)

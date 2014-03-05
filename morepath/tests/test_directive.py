@@ -1,5 +1,5 @@
 from .fixtures import (basic, nested, abbr, mapply_bug,
-                       normalmethod, method, conflict)
+                       normalmethod, method, conflict, pkg)
 from morepath import setup
 from morepath.error import ConflictError, MountError, DirectiveError
 from morepath.view import render_html
@@ -130,6 +130,13 @@ def test_scanned_conflict():
     config.scan(conflict)
     with pytest.raises(ConflictError):
         config.commit()
+
+
+
+def test_scanned_some_error():
+    config = setup()
+    with pytest.raises(ZeroDivisionError):
+        config.scan(pkg)
 
 
 def test_imperative():
