@@ -16,42 +16,42 @@ def consume(request, model):
 def app(obj):
     """Get the application that this object is associated with.
     """
-    raise NotImplementedError
+    raise NotImplementedError  # pragma: nocoverage
 
 
 @reg.generic
 def context(model):
     """Get the context dictionary available for a model.
     """
-    return {}
+    raise NotImplementedError  # pragma: nocoverage
 
 
 @reg.generic
 def lookup(obj):
     """Get the lookup that this object is associated with.
     """
-    raise NotImplementedError
+    raise NotImplementedError    # pragma: nocoverage
 
 
 @reg.generic
 def path(model):
     """Get the path for a model in its own application.
     """
-    raise NotImplementedError
+    raise NotImplementedError  # pragma: nocoverage
 
 
 @reg.generic
 def link(request, model):
     """Create a link (URL) to a model, including any mounted applications.
     """
-    raise NotImplementedError
+    raise NotImplementedError  # pragma: nocoverage
 
 
 @reg.generic
 def traject(obj):
     """Get traject for obj.
     """
-    raise NotImplementedError
+    raise NotImplementedError  # pragma: nocoverage
 
 
 @reg.generic
@@ -63,14 +63,14 @@ def view(request, model):
     returned, the string is converted to a Response with the string as
     the response body.
     """
-    raise NotImplementedError
+    raise NotImplementedError  # pragma: nocoverage
 
 
 @reg.generic
 def response(request, model):
     """Get a Response for the model in the context of the request.
     """
-    raise NotImplementedError
+    raise NotImplementedError  # pragma: nocoverage
 
 
 @reg.generic
@@ -84,7 +84,7 @@ def settings():
       settings().logging.loglevel
 
     """
-    raise NotImplementedError
+    raise NotImplementedError  # pragma: nocoverage
 
 
 @reg.generic
@@ -94,21 +94,21 @@ def identify(request):
     Can also return NO_IDENTITY, but None is converted automatically
     to this.
     """
-    raise None
+    raise NotImplementedError  # pragma: nocoverage
 
 
 @reg.generic
 def remember(response, request, identity):
     """Modify response so that identity is remembered by client.
     """
-    raise NotImplementedError
+    raise NotImplementedError  # pragma: nocoverage
 
 
 @reg.generic
 def forget(response, request):
     """Modify response so that identity is forgotten by client.
     """
-    raise NotImplementedError
+    raise NotImplementedError  # pragma: nocoverage
 
 
 @reg.generic
@@ -118,13 +118,4 @@ def permits(identity, model, permission):
     identity can be the special NO_IDENTITY singleton; register for
     NoIdentity to handle this case separately.
     """
-    raise NotImplementedError
-
-
-@reg.generic
-def user(identity):
-    """Gives back a user object for the identity given.
-
-    Returns None if the user is not known to the system.
-    """
-    raise NotImplementedError
+    raise NotImplementedError  # pragma: nocoverage
