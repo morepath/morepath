@@ -61,7 +61,7 @@ class SettingDirective(Directive):
         :param name: the name of the setting in its section.
         """
 
-        super(Directive, self).__init__(app)
+        super(SettingDirective, self).__init__(app)
         self.section = section
         self.name = name
 
@@ -101,7 +101,7 @@ class SettingSectionDirective(Directive):
           under.
         """
 
-        super(Directive, self).__init__(app)
+        super(SettingSectionDirective, self).__init__(app)
         self.section = section
 
     def prepare(self, obj):

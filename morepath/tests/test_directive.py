@@ -1,7 +1,8 @@
 from .fixtures import (basic, nested, abbr, mapply_bug,
-                       normalmethod, method, conflict, pkg)
+                       normalmethod, method, conflict, pkg, noconverter)
 from morepath import setup
-from morepath.error import ConflictError, MountError, DirectiveError
+from morepath.error import (ConflictError, MountError, DirectiveError,
+                            DirectiveReportError)
 from morepath.view import render_html
 from morepath.app import App
 from morepath.converter import Converter
@@ -123,6 +124,13 @@ def test_scanned_class_method():
 
     root = method.Root()
     assert isinstance(root.class_method(), method.ClassMethod)
+
+
+def test_scanned_no_converter():
+    config = setup()
+    config.scan(noconverter)
+    with pytest.raises(DirectiveReportError):
+        config.commit()
 
 
 def test_scanned_conflict():

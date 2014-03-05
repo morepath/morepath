@@ -789,5 +789,3 @@ def test_path_no_class_and_no_model_argument():
 
     with pytest.raises(ConfigError):
         config.commit()
-
-

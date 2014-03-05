@@ -219,6 +219,13 @@ class Action(object):
         self.configurable = configurable
         self.order = None
 
+    def codeinfo(self):
+        """Info about where in the source code the action was invoked.
+
+        By default there is no code info.
+        """
+        return None
+
     def identifier(self, configurable):
         """Returns an immutable that uniquely identifies this config.
 

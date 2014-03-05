@@ -7,10 +7,7 @@ class ConfigError(Exception):
 
 
 def conflict_keyfunc(action):
-    try:
-        codeinfo = action.codeinfo()
-    except AttributeError:
-        return None
+    codeinfo = action.codeinfo()
     if codeinfo is None:
         return None
     filename, lineno, function, sourceline = codeinfo
@@ -26,10 +23,7 @@ class ConflictError(ConfigError):
         result = [
             'Conflict between:']
         for action in actions:
-            try:
-                codeinfo = action.codeinfo()
-            except AttributeError:
-                continue
+            codeinfo = action.codeinfo()
             if codeinfo is None:
                 continue
             filename, lineno, function, sourceline = codeinfo
@@ -43,10 +37,7 @@ class DirectiveReportError(ConfigError):
     """Raised when there's a problem with a directive.
     """
     def __init__(self, message, action):
-        try:
-            codeinfo = action.codeinfo()
-        except AttributeError:
-            codeinfo = None
+        codeinfo = action.codeinfo()
         result = [message]
         if codeinfo is not None:
             filename, lineno, function, sourceline = codeinfo
