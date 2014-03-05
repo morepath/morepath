@@ -1269,3 +1269,54 @@ def test_mapply_bug():
     response = c.get('/')
 
     assert response.body == 'the root'
+
+
+def test_abbr_imperative():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        pass
+
+    @app.path(path='/', model=Model)
+    def get_model():
+        return Model()
+
+    with app.view(model=Model) as view:
+        @view()
+        def default(self, request):
+            return "Default view"
+
+        @view(name='edit')
+        def edit(self, request):
+            return "Edit view"
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/')
+    assert response.body == 'Default view'
+
+    response = c.get('/edit')
+    assert response.body == 'Edit view'
+
+
+def test_abbr_imperative_exception_propagated():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        pass
+
+    @app.path(path='/', model=Model)
+    def get_model():
+        return Model()
+
+    with pytest.raises(ZeroDivisionError):
+        with app.view(model=Model) as view:
+            @view()
+            def default(self, request):
+                return "Default view"
+
+            1/0
