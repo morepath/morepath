@@ -51,3 +51,9 @@ def test_app_caching_lookup():
     # but different parameters does trigger another call
     lookup.component('bar', [])
     assert myapp.called == 2
+
+
+def test_app_name():
+    app = morepath.App(name='foo')
+    assert repr(app) == "<morepath.App 'foo'>"
+
