@@ -1,5 +1,6 @@
 # taken from pyramid.decorator
 
+
 class reify(object):
     """ Use as a class method decorator.  It operates almost exactly like the
     Python ``@property`` decorator, but it puts the result of the method it
@@ -17,20 +18,20 @@ class reify(object):
 
     And usage of Foo:
 
-    >>> f = Foo()
-    >>> v = f.jammy
+    f = Foo()
+    v = f.jammy
     'jammy called'
-    >>> print(v)
+    print(v)
     1
-    >>> f.jammy
+    print f.jammy
     1
-    >>> # jammy func not called the second time; it replaced itself with 1
+    # jammy func not called the second time; it replaced itself with 1
     """
     def __init__(self, wrapped):
         self.wrapped = wrapped
         try:
             self.__doc__ = wrapped.__doc__
-        except: # pragma: no cover
+        except:  # pragma: no cover
             pass
 
     def __get__(self, inst, objtype=None):
@@ -39,4 +40,3 @@ class reify(object):
         val = self.wrapped(inst)
         setattr(inst, self.wrapped.__name__, val)
         return val
-

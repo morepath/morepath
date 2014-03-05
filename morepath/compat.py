@@ -6,7 +6,7 @@ import sys
 PY3 = sys.version_info[0] == 3
 
 
-if PY3: # pragma: no cover
+if PY3:  # pragma: no cover
     text_type = str
 else:
     text_type = unicode

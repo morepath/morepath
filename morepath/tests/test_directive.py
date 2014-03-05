@@ -7,9 +7,7 @@ from morepath.view import render_html
 from morepath.app import App
 from morepath.converter import Converter
 import morepath
-from morepath.error import LinkError
 import reg
-import webob
 
 import pytest
 from webobtoolkit.client import Client
@@ -1305,9 +1303,10 @@ def test_mount_repr():
     c = Client(app)
 
     response = c.get('/')
-    assert response.body == ("<morepath.Mount of <morepath.App 'mounted'> with "
-                             "variables: id='foo', "
-                             "parent=<morepath.Mount of <morepath.App 'app'>>>")
+    assert response.body == (
+        "<morepath.Mount of <morepath.App 'mounted'> with "
+        "variables: id='foo', "
+        "parent=<morepath.Mount of <morepath.App 'app'>>>")
 
 
 def test_request_view_in_mount():

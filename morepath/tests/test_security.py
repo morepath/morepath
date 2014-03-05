@@ -237,29 +237,34 @@ def test_basic_auth_identity_policy_errors():
     assert response.status == '401 Unauthorized'
 
     # fallback to utf8
-    headers = {'Authorization': 'Basic ' + base64.b64encode(
+    headers = {
+        'Authorization': 'Basic ' + base64.b64encode(
             u'user:sëcret'.encode('utf8'))}
     response = c.get('/foo', headers=headers)
     assert response.body == 'Model: foo'
 
     # fallback to latin1
-    headers = {'Authorization': 'Basic ' + base64.b64encode(
+    headers = {
+        'Authorization': 'Basic ' + base64.b64encode(
             u'user:sëcret'.encode('latin1'))}
     response = c.get('/foo', headers=headers)
     assert response.body == 'Model: foo'
 
     # unknown encoding
-    headers = {'Authorization': 'Basic ' + base64.b64encode(
+    headers = {
+        'Authorization': 'Basic ' + base64.b64encode(
             u'user:sëcret'.encode('cp500'))}
     response = c.get('/foo', headers=headers)
     assert response.status == '401 Unauthorized'
 
-    headers = {'Authorization': 'Basic ' + base64.b64encode(
+    headers = {
+        'Authorization': 'Basic ' + base64.b64encode(
             u'usersëcret'.encode('utf8'))}
     response = c.get('/foo', headers=headers)
     assert response.status == '401 Unauthorized'
 
-    headers = {'Authorization': 'Basic ' + base64.b64encode(
+    headers = {
+        'Authorization': 'Basic ' + base64.b64encode(
             u'user:sëcret:'.encode('utf8'))}
     response = c.get('/foo', headers=headers)
     assert response.status == '401 Unauthorized'

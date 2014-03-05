@@ -1,5 +1,5 @@
 from morepath import generic
-from morepath.traject import Traject, ParameterFactory, Path
+from morepath.traject import ParameterFactory, Path
 from morepath.error import DirectiveError
 
 from reg import arginfo

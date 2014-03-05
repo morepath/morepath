@@ -770,7 +770,6 @@ def test_path_class_and_model_argument():
     class Foo(object):
         pass
 
-
     @app.path(path='', model=Foo)
     class Root(object):
         pass

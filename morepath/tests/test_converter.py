@@ -80,4 +80,3 @@ def test_converter_equality():
     assert three != four
     assert four != five
     assert five != six
-

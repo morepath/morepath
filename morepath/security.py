@@ -3,6 +3,7 @@ from .compat import bytes_
 import binascii
 import base64
 
+
 class NoIdentity(object):
     userid = None
 

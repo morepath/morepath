@@ -22,7 +22,6 @@ class Mount(object):
             result += '>'
         return result
 
-
     @reify
     def lookup(self):
         return self.app.lookup

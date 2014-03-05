@@ -8,6 +8,7 @@ from morepath.core import traject_consume
 import morepath
 import webob
 
+
 def setup_module(module):
     morepath.disable_implicit()
 

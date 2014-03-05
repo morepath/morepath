@@ -2,6 +2,7 @@ from morepath import reify
 
 # from pyramid.tests.test_decorator
 
+
 def test__get__with_inst():
     def wrapped(inst):
         return 'a'
@@ -28,4 +29,3 @@ def test__doc__copied():
 
 class Dummy(object):
     pass
-
