@@ -1,0 +1,17 @@
+import morepath
+
+app = morepath.App()
+
+
+# for which there is no known converter
+class Dummy(object):
+    pass
+
+
+class Foo(object):
+    pass
+
+
+@app.path(path='/', model=Foo)
+def get_foo(a=Dummy()):
+    pass
