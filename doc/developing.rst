@@ -42,7 +42,7 @@ you in the ``bin`` subdirectory of your project::
 
 To generate test coverage information as HTML do::
 
-  $ bin/py.test --cov morepath --cov-report html
+  $ bin/py.test morepath --cov morepath --cov-report html
 
 You can then point your web browser to the ``htmlcov/index.html`` file
 in the project directory and click on modules to see detailed coverage
