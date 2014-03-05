@@ -59,9 +59,6 @@ def get_variables_func(arguments, exclude):
 def register_path(app, model, path, variables, converters, required,
                   model_factory, arguments=None):
     traject = app.traject
-    if traject is None:
-        traject = Traject()
-        app.traject = traject
 
     converters = converters or {}
     if arguments is None:
