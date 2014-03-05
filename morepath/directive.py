@@ -104,9 +104,6 @@ class SettingSectionDirective(Directive):
         super(Directive, self).__init__(app)
         self.section = section
 
-    def identifier(self, app):
-        return self.section
-
     def prepare(self, obj):
         section = obj()
         app = self.configurable
