@@ -91,7 +91,11 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
         return Lookup(CachingClassLookup(self))
 
     def set_implicit(self):
-        pass
+        """Set app's lookup as implicit reg lookup.
+
+        Only does something if implicit mode is enabled. If disabled,
+        has no effect.
+        """
 
     def request(self, environ):
         """Create a :class:`Request` given WSGI environment.
@@ -124,7 +128,7 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
         """
         return self._app_mount(environ, start_response)
 
-    def run(self, host=None, port=None):
+    def run(self, host=None, port=None):  # pragma: no cover
         """Use wsgiref.simple_server to run application.
 
         :param host: hostname
