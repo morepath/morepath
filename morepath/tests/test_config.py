@@ -139,6 +139,7 @@ def test_directive_testing_config_external():
 
     # we set up testing config later
     x.testing_config = c
+    assert x.testing_config is c
 
     # even setting it up later will find us the configurable
     assert c.configurables == [x]
