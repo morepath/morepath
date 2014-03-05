@@ -101,13 +101,14 @@ def morepath_packages():
         if dist.has_metadata('namespace_packages.txt'):
             data = dist.get_metadata('namespace_packages.txt')
             for ns in data.split('\n'):
-                namespace_packages.add(ns.strip())
+                ns = ns.strip()
+                if ns:
+                    namespace_packages.add(ns)
         paths.append(dist.location)
 
     seen = set()
 
-    for importer, dotted_name, is_pkg in walk_packages(paths,
-                                                       onerror=skip_error):
+    for importer, dotted_name, is_pkg in walk_packages(paths):
         if not is_pkg:
             continue
         if dotted_name in namespace_packages:
@@ -115,10 +116,11 @@ def morepath_packages():
         if known_prefix(dotted_name, seen):
             continue
         for prefix in prefixes(dotted_name):
-            seen.add(prefix)
+            if prefix not in namespace_packages:
+                seen.add(prefix)
         m = importer.find_module(dotted_name).load_module(dotted_name)
         # XXX hack to work around bug in walk_packages that will load
-        # more than one namespace package
+        # more than one namespace package: http://bugs.python.org/issue14787
         # XXX performance
         if in_path(m, paths):
             yield m
@@ -126,6 +128,7 @@ def morepath_packages():
 
 def prefixes(dottedname):
     parts = dottedname.split('.')
+    yield dottedname
     for i in range(1, len(parts)):
         yield '.'.join(parts[:i])
 
@@ -143,7 +146,3 @@ def in_path(m, paths):
             if p.startswith(path):
                 return True
     return False
-
-
-def skip_error(pkg):
-    pass

@@ -11,8 +11,10 @@ def test_import():
     import base
     import sub
     from ns import real
+    from ns import real2
     assert sorted(list(morepath_packages()),
-                  key=lambda module: module.__name__) == [base, real, sub]
+                  key=lambda module: module.__name__) == [
+        base, real, real2, sub]
 
 
 def test_autoconfig():
