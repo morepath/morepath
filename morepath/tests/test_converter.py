@@ -50,3 +50,34 @@ def test_converter_registry_inheritance():
     assert r.converter_for_value('s') is None
     assert r.converter_for_type(Lifeform).decode('elephant') is elephant
     assert r.converter_for_type(Lifeform).encode(seaweed) == 'seaweed'
+
+
+def test_converter_equality():
+    def decode():
+        pass
+
+    def encode():
+        pass
+
+    def other_encode():
+        pass
+
+    def other_decode():
+        pass
+
+    one = Converter(decode, encode)
+    two = Converter(decode, encode)
+    three = Converter(other_decode, other_encode)
+    four = Converter(decode, other_encode)
+    five = Converter(other_decode, encode)
+    six = Converter(decode)
+
+    assert one == two
+    assert one != three
+    assert one != four
+    assert one != five
+    assert one != six
+    assert three != four
+    assert four != five
+    assert five != six
+
