@@ -64,7 +64,8 @@ def get_view_name(stack):
         return DEFAULT_NAME
     elif unconsumed_amount == 1:
         return stack[0].lstrip('+')
-    assert False, "Unconsumed stack: %s" % create_path(stack)
+    assert False, ("Unconsumed stack: %s" %
+                   create_path(stack))  # pragma: nocoverage
 
 
 def publish(request):
@@ -74,7 +75,7 @@ def publish(request):
     except HTTPException as e:
         return e
     except (SystemExit, KeyboardInterrupt) as e:
-        raise
+        raise  # pragma: nocoverage XXX can be tested?
     except:
         print_exc(file=sys.stderr)
         return HTTPInternalServerError()
