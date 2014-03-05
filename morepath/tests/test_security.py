@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import morepath
 from morepath import setup
 from morepath.request import Response
@@ -182,6 +183,86 @@ def test_basic_auth_identity_policy():
     headers = {'Authorization': 'Basic ' + base64.b64encode('user:secret')}
     response = c.get('/foo', headers=headers)
     assert response.body == 'Model: foo'
+
+
+def test_basic_auth_identity_policy_errors():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    class Permission(object):
+        pass
+
+    @app.path(model=Model, path='{id}',
+              variables=lambda model: {'id': model.id})
+    def get_model(id):
+        return Model(id)
+
+    @app.permission(model=Model, permission=Permission)
+    def get_permission(identity, model, permission):
+        return identity.userid == 'user' and identity.password == u'sëcret'
+
+    @app.view(model=Model, permission=Permission)
+    def default(self, request):
+        return "Model: %s" % self.id
+
+    @app.identity_policy()
+    def policy():
+        return BasicAuthIdentityPolicy()
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/foo')
+    assert response.status == '401 Unauthorized'
+
+    headers = {'Authorization': 'Something'}
+    response = c.get('/foo', headers=headers)
+    assert response.status == '401 Unauthorized'
+
+    headers = {'Authorization': 'Something other'}
+    response = c.get('/foo', headers=headers)
+    assert response.status == '401 Unauthorized'
+
+    headers = {'Authorization': 'Basic ' + 'nonsense'}
+    response = c.get('/foo', headers=headers)
+    assert response.status == '401 Unauthorized'
+
+    headers = {'Authorization': 'Basic ' + 'nonsense1'}
+    response = c.get('/foo', headers=headers)
+    assert response.status == '401 Unauthorized'
+
+    # fallback to utf8
+    headers = {'Authorization': 'Basic ' + base64.b64encode(
+            u'user:sëcret'.encode('utf8'))}
+    response = c.get('/foo', headers=headers)
+    assert response.body == 'Model: foo'
+
+    # fallback to latin1
+    headers = {'Authorization': 'Basic ' + base64.b64encode(
+            u'user:sëcret'.encode('latin1'))}
+    response = c.get('/foo', headers=headers)
+    assert response.body == 'Model: foo'
+
+    # unknown encoding
+    headers = {'Authorization': 'Basic ' + base64.b64encode(
+            u'user:sëcret'.encode('cp500'))}
+    response = c.get('/foo', headers=headers)
+    assert response.status == '401 Unauthorized'
+
+    headers = {'Authorization': 'Basic ' + base64.b64encode(
+            u'usersëcret'.encode('utf8'))}
+    response = c.get('/foo', headers=headers)
+    assert response.status == '401 Unauthorized'
+
+    headers = {'Authorization': 'Basic ' + base64.b64encode(
+            u'user:sëcret:'.encode('utf8'))}
+    response = c.get('/foo', headers=headers)
+    assert response.status == '401 Unauthorized'
 
 
 def test_basic_auth_remember():

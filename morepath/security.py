@@ -65,9 +65,6 @@ class BasicAuthIdentityPolicy(object):
         auth = parse_basic_auth(header)
         if auth is None:
             return None
-        if auth.password is None:
-            # not basic auth
-            return None
         return Identity(userid=auth.username, password=auth.password)
 
     def remember(self, response, request, identity):
@@ -114,7 +111,11 @@ class BasicAuthInfo(object):
 # code taken from
 # pyramid.authentication.BasicAuthenticationPolicy._get_credentials
 def parse_basic_auth(value):
-    authtype, params = parse_auth(value)
+    try:
+        authtype, params = parse_auth(value)
+    except ValueError:
+        return None
+
     if authtype != 'Basic':
         return None
     try:
@@ -127,6 +128,7 @@ def parse_basic_auth(value):
     try:
         auth = authbytes.decode('utf-8')
     except UnicodeDecodeError:
+        # might get nonsense but normally not get decode error
         auth = authbytes.decode('latin-1')
 
     try:
