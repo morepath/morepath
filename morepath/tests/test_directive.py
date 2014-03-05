@@ -1,4 +1,5 @@
-from .fixtures import basic, nested, abbr, mapply_bug, normalmethod, method
+from .fixtures import (basic, nested, abbr, mapply_bug,
+                       normalmethod, method, conflict)
 from morepath import setup
 from morepath.error import ConflictError, MountError, DirectiveError
 from morepath.view import render_html
@@ -122,6 +123,13 @@ def test_scanned_class_method():
 
     root = method.Root()
     assert isinstance(root.class_method(), method.ClassMethod)
+
+
+def test_scanned_conflict():
+    config = setup()
+    config.scan(conflict)
+    with pytest.raises(ConflictError):
+        config.commit()
 
 
 def test_imperative():

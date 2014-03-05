@@ -131,7 +131,7 @@ def group_key(action):
         if c is Directive or c is Action:
             return found
         found = c
-    assert False
+    assert False  # pragma: nocoverage
 
 
 class Actions(object):
