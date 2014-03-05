@@ -125,8 +125,6 @@ def get_response(request, model):
 
 @global_app.function(generic.permits, object, object, object)
 def has_permission(identity, model, permission):
-    if permission is None:
-        return True
     return False
 
 
