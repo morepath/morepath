@@ -52,7 +52,7 @@ But what if you want to do something different for a particular
 subclass? What if ``MySpecialContainer`` needs it own custom default
 view? Easy::
 
-  @app.view(model=MySpecialContainer):
+  @app.view(model=MySpecialContainer)
   def special_overview(self, request):
       return "A special overview!"
 
@@ -72,7 +72,7 @@ Morepath features a very flexible but easy to use permission system.
 Let's say we have an ``Edit`` permission; it's just a class::
 
   class Edit(object):
-     pass
+      pass
 
 And we have a view for some ``Document`` class that we only want to be
 accessible if the user has an edit permission::
@@ -109,7 +109,7 @@ can write this::
 
   @app.json(model=DocumentContainer)
   def document_container_json(self, request):
-     return [document_json(request, doc) for doc in self.entries()]
+      return [document_json(request, doc) for doc in self.entries()]
 
 Here we've used ``document_json`` ourselves. But what now if the
 container does not only contain ``Document`` instances? What if one of
@@ -119,7 +119,7 @@ function breaks. How to fix it? Easy, we can use
 
   @app.json(model=DocumentContainer)
   def document_container_json(self, request):
-     return [request.view(doc) for doc in self.entries()]
+      return [request.view(doc) for doc in self.entries()]
 
 Now ``document_container_json`` works for anything in the container
 model that has a default view!
@@ -149,7 +149,7 @@ to override that one view to do what we want::
 
   @app.view(model=Document)
   def whatwewant(self, request):
-     return "The right thing!"
+      return "The right thing!"
 
 And we're done!
 
