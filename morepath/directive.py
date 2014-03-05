@@ -553,10 +553,6 @@ class IdentityPolicyDirective(Directive):
         '''
         super(IdentityPolicyDirective, self).__init__(app)
 
-    def identifier(self, app):
-        # there can be only one
-        return None
-
     def prepare(self, obj):
         policy = obj()
         app = self.configurable
