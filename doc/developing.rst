@@ -4,6 +4,8 @@ Developing Morepath
 Install Morepath for development
 --------------------------------
 
+.. highlight:: sh
+
 First make sure you have virtualenv_ installed for Python 2.7.
 
 .. _virtualenv: https://pypi.python.org/pypi/virtualenv
@@ -50,13 +52,14 @@ information.
 
 .. _`py.test`: http://pytest.org/latest/
 
-Various checking tools
-----------------------
+flake8
+------
 
 The buildout also installs flake8_, which is a tool that
-can do various checks for common Python mistakes using pyflakes_,
-check for PEP8_ style compliance and can do `cyclomatic complexity`_
-checking. To do pyflakes and pep8 checking do::
+can do various checks for common Python mistakes using pyflakes_ and
+checks for PEP8_ style compliance.
+
+To do pyflakes and pep8 checking do::
 
   $ bin/flake8 morepath
 
@@ -66,8 +69,24 @@ checking. To do pyflakes and pep8 checking do::
 
 .. _pep8: http://www.python.org/dev/peps/pep-0008/
 
+radon
+-----
+
+The buildout installs radon_. This is a tool that can check various
+measures of code complexity.
+
+To check for `cyclomatic complexity`_ (excluding the tests)::
+
+  $ bin/radon cc morepath -e "morepath/tests*"
+
+To filter for anything not ranked ``A``::
+
+  $ bin/radon cc morepath --min B -e "morepath/tests*"
+
+And to see the maintainability index::
+
+  $ bin/radon mi morepath -e "morepath/tests*"
+
+.. _radon: https://radon.readthedocs.org/en/latest/commandline.html
+
 .. _`cyclomatic complexity`: https://en.wikipedia.org/wiki/Cyclomatic_complexity
-
-To also show cyclomatic complexity, use this command::
-
-  $ bin/flake8 --max-complexity=10 morepath
