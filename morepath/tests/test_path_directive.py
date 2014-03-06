@@ -199,7 +199,6 @@ def test_variable_path_explicit_converter():
     assert response.body == '/1'
 
     response = c.get('/broken', status=404)
-    assert response.status == '404 Not Found'
 
 
 def test_variable_path_implicit_converter():
@@ -233,7 +232,6 @@ def test_variable_path_implicit_converter():
     assert response.body == '/1'
 
     response = c.get('/broken', status=404)
-    assert response.status == '404 Not Found'
 
 
 def test_variable_path_explicit_trumps_implicit():
@@ -268,7 +266,6 @@ def test_variable_path_explicit_trumps_implicit():
     assert response.body == '/1'
 
     response = c.get('/broken', status=404)
-    assert response.status == '404 Not Found'
 
 
 def test_url_parameter_explicit_converter():
@@ -303,7 +300,6 @@ def test_url_parameter_explicit_converter():
     assert response.body == '/?id=1'
 
     response = c.get('/?id=broken', status=400)
-    assert response.status == '400 Bad Request'
 
     response = c.get('/')
     assert response.body == "View: None (<type 'NoneType'>)"
@@ -340,7 +336,6 @@ def test_url_parameter_implicit_converter():
     assert response.body == '/?id=1'
 
     response = c.get('/?id=broken', status=400)
-    assert response.status == '400 Bad Request'
 
     response = c.get('/')
     assert response.body == "View: 0 (<type 'int'>)"
@@ -378,7 +373,6 @@ def test_url_parameter_explicit_trumps_implicit():
     assert response.body == '/?id=1'
 
     response = c.get('/?id=broken', status=400)
-    assert response.status == '400 Bad Request'
 
     response = c.get('/')
     assert response.body == "View: foo (<type 'str'>)"
@@ -488,7 +482,6 @@ def test_default_date_converter():
     assert response.body == '/?d=20110101'
 
     response = c.get('/?d=broken', status=400)
-    assert response.status == '400 Bad Request'
 
 
 def test_default_datetime_converter():
@@ -530,7 +523,6 @@ def test_default_datetime_converter():
     assert response.body == '/?d=20110101T103000'
 
     response = c.get('/?d=broken', status=400)
-    assert response.status == '400 Bad Request'
 
 
 def test_custom_date_converter():
@@ -583,7 +575,6 @@ def test_custom_date_converter():
     assert response.body == '/?d=01-01-2011'
 
     response = c.get('/?d=broken', status=400)
-    assert response.status == '400 Bad Request'
 
 
 def test_variable_path_parameter_required_no_default():
@@ -614,7 +605,6 @@ def test_variable_path_parameter_required_no_default():
     assert response.body == "View: a"
 
     response = c.get('/', status=400)
-    assert response.status == '400 Bad Request'
 
 
 def test_variable_path_parameter_required_with_default():
@@ -645,7 +635,6 @@ def test_variable_path_parameter_required_with_default():
     assert response.body == "View: a"
 
     response = c.get('/', status=400)
-    assert response.status == '400 Bad Request'
 
 
 def test_type_hints_and_converters():

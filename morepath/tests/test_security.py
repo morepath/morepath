@@ -125,8 +125,6 @@ def test_permission_directive_no_identity():
     assert response.body == 'Model: foo'
     response = c.get('/bar', status=401)
 
-    #assert response.status == '401 Unauthorized'
-
 
 def test_policy_action():
     config = setup()
@@ -138,7 +136,6 @@ def test_policy_action():
     response = c.get('/foo')
     assert response.body == 'Model: foo'
     response = c.get('/bar', status=401)
-    #assert response.status == '401 Unauthorized'
 
 
 def test_basic_auth_identity_policy():
@@ -174,11 +171,9 @@ def test_basic_auth_identity_policy():
     c = Client(app)
 
     response = c.get('/foo', status=401)
-    assert response.status == '401 Unauthorized'
 
     headers = {'Authorization': 'Basic ' + base64.b64encode('user:wrong')}
     response = c.get('/foo', headers=headers, status=401)
-    assert response.status == '401 Unauthorized'
 
     headers = {'Authorization': 'Basic ' + base64.b64encode('user:secret')}
     response = c.get('/foo', headers=headers)
@@ -218,23 +213,18 @@ def test_basic_auth_identity_policy_errors():
     c = Client(app)
 
     response = c.get('/foo', status=401)
-    assert response.status == '401 Unauthorized'
 
     headers = {'Authorization': 'Something'}
     response = c.get('/foo', headers=headers, status=401)
-    assert response.status == '401 Unauthorized'
 
     headers = {'Authorization': 'Something other'}
     response = c.get('/foo', headers=headers, status=401)
-    assert response.status == '401 Unauthorized'
 
     headers = {'Authorization': 'Basic ' + 'nonsense'}
     response = c.get('/foo', headers=headers, status=401)
-    assert response.status == '401 Unauthorized'
 
     headers = {'Authorization': 'Basic ' + 'nonsense1'}
     response = c.get('/foo', headers=headers, status=401)
-    assert response.status == '401 Unauthorized'
 
     # fallback to utf8
     headers = {
@@ -255,19 +245,16 @@ def test_basic_auth_identity_policy_errors():
         'Authorization': 'Basic ' + base64.b64encode(
             u'user:sëcret'.encode('cp500'))}
     response = c.get('/foo', headers=headers, status=401)
-    assert response.status == '401 Unauthorized'
 
     headers = {
         'Authorization': 'Basic ' + base64.b64encode(
             u'usersëcret'.encode('utf8'))}
     response = c.get('/foo', headers=headers, status=401)
-    assert response.status == '401 Unauthorized'
 
     headers = {
         'Authorization': 'Basic ' + base64.b64encode(
             u'user:sëcret:'.encode('utf8'))}
     response = c.get('/foo', headers=headers, status=401)
-    assert response.status == '401 Unauthorized'
 
 
 def test_basic_auth_remember():
@@ -298,7 +285,6 @@ def test_basic_auth_remember():
     c = Client(app)
 
     response = c.get('/foo', status=200)
-    #assert response.status == '200 OK'
     assert response.body == ''
 
 
@@ -328,7 +314,6 @@ def test_basic_auth_forget():
     c = Client(app)
 
     response = c.get('/foo', status=200)
-    assert response.status == '200 OK'
     assert response.body == ''
 
     assert sorted(response.headers.items()) == [
@@ -401,15 +386,12 @@ def test_cookie_identity_policy():
     c = Client(app, cookiejar=CookieJar())
 
     response = c.get('/foo', status=401)
-    assert response.status == '401 Unauthorized'
 
     response = c.get('/foo/log_in')
 
     response = c.get('/foo', status=200)
-    assert response.status == '200 OK'
     assert response.body == 'Model: foo'
 
     response = c.get('/foo/log_out')
 
     response = c.get('/foo', status=401)
-    assert response.status == '401 Unauthorized'

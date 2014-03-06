@@ -86,7 +86,6 @@ def test_notfound_with_predicates():
     request.unconsumed = ['foo']
     with pytest.raises(HTTPNotFound):
         resolve_response(request, model)
-    #assert response.status == '404 NoT Found'
 
 
 def test_response_returned():
@@ -183,7 +182,6 @@ def test_view_raises_http_error():
     request.mounts.append(app.mounted())
 
     response = publish(request)
-
     assert response.status == '400 Bad Request'
 
 

@@ -32,7 +32,6 @@ def test_extends():
     response = cl.get('/users/foo')
     assert response.body == 'User: foo'
     response = cl.get('/users/foo/edit', status=404)
-    assert response.status == '404 Not Found'
 
     cl = Client(extending)
     response = cl.get('/users/foo')
@@ -100,6 +99,5 @@ def test_overrides_model():
 
     cl = Client(overriding)
     response = cl.get('/users/foo', status=404)
-    assert response.status == '404 Not Found'
     response = cl.get('/users/bar')
     assert response.body == 'User: bar'
