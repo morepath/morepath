@@ -381,3 +381,51 @@ You can also use ``predicates`` in ``request.view``. Here we get the
 view with the ``name`` ``"edit"`` and the ``request_predicate`` ``"POST"``::
 
   request.view(item, name="edit", request_predicate="POST")
+
+Exception views
+---------------
+
+Sometimes your application raises an exception. This can either be a
+HTTP exception, for instance when the user goes to a URL that does not
+exist, or an arbitrary exception raised by the application.
+
+HTTP exceptions are by default rendered in the standard WebOb way,
+which includes some text to describe Not Found, etc. Other exceptions
+are normally caught by the web server and result in a HTTP 500 error
+(internal server error).
+
+You may instead want to customize what these exceptions look like. You
+can do so by declaring a view using the exception class as the
+model. Here's how you make a custom 404 Not Found::
+
+  from webob.exc import HTTPNotFound
+
+  @app.view(model=HTTPNotFound)
+  def notfound_custom(self, request):
+      def set_status_code(response):
+          response.status_code = self.code # pass along 404
+      request.after(set_status_code)
+      return "My custom not found!"
+
+We have to add the ``set_status_code`` to make sure the response is
+still a 404; otherwise we change the 404 to a 200 Ok! This shows that
+``self`` is indeed an instance of ``HTTPNotFound`` and we can access
+its ``code`` attribute.
+
+Your application may also define its own custom exceptions that have
+a meaning particular to the application. You can create custom views for
+those as well::
+
+  class MyException(Exception):
+      pass
+
+  @app.view(model=MyException)
+  def myexception_default(self, request):
+       return "My exception"
+
+Without an exception view for ``MyException`` any view code that raises
+``MyException`` would bubble all the way up to the WSGI server and
+a 500 Internal Server Error is generated.
+
+But with the view for ``MyException`` in place, whenever
+``MyException`` is raised you get the special view instead.
