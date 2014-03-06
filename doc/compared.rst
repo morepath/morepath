@@ -55,7 +55,7 @@ awareness of models.
 
 Paradoxically enough one thing Morepath is opinionated about is
 *flexibility*, as that's part of its mission to be a good foundation.
-That's what is configuration and generic function systems are all
+That's what its configuration and generic function systems are all
 about. Want to change behavior? You can override everything. Even core
 behavior of Morepath can be changed by overriding its generic
 functions. This makes Morepath like Zope, and especially like
