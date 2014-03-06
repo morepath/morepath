@@ -38,7 +38,6 @@ class Request(BaseRequest):
         return generic.identify(self, lookup=self.lookup,
                                 default=NO_IDENTITY)
 
-    # XXX how to make view in other application context?
     def view(self, model, mounted=None, default=None, **predicates):
         """Call view for model.
 
@@ -78,7 +77,7 @@ class Request(BaseRequest):
         :param name: the name of the view to link to. If omitted, the
           the default view is looked up.
         :param mounted: a :class:`morepath.mount.Mount` instance for
-          which the view should be looked up. If ommitted, this is the
+          for which the link should be made. If ommitted, this is the
           current mount.
         :param default: if ``None`` is passed in, the default value is
           returned. By default this is ``None``.
