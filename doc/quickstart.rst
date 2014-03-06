@@ -311,7 +311,7 @@ What if we want to see Bob's edit view? We do this::
 
   request.link(bob, 'edit')
 
-And we'll get ``/users/bob/edit``.
+And we get ``/users/bob/edit``.
 
 Using :meth:`morepath.Request.link`` everywhere for link generation is
 easy. You only need models and remember which view names are
