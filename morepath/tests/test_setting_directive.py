@@ -1,7 +1,7 @@
 import morepath
 from morepath.error import ConflictError
 import pytest
-from webobtoolkit.client import Client
+from webtest import TestApp as Client
 
 
 def setup_module(module):

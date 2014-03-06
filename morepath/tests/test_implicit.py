@@ -1,6 +1,6 @@
 import morepath
 import reg
-from webobtoolkit.client import Client
+from webtest import TestApp as Client
 
 
 def setup_module(module):

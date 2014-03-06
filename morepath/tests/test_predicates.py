@@ -1,7 +1,7 @@
 from morepath.app import App
 from morepath import setup
 
-from webobtoolkit.client import Client
+from webtest import TestApp as Client
 import morepath
 
 

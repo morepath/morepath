@@ -10,7 +10,7 @@ import morepath
 import reg
 
 import pytest
-from webobtoolkit.client import Client
+from webtest import TestApp as Client
 
 
 def setup_module(module):
@@ -584,7 +584,7 @@ def test_convert_exception_to_internal_error():
 
     c = Client(app)
 
-    response = c.get('/')
+    response = c.get('/', status=500)
     assert response.status == '500 Internal Server Error'
 
 

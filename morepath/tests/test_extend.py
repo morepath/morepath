@@ -1,6 +1,6 @@
 from morepath.app import App
 from morepath import setup
-from webobtoolkit.client import Client
+from webtest import TestApp as Client
 import morepath
 
 
@@ -31,7 +31,7 @@ def test_extends():
     cl = Client(app)
     response = cl.get('/users/foo')
     assert response.body == 'User: foo'
-    response = cl.get('/users/foo/edit')
+    response = cl.get('/users/foo/edit', status=404)
     assert response.status == '404 Not Found'
 
     cl = Client(extending)
@@ -99,7 +99,7 @@ def test_overrides_model():
     assert response.body == 'User: bar'
 
     cl = Client(overriding)
-    response = cl.get('/users/foo')
+    response = cl.get('/users/foo', status=404)
     assert response.status == '404 Not Found'
     response = cl.get('/users/bar')
     assert response.body == 'User: bar'

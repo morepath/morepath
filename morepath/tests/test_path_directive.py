@@ -3,7 +3,7 @@ from morepath import setup
 from morepath.converter import Converter
 from morepath.error import DirectiveReportError, ConfigError
 
-from webobtoolkit.client import Client
+from webtest import TestApp as Client
 import pytest
 
 
@@ -160,7 +160,7 @@ def test_variable_path_two_variables():
 
     c = Client(app)
 
-    response = c.get('foo-one')
+    response = c.get('/foo-one')
     assert response.body == 'View: foo one'
 
     response = c.get('/foo-one/link')
@@ -192,13 +192,13 @@ def test_variable_path_explicit_converter():
 
     c = Client(app)
 
-    response = c.get('1')
+    response = c.get('/1')
     assert response.body == "View: 1 (<type 'int'>)"
 
     response = c.get('/1/link')
     assert response.body == '/1'
 
-    response = c.get('broken')
+    response = c.get('/broken', status=404)
     assert response.status == '404 Not Found'
 
 
@@ -226,13 +226,13 @@ def test_variable_path_implicit_converter():
 
     c = Client(app)
 
-    response = c.get('1')
+    response = c.get('/1')
     assert response.body == "View: 1 (<type 'int'>)"
 
     response = c.get('/1/link')
     assert response.body == '/1'
 
-    response = c.get('broken')
+    response = c.get('/broken', status=404)
     assert response.status == '404 Not Found'
 
 
@@ -261,13 +261,13 @@ def test_variable_path_explicit_trumps_implicit():
 
     c = Client(app)
 
-    response = c.get('1')
+    response = c.get('/1')
     assert response.body == "View: 1 (<type 'int'>)"
 
     response = c.get('/1/link')
     assert response.body == '/1'
 
-    response = c.get('broken')
+    response = c.get('/broken', status=404)
     assert response.status == '404 Not Found'
 
 
@@ -302,7 +302,7 @@ def test_url_parameter_explicit_converter():
     response = c.get('/link?id=1')
     assert response.body == '/?id=1'
 
-    response = c.get('/?id=broken')
+    response = c.get('/?id=broken', status=400)
     assert response.status == '400 Bad Request'
 
     response = c.get('/')
@@ -339,7 +339,7 @@ def test_url_parameter_implicit_converter():
     response = c.get('/link?id=1')
     assert response.body == '/?id=1'
 
-    response = c.get('/?id=broken')
+    response = c.get('/?id=broken', status=400)
     assert response.status == '400 Bad Request'
 
     response = c.get('/')
@@ -377,7 +377,7 @@ def test_url_parameter_explicit_trumps_implicit():
     response = c.get('/link?id=1')
     assert response.body == '/?id=1'
 
-    response = c.get('/?id=broken')
+    response = c.get('/?id=broken', status=400)
     assert response.status == '400 Bad Request'
 
     response = c.get('/')
@@ -487,7 +487,7 @@ def test_default_date_converter():
     response = c.get('/link')
     assert response.body == '/?d=20110101'
 
-    response = c.get('/?d=broken')
+    response = c.get('/?d=broken', status=400)
     assert response.status == '400 Bad Request'
 
 
@@ -529,7 +529,7 @@ def test_default_datetime_converter():
     response = c.get('/link')
     assert response.body == '/?d=20110101T103000'
 
-    response = c.get('/?d=broken')
+    response = c.get('/?d=broken', status=400)
     assert response.status == '400 Bad Request'
 
 
@@ -582,7 +582,7 @@ def test_custom_date_converter():
     response = c.get('/link')
     assert response.body == '/?d=01-01-2011'
 
-    response = c.get('/?d=broken')
+    response = c.get('/?d=broken', status=400)
     assert response.status == '400 Bad Request'
 
 
@@ -613,7 +613,7 @@ def test_variable_path_parameter_required_no_default():
     response = c.get('/?id=a')
     assert response.body == "View: a"
 
-    response = c.get('/')
+    response = c.get('/', status=400)
     assert response.status == '400 Bad Request'
 
 
@@ -644,7 +644,7 @@ def test_variable_path_parameter_required_with_default():
     response = c.get('/?id=a')
     assert response.body == "View: a"
 
-    response = c.get('/')
+    response = c.get('/', status=400)
     assert response.status == '400 Bad Request'
 
 

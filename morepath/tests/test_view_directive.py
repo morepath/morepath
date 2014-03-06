@@ -1,6 +1,6 @@
 import morepath
 from morepath.error import ConflictError
-from webobtoolkit.client import Client
+from webtest import TestApp as Client
 import pytest
 
 
@@ -27,8 +27,7 @@ def test_view_get_only():
     response = c.get('/')
     assert response.body == 'View'
 
-    response = c.post('/')
-    assert response.status == '405 Method Not Allowed'
+    response = c.post('/', status=405)
 
 
 def test_view_any():

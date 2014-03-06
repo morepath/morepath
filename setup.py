@@ -19,6 +19,6 @@ setup(name='morepath',
       extras_require = dict(
         test=['pytest >= 2.0',
               'pytest-cov',
-              'webobtoolkit'],
+              'WebTest >= 2.0.14'],
         ),
       )

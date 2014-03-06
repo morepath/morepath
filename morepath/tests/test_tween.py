@@ -2,7 +2,7 @@ import morepath
 from morepath.tween import TweenRegistry
 from morepath.error import TopologicalSortError
 import pytest
-from webobtoolkit.client import Client
+from webtest import TestApp as Client
 
 
 def setup_module(module):
