@@ -1,6 +1,6 @@
 # flake8: noqa
 from .app import App, AppBase, global_app, enable_implicit, disable_implicit
-from .core import setup
+from .core import setup, excview_tween_factory as EXCVIEW
 from morepath import directive # register directive methods
 from .generic import remember, forget, settings
 from .view import render_json, render_html

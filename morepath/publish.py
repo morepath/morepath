@@ -50,9 +50,7 @@ def resolve_response(request, model):
     response = generic.response(request, model, default=RESPONSE_SENTINEL,
                                 lookup=request.lookup)
     if response is RESPONSE_SENTINEL:
-        # XXX lookup error view and fallback to default
         raise HTTPNotFound()
-    request.run_after(response)
     return response
 
 
@@ -69,13 +67,5 @@ def get_view_name(stack):
 
 
 def publish(request):
-    try:
-        model = resolve_model(request)
-        return resolve_response(request, model)
-    except HTTPException as e:
-        return e
-    except (SystemExit, KeyboardInterrupt) as e:
-        raise  # pragma: nocoverage XXX can be tested?
-    except:
-        print_exc(file=sys.stderr)
-        return HTTPInternalServerError()
+    model = resolve_model(request)
+    return resolve_response(request, model)

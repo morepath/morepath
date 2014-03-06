@@ -566,27 +566,6 @@ def test_implicit_parameters_default():
     assert response.body == '/foo?id=bar'
 
 
-def test_convert_exception_to_internal_error():
-    config = setup()
-    app = morepath.App(testing_config=config)
-
-    @app.path(path='')
-    class Root(object):
-        def __init__(self):
-            self.value = 'ROOT'
-
-    @app.view(model=Root)
-    def default(self, request):
-        1/0
-        return ''
-
-    config.commit()
-
-    c = Client(app)
-
-    c.get('/', status=500)
-
-
 def test_simple_root():
     config = setup()
     app = morepath.App(testing_config=config)

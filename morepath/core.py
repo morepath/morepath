@@ -8,7 +8,7 @@ from .error import LinkError
 from .request import Request, Response
 from .converter import Converter, IDENTITY_CONVERTER
 from webob import Response as BaseResponse
-from webob.exc import HTTPUnauthorized, HTTPMethodNotAllowed
+from webob.exc import HTTPException, HTTPUnauthorized, HTTPMethodNotAllowed
 import morepath
 from reg import mapply, KeyIndex
 from datetime import datetime, date
@@ -99,9 +99,10 @@ def mount_context(mount):
 
 
 @global_app.function(generic.response, Request, object)
-def get_response(request, model):
+def get_response(request, model, predicates=None):
     view = generic.view.component(
         request, model, lookup=request.lookup,
+        predicates=predicates,
         default=None)
     if view is None:
         return None
@@ -120,6 +121,7 @@ def get_response(request, model):
         response = view.render(content)
     else:
         response = Response(content, content_type='text/plain')
+    request.run_after(response)
     return response
 
 
@@ -185,3 +187,26 @@ def datetime_encode(d):
 @global_app.converter(type=datetime)
 def datetime_converter():
     return Converter(datetime_decode, datetime_encode)
+
+
+@global_app.tween_factory()
+def excview_tween_factory(app, handler):
+    def excview_tween(request):
+        try:
+            response = handler(request)
+        except Exception as exc:
+            # override predicates so that they aren't taken from request;
+            # default name and GET is correct for exception views.
+            response = generic.response(request, exc, lookup=app.lookup,
+                                        default=None, predicates={})
+            if response is None:
+                raise
+            return response
+        return response
+    return excview_tween
+
+
+@global_app.view(model=HTTPException)
+def standard_exception_view(self, model):
+    # webob HTTPException is a response already
+    return self

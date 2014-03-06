@@ -68,8 +68,8 @@ def test_notfound():
     request = app.request(get_environ(path=''))
     request.mounts.append(app.mounted())
 
-    response = publish(request)
-    assert response.status == '404 Not Found'
+    with pytest.raises(HTTPNotFound):
+        response = publish(request)
 
 
 def test_notfound_with_predicates():
@@ -181,8 +181,8 @@ def test_view_raises_http_error():
     request = app.request(get_environ(path='foo'))
     request.mounts.append(app.mounted())
 
-    response = publish(request)
-    assert response.status == '400 Bad Request'
+    with pytest.raises(HTTPBadRequest):
+        response = publish(request)
 
 
 def test_view_after():
