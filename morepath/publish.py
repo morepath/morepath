@@ -1,9 +1,7 @@
 from morepath import generic
 from .mount import Mount
 from .traject import create_path
-from webob.exc import HTTPException, HTTPNotFound, HTTPInternalServerError
-import sys
-from traceback import print_exc
+from webob.exc import HTTPNotFound
 
 
 DEFAULT_NAME = u''
