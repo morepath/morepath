@@ -109,7 +109,7 @@ paths in a single application, like this::
 We could try to implement settings, issues and wiki as views on
 repository, but these are complicated pieces of functionality that
 benefit from having sub-URLs (i.e. ``issues/12`` or
-``...wiki/mypage``), so we'll model them using paths as well::
+``...wiki/mypage``), so we model them using paths as well::
 
   @app.path(path='{user_name}/{repository_name}/settings', model=Settings)
   def get_settings(user_name, repository_name):
