@@ -1,0 +1,389 @@
+import morepath
+from morepath import setup
+from morepath.error import LinkError, ConflictError
+from webtest import TestApp as Client
+import pytest
+
+
+def test_model_mount_conflict():
+    config = setup()
+    app = morepath.App(testing_config=config)
+    app2 = morepath.App(testing_config=config)
+
+    class A(object):
+        pass
+
+    @app.path(model=A, path='a')
+    def get_a():
+        return A()
+
+    @app.mount(app=app2, path='a')
+    def get_mount():
+        return {}
+
+    with pytest.raises(ConflictError):
+        config.commit()
+
+
+def test_mount():
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+    mounted = morepath.App('mounted', testing_config=config)
+
+    @mounted.path(path='')
+    class MountedRoot(object):
+        pass
+
+    @mounted.view(model=MountedRoot)
+    def root_default(self, request):
+        return "The root"
+
+    @mounted.view(model=MountedRoot, name='link')
+    def root_link(self, request):
+        return request.link(self)
+
+    @app.mount(path='{id}', app=mounted)
+    def get_context():
+        return {}
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/foo')
+    assert response.body == 'The root'
+
+    response = c.get('/foo/link')
+    assert response.body == '/foo'
+
+
+def test_mount_empty_context():
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+    mounted = morepath.App('mounted', testing_config=config)
+
+    @mounted.path(path='')
+    class MountedRoot(object):
+        pass
+
+    @mounted.view(model=MountedRoot)
+    def root_default(self, request):
+        return "The root"
+
+    @mounted.view(model=MountedRoot, name='link')
+    def root_link(self, request):
+        return request.link(self)
+
+    @app.mount(path='{id}', app=mounted)
+    def get_context():
+        pass
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/foo')
+    assert response.body == 'The root'
+
+    response = c.get('/foo/link')
+    assert response.body == '/foo'
+
+
+def test_mount_context():
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+    mounted = morepath.App('mounted', variables=['mount_id'],
+                           testing_config=config)
+
+    @mounted.path(path='')
+    class MountedRoot(object):
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
+
+    @mounted.view(model=MountedRoot)
+    def root_default(self, request):
+        return "The root for mount id: %s" % self.mount_id
+
+    @app.mount(path='{id}', app=mounted)
+    def get_context(id):
+        return {
+            'mount_id': id
+            }
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/foo')
+    assert response.body == 'The root for mount id: foo'
+    response = c.get('/bar')
+    assert response.body == 'The root for mount id: bar'
+
+
+def test_mount_context_parameters():
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+    mounted = morepath.App('mounted', variables=['mount_id'],
+                           testing_config=config)
+
+    @mounted.path(path='')
+    class MountedRoot(object):
+        def __init__(self, mount_id):
+            assert isinstance(mount_id, int)
+            self.mount_id = mount_id
+
+    @mounted.view(model=MountedRoot)
+    def root_default(self, request):
+        return "The root for mount id: %s" % self.mount_id
+
+    @app.mount(path='mounts', app=mounted)
+    def get_context(mount_id=0):
+        return {
+            'mount_id': mount_id
+            }
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/mounts?mount_id=1')
+    assert response.body == 'The root for mount id: 1'
+    response = c.get('/mounts')
+    assert response.body == 'The root for mount id: 0'
+
+
+def test_mount_context_parameters_empty_context():
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+    mounted = morepath.App('mounted', variables=['mount_id'],
+                           testing_config=config)
+
+    @mounted.path(path='')
+    class MountedRoot(object):
+        # use a default parameter
+        def __init__(self, mount_id='default'):
+            self.mount_id = mount_id
+
+    @mounted.view(model=MountedRoot)
+    def root_default(self, request):
+        return "The root for mount id: %s" % self.mount_id
+
+    # the context does not in fact construct the context.
+    # this means the parameters are instead constructed from the
+    # arguments of the MountedRoot constructor, and these
+    # default to 'default'
+    @app.mount(path='{id}', app=mounted)
+    def get_context(id):
+        return {}
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/foo')
+    assert response.body == 'The root for mount id: default'
+    # the URL parameter mount_id cannot interfere with the mounting
+    # process
+    response = c.get('/bar?mount_id=blah')
+    assert response.body == 'The root for mount id: default'
+
+
+def test_mount_context_standalone():
+    config = setup()
+    app = morepath.App('mounted', variables=['mount_id'],
+                       testing_config=config)
+
+    @app.path(path='')
+    class Root(object):
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
+
+    @app.view(model=Root)
+    def root_default(self, request):
+        return "The root for mount id: %s" % self.mount_id
+
+    config.commit()
+
+    c = Client(app.mounted(mount_id='foo'))
+
+    response = c.get('/')
+    assert response.body == 'The root for mount id: foo'
+
+
+def test_mount_parent_link():
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+
+    @app.path(path='models/{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    mounted = morepath.App('mounted', variables=['mount_id'],
+                           testing_config=config)
+
+    @mounted.path(path='')
+    class MountedRoot(object):
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
+
+    @mounted.view(model=MountedRoot)
+    def root_default(self, request):
+        return request.link(Model('one'), mounted=request.mounted().parent())
+
+    @app.mount(path='{id}', app=mounted)
+    def get_context(id):
+        return {
+            'mount_id': id
+            }
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/foo')
+    assert response.body == '/models/one'
+
+
+def test_mount_child_link():
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+    mounted = morepath.App('mounted', variables=['mount_id'],
+                           testing_config=config)
+
+    @mounted.path(path='models/{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @app.view(model=Root)
+    def app_root_default(self, request):
+        return request.link(
+            Model('one'),
+            mounted=request.mounted().child(mounted, id='foo'))
+
+    @app.mount(path='{id}', app=mounted)
+    def get_context(id):
+        return {
+            'mount_id': id
+            }
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/')
+    assert response.body == '/foo/models/one'
+
+
+def test_mount_child_link_unknown_app():
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+    mounted = morepath.App('mounted', variables=['mount_id'],
+                           testing_config=config)
+
+    @mounted.path(path='models/{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @app.view(model=Root)
+    def app_root_default(self, request):
+        try:
+            return request.link(
+                Model('one'),
+                mounted=request.mounted().child(mounted, id='foo'))
+        except LinkError:
+            return "link error"
+
+    # no mounting, so mounted is unknown when making link
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/')
+    assert response.body == 'link error'
+
+
+def test_mount_repr():
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+    mounted = morepath.App('mounted', variables=['mount_id'],
+                           testing_config=config)
+
+    @mounted.path(path='models/{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @app.view(model=Root)
+    def app_root_default(self, request):
+        return repr(request.mounted().child(mounted, id='foo'))
+
+    @app.mount(path='{id}', app=mounted)
+    def get_context(id):
+        return {
+            'mount_id': id
+            }
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/')
+    assert response.body == (
+        "<morepath.Mount of <morepath.App 'mounted'> with "
+        "variables: id='foo', "
+        "parent=<morepath.Mount of <morepath.App 'app'>>>")
+
+
+def test_request_view_in_mount():
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+    mounted = morepath.App('mounted', variables=['mount_id'],
+                           testing_config=config)
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @mounted.path(path='models/{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @mounted.view(model=Model)
+    def model_default(self, request):
+        return {'hey': 'Hey'}
+
+    @app.view(model=Root)
+    def root_default(self, request):
+        return request.view(
+            Model('x'), mounted=request.mounted().child(
+                mounted, mount_id='foo'))['hey']
+
+    @app.mount(path='{id}', app=mounted)
+    def get_context(id):
+        return {
+            'mount_id': id
+            }
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/')
+    assert response.body == 'Hey'
