@@ -143,7 +143,7 @@ class ConverterDirective(Directive):
 class PathDirective(Directive):
     depends = [SettingDirective, ConverterDirective]
 
-    def __init__(self, app,  path, model=None,
+    def __init__(self, app, path, model=None,
                  variables=None, converters=None, required=None):
         """Register a model for a path.
 
@@ -210,7 +210,7 @@ class PathDirective(Directive):
 class PermissionDirective(Directive):
     depends = [SettingDirective]
 
-    def __init__(self, app,  model, permission, identity=Identity):
+    def __init__(self, app, model, permission, identity=Identity):
         """Declare whether a model has a permission.
 
         The decorated function receives ``model``, `permission``
@@ -488,7 +488,8 @@ class MountDirective(PathDirective):
         return [('mount', self.mounted_app)]
 
     def perform(self, app, obj):
-        register_mount(app, self.mounted_app, self.path, self.required, obj)
+        register_mount(app, self.mounted_app, self.path, self.converters,
+                       self.required, obj)
 
 
 tween_factory_id = 0

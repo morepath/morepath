@@ -387,3 +387,63 @@ def test_request_view_in_mount():
 
     response = c.get('/')
     assert response.body == 'Hey'
+
+
+def test_mount_implict_converters():
+    config = setup()
+
+    app = morepath.App(testing_config=config)
+    mounted = morepath.App(testing_config=config)
+
+    class MountedRoot(object):
+        def __init__(self, id):
+            self.id = id
+
+    @mounted.path(path='', model=MountedRoot)
+    def get_root(id):
+        return MountedRoot(id)
+
+    @mounted.view(model=MountedRoot)
+    def root_default(self, request):
+        return "The root for: %s %s" % (self.id, type(self.id))
+
+    @app.mount(path='{id}', app=mounted)
+    def get_context(id=0):
+        return {'id': id}
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/1')
+    assert response.body == "The root for: 1 <type 'int'>"
+
+
+def test_mount_explicit_converters():
+    config = setup()
+
+    app = morepath.App(testing_config=config)
+    mounted = morepath.App(testing_config=config)
+
+    class MountedRoot(object):
+        def __init__(self, id):
+            self.id = id
+
+    @mounted.path(path='', model=MountedRoot)
+    def get_root(id):
+        return MountedRoot(id)
+
+    @mounted.view(model=MountedRoot)
+    def root_default(self, request):
+        return "The root for: %s %s" % (self.id, type(self.id))
+
+    @app.mount(path='{id}', app=mounted, converters=dict(id=int))
+    def get_context(id):
+        return {'id': id}
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/1')
+    assert response.body == "The root for: 1 <type 'int'>"
