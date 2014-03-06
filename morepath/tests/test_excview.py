@@ -20,7 +20,7 @@ def test_404_http_exception():
     config.commit()
 
     c = Client(app)
-    response = c.get('/', status=404)
+    c.get('/', status=404)
 
 
 def test_other_exception_not_handled():
@@ -45,7 +45,8 @@ def test_other_exception_not_handled():
     # the WSGI web server will handle any unhandled errors and turn
     # them into 500 errors
     with pytest.raises(MyException):
-        response = c.get('/')
+        c.get('/')
+
 
 def test_http_exception_excview():
     config = setup()
@@ -140,5 +141,3 @@ def test_excview_named_view():
     c = Client(app)
     response = c.get('/view')
     assert response.body == 'My exception'
-
-

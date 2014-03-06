@@ -69,7 +69,7 @@ def test_notfound():
     request.mounts.append(app.mounted())
 
     with pytest.raises(HTTPNotFound):
-        response = publish(request)
+        publish(request)
 
 
 def test_notfound_with_predicates():
@@ -182,7 +182,7 @@ def test_view_raises_http_error():
     request.mounts.append(app.mounted())
 
     with pytest.raises(HTTPBadRequest):
-        response = publish(request)
+        publish(request)
 
 
 def test_view_after():
