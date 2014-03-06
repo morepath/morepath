@@ -584,7 +584,7 @@ def test_convert_exception_to_internal_error():
 
     c = Client(app)
 
-    response = c.get('/', status=500)
+    c.get('/', status=500)
 
 
 def test_simple_root():
@@ -650,7 +650,7 @@ def test_redirect():
 
     c = Client(app)
 
-    response = c.get('/')
+    c.get('/', status=302)
 
 
 def test_root_conflict():
@@ -718,8 +718,6 @@ def test_model_conflict():
 
     with pytest.raises(ConflictError):
         config.commit()
-
-
 
 
 def test_path_conflict():
@@ -962,8 +960,6 @@ def test_function_no_conflict_different_apps():
         pass
 
     config.commit()
-
-
 
 
 def test_run_app_with_context_without_it():

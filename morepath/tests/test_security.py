@@ -40,7 +40,7 @@ def test_no_permission():
 
     c = Client(app)
 
-    response = c.get('/foo', status=401)
+    c.get('/foo', status=401)
 
 
 def test_permission_directive():
