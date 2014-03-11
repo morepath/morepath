@@ -292,11 +292,9 @@ To do this we first need to mount it using an ``issues_id``::
       mounted.run()
 
 Here we mount and run the ``issues_app`` with issue tracker id
-``4``. We can hook the ``run_issue_tracker` function up to a script
+``4``. We can hook the ``run_issue_tracker`` function up to a script
 by using an entry point in ``setup.py`` as we've seen in
 :doc:`organizing_your_project`.
-
-XXX implement ``run`` on ``mounted``.
 
 Reusing an app
 --------------
