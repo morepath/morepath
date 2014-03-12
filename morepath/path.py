@@ -48,10 +48,6 @@ def get_converters(arguments, converters,
                 c = IDENTITY_CONVERTER
             else:
                 c = get_converter(converter[0])
-                if c is None:
-                    raise DirectiveError(
-                        "Cannot find converter for %s: %s" %
-                        (name, converter[0]))
             converter = ListConverter(c)
         else:
             converter = get_converter(converter)

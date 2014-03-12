@@ -938,3 +938,32 @@ def test_url_parameter_list_unknown_explicit_converter():
 
     with pytest.raises(DirectiveReportError):
         config.commit()
+
+
+def test_url_parameter_list_but_only_one_allowed():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, item):
+            self.item = item
+
+    @app.path(model=Model, path='/', converters={'item': int})
+    def get_model(item):
+        return Model(item)
+
+    @app.view(model=Model)
+    def default(self, request):
+        return repr(self.item)
+
+    @app.view(model=Model, name='link')
+    def link(self, request):
+        return request.link(self)
+
+    config.commit()
+
+    c = Client(app)
+
+    c.get('/?item=1&item=2', status=400)
+
+    c.get('/link?item=1&item=2', status=400)
