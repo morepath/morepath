@@ -10,7 +10,6 @@ from morepath import generic
 from reg import ClassRegistry, Lookup, CachingClassLookup, implicit
 import venusian
 from .reify import reify
-from wsgiref.simple_server import make_server
 
 
 class AppBase(Configurable, ClassRegistry, ConverterRegistry,
@@ -129,20 +128,6 @@ class AppBase(Configurable, ClassRegistry, ConverterRegistry,
         does, use ``mount()`` to create a WSGI app first.
         """
         return self._app_mount(environ, start_response)
-
-    def run(self, host=None, port=None):  # pragma: no cover
-        """Use wsgiref.simple_server to run application.
-
-        :param host: hostname
-        :param port: port
-        """
-        if host is None:
-            host = '127.0.0.1'
-        if port is None:
-            port = 5000
-        server = make_server(host, port, self)
-        print "Running wsgiref.simple_server on http://%s:%s" % (host, port)
-        server.serve_forever()
 
     def mount_variables(self):
         return self._variables

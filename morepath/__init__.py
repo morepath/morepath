@@ -12,6 +12,7 @@ from morepath.security import Identity, NO_IDENTITY
 from .directive import directive
 from .converter import Converter
 from .reify import reify
+from .run import run
 from reg import ANY, implicit
 from pdb import Pdb
 pdb = Pdb(skip=['reg.*', 'inspect'])
