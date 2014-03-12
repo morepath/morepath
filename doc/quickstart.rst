@@ -13,7 +13,7 @@ Let's look at a minimal "Hello world!" application in Morepath::
 
   import morepath
 
-  app = morepath.App()
+  app = morepath.App(name='Hello')
 
   @app.path(path='')
   class Root(object):
@@ -27,31 +27,32 @@ Let's look at a minimal "Hello world!" application in Morepath::
       config = morepath.setup()
       config.scan()
       config.commit()
-      app.run()
+      morepath.run(app)
 
 You can save this as ``hello.py`` and then run it with Python:
 
 .. code-block:: sh
 
   $ python hello.py
-  * Running wsgiref.simple_server on http://127.0.0.1:5000
+  Running <morepath.App 'Hello'> with wsgiref.simple_server on http://127.0.0.1:5000
 
 .. sidebar:: Making the server externally accessible
 
-  The default configuration of ``run()`` uses the ``127.0.0.1`` hostname.
-  This means you can access the web server from your own computer, but
-  not from anywhere else. During development this is often the best way
-  to go about things.
+  The default configuration of :func:`morepath.run` uses the
+  ``127.0.0.1`` hostname.  This means you can access the web server
+  from your own computer, but not from anywhere else. During
+  development this is often the best way to go about things.
 
-  But for deployment you do want to make your server accessible from
+  But sometimes do want to make the development server accessible from
   the outside world. This can be done by passing an explicit ``host``
-  argument of ``0.0.0.0`` to the ``run()`` method::
+  argument of ``0.0.0.0`` to the ``morepath.run()`` function.
 
-    app.run(host='0.0.0.0')
+    morepath.run(app, host='0.0.0.0')
 
-  Note that for more sophisticated deployment scenarios you don't use
-  ``run()`` at all, but instead use an external WSGI server such as
-  waitress_, `Apache mod_wsgi`_ or `nginx mod_wsgi`_.
+  Note that the built-in web server is absolutely unsuitable for
+  actual deployment. For those cases don't use ``morepath.run()`` at
+  all, but instead use an external WSGI server such as waitress_,
+  `Apache mod_wsgi`_ or `nginx mod_wsgi`_.
 
   .. _waitress: http://pylons.readthedocs.org/projects/waitress/en/latest/
 

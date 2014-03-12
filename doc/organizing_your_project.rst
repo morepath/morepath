@@ -164,7 +164,7 @@ way to start it up as a web server. Here's a sketch of ``main.py``::
 
   def main():
      morepath.autosetup()
-     app.run()
+     morepath.run(app)
 
 We create an ``app`` object, then have a ``main()`` function that is
 going to be called by the ``myproject-start`` entry point we defined

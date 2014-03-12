@@ -17,6 +17,8 @@ Morepath API
 
 .. autofunction:: setup
 
+.. autofunction:: run
+
 .. autofunction:: settings
 
 .. autoclass:: Request

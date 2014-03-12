@@ -289,7 +289,7 @@ To do this we first need to mount it using an ``issues_id``::
 
   def run_issue_tracker():
       mounted = issues_app.mount(issues_id=4)
-      mounted.run()
+      morepath.run(mounted)
 
 Here we mount and run the ``issues_app`` with issue tracker id
 ``4``. We can hook the ``run_issue_tracker`` function up to a script

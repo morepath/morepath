@@ -83,7 +83,7 @@ Morepath Knows About Your Models
       config = morepath.setup()
       config.scan()
       config.commit()
-      app.run()
+      morepath.run(app)
 
 Want to know what's going on? Check out the :doc:`Quickstart <quickstart>`!
 
