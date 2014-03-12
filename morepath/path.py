@@ -1,6 +1,7 @@
 from morepath import generic
 from morepath.traject import ParameterFactory, Path
 from morepath.error import DirectiveError
+from morepath.converter import ListConverter, IDENTITY_CONVERTER
 
 from reg import arginfo
 from types import ClassType
@@ -28,12 +29,32 @@ def get_converters(arguments, converters,
     app for converter for the default value of argument.
     """
     result = {}
+
+    def get_converter(converter):
+        if type(converter) in [type, ClassType]:
+            result = converter_for_type(converter)
+            if result is None:
+                raise DirectiveError(
+                    "Cannot find converter for type: %r" % converter)
+            return result
+        return converter
+
     for name, value in arguments.items():
         # find explicit converter
         converter = converters.get(name, None)
         # if explicit converter is type, look it up
-        if type(converter) in [type, ClassType]:
-            converter = converter_for_type(converter)
+        if isinstance(converter, list):
+            if len(converter) == 0:
+                c = IDENTITY_CONVERTER
+            else:
+                c = get_converter(converter[0])
+                if c is None:
+                    raise DirectiveError(
+                        "Cannot find converter for %s: %s" %
+                        (name, converter[0]))
+            converter = ListConverter(c)
+        else:
+            converter = get_converter(converter)
         # if still no converter, look it up for value
         if converter is None:
             converter = converter_for_value(value)

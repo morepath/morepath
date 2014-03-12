@@ -35,7 +35,7 @@ def lookup(obj):
 
 @reg.generic
 def path(model):
-    """Get the path for a model in its own application.
+    """Get the path and parameters for a model in its own application.
     """
     raise NotImplementedError  # pragma: nocoverage
 

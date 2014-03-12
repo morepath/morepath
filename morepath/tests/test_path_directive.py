@@ -443,6 +443,33 @@ def test_unknown_converter():
         config.commit()
 
 
+def test_unknown_explicit_converter():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, d):
+            self.d = d
+
+    class Unknown(object):
+        pass
+
+    @app.path(model=Model, path='/', converters={'d': Unknown})
+    def get_model(d):
+        return Model(d)
+
+    @app.view(model=Model)
+    def default(self, request):
+        return "View: %s" % self.d
+
+    @app.view(model=Model, name='link')
+    def link(self, request):
+        return request.link(self)
+
+    with pytest.raises(DirectiveReportError):
+        config.commit()
+
+
 def test_default_date_converter():
     config = setup()
     app = morepath.App(testing_config=config)
@@ -776,4 +803,138 @@ def test_path_no_class_and_no_model_argument():
         return None
 
     with pytest.raises(ConfigError):
+        config.commit()
+
+
+def test_url_parameter_list():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, item):
+            self.item = item
+
+    @app.path(model=Model, path='/', converters={'item': [int]})
+    def get_model(item):
+        return Model(item)
+
+    @app.view(model=Model)
+    def default(self, request):
+        return repr(self.item)
+
+    @app.view(model=Model, name='link')
+    def link(self, request):
+        return request.link(self)
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/?item=1&item=2')
+    assert response.body == "[1, 2]"
+
+    response = c.get('/link?item=1&item=2')
+    assert response.body == '/?item=1&item=2'
+
+    response = c.get('/link')
+    assert response.body == '/'
+
+    response = c.get('/?item=broken&item=1', status=400)
+
+    response = c.get('/')
+    assert response.body == "[]"
+
+
+def test_url_parameter_list_empty():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, item):
+            self.item = item
+
+    @app.path(model=Model, path='/', converters={'item': []})
+    def get_model(item):
+        return Model(item)
+
+    @app.view(model=Model)
+    def default(self, request):
+        return repr(self.item)
+
+    @app.view(model=Model, name='link')
+    def link(self, request):
+        return request.link(self)
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/?item=a&item=b')
+    assert response.body == "[u'a', u'b']"
+
+    response = c.get('/link?item=a&item=b')
+    assert response.body == '/?item=a&item=b'
+
+    response = c.get('/link')
+    assert response.body == '/'
+
+    response = c.get('/')
+    assert response.body == "[]"
+
+
+def test_url_parameter_list_explicit_converter():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, item):
+            self.item = item
+
+    @app.path(model=Model, path='/', converters={'item': [Converter(int)]})
+    def get_model(item):
+        return Model(item)
+
+    @app.view(model=Model)
+    def default(self, request):
+        return repr(self.item)
+
+    @app.view(model=Model, name='link')
+    def link(self, request):
+        return request.link(self)
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/?item=1&item=2')
+    assert response.body == "[1, 2]"
+
+    response = c.get('/link?item=1&item=2')
+    assert response.body == '/?item=1&item=2'
+
+    response = c.get('/link')
+    assert response.body == '/'
+
+    response = c.get('/?item=broken&item=1', status=400)
+
+    response = c.get('/')
+    assert response.body == "[]"
+
+
+def test_url_parameter_list_unknown_explicit_converter():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, item):
+            self.item = item
+
+    class Unknown(object):
+        pass
+
+    @app.path(model=Model, path='/', converters={'item': [Unknown]})
+    def get_model(item):
+        return Model(item)
+
+    with pytest.raises(DirectiveReportError):
         config.commit()

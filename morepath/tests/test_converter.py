@@ -1,4 +1,5 @@
 from morepath.converter import (ConverterRegistry, Converter,
+                                ListConverter,
                                 IDENTITY_CONVERTER)
 
 
@@ -48,8 +49,8 @@ def test_converter_registry_inheritance():
     assert r.converter_for_value(Animal('elephant')) is c
     assert r.converter_for_value(None) is IDENTITY_CONVERTER
     assert r.converter_for_value('s') is None
-    assert r.converter_for_type(Lifeform).decode('elephant') is elephant
-    assert r.converter_for_type(Lifeform).encode(seaweed) == 'seaweed'
+    assert r.converter_for_type(Lifeform).decode(['elephant']) is elephant
+    assert r.converter_for_type(Lifeform).encode(seaweed) == ['seaweed']
 
 
 def test_converter_equality():
@@ -72,6 +73,11 @@ def test_converter_equality():
     five = Converter(other_decode, encode)
     six = Converter(decode)
 
+    l0 = ListConverter(one)
+    l1 = ListConverter(one)
+    l2 = ListConverter(two)
+    l3 = ListConverter(three)
+
     assert one == two
     assert one != three
     assert one != four
@@ -80,3 +86,11 @@ def test_converter_equality():
     assert three != four
     assert four != five
     assert five != six
+
+    assert one != l0
+    assert l0 != one
+    assert l0 == l1
+    assert not l0 != l1
+    assert l0 == l2
+    assert l1 != l3
+    assert not l1 == l3

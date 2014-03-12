@@ -83,7 +83,7 @@ def test_register_path_with_parameters():
     model = Model()
     model.id = 'b'
     model.param = 'other'
-    assert generic.path(model, lookup=lookup) == ('b', {'param': 'other'})
+    assert generic.path(model, lookup=lookup) == ('b', {'param': ['other']})
     assert generic.app(model, lookup=lookup) is app
 
 

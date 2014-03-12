@@ -63,7 +63,7 @@ class Step(object):
         for name, value in zip(self.names, matched.groups()):
             converter = self.get_converter(name)
             try:
-                result[name] = converter.decode(value)
+                result[name] = converter.decode([value])
             except ValueError:
                 return False, {}
         return True, result
@@ -220,14 +220,16 @@ class Traject(object):
         all_variables = get_variables(model)
         assert isinstance(all_variables, dict)
         variables = {
-            name: converters.get(name, IDENTITY_CONVERTER).encode(value) for
+            name: converters.get(name, IDENTITY_CONVERTER).encode(value)[0] for
             name, value in all_variables.items()
             if name not in parameter_names}
+
+        # XXX not sure about value != []
         parameters = {
             name: converters.get(name, IDENTITY_CONVERTER).encode(value) for
             name, value in all_variables.items()
             if (name in parameter_names and
-                value is not None)
+                value is not None and value != [])
             }
         return path % variables, parameters
 
@@ -241,15 +243,15 @@ class ParameterFactory(object):
     def __call__(self, args):
         result = {}
         for name, default in self.parameters.items():
-            value = args.get(name)
-            if value is None:
+            value = args.getall(name)
+            converter = self.converters.get(name, IDENTITY_CONVERTER)
+            if converter.is_missing(value):
                 if name in self.required:
                     raise HTTPBadRequest(
                         "Required URL parameter missing: %s" %
                         name)
                 result[name] = default
                 continue
-            converter = self.converters.get(name, IDENTITY_CONVERTER)
             try:
                 result[name] = converter.decode(value)
             except ValueError:

@@ -528,6 +528,30 @@ can pass the type into the ``converters`` dictionary as a shortcut::
 The variable ``d`` is now interpreted as a ``date``. Morepath uses
 whatever converter that was registered for that type.
 
+List converters
+---------------
+
+What if you want to allow a list of parameters instead of just a single
+one? You can do this by wrapping the converter or type in the ``converters``
+dictionary in a list::
+
+  @app.path(model=Days, path='days', converters=dict(d=[date]))
+  def get_days(d):
+      return Days(d)
+
+Now the ``d`` parameter will be interpreted as a list. This means URLs
+like this are accepted::
+
+  /days?d=2014-01-01
+
+  /days?d=2014-01-01&d=2014-01-02
+
+  /days
+
+For the first case, ``d`` is a list with one date item, in the second
+case, ``d`` has 2 items, and in the third case the list ``d`` is
+empty.
+
 Required
 --------
 
