@@ -1,10 +1,8 @@
 from morepath import generic
 from morepath.traject import ParameterFactory, Path
-from morepath.error import DirectiveError
-from morepath.converter import ListConverter, IDENTITY_CONVERTER
+from morepath.converter import get_converters
 
 from reg import arginfo
-from types import ClassType
 
 SPECIAL_ARGUMENTS = ['request', 'parent']
 
@@ -19,47 +17,6 @@ def get_arguments(callable, exclude):
     defaults = [None] * (len(info.args) - len(defaults)) + list(defaults)
     return {name: default for (name, default) in zip(info.args, defaults)
             if name not in exclude}
-
-
-def get_converters(arguments, converters,
-                   converter_for_type, converter_for_value):
-    """Get converters for arguments.
-
-    Use explicitly supplied converter if available, otherwise ask
-    app for converter for the default value of argument.
-    """
-    result = {}
-
-    def get_converter(converter):
-        if type(converter) in [type, ClassType]:
-            result = converter_for_type(converter)
-            if result is None:
-                raise DirectiveError(
-                    "Cannot find converter for type: %r" % converter)
-            return result
-        return converter
-
-    for name, value in arguments.items():
-        # find explicit converter
-        converter = converters.get(name, None)
-        # if explicit converter is type, look it up
-        if isinstance(converter, list):
-            if len(converter) == 0:
-                c = IDENTITY_CONVERTER
-            else:
-                c = get_converter(converter[0])
-            converter = ListConverter(c)
-        else:
-            converter = get_converter(converter)
-        # if still no converter, look it up for value
-        if converter is None:
-            converter = converter_for_value(value)
-        if converter is None:
-            raise DirectiveError(
-                "Cannot find converter for default value: %r (%s)" %
-                (value, type(value)))
-        result[name] = converter
-    return result
 
 
 def get_url_parameters(arguments, exclude):
