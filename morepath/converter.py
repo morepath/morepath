@@ -123,43 +123,44 @@ class ConverterRegistry(object):
             return IDENTITY_CONVERTER
         return self.converter_for_type(type(v))
 
+    def get_converters(self, arguments, converters):
+        """Get converters for arguments.
+        Use explicitly supplied converter if available, otherwise ask
+        for converter for the default value of argument.
 
-def get_converters(arguments, converters,
-                   converter_for_type, converter_for_value):
-    """Get converters for arguments.
+        :param arguments: a dictionary of arguments to find converters for.
+        :param converters: a dictionary of explicitly supplied converters.
+        :returns: a dictionary with for each argument a converter supplied.
+        """
+        result = {}
 
-    Use explicitly supplied converter if available, otherwise ask
-    app for converter for the default value of argument.
-    """
-    result = {}
+        def get_converter(converter):
+            if type(converter) in [type, ClassType]:
+                result = self.converter_for_type(converter)
+                if result is None:
+                    raise DirectiveError(
+                        "Cannot find converter for type: %r" % converter)
+                return result
+            return converter
 
-    def get_converter(converter):
-        if type(converter) in [type, ClassType]:
-            result = converter_for_type(converter)
-            if result is None:
-                raise DirectiveError(
-                    "Cannot find converter for type: %r" % converter)
-            return result
-        return converter
-
-    for name, value in arguments.items():
-        # find explicit converter
-        converter = converters.get(name, None)
-        # if explicit converter is type, look it up
-        if isinstance(converter, list):
-            if len(converter) == 0:
-                c = IDENTITY_CONVERTER
+        for name, value in arguments.items():
+            # find explicit converter
+            converter = converters.get(name, None)
+            # if explicit converter is type, look it up
+            if isinstance(converter, list):
+                if len(converter) == 0:
+                    c = IDENTITY_CONVERTER
+                else:
+                    c = get_converter(converter[0])
+                converter = ListConverter(c)
             else:
-                c = get_converter(converter[0])
-            converter = ListConverter(c)
-        else:
-            converter = get_converter(converter)
-        # if still no converter, look it up for value
-        if converter is None:
-            converter = converter_for_value(value)
-        if converter is None:
-            raise DirectiveError(
-                "Cannot find converter for default value: %r (%s)" %
-                (value, type(value)))
-        result[name] = converter
-    return result
+                converter = get_converter(converter)
+            # if still no converter, look it up for value
+            if converter is None:
+                converter = self.converter_for_value(value)
+            if converter is None:
+                raise DirectiveError(
+                    "Cannot find converter for default value: %r (%s)" %
+                    (value, type(value)))
+            result[name] = converter
+        return result

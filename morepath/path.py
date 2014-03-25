@@ -1,6 +1,5 @@
 from morepath import generic
 from morepath.traject import ParameterFactory, Path
-from morepath.converter import get_converters
 
 from reg import arginfo
 
@@ -37,9 +36,7 @@ def register_path(app, model, path, variables, converters, required,
     converters = converters or {}
     if arguments is None:
         arguments = get_arguments(model_factory, SPECIAL_ARGUMENTS)
-    converters = get_converters(arguments, converters,
-                                app.converter_for_type,
-                                app.converter_for_value)
+    converters = app.get_converters(arguments, converters)
     exclude = Path(path).variables()
     exclude.update(app.mount_variables())
     parameters = get_url_parameters(arguments, exclude)

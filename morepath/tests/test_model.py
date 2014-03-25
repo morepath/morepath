@@ -1,6 +1,6 @@
 import urllib
-from morepath.path import register_path, get_arguments, get_converters
-from morepath.converter import Converter, IDENTITY_CONVERTER
+from morepath.path import register_path, get_arguments
+from morepath.converter import Converter, IDENTITY_CONVERTER, ConverterRegistry
 from morepath.app import App
 from morepath import setup
 from morepath import generic
@@ -127,36 +127,42 @@ def test_get_arguments_exclude():
 
 
 def test_get_converters_none_defaults():
-    def converter_for_type(t):
-        return IDENTITY_CONVERTER
+    class MyConverterRegistry(ConverterRegistry):
+        def converter_for_type(self, t):
+            return IDENTITY_CONVERTER
 
-    def converter_for_value(v):
-        return IDENTITY_CONVERTER
+        def converter_for_value(self, v):
+            return IDENTITY_CONVERTER
 
-    assert get_converters({'a': None}, {},
-                          converter_for_type, converter_for_value) == {
+    reg = MyConverterRegistry()
+
+    assert reg.get_converters({'a': None}, {}) == {
         'a': IDENTITY_CONVERTER}
 
 
 def test_get_converters_explicit():
-    def converter_for_type(t):
-        return IDENTITY_CONVERTER
+    class MyConverterRegistry(ConverterRegistry):
+        def converter_for_type(self, t):
+            return IDENTITY_CONVERTER
 
-    def converter_for_value(v):
-        return IDENTITY_CONVERTER
+        def converter_for_value(self, v):
+            return IDENTITY_CONVERTER
 
-    assert get_converters({'a': None}, {'a': Converter(int)},
-                          converter_for_type, converter_for_value) == {
+    reg = MyConverterRegistry()
+
+    assert reg.get_converters({'a': None}, {'a': Converter(int)}) == {
         'a': Converter(int)}
 
 
 def test_get_converters_from_type():
-    def converter_for_type(t):
-        return Converter(int)
+    class MyConverterRegistry(ConverterRegistry):
+        def converter_for_type(self, t):
+            return Converter(int)
 
-    def converter_for_value(v):
-        return IDENTITY_CONVERTER
+        def converter_for_value(self, v):
+            return IDENTITY_CONVERTER
 
-    assert get_converters({'a': None}, {'a': int},
-                          converter_for_type, converter_for_value) == {
+    reg = MyConverterRegistry()
+
+    assert reg.get_converters({'a': None}, {'a': int}) == {
         'a': Converter(int)}
