@@ -1,7 +1,6 @@
 import re
 from functools import total_ordering
 from reg import Registry
-from webob.exc import HTTPBadRequest
 from .converter import IDENTITY_CONVERTER
 from .error import TrajectError
 
@@ -232,33 +231,6 @@ class Traject(object):
                 value is not None and value != [])
             }
         return path % variables, parameters
-
-
-class ParameterFactory(object):
-    def __init__(self, parameters, converters, required):
-        self.parameters = parameters
-        self.converters = converters
-        self.required = required
-
-    def __call__(self, args):
-        result = {}
-        for name, default in self.parameters.items():
-            value = args.getall(name)
-            converter = self.converters.get(name, IDENTITY_CONVERTER)
-            if converter.is_missing(value):
-                if name in self.required:
-                    raise HTTPBadRequest(
-                        "Required URL parameter missing: %s" %
-                        name)
-                result[name] = default
-                continue
-            try:
-                result[name] = converter.decode(value)
-            except ValueError:
-                raise HTTPBadRequest(
-                    "Cannot decode URL parameter %s: %s" % (
-                        name, value))
-        return result
 
 
 def parse_path(path):

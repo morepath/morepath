@@ -1,6 +1,7 @@
 from reg.mapping import Map, ClassMapKey
 from types import ClassType
 from morepath.error import DirectiveError
+from webob.exc import HTTPBadRequest
 
 
 class Converter(object):
@@ -163,4 +164,31 @@ class ConverterRegistry(object):
                     "Cannot find converter for default value: %r (%s)" %
                     (value, type(value)))
             result[name] = converter
+        return result
+
+
+class ParameterFactory(object):
+    def __init__(self, parameters, converters, required):
+        self.parameters = parameters
+        self.converters = converters
+        self.required = required
+
+    def __call__(self, args):
+        result = {}
+        for name, default in self.parameters.items():
+            value = args.getall(name)
+            converter = self.converters.get(name, IDENTITY_CONVERTER)
+            if converter.is_missing(value):
+                if name in self.required:
+                    raise HTTPBadRequest(
+                        "Required URL parameter missing: %s" %
+                        name)
+                result[name] = default
+                continue
+            try:
+                result[name] = converter.decode(value)
+            except ValueError:
+                raise HTTPBadRequest(
+                    "Cannot decode URL parameter %s: %s" % (
+                        name, value))
         return result

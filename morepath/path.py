@@ -1,5 +1,6 @@
 from morepath import generic
-from morepath.traject import ParameterFactory, Path
+from morepath.traject import Path
+from morepath.converter import ParameterFactory
 
 from reg import arginfo
 

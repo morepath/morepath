@@ -1,8 +1,8 @@
 import morepath
 from morepath.traject import (Traject, Node, Step, TrajectError,
                               is_identifier, parse_variables,
-                              Path, parse_path, create_path,
-                              ParameterFactory)
+                              Path, parse_path, create_path)
+from morepath.converter import ParameterFactory
 from morepath import generic
 from morepath.app import App
 from morepath.request import Request
