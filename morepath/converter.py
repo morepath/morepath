@@ -168,15 +168,27 @@ class ConverterRegistry(object):
 
 
 class ParameterFactory(object):
+    """Convert URL parameters.
+
+    Given expected URL parameters, converters for them and required
+    parameters, create a dictionary of converted URL parameters.
+    """
     def __init__(self, parameters, converters, required):
+        """
+        :param parameters: dictionary of parameter names -> default values.
+        :param converters: dictionary of parameter names -> converters.
+        :param required: dictionary of parameter names -> required booleans.
+        """
         self.parameters = parameters
         self.converters = converters
         self.required = required
 
-    def __call__(self, args):
+    def __call__(self, url_parameters):
+        """Convert URL parameters to program-friendly structure.
+        """
         result = {}
         for name, default in self.parameters.items():
-            value = args.getall(name)
+            value = url_parameters.getall(name)
             converter = self.converters.get(name, IDENTITY_CONVERTER)
             if converter.is_missing(value):
                 if name in self.required:
