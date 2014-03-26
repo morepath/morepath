@@ -1,5 +1,5 @@
 from morepath import generic
-from morepath.traject import Path
+from morepath.traject import Path, Inverse
 from morepath.converter import ParameterFactory
 
 from reg import arginfo
@@ -44,17 +44,14 @@ def register_path(app, model, path, variables, converters, required,
     if required is None:
         required = set()
     required = set(required)
-    parameter_factory = ParameterFactory(parameters, converters, required)
-
+    parameter_factory = ParameterFactory(parameters, converters, required,
+                                         'extra_parameters' in arguments)
     if variables is None:
         variables = get_variables_func(arguments, app.mount_variables())
 
     traject.add_pattern(path, (model_factory, parameter_factory),
                         converters)
-    traject.inverse(model, path, variables,
-                    converters, list(parameters.keys()))
 
-    def get_app(model):
-        return app
+    inverse = Inverse(path, variables, converters, set(parameters.keys()))
+    app.register(generic.path, [model], inverse)
 
-    app.register(generic.app, [model], get_app)

@@ -164,15 +164,45 @@ class Path(object):
         return set(result)
 
 
+class Inverse(object):
+    def __init__(self, path, get_variables, converters,
+                 parameter_names):
+        self.path = path
+        self.interpolation_path = Path(path).interpolation_str()
+        self.get_variables = get_variables
+        self.converters = converters
+        self.parameter_names = parameter_names
+
+    def __call__(self, model):
+        converters = self.converters
+        parameter_names = self.parameter_names
+        all_variables = self.get_variables(model)
+        extra_parameters = all_variables.pop('extra_parameters', None)
+        assert isinstance(all_variables, dict)
+        variables = {
+            name: converters.get(name, IDENTITY_CONVERTER).encode(value)[0] for
+            name, value in all_variables.items()
+            if name not in parameter_names}
+
+        # all remaining variables need to show up in the path
+        # XXX it needs to get the converter for these using get_converter
+        # XXX not sure about value != []
+        parameters = {
+            name: converters.get(name, IDENTITY_CONVERTER).encode(value) for
+            name, value in all_variables.items()
+            if (name in parameter_names and
+                value is not None and value != [])
+            }
+        if extra_parameters:
+            for name, value in extra_parameters.items():
+                parameters[name] = IDENTITY_CONVERTER.encode(value)
+        return self.interpolation_path % variables, parameters
+
+
 class Traject(object):
     def __init__(self):
         super(Traject, self).__init__()
-        # XXX caching is not enabled
-        # also could this really be registering things in the main
-        # application registry instead? if it did and we solve caching
-        # for that this would get it automatically.
         self._root = Node()
-        self._inverse = Registry()
 
     def add_pattern(self, path, value, converters=None):
         node = self._root
@@ -185,15 +215,6 @@ class Traject(object):
                 raise TrajectError("Duplicate variables")
             known_variables.update(variables)
         node.value = value
-
-    def inverse(self, model_class, path, get_variables, converters,
-                parameter_names):
-        # XXX should we do checking for duplicate variables here too?
-        path = Path(path)
-        self._inverse.register('inverse',
-                               [model_class],
-                               (path.interpolation_str(), get_variables,
-                                converters, parameter_names))
 
     def consume(self, stack):
         stack = stack[:]
@@ -211,26 +232,6 @@ class Traject(object):
             node = new_node
             variables.update(new_variables)
         return node.value, stack, variables
-
-    def path(self, model):
-        (path, get_variables,
-         converters, parameter_names) = self._inverse.component(
-            'inverse', [model])
-        all_variables = get_variables(model)
-        assert isinstance(all_variables, dict)
-        variables = {
-            name: converters.get(name, IDENTITY_CONVERTER).encode(value)[0] for
-            name, value in all_variables.items()
-            if name not in parameter_names}
-
-        # XXX not sure about value != []
-        parameters = {
-            name: converters.get(name, IDENTITY_CONVERTER).encode(value) for
-            name, value in all_variables.items()
-            if (name in parameter_names and
-                value is not None and value != [])
-            }
-        return path % variables, parameters
 
 
 def parse_path(path):

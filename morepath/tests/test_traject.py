@@ -673,32 +673,6 @@ def test_interpolation_str():
     assert Path('{foo} is {bar}').interpolation_str() == '%(foo)s is %(bar)s'
 
 
-def test_path_for_model():
-    traject = Traject()
-
-    class IdModel(object):
-        def __init__(self, id):
-            self.id = id
-
-    traject.inverse(IdModel, 'foo/{id}',
-                    lambda model: {'id': model.id},
-                    {}, [])
-    assert traject.path(IdModel('a')) == ('foo/a', {})
-
-
-def test_path_for_model_with_converter():
-    traject = Traject()
-
-    class IdModel(object):
-        def __init__(self, id):
-            self.id = id
-
-    traject.inverse(IdModel, 'foo/{id}',
-                    lambda model: {'id': model.id},
-                    dict(id=Converter(int)), [])
-    assert traject.path(IdModel(1)) == ('foo/1', {})
-
-
 def test_path_discriminator():
     p = Path('/foo/{x}/bar/{y}')
     assert p.discriminator() == 'foo/{}/bar/{}'
@@ -710,41 +684,50 @@ def fake_request(path):
 
 def test_empty_parameter_factory():
     get_parameters = ParameterFactory({}, {}, [])
-    assert get_parameters(fake_request('').GET) == {}
+    assert get_parameters(fake_request('').GET) == ({}, None)
     # unexpected parameter is ignored
-    assert get_parameters(fake_request('?a=A').GET) == {}
+    assert get_parameters(fake_request('?a=A').GET) == ({}, None)
 
 
 def test_single_parameter():
     get_parameters = ParameterFactory({'a': None}, {'a': Converter(str)}, [])
-    assert get_parameters(fake_request('?a=A').GET) == {'a': 'A'}
-    assert get_parameters(fake_request('').GET) == {'a': None}
+    assert get_parameters(fake_request('?a=A').GET) == ({'a': 'A'}, None)
+    assert get_parameters(fake_request('').GET) == ({'a': None}, None)
 
 
 def test_single_parameter_int():
     get_parameters = ParameterFactory({'a': None}, {'a': Converter(int)}, [])
-    assert get_parameters(fake_request('?a=1').GET) == {'a': 1}
-    assert get_parameters(fake_request('').GET) == {'a': None}
+    assert get_parameters(fake_request('?a=1').GET) == ({'a': 1}, None)
+    assert get_parameters(fake_request('').GET) == ({'a': None}, None)
     with pytest.raises(HTTPBadRequest):
         get_parameters(fake_request('?a=A').GET)
 
 
 def test_single_parameter_default():
     get_parameters = ParameterFactory({'a': 'default'}, {}, [])
-    assert get_parameters(fake_request('?a=A').GET) == {'a': 'A'}
-    assert get_parameters(fake_request('').GET) == {'a': 'default'}
+    assert get_parameters(fake_request('?a=A').GET) == ({'a': 'A'}, None)
+    assert get_parameters(fake_request('').GET) == ({'a': 'default'}, None)
 
 
 def test_single_parameter_int_default():
     get_parameters = ParameterFactory({'a': 0}, {'a': Converter(int)}, [])
-    assert get_parameters(fake_request('?a=1').GET) == {'a': 1}
-    assert get_parameters(fake_request('').GET) == {'a': 0}
+    assert get_parameters(fake_request('?a=1').GET) == ({'a': 1}, None)
+    assert get_parameters(fake_request('').GET) == ({'a': 0}, None)
     with pytest.raises(HTTPBadRequest):
         get_parameters(fake_request('?a=A').GET)
 
 
 def test_parameter_required():
     get_parameters = ParameterFactory({'a': None}, {}, ['a'])
-    assert get_parameters(fake_request('?a=foo').GET) == {'a': 'foo'}
+    assert get_parameters(fake_request('?a=foo').GET) == ({'a': 'foo'}, None)
     with pytest.raises(HTTPBadRequest):
         get_parameters(fake_request('').GET)
+
+
+def test_extra_parameters():
+    get_parameters = ParameterFactory({'a': None}, {}, [], True)
+    assert get_parameters(fake_request('?a=foo').GET) == ({'a': 'foo'}, {})
+    assert get_parameters(fake_request('?b=foo').GET) == ({'a': None},
+                                                          {'b': 'foo'})
+    assert get_parameters(fake_request('?a=foo&b=bar').GET) == ({'a': 'foo'},
+                                                                {'b': 'bar'})

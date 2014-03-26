@@ -1,5 +1,5 @@
 import reg
-
+from .error import LinkError
 
 @reg.generic
 def consume(request, model):
@@ -10,13 +10,6 @@ def consume(request, model):
     Adjusts request.unconsumed with the remaining unconsumed stack.
     """
     return None
-
-
-@reg.generic
-def app(obj):
-    """Get the application that this object is associated with.
-    """
-    raise NotImplementedError  # pragma: nocoverage
 
 
 @reg.generic
@@ -37,7 +30,7 @@ def lookup(obj):
 def path(model):
     """Get the path and parameters for a model in its own application.
     """
-    raise NotImplementedError  # pragma: nocoverage
+    raise LinkError()
 
 
 @reg.generic

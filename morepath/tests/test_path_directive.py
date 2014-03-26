@@ -967,3 +967,35 @@ def test_url_parameter_list_but_only_one_allowed():
     c.get('/?item=1&item=2', status=400)
 
     c.get('/link?item=1&item=2', status=400)
+
+
+def test_keyword_parameters_url_parameters():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, extra_parameters):
+            self.extra_parameters = extra_parameters
+
+    @app.path(model=Model, path='/')
+    def get_model(extra_parameters):
+        return Model(extra_parameters)
+
+    @app.view(model=Model)
+    def default(self, request):
+        return repr(sorted(self.extra_parameters.items()))
+
+    @app.view(model=Model, name='link')
+    def link(self, request):
+        return request.link(self)
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/?a=A&b=B')
+    assert response.body == "[(u'a', u'A'), (u'b', u'B')]"
+    response = c.get('/link?a=A&b=B')
+    assert response.body == '/?a=A&b=B'
+
+# keyword parameters with list
