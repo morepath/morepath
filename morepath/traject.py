@@ -171,7 +171,7 @@ class Inverse(object):
         self.interpolation_path = Path(path).interpolation_str()
         self.get_variables = get_variables
         self.converters = converters
-        self.parameter_names = parameter_names
+        self.parameter_names = set(parameter_names)
 
     def __call__(self, model):
         converters = self.converters

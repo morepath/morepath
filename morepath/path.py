@@ -52,6 +52,6 @@ def register_path(app, model, path, variables, converters, required,
     traject.add_pattern(path, (model_factory, parameter_factory),
                         converters)
 
-    inverse = Inverse(path, variables, converters, set(parameters.keys()))
+    inverse = Inverse(path, variables, converters, parameters.keys())
     app.register(generic.path, [model], inverse)
 
