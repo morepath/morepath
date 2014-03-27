@@ -43,12 +43,10 @@ def traject_consume(request, model, lookup):
     if value is None:
         return None
     get_model, get_parameters = value
-    variables, extra_parameters = get_parameters(request.GET)
+    variables = get_parameters(request.GET)
     variables.update(generic.context(model, default={}, lookup=lookup))
     variables['parent'] = model
     variables['request'] = request
-    if extra_parameters is not None:
-        variables['extra_parameters'] = extra_parameters
     variables.update(traject_variables)
     next_model = mapply(get_model, **variables)
     if next_model is None:

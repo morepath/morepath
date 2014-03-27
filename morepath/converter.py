@@ -207,7 +207,7 @@ class ParameterFactory(object):
                         name, value))
 
         if not self.extra:
-            return result, None
+            return result
 
         remaining = set(url_parameters.keys()).difference(
             set(result.keys()))
@@ -221,4 +221,5 @@ class ParameterFactory(object):
                 raise HTTPBadRequest(
                     "Cannot decode URL parameter %s: %s" % (
                         name, value))
-        return result, extra
+        result['extra_parameters'] = extra
+        return result

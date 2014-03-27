@@ -684,50 +684,54 @@ def fake_request(path):
 
 def test_empty_parameter_factory():
     get_parameters = ParameterFactory({}, {}, [])
-    assert get_parameters(fake_request('').GET) == ({}, None)
+    assert get_parameters(fake_request('').GET) == {}
     # unexpected parameter is ignored
-    assert get_parameters(fake_request('?a=A').GET) == ({}, None)
+    assert get_parameters(fake_request('?a=A').GET) == {}
 
 
 def test_single_parameter():
     get_parameters = ParameterFactory({'a': None}, {'a': Converter(str)}, [])
-    assert get_parameters(fake_request('?a=A').GET) == ({'a': 'A'}, None)
-    assert get_parameters(fake_request('').GET) == ({'a': None}, None)
+    assert get_parameters(fake_request('?a=A').GET) == {'a': 'A'}
+    assert get_parameters(fake_request('').GET) == {'a': None}
 
 
 def test_single_parameter_int():
     get_parameters = ParameterFactory({'a': None}, {'a': Converter(int)}, [])
-    assert get_parameters(fake_request('?a=1').GET) == ({'a': 1}, None)
-    assert get_parameters(fake_request('').GET) == ({'a': None}, None)
+    assert get_parameters(fake_request('?a=1').GET) == {'a': 1}
+    assert get_parameters(fake_request('').GET) == {'a': None}
     with pytest.raises(HTTPBadRequest):
         get_parameters(fake_request('?a=A').GET)
 
 
 def test_single_parameter_default():
     get_parameters = ParameterFactory({'a': 'default'}, {}, [])
-    assert get_parameters(fake_request('?a=A').GET) == ({'a': 'A'}, None)
-    assert get_parameters(fake_request('').GET) == ({'a': 'default'}, None)
+    assert get_parameters(fake_request('?a=A').GET) == {'a': 'A'}
+    assert get_parameters(fake_request('').GET) == {'a': 'default'}
 
 
 def test_single_parameter_int_default():
     get_parameters = ParameterFactory({'a': 0}, {'a': Converter(int)}, [])
-    assert get_parameters(fake_request('?a=1').GET) == ({'a': 1}, None)
-    assert get_parameters(fake_request('').GET) == ({'a': 0}, None)
+    assert get_parameters(fake_request('?a=1').GET) == {'a': 1}
+    assert get_parameters(fake_request('').GET) == {'a': 0}
     with pytest.raises(HTTPBadRequest):
         get_parameters(fake_request('?a=A').GET)
 
 
 def test_parameter_required():
     get_parameters = ParameterFactory({'a': None}, {}, ['a'])
-    assert get_parameters(fake_request('?a=foo').GET) == ({'a': 'foo'}, None)
+    assert get_parameters(fake_request('?a=foo').GET) == {'a': 'foo'}
     with pytest.raises(HTTPBadRequest):
         get_parameters(fake_request('').GET)
 
 
 def test_extra_parameters():
     get_parameters = ParameterFactory({'a': None}, {}, [], True)
-    assert get_parameters(fake_request('?a=foo').GET) == ({'a': 'foo'}, {})
-    assert get_parameters(fake_request('?b=foo').GET) == ({'a': None},
-                                                          {'b': 'foo'})
-    assert get_parameters(fake_request('?a=foo&b=bar').GET) == ({'a': 'foo'},
-                                                                {'b': 'bar'})
+    assert get_parameters(fake_request('?a=foo').GET) == {
+        'a': 'foo',
+        'extra_parameters': {}}
+    assert get_parameters(fake_request('?b=foo').GET) == {
+        'a': None,
+        'extra_parameters': {'b': 'foo'}}
+    assert get_parameters(fake_request('?a=foo&b=bar').GET) == {
+        'a': 'foo',
+        'extra_parameters': {'b': 'bar'}}
