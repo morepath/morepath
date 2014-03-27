@@ -175,7 +175,7 @@ def test_view_raises_http_error():
     def view(self, request):
         raise HTTPBadRequest()
 
-    register_path(app, Model, 'foo', None, None, None, Model)
+    register_path(app, Model, 'foo', None, None, None, None, Model)
     register_view(app, Model, view)
 
     request = app.request(get_environ(path='foo'))

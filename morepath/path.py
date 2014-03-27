@@ -31,7 +31,7 @@ def get_variables_func(arguments, exclude):
 
 
 def register_path(app, model, path, variables, converters, required,
-                  model_factory, arguments=None):
+                  get_converter, model_factory, arguments=None):
     traject = app.traject
 
     converters = converters or {}
