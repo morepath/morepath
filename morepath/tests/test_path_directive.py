@@ -305,6 +305,85 @@ def test_url_parameter_explicit_converter():
     assert response.body == "View: None (<type 'NoneType'>)"
 
 
+def test_url_parameter_explicit_converter_get_converters():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    def get_converters():
+        return dict(id=Converter(int))
+
+    @app.path(model=Model, path='/', get_converters=get_converters)
+    def get_model(id):
+        return Model(id)
+
+    @app.view(model=Model)
+    def default(self, request):
+        return "View: %s (%s)" % (self.id, type(self.id))
+
+    @app.view(model=Model, name='link')
+    def link(self, request):
+        return request.link(self)
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/?id=1')
+    assert response.body == "View: 1 (<type 'int'>)"
+
+    response = c.get('/link?id=1')
+    assert response.body == '/?id=1'
+
+    response = c.get('/?id=broken', status=400)
+
+    response = c.get('/')
+    assert response.body == "View: None (<type 'NoneType'>)"
+
+
+def test_url_parameter_get_converters_overrides_converters():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    def get_converters():
+        return dict(id=Converter(int))
+
+    @app.path(model=Model, path='/', converters={id: unicode},
+              get_converters=get_converters)
+    def get_model(id):
+        return Model(id)
+
+    @app.view(model=Model)
+    def default(self, request):
+        return "View: %s (%s)" % (self.id, type(self.id))
+
+    @app.view(model=Model, name='link')
+    def link(self, request):
+        return request.link(self)
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/?id=1')
+    assert response.body == "View: 1 (<type 'int'>)"
+
+    response = c.get('/link?id=1')
+    assert response.body == '/?id=1'
+
+    response = c.get('/?id=broken', status=400)
+
+    response = c.get('/')
+    assert response.body == "View: None (<type 'NoneType'>)"
+
+
 def test_url_parameter_implicit_converter():
     config = setup()
     app = morepath.App(testing_config=config)
@@ -969,7 +1048,7 @@ def test_url_parameter_list_but_only_one_allowed():
     c.get('/link?item=1&item=2', status=400)
 
 
-def test_keyword_parameters_url_parameters():
+def test_extra_parameters():
     config = setup()
     app = morepath.App(testing_config=config)
 
@@ -998,4 +1077,38 @@ def test_keyword_parameters_url_parameters():
     response = c.get('/link?a=A&b=B')
     assert response.body == '/?a=A&b=B'
 
-# keyword parameters with list
+
+def test_extra_parameters_with_get_converters():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, extra_parameters):
+            self.extra_parameters = extra_parameters
+
+    def get_converters():
+        return {
+            'a': int,
+            'b': unicode,
+            }
+
+    @app.path(model=Model, path='/', get_converters=get_converters)
+    def get_model(extra_parameters):
+        return Model(extra_parameters)
+
+    @app.view(model=Model)
+    def default(self, request):
+        return repr(sorted(self.extra_parameters.items()))
+
+    @app.view(model=Model, name='link')
+    def link(self, request):
+        return request.link(self)
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/?a=1&b=B')
+    assert response.body == "[(u'a', 1), (u'b', u'B')]"
+    response = c.get('/link?a=1&b=B')
+    assert response.body == '/?a=1&b=B'

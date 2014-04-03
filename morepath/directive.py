@@ -145,7 +145,7 @@ class PathDirective(Directive):
 
     def __init__(self, app, path, model=None,
                  variables=None, converters=None, required=None,
-                 get_converter=None):
+                 get_converters=None):
         """Register a model for a path.
 
         Decorate a function or a class (constructor). The function
@@ -174,11 +174,10 @@ class PathDirective(Directive):
           should be required, i.e. if missing a 400 Bad Request response is
           given. Any default value is ignored. Has no effect on path
           variables. Optional.
-        :param get_converter: a function that given a model instance and
-          a path variable name looks up a converter for that field. Should
-          return None if appropriate converter can be found. Will
-          be used if no more specific converter can be found, and will
-          be used for ``extra_parameters``. Optional.
+        :param get_converters: a function that returns a converter dictionary.
+          This function is called once during configuration time. It can
+          be used to programmatically supply converters. It is merged
+          with the ``converters`` dictionary, if supplied. Optional.
         """
         super(PathDirective, self).__init__(app)
         self.model = model
@@ -186,7 +185,7 @@ class PathDirective(Directive):
         self.variables = variables
         self.converters = converters
         self.required = required
-        self.get_converter = get_converter
+        self.get_converters = get_converters
 
     def identifier(self, app):
         return ('path', Path(self.path).discriminator())
@@ -210,7 +209,7 @@ class PathDirective(Directive):
     def perform(self, app, obj):
         register_path(app, self.model, self.path,
                       self.variables, self.converters, self.required,
-                      self.get_converter,
+                      self.get_converters,
                       obj)
 
 
@@ -464,7 +463,7 @@ class MountDirective(PathDirective):
     depends = [SettingDirective, ConverterDirective]
 
     def __init__(self, base_app, path, app, converters=None,
-                 required=None, get_converter=None):
+                 required=None, get_converters=None):
         """Mount sub application on path.
 
         The decorated function gets the variables specified in path as
@@ -480,16 +479,15 @@ class MountDirective(PathDirective):
           should be required, i.e. if missing a 400 Bad Request response is
           given. Any default value is ignored. Has no effect on path
           variables. Optional.
-        :param get_converter: a function that given a model instance and
-          a path variable name looks up a converter for that field. Should
-          return None if appropriate converter can be found. Will
-          be used if no more specific converter can be found, and will
-          be used for ``extra_parameters``. Optional.
+        :param get_converters: a function that returns a converter dictionary.
+          This function is called once during configuration time. It can
+          be used to programmatically supply converters. It is merged
+          with the ``converters`` dictionary, if supplied. Optional.
         """
         super(MountDirective, self).__init__(base_app, path,
                                              converters=converters,
                                              required=required,
-                                             get_converter=get_converter)
+                                             get_converters=get_converters)
         self.mounted_app = app
 
     # XXX it's a bit of a hack to make the mount directive
@@ -503,7 +501,7 @@ class MountDirective(PathDirective):
 
     def perform(self, app, obj):
         register_mount(app, self.mounted_app, self.path, self.converters,
-                       self.required, self.get_converter, obj)
+                       self.required, self.get_converters, obj)
 
 
 tween_factory_id = 0

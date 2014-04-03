@@ -47,7 +47,7 @@ class Mount(object):
         return factory(**context)
 
 
-def register_mount(base_app, app, path, converters, required, get_converter,
+def register_mount(base_app, app, path, converters, required, get_converters,
                    context_factory):
     # specific class as we want a different one for each mount
     class SpecificMount(Mount):
@@ -56,7 +56,7 @@ def register_mount(base_app, app, path, converters, required, get_converter,
     # need to construct argument info from context_factory, not SpecificMount
     arguments = get_arguments(context_factory, SPECIAL_ARGUMENTS)
     register_path(base_app, SpecificMount, path, lambda m: m.variables,
-                  converters, required, get_converter,
+                  converters, required, get_converters,
                   SpecificMount, arguments=arguments)
     register_mounted(base_app, app, SpecificMount)
 

@@ -1,6 +1,8 @@
 from morepath.converter import (ConverterRegistry, Converter,
                                 ListConverter,
                                 IDENTITY_CONVERTER)
+from morepath.error import DirectiveError
+import pytest
 
 
 def test_converter_registry():
@@ -11,7 +13,8 @@ def test_converter_registry():
     assert r.converter_for_type(int) is c
     assert r.converter_for_value(1) is c
     assert r.converter_for_value(None) is IDENTITY_CONVERTER
-    assert r.converter_for_value('s') is None
+    with pytest.raises(DirectiveError):
+        r.converter_for_value('s')
 
 
 def test_converter_registry_inheritance():
@@ -48,7 +51,8 @@ def test_converter_registry_inheritance():
     assert r.converter_for_value(Lifeform('seaweed')) is c
     assert r.converter_for_value(Animal('elephant')) is c
     assert r.converter_for_value(None) is IDENTITY_CONVERTER
-    assert r.converter_for_value('s') is None
+    with pytest.raises(DirectiveError):
+        assert r.converter_for_value('s') is None
     assert r.converter_for_type(Lifeform).decode(['elephant']) is elephant
     assert r.converter_for_type(Lifeform).encode(seaweed) == ['seaweed']
 

@@ -109,7 +109,11 @@ class ConverterRegistry(object):
         :param type: The type for which to look up the converter.
         :returns: a :class:`morepath.Converter` instance.
         """
-        return self._map.get(ClassMapKey(type))
+        result = self._map.get(ClassMapKey(type))
+        if result is None:
+            raise DirectiveError(
+                "Cannot find converter for type: %r" % type)
+        return result
 
     def converter_for_value(self, v):
         """Get converter for value.
@@ -122,48 +126,52 @@ class ConverterRegistry(object):
         """
         if v is None:
             return IDENTITY_CONVERTER
-        return self.converter_for_type(type(v))
+        try:
+            return self.converter_for_type(type(v))
+        except DirectiveError:
+            raise DirectiveError(
+                "Cannot find converter for default value: %r (%s)" %
+                (v, type(v)))
 
-    def get_converters(self, arguments, converters):
-        """Get converters for arguments.
-        Use explicitly supplied converter if available, otherwise ask
-        for converter for the default value of argument.
-
-        :param arguments: a dictionary of arguments to find converters for.
-        :param converters: a dictionary of explicitly supplied converters.
-        :returns: a dictionary with for each argument a converter supplied.
+    def converter_for_explicit_or_type(self, c):
+        """Given a converter or a type, turn it into an explicit one.
         """
-        result = {}
+        if type(c) in [type, ClassType]:
+            return self.converter_for_type(c)
+        return c
 
-        def get_converter(converter):
-            if type(converter) in [type, ClassType]:
-                result = self.converter_for_type(converter)
-                if result is None:
-                    raise DirectiveError(
-                        "Cannot find converter for type: %r" % converter)
-                return result
-            return converter
+    def converter_for_explicit_or_type_or_list(self, c):
+        """Given a converter or type or list, turn it into an explicit one.
 
-        for name, value in arguments.items():
-            # find explicit converter
-            converter = converters.get(name, None)
-            # if explicit converter is type, look it up
-            if isinstance(converter, list):
-                if len(converter) == 0:
-                    c = IDENTITY_CONVERTER
-                else:
-                    c = get_converter(converter[0])
-                converter = ListConverter(c)
+        :param c: can either be a converter, or a type for which
+          a converter can be looked up, or a list with a converter or a type
+          in it.
+        :returns: a :class:`Converter` instance.
+        """
+        if isinstance(c, list):
+            if len(c) == 0:
+                c = IDENTITY_CONVERTER
             else:
-                converter = get_converter(converter)
-            # if still no converter, look it up for value
-            if converter is None:
-                converter = self.converter_for_value(value)
-            if converter is None:
-                raise DirectiveError(
-                    "Cannot find converter for default value: %r (%s)" %
-                    (value, type(value)))
-            result[name] = converter
+                c = self.converter_for_explicit_or_type(c[0])
+            return ListConverter(c)
+        return self.converter_for_explicit_or_type(c)
+
+    def explicit_converters(self, converters):
+        """Given converter dictionary, make everything in it explicit.
+
+        This means types have converters looked up for them, and
+        lists are turned into :class:`ListConverter`.
+        """
+        return {name: self.converter_for_explicit_or_type_or_list(value) for
+                name, value in converters.items()}
+
+    def argument_and_explicit_converters(self, arguments, converters):
+        """Use explict converters unless none supplied, then use default args.
+        """
+        result = self.explicit_converters(converters)
+        for name, value in arguments.items():
+            if name not in result:
+                result[name] = self.converter_for_value(value)
         return result
 
 
@@ -178,7 +186,7 @@ class ParameterFactory(object):
         :param parameters: dictionary of parameter names -> default values.
         :param converters: dictionary of parameter names -> converters.
         :param required: dictionary of parameter names -> required booleans.
-        :param extra: should extra unknown parameters be processed?
+        :param extra: should extra unknown parameters be included?
         """
         self.parameters = parameters
         self.converters = converters
@@ -186,7 +194,7 @@ class ParameterFactory(object):
         self.extra = extra
 
     def __call__(self, url_parameters):
-        """Convert URL parameters to program-friendly structure.
+        """Convert URL parameters to Python dictionary with values.
         """
         result = {}
         for name, default in self.parameters.items():
@@ -214,7 +222,7 @@ class ParameterFactory(object):
         extra = {}
         for name in remaining:
             value = url_parameters.getall(name)
-            converter = IDENTITY_CONVERTER
+            converter = self.converters.get(name, IDENTITY_CONVERTER)
             try:
                 extra[name] = converter.decode(value)
             except ValueError:

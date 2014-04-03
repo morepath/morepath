@@ -4,7 +4,6 @@ from .mount import Mount
 import morepath.directive
 from morepath import generic
 from .app import AppBase
-from .error import LinkError
 from .request import Request, Response
 from .converter import Converter, IDENTITY_CONVERTER
 from webob import Response as BaseResponse

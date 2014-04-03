@@ -1,6 +1,5 @@
 import re
 from functools import total_ordering
-from reg import Registry
 from .converter import IDENTITY_CONVERTER
 from .error import TrajectError
 
@@ -185,7 +184,6 @@ class Inverse(object):
             if name not in parameter_names}
 
         # all remaining variables need to show up in the path
-        # XXX it needs to get the converter for these using get_converter
         # XXX not sure about value != []
         parameters = {
             name: converters.get(name, IDENTITY_CONVERTER).encode(value) for
@@ -195,7 +193,8 @@ class Inverse(object):
             }
         if extra_parameters:
             for name, value in extra_parameters.items():
-                parameters[name] = IDENTITY_CONVERTER.encode(value)
+                parameters[name] = converters.get(
+                    name, IDENTITY_CONVERTER).encode(value)
         return self.interpolation_path % variables, parameters
 
 

@@ -1,6 +1,7 @@
 import reg
 from .error import LinkError
 
+
 @reg.generic
 def consume(request, model):
     """Consume request.unconsumed to new model, starting with model.

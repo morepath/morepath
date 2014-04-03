@@ -31,13 +31,15 @@ def get_variables_func(arguments, exclude):
 
 
 def register_path(app, model, path, variables, converters, required,
-                  get_converter, model_factory, arguments=None):
+                  get_converters, model_factory, arguments=None):
     traject = app.traject
 
     converters = converters or {}
+    if get_converters is not None:
+        converters.update(get_converters())
     if arguments is None:
         arguments = get_arguments(model_factory, SPECIAL_ARGUMENTS)
-    converters = app.get_converters(arguments, converters)
+    converters = app.argument_and_explicit_converters(arguments, converters)
     exclude = Path(path).variables()
     exclude.update(app.mount_variables())
     parameters = get_url_parameters(arguments, exclude)
@@ -54,4 +56,3 @@ def register_path(app, model, path, variables, converters, required,
 
     inverse = Inverse(path, variables, converters, parameters.keys())
     app.register(generic.path, [model], inverse)
-
