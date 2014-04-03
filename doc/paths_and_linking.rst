@@ -143,6 +143,23 @@ can be used as type hints however; we'll talk more about those soon.
 Like with path variables, you can have as many URL parameters as you
 want.
 
+Extra URL parameters
+--------------------
+
+URL parameters are matched with function arguments, but it could be
+you're interested in an arbitrary amount of extra URL parameters. You
+can specify that you're interested in this by adding an
+``extra_parameters`` argument::
+
+  @app.path(model=DocumentCollection, path='search')
+  def document_search(text='all', extra_parameters):
+      return DocumentCollection(text, extra_parameters)
+
+Now any additional URL parameters are put into the
+``extra_parameters`` dictionary. So, ``search?text=blah&a=A&bB`` would
+match ``text`` with the ``text`` parameter, and there would be an
+``extra_parameters`` containing ``{'a': 'A', 'b': 'B'}``.
+
 Linking
 -------
 
@@ -251,6 +268,18 @@ takes multiple variables::
   def get_versioned_document(name, version):
       return query_versioned_document(name, version)
 
+If you have ``extra_parameters``, the default variables expects that
+``extra_parameters`` to exist as an attribute on the object, but you
+can write a custom ``variables`` that retrieves this dictionary from
+the object in some other way::
+
+  @app.path(model=SearchResults,
+            path='search',
+            variables=lambda model: dict(text=model.search_text,
+                                         extra_parameters=model.get_extra()))
+  def get_search_results(text, extra_parameters):
+      ...
+
 Linking with URL parameters
 ---------------------------
 
@@ -356,8 +385,8 @@ Conversion
 ----------
 
 Sometimes simple type hints are not enough. What if multiple possible
-string representations for something exist? Let's examine the case of
-:class:`datetime.date`.
+string representations for something exist in the same application?
+Let's examine the case of :class:`datetime.date`.
 
 We could represent it as a string in ISO 8601 format as returned by
 the :meth:`datetime.date.isoformat` method, i.e. ``2014-01-15`` for
@@ -551,6 +580,28 @@ like this are accepted::
 For the first case, ``d`` is a list with one date item, in the second
 case, ``d`` has 2 items, and in the third case the list ``d`` is
 empty.
+
+get_converters
+--------------
+
+Sometimes you only know what converters are available at run-time;
+this particularly relevant if you want to supply converters for the
+values in ``extra_parameters``. You can supply the converters using
+the special ``get_converters`` parameter to ``@app.path``::
+
+  def get_converters():
+      return { 'something': int }
+
+  @app.path(path='search', model=SearchResults,
+            get_converters=my_get_converters)
+  ...
+
+Now if there is a parameter (or extra parameter) called ``something``, it
+is converted to an ``int``.
+
+You can combine ``converters`` and ``get_converters``. If you use
+both, ``get_converters`` will override any converters also defined in
+the static ``converters``.
 
 Required
 --------
