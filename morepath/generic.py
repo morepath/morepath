@@ -35,7 +35,7 @@ def path(model):
 
 
 @reg.generic
-def link(request, model):
+def link(request, model, mounted):
     """Create a link (URL) to a model, including any mounted applications.
     """
     raise NotImplementedError  # pragma: nocoverage
@@ -111,5 +111,12 @@ def permits(identity, model, permission):
 
     identity can be the special NO_IDENTITY singleton; register for
     NoIdentity to handle this case separately.
+    """
+    raise NotImplementedError  # pragma: nocoverage
+
+
+@reg.generic
+def linkmaker(request, mounted):
+    """Returns a link maker for request and mounted.
     """
     raise NotImplementedError  # pragma: nocoverage

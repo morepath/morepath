@@ -417,6 +417,8 @@ def test_traject_consume():
     traject = Traject()
     traject.add_pattern('sub', (Model, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
+    app.register(generic.context, [object], lambda obj: {})
+
     found, request = consume(app, 'sub')
     assert isinstance(found, Model)
     assert request.unconsumed == []
@@ -433,6 +435,8 @@ def test_traject_consume_parameter():
     get_param = ParameterFactory({'a': 0}, {'a': Converter(int)}, [])
     traject.add_pattern('sub', (Model, get_param))
     app.register(generic.traject, [App], lambda base: traject)
+    app.register(generic.context, [object], lambda obj: {})
+
     found, request = consume(app, 'sub?a=1')
     assert isinstance(found, Model)
     assert found.a == 1
@@ -456,6 +460,8 @@ def test_traject_consume_model_factory_gets_request():
 
     traject.add_pattern('sub', (get_model, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
+    app.register(generic.context, [object], lambda obj: {})
+
     found, request = consume(app, 'sub')
     assert isinstance(found, Model)
     assert request.unconsumed == []
@@ -479,6 +485,7 @@ def test_traject_consume_factory_returns_none():
 
     traject.add_pattern('sub', (get_model, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
+    app.register(generic.context, [object], lambda obj: {})
 
     found, request = consume(app, 'sub')
 
@@ -498,6 +505,7 @@ def test_traject_consume_variable():
 
     traject.add_pattern('{foo}', (get_model, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
+    app.register(generic.context, [object], lambda obj: {})
 
     found, request = consume(app, 'something')
     assert isinstance(found, Model)
@@ -518,6 +526,7 @@ def test_traject_consume_view():
     traject.add_pattern('', (Root, paramfac))
     traject.add_pattern('{foo}', (get_model, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
+    app.register(generic.context, [object], lambda obj: {})
 
     found, request = consume(app, '+something')
     assert isinstance(found, Root)
@@ -531,6 +540,7 @@ def test_traject_root():
 
     traject.add_pattern('', (Root, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
+    app.register(generic.context, [object], lambda obj: {})
 
     found, request = consume(app, '')
     assert isinstance(found, Root)
@@ -550,6 +560,7 @@ def test_traject_consume_combination():
     traject.add_pattern('special', (Special, paramfac))
     traject.add_pattern('{foo}', (get_model, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
+    app.register(generic.context, [object], lambda obj: {})
 
     found, request = consume(app, 'something')
     assert isinstance(found, Model)
@@ -568,6 +579,7 @@ def test_traject_nested():
     traject.add_pattern('a', (Model, paramfac))
     traject.add_pattern('a/b', (Special, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
+    app.register(generic.context, [object], lambda obj: {})
 
     found, request = consume(app, 'a')
     assert isinstance(found, Model)
@@ -582,6 +594,7 @@ def test_traject_nested_not_resolved_entirely_by_consumer():
     traject = Traject()
     traject.add_pattern('a', (Model, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
+    app.register(generic.context, [object], lambda obj: {})
 
     found, request = consume(app, 'a')
     assert isinstance(found, Model)
@@ -609,6 +622,7 @@ def test_traject_nested_with_variable():
     traject.add_pattern('{id}', (get_model, paramfac))
     traject.add_pattern('{id}/sub', (get_special, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
+    app.register(generic.context, [object], lambda obj: {})
 
     found, request = consume(app, 'a')
     assert isinstance(found, Model)
@@ -639,6 +653,7 @@ def test_traject_with_multiple_variables():
     traject.add_pattern('{first_id}', (get_model, paramfac))
     traject.add_pattern('{first_id}/{second_id}', (get_special, paramfac))
     app.register(generic.traject, [App], lambda base: traject)
+    app.register(generic.context, [object], lambda obj: {})
 
     found, request = consume(app, 'a')
     assert isinstance(found, Model)

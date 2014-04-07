@@ -4,7 +4,7 @@ from .mount import Mount
 import morepath.directive
 from morepath import generic
 from .app import AppBase
-from .request import Request, Response
+from .request import Request, Response, LinkMaker, NothingMountedLinkMaker
 from .converter import Converter, IDENTITY_CONVERTER
 from webob import Response as BaseResponse
 from webob.exc import HTTPException, HTTPUnauthorized, HTTPMethodNotAllowed
@@ -43,7 +43,10 @@ def traject_consume(request, model, lookup):
         return None
     get_model, get_parameters = value
     variables = get_parameters(request.GET)
-    variables.update(generic.context(model, default={}, lookup=lookup))
+    context = generic.context(model, default=None, lookup=lookup)
+    if context is None:
+        return None
+    variables.update(context)
     variables['parent'] = model
     variables['request'] = request
     variables.update(traject_variables)
@@ -63,9 +66,19 @@ def link(request, model, mounted):
         result.append(path)
         parameters.update(params)
         model = mounted
-        mounted = mounted.parent()
+        mounted = mounted.parent
     result.reverse()
     return '/'.join(result).strip('/'), parameters
+
+
+@global_app.function(generic.linkmaker, Request, object)
+def linkmaker(request, mounted):
+    return LinkMaker(request, mounted)
+
+
+@global_app.function(generic.linkmaker, Request, type(None))
+def none_linkmaker(request, mounted):
+    return NothingMountedLinkMaker(request)
 
 
 @global_app.function(generic.traject, AppBase)

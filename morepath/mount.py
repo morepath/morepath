@@ -35,6 +35,7 @@ class Mount(object):
         response = self.app.publish(request)
         return response(environ, start_response)
 
+    @reify
     def parent(self):
         return self.variables.get('parent')
 
@@ -44,7 +45,10 @@ class Mount(object):
             return None
         if 'parent' not in context:
             context['parent'] = self
-        return factory(**context)
+        mounted = factory(**context)
+        if mounted.create_context() is None:
+            return None
+        return mounted
 
 
 def register_mount(base_app, app, path, converters, required, get_converters,

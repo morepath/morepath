@@ -57,7 +57,7 @@ def test_mount():
     assert response.body == '/foo'
 
 
-def test_mount_empty_context():
+def test_mount_empty_context_should_fail():
     config = setup()
     app = morepath.App('app', testing_config=config)
     mounted = morepath.App('mounted', testing_config=config)
@@ -76,17 +76,14 @@ def test_mount_empty_context():
 
     @app.mount(path='{id}', app=mounted)
     def get_context():
-        pass
+        return None
 
     config.commit()
 
     c = Client(app)
 
-    response = c.get('/foo')
-    assert response.body == 'The root'
-
-    response = c.get('/foo/link')
-    assert response.body == '/foo'
+    c.get('/foo', status=404)
+    c.get('/foo/link', status=404)
 
 
 def test_mount_context():
@@ -229,7 +226,7 @@ def test_mount_parent_link():
 
     @mounted.view(model=MountedRoot)
     def root_default(self, request):
-        return request.link(Model('one'), mounted=request.mounted().parent())
+        return request.parent.link(Model('one'))
 
     @app.mount(path='{id}', app=mounted)
     def get_context(id):
@@ -262,9 +259,7 @@ def test_mount_child_link():
 
     @app.view(model=Root)
     def app_root_default(self, request):
-        return request.link(
-            Model('one'),
-            mounted=request.mounted().child(mounted, id='foo'))
+        return request.child(mounted, id='foo').link(Model('one'))
 
     @app.mount(path='{id}', app=mounted)
     def get_context(id):
@@ -278,6 +273,68 @@ def test_mount_child_link():
 
     response = c.get('/')
     assert response.body == '/foo/models/one'
+
+
+def test_mount_child_link_unknown_child():
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+    mounted = morepath.App('mounted', variables=['mount_id'],
+                           testing_config=config)
+
+    @mounted.path(path='models/{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @app.view(model=Root)
+    def app_root_default(self, request):
+        try:
+            return request.child(mounted, id='foo').link(Model('one'))
+        except LinkError:
+            return 'link error'
+
+    @app.mount(path='{id}', app=mounted)
+    def get_context(id):
+        # no child will be found ever
+        return None
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/')
+    assert response.body == 'link error'
+
+
+def test_mount_child_link_unknown_parent():
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @app.view(model=Root)
+    def app_root_default(self, request):
+        try:
+            return request.parent.link(Model('one'))
+        except LinkError:
+            return 'link error'
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/')
+    assert response.body == 'link error'
 
 
 def test_mount_child_link_unknown_app():
@@ -298,9 +355,7 @@ def test_mount_child_link_unknown_app():
     @app.view(model=Root)
     def app_root_default(self, request):
         try:
-            return request.link(
-                Model('one'),
-                mounted=request.mounted().child(mounted, id='foo'))
+            return request.child(mounted, id='foo').link(Model('one'))
         except LinkError:
             return "link error"
 
@@ -331,7 +386,7 @@ def test_mount_repr():
 
     @app.view(model=Root)
     def app_root_default(self, request):
-        return repr(request.mounted().child(mounted, id='foo'))
+        return repr(request.mounted.child(mounted, id='foo'))
 
     @app.mount(path='{id}', app=mounted)
     def get_context(id):
@@ -371,9 +426,8 @@ def test_request_view_in_mount():
 
     @app.view(model=Root)
     def root_default(self, request):
-        return request.view(
-            Model('x'), mounted=request.mounted().child(
-                mounted, mount_id='foo'))['hey']
+        return request.child(mounted, id='foo').view(
+            Model('x'))['hey']
 
     @app.mount(path='{id}', app=mounted)
     def get_context(id):

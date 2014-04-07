@@ -44,6 +44,7 @@ def test_register_path():
     register_path(app, Root, '', lambda m: {}, None, None, None, lambda: root)
     register_path(app, Model, '{id}', lambda model: {'id': model.id},
                   None, None, None, get_model)
+    app.register(generic.context, [object], lambda obj: {})
 
     obj, request = consume(app, 'a')
     assert obj.id == 'a'
@@ -70,6 +71,7 @@ def test_register_path_with_parameters():
     register_path(app, Model, '{id}', lambda model: {'id': model.id,
                                                      'param': model.param},
                   None, None, None, get_model)
+    app.register(generic.context, [object], lambda obj: {})
 
     obj, request = consume(app, 'a')
     assert obj.id == 'a'
@@ -101,6 +103,8 @@ def test_traject_path_with_leading_slash():
                   lambda: root)
     register_path(app, Model, '/foo/{id}', lambda model: {'id': model.id},
                   None, None, None, get_model)
+    app.register(generic.context, [object], lambda obj: {})
+
     obj, request = consume(app, 'foo/a')
     assert obj.id == 'a'
     obj, request = consume(app, '/foo/a')
