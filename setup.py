@@ -14,7 +14,7 @@ setup(name='morepath',
         'setuptools',
         'webob >= 1.3.1',
         'venusian >= 1.0a8',
-        'reg >= 0.5'
+        'reg >= 0.6'
         ],
       extras_require = dict(
         test=['pytest >= 2.0',
