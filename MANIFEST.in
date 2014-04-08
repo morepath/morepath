@@ -1,0 +1,5 @@
+include *.txt *.rst *.cfg *.py *.ini
+exclude .installed.cfg
+recursive-include morepath *.py
+recursive-include tests *.py
+recursive-include doc *.rst Makefile *.py *.bat
