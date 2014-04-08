@@ -346,3 +346,10 @@ We got HATEOAS, so at last we got true REST. Why is hyperlinking so
 often ignored? Why don't more systems implement HATEOAS? Perhaps
 because they make linking to things too hard or too brittle. Morepath
 instead makes it easy. Link away!
+
+Compose from reusable apps
+--------------------------
+
+If you're going to create a larger RESTful web service, you should
+start thinking about composing them from smaller applications. See
+:doc:`app_reuse` for more information.
