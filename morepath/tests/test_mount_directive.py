@@ -443,6 +443,43 @@ def test_request_view_in_mount():
     assert response.body == 'Hey'
 
 
+def test_request_view_in_mount_broken():
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+    mounted = morepath.App('mounted', variables=['mount_id'],
+                           testing_config=config)
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @mounted.path(path='models/{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @mounted.view(model=Model)
+    def model_default(self, request):
+        return {'hey': 'Hey'}
+
+    @app.view(model=Root)
+    def root_default(self, request):
+        try:
+            return request.child(mounted, id='foo').view(
+                Model('x'))['hey']
+        except LinkError:
+            return "link error"
+
+    # deliberately don't mount so using view is broken
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/')
+    assert response.body == 'link error'
+
+
 def test_mount_implict_converters():
     config = setup()
 

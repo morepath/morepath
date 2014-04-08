@@ -163,10 +163,10 @@ class NothingMountedLinkMaker(object):
         self.request = request
 
     def link(self, obj, name='', default=None):
-        raise LinkError
+        raise LinkError("Cannot link to %r (name %r)" % (obj, name))
 
     def view(self, obj, default=None, **predicates):
-        return None
+        raise LinkError("Cannot view %r (predicates %r)" % (obj, predicates))
 
     @reify
     def parent(self):
