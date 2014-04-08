@@ -8,15 +8,16 @@ To get started with Morepath right away, first create a Python 2.7
 virtualenv_::
 
   $ virtualenv morepath_env
+  $ source morepath_env/bin/activate
 
 Now install Morepath into it::
 
-  $ morepath_env/bin/pip install morepath
+  $ install morepath
 
 You can now use the virtual env's Python to run any code that uses
 Morepath::
 
-  $ morepath_env/bin/python quickstart.py
+  $ python quickstart.py
 
 See :doc:`quickstart` for information on how to get started with
 Morepath itself, including an example of ``quickstart.py``.
@@ -47,12 +48,12 @@ pip
 With pip and a virtualenv called ``morepath_env``, you can do this in
 your project's root directory::
 
-  $ /path/to/morepath_env/bin/pip install --editable .
+  $ pip pinstall --editable .
 
 You can now run the application like this (if you called the console
 script ``myproject-start``)::
 
-  $ /path/to/morepath_env/bin/myproject-start
+  $ myproject-start
 
 buildout
 ~~~~~~~~
@@ -94,11 +95,11 @@ The first time you create or check out a project you need to bootstrap
 the buildout. You can do this using the ``bootstrap.py`` script. Do
 this from a virtualenv::
 
-  $ /path/to/morepath_env/bin/python bootstrap.py
+  $ python bootstrap.py
 
-You only need to do this once. After that you can run:
+You only need to do this once. After that you can run::
 
-  $  bin/buildout
+  $ bin/buildout
 
 each time you want to redo the installation after you change the
 buildout config. It's safe to run this when nothing has really changed
