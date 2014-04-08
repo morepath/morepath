@@ -9,3 +9,8 @@ doc/build
 htmlcov
 .tox
 
+build/
+dist/
+eggs/
+*.pyc
+*.egg-info
