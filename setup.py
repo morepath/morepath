@@ -1,15 +1,30 @@
 import os
 from setuptools import setup, find_packages
 
+long_description = (
+    open('README.rst').read()
+    + '\n' +
+    open('CHANGES.txt').read())
+
 setup(name='morepath',
       version = '0.1dev',
       description="A micro web-framework with superpowers",
+      long_description=long_description,
       author="Martijn Faassen",
       author_email="faassen@startifact.com",
       license="BSD",
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
+      classifiers=[
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: BSD License',
+        'Environment :: Web Environment',
+        'Topic :: Software Development :: Libraries :: Application Frameworks',
+        'Topic :: Internet :: WWW/HTTP :: WSGI',
+        'Programming Language :: Python :: 2.7',
+        'Development Status :: 4 - Beta'
+        ],
       install_requires=[
         'setuptools',
         'webob >= 1.3.1',
