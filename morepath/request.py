@@ -80,9 +80,19 @@ class Request(BaseRequest):
 
     @reify
     def parent(self):
+        """Obj to call :meth:`Request.link` or :meth:`Request.view` on parent.
+
+        Get an object that represents the parent app that this app is mounted
+        inside. You can call ``link`` and ``view`` on it.
+        """
         return generic.linkmaker(self, self.mounted.parent, lookup=self.lookup)
 
     def child(self, app, **variables):
+        """Obj to call :meth:`Request.link` or :meth:`Request.view` on child.
+
+        Get an object that represents the application mounted in this app.
+        You can call ``link`` and ``view`` on it.
+        """
         return generic.linkmaker(self, self.mounted.child(app, **variables),
                                  lookup=self.lookup)
 

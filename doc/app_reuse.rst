@@ -257,6 +257,40 @@ mounting it explicitly:
 
 This is a WSGI app that we can run by itself that uses ``wiki_id``.
 
+Linking to other mounted apps
+-----------------------------
+
+When we have one app mounted inside another, we want a way to make links
+between them.
+
+Here's how to link to an object in an app's parent app::
+
+  request.parent.link(obj)
+
+If there is no parent application, this raises a
+:exc:`morepath.error.LinkError`.
+
+You can also link to an object in a mounted child application::
+
+  request.child(child_app).link(obj)
+
+If the ``child_app`` is not mounted here, this will also raise a
+:exc:`morepath.error.LinkError`.
+
+This won't work though in the case of ``wiki_app`` of the previous
+example, as it mounted inside ``app`` using the ``username``. Here's
+how we supply it to get the appropriate ``wiki_app``::
+
+  request.child(wiki_app, username='foo').link(obj)
+
+You can compose ``parent`` and ``child`` together in order to get to
+anywhere in the mounted app graph; getting to a sibling app for
+instance looks like this::
+
+  app.parent.child(sibling_app)
+
+Besides using ``.link`` you can also use ``.view`` this way.
+
 Application Reuse
 -----------------
 
