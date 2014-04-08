@@ -263,14 +263,16 @@ Linking to other mounted apps
 When we have one app mounted inside another, we want a way to make links
 between them.
 
-Here's how to link to an object in an app's parent app::
+You can use :attr:`morepath.Request.parent` to link to an object in an
+app's parent app::
 
   request.parent.link(obj)
 
 If there is no parent application, this raises a
 :exc:`morepath.error.LinkError`.
 
-You can also link to an object in a mounted child application::
+You can use :meth:`morepath.Request.child` to link to an object in a
+mounted child application::
 
   request.child(child_app).link(obj)
 
