@@ -10,14 +10,14 @@ First make sure you have virtualenv_ installed for Python 2.7.
 
 .. _virtualenv: https://pypi.python.org/pypi/virtualenv
 
-Now create a new virtualenv somewhere for Morepath development and activate
-de environment::
+Now create a new virtualenv somewhere for Morepath development::
 
   $ virtualenv /path/to/ve_morepath
-  $ source /path/to/ve_morepath/bin/activate
 
 You should also be able to recycle an existing virtualenv, but this
-guarantees a clean one.
+guarantees a clean one. Note that we skip activating the environment
+here, as this is just needed to initially bootstrap the Morepath
+buildout.
 
 Clone Morepath from github and go to the morepath directory::
 
@@ -27,14 +27,16 @@ Clone Morepath from github and go to the morepath directory::
 Now we need to run bootstrap.py to set up buildout, using the Python from the
 virtualenv we've created before::
 
-  $ python bootstrap.py
+  $ python /path/to/ve_morepath/bin/python/bootstrap.py
 
 This installs buildout, which can now set up the rest of the development
 environment::
 
   $ bin/buildout
 
-This downloads and installs various dependencies and tools.
+This downloads and installs various dependencies and tools. The
+commands you run in ``bin`` are all restricted to the virtualenv you
+set up before.
 
 Running the tests
 -----------------
