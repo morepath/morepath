@@ -9,4 +9,6 @@ CREDITS
 
 * Reinout van Rees (misc documentation fixes)
 
+* Auke Willem Oosterhoff (installation doc improvements)
+
 * Special thanks to CONTACT software.
