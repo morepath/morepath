@@ -36,7 +36,8 @@ environment::
 
 This downloads and installs various dependencies and tools. The
 commands you run in ``bin`` are all restricted to the virtualenv you
-set up before.
+set up before. There is therefore no need to refer to the virtualenv
+once you have the development environment going.
 
 Running the tests
 -----------------
