@@ -12,7 +12,7 @@ virtualenv_::
 
 Now install Morepath into it::
 
-  $ install morepath
+  $ pip install morepath
 
 You can now use the virtual env's Python to run any code that uses
 Morepath::
@@ -48,7 +48,7 @@ pip
 With pip and a virtualenv called ``morepath_env``, you can do this in
 your project's root directory::
 
-  $ pip pinstall --editable .
+  $ pip install --editable .
 
 You can now run the application like this (if you called the console
 script ``myproject-start``)::
@@ -95,7 +95,7 @@ The first time you create or check out a project you need to bootstrap
 the buildout. You can do this using the ``bootstrap.py`` script. Do
 this from a virtualenv::
 
-  $ python bootstrap.py
+  $ /path/to/morepath_env/bin/python bootstrap.py
 
 You only need to do this once. After that you can run::
 
