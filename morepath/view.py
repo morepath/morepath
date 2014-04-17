@@ -37,7 +37,7 @@ def get_predicate_registration(registry, model, predicates, registration):
     predicates = get_predicates_with_defaults(predicates, predicate_info)
     matcher = registry.exact(generic.view, (Request, model))
     if matcher is None:
-        predicate_infos = predicate_info.values()
+        predicate_infos = list(predicate_info.values())
         predicate_infos.sort()
         matcher = PredicateMatcher(
             [predicate for (order, predicate) in predicate_infos])

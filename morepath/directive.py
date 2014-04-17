@@ -542,7 +542,7 @@ class TweenFactoryDirective(Directive):
         self.under = under
         self.over = over
         if name is None:
-            name = unicode('tween_factory_%s' % tween_factory_id)
+            name = u'tween_factory_%s' % tween_factory_id
             tween_factory_id += 1
         self.name = name
 

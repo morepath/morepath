@@ -1,5 +1,9 @@
 from reg.mapping import Map, ClassMapKey
-from types import ClassType
+try:
+    from types import ClassType
+except ImportError:
+    # You're running Python 3!
+    ClassType = None
 from morepath.error import DirectiveError
 from webob.exc import HTTPBadRequest
 
@@ -19,8 +23,9 @@ class Converter(object):
         :param encode: function that given objects can encode them into
             strings.
         """
+        fallback_encode = getattr(__builtins__, "unicode", str)
         self.single_decode = decode
-        self.single_encode = encode or unicode
+        self.single_encode = encode or fallback_encode
 
     def decode(self, strings):
         if len(strings) != 1:

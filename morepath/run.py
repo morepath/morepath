@@ -16,6 +16,6 @@ def run(wsgi, host=None, port=None):  # pragma: no cover
     if port is None:
         port = 5000
     server = make_server(host, port, wsgi)
-    print "Running %s with wsgiref.simple_server on http://%s:%s" % (
-        wsgi, host, port)
+    print("Running %s with wsgiref.simple_server on http://%s:%s" % (
+        wsgi, host, port))
     server.serve_forever()
