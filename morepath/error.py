@@ -9,7 +9,7 @@ class ConfigError(Exception):
 def conflict_keyfunc(action):
     codeinfo = action.codeinfo()
     if codeinfo is None:
-        return None
+        return 0
     filename, lineno, function, sourceline = codeinfo
     return (filename, lineno)
 
