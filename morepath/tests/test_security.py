@@ -9,7 +9,10 @@ from .fixtures import identity_policy
 import base64
 import json
 from webtest import TestApp as Client
-from cookielib import CookieJar
+try:
+    from cookielib import CookieJar
+except ImportError:
+    from http.cookiejar import CookieJar
 
 
 def setup_module(module):
@@ -86,7 +89,7 @@ def test_permission_directive():
     c = Client(app)
 
     response = c.get('/foo')
-    assert response.body == 'Model: foo'
+    assert response.body == b'Model: foo'
     response = c.get('/bar', status=401)
 
 
@@ -122,7 +125,7 @@ def test_permission_directive_no_identity():
     c = Client(app)
 
     response = c.get('/foo')
-    assert response.body == 'Model: foo'
+    assert response.body == b'Model: foo'
     response = c.get('/bar', status=401)
 
 
@@ -134,7 +137,7 @@ def test_policy_action():
     c = Client(identity_policy.app)
 
     response = c.get('/foo')
-    assert response.body == 'Model: foo'
+    assert response.body == b'Model: foo'
     response = c.get('/bar', status=401)
 
 
@@ -172,12 +175,12 @@ def test_basic_auth_identity_policy():
 
     response = c.get('/foo', status=401)
 
-    headers = {'Authorization': 'Basic ' + base64.b64encode('user:wrong')}
+    headers = {'Authorization': 'Basic ' + str(base64.b64encode(b'user:wrong').decode())}
     response = c.get('/foo', headers=headers, status=401)
 
-    headers = {'Authorization': 'Basic ' + base64.b64encode('user:secret')}
+    headers = {'Authorization': 'Basic ' + str(base64.b64encode(b'user:secret').decode())}
     response = c.get('/foo', headers=headers)
-    assert response.body == 'Model: foo'
+    assert response.body == b'Model: foo'
 
 
 def test_basic_auth_identity_policy_errors():
@@ -228,32 +231,32 @@ def test_basic_auth_identity_policy_errors():
 
     # fallback to utf8
     headers = {
-        'Authorization': 'Basic ' + base64.b64encode(
-            u'user:sëcret'.encode('utf8'))}
+        'Authorization': 'Basic ' + str(base64.b64encode(
+            u'user:sëcret'.encode('utf8')).decode())}
     response = c.get('/foo', headers=headers)
-    assert response.body == 'Model: foo'
+    assert response.body == b'Model: foo'
 
     # fallback to latin1
     headers = {
-        'Authorization': 'Basic ' + base64.b64encode(
-            u'user:sëcret'.encode('latin1'))}
+        'Authorization': 'Basic ' + str(base64.b64encode(
+            u'user:sëcret'.encode('latin1')).decode())}
     response = c.get('/foo', headers=headers)
-    assert response.body == 'Model: foo'
+    assert response.body == b'Model: foo'
 
     # unknown encoding
     headers = {
-        'Authorization': 'Basic ' + base64.b64encode(
-            u'user:sëcret'.encode('cp500'))}
+        'Authorization': 'Basic ' + str(base64.b64encode(
+            u'user:sëcret'.encode('cp500')).decode())}
     response = c.get('/foo', headers=headers, status=401)
 
     headers = {
-        'Authorization': 'Basic ' + base64.b64encode(
-            u'usersëcret'.encode('utf8'))}
+        'Authorization': 'Basic ' + str(base64.b64encode(
+            u'usersëcret'.encode('utf8')).decode())}
     response = c.get('/foo', headers=headers, status=401)
 
     headers = {
-        'Authorization': 'Basic ' + base64.b64encode(
-            u'user:sëcret:'.encode('utf8'))}
+        'Authorization': 'Basic ' + str(base64.b64encode(
+            u'user:sëcret:'.encode('utf8')).decode())}
     response = c.get('/foo', headers=headers, status=401)
 
 
@@ -285,7 +288,7 @@ def test_basic_auth_remember():
     c = Client(app)
 
     response = c.get('/foo', status=200)
-    assert response.body == ''
+    assert response.body == b''
 
 
 def test_basic_auth_forget():
@@ -314,7 +317,7 @@ def test_basic_auth_forget():
     c = Client(app)
 
     response = c.get('/foo', status=200)
-    assert response.body == ''
+    assert response.body == b''
 
     assert sorted(response.headers.items()) == [
         ('Content-Length', '0'),
@@ -332,11 +335,11 @@ class DumbCookieIdentityPolicy(object):
         data = request.cookies.get('dumb_id', None)
         if data is None:
             return NO_IDENTITY
-        data = json.loads(base64.b64decode(data))
+        data = json.loads(base64.b64decode(data).decode())
         return Identity(**data)
 
     def remember(self, response, request, identity):
-        data = base64.b64encode(json.dumps(identity.as_dict()))
+        data = base64.b64encode(str.encode(json.dumps(identity.as_dict())))
         response.set_cookie('dumb_id', data)
 
     def forget(self, response, request):
@@ -390,7 +393,7 @@ def test_cookie_identity_policy():
     response = c.get('/foo/log_in')
 
     response = c.get('/foo', status=200)
-    assert response.body == 'Model: foo'
+    assert response.body == b'Model: foo'
 
     response = c.get('/foo/log_out')
 

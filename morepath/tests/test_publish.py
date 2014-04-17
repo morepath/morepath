@@ -35,7 +35,7 @@ def test_view():
 
     model = Model()
     result = resolve_response(app.request(get_environ(path='')), model)
-    assert result.body == 'View!'
+    assert result.body == b'View!'
 
 
 def test_predicates():
@@ -55,9 +55,9 @@ def test_predicates():
 
     model = Model()
     assert resolve_response(
-        app.request(get_environ(path='')), model).body == 'all'
+        app.request(get_environ(path='')), model).body == b'all'
     assert (resolve_response(app.request(get_environ(path='', method='POST')),
-                             model).body == 'post')
+                             model).body == b'post')
 
 
 def test_notfound():
@@ -99,7 +99,7 @@ def test_response_returned():
     register_view(app, Model, view)
     model = Model()
     response = resolve_response(app.request(get_environ(path='')), model)
-    assert response.body == 'Hello world!'
+    assert response.body == b'Hello world!'
 
 
 def test_request_view():
@@ -118,7 +118,7 @@ def test_request_view():
     model = Model()
     response = resolve_response(request, model)
     # when we get the response, the json will be rendered
-    assert response.body == '{"hey": "hey"}'
+    assert response.body == b'{"hey": "hey"}'
     assert response.content_type == 'application/json'
     # but we get the original json out when we access the view
     assert request.view(model) == {'hey': 'hey'}
@@ -163,7 +163,7 @@ def test_render_html():
     request = app.request(get_environ(path=''))
     model = Model()
     response = resolve_response(request, model)
-    assert response.body == '<p>Hello world!</p>'
+    assert response.body == b'<p>Hello world!</p>'
     assert response.content_type == 'text/html'
 
 
@@ -200,7 +200,7 @@ def test_view_after():
 
     model = Model()
     result = resolve_response(app.request(get_environ(path='')), model)
-    assert result.body == 'View!'
+    assert result.body == b'View!'
     assert result.headers.get('Foo') == 'FOO'
 
 
@@ -220,7 +220,7 @@ def test_conditional_view_after():
 
     model = Model()
     result = resolve_response(app.request(get_environ(path='')), model)
-    assert result.body == 'View!'
+    assert result.body == b'View!'
     assert result.headers.get('Foo') is None
 
 
@@ -240,5 +240,5 @@ def test_view_after_non_decorator():
 
     model = Model()
     result = resolve_response(app.request(get_environ(path='')), model)
-    assert result.body == 'View!'
+    assert result.body == b'View!'
     assert result.headers.get('Foo') == 'FOO'

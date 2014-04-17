@@ -26,10 +26,10 @@ def test_basic():
 
     response = c.get('/foo')
 
-    assert response.body == 'The view for model: foo'
+    assert response.body == b'The view for model: foo'
 
     response = c.get('/foo/link')
-    assert response.body == '/foo'
+    assert response.body == b'/foo'
 
 
 def test_basic_json():
@@ -41,7 +41,7 @@ def test_basic_json():
 
     response = c.get('/foo/json')
 
-    assert response.body == '{"id": "foo"}'
+    assert response.body == b'{"id": "foo"}'
 
 
 def test_basic_root():
@@ -53,12 +53,12 @@ def test_basic_root():
 
     response = c.get('/')
 
-    assert response.body == 'The root: ROOT'
+    assert response.body == b'The root: ROOT'
 
     # + is to make sure we get the view, not the sub-model as
     # the model is greedy
     response = c.get('/+link')
-    assert response.body == '/'
+    assert response.body == b'/'
 
 
 def test_nested():
@@ -70,10 +70,10 @@ def test_nested():
 
     response = c.get('/inner/foo')
 
-    assert response.body == 'The view for model: foo'
+    assert response.body == b'The view for model: foo'
 
     response = c.get('/inner/foo/link')
-    assert response.body == '/inner/foo'
+    assert response.body == b'/inner/foo'
 
 
 def test_abbr():
@@ -84,10 +84,10 @@ def test_abbr():
     c = Client(abbr.app)
 
     response = c.get('/foo')
-    assert response.body == 'Default view: foo'
+    assert response.body == b'Default view: foo'
 
     response = c.get('/foo/edit')
-    assert response.body == 'Edit view: foo'
+    assert response.body == b'Edit view: foo'
 
 
 def test_scanned_normal_method():
@@ -104,7 +104,7 @@ def test_scanned_static_method():
     c = Client(method.app)
 
     response = c.get('/static')
-    assert response.body == 'Static Method'
+    assert response.body == b'Static Method'
 
     root = method.Root()
     assert isinstance(root.static_method(), method.StaticMethod)
@@ -118,7 +118,7 @@ def test_scanned_class_method():
     c = Client(method.app)
 
     response = c.get('/class')
-    assert response.body == 'Class Method'
+    assert response.body == b'Class Method'
 
     root = method.Root()
     assert isinstance(root.class_method(), method.ClassMethod)
@@ -153,7 +153,7 @@ def test_scanned_caller_package():
     c = Client(app)
 
     response = c.get('/')
-    assert response.body == 'Hello world'
+    assert response.body == b'Hello world'
 
 
 def test_scanned_caller_package_scan_module():
@@ -165,7 +165,7 @@ def test_scanned_caller_package_scan_module():
     c = Client(app)
 
     response = c.get('/')
-    assert response.body == 'Hello world'
+    assert response.body == b'Hello world'
 
 
 def test_imperative():
@@ -237,20 +237,20 @@ def test_basic_imperative():
     c = Client(app)
 
     response = c.get('/foo')
-    assert response.body == 'The view for model: foo'
+    assert response.body == b'The view for model: foo'
 
     response = c.get('/foo/link')
-    assert response.body == '/foo'
+    assert response.body == b'/foo'
 
     response = c.get('/foo/json')
-    assert response.body == '{"id": "foo"}'
+    assert response.body == b'{"id": "foo"}'
 
     response = c.get('/')
-    assert response.body == 'The root: ROOT'
+    assert response.body == b'The root: ROOT'
 
     # + is to make sure we get the view, not the sub-model
     response = c.get('/+link')
-    assert response.body == '/'
+    assert response.body == b'/'
 
 
 def test_basic_testing_config():
@@ -295,20 +295,20 @@ def test_basic_testing_config():
     c = Client(app)
 
     response = c.get('/foo')
-    assert response.body == 'The view for model: foo'
+    assert response.body == b'The view for model: foo'
 
     response = c.get('/foo/link')
-    assert response.body == '/foo'
+    assert response.body == b'/foo'
 
     response = c.get('/foo/json')
-    assert response.body == '{"id": "foo"}'
+    assert response.body == b'{"id": "foo"}'
 
     response = c.get('/')
-    assert response.body == 'The root: ROOT'
+    assert response.body == b'The root: ROOT'
 
     # + is to make sure we get the view, not the sub-model
     response = c.get('/+link')
-    assert response.body == '/'
+    assert response.body == b'/'
 
 
 def test_link_to_unknown_model():
@@ -343,9 +343,9 @@ def test_link_to_unknown_model():
     c = Client(app)
 
     response = c.get('/')
-    assert response.body == 'Link error'
+    assert response.body == b'Link error'
     response = c.get('/default')
-    assert response.body == 'Link Error'
+    assert response.body == b'Link Error'
 
 
 def test_link_to_none():
@@ -374,9 +374,9 @@ def test_link_to_none():
     c = Client(app)
 
     response = c.get('/')
-    assert response.body == 'True'
+    assert response.body == b'True'
     response = c.get('/default')
-    assert response.body == 'unknown'
+    assert response.body == b'unknown'
 
 
 def test_link_with_parameters():
@@ -411,16 +411,16 @@ def test_link_with_parameters():
     c = Client(app)
 
     response = c.get('/foo')
-    assert response.body == 'The view for model: foo 0'
+    assert response.body == b'The view for model: foo 0'
 
     response = c.get('/foo/link')
-    assert response.body == '/foo?param=0'
+    assert response.body == b'/foo?param=0'
 
     response = c.get('/foo?param=1')
-    assert response.body == 'The view for model: foo 1'
+    assert response.body == b'The view for model: foo 1'
 
     response = c.get('/foo/link?param=1')
-    assert response.body == '/foo?param=1'
+    assert response.body == b'/foo?param=1'
 
 
 def test_root_link_with_parameters():
@@ -446,16 +446,16 @@ def test_root_link_with_parameters():
     c = Client(app)
 
     response = c.get('/')
-    assert response.body == 'The view for root: 0'
+    assert response.body == b'The view for root: 0'
 
     response = c.get('/link')
-    assert response.body == '/?param=0'
+    assert response.body == b'/?param=0'
 
     response = c.get('/?param=1')
-    assert response.body == 'The view for root: 1'
+    assert response.body == b'The view for root: 1'
 
     response = c.get('/link?param=1')
-    assert response.body == '/?param=1'
+    assert response.body == b'/?param=1'
 
 
 def test_implicit_variables():
@@ -487,7 +487,7 @@ def test_implicit_variables():
     c = Client(app)
 
     response = c.get('/foo/link')
-    assert response.body == '/foo'
+    assert response.body == b'/foo'
 
 
 def test_implicit_parameters():
@@ -519,13 +519,13 @@ def test_implicit_parameters():
     c = Client(app)
 
     response = c.get('/foo')
-    assert response.body == 'The view for model: None'
+    assert response.body == b'The view for model: None'
     response = c.get('/foo?id=bar')
-    assert response.body == 'The view for model: bar'
+    assert response.body == b'The view for model: bar'
     response = c.get('/foo/link')
-    assert response.body == '/foo'
+    assert response.body == b'/foo'
     response = c.get('/foo/link?id=bar')
-    assert response.body == '/foo?id=bar'
+    assert response.body == b'/foo?id=bar'
 
 
 def test_implicit_parameters_default():
@@ -557,13 +557,13 @@ def test_implicit_parameters_default():
     c = Client(app)
 
     response = c.get('/foo')
-    assert response.body == 'The view for model: default'
+    assert response.body == b'The view for model: default'
     response = c.get('/foo?id=bar')
-    assert response.body == 'The view for model: bar'
+    assert response.body == b'The view for model: bar'
     response = c.get('/foo/link')
-    assert response.body == '/foo?id=default'
+    assert response.body == b'/foo?id=default'
     response = c.get('/foo/link?id=bar')
-    assert response.body == '/foo?id=bar'
+    assert response.body == b'/foo?id=bar'
 
 
 def test_simple_root():
@@ -588,7 +588,7 @@ def test_simple_root():
     c = Client(app)
 
     response = c.get('/')
-    assert response.body == 'hello'
+    assert response.body == b'hello'
 
 
 def test_json_directive():
@@ -609,7 +609,7 @@ def test_json_directive():
     c = Client(app)
 
     response = c.get('/foo')
-    assert response.body == '{"id": "foo"}'
+    assert response.body == b'{"id": "foo"}'
 
 
 def test_redirect():
@@ -960,7 +960,7 @@ def test_mapply_bug():
 
     response = c.get('/')
 
-    assert response.body == 'the root'
+    assert response.body == b'the root'
 
 
 def test_abbr_imperative():
@@ -988,10 +988,10 @@ def test_abbr_imperative():
     c = Client(app)
 
     response = c.get('/')
-    assert response.body == 'Default view'
+    assert response.body == b'Default view'
 
     response = c.get('/edit')
-    assert response.body == 'Edit view'
+    assert response.body == b'Edit view'
 
 
 def test_abbr_imperative_exception_propagated():

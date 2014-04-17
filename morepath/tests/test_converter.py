@@ -8,7 +8,7 @@ import pytest
 def test_converter_registry():
     r = ConverterRegistry()
 
-    c = Converter(int, unicode)
+    c = Converter(int, type(u""))
     r.register_converter(int, c)
     assert r.converter_for_type(int) is c
     assert r.converter_for_value(1) is c

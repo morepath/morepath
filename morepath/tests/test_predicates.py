@@ -30,9 +30,9 @@ def test_view_predicates():
     c = Client(app)
 
     response = c.get('/foo')
-    assert response.body == 'GET'
+    assert response.body == b'GET'
     response = c.post('/foo')
-    assert response.body == 'POST'
+    assert response.body == b'POST'
 
 
 def test_extra_predicates():
@@ -60,6 +60,6 @@ def test_extra_predicates():
     c = Client(app)
 
     response = c.get('/a/foo')
-    assert response.body == 'a'
+    assert response.body == b'a'
     response = c.get('/b/foo')
-    assert response.body == 'b'
+    assert response.body == b'b'

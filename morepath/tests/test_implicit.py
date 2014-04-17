@@ -45,7 +45,7 @@ def test_implicit_function():
     c = Client(app)
 
     response = c.get('/')
-    assert response.body == 'The real two'
+    assert response.body == b'The real two'
 
 
 def test_implicit_function_mounted():
@@ -101,10 +101,10 @@ def test_implicit_function_mounted():
     c = Client(alpha)
 
     response = c.get('/mounted/1')
-    assert response.body == 'View for 1, message: The real two'
+    assert response.body == b'View for 1, message: The real two'
 
     response = c.get('/')
-    assert response.body == 'Default one'
+    assert response.body == b'Default one'
 
 
 def test_implicit_disabled():
@@ -133,4 +133,4 @@ def test_implicit_disabled():
     c = Client(app)
 
     response = c.get('/')
-    assert response.body == 'No implicit found'
+    assert response.body == b'No implicit found'
