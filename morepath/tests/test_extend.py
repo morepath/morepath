@@ -30,14 +30,14 @@ def test_extends():
 
     cl = Client(app)
     response = cl.get('/users/foo')
-    assert response.body == 'User: foo'
+    assert response.body == b'User: foo'
     response = cl.get('/users/foo/edit', status=404)
 
     cl = Client(extending)
     response = cl.get('/users/foo')
-    assert response.body == 'User: foo'
+    assert response.body == b'User: foo'
     response = cl.get('/users/foo/edit')
-    assert response.body == 'Edit user: foo'
+    assert response.body == b'Edit user: foo'
 
 
 def test_overrides_view():
@@ -62,11 +62,11 @@ def test_overrides_view():
 
     cl = Client(app)
     response = cl.get('/users/foo')
-    assert response.body == 'User: foo'
+    assert response.body == b'User: foo'
 
     cl = Client(overriding)
     response = cl.get('/users/foo')
-    assert response.body == 'USER: foo'
+    assert response.body == b'USER: foo'
 
 
 def test_overrides_model():
@@ -93,11 +93,11 @@ def test_overrides_model():
 
     cl = Client(app)
     response = cl.get('/users/foo')
-    assert response.body == 'User: foo'
+    assert response.body == b'User: foo'
     response = cl.get('/users/bar')
-    assert response.body == 'User: bar'
+    assert response.body == b'User: bar'
 
     cl = Client(overriding)
     response = cl.get('/users/foo', status=404)
     response = cl.get('/users/bar')
-    assert response.body == 'User: bar'
+    assert response.body == b'User: bar'

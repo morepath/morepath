@@ -64,7 +64,7 @@ def test_http_exception_excview():
 
     c = Client(app)
     response = c.get('/')
-    assert response.body == 'Not found!'
+    assert response.body == b'Not found!'
 
 
 def test_other_exception_excview():
@@ -91,7 +91,7 @@ def test_other_exception_excview():
     c = Client(app)
 
     response = c.get('/')
-    assert response.body == 'My exception'
+    assert response.body == b'My exception'
 
 
 def test_http_exception_excview_retain_status():
@@ -113,7 +113,7 @@ def test_http_exception_excview_retain_status():
 
     c = Client(app)
     response = c.get('/', status=404)
-    assert response.body == 'Not found!!'
+    assert response.body == b'Not found!!'
 
 
 def test_excview_named_view():
@@ -140,4 +140,4 @@ def test_excview_named_view():
 
     c = Client(app)
     response = c.get('/view')
-    assert response.body == 'My exception'
+    assert response.body == b'My exception'

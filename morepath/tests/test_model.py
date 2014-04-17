@@ -1,4 +1,8 @@
-import urllib
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    # Python 2
+    from urllib import urlencode
 from morepath.path import register_path, get_arguments
 from morepath.converter import Converter, IDENTITY_CONVERTER, ConverterRegistry
 from morepath.app import App
@@ -15,7 +19,7 @@ def setup_module(module):
 
 def consume(app, path, parameters=None):
     if parameters:
-        path += '?' + urllib.urlencode(parameters, True)
+        path += '?' + urlencode(parameters, True)
     request = app.request(webob.Request.blank(path).environ)
     return traject_consume(request, app, lookup=app.lookup), request
 
