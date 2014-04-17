@@ -3,7 +3,12 @@ from webob import BaseRequest, Response as BaseResponse
 from .reify import reify
 from .traject import parse_path
 from .error import LinkError
-import urllib
+
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    # Python 2
+    from urllib import urlencode
 import reg
 
 
@@ -146,7 +151,7 @@ class LinkMaker(object):
             parts.append(name)
         result = '/' + '/'.join(parts)
         if parameters:
-            result += '?' + urllib.urlencode(parameters, True)
+            result += '?' + urlencode(parameters, True)
         return result
 
     def view(self, obj, default=None, **predicates):
