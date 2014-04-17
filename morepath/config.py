@@ -184,13 +184,13 @@ class Actions(object):
 
         Prepare must be called before calling this.
         """
-        values = self._action_map.values()
-        values.sort(key=lambda (action, obj): action.order)
+        values = list(self._action_map.values())
+        values.sort(key=lambda value: value[0].order or 0)
         for action, obj in values:
             try:
                 action.perform(configurable, obj)
-            except DirectiveError, e:
-                raise DirectiveReportError(unicode(e), action)
+            except DirectiveError as e:
+                raise DirectiveReportError(u"{}".format(e), action)
 
 
 class Action(object):

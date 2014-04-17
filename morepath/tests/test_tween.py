@@ -183,5 +183,5 @@ def test_tween_directive():
     c = Client(app)
 
     response = c.get('/')
-    assert response.body == 'View'
+    assert response.body == b'View'
     assert response.headers['Tween-Header'] == 'FOO'

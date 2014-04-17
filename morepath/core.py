@@ -155,15 +155,17 @@ def int_converter():
     return Converter(int)
 
 
-@global_app.converter(type=str)
-def str_converter():
-    # XXX do we want to decode/encode unicode?
-    return IDENTITY_CONVERTER
-
-
-@global_app.converter(type=unicode)
+@global_app.converter(type=type(u""))
 def unicode_converter():
     return IDENTITY_CONVERTER
+
+
+# Python 2
+if type(u"") != type(""):
+    @global_app.converter(type=type(""))
+    def str_converter():
+        # XXX do we want to decode/encode unicode?
+        return IDENTITY_CONVERTER
 
 
 def date_decode(s):

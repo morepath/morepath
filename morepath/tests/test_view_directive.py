@@ -25,7 +25,7 @@ def test_view_get_only():
     c = Client(app)
 
     response = c.get('/')
-    assert response.body == 'View'
+    assert response.body == b'View'
 
     response = c.post('/', status=405)
 
@@ -47,10 +47,10 @@ def test_view_any():
     c = Client(app)
 
     response = c.get('/')
-    assert response.body == 'View'
+    assert response.body == b'View'
 
     response = c.post('/')
-    assert response.body == 'View'
+    assert response.body == b'View'
 
 
 def test_view_name_conflict_involving_default():

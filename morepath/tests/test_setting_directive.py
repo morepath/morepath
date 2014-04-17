@@ -136,4 +136,4 @@ def test_settings_function():
     c = Client(app)
 
     response = c.get('/')
-    assert response.body == 'LAH'
+    assert response.body == b'LAH'
