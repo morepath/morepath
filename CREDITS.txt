@@ -3,6 +3,8 @@ CREDITS
 
 * Martijn Faassen (creator and main developer)
 
+* Alec Munro (fudomunro on Github) - Python 3 compatibility
+
 * Michael Bernstein (feedback)
 
 * Contributions by Souheil Chelfouh, Alex Garel, Wolfgang Schnerring

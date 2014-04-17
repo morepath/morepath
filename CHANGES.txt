@@ -4,6 +4,9 @@ CHANGES
 0.2 (unreleased)
 ================
 
+- Python 3 support, in particular Python 3.4 (Alec Munro - fudomunro
+  on github)
+
 - Installation documentation tweaks. (Auke Willem Oosterhoff)
 
 - .gitignore tweaks (Auke Willem Oosterhoff)
