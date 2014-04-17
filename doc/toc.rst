@@ -13,6 +13,7 @@ Table of Contents
    superpowers
    paths_and_linking
    views
+   security
    rest
    settings
    organizing_your_project
