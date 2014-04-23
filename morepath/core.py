@@ -67,6 +67,7 @@ def link(request, model, mounted):
         parameters.update(params)
         model = mounted
         mounted = mounted.parent
+    result.append(request.script_name)
     result.reverse()
     return '/'.join(result).strip('/'), parameters
 

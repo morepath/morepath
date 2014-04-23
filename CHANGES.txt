@@ -7,6 +7,8 @@ CHANGES
 - Python 3 support, in particular Python 3.4 (Alec Munro - fudomunro
   on github)
 
+- Link generation now takes ``SCRIPT_NAME`` into account.
+
 - Installation documentation tweaks. (Auke Willem Oosterhoff)
 
 - .gitignore tweaks (Auke Willem Oosterhoff)

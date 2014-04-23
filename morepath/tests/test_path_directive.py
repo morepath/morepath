@@ -1127,3 +1127,37 @@ def test_extra_parameters_with_get_converters():
         (b"[(u'a', 1), (u'b', u'B')]", b"[('a', 1), ('b', 'B')]")
     response = c.get('/link?a=1&b=B')
     assert sorted(response.body[2:].split(b"&")) == [b'a=1', b'b=B']
+
+
+def test_script_name():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self):
+            pass
+
+    @app.path(model=Model, path='simple')
+    def get_model():
+        return Model()
+
+    @app.view(model=Model)
+    def default(self, request):
+        return "View"
+
+    @app.view(model=Model, name='link')
+    def link(self, request):
+        return request.link(self)
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/prefix/simple',
+                     extra_environ=dict(SCRIPT_NAME='/prefix'))
+    assert response.body == b'View'
+
+    response = c.get('/prefix/simple/link',
+                     extra_environ=dict(SCRIPT_NAME='/prefix'))
+    assert response.body == b'/prefix/simple'
+
