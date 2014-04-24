@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.2 (unreleased)
+0.2 (2014-04-24)
 ================
 
 - Python 3 support, in particular Python 3.4 (Alec Munro - fudomunro
