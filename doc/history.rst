@@ -1,7 +1,7 @@
 History of Morepath
 ===================
 
-For more recent changes, see :doc:changes.
+For more recent changes, see :doc:`changes`.
 
 Morepath was written by Martijn Faassen (me writing this document).
 
