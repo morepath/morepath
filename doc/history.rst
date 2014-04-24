@@ -1,6 +1,8 @@
 History of Morepath
 ===================
 
+For more recent changes, see :doc:changes.
+
 Morepath was written by Martijn Faassen (me writing this document).
 
 The genesis of Morepath is complex and involves a number of projects.

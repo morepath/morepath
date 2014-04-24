@@ -24,6 +24,7 @@ Table of Contents
    compared
    design
    developing
+   changes
    history
 
 

@@ -5,12 +5,12 @@ CHANGES
 ================
 
 - Python 3 support, in particular Python 3.4 (Alec Munro - fudomunro
-  on github)
+  on github).
 
 - Link generation now takes ``SCRIPT_NAME`` into account.
 
 - Morepath 0.1 had a security system, but it was undocumented. Now it's
-  documented, and some of its behavior was slightly tweaked:
+  documented (docs now in :doc:`security`), and some of its behavior was slightly tweaked:
 
   * new ``verify_identity`` directive.
 
@@ -23,7 +23,7 @@ CHANGES
 
 - Installation documentation tweaks. (Auke Willem Oosterhoff)
 
-- .gitignore tweaks (Auke Willem Oosterhoff)
+- ``.gitignore`` tweaks (Auke Willem Oosterhoff)
 
 0.1 (2014-04-08)
 ================
