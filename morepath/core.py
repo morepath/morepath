@@ -7,7 +7,7 @@ from .app import AppBase
 from .request import Request, Response, LinkMaker, NothingMountedLinkMaker
 from .converter import Converter, IDENTITY_CONVERTER
 from webob import Response as BaseResponse
-from webob.exc import HTTPException, HTTPUnauthorized, HTTPMethodNotAllowed
+from webob.exc import HTTPException, HTTPForbidden, HTTPMethodNotAllowed
 import morepath
 from reg import mapply, KeyIndex
 from datetime import datetime, date
@@ -113,8 +113,7 @@ def get_response(request, model, predicates=None):
     if (view.permission is not None and
         not generic.permits(request.identity, model, view.permission,
                             lookup=request.lookup)):
-        # XXX needs to become forbidden?
-        raise HTTPUnauthorized()
+        raise HTTPForbidden()
     content = view(request, model)
     if isinstance(content, BaseResponse):
         # the view took full control over the response

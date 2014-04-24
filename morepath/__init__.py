@@ -2,7 +2,7 @@
 from .app import App, AppBase, global_app, enable_implicit, disable_implicit
 from .core import setup, excview_tween_factory as EXCVIEW
 from morepath import directive # register directive methods
-from .generic import remember, forget, settings
+from .generic import remember_identity, forget_identity, settings
 from .view import render_json, render_html
 from .request import Request, Response
 from .config import Config, Directive

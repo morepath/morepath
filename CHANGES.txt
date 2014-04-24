@@ -9,6 +9,18 @@ CHANGES
 
 - Link generation now takes ``SCRIPT_NAME`` into account.
 
+- Morepath 0.1 had a security system, but it was undocumented. Now it's
+  documented, and some of its behavior was slightly tweaked:
+
+  * new ``verify_identity`` directive.
+
+  * ``permission`` directive was renamed to ``permission_rule``.
+
+  * default unauthorized error is 403 Forbidden, not 401 Unauthorized.
+
+  * ``morepath.remember`` and ``morepath.forbet`` renamed to
+    ``morepath.remember_identity`` and ``morepath.forget_identity``.
+
 - Installation documentation tweaks. (Auke Willem Oosterhoff)
 
 - .gitignore tweaks (Auke Willem Oosterhoff)

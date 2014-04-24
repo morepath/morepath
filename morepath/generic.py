@@ -92,14 +92,21 @@ def identify(request):
 
 
 @reg.generic
-def remember(response, request, identity):
+def verify_identity(identity):
+    """Returns True if the claimed identity can be verified.
+    """
+    return False
+
+
+@reg.generic
+def remember_identity(response, request, identity):
     """Modify response so that identity is remembered by client.
     """
     raise NotImplementedError  # pragma: nocoverage
 
 
 @reg.generic
-def forget(response, request):
+def forget_identity(response, request):
     """Modify response so that identity is forgotten by client.
     """
     raise NotImplementedError  # pragma: nocoverage

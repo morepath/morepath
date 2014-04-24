@@ -33,16 +33,20 @@ class Request(BaseRequest):
         The identity is established using the identity policy. Normally
         this would be an instance of :class:`morepath.security.Identity`.
 
-        If no identity is claimed or established, the identity is the
-        the special value :attr:`morepath.security.NO_IDENTITY`.
+        If no identity is claimed or established, or if the identity
+        is not verified by the application, the identity is the the
+        special value :attr:`morepath.security.NO_IDENTITY`.
 
         The identity can be used for authentication/authorization of
         the user, using Morepath permission directives.
         """
         # XXX annoying circular dependency
         from .security import NO_IDENTITY
-        return generic.identify(self, lookup=self.lookup,
-                                default=NO_IDENTITY)
+        result = generic.identify(self, lookup=self.lookup,
+                                  default=NO_IDENTITY)
+        if not generic.verify_identity(result, lookup=self.lookup):
+            return NO_IDENTITY
+        return result
 
     @reify
     def mounted(self):

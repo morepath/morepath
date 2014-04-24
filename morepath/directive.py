@@ -213,8 +213,8 @@ class PathDirective(Directive):
                       obj)
 
 
-@directive('permission')
-class PermissionDirective(Directive):
+@directive('permission_rule')
+class PermissionRuleDirective(Directive):
     depends = [SettingDirective]
 
     def __init__(self, app, model, permission, identity=Identity):
@@ -228,11 +228,11 @@ class PermissionDirective(Directive):
 
         :param model: the model class
         :param permission: permission class
-        :param identity: identity to check permission for. If ``None``,
+        :param identity: identity class to check permission for. If ``None``,
           the identity to check for is the special
           :data:`morepath.security.NO_IDENTITY`.
         """
-        super(PermissionDirective, self).__init__(app)
+        super(PermissionRuleDirective, self).__init__(app)
         self.model = model
         self.permission = permission
         if identity is None:
@@ -572,9 +572,40 @@ class IdentityPolicyDirective(Directive):
         yield app.function(
             generic.identify, Request), policy.identify
         yield app.function(
-            generic.remember, Response, Request, object), policy.remember
+            generic.remember_identity, Response, Request, object), policy.remember
         yield app.function(
-            generic.forget, Response, Request), policy.forget
+            generic.forget_identity, Response, Request), policy.forget
+
+
+
+@directive('verify_identity')
+class VerifyIdentityDirective(Directive):
+    def __init__(self, app, identity=object):
+        '''Verify claimed identity.
+
+        The decorated function gives a single ``identity`` argument which
+        contains the claimed identity. It should return ``True`` only if the
+        identity can be verified with the system.
+
+        This is particularly useful with identity policies such as
+        basic authentication and cookie-based authentication where the
+        identity information (username/password) is repeatedly sent to
+        the the server and needs to be verified.
+
+        For some identity policies (auth tkt, session) this can always
+        return ``True`` as the act of establishing the identity means
+        the identity is verified.
+
+        The default behavior is to always return ``False``.
+
+        :param identity: identity class to verify. Optional.
+        '''
+        super(VerifyIdentityDirective, self).__init__(app)
+        self.identity = identity
+
+    def prepare(self, obj):
+        yield self.configurable.function(
+            generic.verify_identity, self.identity), obj
 
 
 @directive('function')

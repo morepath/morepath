@@ -13,7 +13,7 @@ try:
     from cookielib import CookieJar
 except ImportError:
     from http.cookiejar import CookieJar
-
+from webob.exc import HTTPForbidden
 
 def setup_module(module):
     morepath.disable_implicit()
@@ -43,7 +43,7 @@ def test_no_permission():
 
     c = Client(app)
 
-    c.get('/foo', status=401)
+    c.get('/foo', status=403)
 
 
 def test_permission_directive():
@@ -57,12 +57,16 @@ def test_permission_directive():
     class Permission(object):
         pass
 
+    @app.verify_identity()
+    def verify_identity(identity):
+        return True
+
     @app.path(model=Model, path='{id}',
               variables=lambda model: {'id': model.id})
     def get_model(id):
         return Model(id)
 
-    @app.permission(model=Model, permission=Permission)
+    @app.permission_rule(model=Model, permission=Permission)
     def get_permission(identity, model, permission):
         if model.id == 'foo':
             return True
@@ -90,7 +94,7 @@ def test_permission_directive():
 
     response = c.get('/foo')
     assert response.body == b'Model: foo'
-    response = c.get('/bar', status=401)
+    response = c.get('/bar', status=403)
 
 
 def test_permission_directive_no_identity():
@@ -109,7 +113,7 @@ def test_permission_directive_no_identity():
     def get_model(id):
         return Model(id)
 
-    @app.permission(model=Model, permission=Permission, identity=None)
+    @app.permission_rule(model=Model, permission=Permission, identity=None)
     def get_permission(identity, model, permission):
         if model.id == 'foo':
             return True
@@ -126,7 +130,7 @@ def test_permission_directive_no_identity():
 
     response = c.get('/foo')
     assert response.body == b'Model: foo'
-    response = c.get('/bar', status=401)
+    response = c.get('/bar', status=403)
 
 
 def test_policy_action():
@@ -138,7 +142,7 @@ def test_policy_action():
 
     response = c.get('/foo')
     assert response.body == b'Model: foo'
-    response = c.get('/bar', status=401)
+    response = c.get('/bar', status=403)
 
 
 def test_basic_auth_identity_policy():
@@ -157,7 +161,7 @@ def test_basic_auth_identity_policy():
     def get_model(id):
         return Model(id)
 
-    @app.permission(model=Model, permission=Permission)
+    @app.permission_rule(model=Model, permission=Permission)
     def get_permission(identity, model, permission):
         return identity.userid == 'user' and identity.password == 'secret'
 
@@ -168,6 +172,17 @@ def test_basic_auth_identity_policy():
     @app.identity_policy()
     def policy():
         return BasicAuthIdentityPolicy()
+
+    @app.verify_identity()
+    def verify_identity(identity):
+        return True
+
+    @app.view(model=HTTPForbidden)
+    def make_unauthorized(self, request):
+        @request.after
+        def set_status_code(response):
+            response.status_code = 401
+        return "Unauthorized"
 
     config.commit()
 
@@ -199,7 +214,7 @@ def test_basic_auth_identity_policy_errors():
     def get_model(id):
         return Model(id)
 
-    @app.permission(model=Model, permission=Permission)
+    @app.permission_rule(model=Model, permission=Permission)
     def get_permission(identity, model, permission):
         return identity.userid == 'user' and identity.password == u'sëcret'
 
@@ -211,23 +226,27 @@ def test_basic_auth_identity_policy_errors():
     def policy():
         return BasicAuthIdentityPolicy()
 
+    @app.verify_identity()
+    def verify_identity(identity):
+        return True
+
     config.commit()
 
     c = Client(app)
 
-    response = c.get('/foo', status=401)
+    response = c.get('/foo', status=403)
 
     headers = {'Authorization': 'Something'}
-    response = c.get('/foo', headers=headers, status=401)
+    response = c.get('/foo', headers=headers, status=403)
 
     headers = {'Authorization': 'Something other'}
-    response = c.get('/foo', headers=headers, status=401)
+    response = c.get('/foo', headers=headers, status=403)
 
     headers = {'Authorization': 'Basic ' + 'nonsense'}
-    response = c.get('/foo', headers=headers, status=401)
+    response = c.get('/foo', headers=headers, status=403)
 
     headers = {'Authorization': 'Basic ' + 'nonsense1'}
-    response = c.get('/foo', headers=headers, status=401)
+    response = c.get('/foo', headers=headers, status=403)
 
     # fallback to utf8
     headers = {
@@ -247,17 +266,17 @@ def test_basic_auth_identity_policy_errors():
     headers = {
         'Authorization': 'Basic ' + str(base64.b64encode(
             u'user:sëcret'.encode('cp500')).decode())}
-    response = c.get('/foo', headers=headers, status=401)
+    response = c.get('/foo', headers=headers, status=403)
 
     headers = {
         'Authorization': 'Basic ' + str(base64.b64encode(
             u'usersëcret'.encode('utf8')).decode())}
-    response = c.get('/foo', headers=headers, status=401)
+    response = c.get('/foo', headers=headers, status=403)
 
     headers = {
         'Authorization': 'Basic ' + str(base64.b64encode(
             u'user:sëcret:'.encode('utf8')).decode())}
-    response = c.get('/foo', headers=headers, status=401)
+    response = c.get('/foo', headers=headers, status=403)
 
 
 def test_basic_auth_remember():
@@ -275,8 +294,8 @@ def test_basic_auth_remember():
         # will not actually do anything as it's a no-op for basic
         # auth, but at least won't crash
         response = Response()
-        generic.remember(response, request, Identity('foo'),
-                         lookup=request.lookup)
+        generic.remember_identity(response, request, Identity('foo'),
+                                  lookup=request.lookup)
         return response
 
     @app.identity_policy()
@@ -305,7 +324,7 @@ def test_basic_auth_forget():
         # will not actually do anything as it's a no-op for basic
         # auth, but at least won't crash
         response = Response(content_type='text/plain')
-        generic.forget(response, request, lookup=request.lookup)
+        generic.forget_identity(response, request, lookup=request.lookup)
         return response
 
     @app.identity_policy()
@@ -358,7 +377,7 @@ def test_cookie_identity_policy():
     class Permission(object):
         pass
 
-    @app.permission(model=Model, permission=Permission)
+    @app.permission_rule(model=Model, permission=Permission)
     def get_permission(identity, model, permission):
         return identity.userid == 'user'
 
@@ -369,26 +388,31 @@ def test_cookie_identity_policy():
     @app.view(model=Model, name='log_in')
     def log_in(self, request):
         response = Response()
-        generic.remember(response, request, Identity(userid='user',
-                                                     payload='Amazing'),
-                         lookup=request.lookup)
+        generic.remember_identity(response, request,
+                                  Identity(userid='user',
+                                           payload='Amazing'),
+                                  lookup=request.lookup)
         return response
 
     @app.view(model=Model, name='log_out')
     def log_out(self, request):
         response = Response()
-        generic.forget(response, request, lookup=request.lookup)
+        generic.forget_identity(response, request, lookup=request.lookup)
         return response
 
     @app.identity_policy()
     def policy():
         return DumbCookieIdentityPolicy()
 
+    @app.verify_identity()
+    def verify_identity(identity):
+        return True
+
     config.commit()
 
     c = Client(app, cookiejar=CookieJar())
 
-    response = c.get('/foo', status=401)
+    response = c.get('/foo', status=403)
 
     response = c.get('/foo/log_in')
 
@@ -397,4 +421,29 @@ def test_cookie_identity_policy():
 
     response = c.get('/foo/log_out')
 
-    response = c.get('/foo', status=401)
+    response = c.get('/foo', status=403)
+
+
+def test_default_verify_identity():
+    config = setup()
+    app = morepath.App(testing_config=config)
+    config.commit()
+
+    identity = morepath.Identity('foo')
+
+    assert not generic.verify_identity(identity, lookup=app.lookup)
+
+
+def test_verify_identity_directive():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    @app.verify_identity()
+    def verify_identity(identity):
+        return identity.password == 'right'
+
+    config.commit()
+    identity = morepath.Identity('foo', password='wrong')
+    assert not generic.verify_identity(identity, lookup=app.lookup)
+    identity = morepath.Identity('foo', password='right')
+    assert generic.verify_identity(identity, lookup=app.lookup)

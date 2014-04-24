@@ -22,7 +22,7 @@ def default(self, request):
     return "Model: %s" % self.id
 
 
-@app.permission(model=Model, permission=Permission)
+@app.permission_rule(model=Model, permission=Permission)
 def model_permission(identity, model, permission):
     return model.id == 'foo'
 
@@ -41,3 +41,7 @@ class IdentityPolicy(object):
 @app.identity_policy()
 def get_identity_policy():
     return IdentityPolicy()
+
+@app.verify_identity()
+def verify_identity(identity):
+    return True
