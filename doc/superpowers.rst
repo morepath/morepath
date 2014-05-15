@@ -147,7 +147,7 @@ covered. You simply create a new application that extends the original::
 We now have an application that does exactly what ``app`` does. Now
 to override that one view to do what we want::
 
-  @app.view(model=Document)
+  @my_app.view(model=Document)
   def whatwewant(self, request):
       return "The right thing!"
 
