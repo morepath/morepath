@@ -26,7 +26,7 @@ class Identity(object):
         self._names = kw.keys()
         for key, value in kw.items():
             setattr(self, key, value)
-        self.verified = None # starts out as never verified
+        self.verified = None  # starts out as never verified
 
     def as_dict(self):
         """Export identity as dictionary.

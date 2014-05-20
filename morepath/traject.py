@@ -94,6 +94,7 @@ class Node(object):
         self._name_nodes = {}
         self._variable_nodes = []
         self.value = None
+        self.absorb = False
 
     def add(self, step):
         if not step.has_variables():
@@ -165,17 +166,22 @@ class Path(object):
 
 class Inverse(object):
     def __init__(self, path, get_variables, converters,
-                 parameter_names):
+                 parameter_names, absorb):
         self.path = path
         self.interpolation_path = Path(path).interpolation_str()
         self.get_variables = get_variables
         self.converters = converters
         self.parameter_names = set(parameter_names)
+        self.absorb = absorb
 
     def __call__(self, model):
         converters = self.converters
         parameter_names = self.parameter_names
         all_variables = self.get_variables(model)
+        if self.absorb:
+            absorbed_path = all_variables.pop('absorb')
+        else:
+            absorbed_path = None
         extra_parameters = all_variables.pop('extra_parameters', None)
         assert isinstance(all_variables, dict)
         variables = {
@@ -195,7 +201,10 @@ class Inverse(object):
             for name, value in extra_parameters.items():
                 parameters[name] = converters.get(
                     name, IDENTITY_CONVERTER).encode(value)
-        return self.interpolation_path % variables, parameters
+        path = self.interpolation_path % variables
+        if absorbed_path is not None:
+            path += '/' + absorbed_path
+        return path, parameters
 
 
 class Traject(object):
@@ -203,7 +212,7 @@ class Traject(object):
         super(Traject, self).__init__()
         self._root = Node()
 
-    def add_pattern(self, path, value, converters=None):
+    def add_pattern(self, path, value, converters=None, absorb=False):
         node = self._root
         known_variables = set()
         for segment in reversed(parse_path(path)):
@@ -214,12 +223,17 @@ class Traject(object):
                 raise TrajectError("Duplicate variables")
             known_variables.update(variables)
         node.value = value
+        if absorb:
+            node.absorb = True
 
     def consume(self, stack):
         stack = stack[:]
         node = self._root
         variables = {}
         while stack:
+            if node.absorb:
+                variables['absorb'] = '/'.join(reversed(stack))
+                return node.value, [], variables
             segment = stack.pop()
             if segment.startswith(VIEW_PREFIX):
                 stack.append(segment)
@@ -230,6 +244,9 @@ class Traject(object):
                 return node.value, stack, variables
             node = new_node
             variables.update(new_variables)
+        if node.absorb:
+            variables['absorb'] = ''
+            return node.value, stack, variables
         return node.value, stack, variables
 
 

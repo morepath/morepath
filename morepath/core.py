@@ -161,7 +161,7 @@ def unicode_converter():
 
 
 # Python 2
-if type(u"") != type(""):
+if type(u"") != type(""): # flake8: noqa
     @global_app.converter(type=type(""))
     def str_converter():
         # XXX do we want to decode/encode unicode?

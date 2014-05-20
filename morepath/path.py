@@ -31,7 +31,7 @@ def get_variables_func(arguments, exclude):
 
 
 def register_path(app, model, path, variables, converters, required,
-                  get_converters, model_factory, arguments=None):
+                  get_converters, absorb, model_factory, arguments=None):
     traject = app.traject
 
     converters = converters or {}
@@ -52,7 +52,8 @@ def register_path(app, model, path, variables, converters, required,
         variables = get_variables_func(arguments, app.mount_variables())
 
     traject.add_pattern(path, (model_factory, parameter_factory),
-                        converters)
+                        converters, absorb)
 
-    inverse = Inverse(path, variables, converters, parameters.keys())
+    inverse = Inverse(path, variables, converters, parameters.keys(),
+                      absorb)
     app.register(generic.path, [model], inverse)

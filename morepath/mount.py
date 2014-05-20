@@ -60,7 +60,7 @@ def register_mount(base_app, app, path, converters, required, get_converters,
     # need to construct argument info from context_factory, not SpecificMount
     arguments = get_arguments(context_factory, SPECIAL_ARGUMENTS)
     register_path(base_app, SpecificMount, path, lambda m: m.variables,
-                  converters, required, get_converters,
+                  converters, required, get_converters, False,
                   SpecificMount, arguments=arguments)
     register_mounted(base_app, app, SpecificMount)
 

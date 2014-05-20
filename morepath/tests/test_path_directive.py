@@ -1172,7 +1172,7 @@ def test_sub_path_different_variable():
             self.id = id
 
     class S(object):
-        def __init__(self, id):
+        def __init__(self, id, m):
             self.id = id
             self.m = m
 
@@ -1201,3 +1201,177 @@ def test_sub_path_different_variable():
 
     response = c.get('/a/b')
     assert response.body == b'/S: b a'
+
+
+def test_absorb_path():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Root(object):
+        pass
+
+    class Model(object):
+        def __init__(self, absorb):
+            self.absorb = absorb
+
+    @app.path(model=Root, path='')
+    def get_root():
+        return Root()
+
+    @app.path(model=Model, path='foo', absorb=True)
+    def get_model(absorb):
+        return Model(absorb)
+
+    @app.view(model=Model)
+    def default(self, request):
+        return "%s" % self.absorb
+
+    @app.view(model=Root)
+    def default_root(self, request):
+        return request.link(Model('a/b'))
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/foo/a')
+    assert response.body == b'a'
+
+    response = c.get('/foo')
+    assert response.body == b''
+
+    response = c.get('/foo/a/b')
+    assert response.body == b'a/b'
+
+    # link to a/b absorb
+    response = c.get('/')
+    assert response.body == b'/foo/a/b'
+
+
+def test_absorb_path_with_variables():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Root(object):
+        pass
+
+    class Model(object):
+        def __init__(self, id, absorb):
+            self.id = id
+            self.absorb = absorb
+
+    @app.path(model=Root, path='')
+    def get_root():
+        return Root()
+
+    @app.path(model=Model, path='{id}', absorb=True)
+    def get_model(id, absorb):
+        return Model(id, absorb)
+
+    @app.view(model=Model)
+    def default(self, request):
+        return "I:%s A:%s" % (self.id, self.absorb)
+
+    @app.view(model=Root)
+    def default_root(self, request):
+        return request.link(Model('foo', 'a/b'))
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/foo/a')
+    assert response.body == b'I:foo A:a'
+
+    response = c.get('/foo')
+    assert response.body == b'I:foo A:'
+
+    response = c.get('/foo/a/b')
+    assert response.body == b'I:foo A:a/b'
+
+    # link to a/b absorb
+    response = c.get('/')
+    assert response.body == b'/foo/a/b'
+
+
+def test_absorb_path_explicit_subpath_ignored():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Root(object):
+        pass
+
+    class Model(object):
+        def __init__(self, absorb):
+            self.absorb = absorb
+
+    class Another(object):
+        pass
+
+    @app.path(model=Root, path='')
+    def get_root():
+        return Root()
+
+    @app.path(model=Model, path='foo', absorb=True)
+    def get_model(absorb):
+        return Model(absorb)
+
+    @app.path(model=Another, path='foo/another')
+    def get_another():
+        return Another()
+
+    @app.view(model=Model)
+    def default(self, request):
+        return "%s" % self.absorb
+
+    @app.view(model=Another)
+    def default_another(self, request):
+        return "Another"
+
+    @app.view(model=Root)
+    def default_root(self, request):
+        return request.link(Another())
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/foo/a')
+    assert response.body == b'a'
+
+    response = c.get('/foo/another')
+    assert response.body == b'another'
+
+    # link to another still works XXX is this wrong?
+    response = c.get('/')
+    assert response.body == b'/foo/another'
+
+
+def test_absorb_path_root():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Model(object):
+        def __init__(self, absorb):
+            self.absorb = absorb
+
+    @app.path(model=Model, path='', absorb=True)
+    def get_model(absorb):
+        return Model(absorb)
+
+    @app.view(model=Model)
+    def default(self, request):
+        return "A:%s L:%s" % (self.absorb, request.link(self))
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/a')
+    assert response.body == b'A:a L:/a'
+
+    response = c.get('/')
+    assert response.body == b'A: L:/'
+
+    response = c.get('/a/b')
+    assert response.body == b'A:a/b L:/a/b'

@@ -15,6 +15,7 @@ except ImportError:
     from http.cookiejar import CookieJar
 from webob.exc import HTTPForbidden
 
+
 def setup_module(module):
     morepath.disable_implicit()
 
@@ -190,10 +191,12 @@ def test_basic_auth_identity_policy():
 
     response = c.get('/foo', status=401)
 
-    headers = {'Authorization': 'Basic ' + str(base64.b64encode(b'user:wrong').decode())}
+    headers = {'Authorization': 'Basic ' +
+               str(base64.b64encode(b'user:wrong').decode())}
     response = c.get('/foo', headers=headers, status=401)
 
-    headers = {'Authorization': 'Basic ' + str(base64.b64encode(b'user:secret').decode())}
+    headers = {'Authorization': 'Basic ' +
+               str(base64.b64encode(b'user:secret').decode())}
     response = c.get('/foo', headers=headers)
     assert response.body == b'Model: foo'
 

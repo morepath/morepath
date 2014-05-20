@@ -145,7 +145,7 @@ class PathDirective(Directive):
 
     def __init__(self, app, path, model=None,
                  variables=None, converters=None, required=None,
-                 get_converters=None):
+                 get_converters=None, absorb=False):
         """Register a model for a path.
 
         Decorate a function or a class (constructor). The function
@@ -178,6 +178,9 @@ class PathDirective(Directive):
           This function is called once during configuration time. It can
           be used to programmatically supply converters. It is merged
           with the ``converters`` dictionary, if supplied. Optional.
+        :param absorb: If set to ``True``, matches any subpath that
+          matches this path as well. This is passed into the decorated
+          function as the ``remaining`` variable.
         """
         super(PathDirective, self).__init__(app)
         self.model = model
@@ -186,6 +189,7 @@ class PathDirective(Directive):
         self.converters = converters
         self.required = required
         self.get_converters = get_converters
+        self.absorb = absorb
 
     def identifier(self, app):
         return ('path', Path(self.path).discriminator())
@@ -209,7 +213,7 @@ class PathDirective(Directive):
     def perform(self, app, obj):
         register_path(app, self.model, self.path,
                       self.variables, self.converters, self.required,
-                      self.get_converters,
+                      self.get_converters, self.absorb,
                       obj)
 
 
@@ -571,11 +575,11 @@ class IdentityPolicyDirective(Directive):
         app = self.configurable
         yield app.function(
             generic.identify, Request), policy.identify
-        yield app.function(
-            generic.remember_identity, Response, Request, object), policy.remember
+        yield (app.function(
+            generic.remember_identity, Response, Request, object),
+            policy.remember)
         yield app.function(
             generic.forget_identity, Response, Request), policy.forget
-
 
 
 @directive('verify_identity')

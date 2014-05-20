@@ -42,6 +42,7 @@ class IdentityPolicy(object):
 def get_identity_policy():
     return IdentityPolicy()
 
+
 @app.verify_identity()
 def verify_identity(identity):
     return True

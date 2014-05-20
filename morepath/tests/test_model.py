@@ -45,9 +45,10 @@ def test_register_path():
 
     config.commit()
 
-    register_path(app, Root, '', lambda m: {}, None, None, None, lambda: root)
+    register_path(app, Root, '', lambda m: {}, None, None, None, False,
+                  lambda: root)
     register_path(app, Model, '{id}', lambda model: {'id': model.id},
-                  None, None, None, get_model)
+                  None, None, None, False, get_model)
     app.register(generic.context, [object], lambda obj: {})
 
     obj, request = consume(app, 'a')
@@ -71,10 +72,11 @@ def test_register_path_with_parameters():
 
     config.commit()
 
-    register_path(app, Root,  '', lambda m: {}, None, None, None, lambda: root)
+    register_path(app, Root,  '', lambda m: {}, None, None, None, False,
+                  lambda: root)
     register_path(app, Model, '{id}', lambda model: {'id': model.id,
                                                      'param': model.param},
-                  None, None, None, get_model)
+                  None, None, None, False, get_model)
     app.register(generic.context, [object], lambda obj: {})
 
     obj, request = consume(app, 'a')
@@ -103,10 +105,10 @@ def test_traject_path_with_leading_slash():
 
     config.commit()
 
-    register_path(app, Root, '', lambda m: {}, None, None, None,
+    register_path(app, Root, '', lambda m: {}, None, None, None, False,
                   lambda: root)
     register_path(app, Model, '/foo/{id}', lambda model: {'id': model.id},
-                  None, None, None, get_model)
+                  None, None, None, False, get_model)
     app.register(generic.context, [object], lambda obj: {})
 
     obj, request = consume(app, 'foo/a')

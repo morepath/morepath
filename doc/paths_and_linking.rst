@@ -620,3 +620,53 @@ is passed into ``get_record`` (if there is no default). But since we
 made ``id`` required, ``400 Bad Request`` will be issued if ``id`` is
 missing now. ``required`` only has meaning for URL parameters; path
 variables are always present if the path matches at all.
+
+Absorbing
+---------
+
+In some special cases you may want a path to match all sub-paths,
+absorbing them. This can be useful if you are writing a server backend
+to a client side application that does routing on the client using the
+HTML 5 history API -- the server needs to handle catch all subpaths in
+that case and send them back to the client, where they can be handled
+by the client-side router.
+
+You can do this using the special ``absorb`` argument to the path
+decorator, like this::
+
+  class Model(object):
+      def __init__(self, absorb):
+          self.absorb = absorb
+
+  @app.path(model=Model, path='start', absorb=True)
+  def get_foo(absorb):
+      return Model(absorb)
+
+As you can see, if you use ``absorb`` then a special ``absorb``
+argument is passed into the model factory function.
+
+Now the ``start`` path matches all of its sub-paths. So for this
+path::
+
+  /start/foo/bar/baz
+
+``model.absorb`` is ``foo/bar/baz``.
+
+It also matches if there is no sub-path::
+
+  /start
+
+``model.absorb`` is the empty string ``''``.
+
+Note that you cannot use view names with a path that absorbs; only a
+default view with the empty name. View names are absorbed along with
+the rest of the path.
+
+Note also that you cannot define an explicit path under an absorbed
+path -- this is ignored. This means that the following additional code
+has no effect::
+
+  @app.path(model=Foo, path='start/extra')
+
+You can still generate a link to a model that is under an
+absorbed path -- it uses the value of the ``absorb`` variable.
