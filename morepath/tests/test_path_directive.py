@@ -1161,3 +1161,43 @@ def test_script_name():
                      extra_environ=dict(SCRIPT_NAME='/prefix'))
     assert response.body == b'/prefix/simple'
 
+
+@pytest.mark.xfail
+def test_sub_path_different_variable():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class M(object):
+        def __init__(self, id):
+            self.id = id
+
+    class S(object):
+        def __init__(self, id):
+            self.id = id
+            self.m = m
+
+    @app.path(model=M, path='{id}')
+    def get_m(id):
+        return M(id)
+
+    @app.path(model=S, path='{m}/{id}')
+    def get_s(m, id):
+        return S(id, m)
+
+    @app.view(model=M)
+    def default_m(self, request):
+        return "M: %s" % self.id
+
+    @app.view(model=S)
+    def default_s(self, request):
+        return "S: %s %s" % (self.id, self.m)
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/a')
+    assert response.body == b'M: a'
+
+    response = c.get('/a/b')
+    assert response.body == b'/S: b a'
