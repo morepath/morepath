@@ -4,8 +4,14 @@ CHANGES
 0.3 (unreleased)
 ================
 
-- Nothing changed yet.
+- Ability to absorb paths entirely in path directive, as per issue #132.
 
+- Refactor of config engine to make Venusian and immediate config more
+  clear.
+
+- Typo fix in docs (Remco Wendt).
+
+- Get version number in docs from setuptools.
 
 0.2 (2014-04-24)
 ================
