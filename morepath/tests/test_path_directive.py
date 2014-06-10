@@ -851,6 +851,43 @@ def test_path_and_url_parameter_converter():
     assert response.body == b'/1'
 
 
+def test_path_converter_fallback_on_view():
+    config = setup()
+    app = morepath.App(testing_config=config)
+
+    class Root(object):
+        pass
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @app.path(model=Root, path='')
+    def get_root():
+        return Root()
+
+    @app.path(model=Model, path='/{id}')
+    def get_model(id=0):
+        return Model(id)
+
+    @app.view(model=Model)
+    def default(self, request):
+        return "Default view for %s" % self.id
+
+    @app.view(model=Root, name='named')
+    def named(self, request):
+        return "Named view on root"
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/1')
+    assert response.body == b'Default view for 1'
+    response = c.get('/named')
+    assert response.body == b'Named view on root'
+
+
 def test_root_named_link():
     config = setup()
     app = morepath.App(testing_config=config)
