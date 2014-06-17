@@ -17,6 +17,11 @@ CHANGES
 
 - Fix PDF generation so that the full content is generated.
 
+- Ability to mark a view as internal. It will be available to
+  ``request.view()`` but will give 404 on the web. This is useful for
+  structuring JSON views for reusability where you don't want them to
+  actually show up on the web.
+
 0.2 (2014-04-24)
 ================
 

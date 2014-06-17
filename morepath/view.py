@@ -6,10 +6,11 @@ from webob.exc import HTTPFound
 
 
 class View(object):
-    def __init__(self, func, render, permission):
+    def __init__(self, func, render, permission, internal):
         self.func = func
         self.render = render
         self.permission = permission
+        self.internal = internal
 
     def __call__(self, request, model):
         # the argument order is reversed here for the actual view function
@@ -21,11 +22,11 @@ class View(object):
 # XXX what happens if predicates is None for one registration
 # but filled for another?
 def register_view(registry, model, view, render=None, permission=None,
-                  predicates=None):
+                  internal=False, predicates=None):
     if permission is not None:
         # instantiate permission class so it can be looked up using reg
         permission = permission()
-    registration = View(view, render, permission)
+    registration = View(view, render, permission, internal)
     if predicates is not None:
         registration = get_predicate_registration(registry, model,
                                                   predicates, registration)
@@ -50,7 +51,7 @@ def get_predicate_registration(registry, model, predicates, registration):
             continue
         p = predicates.copy()
         p[predicate.name] = ANY
-        matcher.register(p, View(fallback, None, None))
+        matcher.register(p, View(fallback, None, None, False))
     return matcher
 
 

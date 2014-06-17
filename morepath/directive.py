@@ -324,6 +324,7 @@ class ViewDirective(Directive):
                PredicateFallbackDirective]
 
     def __init__(self, app, model, render=None, permission=None,
+                 internal=False,
                  **predicates):
         '''Register a view for a model.
 
@@ -350,6 +351,11 @@ class ViewDirective(Directive):
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
+        :param internal: Whether this view is internal only. If
+          ``True``, the view is only useful programmatically using
+          :meth:`morepath.Request.view`, but will not be published on
+          the web. It will be as if the view is not there.
+          By default a view is ``False``, so not internal.
         :param name: the name of the view as it appears in the URL. If omitted,
           it is the empty string, meaning the default view for the model.
           This is a predicate.
@@ -362,11 +368,13 @@ class ViewDirective(Directive):
           value is used. Standard predicate values are
           ``name`` and ``request_method``, but you can install your
           own using the :meth:`morepath.AppBase.predicate` directive.
+
         '''
         super(ViewDirective, self).__init__(app)
         self.model = model
         self.render = render
         self.permission = permission
+        self.internal = internal
         self.predicates = predicates
 
     def clone(self, **kw):
@@ -390,12 +398,13 @@ class ViewDirective(Directive):
 
     def perform(self, app, obj):
         register_view(app, self.model, obj, self.render, self.permission,
-                      self.predicates)
+                      self.internal, self.predicates)
 
 
 @directive('json')
 class JsonDirective(ViewDirective):
-    def __init__(self, app, model, render=None, permission=None, **predicates):
+    def __init__(self, app, model, render=None, permission=None,
+                 internal=False, **predicates):
         """Register JSON view.
 
         This is like :meth:`morepath.AppBase.view`, but with
@@ -414,6 +423,11 @@ class JsonDirective(ViewDirective):
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
+        :param internal: Whether this view is internal only. If
+          ``True``, the view is only useful programmatically using
+          :meth:`morepath.Request.view`, but will not be published on
+          the web. It will be as if the view is not there.
+          By default a view is ``False``, so not internal.
         :param name: the name of the view as it appears in the URL. If omitted,
           it is the empty string, meaning the default view for the model.
           This is a predicate.
@@ -425,12 +439,13 @@ class JsonDirective(ViewDirective):
         """
         render = render or render_json
         super(JsonDirective, self).__init__(app, model, render, permission,
-                                            **predicates)
+                                            internal, **predicates)
 
 
 @directive('html')
 class HtmlDirective(ViewDirective):
-    def __init__(self, app, model, render=None, permission=None, **predicates):
+    def __init__(self, app, model, render=None, permission=None,
+                 internal=False, **predicates):
         """Register HTML view.
 
         This is like :meth:`morepath.AppBase.view`, but with
@@ -448,6 +463,11 @@ class HtmlDirective(ViewDirective):
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
+        :param internal: Whether this view is internal only. If
+          ``True``, the view is only useful programmatically using
+          :meth:`morepath.Request.view`, but will not be published on
+          the web. It will be as if the view is not there.
+          By default a view is ``False``, so not internal.
         :param name: the name of the view as it appears in the URL. If omitted,
           it is the empty string, meaning the default view for the model.
           This is a predicate.
@@ -459,7 +479,7 @@ class HtmlDirective(ViewDirective):
         """
         render = render or render_html
         super(HtmlDirective, self).__init__(app, model, render, permission,
-                                            **predicates)
+                                            internal, **predicates)
 
 
 @directive('mount')

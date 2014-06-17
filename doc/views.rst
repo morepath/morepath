@@ -378,9 +378,22 @@ So ``request.view`` can make it much easier to construct composed JSON
 results where JSON representations are only loosely coupled.
 
 You can also use ``predicates`` in ``request.view``. Here we get the
-view with the ``name`` ``"edit"`` and the ``request_predicate`` ``"POST"``::
+view with the ``name`` ``"edit"`` and the ``request_method`` ``"POST"``::
 
-  request.view(item, name="edit", request_predicate="POST")
+  request.view(item, name="edit", request_method="POST")
+
+You can also create views that are for internal use only. You can use
+them with ``request.view()`` but they won't show up to the web; going
+to such a view is a 404 error. You can do this by passing the ``internal``
+flag to the directive::
+
+  @app.json(model=SomeOtherItem, name='extra', internal=True)
+  def some_other_item_extra(self, request):
+      return self.name
+
+The ``extra`` view can be used with ``request.view(item,
+name='extra')``, but it is not available on the web -- there is no
+``/extra`` view.
 
 Exception views
 ---------------

@@ -108,7 +108,7 @@ def get_response(request, model, predicates=None):
         request, model, lookup=request.lookup,
         predicates=predicates,
         default=None)
-    if view is None:
+    if view is None or view.internal:
         return None
     if (view.permission is not None and
         not generic.permits(request.identity, model, view.permission,
