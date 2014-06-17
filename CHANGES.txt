@@ -21,8 +21,9 @@ CHANGES
 
 - Link generation now takes ``SCRIPT_NAME`` into account.
 
-- Morepath 0.1 had a security system, but it was undocumented. Now it's
-  documented (docs now in :doc:`security`), and some of its behavior was slightly tweaked:
+- Morepath 0.1 had a security system, but it was undocumented. Now
+  it's documented (docs now in `Morepath Security`_), and some of its behavior was
+  slightly tweaked:
 
   * new ``verify_identity`` directive.
 
@@ -36,6 +37,8 @@ CHANGES
 - Installation documentation tweaks. (Auke Willem Oosterhoff)
 
 - ``.gitignore`` tweaks (Auke Willem Oosterhoff)
+
+.. _`Morepath Security`: http://blog.startifact.com/posts/morepath-security.html
 
 0.1 (2014-04-08)
 ================
