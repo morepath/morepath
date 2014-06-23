@@ -26,7 +26,7 @@ CHANGES
   call a ``request.view()`` from the context of the ``something``
   application would fail -- it would not be able to look up the view
   as lookups still occurred in the context of the mounting
-  application. This is now fixed.
+  application. This is now fixed. (thanks Ying Zhong for reporting it)
 
   Along with this fix refactored the request object so it keeps a
   simple ``mounted`` attribute instead of a stack of ``mounts``; the
