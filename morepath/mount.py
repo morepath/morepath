@@ -31,7 +31,7 @@ class Mount(object):
 
     def __call__(self, environ, start_response):
         request = self.app.request(environ)
-        request.mounts.append(self)
+        request.mounted = self
         response = self.app.publish(request)
         return response(environ, start_response)
 

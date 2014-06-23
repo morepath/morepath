@@ -18,8 +18,7 @@ def resolve_model(request):
     """Resolve path to a model using consumers.
     """
     lookup = request.lookup  # XXX can get this from argument too
-    mounts = request.mounts
-    model = mounts[-1]
+    model = request.mounted
     model.set_implicit()
     while request.unconsumed:
         next_model = generic.consume(request, model, lookup=lookup)
@@ -28,7 +27,7 @@ def resolve_model(request):
         model = next_model
         if isinstance(model, Mount):
             model.set_implicit()
-            mounts.append(model)
+            request.mounted = model
         # get new lookup for whatever we found if it exists
         lookup = generic.lookup(model, lookup=lookup, default=lookup)
         request.lookup = lookup

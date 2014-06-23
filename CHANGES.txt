@@ -22,6 +22,17 @@ CHANGES
   structuring JSON views for reusability where you don't want them to
   actually show up on the web.
 
+- A ``request.child(something).view()`` that had this view in turn
+  call a ``request.view()`` from the context of the ``something``
+  application would fail -- it would not be able to look up the view
+  as lookups still occurred in the context of the mounting
+  application. This is now fixed.
+
+  Along with this fix refactored the request object so it keeps a
+  simple ``mounted`` attribute instead of a stack of ``mounts``; the
+  stack-like nature was not in use anymore as mounts themselves have
+  parents anyway. The new code is simpler.
+
 0.2 (2014-04-24)
 ================
 

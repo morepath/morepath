@@ -23,7 +23,7 @@ class Request(BaseRequest):
     def __init__(self, environ):
         super(Request, self).__init__(environ)
         self.unconsumed = parse_path(self.path_info)
-        self.mounts = []
+        self.mounted = None
         self._after = []
 
     @reify
@@ -47,10 +47,6 @@ class Request(BaseRequest):
         if not generic.verify_identity(result, lookup=self.lookup):
             return NO_IDENTITY
         return result
-
-    @reify
-    def mounted(self):
-        return self.mounts[-1]
 
     def view(self, obj, default=None, **predicates):
         """Call view for model instance.
@@ -164,7 +160,13 @@ class LinkMaker(object):
             predicates=predicates)
         if view is None:
             return None
-        return view(self.request, obj)
+        old_mounted = self.request.mounted
+        self.mounted.set_implicit()
+        self.request.mounted = self.mounted
+        result = view(self.request, obj)
+        old_mounted.set_implicit()
+        self.request.mounted = old_mounted
+        return result
 
     @reify
     def parent(self):

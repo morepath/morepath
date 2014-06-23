@@ -540,3 +540,89 @@ def test_mount_explicit_converters():
     response = c.get('/1')
     assert response.body in \
         (b"The root for: 1 <type 'int'>", b"The root for: 1 <class 'int'>")
+
+
+def test_mount_view_in_child_view():
+    # using request.view from request.view failed before
+
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+    fooapp = morepath.App('foo', testing_config=config)
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @app.view(model=Root)
+    def default_homepage(self, request):
+        return request.child(fooapp).view(FooRoot())
+
+    @fooapp.path(path='')
+    class FooRoot(object):
+        pass
+
+    @fooapp.view(model=FooRoot, name="name")
+    def foo_name(self, request):
+        return "Foo"
+
+    @fooapp.view(model=FooRoot)
+    def foo_default(self, request):
+        return "Hello " + request.view(self, name="name")
+
+    @app.mount(path="foo", app=fooapp)
+    def mount_to_root():
+        return {}
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/foo')
+    assert response.body == b'Hello Foo'
+
+    response = c.get('/')
+    assert response.body == b'Hello Foo'
+
+
+def test_mount_view_in_child_view_then_parent_view():
+    # using request.view from request.view failed before
+
+    config = setup()
+    app = morepath.App('app', testing_config=config)
+    fooapp = morepath.App('foo', testing_config=config)
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @app.view(model=Root)
+    def default_homepage(self, request):
+        return (request.child(fooapp).view(FooRoot()) + ' ' +
+                request.view(self, name='other'))
+
+    @app.view(model=Root, name='other')
+    def root_other(self, request):
+        return 'other'
+
+    @fooapp.path(path='')
+    class FooRoot(object):
+        pass
+
+    @fooapp.view(model=FooRoot, name="name")
+    def foo_name(self, request):
+        return "Foo"
+
+    @fooapp.view(model=FooRoot)
+    def foo_default(self, request):
+        return "Hello " + request.view(self, name="name")
+
+    @app.mount(path="foo", app=fooapp)
+    def mount_to_root():
+        return {}
+
+    config.commit()
+
+    c = Client(app)
+
+    response = c.get('/')
+    assert response.body == b'Hello Foo other'

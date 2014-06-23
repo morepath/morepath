@@ -7,10 +7,12 @@ CREDITS
 
 * Michael Bernstein (feedback)
 
-* Contributions by Souheil Chelfouh, Alex Garel, Wolfgang Schnerring
+* Ying Zhong (bug reports, feedback)
 
 * Reinout van Rees (misc documentation fixes)
 
 * Auke Willem Oosterhoff (installation doc improvements)
+
+* Contributions by Souheil Chelfouh, Alex Garel, Wolfgang Schnerring
 
 * Special thanks to CONTACT software.
