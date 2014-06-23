@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.3 (unreleased)
+0.3 (2014-06-23)
 ================
 
 - Ability to absorb paths entirely in path directive, as per issue #132.
