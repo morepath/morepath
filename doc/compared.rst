@@ -16,7 +16,7 @@ We hear you ask:
 
 If you're already familiar with another web framework, it's useful to
 learn how Morepath is the same and how it is different, as that helps
-you understand it faster. So we'll try to go into some of this here.
+you understand it more quickly. So we go into some of this here.
 
 Our ability to compare Morepath to other web frameworks is limited by
 our familiarity with them, and also by their aforementioned large
@@ -272,7 +272,7 @@ views, yet another way to configure the permission system, and so
 on. Each system works differently and uses a different API. Config
 files, metaclasses and import-time side effects may all be involved.
 
-On top of this, if the framework want to allow reuse, extension and
+On top of this, if the framework wants to allow reuse, extension and
 overrides the APIs tends to grow even more distinct with specialised
 use cases, or yet more new APIs are grown.
 
