@@ -12,7 +12,6 @@ class ClassMethod(object):
         self.cls = cls
 
 
-@app.path(path='/')
 class Root(object):
     def __init__(self):
         self.value = 'ROOT'

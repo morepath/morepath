@@ -7,7 +7,6 @@ class NormalMethod(object):
     pass
 
 
-@app.path(path='/')
 class Root(object):
     def __init__(self):
         self.value = 'ROOT'
