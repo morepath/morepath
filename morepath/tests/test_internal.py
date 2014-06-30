@@ -1,5 +1,4 @@
 import morepath
-import pytest
 from webtest import TestApp as Client
 
 
@@ -10,7 +9,6 @@ def setup_module(module):
 def test_internal():
     config = morepath.setup()
     app = morepath.App('app', testing_config=config)
-    mounted = morepath.App(testing_config=config)
 
     @app.path(path='')
     class Root(object):
@@ -23,7 +21,6 @@ def test_internal():
     @app.json(model=Root, name='internal', internal=True)
     def root_internal(self, request):
         return 'Internal!'
-
 
     config.commit()
 

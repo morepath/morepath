@@ -4,8 +4,13 @@ CHANGES
 0.4 (unreleased)
 ================
 
-- Nothing changed yet.
+- Add a 'scan_module()' method to the config object. This allows the
+  non-recursive scanning of a single Python module (or the
+  ``__init__.py`` of a package if the package is given).
 
+- To support scanning a single module non-recursively we need a
+  feature that hasn't landed in mainline Venusian yet, so depend on
+  Venusifork for now.
 
 0.3 (2014-06-23)
 ================

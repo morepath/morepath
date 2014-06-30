@@ -168,6 +168,40 @@ def test_scanned_caller_package_scan_module():
     assert response.body == b'Hello world'
 
 
+def test_scan_module_only_init():
+    config = setup()
+    from morepath.tests.fixtures import scanmodule
+    from morepath.tests.fixtures.scanmodule import theapp
+    config.scan_module(scanmodule)
+    config.scan_module(theapp)
+    config.commit()
+
+    c = Client(scanmodule.app)
+
+    response = c.get('/')
+
+    assert response.body == b'The root: ROOT'
+
+    c.get('/foo', status=404)
+
+
+def test_scan_module_only_submodule():
+    config = setup()
+    from morepath.tests.fixtures.scanmodule import submodule, theapp
+    from morepath.tests.fixtures import scanmodule
+    config.scan_module(submodule)
+    config.scan_module(theapp)
+    config.commit()
+
+    c = Client(scanmodule.app)
+
+    c.get('/', status=404)
+
+    response = c.get('/foo')
+
+    assert response.body == b'The view for model: foo'
+
+
 def test_imperative():
     class Foo(object):
         pass
