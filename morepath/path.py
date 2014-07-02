@@ -41,7 +41,7 @@ def register_path(app, model, path, variables, converters, required,
         arguments = get_arguments(model_factory, SPECIAL_ARGUMENTS)
     converters = app.argument_and_explicit_converters(arguments, converters)
     exclude = Path(path).variables()
-    exclude.update(app.mount_variables())
+    #exclude.update(app.mount_variables())
     parameters = get_url_parameters(arguments, exclude)
     if required is None:
         required = set()
@@ -49,7 +49,7 @@ def register_path(app, model, path, variables, converters, required,
     parameter_factory = ParameterFactory(parameters, converters, required,
                                          'extra_parameters' in arguments)
     if variables is None:
-        variables = get_variables_func(arguments, app.mount_variables())
+        variables = get_variables_func(arguments, {}) # app.mount_variables())
 
     traject.add_pattern(path, (model_factory, parameter_factory),
                         converters, absorb)

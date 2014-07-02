@@ -1,9 +1,8 @@
-from .app import global_app
 from .config import Config
 from .mount import Mount
 import morepath.directive
 from morepath import generic
-from .app import AppBase
+from .app import App
 from .request import Request, Response, LinkMaker, NothingMountedLinkMaker
 from .converter import Converter, IDENTITY_CONVERTER
 from webob import Response as BaseResponse
@@ -33,7 +32,7 @@ def setup():
     return config
 
 
-@global_app.function(generic.consume, Request, object)
+@App.function(generic.consume, Request, object)
 def traject_consume(request, model, lookup):
     traject = generic.traject(model, lookup=lookup, default=None)
     if traject is None:
@@ -57,7 +56,7 @@ def traject_consume(request, model, lookup):
     return next_model
 
 
-@global_app.function(generic.link, Request, object, object)
+@App.function(generic.link, Request, object, object)
 def link(request, model, mounted):
     result = []
     parameters = {}
@@ -72,37 +71,37 @@ def link(request, model, mounted):
     return '/'.join(result).strip('/'), parameters
 
 
-@global_app.function(generic.linkmaker, Request, object)
+@App.function(generic.linkmaker, Request, object)
 def linkmaker(request, mounted):
     return LinkMaker(request, mounted)
 
 
-@global_app.function(generic.linkmaker, Request, type(None))
+@App.function(generic.linkmaker, Request, type(None))
 def none_linkmaker(request, mounted):
     return NothingMountedLinkMaker(request)
 
 
-@global_app.function(generic.traject, AppBase)
+@App.function(generic.traject, App)
 def app_traject(app):
     return app.traject
 
 
-@global_app.function(generic.lookup, Mount)
+@App.function(generic.lookup, Mount)
 def mount_lookup(model):
     return model.app.lookup
 
 
-@global_app.function(generic.traject, Mount)
+@App.function(generic.traject, Mount)
 def mount_traject(model):
     return model.app.traject
 
 
-@global_app.function(generic.context, Mount)
+@App.function(generic.context, Mount)
 def mount_context(mount):
     return mount.create_context()
 
 
-@global_app.function(generic.response, Request, object)
+@App.function(generic.response, Request, object)
 def get_response(request, model, predicates=None):
     view = generic.view.component(
         request, model, lookup=request.lookup,
@@ -128,41 +127,41 @@ def get_response(request, model, predicates=None):
     return response
 
 
-@global_app.function(generic.permits, object, object, object)
+@App.function(generic.permits, object, object, object)
 def has_permission(identity, model, permission):
     return False
 
 
-@global_app.predicate(name='name', index=KeyIndex, order=0,
-                      default='')
+@App.predicate(name='name', index=KeyIndex, order=0,
+               default='')
 def name_predicate(self, request):
     return request.view_name
 
 
-@global_app.predicate(name='request_method', index=KeyIndex, order=1,
-                      default='GET')
+@App.predicate(name='request_method', index=KeyIndex, order=1,
+               default='GET')
 def request_method_predicate(self, request):
     return request.method
 
 
-@global_app.predicate_fallback(name='request_method')
+@App.predicate_fallback(name='request_method')
 def method_not_allowed(self, request):
     raise HTTPMethodNotAllowed()
 
 
-@global_app.converter(type=int)
+@App.converter(type=int)
 def int_converter():
     return Converter(int)
 
 
-@global_app.converter(type=type(u""))
+@App.converter(type=type(u""))
 def unicode_converter():
     return IDENTITY_CONVERTER
 
 
 # Python 2
 if type(u"") != type(""): # flake8: noqa
-    @global_app.converter(type=type(""))
+    @App.converter(type=type(""))
     def str_converter():
         # XXX do we want to decode/encode unicode?
         return IDENTITY_CONVERTER
@@ -176,7 +175,7 @@ def date_encode(d):
     return d.strftime('%Y%m%d')
 
 
-@global_app.converter(type=date)
+@App.converter(type=date)
 def date_converter():
     return Converter(date_decode, date_encode)
 
@@ -189,12 +188,12 @@ def datetime_encode(d):
     return d.strftime('%Y%m%dT%H%M%S')
 
 
-@global_app.converter(type=datetime)
+@App.converter(type=datetime)
 def datetime_converter():
     return Converter(datetime_decode, datetime_encode)
 
 
-@global_app.tween_factory()
+@App.tween_factory()
 def excview_tween_factory(app, handler):
     def excview_tween(request):
         try:
@@ -211,7 +210,7 @@ def excview_tween_factory(app, handler):
     return excview_tween
 
 
-@global_app.view(model=HTTPException)
+@App.view(model=HTTPException)
 def standard_exception_view(self, model):
     # webob HTTPException is a response already
     return self

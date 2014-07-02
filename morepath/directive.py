@@ -1,4 +1,4 @@
-from .app import AppBase
+from .app import App
 from .config import Directive
 from .settings import SettingSection
 from .error import ConfigError
@@ -36,11 +36,11 @@ class directive(object):
 
     def __call__(self, directive):
         def method(self, *args, **kw):
-            return directive(self, *args, **kw)
+            return directive(self.morepath(), *args, **kw)
         # this is to help morepath.sphinxext to do the right thing
         method.actual_directive = directive
         update_wrapper(method, directive.__init__)
-        setattr(AppBase, self.name, method)
+        setattr(App, self.name, classmethod(method))
         return directive
 
 

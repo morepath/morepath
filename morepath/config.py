@@ -333,7 +333,7 @@ class Directive(Action):
         elif isinstance(wrapped, classmethod):
             raise DirectiveError(
                 "Cannot use classmethod with testing_config.")
-        self.configurable._testing_config.action(self, wrapped)
+        self.configurable.testing_config.action(self, wrapped)
 
     def venusian_callback(self, wrapped, scanner, name, obj):
         if self.attach_info.scope == 'class':
@@ -353,7 +353,7 @@ class Directive(Action):
     def __call__(self, wrapped):
         """Call with function to decorate.
         """
-        if self.configurable._testing_config:
+        if self.configurable.testing_config:
             self.immediate(wrapped)
         else:
             def callback(scanner, name, obj):
@@ -508,8 +508,11 @@ class Config(object):
         configuration of its configurables first.
         """
         # clear all previous configuration; commit can only be run
-        # once during runtime so it's handy to clear this out for tests
-        for configurable in self.configurables:
+        # once during runtime so it's handy to clear this out for tests\
+        from .app import class_to_morepath
+        for configurable in class_to_morepath.values():
+            configurable.clear()
+        #for configurable in self.configurables:
             configurable.clear()
 
         for action, obj in self.prepared():

@@ -96,6 +96,9 @@ class ConverterRegistry(object):
     def __init__(self):
         self._map = Map()
 
+    def clear(self):
+        self._map = Map()
+
     def register_converter(self, type, converter):
         """Register a converter for type.
 

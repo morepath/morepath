@@ -13,7 +13,9 @@ def setup_module(module):
 
 def test_simple_path_one_step():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self):
@@ -33,7 +35,7 @@ def test_simple_path_one_step():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/simple')
     assert response.body == b'View'
@@ -44,7 +46,9 @@ def test_simple_path_one_step():
 
 def test_simple_path_two_steps():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self):
@@ -64,7 +68,7 @@ def test_simple_path_two_steps():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/one/two')
     assert response.body == b'View'
@@ -75,7 +79,9 @@ def test_simple_path_two_steps():
 
 def test_variable_path_one_step():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, name):
@@ -95,7 +101,7 @@ def test_variable_path_one_step():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo')
     assert response.body == b'View: foo'
@@ -106,7 +112,9 @@ def test_variable_path_one_step():
 
 def test_variable_path_two_steps():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, name):
@@ -126,7 +134,7 @@ def test_variable_path_two_steps():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/document/foo')
     assert response.body == b'View: foo'
@@ -137,7 +145,9 @@ def test_variable_path_two_steps():
 
 def test_variable_path_two_variables():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, name, version):
@@ -158,7 +168,7 @@ def test_variable_path_two_variables():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo-one')
     assert response.body == b'View: foo one'
@@ -169,7 +179,9 @@ def test_variable_path_two_variables():
 
 def test_variable_path_explicit_converter():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id):
@@ -190,7 +202,7 @@ def test_variable_path_explicit_converter():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/1')
     assert response.body in \
@@ -204,7 +216,9 @@ def test_variable_path_explicit_converter():
 
 def test_variable_path_implicit_converter():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id):
@@ -224,7 +238,7 @@ def test_variable_path_implicit_converter():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/1')
     assert response.body in \
@@ -238,7 +252,9 @@ def test_variable_path_implicit_converter():
 
 def test_variable_path_explicit_trumps_implicit():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id):
@@ -259,7 +275,7 @@ def test_variable_path_explicit_trumps_implicit():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/1')
     assert response.body in \
@@ -273,7 +289,9 @@ def test_variable_path_explicit_trumps_implicit():
 
 def test_url_parameter_explicit_converter():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id):
@@ -294,7 +312,7 @@ def test_url_parameter_explicit_converter():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/?id=1')
     assert response.body in \
@@ -312,7 +330,9 @@ def test_url_parameter_explicit_converter():
 
 def test_url_parameter_explicit_converter_get_converters():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id):
@@ -335,7 +355,7 @@ def test_url_parameter_explicit_converter_get_converters():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/?id=1')
     assert response.body in \
@@ -353,7 +373,9 @@ def test_url_parameter_explicit_converter_get_converters():
 
 def test_url_parameter_get_converters_overrides_converters():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id):
@@ -377,7 +399,7 @@ def test_url_parameter_get_converters_overrides_converters():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/?id=1')
     assert response.body in \
@@ -395,7 +417,9 @@ def test_url_parameter_get_converters_overrides_converters():
 
 def test_url_parameter_implicit_converter():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id):
@@ -415,7 +439,7 @@ def test_url_parameter_implicit_converter():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/?id=1')
     assert response.body in \
@@ -433,7 +457,9 @@ def test_url_parameter_implicit_converter():
 
 def test_url_parameter_explicit_trumps_implicit():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id):
@@ -454,7 +480,7 @@ def test_url_parameter_explicit_trumps_implicit():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/?id=1')
     assert response.body in \
@@ -472,7 +498,9 @@ def test_url_parameter_explicit_trumps_implicit():
 
 def test_decode_encode():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id):
@@ -499,7 +527,7 @@ def test_decode_encode():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/?id=foo')
     assert response.body == b"View: fooADD"
@@ -510,7 +538,9 @@ def test_decode_encode():
 
 def test_unknown_converter():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, d):
@@ -537,7 +567,9 @@ def test_unknown_converter():
 
 def test_unknown_explicit_converter():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, d):
@@ -564,7 +596,9 @@ def test_unknown_explicit_converter():
 
 def test_default_date_converter():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, d):
@@ -586,7 +620,7 @@ def test_default_date_converter():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/?d=20121110')
     assert response.body == b"View: 2012-11-10"
@@ -605,7 +639,9 @@ def test_default_date_converter():
 
 def test_default_datetime_converter():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, d):
@@ -627,7 +663,7 @@ def test_default_datetime_converter():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/?d=20121110T144530')
     assert response.body == b"View: 2012-11-10 14:45:30"
@@ -646,7 +682,9 @@ def test_default_datetime_converter():
 
 def test_custom_date_converter():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, d):
@@ -679,7 +717,7 @@ def test_custom_date_converter():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/?d=10-11-2012')
     assert response.body == b"View: 2012-11-10"
@@ -698,7 +736,9 @@ def test_custom_date_converter():
 
 def test_variable_path_parameter_required_no_default():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id):
@@ -718,7 +758,7 @@ def test_variable_path_parameter_required_no_default():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/?id=a')
     assert response.body == b"View: a"
@@ -728,7 +768,9 @@ def test_variable_path_parameter_required_no_default():
 
 def test_variable_path_parameter_required_with_default():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id):
@@ -748,7 +790,7 @@ def test_variable_path_parameter_required_with_default():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/?id=a')
     assert response.body == b"View: a"
@@ -758,7 +800,9 @@ def test_variable_path_parameter_required_with_default():
 
 def test_type_hints_and_converters():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, d):
@@ -780,7 +824,7 @@ def test_type_hints_and_converters():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/?d=20140120')
     assert response.body == b"View: 2014-01-20"
@@ -791,7 +835,9 @@ def test_type_hints_and_converters():
 
 def test_link_for_none_means_no_parameter():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id):
@@ -811,7 +857,7 @@ def test_link_for_none_means_no_parameter():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b"View: None"
@@ -822,7 +868,9 @@ def test_link_for_none_means_no_parameter():
 
 def test_path_and_url_parameter_converter():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id, param):
@@ -845,7 +893,7 @@ def test_path_and_url_parameter_converter():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/1/link')
     assert response.body == b'/1'
@@ -853,7 +901,9 @@ def test_path_and_url_parameter_converter():
 
 def test_path_converter_fallback_on_view():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Root(object):
         pass
@@ -880,7 +930,7 @@ def test_path_converter_fallback_on_view():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/1')
     assert response.body == b'Default view for 1'
@@ -890,7 +940,9 @@ def test_path_converter_fallback_on_view():
 
 def test_root_named_link():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -902,7 +954,7 @@ def test_root_named_link():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'/foo'
@@ -910,7 +962,9 @@ def test_root_named_link():
 
 def test_path_class_and_model_argument():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Foo(object):
         pass
@@ -925,7 +979,9 @@ def test_path_class_and_model_argument():
 
 def test_path_no_class_and_no_model_argument():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     def get_foo():
@@ -937,7 +993,9 @@ def test_path_no_class_and_no_model_argument():
 
 def test_url_parameter_list():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, item):
@@ -957,7 +1015,7 @@ def test_url_parameter_list():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/?item=1&item=2')
     assert response.body == b"[1, 2]"
@@ -976,7 +1034,9 @@ def test_url_parameter_list():
 
 def test_url_parameter_list_empty():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, item):
@@ -996,7 +1056,7 @@ def test_url_parameter_list_empty():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/?item=a&item=b')
     assert response.body in (b"[u'a', u'b']", b"['a', 'b']")
@@ -1013,7 +1073,9 @@ def test_url_parameter_list_empty():
 
 def test_url_parameter_list_explicit_converter():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, item):
@@ -1033,7 +1095,7 @@ def test_url_parameter_list_explicit_converter():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/?item=1&item=2')
     assert response.body == b"[1, 2]"
@@ -1052,7 +1114,9 @@ def test_url_parameter_list_explicit_converter():
 
 def test_url_parameter_list_unknown_explicit_converter():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, item):
@@ -1071,7 +1135,9 @@ def test_url_parameter_list_unknown_explicit_converter():
 
 def test_url_parameter_list_but_only_one_allowed():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, item):
@@ -1091,7 +1157,7 @@ def test_url_parameter_list_but_only_one_allowed():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     c.get('/?item=1&item=2', status=400)
 
@@ -1100,7 +1166,9 @@ def test_url_parameter_list_but_only_one_allowed():
 
 def test_extra_parameters():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, extra_parameters):
@@ -1120,7 +1188,7 @@ def test_extra_parameters():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/?a=A&b=B')
     assert response.body in \
@@ -1131,7 +1199,9 @@ def test_extra_parameters():
 
 def test_extra_parameters_with_get_converters():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, extra_parameters):
@@ -1157,7 +1227,7 @@ def test_extra_parameters_with_get_converters():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/?a=1&b=B')
     assert response.body in \
@@ -1168,7 +1238,9 @@ def test_extra_parameters_with_get_converters():
 
 def test_script_name():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self):
@@ -1188,7 +1260,7 @@ def test_script_name():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/prefix/simple',
                      extra_environ=dict(SCRIPT_NAME='/prefix'))
@@ -1202,7 +1274,9 @@ def test_script_name():
 @pytest.mark.xfail
 def test_sub_path_different_variable():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class M(object):
         def __init__(self, id):
@@ -1231,7 +1305,7 @@ def test_sub_path_different_variable():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/a')
     assert response.body == b'M: a'
@@ -1242,7 +1316,9 @@ def test_sub_path_different_variable():
 
 def test_absorb_path():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Root(object):
         pass
@@ -1269,7 +1345,7 @@ def test_absorb_path():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo/a')
     assert response.body == b'a'
@@ -1287,7 +1363,9 @@ def test_absorb_path():
 
 def test_absorb_path_with_variables():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Root(object):
         pass
@@ -1315,7 +1393,7 @@ def test_absorb_path_with_variables():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo/a')
     assert response.body == b'I:foo A:a'
@@ -1333,7 +1411,9 @@ def test_absorb_path_with_variables():
 
 def test_absorb_path_explicit_subpath_ignored():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Root(object):
         pass
@@ -1371,7 +1451,7 @@ def test_absorb_path_explicit_subpath_ignored():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo/a')
     assert response.body == b'a'
@@ -1386,7 +1466,9 @@ def test_absorb_path_explicit_subpath_ignored():
 
 def test_absorb_path_root():
     config = setup()
-    app = morepath.App(testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, absorb):
@@ -1402,7 +1484,7 @@ def test_absorb_path_root():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/a')
     assert response.body == b'A:a L:/a'

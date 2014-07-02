@@ -1,5 +1,4 @@
 from .toposort import topological_sort
-from .publish import publish
 from .reify import reify
 
 
@@ -27,10 +26,3 @@ class TweenRegistry(object):
         return topological_sort(
             self._tween_factories.keys(),
             lambda tween_factory: tween_factory_depends.get(tween_factory, []))
-
-    @reify
-    def publish(self):
-        result = publish
-        for tween_factory in reversed(self.sorted_tween_factories()):
-            result = tween_factory(self, result)
-        return result
