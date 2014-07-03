@@ -33,7 +33,8 @@ setup(name='morepath',
         'reg >= 0.7'
         ],
       extras_require = dict(
-        test=['pytest >= 2.0',
+        test=['pytest >= 2.5.2',
+              'py >= 1.4.20',
               'pytest-cov',
               'WebTest >= 2.0.14'],
         ),
