@@ -1,4 +1,4 @@
-from morepath.app import App
+import morepath
 from morepath import setup
 from webtest import TestApp as Client
 import morepath
@@ -10,8 +10,10 @@ def setup_module(module):
 
 def test_extends():
     config = setup()
-    app = App(testing_config=config)
-    extending = App(extends=[app], testing_config=config)
+    class app(morepath.App):
+        testing_config = config
+    class extending(app):
+        testing_config = config
 
     @app.path(path='users/{username}')
     class User(object):
@@ -28,12 +30,12 @@ def test_extends():
 
     config.commit()
 
-    cl = Client(app)
+    cl = Client(app())
     response = cl.get('/users/foo')
     assert response.body == b'User: foo'
     response = cl.get('/users/foo/edit', status=404)
 
-    cl = Client(extending)
+    cl = Client(extending())
     response = cl.get('/users/foo')
     assert response.body == b'User: foo'
     response = cl.get('/users/foo/edit')
@@ -42,8 +44,12 @@ def test_extends():
 
 def test_overrides_view():
     config = setup()
-    app = App(testing_config=config)
-    overriding = App(extends=[app], testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
+
+    class overriding(app):
+        testing_config = config
 
     @app.path(path='users/{username}')
     class User(object):
@@ -60,19 +66,23 @@ def test_overrides_view():
 
     config.commit()
 
-    cl = Client(app)
+    cl = Client(app())
     response = cl.get('/users/foo')
     assert response.body == b'User: foo'
 
-    cl = Client(overriding)
+    cl = Client(overriding())
     response = cl.get('/users/foo')
     assert response.body == b'USER: foo'
 
 
 def test_overrides_model():
     config = setup()
-    app = App(testing_config=config)
-    overriding = App(extends=[app], testing_config=config)
+
+    class app(morepath.App):
+        testing_config = config
+
+    class overriding(app):
+        testing_config = config
 
     @app.path(path='users/{username}')
     class User(object):
@@ -91,13 +101,13 @@ def test_overrides_model():
 
     config.commit()
 
-    cl = Client(app)
+    cl = Client(app())
     response = cl.get('/users/foo')
     assert response.body == b'User: foo'
     response = cl.get('/users/bar')
     assert response.body == b'User: bar'
 
-    cl = Client(overriding)
+    cl = Client(overriding())
     response = cl.get('/users/foo', status=404)
     response = cl.get('/users/bar')
     assert response.body == b'User: bar'
