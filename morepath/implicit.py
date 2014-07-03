@@ -3,9 +3,9 @@ from reg import implicit
 _implicit_enabled = True
 
 
-def set_implicit(app):
+def set_implicit(lookup):
     if _implicit_enabled:
-        implicit.lookup = app.lookup
+        implicit.lookup = lookup
 
 
 def enable_implicit():

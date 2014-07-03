@@ -573,7 +573,6 @@ class TweenFactoryDirective(Directive):
         '''
         super(TweenFactoryDirective, self).__init__(app)
         global tween_factory_id
-        self.app = app
         self.under = under
         self.over = over
         if name is None:

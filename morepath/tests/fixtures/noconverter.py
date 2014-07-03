@@ -1,6 +1,8 @@
 import morepath
 
-app = morepath.App()
+
+class app(morepath.App):
+    pass
 
 
 # for which there is no known converter

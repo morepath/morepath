@@ -1,5 +1,8 @@
 import morepath
 
-app = morepath.App()
+
+class app(morepath.App):
+    pass
+
 
 1/0

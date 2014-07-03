@@ -1,6 +1,6 @@
 from .fixtures import (basic, nested, abbr, mapply_bug,
                        normalmethod, method, conflict, pkg, noconverter)
-from morepath import setup
+from morepath import setup, setup_testing
 from morepath.error import (ConflictError, MountError, DirectiveError,
                             LinkError, DirectiveReportError)
 from morepath.view import render_html
@@ -22,7 +22,7 @@ def test_basic():
     config.scan(basic)
     config.commit()
 
-    c = Client(basic.app)
+    c = Client(basic.app())
 
     response = c.get('/foo')
 
@@ -37,7 +37,7 @@ def test_basic_json():
     config.scan(basic)
     config.commit()
 
-    c = Client(basic.app)
+    c = Client(basic.app())
 
     response = c.get('/foo/json')
 
@@ -49,7 +49,7 @@ def test_basic_root():
     config.scan(basic)
     config.commit()
 
-    c = Client(basic.app)
+    c = Client(basic.app())
 
     response = c.get('/')
 
@@ -66,7 +66,7 @@ def test_nested():
     config.scan(nested)
     config.commit()
 
-    c = Client(nested.outer_app)
+    c = Client(nested.outer_app())
 
     response = c.get('/inner/foo')
 
@@ -81,7 +81,7 @@ def test_abbr():
     config.scan(abbr)
     config.commit()
 
-    c = Client(abbr.app)
+    c = Client(abbr.app())
 
     response = c.get('/foo')
     assert response.body == b'Default view: foo'
@@ -101,7 +101,7 @@ def test_scanned_static_method():
     config.scan(method)
     config.commit()
 
-    c = Client(method.app)
+    c = Client(method.app())
 
     response = c.get('/static')
     assert response.body == b'Static Method'
@@ -115,7 +115,7 @@ def test_scanned_class_method():
     config.scan(method)
     config.commit()
 
-    c = Client(method.app)
+    c = Client(method.app())
 
     response = c.get('/class')
     assert response.body == b'Class Method'
@@ -150,7 +150,7 @@ def test_scanned_caller_package():
 
     from .fixtures.callerpkg.other import app
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'Hello world'
@@ -162,7 +162,7 @@ def test_scanned_caller_package_scan_module():
 
     from .fixtures.callerpkg2.other import app
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'Hello world'
@@ -176,7 +176,7 @@ def test_scan_module_only_init():
     config.scan_module(theapp)
     config.commit()
 
-    c = Client(scanmodule.app)
+    c = Client(scanmodule.app())
 
     response = c.get('/')
 
@@ -193,7 +193,7 @@ def test_scan_module_only_submodule():
     config.scan_module(theapp)
     config.commit()
 
-    c = Client(scanmodule.app)
+    c = Client(scanmodule.app())
 
     c.get('/', status=404)
 
@@ -214,7 +214,7 @@ def test_imperative():
 
     c = setup()
     foo = Foo()
-    c.configurable(app)
+    c.configurable(app.morepath)
     c.action(app.function(target), foo)
     c.commit()
 
@@ -222,7 +222,8 @@ def test_imperative():
 
 
 def test_basic_imperative():
-    app = morepath.App()
+    class app(morepath.App):
+        pass
 
     class Root(object):
         def __init__(self):
@@ -251,7 +252,7 @@ def test_basic_imperative():
         return request.link(self)
 
     c = setup()
-    c.configurable(app)
+    c.configurable(app.morepath)
     c.action(app.path(path=''), Root)
     c.action(app.path(model=Model, path='{id}'),
              get_model)
@@ -268,7 +269,7 @@ def test_basic_imperative():
              root_link)
     c.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo')
     assert response.body == b'The view for model: foo'
@@ -288,8 +289,10 @@ def test_basic_imperative():
 
 
 def test_basic_testing_config():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -326,7 +329,7 @@ def test_basic_testing_config():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo')
     assert response.body == b'The view for model: foo'
@@ -346,8 +349,10 @@ def test_basic_testing_config():
 
 
 def test_link_to_unknown_model():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -374,7 +379,7 @@ def test_link_to_unknown_model():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'Link error'
@@ -383,8 +388,10 @@ def test_link_to_unknown_model():
 
 
 def test_link_to_none():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -405,7 +412,7 @@ def test_link_to_none():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'True'
@@ -414,8 +421,10 @@ def test_link_to_none():
 
 
 def test_link_with_parameters():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -442,7 +451,7 @@ def test_link_with_parameters():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo')
     assert response.body == b'The view for model: foo 0'
@@ -458,8 +467,10 @@ def test_link_with_parameters():
 
 
 def test_root_link_with_parameters():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -477,7 +488,7 @@ def test_root_link_with_parameters():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'The view for root: 0'
@@ -493,8 +504,10 @@ def test_root_link_with_parameters():
 
 
 def test_implicit_variables():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -518,15 +531,17 @@ def test_implicit_variables():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo/link')
     assert response.body == b'/foo'
 
 
 def test_implicit_parameters():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -550,7 +565,7 @@ def test_implicit_parameters():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo')
     assert response.body == b'The view for model: None'
@@ -563,8 +578,10 @@ def test_implicit_parameters():
 
 
 def test_implicit_parameters_default():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -588,7 +605,7 @@ def test_implicit_parameters_default():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo')
     assert response.body == b'The view for model: default'
@@ -601,8 +618,10 @@ def test_implicit_parameters_default():
 
 
 def test_simple_root():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class Hello(object):
         pass
@@ -619,15 +638,17 @@ def test_simple_root():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'hello'
 
 
 def test_json_directive():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='{id}')
     class Model(object):
@@ -640,15 +661,17 @@ def test_json_directive():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo')
     assert response.body == b'{"id": "foo"}'
 
 
 def test_redirect():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -661,14 +684,16 @@ def test_redirect():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     c.get('/', status=302)
 
 
 def test_root_conflict():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -683,8 +708,10 @@ def test_root_conflict():
 
 
 def test_root_conflict2():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -699,9 +726,13 @@ def test_root_conflict2():
 
 
 def test_root_no_conflict_different_apps():
-    config = setup()
-    app_a = morepath.App(testing_config=config)
-    app_b = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app_a(morepath.App):
+        testing_config = config
+
+    class app_b(morepath.App):
+        testing_config = config
 
     @app_a.path(path='')
     class Root(object):
@@ -715,8 +746,10 @@ def test_root_no_conflict_different_apps():
 
 
 def test_model_conflict():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class A(object):
         pass
@@ -734,8 +767,10 @@ def test_model_conflict():
 
 
 def test_path_conflict():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class A(object):
         pass
@@ -756,8 +791,10 @@ def test_path_conflict():
 
 
 def test_path_conflict_with_variable():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class A(object):
         pass
@@ -778,8 +815,10 @@ def test_path_conflict_with_variable():
 
 
 def test_path_conflict_with_variable_different_converters():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class A(object):
         pass
@@ -800,8 +839,13 @@ def test_path_conflict_with_variable_different_converters():
 
 
 def test_model_no_conflict_different_apps():
-    config = setup()
-    app_a = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app_a(morepath.App):
+        testing_config = config
+
+    class app_b(morepath.App):
+        testing_config = config
 
     class A(object):
         pass
@@ -820,8 +864,10 @@ def test_model_no_conflict_different_apps():
 
 
 def test_view_conflict():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         pass
@@ -839,8 +885,10 @@ def test_view_conflict():
 
 
 def test_view_no_conflict_different_names():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         pass
@@ -857,8 +905,10 @@ def test_view_no_conflict_different_names():
 
 
 def test_view_no_conflict_different_predicates():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         pass
@@ -875,9 +925,13 @@ def test_view_no_conflict_different_predicates():
 
 
 def test_view_no_conflict_different_apps():
-    config = setup()
-    app_a = morepath.App(testing_config=config)
-    app_b = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app_a(morepath.App):
+        testing_config = config
+
+    class app_b(morepath.App):
+        testing_config = config
 
     class Model(object):
         pass
@@ -894,8 +948,10 @@ def test_view_no_conflict_different_apps():
 
 
 def test_view_conflict_with_json():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         pass
@@ -913,8 +969,10 @@ def test_view_conflict_with_json():
 
 
 def test_view_conflict_with_html():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         pass
@@ -932,8 +990,10 @@ def test_view_conflict_with_html():
 
 
 def test_function_conflict():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class A(object):
         pass
@@ -954,9 +1014,13 @@ def test_function_conflict():
 
 
 def test_function_no_conflict_different_apps():
-    config = setup()
-    app_a = morepath.App(testing_config=config)
-    app_b = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app_a(morepath.App):
+        testing_config = config
+
+    class app_b(morepath.App):
+        testing_config = config
 
     def func(a):
         pass
@@ -976,13 +1040,16 @@ def test_function_no_conflict_different_apps():
 
 
 def test_run_app_with_context_without_it():
-    config = setup()
-    app = morepath.App('app', variables=['mount_id'], testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        variables = ['mount_id']
+        testing_config = config
+
     config.commit()
 
-    c = Client(app)
     with pytest.raises(MountError):
-        c.get('/foo')
+        app()
 
 
 def test_mapply_bug():
@@ -990,7 +1057,7 @@ def test_mapply_bug():
     config.scan(mapply_bug)
     config.commit()
 
-    c = Client(mapply_bug.app)
+    c = Client(mapply_bug.app())
 
     response = c.get('/')
 
@@ -998,8 +1065,10 @@ def test_mapply_bug():
 
 
 def test_abbr_imperative():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         pass
@@ -1019,7 +1088,7 @@ def test_abbr_imperative():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'Default view'
@@ -1029,8 +1098,10 @@ def test_abbr_imperative():
 
 
 def test_abbr_imperative_exception_propagated():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         pass

@@ -1,7 +1,12 @@
 import morepath
 
-outer_app = morepath.App('outer')
-app = morepath.App('inner')
+
+class outer_app(morepath.App):
+    pass
+
+
+class app(morepath.App):
+    pass
 
 
 @outer_app.mount('inner', app)

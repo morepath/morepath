@@ -1,6 +1,8 @@
 import morepath
 
-app = morepath.App()
+
+class app(morepath.App):
+    pass
 
 
 class StaticMethod(object):

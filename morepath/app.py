@@ -45,13 +45,18 @@ class MorepathInfo(Configurable, ClassRegistry, ConverterRegistry,
     def lookup(self):
         return Lookup(CachingClassLookup(self))
 
+
+def callback(scanner, name, obj):
+    scanner.config.configurable(obj.morepath)
+
 class AppMeta(type):
     def __new__(mcl, name, bases, d):
         testing_config = d.get('testing_config')
         d['morepath'] = MorepathInfo(name, bases, testing_config,
                                      d.get('variables', []))
-        return super(AppMeta, mcl).__new__(mcl, name, bases, d)
-
+        result = super(AppMeta, mcl).__new__(mcl, name, bases, d)
+        venusian.attach(result, callback)
+        return result
 
 class App(object):
     """Base for application objects.
@@ -118,6 +123,7 @@ class App(object):
             result = tween_factory(self, result)
         return result
 
+
 # class App(AppBase):
 #     """A Morepath-based application object.
 
@@ -158,10 +164,6 @@ class App(object):
 #         super(App, self).__init__(name, extends, variables, testing_config)
 #         # XXX why does this need to be repeated?
 #         venusian.attach(self, callback)
-
-
-def callback(scanner, name, obj):
-    scanner.config.configurable(obj.morepath)
 
 
 

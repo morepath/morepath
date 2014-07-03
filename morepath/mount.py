@@ -27,7 +27,7 @@ class Mount(object):
         return self.app.morepath.lookup
 
     def set_implicit(self):
-        set_implicit(self.app)
+        set_implicit(self.lookup)
 
     def __call__(self, environ, start_response):
         request = self.app.request(environ)

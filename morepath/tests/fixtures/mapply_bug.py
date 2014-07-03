@@ -1,7 +1,8 @@
 import morepath
 
 
-app = morepath.App()
+class app(morepath.App):
+    pass
 
 
 @app.path(path='')

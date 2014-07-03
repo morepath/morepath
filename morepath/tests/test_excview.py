@@ -1,5 +1,5 @@
 import morepath
-from morepath import setup
+from morepath import setup_testing
 from webob.exc import HTTPNotFound
 from webtest import TestApp as Client
 import pytest
@@ -10,8 +10,10 @@ def setup_module(module):
 
 
 def test_404_http_exception():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -19,13 +21,15 @@ def test_404_http_exception():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
     c.get('/', status=404)
 
 
 def test_other_exception_not_handled():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class MyException(Exception):
         pass
@@ -40,7 +44,7 @@ def test_other_exception_not_handled():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     # the WSGI web server will handle any unhandled errors and turn
     # them into 500 errors
@@ -49,8 +53,10 @@ def test_other_exception_not_handled():
 
 
 def test_http_exception_excview():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -62,14 +68,16 @@ def test_http_exception_excview():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
     response = c.get('/')
     assert response.body == b'Not found!'
 
 
 def test_other_exception_excview():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class MyException(Exception):
         pass
@@ -88,15 +96,17 @@ def test_other_exception_excview():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'My exception'
 
 
 def test_http_exception_excview_retain_status():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -111,14 +121,16 @@ def test_http_exception_excview_retain_status():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
     response = c.get('/', status=404)
     assert response.body == b'Not found!!'
 
 
 def test_excview_named_view():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -138,6 +150,6 @@ def test_excview_named_view():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
     response = c.get('/view')
     assert response.body == b'My exception'
