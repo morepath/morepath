@@ -29,11 +29,7 @@ class Configurable(object):
           the use of directive decorators in tests where scanning is
           not an option. Optional, default no testing config.
         """
-        if extends is None:
-            extends = []
-        if not isinstance(extends, list):
-            extends = [extends]
-        self.extends = extends
+        self.extends = extends or []
         self._testing_config = testing_config
         self.clear()
         if self._testing_config:
@@ -117,22 +113,7 @@ class Configurable(object):
         :param obj: The object that this action is performed on.
         """
         self._grouped_actions.setdefault(
-            group_key(action), []).append((action, obj))
-
-
-def group_key(action):
-    """We group actions by their deepest base class that's still a real action.
-
-    This way subclasses of for instance the ViewDirective still
-    group with the ViewDirective, so that conflicts can be detected.
-    """
-    found = None
-    for c in action.__class__.__mro__:
-        if c is Directive or c is Action:
-            return found
-        found = c
-    assert False  # pragma: nocoverage
-
+            action.group_key(), []).append((action, obj))
 
 class Actions(object):
     def __init__(self, actions, extends):
@@ -151,6 +132,7 @@ class Actions(object):
         # check for conflicts and fill action map
         discriminators = {}
         self._action_map = action_map = {}
+
         for action, obj in self._actions:
             id = action.identifier(configurable)
             discs = [id]
@@ -218,6 +200,16 @@ class Action(object):
         """
         self.configurable = configurable
         self.order = None
+
+    def group_key(self):
+        """By default we group directives by their class.
+
+        Override this to group a directive with another directive,
+        by returning that Directive class. It will create conflicts
+        between those directives. Typically you'd do this when you are
+        already subclassing from that directive too.
+        """
+        return self.__class__
 
     def codeinfo(self):
         """Info about where in the source code the action was invoked.
@@ -508,11 +500,8 @@ class Config(object):
         configuration of its configurables first.
         """
         # clear all previous configuration; commit can only be run
-        # once during runtime so it's handy to clear this out for tests\
-        from .app import class_to_morepath
-        for configurable in class_to_morepath.values():
-            configurable.clear()
-        #for configurable in self.configurables:
+        # once during runtime so it's handy to clear this out for tests
+        for configurable in self.configurables:
             configurable.clear()
 
         for action, obj in self.prepared():

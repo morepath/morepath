@@ -7,27 +7,27 @@ from .converter import ConverterRegistry
 from .error import MountError
 from .tween import TweenRegistry
 from morepath import generic
-from reg import ClassRegistry, Lookup, CachingClassLookup, implicit
+from reg import ClassRegistry, Lookup, CachingClassLookup
 import venusian
 from .reify import reify
 from .publish import publish
 
 
-class_to_morepath = {}
-
-
 class MorepathInfo(Configurable, ClassRegistry, ConverterRegistry,
                    TweenRegistry):
-    def __init__(self, cls, extends, testing_config):
-        self.cls = cls
+    def __init__(self, name, bases, testing_config, variables):
+        self.name = name
+        bases = [base.morepath for base in bases if hasattr(base, 'morepath')]
         ClassRegistry.__init__(self)
-        Configurable.__init__(self, extends, testing_config)
+        Configurable.__init__(self, bases, testing_config)
         ConverterRegistry.__init__(self)
         TweenRegistry.__init__(self)
+        self._mounted = {}
+        self.variables = variables
         self.clear()
 
     def __repr__(self):
-        return '<MorepathInfo for %r>' % self.cls
+        return '<MorepathInfo for class %s>' % self.name
 
     def clear(self):
         """Clear all registrations in this application.
@@ -37,7 +37,20 @@ class MorepathInfo(Configurable, ClassRegistry, ConverterRegistry,
         ConverterRegistry.clear(self)
         TweenRegistry.clear(self)
         self.traject = Traject()
+        self._mounted = {}
+        # XXX this should go into App I think
         self.settings = SettingSectionContainer()
+
+    @reify
+    def lookup(self):
+        return Lookup(CachingClassLookup(self))
+
+class AppMeta(type):
+    def __new__(mcl, name, bases, d):
+        testing_config = d.get('testing_config')
+        d['morepath'] = MorepathInfo(name, bases, testing_config,
+                                     d.get('variables', []))
+        return super(AppMeta, mcl).__new__(mcl, name, bases, d)
 
 
 class App(object):
@@ -49,41 +62,14 @@ class App(object):
     testing_config = None
     variables = set()
 
+    __metaclass__ = AppMeta
+
     def __init__(self, **context):
-        self._app_mount = self._mounted(context)
-        # allow being scanned by venusian
-        #venusian.attach(self, callback)
-
-   # @reify
-    @classmethod
-    def morepath(cls):
-        result = class_to_morepath.get(cls)
-        if result is not None:
-            return result
-        result = class_to_morepath[cls] = MorepathInfo(
-            cls,
-            [base.morepath() for base in cls.__bases__
-             if issubclass(base, App)],
-            cls.testing_config)
-        return result
-
-    # def __repr__(self):
-    #     if self.name is None:
-    #         return '<morepath.App at 0x%x>' % id(self)
-    #     return '<morepath.App %r>' % self.name
-
-    def _mounted(self, context):
-        """Create :class:`morepath.mount.Mount` for application.
-
-        :param context: a dictionary arguments with which to mount the app.
-        :returns: :class:`morepath.mount.Mount` instance. This is
-          a WSGI application.
-        """
         for name in self.variables:
             if name not in context:
                 raise MountError(
                     "Cannot mount app without context variable: %s" % name)
-        return Mount(self, lambda: context, {})
+        self._app_mount = Mount(self, lambda: context, {})
 
     def actions(self):
         yield self.function(generic.settings), lambda: self.settings
@@ -94,18 +80,18 @@ class App(object):
 
         :returns: a :class:`reg.Lookup` instance.
         """
-        return Lookup(CachingClassLookup(self.morepath()))
+        return self.morepath.lookup
 
     @reify
     def traject(self):
-        return self.morepath().traject
+        return self.morepath.traject
 
-    def set_implicit(self):
-        """Set app's lookup as implicit reg lookup.
+    # def set_implicit(self):
+    #     """Set app's lookup as implicit reg lookup.
 
-        Only does something if implicit mode is enabled. If disabled,
-        has no effect.
-        """
+    #     Only does something if implicit mode is enabled. If disabled,
+    #     has no effect.
+    #     """
 
     def request(self, environ):
         """Create a :class:`Request` given WSGI environment.
@@ -128,7 +114,7 @@ class App(object):
     @reify
     def publish(self):
         result = publish
-        for tween_factory in reversed(self.morepath().sorted_tween_factories()):
+        for tween_factory in reversed(self.morepath.sorted_tween_factories()):
             result = tween_factory(self, result)
         return result
 
@@ -177,21 +163,6 @@ class App(object):
 def callback(scanner, name, obj):
     scanner.config.configurable(obj.morepath)
 
-
-def set_implicit(self):
-    implicit.lookup = self.lookup
-
-
-def enable_implicit():
-    App.set_implicit = set_implicit
-
-
-def no_set_implicit(self):
-    pass
-
-
-def disable_implicit():
-    App.set_implicit = no_set_implicit
 
 
 # global_app = AppBase('global_app')

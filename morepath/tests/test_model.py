@@ -5,8 +5,8 @@ except ImportError:
     from urllib import urlencode
 from morepath.path import register_path, get_arguments
 from morepath.converter import Converter, IDENTITY_CONVERTER, ConverterRegistry
-from morepath.app import App
-from morepath import setup
+import morepath
+from morepath import setup_testing
 from morepath import generic
 from morepath.core import traject_consume
 import morepath
@@ -33,9 +33,14 @@ class Model(object):
 
 
 def test_register_path():
-    config = setup()
-    app = App(testing_config=config)
+    config = setup_testing()
+
+    class App(morepath.App):
+        testing_config = config
+
     root = Root()
+
+    app = App()
     lookup = app.lookup
 
     def get_model(id):
@@ -45,11 +50,14 @@ def test_register_path():
 
     config.commit()
 
-    register_path(app, Root, '', lambda m: {}, None, None, None, False,
+    registry = app.morepath
+
+    register_path(registry, Root, '', lambda m: {},
+                  None, None, None, False,
                   lambda: root)
-    register_path(app, Model, '{id}', lambda model: {'id': model.id},
+    register_path(registry, Model, '{id}', lambda model: {'id': model.id},
                   None, None, None, False, get_model)
-    app.register(generic.context, [object], lambda obj: {})
+    registry.register(generic.context, [object], lambda obj: {})
 
     obj, request = consume(app, 'a')
     assert obj.id == 'a'
@@ -59,8 +67,13 @@ def test_register_path():
 
 
 def test_register_path_with_parameters():
-    config = setup()
-    app = App(testing_config=config)
+    config = setup_testing()
+
+    class App(morepath.App):
+        testing_config = config
+
+    app = App()
+
     root = Root()
     lookup = app.lookup
 
@@ -72,12 +85,14 @@ def test_register_path_with_parameters():
 
     config.commit()
 
-    register_path(app, Root,  '', lambda m: {}, None, None, None, False,
+    registry = app.morepath
+
+    register_path(registry, Root,  '', lambda m: {}, None, None, None, False,
                   lambda: root)
-    register_path(app, Model, '{id}', lambda model: {'id': model.id,
-                                                     'param': model.param},
+    register_path(registry, Model, '{id}',
+                  lambda model: {'id': model.id, 'param': model.param},
                   None, None, None, False, get_model)
-    app.register(generic.context, [object], lambda obj: {})
+    registry.register(generic.context, [object], lambda obj: {})
 
     obj, request = consume(app, 'a')
     assert obj.id == 'a'
@@ -94,8 +109,12 @@ def test_register_path_with_parameters():
 
 
 def test_traject_path_with_leading_slash():
-    config = setup()
-    app = App(testing_config=config)
+    config = setup_testing()
+
+    class App(morepath.App):
+        testing_config = config
+
+    app = App()
     root = Root()
 
     def get_model(id):
@@ -105,11 +124,13 @@ def test_traject_path_with_leading_slash():
 
     config.commit()
 
-    register_path(app, Root, '', lambda m: {}, None, None, None, False,
+    registry = app.morepath
+
+    register_path(registry, Root, '', lambda m: {}, None, None, None, False,
                   lambda: root)
-    register_path(app, Model, '/foo/{id}', lambda model: {'id': model.id},
+    register_path(registry, Model, '/foo/{id}', lambda model: {'id': model.id},
                   None, None, None, False, get_model)
-    app.register(generic.context, [object], lambda obj: {})
+    registry.register(generic.context, [object], lambda obj: {})
 
     obj, request = consume(app, 'foo/a')
     assert obj.id == 'a'

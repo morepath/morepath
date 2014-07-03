@@ -1,5 +1,5 @@
 from .app import App
-from .config import Directive
+from .config import Directive as ConfigDirective
 from .settings import SettingSection
 from .error import ConfigError
 from .view import (register_view, render_json, render_html,
@@ -36,13 +36,17 @@ class directive(object):
 
     def __call__(self, directive):
         def method(self, *args, **kw):
-            return directive(self.morepath(), *args, **kw)
+            return directive(self, *args, **kw)
         # this is to help morepath.sphinxext to do the right thing
         method.actual_directive = directive
         update_wrapper(method, directive.__init__)
         setattr(App, self.name, classmethod(method))
         return directive
 
+class Directive(ConfigDirective):
+    def __init__(self, app):
+        super(Directive, self).__init__(app.morepath)
+        self.app = app
 
 @directive('setting')
 class SettingDirective(Directive):
@@ -106,7 +110,7 @@ class SettingSectionDirective(Directive):
 
     def prepare(self, obj):
         section = obj()
-        app = self.configurable
+        app = self.app
         for name, value in section.items():
             yield (app.setting(section=self.section, name=name),
                    SettingValue(value))
@@ -382,7 +386,7 @@ class ViewDirective(Directive):
         # non-immutable in __init__. move this to another phase so
         # that this more complex clone isn't needed?
         args = dict(
-            app=self.configurable,
+            app=self.app,
             model=self.model,
             render=self.render,
             permission=self.permission)
@@ -441,6 +445,8 @@ class JsonDirective(ViewDirective):
         super(JsonDirective, self).__init__(app, model, render, permission,
                                             internal, **predicates)
 
+    def group_key(self):
+        return ViewDirective
 
 @directive('html')
 class HtmlDirective(ViewDirective):
@@ -480,6 +486,8 @@ class HtmlDirective(ViewDirective):
         render = render or render_html
         super(HtmlDirective, self).__init__(app, model, render, permission,
                                             internal, **predicates)
+    def group_key(self):
+        return ViewDirective
 
 
 @directive('mount')
@@ -513,6 +521,9 @@ class MountDirective(PathDirective):
                                              required=required,
                                              get_converters=get_converters)
         self.mounted_app = app
+
+    def group_key(self):
+        return PathDirective
 
     # XXX it's a bit of a hack to make the mount directive
     # group with the path directive so we get conflicts,
@@ -592,7 +603,7 @@ class IdentityPolicyDirective(Directive):
 
     def prepare(self, obj):
         policy = obj()
-        app = self.configurable
+        app = self.app
         yield app.function(
             generic.identify, Request), policy.identify
         yield (app.function(
@@ -628,7 +639,7 @@ class VerifyIdentityDirective(Directive):
         self.identity = identity
 
     def prepare(self, obj):
-        yield self.configurable.function(
+        yield self.app.function(
             generic.verify_identity, self.identity), obj
 
 

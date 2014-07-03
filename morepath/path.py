@@ -41,7 +41,7 @@ def register_path(app, model, path, variables, converters, required,
         arguments = get_arguments(model_factory, SPECIAL_ARGUMENTS)
     converters = app.argument_and_explicit_converters(arguments, converters)
     exclude = Path(path).variables()
-    #exclude.update(app.mount_variables())
+    exclude.update(app.variables)
     parameters = get_url_parameters(arguments, exclude)
     if required is None:
         required = set()

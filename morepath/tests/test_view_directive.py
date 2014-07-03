@@ -9,7 +9,7 @@ def setup_module(module):
 
 
 def test_view_get_only():
-    config = morepath.setup()
+    config = morepath.setup_testing()
 
     class app(morepath.App):
         testing_config = config
@@ -33,7 +33,7 @@ def test_view_get_only():
 
 
 def test_view_any():
-    config = morepath.setup()
+    config = morepath.setup_testing()
 
     class app(morepath.App):
         testing_config = config
@@ -46,6 +46,7 @@ def test_view_any():
     @app.view(model=Model, request_method=morepath.ANY)
     def default(self, request):
         return "View"
+
     config.commit()
 
     c = Client(app())
@@ -81,13 +82,13 @@ def test_view_name_conflict_involving_default():
 
 
 def test_view_custom_predicate_conflict_involving_default_extends():
-    config = morepath.setup()
+    config = morepath.setup_testing()
 
     class core(morepath.App):
         testing_config = config
 
     class app(core):
-        pass
+        testing_config = config
 
     @core.predicate(name='foo', order=100, default='DEFAULT')
     def get_foo(request, model):

@@ -29,6 +29,7 @@ def resolve_model(request):
             model.set_implicit()
             request.mounted = model
         # get new lookup for whatever we found if it exists
+        # XXX can't we use mount lookup instead?
         lookup = generic.lookup(model, lookup=lookup, default=lookup)
         request.lookup = lookup
     # if there is nothing (left), we consume toward a root model

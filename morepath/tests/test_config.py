@@ -244,7 +244,7 @@ def test_configurable_inherit_without_change():
 
     c = config.Config()
     x = config.Configurable()
-    y = config.Configurable(x)
+    y = config.Configurable([x])
     c.configurable(x)
     c.configurable(y)
 
@@ -278,7 +278,7 @@ def test_configurable_inherit_extending():
 
     c = config.Config()
     x = config.Configurable()
-    y = config.Configurable(x)
+    y = config.Configurable([x])
     c.configurable(x)
     c.configurable(y)
 
@@ -311,7 +311,7 @@ def test_configurable_inherit_overriding():
 
     c = config.Config()
     x = config.Configurable()
-    y = config.Configurable(x)
+    y = config.Configurable([x])
     c.configurable(x)
     c.configurable(y)
 
@@ -514,7 +514,7 @@ def test_config_phases_extends():
 
     c = config.Config()
     x = config.Configurable()
-    y = config.Configurable(x)
+    y = config.Configurable([x])
 
     c.configurable(x)
     c.configurable(y)

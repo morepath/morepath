@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import morepath
-from morepath import setup
+from morepath import setup_testing
 from morepath.request import Response
 from morepath import generic
 from morepath.security import (Identity, BasicAuthIdentityPolicy,
@@ -21,8 +21,10 @@ def setup_module(module):
 
 
 def test_no_permission():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id):
@@ -42,14 +44,16 @@ def test_no_permission():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     c.get('/foo', status=403)
 
 
 def test_permission_directive():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id):
@@ -91,7 +95,7 @@ def test_permission_directive():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo')
     assert response.body == b'Model: foo'
@@ -99,8 +103,10 @@ def test_permission_directive():
 
 
 def test_permission_directive_no_identity():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id):
@@ -127,7 +133,7 @@ def test_permission_directive_no_identity():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo')
     assert response.body == b'Model: foo'
@@ -135,11 +141,11 @@ def test_permission_directive_no_identity():
 
 
 def test_policy_action():
-    config = setup()
+    config = setup_testing()
     config.scan(identity_policy)
     config.commit()
 
-    c = Client(identity_policy.app)
+    c = Client(identity_policy.app())
 
     response = c.get('/foo')
     assert response.body == b'Model: foo'
@@ -147,8 +153,10 @@ def test_policy_action():
 
 
 def test_basic_auth_identity_policy():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id):
@@ -187,7 +195,7 @@ def test_basic_auth_identity_policy():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo', status=401)
 
@@ -202,8 +210,10 @@ def test_basic_auth_identity_policy():
 
 
 def test_basic_auth_identity_policy_errors():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id):
@@ -235,7 +245,7 @@ def test_basic_auth_identity_policy_errors():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo', status=403)
 
@@ -283,8 +293,10 @@ def test_basic_auth_identity_policy_errors():
 
 
 def test_basic_auth_remember():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='{id}',
               variables=lambda model: {'id': model.id})
@@ -307,15 +319,17 @@ def test_basic_auth_remember():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo', status=200)
     assert response.body == b''
 
 
 def test_basic_auth_forget():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='{id}')
     class Model(object):
@@ -336,7 +350,7 @@ def test_basic_auth_forget():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo', status=200)
     assert response.body == b''
@@ -369,8 +383,10 @@ class DumbCookieIdentityPolicy(object):
 
 
 def test_cookie_identity_policy():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='{id}')
     class Model(object):
@@ -413,7 +429,7 @@ def test_cookie_identity_policy():
 
     config.commit()
 
-    c = Client(app, cookiejar=CookieJar())
+    c = Client(app(), cookiejar=CookieJar())
 
     response = c.get('/foo', status=403)
 
@@ -428,18 +444,23 @@ def test_cookie_identity_policy():
 
 
 def test_default_verify_identity():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
+
     config.commit()
 
     identity = morepath.Identity('foo')
 
-    assert not generic.verify_identity(identity, lookup=app.lookup)
+    assert not generic.verify_identity(identity, lookup=app().lookup)
 
 
 def test_verify_identity_directive():
-    config = setup()
-    app = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.verify_identity()
     def verify_identity(identity):
@@ -447,6 +468,6 @@ def test_verify_identity_directive():
 
     config.commit()
     identity = morepath.Identity('foo', password='wrong')
-    assert not generic.verify_identity(identity, lookup=app.lookup)
+    assert not generic.verify_identity(identity, lookup=app().lookup)
     identity = morepath.Identity('foo', password='right')
-    assert generic.verify_identity(identity, lookup=app.lookup)
+    assert generic.verify_identity(identity, lookup=app().lookup)

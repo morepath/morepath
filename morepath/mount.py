@@ -1,7 +1,7 @@
 from .path import register_path, get_arguments, SPECIAL_ARGUMENTS
 from .reify import reify
 from reg import mapply
-
+from .implicit import set_implicit
 
 class Mount(object):
     def __init__(self, app, context_factory, variables):
@@ -24,10 +24,10 @@ class Mount(object):
 
     @reify
     def lookup(self):
-        return self.app.lookup
+        return self.app.morepath.lookup
 
     def set_implicit(self):
-        self.app.set_implicit()
+        set_implicit(self.app)
 
     def __call__(self, environ, start_response):
         request = self.app.request(environ)
@@ -40,7 +40,7 @@ class Mount(object):
         return self.variables.get('parent')
 
     def child(self, app, **context):
-        factory = self.app._mounted.get(app)
+        factory = self.app.morepath._mounted.get(app)
         if factory is None:
             return None
         if 'parent' not in context:

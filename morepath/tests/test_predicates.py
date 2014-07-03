@@ -1,5 +1,5 @@
 from morepath.app import App
-from morepath import setup
+from morepath import setup_testing
 
 from webtest import TestApp as Client
 import morepath
@@ -10,8 +10,10 @@ def setup_module(module):
 
 
 def test_view_predicates():
-    config = setup()
-    app = App(testing_config=config)
+    config = setup_testing()
+
+    class app(App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -27,7 +29,7 @@ def test_view_predicates():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo')
     assert response.body == b'GET'
@@ -36,8 +38,10 @@ def test_view_predicates():
 
 
 def test_extra_predicates():
-    config = setup()
-    app = App(testing_config=config)
+    config = setup_testing()
+
+    class app(App):
+        testing_config = config
 
     @app.path(path='{id}')
     class Model(object):
@@ -57,7 +61,7 @@ def test_extra_predicates():
         return self.id
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/a/foo')
     assert response.body == b'a'

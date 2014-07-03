@@ -1,14 +1,22 @@
 import morepath
-from morepath import setup
+from morepath import setup_testing
 from morepath.error import LinkError, ConflictError
 from webtest import TestApp as Client
 import pytest
 
 
+def setup_module():
+    morepath.disable_implicit()
+
+
 def test_model_mount_conflict():
-    config = setup()
-    app = morepath.App(testing_config=config)
-    app2 = morepath.App(testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class app2(morepath.App):
+        testing_config = config
 
     class A(object):
         pass
@@ -26,9 +34,13 @@ def test_model_mount_conflict():
 
 
 def test_mount():
-    config = setup()
-    app = morepath.App('app', testing_config=config)
-    mounted = morepath.App('mounted', testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        testing_config = config
 
     @mounted.path(path='')
     class MountedRoot(object):
@@ -48,7 +60,7 @@ def test_mount():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo')
     assert response.body == b'The root'
@@ -58,9 +70,13 @@ def test_mount():
 
 
 def test_mount_empty_context_should_fail():
-    config = setup()
-    app = morepath.App('app', testing_config=config)
-    mounted = morepath.App('mounted', testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        testing_config = config
 
     @mounted.path(path='')
     class MountedRoot(object):
@@ -80,17 +96,21 @@ def test_mount_empty_context_should_fail():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     c.get('/foo', status=404)
     c.get('/foo/link', status=404)
 
 
 def test_mount_context():
-    config = setup()
-    app = morepath.App('app', testing_config=config)
-    mounted = morepath.App('mounted', variables=['mount_id'],
-                           testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        variables = ['mount_id']
+        testing_config = config
 
     @mounted.path(path='')
     class MountedRoot(object):
@@ -109,7 +129,7 @@ def test_mount_context():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo')
     assert response.body == b'The root for mount id: foo'
@@ -118,10 +138,14 @@ def test_mount_context():
 
 
 def test_mount_context_parameters():
-    config = setup()
-    app = morepath.App('app', testing_config=config)
-    mounted = morepath.App('mounted', variables=['mount_id'],
-                           testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        variables = ['mount_id']
+        testing_config = config
 
     @mounted.path(path='')
     class MountedRoot(object):
@@ -141,7 +165,7 @@ def test_mount_context_parameters():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/mounts?mount_id=1')
     assert response.body == b'The root for mount id: 1'
@@ -150,10 +174,14 @@ def test_mount_context_parameters():
 
 
 def test_mount_context_parameters_empty_context():
-    config = setup()
-    app = morepath.App('app', testing_config=config)
-    mounted = morepath.App('mounted', variables=['mount_id'],
-                           testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        variables = ['mount_id']
+        testing_config = config
 
     @mounted.path(path='')
     class MountedRoot(object):
@@ -165,17 +193,17 @@ def test_mount_context_parameters_empty_context():
     def root_default(self, request):
         return "The root for mount id: %s" % self.mount_id
 
-    # the context does not in fact construct the context.
+    # the context creates an empty context.
     # this means the parameters are instead constructed from the
     # arguments of the MountedRoot constructor, and these
-    # default to 'default'
+    # default to 'default', not a URL parameter
     @app.mount(path='{id}', app=mounted)
     def get_context(id):
         return {}
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo')
     assert response.body == b'The root for mount id: default'
@@ -186,9 +214,11 @@ def test_mount_context_parameters_empty_context():
 
 
 def test_mount_context_standalone():
-    config = setup()
-    app = morepath.App('mounted', variables=['mount_id'],
-                       testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        variables = ['mount_id']
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -201,23 +231,26 @@ def test_mount_context_standalone():
 
     config.commit()
 
-    c = Client(app.mounted(mount_id='foo'))
+    c = Client(app(mount_id='foo'))
 
     response = c.get('/')
     assert response.body == b'The root for mount id: foo'
 
 
 def test_mount_parent_link():
-    config = setup()
-    app = morepath.App('app', testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='models/{id}')
     class Model(object):
         def __init__(self, id):
             self.id = id
 
-    mounted = morepath.App('mounted', variables=['mount_id'],
-                           testing_config=config)
+    class mounted(morepath.App):
+        variables = ['mount_id']
+        testing_config = config
 
     @mounted.path(path='')
     class MountedRoot(object):
@@ -236,17 +269,21 @@ def test_mount_parent_link():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo')
     assert response.body == b'/models/one'
 
 
 def test_mount_child_link():
-    config = setup()
-    app = morepath.App('app', testing_config=config)
-    mounted = morepath.App('mounted', variables=['mount_id'],
-                           testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        variables = ['mount_id']
+        testing_config = config
 
     @mounted.path(path='models/{id}')
     class Model(object):
@@ -269,17 +306,21 @@ def test_mount_child_link():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'/foo/models/one'
 
 
 def test_mount_child_link_unknown_child():
-    config = setup()
-    app = morepath.App('app', testing_config=config)
-    mounted = morepath.App('mounted', variables=['mount_id'],
-                           testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        variables = ['mount_id']
+        testing_config = config
 
     @mounted.path(path='models/{id}')
     class Model(object):
@@ -304,15 +345,17 @@ def test_mount_child_link_unknown_child():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'link error'
 
 
 def test_mount_child_link_unknown_parent():
-    config = setup()
-    app = morepath.App('app', testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     class Model(object):
         def __init__(self, id):
@@ -331,17 +374,21 @@ def test_mount_child_link_unknown_parent():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'link error'
 
 
 def test_mount_child_link_unknown_app():
-    config = setup()
-    app = morepath.App('app', testing_config=config)
-    mounted = morepath.App('mounted', variables=['mount_id'],
-                           testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        variables = ['mount_id']
+        testing_config = config
 
     @mounted.path(path='models/{id}')
     class Model(object):
@@ -363,17 +410,21 @@ def test_mount_child_link_unknown_app():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'link error'
 
 
 def test_mount_repr():
-    config = setup()
-    app = morepath.App('app', testing_config=config)
-    mounted = morepath.App('mounted', variables=['mount_id'],
-                           testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        variables = ['mount_id']
+        testing_config = config
 
     @mounted.path(path='models/{id}')
     class Model(object):
@@ -396,20 +447,26 @@ def test_mount_repr():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
-    assert response.body == (
-        b"<morepath.Mount of <morepath.App 'mounted'> with "
+    assert response.body[:178] == (
+        b"<morepath.Mount of <class "
+        b"'morepath.tests.test_mount_directive.mounted'> with "
         b"variables: id='foo', "
-        b"parent=<morepath.Mount of <morepath.App 'app'>>>")
+        b"parent=<morepath.Mount of "
+        b"<morepath.tests.test_mount_directive.app object at 0x")
 
 
 def test_request_view_in_mount():
-    config = setup()
-    app = morepath.App('app', testing_config=config)
-    mounted = morepath.App('mounted', variables=['mount_id'],
-                           testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        variables = ['mount_id']
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -437,17 +494,21 @@ def test_request_view_in_mount():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'Hey'
 
 
 def test_request_view_in_mount_broken():
-    config = setup()
-    app = morepath.App('app', testing_config=config)
-    mounted = morepath.App('mounted', variables=['mount_id'],
-                           testing_config=config)
+    config = setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        variables = ['mount_id']
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -474,17 +535,20 @@ def test_request_view_in_mount_broken():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'link error'
 
 
 def test_mount_implict_converters():
-    config = setup()
+    config = setup_testing()
 
-    app = morepath.App(testing_config=config)
-    mounted = morepath.App(testing_config=config)
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        testing_config = config
 
     class MountedRoot(object):
         def __init__(self, id):
@@ -504,7 +568,7 @@ def test_mount_implict_converters():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/1')
     assert response.body in \
@@ -512,10 +576,13 @@ def test_mount_implict_converters():
 
 
 def test_mount_explicit_converters():
-    config = setup()
+    config = setup_testing()
 
-    app = morepath.App(testing_config=config)
-    mounted = morepath.App(testing_config=config)
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        testing_config = config
 
     class MountedRoot(object):
         def __init__(self, id):
@@ -535,7 +602,7 @@ def test_mount_explicit_converters():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/1')
     assert response.body in \
@@ -543,11 +610,13 @@ def test_mount_explicit_converters():
 
 
 def test_mount_view_in_child_view():
-    # using request.view from request.view failed before
+    config = setup_testing()
 
-    config = setup()
-    app = morepath.App('app', testing_config=config)
-    fooapp = morepath.App('foo', testing_config=config)
+    class app(morepath.App):
+        testing_config = config
+
+    class fooapp(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -575,7 +644,7 @@ def test_mount_view_in_child_view():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/foo')
     assert response.body == b'Hello Foo'
@@ -585,11 +654,13 @@ def test_mount_view_in_child_view():
 
 
 def test_mount_view_in_child_view_then_parent_view():
-    # using request.view from request.view failed before
+    config = setup_testing()
 
-    config = setup()
-    app = morepath.App('app', testing_config=config)
-    fooapp = morepath.App('foo', testing_config=config)
+    class app(morepath.App):
+        testing_config = config
+
+    class fooapp(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -622,7 +693,7 @@ def test_mount_view_in_child_view_then_parent_view():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'Hello Foo other'

@@ -159,8 +159,10 @@ def test_tween_sorting_dag_error4():
 
 
 def test_tween_directive():
-    config = morepath.setup()
-    app = morepath.App(testing_config=config)
+    config = morepath.setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -180,7 +182,7 @@ def test_tween_directive():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'View'

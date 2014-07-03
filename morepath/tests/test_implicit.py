@@ -12,8 +12,10 @@ def setup_function(f):
 
 
 def test_implicit_function():
-    config = morepath.setup()
-    app = morepath.App(testing_config=config)
+    config = morepath.setup_testing()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Model(object):
@@ -42,16 +44,21 @@ def test_implicit_function():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'The real two'
 
 
 def test_implicit_function_mounted():
-    config = morepath.setup()
-    alpha = morepath.App(testing_config=config)
-    beta = morepath.App(testing_config=config, variables=['id'])
+    config = morepath.setup_testing()
+
+    class alpha(morepath.App):
+        testing_config = config
+
+    class beta(morepath.App):
+        testing_config = config
+        variables = ['id']
 
     @alpha.mount(path='mounted/{id}', app=beta)
     def mount_beta(id):
@@ -98,7 +105,7 @@ def test_implicit_function_mounted():
 
     config.commit()
 
-    c = Client(alpha)
+    c = Client(alpha())
 
     response = c.get('/mounted/1')
     assert response.body == b'View for 1, message: The real two'
@@ -109,7 +116,7 @@ def test_implicit_function_mounted():
 
 def test_implicit_disabled():
     morepath.disable_implicit()
-    config = morepath.setup()
+    config = morepath.setup_testing()
     app = morepath.App(testing_config=config)
 
     @app.path(path='')

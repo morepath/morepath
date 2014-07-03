@@ -31,6 +31,10 @@ def setup():
     config.scan(morepath, ignore=['.tests'])
     return config
 
+def setup_testing():
+    config = setup()
+    App.morepath.testing_config = config
+    return config
 
 @App.function(generic.consume, Request, object)
 def traject_consume(request, model, lookup):
@@ -88,12 +92,12 @@ def app_traject(app):
 
 @App.function(generic.lookup, Mount)
 def mount_lookup(model):
-    return model.app.lookup
+    return model.lookup
 
 
 @App.function(generic.traject, Mount)
 def mount_traject(model):
-    return model.app.traject
+    return model.app.morepath.traject
 
 
 @App.function(generic.context, Mount)
