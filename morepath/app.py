@@ -29,7 +29,7 @@ class MorepathInfo(Configurable, ClassRegistry, ConverterRegistry,
         self.clear()
 
     def actions(self):
-        return [] # XXX yield FunctionAction(self, generic.settings), lambda: self.settings
+        yield FunctionAction(self, generic.settings), lambda: self.settings
 
     def clear(self):
         """Clear all registrations in this application.

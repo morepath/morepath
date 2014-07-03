@@ -4,7 +4,7 @@ from morepath.publish import publish, resolve_response
 from morepath.path import register_path
 from morepath.request import Response
 from morepath.view import register_view, render_json, render_html
-from morepath.core import setup_testing
+from morepath.core import setup
 from webob.exc import HTTPNotFound, HTTPBadRequest
 import webob
 
@@ -24,7 +24,7 @@ class Model(object):
 
 
 def test_view():
-    config = setup_testing()
+    config = setup()
 
     class app(App):
         testing_config = config
@@ -42,7 +42,7 @@ def test_view():
 
 
 def test_predicates():
-    config = setup_testing()
+    config = setup()
 
     class app(App):
         testing_config = config
@@ -69,7 +69,7 @@ def test_predicates():
 
 @pytest.mark.xfail
 def test_notfound():
-    config = setup_testing()
+    config = setup()
 
     class app(App):
         testing_config = config
@@ -85,7 +85,7 @@ def test_notfound():
 
 
 def test_notfound_with_predicates():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -104,7 +104,7 @@ def test_notfound_with_predicates():
 
 
 def test_response_returned():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -122,7 +122,7 @@ def test_response_returned():
 
 @pytest.mark.xfail
 def test_request_view():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -148,7 +148,7 @@ def test_request_view():
 
 @pytest.mark.xfail
 def test_request_view_with_predicates():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -177,7 +177,7 @@ def test_request_view_with_predicates():
 
 
 def test_render_html():
-    config = setup_testing()
+    config = setup()
 
     class app(App):
         testing_config = config
@@ -198,7 +198,7 @@ def test_render_html():
 
 @pytest.mark.xfail
 def test_view_raises_http_error():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -220,7 +220,7 @@ def test_view_raises_http_error():
 
 
 def test_view_after():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -242,7 +242,7 @@ def test_view_after():
 
 
 def test_conditional_view_after():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -265,7 +265,7 @@ def test_conditional_view_after():
 
 
 def test_view_after_non_decorator():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config

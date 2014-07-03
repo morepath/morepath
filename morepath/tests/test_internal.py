@@ -7,7 +7,7 @@ def setup_module(module):
 
 
 def test_internal():
-    config = morepath.setup_testing()
+    config = morepath.setup()
 
     class app(morepath.App):
         testing_config = config

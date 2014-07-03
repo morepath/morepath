@@ -9,7 +9,7 @@ def setup_module(module):
 
 
 def test_app_extends_settings():
-    config = morepath.setup_testing()
+    config = morepath.setup()
 
     class alpha(morepath.App):
         testing_config = config
@@ -38,7 +38,7 @@ def test_app_extends_settings():
 
 
 def test_app_overrides_settings():
-    config = morepath.setup_testing()
+    config = morepath.setup()
 
     class alpha(morepath.App):
         testing_config = config
@@ -61,7 +61,7 @@ def test_app_overrides_settings():
 
 
 def test_app_overrides_settings_three():
-    config = morepath.setup_testing()
+    config = morepath.setup()
 
     class alpha(morepath.App):
         testing_config = config
@@ -86,7 +86,7 @@ def test_app_overrides_settings_three():
 
 
 def test_app_section_settings():
-    config = morepath.setup_testing()
+    config = morepath.setup()
 
     class app(morepath.App):
         testing_config = config
@@ -106,7 +106,7 @@ def test_app_section_settings():
 
 
 def test_app_section_settings_conflict():
-    config = morepath.setup_testing()
+    config = morepath.setup()
 
     class app(morepath.App):
         testing_config = config
@@ -129,7 +129,7 @@ def test_app_section_settings_conflict():
 def test_settings_function():
     morepath.enable_implicit()
 
-    config = morepath.setup_testing()
+    config = morepath.setup()
 
     class app(morepath.App):
         testing_config = config

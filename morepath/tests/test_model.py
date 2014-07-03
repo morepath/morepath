@@ -6,7 +6,7 @@ except ImportError:
 from morepath.path import register_path, get_arguments
 from morepath.converter import Converter, IDENTITY_CONVERTER, ConverterRegistry
 import morepath
-from morepath import setup_testing
+from morepath import setup
 from morepath import generic
 from morepath.core import traject_consume
 import morepath
@@ -33,7 +33,7 @@ class Model(object):
 
 
 def test_register_path():
-    config = setup_testing()
+    config = setup()
 
     class App(morepath.App):
         testing_config = config
@@ -67,7 +67,7 @@ def test_register_path():
 
 
 def test_register_path_with_parameters():
-    config = setup_testing()
+    config = setup()
 
     class App(morepath.App):
         testing_config = config
@@ -109,7 +109,7 @@ def test_register_path_with_parameters():
 
 
 def test_traject_path_with_leading_slash():
-    config = setup_testing()
+    config = setup()
 
     class App(morepath.App):
         testing_config = config

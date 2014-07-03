@@ -1,5 +1,5 @@
 import morepath
-from morepath import setup_testing
+from morepath import setup
 from morepath.error import LinkError, ConflictError
 from webtest import TestApp as Client
 import pytest
@@ -10,7 +10,7 @@ def setup_module():
 
 
 def test_model_mount_conflict():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -34,7 +34,7 @@ def test_model_mount_conflict():
 
 
 def test_mount():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -70,7 +70,7 @@ def test_mount():
 
 
 def test_mount_empty_context_should_fail():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -103,7 +103,7 @@ def test_mount_empty_context_should_fail():
 
 
 def test_mount_context():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -138,7 +138,7 @@ def test_mount_context():
 
 
 def test_mount_context_parameters():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -174,7 +174,7 @@ def test_mount_context_parameters():
 
 
 def test_mount_context_parameters_empty_context():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -214,7 +214,7 @@ def test_mount_context_parameters_empty_context():
 
 
 def test_mount_context_standalone():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         variables = ['mount_id']
@@ -238,7 +238,7 @@ def test_mount_context_standalone():
 
 
 def test_mount_parent_link():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -276,7 +276,7 @@ def test_mount_parent_link():
 
 
 def test_mount_child_link():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -313,7 +313,7 @@ def test_mount_child_link():
 
 
 def test_mount_child_link_unknown_child():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -352,7 +352,7 @@ def test_mount_child_link_unknown_child():
 
 
 def test_mount_child_link_unknown_parent():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -381,7 +381,7 @@ def test_mount_child_link_unknown_parent():
 
 
 def test_mount_child_link_unknown_app():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -417,7 +417,7 @@ def test_mount_child_link_unknown_app():
 
 
 def test_mount_repr():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -459,7 +459,7 @@ def test_mount_repr():
 
 
 def test_request_view_in_mount():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -501,7 +501,7 @@ def test_request_view_in_mount():
 
 
 def test_request_view_in_mount_broken():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -542,7 +542,7 @@ def test_request_view_in_mount_broken():
 
 
 def test_mount_implict_converters():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -576,7 +576,7 @@ def test_mount_implict_converters():
 
 
 def test_mount_explicit_converters():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -610,7 +610,7 @@ def test_mount_explicit_converters():
 
 
 def test_mount_view_in_child_view():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -654,7 +654,7 @@ def test_mount_view_in_child_view():
 
 
 def test_mount_view_in_child_view_then_parent_view():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config

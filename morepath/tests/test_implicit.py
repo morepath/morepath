@@ -12,7 +12,7 @@ def setup_function(f):
 
 
 def test_implicit_function():
-    config = morepath.setup_testing()
+    config = morepath.setup()
 
     class app(morepath.App):
         testing_config = config
@@ -51,7 +51,7 @@ def test_implicit_function():
 
 
 def test_implicit_function_mounted():
-    config = morepath.setup_testing()
+    config = morepath.setup()
 
     class alpha(morepath.App):
         testing_config = config
@@ -116,8 +116,10 @@ def test_implicit_function_mounted():
 
 def test_implicit_disabled():
     morepath.disable_implicit()
-    config = morepath.setup_testing()
-    app = morepath.App(testing_config=config)
+    config = morepath.setup()
+
+    class app(morepath.App):
+        testing_config = config
 
     @app.path(path='')
     class Model(object):
@@ -137,7 +139,7 @@ def test_implicit_disabled():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'No implicit found'

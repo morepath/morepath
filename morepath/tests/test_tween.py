@@ -159,7 +159,7 @@ def test_tween_sorting_dag_error4():
 
 
 def test_tween_directive():
-    config = morepath.setup_testing()
+    config = morepath.setup()
 
     class app(morepath.App):
         testing_config = config

@@ -1,5 +1,5 @@
 import morepath
-from morepath import setup_testing
+from morepath import setup
 from webob.exc import HTTPNotFound
 from webtest import TestApp as Client
 import pytest
@@ -10,7 +10,7 @@ def setup_module(module):
 
 
 def test_404_http_exception():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -26,7 +26,7 @@ def test_404_http_exception():
 
 
 def test_other_exception_not_handled():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -53,7 +53,7 @@ def test_other_exception_not_handled():
 
 
 def test_http_exception_excview():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -74,7 +74,7 @@ def test_http_exception_excview():
 
 
 def test_other_exception_excview():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -103,7 +103,7 @@ def test_other_exception_excview():
 
 
 def test_http_exception_excview_retain_status():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -127,7 +127,7 @@ def test_http_exception_excview_retain_status():
 
 
 def test_excview_named_view():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config

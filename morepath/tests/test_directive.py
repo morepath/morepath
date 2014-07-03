@@ -1,6 +1,6 @@
 from .fixtures import (basic, nested, abbr, mapply_bug,
                        normalmethod, method, conflict, pkg, noconverter)
-from morepath import setup, setup_testing
+from morepath import setup
 from morepath.error import (ConflictError, MountError, DirectiveError,
                             LinkError, DirectiveReportError)
 from morepath.view import render_html
@@ -210,15 +210,17 @@ def test_imperative():
     def target():
         pass
 
-    app = App()
+    class app(morepath.App):
+        pass
 
     c = setup()
     foo = Foo()
+
     c.configurable(app.morepath)
     c.action(app.function(target), foo)
     c.commit()
 
-    assert target.component(lookup=app.lookup) is foo
+    assert target.component(lookup=app().lookup) is foo
 
 
 def test_basic_imperative():
@@ -289,7 +291,7 @@ def test_basic_imperative():
 
 
 def test_basic_testing_config():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -349,7 +351,7 @@ def test_basic_testing_config():
 
 
 def test_link_to_unknown_model():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -388,7 +390,7 @@ def test_link_to_unknown_model():
 
 
 def test_link_to_none():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -421,7 +423,7 @@ def test_link_to_none():
 
 
 def test_link_with_parameters():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -467,7 +469,7 @@ def test_link_with_parameters():
 
 
 def test_root_link_with_parameters():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -504,7 +506,7 @@ def test_root_link_with_parameters():
 
 
 def test_implicit_variables():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -538,7 +540,7 @@ def test_implicit_variables():
 
 
 def test_implicit_parameters():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -578,7 +580,7 @@ def test_implicit_parameters():
 
 
 def test_implicit_parameters_default():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -618,7 +620,7 @@ def test_implicit_parameters_default():
 
 
 def test_simple_root():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -645,7 +647,7 @@ def test_simple_root():
 
 
 def test_json_directive():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -668,7 +670,7 @@ def test_json_directive():
 
 
 def test_redirect():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -690,7 +692,7 @@ def test_redirect():
 
 
 def test_root_conflict():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -708,7 +710,7 @@ def test_root_conflict():
 
 
 def test_root_conflict2():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -726,7 +728,7 @@ def test_root_conflict2():
 
 
 def test_root_no_conflict_different_apps():
-    config = setup_testing()
+    config = setup()
 
     class app_a(morepath.App):
         testing_config = config
@@ -746,7 +748,7 @@ def test_root_no_conflict_different_apps():
 
 
 def test_model_conflict():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -767,7 +769,7 @@ def test_model_conflict():
 
 
 def test_path_conflict():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -791,7 +793,7 @@ def test_path_conflict():
 
 
 def test_path_conflict_with_variable():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -815,7 +817,7 @@ def test_path_conflict_with_variable():
 
 
 def test_path_conflict_with_variable_different_converters():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -839,7 +841,7 @@ def test_path_conflict_with_variable_different_converters():
 
 
 def test_model_no_conflict_different_apps():
-    config = setup_testing()
+    config = setup()
 
     class app_a(morepath.App):
         testing_config = config
@@ -864,7 +866,7 @@ def test_model_no_conflict_different_apps():
 
 
 def test_view_conflict():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -885,7 +887,7 @@ def test_view_conflict():
 
 
 def test_view_no_conflict_different_names():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -905,7 +907,7 @@ def test_view_no_conflict_different_names():
 
 
 def test_view_no_conflict_different_predicates():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -925,7 +927,7 @@ def test_view_no_conflict_different_predicates():
 
 
 def test_view_no_conflict_different_apps():
-    config = setup_testing()
+    config = setup()
 
     class app_a(morepath.App):
         testing_config = config
@@ -948,7 +950,7 @@ def test_view_no_conflict_different_apps():
 
 
 def test_view_conflict_with_json():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -969,7 +971,7 @@ def test_view_conflict_with_json():
 
 
 def test_view_conflict_with_html():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -990,7 +992,7 @@ def test_view_conflict_with_html():
 
 
 def test_function_conflict():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -1014,7 +1016,7 @@ def test_function_conflict():
 
 
 def test_function_no_conflict_different_apps():
-    config = setup_testing()
+    config = setup()
 
     class app_a(morepath.App):
         testing_config = config
@@ -1040,7 +1042,7 @@ def test_function_no_conflict_different_apps():
 
 
 def test_run_app_with_context_without_it():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         variables = ['mount_id']
@@ -1065,7 +1067,7 @@ def test_mapply_bug():
 
 
 def test_abbr_imperative():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -1098,7 +1100,7 @@ def test_abbr_imperative():
 
 
 def test_abbr_imperative_exception_propagated():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config

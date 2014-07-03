@@ -31,10 +31,6 @@ def setup():
     config.scan(morepath, ignore=['.tests'])
     return config
 
-def setup_testing():
-    config = setup()
-    App.morepath.testing_config = config
-    return config
 
 @App.function(generic.consume, Request, object)
 def traject_consume(request, model, lookup):

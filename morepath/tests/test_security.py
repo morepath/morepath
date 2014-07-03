@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import morepath
-from morepath import setup_testing
+from morepath import setup
 from morepath.request import Response
 from morepath import generic
 from morepath.security import (Identity, BasicAuthIdentityPolicy,
@@ -21,7 +21,7 @@ def setup_module(module):
 
 
 def test_no_permission():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -50,7 +50,7 @@ def test_no_permission():
 
 
 def test_permission_directive():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -103,7 +103,7 @@ def test_permission_directive():
 
 
 def test_permission_directive_no_identity():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -141,7 +141,7 @@ def test_permission_directive_no_identity():
 
 
 def test_policy_action():
-    config = setup_testing()
+    config = setup()
     config.scan(identity_policy)
     config.commit()
 
@@ -153,7 +153,7 @@ def test_policy_action():
 
 
 def test_basic_auth_identity_policy():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -210,7 +210,7 @@ def test_basic_auth_identity_policy():
 
 
 def test_basic_auth_identity_policy_errors():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -293,7 +293,7 @@ def test_basic_auth_identity_policy_errors():
 
 
 def test_basic_auth_remember():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -326,7 +326,7 @@ def test_basic_auth_remember():
 
 
 def test_basic_auth_forget():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -383,7 +383,7 @@ class DumbCookieIdentityPolicy(object):
 
 
 def test_cookie_identity_policy():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -444,7 +444,7 @@ def test_cookie_identity_policy():
 
 
 def test_default_verify_identity():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -457,7 +457,7 @@ def test_default_verify_identity():
 
 
 def test_verify_identity_directive():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config

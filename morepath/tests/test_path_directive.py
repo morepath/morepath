@@ -1,5 +1,5 @@
 import morepath
-from morepath import setup_testing
+from morepath import setup
 from morepath.converter import Converter
 from morepath.error import DirectiveReportError, ConfigError
 
@@ -12,7 +12,7 @@ def setup_module(module):
 
 
 def test_simple_path_one_step():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -45,7 +45,7 @@ def test_simple_path_one_step():
 
 
 def test_simple_path_two_steps():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -78,7 +78,7 @@ def test_simple_path_two_steps():
 
 
 def test_variable_path_one_step():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -111,7 +111,7 @@ def test_variable_path_one_step():
 
 
 def test_variable_path_two_steps():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -144,7 +144,7 @@ def test_variable_path_two_steps():
 
 
 def test_variable_path_two_variables():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -178,7 +178,7 @@ def test_variable_path_two_variables():
 
 
 def test_variable_path_explicit_converter():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -215,7 +215,7 @@ def test_variable_path_explicit_converter():
 
 
 def test_variable_path_implicit_converter():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -251,7 +251,7 @@ def test_variable_path_implicit_converter():
 
 
 def test_variable_path_explicit_trumps_implicit():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -288,7 +288,7 @@ def test_variable_path_explicit_trumps_implicit():
 
 
 def test_url_parameter_explicit_converter():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -329,7 +329,7 @@ def test_url_parameter_explicit_converter():
 
 
 def test_url_parameter_explicit_converter_get_converters():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -372,7 +372,7 @@ def test_url_parameter_explicit_converter_get_converters():
 
 
 def test_url_parameter_get_converters_overrides_converters():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -416,7 +416,7 @@ def test_url_parameter_get_converters_overrides_converters():
 
 
 def test_url_parameter_implicit_converter():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -456,7 +456,7 @@ def test_url_parameter_implicit_converter():
 
 
 def test_url_parameter_explicit_trumps_implicit():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -497,7 +497,7 @@ def test_url_parameter_explicit_trumps_implicit():
 
 
 def test_decode_encode():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -537,7 +537,7 @@ def test_decode_encode():
 
 
 def test_unknown_converter():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -566,7 +566,7 @@ def test_unknown_converter():
 
 
 def test_unknown_explicit_converter():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -595,7 +595,7 @@ def test_unknown_explicit_converter():
 
 
 def test_default_date_converter():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -638,7 +638,7 @@ def test_default_date_converter():
 
 
 def test_default_datetime_converter():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -681,7 +681,7 @@ def test_default_datetime_converter():
 
 
 def test_custom_date_converter():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -735,7 +735,7 @@ def test_custom_date_converter():
 
 
 def test_variable_path_parameter_required_no_default():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -767,7 +767,7 @@ def test_variable_path_parameter_required_no_default():
 
 
 def test_variable_path_parameter_required_with_default():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -799,7 +799,7 @@ def test_variable_path_parameter_required_with_default():
 
 
 def test_type_hints_and_converters():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -834,7 +834,7 @@ def test_type_hints_and_converters():
 
 
 def test_link_for_none_means_no_parameter():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -867,7 +867,7 @@ def test_link_for_none_means_no_parameter():
 
 
 def test_path_and_url_parameter_converter():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -900,7 +900,7 @@ def test_path_and_url_parameter_converter():
 
 
 def test_path_converter_fallback_on_view():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -939,7 +939,7 @@ def test_path_converter_fallback_on_view():
 
 
 def test_root_named_link():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -961,7 +961,7 @@ def test_root_named_link():
 
 
 def test_path_class_and_model_argument():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -978,7 +978,7 @@ def test_path_class_and_model_argument():
 
 
 def test_path_no_class_and_no_model_argument():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -992,7 +992,7 @@ def test_path_no_class_and_no_model_argument():
 
 
 def test_url_parameter_list():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -1033,7 +1033,7 @@ def test_url_parameter_list():
 
 
 def test_url_parameter_list_empty():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -1072,7 +1072,7 @@ def test_url_parameter_list_empty():
 
 
 def test_url_parameter_list_explicit_converter():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -1113,7 +1113,7 @@ def test_url_parameter_list_explicit_converter():
 
 
 def test_url_parameter_list_unknown_explicit_converter():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -1134,7 +1134,7 @@ def test_url_parameter_list_unknown_explicit_converter():
 
 
 def test_url_parameter_list_but_only_one_allowed():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -1165,7 +1165,7 @@ def test_url_parameter_list_but_only_one_allowed():
 
 
 def test_extra_parameters():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -1198,7 +1198,7 @@ def test_extra_parameters():
 
 
 def test_extra_parameters_with_get_converters():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -1237,7 +1237,7 @@ def test_extra_parameters_with_get_converters():
 
 
 def test_script_name():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -1273,7 +1273,7 @@ def test_script_name():
 
 @pytest.mark.xfail
 def test_sub_path_different_variable():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -1315,7 +1315,7 @@ def test_sub_path_different_variable():
 
 
 def test_absorb_path():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -1362,7 +1362,7 @@ def test_absorb_path():
 
 
 def test_absorb_path_with_variables():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -1410,7 +1410,7 @@ def test_absorb_path_with_variables():
 
 
 def test_absorb_path_explicit_subpath_ignored():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -1465,7 +1465,7 @@ def test_absorb_path_explicit_subpath_ignored():
 
 
 def test_absorb_path_root():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config

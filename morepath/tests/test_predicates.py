@@ -1,5 +1,5 @@
 from morepath.app import App
-from morepath import setup_testing
+from morepath import setup
 
 from webtest import TestApp as Client
 import morepath
@@ -10,7 +10,7 @@ def setup_module(module):
 
 
 def test_view_predicates():
-    config = setup_testing()
+    config = setup()
 
     class app(App):
         testing_config = config
@@ -38,7 +38,7 @@ def test_view_predicates():
 
 
 def test_extra_predicates():
-    config = setup_testing()
+    config = setup()
 
     class app(App):
         testing_config = config

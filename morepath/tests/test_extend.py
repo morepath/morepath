@@ -1,5 +1,5 @@
 import morepath
-from morepath import setup_testing
+from morepath import setup
 from webtest import TestApp as Client
 import morepath
 
@@ -9,7 +9,7 @@ def setup_module(module):
 
 
 def test_extends():
-    config = setup_testing()
+    config = setup()
     class app(morepath.App):
         testing_config = config
     class extending(app):
@@ -43,7 +43,7 @@ def test_extends():
 
 
 def test_overrides_view():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
@@ -76,7 +76,7 @@ def test_overrides_view():
 
 
 def test_overrides_model():
-    config = setup_testing()
+    config = setup()
 
     class app(morepath.App):
         testing_config = config
