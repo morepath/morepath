@@ -9,11 +9,13 @@ def setup_module(module):
 
 
 def test_app_extends_settings():
-    config = morepath.setup()
+    config = morepath.setup_testing()
 
-    alpha = morepath.App(testing_config=config)
-    beta = morepath.App(extends=[alpha],
-                        testing_config=config)
+    class alpha(morepath.App):
+        testing_config = config
+
+    class beta(alpha):
+        testing_config = config
 
     @alpha.setting('one', 'foo')
     def get_foo_setting():
@@ -25,19 +27,24 @@ def test_app_extends_settings():
 
     config.commit()
 
-    assert alpha.settings.one.foo == 'FOO'
+    alpha_inst = alpha()
+    assert alpha_inst.settings.one.foo == 'FOO'
     with pytest.raises(AttributeError):
-        assert alpha.settings.one.bar
-    assert beta.settings.one.foo == 'FOO'
-    assert beta.settings.one.bar == 'BAR'
+        assert alpha_inst.settings.one.bar
+
+    beta_inst = beta()
+    assert beta_inst.settings.one.foo == 'FOO'
+    assert beta_inst.settings.one.bar == 'BAR'
 
 
 def test_app_overrides_settings():
-    config = morepath.setup()
+    config = morepath.setup_testing()
 
-    alpha = morepath.App(testing_config=config)
-    beta = morepath.App(extends=[alpha],
-                        testing_config=config)
+    class alpha(morepath.App):
+        testing_config = config
+
+    class beta(alpha):
+        testing_config = config
 
     @alpha.setting('one', 'foo')
     def get_foo_setting():
@@ -49,17 +56,21 @@ def test_app_overrides_settings():
 
     config.commit()
 
-    assert alpha.settings.one.foo == 'FOO'
-    assert beta.settings.one.foo == 'OVERRIDE'
+    assert alpha().settings.one.foo == 'FOO'
+    assert beta().settings.one.foo == 'OVERRIDE'
 
 
 def test_app_overrides_settings_three():
-    config = morepath.setup()
+    config = morepath.setup_testing()
 
-    alpha = morepath.App(testing_config=config)
-    beta = morepath.App(extends=[alpha],
-                        testing_config=config)
-    gamma = morepath.App(extends=[beta], testing_config=config)
+    class alpha(morepath.App):
+        testing_config = config
+
+    class beta(alpha):
+        testing_config = config
+
+    class gamma(beta):
+        testing_config = config
 
     @alpha.setting('one', 'foo')
     def get_foo_setting():
@@ -71,13 +82,14 @@ def test_app_overrides_settings_three():
 
     config.commit()
 
-    assert gamma.settings.one.foo == 'OVERRIDE'
+    assert gamma().settings.one.foo == 'OVERRIDE'
 
 
 def test_app_section_settings():
-    config = morepath.setup()
+    config = morepath.setup_testing()
 
-    app = morepath.App(testing_config=config)
+    class app(morepath.App):
+        testing_config = config
 
     @app.setting_section('one')
     def settings():
@@ -87,14 +99,17 @@ def test_app_section_settings():
             }
 
     config.commit()
-    assert app.settings.one.foo == 'FOO'
-    assert app.settings.one.bar == 'BAR'
+
+    app_inst = app()
+    assert app_inst.settings.one.foo == 'FOO'
+    assert app_inst.settings.one.bar == 'BAR'
 
 
 def test_app_section_settings_conflict():
-    config = morepath.setup()
+    config = morepath.setup_testing()
 
-    app = morepath.App(testing_config=config)
+    class app(morepath.App):
+        testing_config = config
 
     @app.setting_section('one')
     def settings():
@@ -114,9 +129,10 @@ def test_app_section_settings_conflict():
 def test_settings_function():
     morepath.enable_implicit()
 
-    config = morepath.setup()
+    config = morepath.setup_testing()
 
-    app = morepath.App(testing_config=config)
+    class app(morepath.App):
+        testing_config = config
 
     @app.setting('section', 'name')
     def setting():
@@ -133,7 +149,7 @@ def test_settings_function():
 
     config.commit()
 
-    c = Client(app)
+    c = Client(app())
 
     response = c.get('/')
     assert response.body == b'LAH'

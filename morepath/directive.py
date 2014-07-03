@@ -1,6 +1,6 @@
 from .app import App
-from .config import Directive as ConfigDirective
-from .settings import SettingSection
+from .config import Directive as ConfigDirective, Action
+from .settings import register_setting
 from .error import ConfigError
 from .view import (register_view, render_json, render_html,
                    register_predicate, register_predicate_fallback,
@@ -54,7 +54,7 @@ class SettingDirective(Directive):
         """Register application setting.
 
         An application setting is registered under the ``settings``
-        attribute of :class:`morepath.app.AppBase`. It will
+        attribute of :class:`morepath.app.App`. It will
         be executed early in configuration so other configuration
         directives can depend on the settings being there.
 
@@ -73,11 +73,7 @@ class SettingDirective(Directive):
         return self.section, self.name
 
     def perform(self, app, obj):
-        section = getattr(app.settings, self.section, None)
-        if section is None:
-            section = SettingSection()
-            setattr(app.settings, self.section, section)
-        setattr(section, self.name, obj())
+        register_setting(app, self.section, self.name, obj)
 
 
 class SettingValue(object):
@@ -668,3 +664,4 @@ class FunctionDirective(Directive):
 
     def perform(self, app, obj):
         app.register(self.target, self.sources, obj)
+

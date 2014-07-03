@@ -1,4 +1,5 @@
 from .mount import Mount
+from .action import FunctionAction
 from .request import Request
 from .traject import Traject
 from .config import Configurable
@@ -22,12 +23,13 @@ class MorepathInfo(Configurable, ClassRegistry, ConverterRegistry,
         Configurable.__init__(self, bases, testing_config)
         ConverterRegistry.__init__(self)
         TweenRegistry.__init__(self)
+        self.settings = SettingSectionContainer()
         self._mounted = {}
         self.variables = variables
         self.clear()
 
-    def __repr__(self):
-        return '<MorepathInfo for class %s>' % self.name
+    def actions(self):
+        return [] # XXX yield FunctionAction(self, generic.settings), lambda: self.settings
 
     def clear(self):
         """Clear all registrations in this application.
@@ -38,8 +40,6 @@ class MorepathInfo(Configurable, ClassRegistry, ConverterRegistry,
         TweenRegistry.clear(self)
         self.traject = Traject()
         self._mounted = {}
-        # XXX this should go into App I think
-        self.settings = SettingSectionContainer()
 
     @reify
     def lookup(self):
@@ -49,6 +49,7 @@ class MorepathInfo(Configurable, ClassRegistry, ConverterRegistry,
 def callback(scanner, name, obj):
     scanner.config.configurable(obj.morepath)
 
+
 class AppMeta(type):
     def __new__(mcl, name, bases, d):
         testing_config = d.get('testing_config')
@@ -57,6 +58,7 @@ class AppMeta(type):
         result = super(AppMeta, mcl).__new__(mcl, name, bases, d)
         venusian.attach(result, callback)
         return result
+
 
 class App(object):
     """Base for application objects.
@@ -70,14 +72,13 @@ class App(object):
     __metaclass__ = AppMeta
 
     def __init__(self, **context):
+        self.settings = self.morepath.settings
+
         for name in self.variables:
             if name not in context:
                 raise MountError(
                     "Cannot mount app without context variable: %s" % name)
         self._app_mount = Mount(self, lambda: context, {})
-
-    def actions(self):
-        yield self.function(generic.settings), lambda: self.settings
 
     @reify
     def lookup(self):
@@ -116,6 +117,7 @@ class App(object):
         """
         return self._app_mount(environ, start_response)
 
+    # XXX can do this in init now
     @reify
     def publish(self):
         result = publish
