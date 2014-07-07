@@ -15,6 +15,8 @@ from .publish import publish
 
 
 class Registry(Configurable, ClassRegistry, ConverterRegistry, TweenRegistry):
+    """A registry holding an application's configuration.
+    """
     def __init__(self, name, bases, testing_config, variables):
         self.name = name
         bases = [base.registry for base in bases if hasattr(base, 'registry')]
@@ -59,10 +61,22 @@ class AppMeta(type):
 
 
 class App(object):
-    """Base for application objects.
+    """A Morepath-based application object.
 
-    App can be used as a WSGI application, i.e. it can be called
-    with ``environ`` and ``start_response`` arguments.
+    You subclass App to create a morepath application class. You can
+    then configure this class using Morepath decorator directives.
+
+    An application can extend one or more other applications, if
+    desired, by subclassing them. By subclassing App itself, you get
+    the base configuration of the Morepath framework itself.
+
+    Conflicting configuration within an app is automatically
+    rejected. An subclass app cannot conflict with the apps it is
+    subclassing however; instead configuration is overridden.
+
+    You can turn your app class into a WSGI application by instantiating
+    it. You can then call it with the ``environ`` and ``start_response``
+    arguments.
     """
     testing_config = None
     variables = set()
@@ -90,13 +104,6 @@ class App(object):
     def traject(self):
         return self.registry.traject
 
-    # def set_implicit(self):
-    #     """Set app's lookup as implicit reg lookup.
-
-    #     Only does something if implicit mode is enabled. If disabled,
-    #     has no effect.
-    #     """
-
     def request(self, environ):
         """Create a :class:`Request` given WSGI environment.
 
@@ -122,61 +129,3 @@ class App(object):
         for tween_factory in reversed(self.registry.sorted_tween_factories()):
             result = tween_factory(self, result)
         return result
-
-
-# class App(AppBase):
-#     """A Morepath-based application object.
-
-#     Extends :class:`AppBase` and through it
-#     :class:`morepath.config.Configurable`, :class:`reg.ClassRegistry`
-#     and :class:`morepath.converter.ConverterRegistry`.
-
-#     You can configure an application using Morepath decorator directives.
-
-#     An application can extend one or more other applications, if
-#     desired.  All morepath App's descend from ``global_app`` however,
-#     which contains the base configuration of the Morepath framework.
-
-#     Conflicting configuration within an app is automatically
-#     rejected. An extended app cannot conflict with the apps it is
-#     extending however; instead configuration is overridden.
-#     """
-#     def __init__(self, name=None, extends=None, variables=None,
-#                  testing_config=None):
-#         """
-#         :param name: A name for this application. This is used in
-#           error reporting.
-#         :type name: str
-#         :param extends: :class:`App` objects that this
-#           app extends/overrides.
-#         :type extends: list, :class:`App` or ``None``
-#         :param variables: variable names that
-#           this application expects when mounted. Optional.
-#         :type variables: list or set
-#         :param testing_config: a :class:`morepath.Config` that actions
-#           are added to directly, instead of waiting for
-#           a scanning phase. This is handy during testing. If you want to
-#           use decorators inline in a test function, supply a
-#           ``testing_config``. It's not useful outside of tests. Optional.
-#         """
-#         if not extends:
-#             extends = [global_app]
-#         super(App, self).__init__(name, extends, variables, testing_config)
-#         # XXX why does this need to be repeated?
-#         venusian.attach(self, callback)
-
-
-
-# global_app = AppBase('global_app')
-# """The global app object.
-
-# Instance of :class:`AppBase`.
-
-# This is the application object that the Morepath framework is
-# registered on. It's automatically included in the extends of any
-# :class:`App`` object.
-
-# You could add configuration to ``global_app`` but it is recommended
-# you don't do so. Instead to extend or override the framework you can
-# create your own :class:`App` with this additional configuration.
-# """
