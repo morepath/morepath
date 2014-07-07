@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.4 (unreleased)
+0.4 (2014-07-07)
 ================
 
 - **BREAKING CHANGE** Move to class-based application registries. This
