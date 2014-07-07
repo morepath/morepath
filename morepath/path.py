@@ -49,7 +49,7 @@ def register_path(app, model, path, variables, converters, required,
     parameter_factory = ParameterFactory(parameters, converters, required,
                                          'extra_parameters' in arguments)
     if variables is None:
-        variables = get_variables_func(arguments, {}) # app.mount_variables())
+        variables = get_variables_func(arguments, {})
 
     traject.add_pattern(path, (model_factory, parameter_factory),
                         converters, absorb)

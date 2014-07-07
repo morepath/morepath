@@ -1,8 +1,5 @@
 import morepath
 from morepath.app import Registry
-from morepath.error import MountError
-import morepath
-import pytest
 
 
 def setup_module(module):
@@ -38,4 +35,3 @@ def test_app_caching_lookup():
     # but different parameters does trigger another call
     lookup.component('bar', [])
     assert myapp.registry.called == 2
-

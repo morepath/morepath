@@ -3,6 +3,7 @@ from .reify import reify
 from reg import mapply
 from .implicit import set_implicit
 
+
 class Mount(object):
     def __init__(self, app, context_factory, variables):
         self.app = app

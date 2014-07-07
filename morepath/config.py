@@ -115,6 +115,7 @@ class Configurable(object):
         self._grouped_actions.setdefault(
             action.group_key(), []).append((action, obj))
 
+
 class Actions(object):
     def __init__(self, actions, extends):
         self._actions = actions

@@ -1,7 +1,6 @@
 import morepath
 from morepath import setup
 from webtest import TestApp as Client
-import morepath
 
 
 def setup_module(module):
@@ -10,8 +9,10 @@ def setup_module(module):
 
 def test_extends():
     config = setup()
+
     class app(morepath.App):
         testing_config = config
+
     class extending(app):
         testing_config = config
 

@@ -4,7 +4,6 @@ from morepath import setup
 from morepath.error import (ConflictError, MountError, DirectiveError,
                             LinkError, DirectiveReportError)
 from morepath.view import render_html
-from morepath.app import App
 from morepath.converter import Converter
 import morepath
 import reg
@@ -855,8 +854,6 @@ def test_model_no_conflict_different_apps():
     @app_a.path(model=A, path='a')
     def get_a():
         return A()
-
-    app_b = morepath.App(testing_config=config)
 
     @app_b.path(model=A, path='a')
     def get_a_again():

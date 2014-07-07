@@ -1,5 +1,4 @@
 from .toposort import topological_sort
-from .reify import reify
 
 
 class TweenRegistry(object):

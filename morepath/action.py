@@ -1,5 +1,6 @@
 from .config import Action
 
+
 # XXX I wonder whether we can rephrase directives as actions so
 # we can use them at a lower level, and then wrap them as directives
 class FunctionAction(Action):

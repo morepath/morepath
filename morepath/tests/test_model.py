@@ -9,7 +9,6 @@ import morepath
 from morepath import setup
 from morepath import generic
 from morepath.core import traject_consume
-import morepath
 import webob
 
 

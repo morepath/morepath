@@ -63,7 +63,8 @@ def test_predicates():
     model = Model()
     assert resolve_response(
         app().request(get_environ(path='')), model).body == b'all'
-    assert (resolve_response(app().request(get_environ(path='', method='POST')),
+    assert (resolve_response(app().
+                             request(get_environ(path='', method='POST')),
                              model).body == b'post')
 
 

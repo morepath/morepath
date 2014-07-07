@@ -1,5 +1,5 @@
 from .app import App
-from .config import Directive as ConfigDirective, Action
+from .config import Directive as ConfigDirective
 from .settings import register_setting
 from .error import ConfigError
 from .view import (register_view, render_json, render_html,
@@ -43,10 +43,12 @@ class directive(object):
         setattr(App, self.name, classmethod(method))
         return directive
 
+
 class Directive(ConfigDirective):
     def __init__(self, app):
         super(Directive, self).__init__(app.registry)
         self.app = app
+
 
 @directive('setting')
 class SettingDirective(Directive):
@@ -444,6 +446,7 @@ class JsonDirective(ViewDirective):
     def group_key(self):
         return ViewDirective
 
+
 @directive('html')
 class HtmlDirective(ViewDirective):
     def __init__(self, app, model, render=None, permission=None,
@@ -482,6 +485,7 @@ class HtmlDirective(ViewDirective):
         render = render or render_html
         super(HtmlDirective, self).__init__(app, model, render, permission,
                                             internal, **predicates)
+
     def group_key(self):
         return ViewDirective
 
@@ -664,4 +668,3 @@ class FunctionDirective(Directive):
 
     def perform(self, registry, obj):
         registry.register(self.target, self.sources, obj)
-

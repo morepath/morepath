@@ -1,7 +1,4 @@
 import morepath
-from morepath.error import ConflictError
-from webtest import TestApp as Client
-import pytest
 
 
 def setup_module(module):
