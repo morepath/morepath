@@ -40,7 +40,7 @@ class Mount(object):
         return self.variables.get('parent')
 
     def child(self, app, **context):
-        factory = self.app.registry._mounted.get(app)
+        factory = self.app.registry.mounted.get(app)
         if factory is None:
             return None
         if 'parent' not in context:
@@ -62,8 +62,4 @@ def register_mount(base_app, app, path, converters, required, get_converters,
     register_path(base_app, SpecificMount, path, lambda m: m.variables,
                   converters, required, get_converters, False,
                   SpecificMount, arguments=arguments)
-    register_mounted(base_app, app, SpecificMount)
-
-
-def register_mounted(base_app, app, model_factory):
-    base_app._mounted[app] = model_factory
+    base_app.mounted[app] = SpecificMount

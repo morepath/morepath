@@ -23,7 +23,6 @@ class Registry(Configurable, ClassRegistry, ConverterRegistry, TweenRegistry):
         ConverterRegistry.__init__(self)
         TweenRegistry.__init__(self)
         self.settings = SettingSectionContainer()
-        self._mounted = {}
         self.variables = variables
         self.clear()
 
@@ -38,7 +37,7 @@ class Registry(Configurable, ClassRegistry, ConverterRegistry, TweenRegistry):
         ConverterRegistry.clear(self)
         TweenRegistry.clear(self)
         self.traject = Traject()
-        self._mounted = {}
+        self.mounted = {}
 
     @reify
     def lookup(self):
