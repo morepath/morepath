@@ -96,7 +96,7 @@ CHANGES
   in the updated docs for example code, but feel free to make them
   upper-case in your own code if you wish.
 
-  Why this change? There are some major benefits to this change::
+  Why this change? There are some major benefits to this change:
 
   * both extending and mounting app now use natural Python mechanisms:
     subclassing and instantation.

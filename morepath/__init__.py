@@ -6,7 +6,8 @@ from morepath import directive # register directive methods
 from .generic import remember_identity, forget_identity, settings
 from .view import render_json, render_html
 from .request import Request, Response
-from .config import Config, Directive
+from .config import Config
+from .directive import Directive
 from .view import redirect
 from morepath.autosetup import autoconfig, autosetup
 from morepath.security import Identity, NO_IDENTITY
