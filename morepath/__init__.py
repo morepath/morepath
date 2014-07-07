@@ -10,7 +10,6 @@ from .config import Config, Directive
 from .view import redirect
 from morepath.autosetup import autoconfig, autosetup
 from morepath.security import Identity, NO_IDENTITY
-from .directive import directive
 from .converter import Converter
 from .reify import reify
 from .run import run

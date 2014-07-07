@@ -12,6 +12,7 @@ from reg import ClassRegistry, Lookup, CachingClassLookup
 import venusian
 from .reify import reify
 from .publish import publish
+from functools import update_wrapper
 
 
 class Registry(Configurable, ClassRegistry, ConverterRegistry, TweenRegistry):
@@ -129,3 +130,38 @@ class App(object):
         for tween_factory in reversed(self.registry.sorted_tween_factories()):
             result = tween_factory(self, result)
         return result
+
+    @classmethod
+    def directive(cls, name):
+        """Decorator to register a new directive with this application class.
+
+        You use this as a class decorator for a :class:`morepath.Directive`
+        subclass::
+
+           @app.directive('my_directive')
+           class FooDirective(morepath.Directive):
+               ...
+
+        This needs to be executed *before* the directive is being used
+        and thus might introduce import dependency issues unlike
+        normal Morepath configuration, so beware! An easy way to make
+        sure that all directives are installed before you use them is
+        to make sure you define them in the same module as where you
+        define the application class that has them.
+        """
+        return DirectiveDirective(cls, name)
+
+
+class DirectiveDirective(object):
+    def __init__(self, cls, name):
+        self.cls = cls
+        self.name = name
+
+    def __call__(self, directive):
+        def method(self, *args, **kw):
+            return directive(self, *args, **kw)
+        # this is to help morepath.sphinxext to do the right thing
+        method.actual_directive = directive
+        update_wrapper(method, directive.__init__)
+        setattr(self.cls, self.name, classmethod(method))
+        return directive

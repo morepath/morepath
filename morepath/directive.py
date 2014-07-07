@@ -13,35 +13,6 @@ from .traject import Path
 from reg import KeyIndex
 from .request import Request, Response
 from morepath import generic
-from functools import update_wrapper
-
-
-class directive(object):
-    """Register a new directive with Morepath.
-
-    Instantiate this class with the name of the configuration directive.
-    The instance is a decorator that can be applied to a subclass of
-    :class:`Directive`. For example::
-
-      @directive('foo')
-      class FooDirective(Directive):
-         ...
-
-    This needs to be executed *before* the directive is being used and
-    thus might introduce import dependency issues unlike normal Morepath
-    configuration, so beware!
-    """
-    def __init__(self, name):
-        self.name = name
-
-    def __call__(self, directive):
-        def method(self, *args, **kw):
-            return directive(self, *args, **kw)
-        # this is to help morepath.sphinxext to do the right thing
-        method.actual_directive = directive
-        update_wrapper(method, directive.__init__)
-        setattr(App, self.name, classmethod(method))
-        return directive
 
 
 class Directive(ConfigDirective):
@@ -50,7 +21,7 @@ class Directive(ConfigDirective):
         self.app = app
 
 
-@directive('setting')
+@App.directive('setting')
 class SettingDirective(Directive):
     def __init__(self, app, section, name):
         """Register application setting.
@@ -86,7 +57,7 @@ class SettingValue(object):
         return self.value
 
 
-@directive('setting_section')
+@App.directive('setting_section')
 class SettingSectionDirective(Directive):
     def __init__(self, app, section):
         """Register application setting in a section.
@@ -114,7 +85,7 @@ class SettingSectionDirective(Directive):
                    SettingValue(value))
 
 
-@directive('converter')
+@App.directive('converter')
 class ConverterDirective(Directive):
     depends = [SettingDirective]
 
@@ -141,7 +112,7 @@ class ConverterDirective(Directive):
         registry.register_converter(self.type, obj())
 
 
-@directive('path')
+@App.directive('path')
 class PathDirective(Directive):
     depends = [SettingDirective, ConverterDirective]
 
@@ -219,7 +190,7 @@ class PathDirective(Directive):
                       obj)
 
 
-@directive('permission_rule')
+@App.directive('permission_rule')
 class PermissionRuleDirective(Directive):
     depends = [SettingDirective]
 
@@ -253,7 +224,7 @@ class PermissionRuleDirective(Directive):
             registry, self.identity, self.model, self.permission, obj)
 
 
-@directive('predicate')
+@App.directive('predicate')
 class PredicateDirective(Directive):
     depends = [SettingDirective]
 
@@ -295,7 +266,7 @@ class PredicateDirective(Directive):
                            self.index, obj)
 
 
-@directive('predicate_fallback')
+@App.directive('predicate_fallback')
 class PredicateFallbackDirective(Directive):
     depends = [SettingDirective, PredicateDirective]
 
@@ -320,7 +291,7 @@ class PredicateFallbackDirective(Directive):
         register_predicate_fallback(registry, self.name, obj)
 
 
-@directive('view')
+@App.directive('view')
 class ViewDirective(Directive):
     depends = [SettingDirective, PredicateDirective,
                PredicateFallbackDirective]
@@ -403,7 +374,7 @@ class ViewDirective(Directive):
                       self.internal, self.predicates)
 
 
-@directive('json')
+@App.directive('json')
 class JsonDirective(ViewDirective):
     def __init__(self, app, model, render=None, permission=None,
                  internal=False, **predicates):
@@ -447,7 +418,7 @@ class JsonDirective(ViewDirective):
         return ViewDirective
 
 
-@directive('html')
+@App.directive('html')
 class HtmlDirective(ViewDirective):
     def __init__(self, app, model, render=None, permission=None,
                  internal=False, **predicates):
@@ -490,7 +461,7 @@ class HtmlDirective(ViewDirective):
         return ViewDirective
 
 
-@directive('mount')
+@App.directive('mount')
 class MountDirective(PathDirective):
     depends = [SettingDirective, ConverterDirective]
 
@@ -542,7 +513,7 @@ class MountDirective(PathDirective):
 tween_factory_id = 0
 
 
-@directive('tween_factory')
+@App.directive('tween_factory')
 class TweenFactoryDirective(Directive):
     depends = [SettingDirective]
 
@@ -587,7 +558,7 @@ class TweenFactoryDirective(Directive):
         registry.register_tween_factory(obj, over=self.over, under=self.under)
 
 
-@directive('identity_policy')
+@App.directive('identity_policy')
 class IdentityPolicyDirective(Directive):
     depends = [SettingDirective]
 
@@ -612,7 +583,7 @@ class IdentityPolicyDirective(Directive):
             generic.forget_identity, Response, Request), policy.forget
 
 
-@directive('verify_identity')
+@App.directive('verify_identity')
 class VerifyIdentityDirective(Directive):
     def __init__(self, app, identity=object):
         '''Verify claimed identity.
@@ -642,7 +613,7 @@ class VerifyIdentityDirective(Directive):
             generic.verify_identity, self.identity), obj
 
 
-@directive('function')
+@App.directive('function')
 class FunctionDirective(Directive):
     depends = [SettingDirective]
 

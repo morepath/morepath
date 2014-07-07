@@ -104,6 +104,15 @@ CHANGES
   * it allows us to expose the facility to create new directives to
     the API. You can create application-specific directives.
 
+- You can define your own directives on your applications using the
+  ``directive`` directive::
+
+    @my_app.directive('my_directive')
+
+  This exposes details of the configuration system which is
+  underdocumented for now; study the ``morepath.directive`` module
+  source code for examples.
+
 - Add a 'scan_module()' method to the config object. This allows the
   non-recursive scanning of a single Python module (or the
   ``__init__.py`` of a package if the package is given).
