@@ -91,7 +91,7 @@ class App(object):
             if name not in context:
                 raise MountError(
                     "Cannot mount app without context variable: %s" % name)
-        self._app_mount = Mount(self, lambda: context, {})
+        self.mounted = Mount(self, lambda: context, {})
 
     @reify
     def lookup(self):
@@ -121,7 +121,7 @@ class App(object):
         This is only possible when the app expects no variables; if it
         does, use ``mount()`` to create a WSGI app first.
         """
-        return self._app_mount(environ, start_response)
+        return self.mounted(environ, start_response)
 
     # XXX can do this in init now
     @reify
