@@ -121,6 +121,9 @@ CHANGES
   feature that hasn't landed in mainline Venusian yet, so depend on
   Venusifork for now.
 
+- A small optimization in the publishing machinery. Less work is done
+  to update the generic function lookup context during routing.
+
 0.3 (2014-06-23)
 ================
 
