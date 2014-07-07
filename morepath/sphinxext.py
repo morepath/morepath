@@ -1,6 +1,6 @@
 """Sphinx extension to make sure directives have proper signatures.
 
-This is tricky as directives are added as methods to the ``AppBase``
+This is tricky as directives are added as methods to the ``App``
 object using the directive decorator, and the signature needs to be
 obtained from the directive class's ``__init__`` manually. In addition
 this signature has a first argument (``app``) that needs to be

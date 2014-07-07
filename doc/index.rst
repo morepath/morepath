@@ -57,7 +57,8 @@ Morepath Knows About Your Models
 
   import morepath
 
-  app = morepath.App()
+  class app(morepath.App):
+      pass
 
   class Document(object):
       def __init__(self, id):
@@ -83,7 +84,7 @@ Morepath Knows About Your Models
       config = morepath.setup()
       config.scan()
       config.commit()
-      morepath.run(app)
+      morepath.run(app())
 
 Want to know what's going on? Check out the :doc:`Quickstart <quickstart>`!
 

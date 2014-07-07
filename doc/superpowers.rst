@@ -82,7 +82,7 @@ accessible if the user has an edit permission::
       return "Editable"
 
 How does Morepath know whether someone has ``Edit`` permission? We
-need to tell it using the :meth:`morepath.AppBase.permission`
+need to tell it using the :meth:`morepath.App.permission`
 directive. We can implement any rule we want, for instance this one::
 
   @app.permission(model=Document, permission=Edit)
@@ -140,9 +140,11 @@ do what you want::
 Ugh! We can't just change the application as it needs to continue to
 work in its original form. Besides, it's being maintained by someone
 else. What do we do now? Monkey-patch? Not at all: Morepath got you
-covered. You simply create a new application that extends the original::
+covered. You simply create a new application subclass that extends the
+original::
 
-  my_app = morepath.App(extends=app)
+  class my_app(app):
+      pass
 
 We now have an application that does exactly what ``app`` does. Now
 to override that one view to do what we want::
@@ -154,7 +156,7 @@ to override that one view to do what we want::
 And we're done!
 
 It's not just the view directive that works this way: *all* Morepath
-directives work this way. Using the :meth:`morepath.AppBase.function`
+directives work this way. Using the :meth:`morepath.App.function`
 decorator you could even override the core functionality of Morepath
 itself!
 

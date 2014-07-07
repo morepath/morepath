@@ -13,7 +13,8 @@ Let's look at a minimal "Hello world!" application in Morepath::
 
   import morepath
 
-  app = morepath.App(name='Hello')
+  class app(morepath.App):
+      pass
 
   @app.path(path='')
   class Root(object):
@@ -27,7 +28,7 @@ Let's look at a minimal "Hello world!" application in Morepath::
       config = morepath.setup()
       config.scan()
       config.commit()
-      morepath.run(app)
+      morepath.run(app())
 
 You can save this as ``hello.py`` and then run it with Python:
 
@@ -47,7 +48,7 @@ You can save this as ``hello.py`` and then run it with Python:
   the outside world. This can be done by passing an explicit ``host``
   argument of ``0.0.0.0`` to the ``morepath.run()`` function.
 
-    morepath.run(app, host='0.0.0.0')
+    morepath.run(app(), host='0.0.0.0')
 
   Note that the built-in web server is absolutely unsuitable for
   actual deployment. For those cases don't use ``morepath.run()`` at
@@ -78,17 +79,18 @@ Code Walkthrough
 
 1. We import ``morepath``.
 
-2. We create an instance of :class:`morepath.App`. This is a WSGI
-   application that we can run. It also contains our application's
-   configuration: what models and views are available.
+2. We create a subclass of :class:`morepath.App`. This class contains
+   our application's configuration: what models and views are
+   available.  It can also be instantiated into a WSGI application
+   object.
 
 3. We then set up a ``Root`` class. Morepath is model-driven and in
    order to create any views, we first need at least one model, in
    this case the empty ``Root`` class.
 
    We set up the model as the root of the website (the empty string
-   ``''`` indicates the root, but ``'/'`` works too) using
-   the :meth:`morepath.AppBase.path` decorator.
+   ``''`` indicates the root, but ``'/'`` works too) using the
+   :meth:`morepath.App.path` decorator.
 
 4. Now we can create the "Hello world" view. It's just a function that
    takes ``self`` and ``request`` as arguments (we don't need to use
@@ -97,10 +99,10 @@ Code Walkthrough
    class that is being viewed.
 
    We then need to hook up this view with the
-   :meth:`morepath.AppBase.view` decorator.  We say it's associated
-   with the ``Root`` model. Since we supply no explicit ``name`` to
-   the decorator, the function is the default view for the ``Root``
-   model on ``/``.
+   :meth:`morepath.App.view` decorator.  We say it's associated with
+   the ``Root`` model. Since we supply no explicit ``name`` to the
+   decorator, the function is the default view for the ``Root`` model
+   on ``/``.
 
 5. The ``if __name__ == '__main__'`` section is a way in Python to
    make the code only run if the ``hello.py`` module is started
@@ -115,16 +117,16 @@ Code Walkthrough
    in one step.
 
 7. We then ``scan()`` this module (or package) for configuration
-   decorators (such as :meth:`morepath.AppBase.path` and
-   :meth:`morepath.AppBase.view`) and cause the registration to be
+   decorators (such as :meth:`morepath.App.path` and
+   :meth:`morepath.App.view`) and cause the registration to be
    registered using :meth:`morepath.Config.commit`.
 
    This step ensures your configuration (model routes, views, etc) is
    loaded exactly once in a way that's reusable and extensible.
 
-8. We then run the ``WSGI`` app using the default web server. Since
-   ``app`` is a WSGI app you can also plug it into any other WSGI
-   server.
+8. We then instantiate the ``app`` class to create a ``WSGI`` app
+   using the default web server. Since you create a WSGI app you can
+   also plug it into any other WSGI server.
 
 This example presents a compact way to organize your code, but for a
 real project we recommend you read :doc:`organizing_your_project`.
@@ -142,10 +144,10 @@ route to views, but routes to models instead.
   features. The most concrete feature is automatic hyperlink
   generation - we'll go into more detail about this later.
 
-  A more abstract feature is that Morepath through model-driven
-  application allows for greater code reuse: this is the basis for
-  Morepath's super-powers. We'll show a few of these special things
-  you can do with Morepath later.
+  A more abstract feature is that Morepath through model-driven design
+  allows for greater code reuse: this is the basis for Morepath's
+  super-powers. We'll show a few of these special things you can do
+  with Morepath later.
 
   Finally Morepath's model-oriented nature makes it a more natural fit
   for REST_ applications. This is useful when you need to create a web
@@ -273,9 +275,9 @@ create a view for it::
   def user_info(self, request):
       return "User's full name is: %s" % self.fullname
 
-The view is a function decorated by :meth:`morepath.AppBase.view` (or
-related decorators such as :meth:`morepath.AppBase.json` and
-:meth:`morepath.AppBase.html`) that gets two arguments: ``self``,
+The view is a function decorated by :meth:`morepath.App.view` (or
+related decorators such as :meth:`morepath.App.json` and
+:meth:`morepath.App.html`) that gets two arguments: ``self``,
 which is the model that this view is working for, so in this case an
 instance of ``User``, and ``request`` which is the current
 request. ``request`` is a :class:`morepath.request.Request` object (a

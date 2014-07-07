@@ -41,7 +41,7 @@ time whether the claimed identity is actually a real identity.
 
 By default, Morepath will reject any claimed identities. To let your
 application verify identities, you need to use
-:meth:`morepath.AppBase.verify_identity`::
+:meth:`morepath.App.verify_identity`::
 
   @app.verify_identity()
   def verify_identity(identity):
@@ -232,7 +232,7 @@ Permission rules
 Now that we give people a claimed identity and we have guarded our
 views with permissions, we need to establish who has what permissions
 where using some rules. We can use the
-:meth:`morepath.AppBase.permission_rule` directive to do that.
+:meth:`morepath.App.permission_rule` directive to do that.
 
 This is very flexible. Let's look at some examples.
 

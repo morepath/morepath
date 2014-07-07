@@ -517,7 +517,7 @@ for ``date`` (compact ISO 8601, i.e. ``20131231``) and ``datetime``
 
 You can add new default converters for your own classes, or override
 existing default behavior, by using the
-:meth:`morepath.AppBase.converter` decorator. Let's change the default
+:meth:`morepath.App.converter` decorator. Let's change the default
 behavior for ``date`` in this example to use ISO 8601 *extended* format,
 so that dashes are there to separate the year, month and day,
 i.e. ``2013-12-31``::

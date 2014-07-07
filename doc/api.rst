@@ -6,11 +6,6 @@ Morepath API
 .. autoclass:: App
   :members:
 
-.. autoclass:: AppBase
-  :members:
-
-.. autodata:: global_app
-
 .. autofunction:: autoconfig
 
 .. autofunction:: autosetup

@@ -18,15 +18,17 @@ tries to make these things simple.
 Application Isolation
 ---------------------
 
-Morepath lets you create app objects like this:
+Morepath lets you create app classes like this:
 
 .. code-block:: python
 
-  app = morepath.App()
+  class app(morepath.App):
+      pass
 
-These app objects are WSGI applications, but also serve as registries
-for application configuration information. This configuration is
-specify used decorators. Apps consist of paths and views for models:
+When you instantiate the app class, you get a WSGI application. The
+app class itself serves as a registry for application construction
+information. This configuration is specify used decorators. Apps
+consist of paths and views for models:
 
 .. code-block:: python
 
@@ -48,7 +50,9 @@ different way? No problem, we can just create one:
 
 .. code-block:: python
 
-  other_app = morepath.App()
+  class other_app(morepath.App):
+      pass
+
   @other_app.path(model=User, path='different_path/{username}')
   def get_user(username):
       return different_query_for_user(username)
@@ -58,7 +62,7 @@ different way? No problem, we can just create one:
       return "Differently Displayed User: %s" % self.username
 
 Here we expose ``User`` to the web again, but use a different path and
-a different view. If you run ``other_app`` (even in the same runtime), it
+a different view. If you use ``other_app`` (even in the same runtime), it
 functions independently from ``app``.
 
 This app isolation is nothing really special; it's kind of obvious
@@ -95,11 +99,12 @@ another extension of it.
 
 This architectural principle is called the `Open/Closed Principle`_ in
 software engineering, and Morepath makes it really easy to follow
-it. What you do is create another app that extends the original:
+it. What you do is create another app that subclasses the original:
 
 .. code-block:: python
 
-  extended_app = morepath.App(extends=[app])
+  class extended_app(app):
+      pass
 
 And then we can add the view to the extended app:
 
@@ -112,7 +117,7 @@ And then we can add the view to the extended app:
 Now when we publish ``extended_app`` using WSGI, the new ``edit`` view
 is there, but when we publish ``app`` it won't be.
 
-Kind of obvious, perhaps. Good. Let's move on.
+Just subclassing. Kind of obvious, perhaps. Good. Let's move on.
 
 .. _`Open/Closed Principle`: https://en.wikipedia.org/wiki/Open/closed_principle
 
@@ -151,8 +156,9 @@ which we've already registered a default view, or we need to register
 a new default view for ``OtherUser``.
 
 Overriding apps actually doesn't look much different from how you
-build apps in the first place. Hopefully not so obvious that it's
-boring. Let's talk about something new.
+build apps in the first place. Again, it's just like
+subclassing. Hopefully not so obvious that it's boring. Let's talk
+about something new.
 
 Nesting Applications
 --------------------
@@ -200,7 +206,8 @@ wiki app by itself:
 
 .. code-block:: python
 
-  wiki_app = morepath.App()
+  class wiki_app(morepath.App):
+      pass
 
   @wiki_app.path(model=Wiki, path='{wiki_id}')
   def get_wiki(wiki_id):
@@ -232,7 +239,8 @@ We do need to adjust the wiki app a bit as right now it expects
 mounted. We need to do two things: tell the wiki app that we expect
 the ``wiki_id`` variable::
 
-  wiki_app = morepath.App(variables=['wiki_id'])
+  class wiki_app(morepath.App):
+      variables = ['wiki_id']
 
 And we need to register the model so that its path is empty:
 
@@ -248,12 +256,12 @@ from the dictionary that we return from ``mount_wiki()``.
 
 What if we want to use ``wiki_app`` by itself, as a WSGI app? That can
 be useful, also for testing purposes. It needs this ``wiki_id``
-parameter now. We can construct this WSGI app from ``wiki_app`` by
-mounting it explicitly:
+parameter now. We simply pass it the ``wiki_id`` parameter when we
+instantiate it::
 
 .. code-block:: python
 
-  wsgi_app = wiki_app.mounted(wiki_id=5)
+  wsgi_app = wiki_app(wiki_id=5)
 
 This is a WSGI app that we can run by itself that uses ``wiki_id``.
 

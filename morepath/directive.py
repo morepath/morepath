@@ -125,7 +125,7 @@ class ConverterDirective(Directive):
           URLs. Morepath looks up the converter using the
           type. The type is either given explicitly as the value in
           the ``converters`` dictionary in the
-          :meth:`morepath.AppBase.path` directive, or is deduced from
+          :meth:`morepath.App.path` directive, or is deduced from
           the value of the default argument of the decorated model
           function or class using ``type()``.
         """
@@ -263,7 +263,7 @@ class PredicateDirective(Directive):
 
         From this information it should calculate a predicate value
         and return it. You can then pass these extra predicate
-        arguments to :meth:`morepath.AppBase.view` and this view is
+        arguments to :meth:`morepath.App.view` and this view is
         only found if the predicate matches.
 
         :param name: the name of the view predicate.
@@ -272,7 +272,7 @@ class PredicateDirective(Directive):
         :type order: int
         :param default: the default value for this view predicate.
           This is used when the predicate is omitted or ``None`` when
-          supplied to the :meth:`morepath.AppBase.view` directive.
+          supplied to the :meth:`morepath.App.view` directive.
           This is also used when using :meth:`Request.view` to render
           a view.
         :param index: the predicate index to use. Default is
@@ -339,8 +339,8 @@ class ViewDirective(Directive):
         :func:`morepath.render_json` for instance expects a Python
         object such as a dict that can be serialized to JSON.
 
-        See also :meth:`morepath.AppBase.json` and
-        :meth:`morepath.AppBase.html`.
+        See also :meth:`morepath.App.json` and
+        :meth:`morepath.App.html`.
 
         :param model: the class of the model for which this view is registered.
           The ``self`` passed into the view function is an instance
@@ -367,7 +367,7 @@ class ViewDirective(Directive):
           the value is. If you don't specify a predicate, the default
           value is used. Standard predicate values are
           ``name`` and ``request_method``, but you can install your
-          own using the :meth:`morepath.AppBase.predicate` directive.
+          own using the :meth:`morepath.App.predicate` directive.
 
         '''
         super(ViewDirective, self).__init__(app)
@@ -407,7 +407,7 @@ class JsonDirective(ViewDirective):
                  internal=False, **predicates):
         """Register JSON view.
 
-        This is like :meth:`morepath.AppBase.view`, but with
+        This is like :meth:`morepath.App.view`, but with
         :func:`morepath.render_json` as default for the `render`
         function.
 
@@ -435,7 +435,7 @@ class JsonDirective(ViewDirective):
           answer, i.e. GET, POST, etc. If omitted, this view will respond to
           GET requests only. This is a predicate.
         :param predicates: predicates to match this view on. See the
-          documentation of :meth:`AppBase.view` for more information.
+          documentation of :meth:`App.view` for more information.
         """
         render = render or render_json
         super(JsonDirective, self).__init__(app, model, render, permission,
@@ -450,7 +450,7 @@ class HtmlDirective(ViewDirective):
                  internal=False, **predicates):
         """Register HTML view.
 
-        This is like :meth:`morepath.AppBase.view`, but with
+        This is like :meth:`morepath.App.view`, but with
         :func:`morepath.render_html` as default for the `render`
         function.
 
@@ -477,7 +477,7 @@ class HtmlDirective(ViewDirective):
           answer, i.e. GET, POST, etc. If omitted, this view will respond to
           GET requests only. This is a predicate.
         :param predicates: predicates to match this view on. See the
-          documentation of :meth:`AppBase.view` for more information.
+          documentation of :meth:`App.view` for more information.
         """
         render = render or render_html
         super(HtmlDirective, self).__init__(app, model, render, permission,
@@ -502,7 +502,7 @@ class MountDirective(PathDirective):
         :param path: the path to mount the application on.
         :param app: the :class:`morepath.App` subclass to mount.
         :param converters: converters as for the
-          :meth:`morepath.AppBase.path` directive.
+          :meth:`morepath.App.path` directive.
         :param required: list or set of names of those URL parameters which
           should be required, i.e. if missing a 400 Bad Request response is
           given. Any default value is ignored. Has no effect on path

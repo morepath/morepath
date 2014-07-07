@@ -70,10 +70,10 @@ HTTP as a transport system
 
 We don't really need to say much here, as Morepath is of course all
 about HTTP in the end. Morepath lets you write a bare-bones view using
-:meth:`morepath.AppBase.view`. This also lets you pass in a ``render``
+:meth:`morepath.App.view`. This also lets you pass in a ``render``
 function that lets you specify how to render the return value of the
 view function as a :class:`morepath.Response`. If you use JSON, for
-convenience you can use :meth:`morepath.AppBase.json` has a JSON
+convenience you can use :meth:`morepath.App.json` has a JSON
 render function baked in.
 
 We could for instance have a ``Document`` model in our application::
@@ -113,7 +113,7 @@ Modeling as resources
 Modeling a web service as multiple resources comes pretty naturally to
 Morepath, as it's model-oriented in the first place. You can think
 carefully about how to place models in the URL space and expose them
-using :meth:`morepath.AppBase.path`. In Morepath each model class can
+using :meth:`morepath.App.path`. In Morepath each model class can
 only be exposed on a single URL (per app), which gives them a
 canonical URL automatically.
 

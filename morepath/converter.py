@@ -89,7 +89,7 @@ class ConverterRegistry(object):
     """A registry for converters.
 
     Used to decode/encode URL parameters and path variables used
-    by the :meth:`morepath.AppBase.path` directive.
+    by the :meth:`morepath.App.path` directive.
 
     Is aware of inheritance.
     """

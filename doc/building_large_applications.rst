@@ -92,7 +92,8 @@ paths in a single application, like this::
 
   from .model import Root, User, Repository, Settings, Issues, Wiki
 
-  app = morepath.App()
+  class app(morepath.App):
+      pass
 
   @app.path(path='', model=Root)
   def get_root():
@@ -186,11 +187,14 @@ complexity. So let's start with three application:
 
 In code::
 
-  core_app = morepath.App()
+  class core_app(morepath.App):
+      pass
 
-  issues_app = morepath.App(variables=['issues_id'])
+  class issues_app(morepath.App):
+      variables = ['issues_id']
 
-  wiki_app = morepath.App(variables=['wiki_id'])
+  class wiki_app(morepath.App):
+      variables = ['wiki_id']
 
 Note that ``issues_app`` and ``wiki_app`` expect variables; we'll
 learn more about this later.
@@ -235,7 +239,7 @@ We have drastically simplified the paths in ``issues_app`` and
 anymore. Instead we get a ``issues_id`` and ``wiki_id``, but not from
 the path. Where does they come from? They are specified by the
 ``variables`` argument for :class:`morepath.App` that we saw
-earlier. Next we need to explore the :meth:`AppBase.mount` directive
+earlier. Next we need to explore the :meth:`App.mount` directive
 to see how they are actually obtained.
 
 Mounting apps
@@ -284,11 +288,12 @@ repeat '{user_name}/{repository_name}' everywhere.
 Testing in isolation
 --------------------
 
-To test the issue tracker by itself, we can run it as a separate WSGI app.
-To do this we first need to mount it using an ``issues_id``::
+To test the issue tracker by itself, we can run it as a separate WSGI
+app.  To do this we first need to mount it by passing an ``issues_id``
+to it::
 
   def run_issue_tracker():
-      mounted = issues_app.mount(issues_id=4)
+      mounted = issues_app(issues_id=4)
       morepath.run(mounted)
 
 Here we mount and run the ``issues_app`` with issue tracker id
@@ -388,7 +393,8 @@ Now we can import ``core_app`` from it in
 
   from myproject.core.main import core_app
 
-  customer_app = morepath.App(extends=[core_app])
+  class customer_app(core_app):
+      pass
 
 At this point ``customer_app`` behaves identically to
 ``core_app``. Now let's make our customization and add a new JSON view
@@ -430,7 +436,8 @@ with a ``tweaked_wiki_app``::
 
   from myproject.wiki.main import wiki_app
 
-  tweaked_wiki_app = morepath.App(extends=[wiki_app])
+  class tweaked_wiki_app(wiki_app):
+       pass
 
   # some kind of tweak
   @tweaked_wiki_app.json(model=WikiPage, name='extra_info')
@@ -440,7 +447,8 @@ with a ``tweaked_wiki_app``::
 We now want a new version of ``core_app`` just for this customer that
 mounts ``tweaked_wiki_app`` instead of ``wiki_app``::
 
-  important_customer_app = morepath.App(extends=[core_app])
+  class important_customer_app(core_app):
+      pass
 
   @important_customer_app.mount(path='{user_name}/{repository_name}/wiki',
                                 app=tweaked_wiki_app)
@@ -456,7 +464,7 @@ You can override any other directive (path, view, etc) the same way.
 Framework apps
 --------------
 
-A ``morepath.App`` instance does not need to be a full working web
+A ``morepath.App`` subclass does not need to be a full working web
 application. Instead it can be a framework consisting of just a few
 with only those paths, subpaths and views that we intend to be
 reusable.
@@ -467,7 +475,8 @@ inheritance. We could for instance have a base class
 model to gain a ``metadata`` view that returns this metadata as JSON
 data. Let's write some code for that::
 
-  framework = morepath.App()
+  class framework(morepath.App):
+      pass
 
   class Metadata(object):
       def __init__(self, d):
@@ -482,7 +491,8 @@ data. Let's write some code for that::
 
 We want to use this framework in our own application::
 
-  app = morepath.App(extends=[framework])
+  class app(framework):
+      pass
 
 Let's have a model that subclasses from ``Metadata``::
 
@@ -504,8 +514,8 @@ framework; applications tend to gain attributes of a framework, and
 larger frameworks start to look more like applications. Don't worry
 too much about which is which, but enjoy the creative possibilities!
 
-Note that Morepath itself is actually a framework app that your apps
-extend automatically. This means you can override parts of it (say,
-how links are generated) just like you would override a framework app!
-We did our best to make Morepath do the right thing already, but if
-not, you *can* customize it.
+Note that Morepath itself is designed as an application
+(:class:`morepath.App`) that your apps extend. This means you can
+override parts of it (say, how links are generated) just like you
+would override a framework app!  We did our best to make Morepath do
+the right thing already, but if not, you *can* customize it.

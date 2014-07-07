@@ -6,7 +6,7 @@ Introduction
 
 Morepath does not put any requirements on how your Python code is
 organized. You can organize your Python project as you see fit and put
-app objects, paths, views, etc, anywhere you like. A single Python
+app classes, paths, views, etc, anywhere you like. A single Python
 package (or even module) may define a single Morepath app, but could
 also define multiple apps. In this Morepath is like Python itself; the
 Python language does not restrict you in how you organize functions
@@ -160,23 +160,24 @@ way to start it up as a web server. Here's a sketch of ``main.py``::
 
   import morepath
 
-  app = morepath.App()
+  class app(morepath.App):
+      pass
 
   def main():
      morepath.autosetup()
-     morepath.run(app)
+     morepath.run(app())
 
-We create an ``app`` object, then have a ``main()`` function that is
+We create an ``app`` class, then have a ``main()`` function that is
 going to be called by the ``myproject-start`` entry point we defined
 in ``setup.py``. This main function does two things:
 
 * Use :func:`morepath.autosetup()` to set up Morepath, including any
   of your code.
 
-* start a WSGI server for ``app`` on port localhost, port 5000. This
-  uses the standard library wsgiref WSGI server. Note that this should
-  only used for testing purposes, not production! For production, use
-  an external WSGI server.
+* start a WSGI server for the ``app`` instance on port localhost,
+  port 5000. This uses the standard library wsgiref WSGI server. Note
+  that this should only used for testing purposes, not production! For
+  production, use an external WSGI server.
 
 The main module is also a good place to do other general configuration
 for the application, such as setting up a database connection.
@@ -212,7 +213,7 @@ Then we modify ``main.py`` to use waitress::
 
   def main():
      ...
-     waitress.serve(app)
+     waitress.serve(app())
 
 Variation: command-line WSGI servers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -224,7 +225,7 @@ app::
 
   def wsgi_factory():
      morepath.autosetup()
-     return app
+     return app()
 
   $ waitress-serve --call myproject.main:wsgi_factory
 
@@ -313,7 +314,7 @@ to define their paths. We do this in a ``path.py`` module::
         return None # not found
      return Document('foo', 'Foo document', 'FOO!')
 
-In the functions decorated by :meth:`AppBase.path` we do whatever
+In the functions decorated by :meth:`App.path` we do whatever
 query is necessary to retrieve the model instance from a database, or
 return ``None`` if the model cannot be found.
 
@@ -339,8 +340,8 @@ them as actual web resources. We do this in the ``view.py`` module::
   def document_default(self, request):
       return {'id': self.id, 'title': self.title, 'content': self.content }
 
-Here we use :meth:`AppBase.view`, :meth:`AppBase.json` and
-:meth:`AppBase.html` directives to declare views.
+Here we use :meth:`App.view`, :meth:`App.json` and
+:meth:`App.html` directives to declare views.
 
 By putting them all in a view module it becomes easy to inspect and
 adjust how models are represented, but of course if this becomes large

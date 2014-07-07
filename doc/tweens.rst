@@ -71,7 +71,7 @@ Creating a tween factory
 
 To have a tween, we need to add a tween factory to the app. The tween
 factory is a function that given a handler constructs a tween. You can
-register a tween factory using the :meth:`AppBase.tween_factory`
+register a tween factory using the :meth:`App.tween_factory`
 directive::
 
   @app.tween_factory()

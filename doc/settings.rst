@@ -25,7 +25,7 @@ overridden by the extending application if needed.
 Defining a setting
 ------------------
 
-You can define a setting using the :meth:`AppBase.setting` directive::
+You can define a setting using the :meth:`App.setting` directive::
 
   @app.setting(section="logging", name="logfile")
   def get_logfile():
@@ -33,7 +33,9 @@ You can define a setting using the :meth:`AppBase.setting` directive::
 
 You can also use this directive to override a setting in another app::
 
-  sub = morepath.App(extends=[app])
+  class sub(app):
+      pass
+
   @sub.setting(section="logging", name="logfile")
   def get_logfile_too():
      return "/a/different/logfile.log"
@@ -59,7 +61,7 @@ Defining multiple settings
 --------------------------
 
 It can be convenient to define multiple settings in a section at once.
-You can do this using the :meth:`AppBase.setting_section` directive::
+You can do this using the :meth:`App.setting_section` directive::
 
   @app.setting_section(section="logging")
   def get_setting_section():

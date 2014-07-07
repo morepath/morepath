@@ -111,7 +111,7 @@ in it as a comma separated list. So the view ``collection_default`` is
 Details
 -------
 
-The decorator :meth:`morepath.AppBase.view` (``@app.view``) takes two
+The decorator :meth:`morepath.App.view` (``@app.view``) takes two
 arguments here, ``model``, which is the class of the model the view is
 representing, and ``name``, which is the name of the view in the URL
 path.
@@ -219,9 +219,9 @@ We'd use it like this::
 
 HTML views and JSON views are so common we have special shortcut decorators:
 
-* ``@app.html`` (:meth:`morepath.AppBase.html`)
+* ``@app.html`` (:meth:`morepath.App.html`)
 
-* ``@app.json`` (:meth:`morepath.AppBase.json`)
+* ``@app.json`` (:meth:`morepath.App.json`)
 
 Here's how you use them::
 
@@ -251,7 +251,7 @@ You can use such a class with a view::
       return 'edit document'
 
 You can define which users have what permission on which models by using
-the :meth:`morepath.AppBase.permission` decorator. To learn more,
+the :meth:`morepath.App.permission` decorator. To learn more,
 read :doc:`security`.
 
 Manipulating the response
@@ -304,7 +304,7 @@ Predicates
 
 The ``name`` and ``request_method`` arguments on the ``@app.view``
 decorator are examples of *view predicates*. You can add new ones by
-using the :meth:`morepath.AppBase.predicate` decorator.
+using the :meth:`morepath.App.predicate` decorator.
 
 Let's say we have a view that we only want to kick in when a certain
 request header is set to something::
