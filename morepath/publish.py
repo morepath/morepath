@@ -28,17 +28,13 @@ def resolve_model(request):
         if isinstance(model, Mount):
             model.set_implicit()
             request.mounted = model
-        # get new lookup for whatever we found if it exists
-        # XXX can't we use mount lookup instead?
-        lookup = generic.lookup(model, lookup=lookup, default=lookup)
-        request.lookup = lookup
+            request.lookup = model.lookup
     # if there is nothing (left), we consume toward a root model
     if not request.unconsumed and isinstance(model, Mount):
         root_model = generic.consume(request, model, lookup=lookup)
         if root_model is not None:
             model = root_model
         # XXX handling mounting? lookups? write test cases
-    request.lookup = lookup
     return model
 
 
