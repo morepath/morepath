@@ -29,7 +29,7 @@ setup(name='morepath',
       install_requires=[
         'setuptools',
         'webob >= 1.3.1',
-        'venusifork >= 2.0a1',
+        'venusifork >= 2.0a2',
         'reg >= 0.7'
         ],
       extras_require = dict(

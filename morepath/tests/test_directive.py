@@ -171,8 +171,8 @@ def test_scan_module_only_init():
     config = setup()
     from morepath.tests.fixtures import scanmodule
     from morepath.tests.fixtures.scanmodule import theapp
-    config.scan_module(scanmodule)
-    config.scan_module(theapp)
+    config.scan(scanmodule, recursive=False)
+    config.scan(theapp, recursive=False)
     config.commit()
 
     c = Client(scanmodule.app())
@@ -188,8 +188,8 @@ def test_scan_module_only_submodule():
     config = setup()
     from morepath.tests.fixtures.scanmodule import submodule, theapp
     from morepath.tests.fixtures import scanmodule
-    config.scan_module(submodule)
-    config.scan_module(theapp)
+    config.scan(submodule, recursive=False)
+    config.scan(theapp, recursive=False)
     config.commit()
 
     c = Client(scanmodule.app())
