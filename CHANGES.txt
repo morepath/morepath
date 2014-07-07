@@ -113,9 +113,9 @@ CHANGES
   underdocumented for now; study the ``morepath.directive`` module
   source code for examples.
 
-- Add a 'scan_module()' method to the config object. This allows the
-  non-recursive scanning of a single Python module (or the
-  ``__init__.py`` of a package if the package is given).
+- Add a ``recursive=False`` option to the config.scan method. This
+  allows the non-recursive scanning of a package. Only its
+  ``__init__.py`` will be scanned.
 
 - To support scanning a single module non-recursively we need a
   feature that hasn't landed in mainline Venusian yet, so depend on
