@@ -20,6 +20,7 @@ Table of Contents
    app_reuse
    building_large_applications
    tweens
+   more.static
    api
    compared
    design
