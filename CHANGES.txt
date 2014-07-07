@@ -113,6 +113,9 @@ CHANGES
   underdocumented for now; study the ``morepath.directive`` module
   source code for examples.
 
+- Document how to use more.static to include static resources into
+  your application.
+
 - Add a ``recursive=False`` option to the config.scan method. This
   allows the non-recursive scanning of a package. Only its
   ``__init__.py`` will be scanned.
