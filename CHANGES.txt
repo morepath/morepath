@@ -162,8 +162,8 @@ CHANGES
 - Link generation now takes ``SCRIPT_NAME`` into account.
 
 - Morepath 0.1 had a security system, but it was undocumented. Now
-  it's documented (docs now in `Morepath Security`_), and some of its behavior was
-  slightly tweaked:
+  it's documented (docs now in `Morepath Security`_), and some of its
+  behavior was slightly tweaked:
 
   * new ``verify_identity`` directive.
 
