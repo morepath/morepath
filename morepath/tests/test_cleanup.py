@@ -27,6 +27,6 @@ def test_configurables():
     class app(morepath.App):
         testing_config = config
 
-    assert config.configurables[0] is morepath.App.morepath
-    assert config.configurables[1] is app.morepath
+    assert config.configurables[0] is morepath.App.registry
+    assert config.configurables[1] is app.registry
     assert len(config.configurables) == 2

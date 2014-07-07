@@ -216,7 +216,7 @@ def test_imperative():
     c = setup()
     foo = Foo()
 
-    c.configurable(app.morepath)
+    c.configurable(app.registry)
     c.action(app.function(target), foo)
     c.commit()
 
@@ -254,7 +254,7 @@ def test_basic_imperative():
         return request.link(self)
 
     c = setup()
-    c.configurable(app.morepath)
+    c.configurable(app.registry)
     c.action(app.path(path=''), Root)
     c.action(app.path(model=Model, path='{id}'),
              get_model)

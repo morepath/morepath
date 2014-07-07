@@ -45,7 +45,7 @@ class directive(object):
 
 class Directive(ConfigDirective):
     def __init__(self, app):
-        super(Directive, self).__init__(app.morepath)
+        super(Directive, self).__init__(app.registry)
         self.app = app
 
 @directive('setting')

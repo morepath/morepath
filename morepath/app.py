@@ -14,11 +14,10 @@ from .reify import reify
 from .publish import publish
 
 
-class MorepathInfo(Configurable, ClassRegistry, ConverterRegistry,
-                   TweenRegistry):
+class Registry(Configurable, ClassRegistry, ConverterRegistry, TweenRegistry):
     def __init__(self, name, bases, testing_config, variables):
         self.name = name
-        bases = [base.morepath for base in bases if hasattr(base, 'morepath')]
+        bases = [base.registry for base in bases if hasattr(base, 'registry')]
         ClassRegistry.__init__(self)
         Configurable.__init__(self, bases, testing_config)
         ConverterRegistry.__init__(self)
@@ -47,14 +46,14 @@ class MorepathInfo(Configurable, ClassRegistry, ConverterRegistry,
 
 
 def callback(scanner, name, obj):
-    scanner.config.configurable(obj.morepath)
+    scanner.config.configurable(obj.registry)
 
 
 class AppMeta(type):
     def __new__(mcl, name, bases, d):
         testing_config = d.get('testing_config')
-        d['morepath'] = MorepathInfo(name, bases, testing_config,
-                                     d.get('variables', []))
+        d['registry'] = Registry(name, bases, testing_config,
+                                 d.get('variables', []))
         result = super(AppMeta, mcl).__new__(mcl, name, bases, d)
         venusian.attach(result, callback)
         return result
@@ -72,7 +71,7 @@ class App(object):
     __metaclass__ = AppMeta
 
     def __init__(self, **context):
-        self.settings = self.morepath.settings
+        self.settings = self.registry.settings
 
         for name in self.variables:
             if name not in context:
@@ -86,11 +85,11 @@ class App(object):
 
         :returns: a :class:`reg.Lookup` instance.
         """
-        return self.morepath.lookup
+        return self.registry.lookup
 
     @reify
     def traject(self):
-        return self.morepath.traject
+        return self.registry.traject
 
     # def set_implicit(self):
     #     """Set app's lookup as implicit reg lookup.
@@ -121,7 +120,7 @@ class App(object):
     @reify
     def publish(self):
         result = publish
-        for tween_factory in reversed(self.morepath.sorted_tween_factories()):
+        for tween_factory in reversed(self.registry.sorted_tween_factories()):
             result = tween_factory(self, result)
         return result
 

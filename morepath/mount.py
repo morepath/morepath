@@ -24,7 +24,7 @@ class Mount(object):
 
     @reify
     def lookup(self):
-        return self.app.morepath.lookup
+        return self.app.registry.lookup
 
     def set_implicit(self):
         set_implicit(self.lookup)
@@ -40,7 +40,7 @@ class Mount(object):
         return self.variables.get('parent')
 
     def child(self, app, **context):
-        factory = self.app.morepath._mounted.get(app)
+        factory = self.app.registry._mounted.get(app)
         if factory is None:
             return None
         if 'parent' not in context:

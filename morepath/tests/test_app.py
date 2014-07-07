@@ -1,5 +1,5 @@
 import morepath
-from morepath.app import MorepathInfo
+from morepath.app import Registry
 from morepath.error import MountError
 import morepath
 import pytest
@@ -10,7 +10,7 @@ def setup_module(module):
 
 
 def test_app_caching_lookup():
-    class MockMorepathInfo(MorepathInfo):
+    class MockRegistry(Registry):
         called = 0
 
         def all(self, key, classes):
@@ -20,22 +20,22 @@ def test_app_caching_lookup():
     class MockApp(morepath.App):
         pass
 
-    MockApp.morepath = MockMorepathInfo('MockApp', [morepath.App], None, [])
+    MockApp.registry = MockRegistry('MockApp', [morepath.App], None, [])
 
     myapp = MockApp()
     lookup = myapp.lookup
     answer = lookup.component('foo', [])
     assert answer == 'answer'
-    assert myapp.morepath.called == 1
+    assert myapp.registry.called == 1
 
     # after this the answer will be cached for those parameters
     answer = lookup.component('foo', [])
-    assert myapp.morepath.called == 1
+    assert myapp.registry.called == 1
 
     answer = myapp.lookup.component('foo', [])
-    assert myapp.morepath.called == 1
+    assert myapp.registry.called == 1
 
     # but different parameters does trigger another call
     lookup.component('bar', [])
-    assert myapp.morepath.called == 2
+    assert myapp.registry.called == 2
 

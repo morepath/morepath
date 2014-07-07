@@ -93,7 +93,7 @@ def mount_lookup(model):
 
 @App.function(generic.traject, Mount)
 def mount_traject(model):
-    return model.app.morepath.traject
+    return model.app.registry.traject
 
 
 @App.function(generic.context, Mount)

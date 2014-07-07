@@ -419,7 +419,7 @@ def test_traject_consume():
     traject = Traject()
     traject.add_pattern('sub', (Model, paramfac))
 
-    registry = app.morepath
+    registry = app.registry
     registry.register(generic.traject, [App], lambda base: traject)
     registry.register(generic.context, [object], lambda obj: {})
 
@@ -441,7 +441,7 @@ def test_traject_consume_parameter():
     get_param = ParameterFactory({'a': 0}, {'a': Converter(int)}, [])
     traject.add_pattern('sub', (Model, get_param))
 
-    registry = app.morepath
+    registry = app.registry
     registry.register(generic.traject, [App], lambda base: traject)
     registry.register(generic.context, [object], lambda obj: {})
 
@@ -469,7 +469,7 @@ def test_traject_consume_model_factory_gets_request():
         return Model(request.method)
 
     traject.add_pattern('sub', (get_model, paramfac))
-    registry = app.morepath
+    registry = app.registry
     registry.register(generic.traject, [App], lambda base: traject)
     registry.register(generic.context, [object], lambda obj: {})
 
@@ -497,7 +497,7 @@ def test_traject_consume_factory_returns_none():
 
     traject.add_pattern('sub', (get_model, paramfac))
 
-    registry = app.morepath
+    registry = app.registry
 
     registry.register(generic.traject, [App], lambda base: traject)
     registry.register(generic.context, [object], lambda obj: {})
@@ -521,7 +521,7 @@ def test_traject_consume_variable():
 
     traject.add_pattern('{foo}', (get_model, paramfac))
 
-    registry = app.morepath
+    registry = app.registry
     registry.register(generic.traject, [App], lambda base: traject)
     registry.register(generic.context, [object], lambda obj: {})
 
@@ -545,7 +545,7 @@ def test_traject_consume_view():
     traject.add_pattern('', (Root, paramfac))
     traject.add_pattern('{foo}', (get_model, paramfac))
 
-    registry = app.morepath
+    registry = app.registry
 
     registry.register(generic.traject, [App], lambda base: traject)
     registry.register(generic.context, [object], lambda obj: {})
@@ -563,7 +563,7 @@ def test_traject_root():
 
     traject.add_pattern('', (Root, paramfac))
 
-    registry = app.morepath
+    registry = app.registry
 
     registry.register(generic.traject, [App], lambda base: traject)
     registry.register(generic.context, [object], lambda obj: {})
@@ -588,7 +588,7 @@ def test_traject_consume_combination():
     traject.add_pattern('special', (Special, paramfac))
     traject.add_pattern('{foo}', (get_model, paramfac))
 
-    registry = app.morepath
+    registry = app.registry
     registry.register(generic.traject, [App], lambda base: traject)
     registry.register(generic.context, [object], lambda obj: {})
 
@@ -610,7 +610,7 @@ def test_traject_nested():
     traject.add_pattern('a', (Model, paramfac))
     traject.add_pattern('a/b', (Special, paramfac))
 
-    registry = app.morepath
+    registry = app.registry
 
     registry.register(generic.traject, [App], lambda base: traject)
     registry.register(generic.context, [object], lambda obj: {})
@@ -630,7 +630,7 @@ def test_traject_nested_not_resolved_entirely_by_consumer():
     traject = Traject()
     traject.add_pattern('a', (Model, paramfac))
 
-    registry = app.morepath
+    registry = app.registry
     registry.register(generic.traject, [App], lambda base: traject)
     registry.register(generic.context, [object], lambda obj: {})
 
@@ -661,7 +661,7 @@ def test_traject_nested_with_variable():
     traject.add_pattern('{id}', (get_model, paramfac))
     traject.add_pattern('{id}/sub', (get_special, paramfac))
 
-    registry = app.morepath
+    registry = app.registry
 
     registry.register(generic.traject, [App], lambda base: traject)
     registry.register(generic.context, [object], lambda obj: {})
@@ -696,7 +696,7 @@ def test_traject_with_multiple_variables():
     traject.add_pattern('{first_id}', (get_model, paramfac))
     traject.add_pattern('{first_id}/{second_id}', (get_special, paramfac))
 
-    registry = app.morepath
+    registry = app.registry
     registry.register(generic.traject, [App], lambda base: traject)
     registry.register(generic.context, [object], lambda obj: {})
 

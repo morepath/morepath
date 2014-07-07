@@ -34,7 +34,7 @@ def test_view():
     def view(self, request):
         return "View!"
 
-    register_view(app.morepath, Model, view, predicates=dict(name=''))
+    register_view(app.registry, Model, view, predicates=dict(name=''))
 
     model = Model()
     result = resolve_response(app().request(get_environ(path='')), model)
@@ -55,7 +55,7 @@ def test_predicates():
     def post_view(self, request):
         return "post"
 
-    registry = app.morepath
+    registry = app.registry
     register_view(registry, Model, view, predicates=dict(name=''))
     register_view(registry, Model, post_view,
                   predicates=dict(name='', request_method='POST'))
@@ -95,7 +95,7 @@ def test_notfound_with_predicates():
     def view(self, request):
         return "view"
 
-    register_view(app.morepath, Model, view, predicates=dict(name=''))
+    register_view(app.registry, Model, view, predicates=dict(name=''))
     model = Model()
     request = app().request(get_environ(''))
     request.unconsumed = ['foo']
@@ -114,7 +114,7 @@ def test_response_returned():
     def view(self, request):
         return Response('Hello world!')
 
-    register_view(app.morepath, Model, view)
+    register_view(app.registry, Model, view)
     model = Model()
     response = resolve_response(app().request(get_environ(path='')), model)
     assert response.body == b'Hello world!'
@@ -132,7 +132,7 @@ def test_request_view():
     def view(self, request):
         return {'hey': 'hey'}
 
-    register_view(app.morepath, Model, view, render=render_json)
+    register_view(app.registry, Model, view, render=render_json)
 
     request = app().request(get_environ(path=''))
     request.mounted = app  # XXX should do this centrally
@@ -158,7 +158,7 @@ def test_request_view_with_predicates():
     def view(self, request):
         return {'hey': 'hey'}
 
-    register_view(app.morepath, Model, view, render=render_json,
+    register_view(app.registry, Model, view, render=render_json,
                   predicates=dict(name='foo'))
 
     request = app.request(get_environ(path=''))
@@ -187,7 +187,7 @@ def test_render_html():
     def view(self, request):
         return '<p>Hello world!</p>'
 
-    register_view(app.morepath, Model, view, render=render_html)
+    register_view(app.registry, Model, view, render=render_html)
 
     request = app().request(get_environ(path=''))
     model = Model()
@@ -208,7 +208,7 @@ def test_view_raises_http_error():
     def view(self, request):
         raise HTTPBadRequest()
 
-    registry = app.morepath
+    registry = app.registry
     register_path(registry, Model, 'foo', None, None, None, None, False, Model)
     register_view(registry, Model, view)
 
@@ -233,7 +233,7 @@ def test_view_after():
             response.headers.add('Foo', 'FOO')
         return "View!"
 
-    register_view(app.morepath, Model, view, predicates=dict(name=''))
+    register_view(app.registry, Model, view, predicates=dict(name=''))
 
     model = Model()
     result = resolve_response(app().request(get_environ(path='')), model)
@@ -256,7 +256,7 @@ def test_conditional_view_after():
                 response.headers.add('Foo', 'FOO')
         return "View!"
 
-    register_view(app.morepath, Model, view, predicates=dict(name=''))
+    register_view(app.registry, Model, view, predicates=dict(name=''))
 
     model = Model()
     result = resolve_response(app().request(get_environ(path='')), model)
@@ -279,7 +279,7 @@ def test_view_after_non_decorator():
         request.after(set_header)
         return "View!"
 
-    register_view(app.morepath, Model, view, predicates=dict(name=''))
+    register_view(app.registry, Model, view, predicates=dict(name=''))
 
     model = Model()
     result = resolve_response(app().request(get_environ(path='')), model)
