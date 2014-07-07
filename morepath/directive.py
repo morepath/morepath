@@ -54,7 +54,7 @@ class SettingDirective(Directive):
         """Register application setting.
 
         An application setting is registered under the ``settings``
-        attribute of :class:`morepath.app.App`. It will
+        attribute of :class:`morepath.app.Registry`. It will
         be executed early in configuration so other configuration
         directives can depend on the settings being there.
 
@@ -69,11 +69,11 @@ class SettingDirective(Directive):
         self.section = section
         self.name = name
 
-    def identifier(self, app):
+    def identifier(self, registry):
         return self.section, self.name
 
-    def perform(self, app, obj):
-        register_setting(app, self.section, self.name, obj)
+    def perform(self, registry, obj):
+        register_setting(registry, self.section, self.name, obj)
 
 
 class SettingValue(object):
@@ -90,7 +90,7 @@ class SettingSectionDirective(Directive):
         """Register application setting in a section.
 
         An application settings are registered under the ``settings``
-        attribute of :class:`morepath.app.AppBase`. It will
+        attribute of :class:`morepath.app.Registry`. It will
         be executed early in configuration so other configuration
         directives can depend on the settings being there.
 
@@ -132,11 +132,11 @@ class ConverterDirective(Directive):
         super(ConverterDirective, self).__init__(app)
         self.type = type
 
-    def identifier(self, app):
+    def identifier(self, registry):
         return ('converter', self.type)
 
-    def perform(self, app, obj):
-        app.register_converter(self.type, obj())
+    def perform(self, registry, obj):
+        registry.register_converter(self.type, obj())
 
 
 @directive('path')
@@ -191,10 +191,10 @@ class PathDirective(Directive):
         self.get_converters = get_converters
         self.absorb = absorb
 
-    def identifier(self, app):
+    def identifier(self, registry):
         return ('path', Path(self.path).discriminator())
 
-    def discriminators(self, app):
+    def discriminators(self, registry):
         return [('model', self.model)]
 
     def prepare(self, obj):
@@ -210,8 +210,8 @@ class PathDirective(Directive):
                 "@path does not decorate class and has no explicit model")
         yield self.clone(model=model), obj
 
-    def perform(self, app, obj):
-        register_path(app, self.model, self.path,
+    def perform(self, registry, obj):
+        register_path(registry, self.model, self.path,
                       self.variables, self.converters, self.required,
                       self.get_converters, self.absorb,
                       obj)
@@ -243,12 +243,12 @@ class PermissionRuleDirective(Directive):
             identity = NoIdentity
         self.identity = identity
 
-    def identifier(self, app):
+    def identifier(self, registry):
         return (self.model, self.permission, self.identity)
 
-    def perform(self, app, obj):
+    def perform(self, registry, obj):
         register_permission_checker(
-            app, self.identity, self.model, self.permission, obj)
+            registry, self.identity, self.model, self.permission, obj)
 
 
 @directive('predicate')
@@ -285,11 +285,11 @@ class PredicateDirective(Directive):
         self.default = default
         self.index = index
 
-    def identifier(self, app):
+    def identifier(self, registry):
         return self.name
 
-    def perform(self, app, obj):
-        register_predicate(app, self.name, self.order, self.default,
+    def perform(self, registry, obj):
+        register_predicate(registry, self.name, self.order, self.default,
                            self.index, obj)
 
 
@@ -311,11 +311,11 @@ class PredicateFallbackDirective(Directive):
         super(PredicateFallbackDirective, self).__init__(app)
         self.name = name
 
-    def identifier(self, app):
+    def identifier(self, registry):
         return self.name
 
-    def perform(self, app, obj):
-        register_predicate_fallback(app, self.name, obj)
+    def perform(self, registry, obj):
+        register_predicate_fallback(registry, self.name, obj)
 
 
 @directive('view')
@@ -390,14 +390,14 @@ class ViewDirective(Directive):
         args.update(kw)
         return ViewDirective(**args)
 
-    def identifier(self, app):
+    def identifier(self, registry):
         predicates = get_predicates_with_defaults(
-            self.predicates, app.exact('predicate_info', ()))
+            self.predicates, registry.exact('predicate_info', ()))
         predicates_discriminator = tuple(sorted(predicates.items()))
         return (self.model, predicates_discriminator)
 
-    def perform(self, app, obj):
-        register_view(app, self.model, obj, self.render, self.permission,
+    def perform(self, registry, obj):
+        register_view(registry, self.model, obj, self.render, self.permission,
                       self.internal, self.predicates)
 
 
@@ -500,7 +500,7 @@ class MountDirective(PathDirective):
         the :class:`morepath.App` constructor.
 
         :param path: the path to mount the application on.
-        :param app: the :class:`morepath.App` instance to mount.
+        :param app: the :class:`morepath.App` subclass to mount.
         :param converters: converters as for the
           :meth:`morepath.AppBase.path` directive.
         :param required: list or set of names of those URL parameters which
@@ -530,8 +530,8 @@ class MountDirective(PathDirective):
     def discriminators(self, app):
         return [('mount', self.mounted_app)]
 
-    def perform(self, app, obj):
-        register_mount(app, self.mounted_app, self.path, self.converters,
+    def perform(self, registry, obj):
+        register_mount(registry, self.mounted_app, self.path, self.converters,
                        self.required, self.get_converters, obj)
 
 
@@ -576,11 +576,11 @@ class TweenFactoryDirective(Directive):
             tween_factory_id += 1
         self.name = name
 
-    def identifier(self, app):
+    def identifier(self, registry):
         return self.name
 
-    def perform(self, app, obj):
-        app.register_tween_factory(obj, over=self.over, under=self.under)
+    def perform(self, registry, obj):
+        registry.register_tween_factory(obj, over=self.over, under=self.under)
 
 
 @directive('identity_policy')
@@ -659,9 +659,9 @@ class FunctionDirective(Directive):
         self.target = target
         self.sources = tuple(sources)
 
-    def identifier(self, app):
+    def identifier(self, registry):
         return (self.target, self.sources)
 
-    def perform(self, app, obj):
-        app.register(self.target, self.sources, obj)
+    def perform(self, registry, obj):
+        registry.register(self.target, self.sources, obj)
 
