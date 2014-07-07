@@ -4,6 +4,106 @@ CHANGES
 0.4 (unreleased)
 ================
 
+- **BREAKING CHANGE** Move to class-based application registries. This
+  breaks old code and it needs to be updated. The update is not
+  difficult and amounts to:
+
+  * subclass ``morepath.App`` instead of instantiating it to create a
+    new app. Use subclasses for extension too.
+
+  * To get a WSGI object you can plug into a WSGI server, you need to
+    instantiate the app class first.
+
+  Old way::
+
+     app = morepath.App()
+
+  So, the ``app`` object that you use directives on is an
+  instance. New way::
+
+    class app(morepath.App):
+        pass
+
+  So, now it's a class. The directives look the same as before, so this
+  hasn't changed::
+
+     @app.view(model=Foo)
+     def foo_default(self, request):
+        ...
+
+  To extend an application with another one, you used to have to pass
+  the ``extends`` arguments. Old way::
+
+    sub_app = morepath.App(extends=[core_app])
+
+  This has now turned into subclassing. New way::
+
+    class sub_app(core_app):
+        pass
+
+  There was also a ``variables`` argument to specify an application
+  that can be mounted. Old way::
+
+     app = morepath.App(variables=['foo'])
+
+  This is now a class attribute. New way::
+
+     class app(morepath.App):
+         variables = ['foo']
+
+  The ``name`` argument to help debugging is gone; we can look at the
+  class name now. The ``testing_config`` argument used internally in
+  the Morepath tests has also become a class attribute.
+
+  In the old system, the application object was both configuration
+  point and WSGI object. Old way::
+
+      app = morepath.App()
+
+      # configuration
+      @app.path(...)
+      ...
+
+      # wsgi
+      morepath.run(app)
+
+  In the Morepath 0.4 this has been split. As we've already seen, the
+  application *class* serves. To get a WSGI object, you need to first
+  *instantiate* it. New way::
+
+     class app(morepath.App):
+       pass
+
+     # configuration
+     @app.path(...)
+     ...
+
+     # wsgi
+     morepath.run(app())
+
+  To mount an application manually with variables, we used to need the
+  special ``mount()`` method. Old way::
+
+    mounted_wiki_app = wiki_app.mount(wiki_id=3)
+
+  In the new system, mounting is done during instantiation of the app::
+
+    mounted_wiki_app = wiki_app(wiki_id=3)
+
+  Class names in Python are usually spelled with an upper case. In the
+  Morepath docs the application object has been spelled with a lower
+  case. We've used lower-case class names for application objects even
+  in the updated docs for example code, but feel free to make them
+  upper-case in your own code if you wish.
+
+  Why this change? There are some major benefits to this change::
+
+  * both extending and mounting app now use natural Python mechanisms:
+    subclassing and instantation.
+
+  * it allows us to expose the facility to create new directives to
+    the API. You can create application-specific directives.
+
 - Add a 'scan_module()' method to the config object. This allows the
   non-recursive scanning of a single Python module (or the
   ``__init__.py`` of a package if the package is given).
