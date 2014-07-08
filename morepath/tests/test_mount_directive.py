@@ -416,48 +416,6 @@ def test_mount_child_link_unknown_app():
     assert response.body == b'link error'
 
 
-def test_mount_repr():
-    config = setup()
-
-    class app(morepath.App):
-        testing_config = config
-
-    class mounted(morepath.App):
-        variables = ['mount_id']
-        testing_config = config
-
-    @mounted.path(path='models/{id}')
-    class Model(object):
-        def __init__(self, id):
-            self.id = id
-
-    @app.path(path='')
-    class Root(object):
-        pass
-
-    @app.view(model=Root)
-    def app_root_default(self, request):
-        return repr(request.mounted.child(mounted, id='foo'))
-
-    @app.mount(path='{id}', app=mounted)
-    def get_context(id):
-        return {
-            'mount_id': id
-            }
-
-    config.commit()
-
-    c = Client(app())
-
-    response = c.get('/')
-    assert response.body[:178] == (
-        b"<morepath.Mount of <class "
-        b"'morepath.tests.test_mount_directive.mounted'> with "
-        b"variables: id='foo', "
-        b"parent=<morepath.Mount of "
-        b"<morepath.tests.test_mount_directive.app object at 0x")
-
-
 def test_request_view_in_mount():
     config = setup()
 
