@@ -13,6 +13,7 @@ import venusian
 from .reify import reify
 from .publish import publish
 from functools import update_wrapper
+from .compat import with_metaclass
 
 
 class Registry(Configurable, ClassRegistry, ConverterRegistry, TweenRegistry):
@@ -61,7 +62,7 @@ class AppMeta(type):
         return result
 
 
-class App(object):
+class App(with_metaclass(AppMeta)):
     """A Morepath-based application object.
 
     You subclass App to create a morepath application class. You can
@@ -81,8 +82,6 @@ class App(object):
     """
     testing_config = None
     variables = set()
-
-    __metaclass__ = AppMeta
 
     def __init__(self, **context):
         self.settings = self.registry.settings
