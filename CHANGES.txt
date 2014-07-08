@@ -12,7 +12,6 @@ CHANGES
 
 - Increase test coverage back to 100%.
 
-
 0.4 (2014-07-07)
 ================
 
