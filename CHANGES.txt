@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.4.1 (unreleased)
+0.4.1 (2014-07-08)
 ==================
 
 - Compatibility for Python 3. I introduced a meta class in Morepath
