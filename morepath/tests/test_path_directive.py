@@ -1237,6 +1237,7 @@ def test_extra_parameters_with_get_converters():
 
     c.get('/?a=broken&b=B', status=400)
 
+
 def test_script_name():
     config = setup()
 
