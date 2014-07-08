@@ -491,7 +491,7 @@ def test_request_linkmaker_child_child():
             }
 
     @mounted.mount(path='sub', app=submounted)
-    def get_context():
+    def get_context2():
         return {}
 
     @submounted.path(path='')
