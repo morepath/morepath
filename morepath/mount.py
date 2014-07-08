@@ -13,7 +13,7 @@ class Mount(object):
     def create_context(self):
         return mapply(self.context_factory, **self.variables)
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: nocoverage
         variable_info = ', '.join(["%s=%r" % t for t in
                                    sorted(self.variables.items())])
         result = '<morepath.Mount of %s' % repr(self.app)
