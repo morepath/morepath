@@ -86,11 +86,6 @@ def app_traject(app):
     return app.traject
 
 
-@App.function(generic.lookup, Mount)
-def mount_lookup(model):
-    return model.lookup
-
-
 @App.function(generic.traject, Mount)
 def mount_traject(model):
     return model.app.registry.traject

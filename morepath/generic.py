@@ -21,13 +21,6 @@ def context(model):
 
 
 @reg.generic
-def lookup(obj):
-    """Get the lookup that this object is associated with.
-    """
-    raise NotImplementedError    # pragma: nocoverage
-
-
-@reg.generic
 def path(model):
     """Get the path and parameters for a model in its own application.
     """
