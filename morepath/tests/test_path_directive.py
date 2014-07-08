@@ -677,7 +677,7 @@ def test_default_datetime_converter():
     response = c.get('/link')
     assert response.body == b'/?d=20110101T103000'
 
-    response = c.get('/?d=broken', status=400)
+    c.get('/?d=broken', status=400)
 
 
 def test_custom_date_converter():
@@ -1235,6 +1235,7 @@ def test_extra_parameters_with_get_converters():
     response = c.get('/link?a=1&b=B')
     assert sorted(response.body[2:].split(b"&")) == [b'a=1', b'b=B']
 
+    c.get('/?a=broken&b=B', status=400)
 
 def test_script_name():
     config = setup()

@@ -1,7 +1,7 @@
 from reg.mapping import Map, ClassMapKey
 try:
     from types import ClassType
-except ImportError:
+except ImportError:  # pragma: nocoverage
     # You're running Python 3!
     ClassType = None
 from morepath.error import DirectiveError
