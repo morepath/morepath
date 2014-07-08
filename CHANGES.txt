@@ -1,10 +1,16 @@
 CHANGES
 *******
 
-0.5 (unreleased)
-================
+0.4.1 (unreleased)
+==================
 
-- Nothing changed yet.
+- Compatibility for Python 3. I introduced a meta class in Morepath
+  0.4 and Python 3 did not like this. Now the tests pass again in
+  Python 3.
+
+- remove ``generic.lookup``, unused since Morepath 0.4.
+
+- Increase test coverage back to 100%.
 
 
 0.4 (2014-07-07)
