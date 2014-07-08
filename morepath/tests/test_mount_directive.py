@@ -458,6 +458,64 @@ def test_request_view_in_mount():
     assert response.body == b'Hey'
 
 
+def test_request_linkmaker_child_child():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        variables = ['mount_id']
+        testing_config = config
+
+    class submounted(morepath.App):
+        testing_config = config
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @app.view(model=Root)
+    def root_default(self, request):
+        return request.child(mounted, id='foo').child(submounted).view(
+            SubRoot())
+
+    @app.view(model=Root, name='info')
+    def root_info(self, request):
+        return 'info'
+
+    @app.mount(path='{id}', app=mounted)
+    def get_context(id):
+        return {
+            'mount_id': id
+            }
+
+    @mounted.mount(path='sub', app=submounted)
+    def get_context():
+        return {}
+
+    @submounted.path(path='')
+    class SubRoot(object):
+        pass
+
+    @submounted.view(model=SubRoot)
+    def subroot_default(self, request):
+        return "SubRoot"
+
+    @submounted.view(model=SubRoot, name='parentage')
+    def subroot_parentage(self, request):
+        return request.parent.parent.view(Root(), name='info')
+    config.commit()
+
+    c = Client(app())
+
+    response = c.get('/')
+    assert response.body == b'SubRoot'
+
+    response = c.get('/foo/sub/parentage')
+    assert response.body == b'info'
+
+
 def test_request_view_in_mount_broken():
     config = setup()
 
@@ -489,6 +547,21 @@ def test_request_view_in_mount_broken():
         except LinkError:
             return "link error"
 
+    @app.view(model=Root, name='doublechild')
+    def doublechild(self, request):
+        try:
+            return request.child(mounted, id='foo').child(
+                mounted, id='bar').link(Model('x'))
+        except LinkError:
+            return 'link error'
+
+    @app.view(model=Root, name='childparent')
+    def childparent(self, request):
+        try:
+            return request.child(mounted, id='foo').parent.link(Model('x'))
+        except LinkError:
+            return 'link error'
+
     # deliberately don't mount so using view is broken
 
     config.commit()
@@ -496,6 +569,12 @@ def test_request_view_in_mount_broken():
     c = Client(app())
 
     response = c.get('/')
+    assert response.body == b'link error'
+
+    response = c.get('/doublechild')
+    assert response.body == b'link error'
+
+    response = c.get('/childparent')
     assert response.body == b'link error'
 
 
