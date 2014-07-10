@@ -171,4 +171,52 @@ Note that just like the ``static_components`` directive, the
 ``include()`` method is not part of standard Morepath, but has been
 installed by the ``more.static.StaticApp`` base class as well.
 
+Local components
+================
 
+In many projects we want to develop our *own* client-side JS or CSS
+code, not just rely on other people's code. We can do this by using
+local components. First we need to wrap the existing ``components`` in
+an object that allows us to add local ones::
+
+  local = bower.local_components('local', components)
+
+We can now add our own local components. A local component is a directory
+that needs a ``bower.json`` in it. You can create a ``bower.json`` file
+most easily by going into the directory and using ``bower init`` command::
+
+  $ mkdir my_component
+  $ cd my_component
+  $ bower init
+
+You can edit the generated ``bower.json`` further, for instance to
+specify dependencies. You now have a bower component. You can add any
+static files you are developing into this directory.
+
+Now you need to tell the local components object about it::
+
+  local.component('/path/to/my_component', version=None)
+
+See the `BowerStatic local component documentation
+<http://bowerstatic.readthedocs.org/en/latest/local.html>`_ for more
+of what you can do with ``version`` -- it's clever about automatically
+busting the cache when you change things.
+
+You need to tell your application that instead of plain ``components``
+you want to use ``local`` instead, so we modify our
+``static_components`` directive::
+
+  @app.static_components()
+  def get_static_components():
+      return local
+
+When you now use ``request.include()``, you can include local
+components by their name (as in ``bower.json``) as well::
+
+  request.include('my_component')
+
+It automatically pulls in any dependencies declared in ``bower.json``
+too.
+
+As mentioned before, check the ``morepath_static`` `github repo`_ for
+the complete example.
