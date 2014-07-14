@@ -257,7 +257,7 @@ from the dictionary that we return from ``mount_wiki()``.
 What if we want to use ``wiki_app`` by itself, as a WSGI app? That can
 be useful, also for testing purposes. It needs this ``wiki_id``
 parameter now. We simply pass it the ``wiki_id`` parameter when we
-instantiate it::
+instantiate it:
 
 .. code-block:: python
 
