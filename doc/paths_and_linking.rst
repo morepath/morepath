@@ -77,8 +77,8 @@ We could expose this to the web like this::
 The rule is that all variables declared in the path can be used as
 arguments in the model function.
 
-URL parameters
---------------
+URL query parameters
+--------------------
 
 What if we want to use URL parameters to expose models? That is
 possible too. Let's look at the ``Document`` case first::
@@ -143,8 +143,8 @@ can be used as type hints however; we'll talk more about those soon.
 Like with path variables, you can have as many URL parameters as you
 want.
 
-Extra URL parameters
---------------------
+Extra URL query parameters
+--------------------------
 
 URL parameters are matched with function arguments, but it could be
 you're interested in an arbitrary amount of extra URL parameters. You
@@ -280,8 +280,8 @@ the object in some other way::
   def get_search_results(text, extra_parameters):
       ...
 
-Linking with URL parameters
----------------------------
+Linking with URL query parameters
+---------------------------------
 
 Linking works the same way for URL parameters as it works for path
 variables.
@@ -484,7 +484,7 @@ We can now go to URLs like this::
 
    /records?start=20110110&end=20110215
 
-The ``start`` and ``end`` URL parameters now be decoded into ``date``
+The ``start`` and ``end`` URL parameters now are decoded into ``date``
 objects, which get passed into ``get_records``. And when you generate
 a link to a ``Records`` object, the ``start`` and ``end`` dates are
 encoded into strings.
