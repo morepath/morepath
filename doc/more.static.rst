@@ -172,7 +172,7 @@ Note that just like the ``static_components`` directive, the
 installed by the ``more.static.StaticApp`` base class as well.
 
 Local components
-================
+----------------
 
 In many projects we want to develop our *own* client-side JS or CSS
 code, not just rely on other people's code. We can do this by using
