@@ -184,6 +184,7 @@ def test_basic_auth_identity_policy():
 
     @app.verify_identity()
     def verify_identity(identity):
+        assert identity is not NO_IDENTITY
         return True
 
     @app.view(model=HTTPForbidden)

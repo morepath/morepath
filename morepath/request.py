@@ -44,6 +44,8 @@ class Request(BaseRequest):
         from .security import NO_IDENTITY
         result = generic.identify(self, lookup=self.lookup,
                                   default=NO_IDENTITY)
+        if result is NO_IDENTITY:
+            return result
         if not generic.verify_identity(result, lookup=self.lookup):
             return NO_IDENTITY
         return result

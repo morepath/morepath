@@ -13,6 +13,8 @@ CREDITS
 
 * Auke Willem Oosterhoff (installation doc improvements)
 
+* Bernd Meyer (bug reports)
+
 * Contributions by Souheil Chelfouh, Alex Garel, Wolfgang Schnerring
 
 * Special thanks to CONTACT software.

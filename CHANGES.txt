@@ -11,6 +11,10 @@ CHANGES
 
 - Add a whole bunch of extra code quality tools to buildout.
 
+- ``verify_identity`` would be called even if no identity could be
+  established. Now skip calling ``verify_identity`` when we already
+  have ``NO_IDENTITY``. See issue #175.
+
 0.4.1 (2014-07-08)
 ==================
 
