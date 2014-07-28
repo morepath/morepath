@@ -156,7 +156,7 @@ can specify that you're interested in this by adding an
       return DocumentCollection(text, extra_parameters)
 
 Now any additional URL parameters are put into the
-``extra_parameters`` dictionary. So, ``search?text=blah&a=A&bB`` would
+``extra_parameters`` dictionary. So, ``search?text=blah&a=A&b=B`` would
 match ``text`` with the ``text`` parameter, and there would be an
 ``extra_parameters`` containing ``{'a': 'A', 'b': 'B'}``.
 
