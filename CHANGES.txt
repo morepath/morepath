@@ -9,6 +9,8 @@ CHANGES
 - Add links to youtube videos on Morepath: the keynote at PyCon DE
   2013, and the talk on Morepath at EuroPython 2014.
 
+- Add a whole bunch of extra code quality tools to buildout.
+
 0.4.1 (2014-07-08)
 ==================
 
