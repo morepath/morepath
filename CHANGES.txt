@@ -6,6 +6,9 @@ CHANGES
 
 - Add ``more.static`` documentation on local components.
 
+- Add links to youtube videos on Morepath: the keynote at PyCon DE
+  2013, and the talk on Morepath at EuroPython 2014.
+
 0.4.1 (2014-07-08)
 ==================
 

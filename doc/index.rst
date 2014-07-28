@@ -33,6 +33,13 @@ Sounds interesting?
 
 **Go on the Morepath!**
 
+Video intro
+-----------
+
+Here is a a 25 minute introduction to Morepath at EuroPython 2014:
+
+.. youtube:: https://www.youtube.com/watch?v=gyDKMAWPyuY
+
 Morepath Super Powers
 ---------------------
 

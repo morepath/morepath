@@ -117,3 +117,11 @@ rethink these various topics. This led me to combine these lines of
 development into Morepath: Reg registries, decorator-based
 configuration using Venusian, and traject-style publication of models
 and resources.
+
+Spinning a Web Framework
+------------------------
+
+In the fall of 2013 I gave a keynote speech at PyCon DE about the creative
+processes behind Morepath, called "Spinning a Web Framework":
+
+.. youtube:: https://www.youtube.com/watch?v=9A5T9C2OBB4
