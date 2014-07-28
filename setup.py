@@ -26,6 +26,7 @@ setup(name='morepath',
         'Programming Language :: Python :: 2.7',
         'Development Status :: 4 - Beta'
         ],
+      keywords="web wsgi routing morepath",
       install_requires=[
         'setuptools',
         'webob >= 1.3.1',
