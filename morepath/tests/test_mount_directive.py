@@ -734,3 +734,43 @@ def test_mount_view_in_child_view_then_parent_view():
 
     response = c.get('/')
     assert response.body == b'Hello Foo other'
+
+
+def test_mount_directive_with_link_and_absorb():
+    config = setup()
+
+    class app1(morepath.App):
+        testing_config = config
+
+    @app1.path(path="")
+    class Model1(object):
+        pass
+
+    class app2(morepath.App):
+        testing_config = config
+
+    class Model2(object):
+        def __init__(self, absorb):
+            self.absorb = absorb
+
+    @app2.path(model=Model2, path='', absorb=True)
+    def get_model(absorb):
+        return Model2(absorb)
+
+    @app2.view(model=Model2)
+    def default(self, request):
+        return "A:%s L:%s" % (self.absorb, request.link(self))
+
+    @app1.mount(path="foo", app=app2)
+    def get_mount():
+        return {}
+
+    config.commit()
+
+    c = Client(app1())
+
+    response = c.get('/foo')
+    assert response.body == b'A: L:/foo'
+
+    response = c.get('/foo/bla')
+    assert response.body == b'A:bla L:/foo/bla'

@@ -203,7 +203,12 @@ class Inverse(object):
                     name, IDENTITY_CONVERTER).encode(value)
         path = self.interpolation_path % variables
         if absorbed_path is not None:
-            path += '/' + absorbed_path
+            if path:
+                path += '/' + absorbed_path
+            else:
+                # when there is no path yet, we are absorbing from
+                # the root, and we don't want an additional /
+                path = absorbed_path
         return path, parameters
 
 

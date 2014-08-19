@@ -7,7 +7,7 @@ CREDITS
 
 * Michael Bernstein (feedback)
 
-* Ying Zhong (bug reports, feedback)
+* Ying Zhong (bug reports, test cases, feedback)
 
 * Reinout van Rees (misc documentation fixes)
 

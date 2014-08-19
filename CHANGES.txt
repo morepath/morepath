@@ -15,6 +15,10 @@ CHANGES
   established. Now skip calling ``verify_identity`` when we already
   have ``NO_IDENTITY``. See issue #175.
 
+- Fix issue #186: mounting an app that is absorbing paths could
+  sometimes generate the wrong link. Thanks to Ying Zhong for the bug
+  report and test case.
+
 0.4.1 (2014-07-08)
 ==================
 
