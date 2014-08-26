@@ -626,9 +626,14 @@ class FunctionDirective(Directive):
         functions of your own. This is a layer over
         :meth:`reg.IRegistry.register`.
 
+        The ``target`` argument is a generic function, so a Python
+        function marked with either :func:`reg.generic` or
+        with :func:`reg.classgeneric`.
+
         :param target: the generic function to register an implementation for.
         :type target: function object
         :param sources: classes of parameters to register for.
+
         '''
         super(FunctionDirective, self).__init__(app)
         self.target = target
