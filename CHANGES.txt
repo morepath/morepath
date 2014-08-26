@@ -19,6 +19,9 @@ CHANGES
   sometimes generate the wrong link. Thanks to Ying Zhong for the bug
   report and test case.
 
+- Upgraded to a newer version of Reg for ``@reg.classgeneric`` support
+  as well as performance improvements.
+
 0.4.1 (2014-07-08)
 ==================
 
