@@ -22,6 +22,11 @@ CHANGES
 - Upgraded to a newer version of Reg for ``@reg.classgeneric`` support
   as well as performance improvements.
 
+- Add a note in the documentation on how to deal with URL parameters
+  that are not Python names (such as ``foo@``, or ``blah[]``). You can
+  use a combination of ``extra_parameters`` and ``get_converters`` to
+  handle them.
+
 0.4.1 (2014-07-08)
 ==================
 

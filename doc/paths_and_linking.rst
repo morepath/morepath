@@ -160,6 +160,10 @@ Now any additional URL parameters are put into the
 match ``text`` with the ``text`` parameter, and there would be an
 ``extra_parameters`` containing ``{'a': 'A', 'b': 'B'}``.
 
+``extra_parameters`` can also be useful for the case where the name of
+the parameter is not a valid Python name (such as ``@foo``) -- you can
+still receive such parameters using ``extra_parameters``.
+
 Linking
 -------
 
@@ -601,7 +605,9 @@ is converted to an ``int``.
 
 You can combine ``converters`` and ``get_converters``. If you use
 both, ``get_converters`` will override any converters also defined in
-the static ``converters``.
+the static ``converters``. This can also be useful for dealing with
+URL parameters that are not valid Python names, such as ``@foo`` or
+``foo[]``; these can still be converted using ``get_converters``.
 
 Required
 --------
