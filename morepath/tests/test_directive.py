@@ -1116,3 +1116,58 @@ def test_abbr_imperative_exception_propagated():
                 return "Default view"
 
             1/0
+
+
+def test_function_directive():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    @reg.generic
+    def mygeneric(o):
+        return "The object: %s" % o
+
+    class Foo(object):
+        def __init__(self, value):
+            self.value = value
+
+        def __repr__(self):
+            return "<Foo with value: %s>" % self.value
+
+    @app.function(mygeneric, Foo)
+    def mygeneric_for_foo(o):
+        return "The foo object: %s" % o
+
+    config.commit()
+
+    a = app()
+
+    assert mygeneric('blah', lookup=a.lookup) == 'The object: blah'
+    assert mygeneric(Foo(1), lookup=a.lookup) == (
+        'The foo object: <Foo with value: 1>')
+
+
+def test_classgeneric_function_directive():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    @reg.classgeneric
+    def mygeneric(o):
+        return "The object"
+
+    class Foo(object):
+        pass
+
+    @app.function(mygeneric, Foo)
+    def mygeneric_for_foo(o):
+        return "The foo object"
+
+    config.commit()
+
+    a = app()
+
+    assert mygeneric(object, lookup=a.lookup) == 'The object'
+    assert mygeneric(Foo, lookup=a.lookup) == 'The foo object'
