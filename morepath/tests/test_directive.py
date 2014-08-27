@@ -1096,7 +1096,7 @@ def test_abbr_imperative():
     assert response.body == b'Edit view'
 
 
-def test_abbr_imperative_exception_propagated():
+def test_abbr_imperative():
     config = setup()
 
     class app(morepath.App):
@@ -1109,13 +1109,65 @@ def test_abbr_imperative_exception_propagated():
     def get_model():
         return Model()
 
-    with pytest.raises(ZeroDivisionError):
-        with app.view(model=Model) as view:
-            @view()
-            def default(self, request):
-                return "Default view"
+    with app.view(model=Model) as view:
+        @view()
+        def default(self, request):
+            return "Default view"
 
-            1/0
+        @view(name='edit')
+        def edit(self, request):
+            return "Edit view"
+
+    config.commit()
+
+    c = Client(app())
+
+    response = c.get('/')
+    assert response.body == b'Default view'
+
+    response = c.get('/edit')
+    assert response.body == b'Edit view'
+
+
+def test_abbr_nested():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class Model(object):
+        pass
+
+    @app.path(path='/', model=Model)
+    def get_model():
+        return Model()
+
+    with app.view(model=Model) as view:
+        @view()
+        def default(self, request):
+            return "Default"
+
+        with view(name='extra') as view:
+            @view()
+            def get(self, request):
+                return "Get"
+
+            @view(request_method='POST')
+            def post(self, request):
+                return "Post"
+
+    config.commit()
+
+    c = Client(app())
+
+    response = c.get('/')
+    assert response.body == b'Default'
+
+    response = c.get('/extra')
+    assert response.body == b'Get'
+
+    response = c.post('/extra')
+    assert response.body == b'Post'
 
 
 def test_function_directive():
