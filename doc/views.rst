@@ -299,6 +299,45 @@ each have a different request method::
   def document_edit_post(self, request):
       return "post edit view on model: %s" % self.id
 
+
+Grouping views
+--------------
+
+At some point you may have a lot of view decorators that share a lot
+of information; multiple views for the same model are the most common
+example.
+
+Instead of writing this::
+
+  @app.view(model=Document)
+  def document_default(self, request):
+      return "default"
+
+  @app.view(model=Document, name='edit')
+  def document_edit(self, request):
+      return "edit"
+
+You can use the ``with`` statement to write this instead::
+
+  with @app.view(model=Document) as view:
+     @app.view()
+     def document_default(self, request):
+         return "default"
+
+     @app.view(name="edit")
+     def document_edit(self, request):
+         return "edit"
+
+This is equivalent to the above, you just don't have to repeat
+``model=Document``. You can use this for any parameter for
+``@app.view``.
+
+This use of the ``with`` statement is in fact general; it can be used
+like this with any Morepath directive, and with any parameter for such
+a directive. The ``with`` statement may even be nested, though we
+recommend being careful with that, as it introduces a lot of
+indentation.
+
 Predicates
 ----------
 

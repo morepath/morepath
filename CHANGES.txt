@@ -27,6 +27,9 @@ CHANGES
   use a combination of ``extra_parameters`` and ``get_converters`` to
   handle them.
 
+- Document the use of the ``with`` statement for directive
+  abbreviation.
+
 0.4.1 (2014-07-08)
 ==================
 
