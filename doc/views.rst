@@ -320,11 +320,11 @@ Instead of writing this::
 You can use the ``with`` statement to write this instead::
 
   with @app.view(model=Document) as view:
-     @app.view()
+     @view()
      def document_default(self, request):
          return "default"
 
-     @app.view(name="edit")
+     @view(name="edit")
      def document_edit(self, request):
          return "edit"
 
