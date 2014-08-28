@@ -9,6 +9,7 @@ Table of Contents
 
    index
    quickstart
+   community
    installation
    superpowers
    paths_and_linking

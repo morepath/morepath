@@ -1,6 +1,12 @@
 Developing Morepath
 ===================
 
+Community
+---------
+
+Communication is important, so see :doc:`community` for information
+on how to get in touch!
+
 Install Morepath for development
 --------------------------------
 

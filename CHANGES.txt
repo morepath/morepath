@@ -28,7 +28,15 @@ CHANGES
   handle them.
 
 - Document the use of the ``with`` statement for directive
-  abbreviation.
+  abbreviation (see the Views document).
+
+- Created a mailing list:
+
+  https://groups.google.com/forum/#!forum/morepath
+
+  Please join!
+
+  Add a new page on community to document this.
 
 0.4.1 (2014-07-08)
 ==================

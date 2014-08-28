@@ -29,6 +29,8 @@ makes it **expressive**.
 * It has all the tools to develop REST web services in the box. See
   :doc:`rest`.
 
+* Documentation is important. Morepath has a lot of :doc:`toc`.
+
 Sounds interesting?
 
 **Go on the Morepath!**
