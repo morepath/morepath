@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.5.1 (unreleased)
+0.5.1 (2014-08-28)
 ==================
 
 - Drop usage of sphinxcontrib.youtube in favor of raw HTML embedding,
