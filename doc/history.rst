@@ -124,4 +124,8 @@ Spinning a Web Framework
 In the fall of 2013 I gave a keynote speech at PyCon DE about the creative
 processes behind Morepath, called "Spinning a Web Framework":
 
-.. youtube:: https://www.youtube.com/watch?v=9A5T9C2OBB4
+.. raw:: html
+
+  <iframe id="ytplayer" type="text/html" width="640" height="390"
+    src="http://www.youtube.com/embed/9A5T9C2OBB4?autoplay=0&origin=http://morepath.readthedocs.org"
+    frameborder="0"></iframe>

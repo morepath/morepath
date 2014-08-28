@@ -40,7 +40,11 @@ Video intro
 
 Here is a a 25 minute introduction to Morepath at EuroPython 2014:
 
-.. youtube:: https://www.youtube.com/watch?v=gyDKMAWPyuY
+.. raw:: html
+
+  <iframe id="ytplayer" type="text/html" width="640" height="390"
+    src="http://www.youtube.com/embed/gyDKMAWPyuY?autoplay=0&origin=http://morepath.readthedocs.org"
+    frameborder="0"></iframe>
 
 Morepath Super Powers
 ---------------------
