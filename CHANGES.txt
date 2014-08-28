@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.5 (unreleased)
+0.5 (2014-08-28)
 ================
 
 - Add ``more.static`` documentation on local components.
