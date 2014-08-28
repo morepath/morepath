@@ -19,8 +19,8 @@ CHANGES
   sometimes generate the wrong link. Thanks to Ying Zhong for the bug
   report and test case.
 
-- Upgraded to a newer version of Reg for ``@reg.classgeneric`` support
-  as well as performance improvements.
+- Upgraded to a newer version of Reg (0.8) for ``@reg.classgeneric``
+  support as well as performance improvements.
 
 - Add a note in the documentation on how to deal with URL parameters
   that are not Python names (such as ``foo@``, or ``blah[]``). You can
