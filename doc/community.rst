@@ -11,6 +11,19 @@ https://groups.google.com/forum/#!forum/morepath
 
 Feel free to speak up. Questions are very welcome!
 
+#morepath on Freenode IRC
+-------------------------
+
+Want to chat with us? Join us on the #morepath channel on `Freenode
+IRC`_.
+
+If you don't have an IRC client, an easy way to use Freenode is
+through its webchat_ feature.
+
+.. _`Freenode IRC`: https://freenode.net/
+
+.. _webchat: https://webchat.freenode.net/
+
 Github
 ------
 

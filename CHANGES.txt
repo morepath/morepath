@@ -4,8 +4,10 @@ CHANGES
 0.6 (unreleased)
 ================
 
-- Nothing changed yet.
+- Fix documentation on the ``with`` statement; it was not using the local
+  ``view`` variable correctly.
 
+- Add #morepath IRC channel to the community docs.
 
 0.5.1 (2014-08-28)
 ==================
