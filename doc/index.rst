@@ -33,8 +33,6 @@ makes it **expressive**.
 
 Sounds interesting?
 
-**Go on the Morepath!**
-
 Video intro
 -----------
 
