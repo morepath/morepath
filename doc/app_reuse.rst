@@ -268,6 +268,15 @@ This is a WSGI app that we can run by itself that uses ``wiki_id``.
 Linking to other mounted apps
 -----------------------------
 
+.. sidebar:: Using mount names
+
+  Instead of using the application class as the first argument to
+  :meth:`morepath.Request.child` and :meth:`morepath.Request.sibling`,
+  you can instead use the name under which it was mounted. The
+  ``name`` can be explicitly passed in the ``mount`` directive. If the
+  mount name is ommitted it defaults to what was given as the
+  ``path``.
+
 When we have one app mounted inside another, we want a way to make links
 between them.
 
@@ -294,12 +303,6 @@ example, as it mounted inside ``app`` using the ``username``. Here's
 how we supply it to get the appropriate ``wiki_app``::
 
   request.child(wiki_app, username='foo').link(obj)
-
-Instead of using the application class as the first argument to
-:meth:`morepath.Request.child`, you can instead use the name under
-which it was mounted. The ``name`` can be explicitly passed in the
-:mount`` directive. If the mount name is ommitted it defaults to what
-was given as the ``path``.
 
 You can compose ``parent`` and ``child`` together in order to get to
 anywhere in the mounted app graph; getting to a sibling app for
