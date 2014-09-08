@@ -312,6 +312,78 @@ def test_mount_child_link():
     assert response.body == b'/foo/models/one'
 
 
+def test_mount_sibling_link():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class first(morepath.App):
+        testing_config = config
+
+    class second(morepath.App):
+        testing_config = config
+
+    @first.path(path='models/{id}')
+    class FirstModel(object):
+        def __init__(self, id):
+            self.id = id
+
+    @first.view(model=FirstModel)
+    def first_model_default(self, request):
+        return request.sibling('second').link(SecondModel(2))
+
+    @second.path(path='foos/{id}')
+    class SecondModel(object):
+        def __init__(self, id):
+            self.id = id
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @app.mount(path='first', app=first)
+    def get_context_first():
+        return {}
+
+    @app.mount(path='second', app=second)
+    def get_context_second():
+        return {}
+
+    config.commit()
+
+    c = Client(app())
+
+    response = c.get('/first/models/1')
+    assert response.body == b'/second/foos/2'
+
+
+def test_mount_sibling_link_at_root_app():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    class Item(object):
+        def __init__(self, id):
+            self.id = id
+
+    @app.view(model=Root)
+    def root_default(self, request):
+        return request.sibling('foo').link(Item(3))
+
+    config.commit()
+
+    c = Client(app())
+
+    with pytest.raises(LinkError):
+        response = c.get('/')
+
+
 def test_mount_child_link_unknown_child():
     config = setup()
 

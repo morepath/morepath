@@ -29,6 +29,9 @@ CHANGES
 
   (see issue #197)
 
+- Introduce a ``sibling`` method on Request. This combines the
+  ``.parent.child`` step in one for convenience when you want to
+  link to a sibling app.
 
 0.5.1 (2014-08-28)
 ==================

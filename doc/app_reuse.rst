@@ -279,6 +279,8 @@ app's parent app::
 If there is no parent application, this raises a
 :exc:`morepath.error.LinkError`.
 
+Besides using ``.link`` you can also use ``.view`` this way.
+
 You can use :meth:`morepath.Request.child` to link to an object in a
 mounted child application::
 
@@ -293,13 +295,21 @@ how we supply it to get the appropriate ``wiki_app``::
 
   request.child(wiki_app, username='foo').link(obj)
 
+Instead of using the application class as the first argument to
+:meth:`morepath.Request.child`, you can instead use the name under
+which it was mounted. The ``name`` can be explicitly passed in the
+:mount`` directive. If the mount name is ommitted it defaults to what
+was given as the ``path``.
+
 You can compose ``parent`` and ``child`` together in order to get to
 anywhere in the mounted app graph; getting to a sibling app for
 instance looks like this::
 
   app.parent.child(sibling_app)
 
-Besides using ``.link`` you can also use ``.view`` this way.
+There is a convenience shortcut for this, :meth:`morepath.Request.sibling`::
+
+  app.sibling(sibling_app)
 
 Application Reuse
 -----------------

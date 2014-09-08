@@ -110,7 +110,28 @@ class Request(BaseRequest):
         return generic.linkmaker(self, self.mounted.child(app, **variables),
                                  lookup=self.lookup)
 
+    def sibling(self, app, **variables):
+        """Obj to call :meth:`Request.link` or :meth:`Request.view` on sibling.
+
+        Get an object that represents the application mounted as a
+        sibling to this app, so the child of the parent. You can call
+        ``link`` and ``view`` on it.
+
+        :param app: either subclass of :class:`morepath.App` that you
+          want to link to, or a string. This string represents the
+          name of the mount (by default it's the path under which the mount
+          happened).
+        :param **variables: Keyword parameters. These are the mount variables
+          under which the app was mounted.
+        """
+        if self.mounted.parent is None:
+            return NothingMountedLinkMaker(self)
+        return generic.linkmaker(self, self.mounted.parent.child(app,
+                                                                 **variables),
+                                 lookup=self.lookup)
+
     def after(self, func):
+
         """Call function with response after this request is done.
 
         Can be used explicitly::
