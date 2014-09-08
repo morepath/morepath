@@ -1,3 +1,4 @@
+from morepath import compat
 from .path import register_path, get_arguments, SPECIAL_ARGUMENTS
 from .reify import reify
 from reg import mapply
@@ -41,7 +42,7 @@ class Mount(object):
         return self.variables.get('parent')
 
     def child(self, app, **context):
-        if isinstance(app, basestring):
+        if isinstance(app, compat.string_types):
             factory = self.app.registry.named_mounted.get(app)
         else:
             factory = self.app.registry.mounted.get(app)
