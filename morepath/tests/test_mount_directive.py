@@ -774,3 +774,185 @@ def test_mount_directive_with_link_and_absorb():
 
     response = c.get('/foo/bla')
     assert response.body == b'A:bla L:/foo/bla'
+
+
+def test_mount_named_child_link_explicit_name():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        testing_config = config
+
+    @mounted.path(path='models/{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @app.view(model=Root)
+    def app_root_default(self, request):
+        return request.child(mounted).link(Model('one'))
+
+    @app.view(model=Root, name='extra')
+    def app_root_default2(self, request):
+        return request.child('sub').link(Model('one'))
+
+    @app.mount(path='subapp', app=mounted, name='sub')
+    def get_context():
+        return {}
+
+    config.commit()
+
+    c = Client(app())
+
+    response = c.get('/')
+    assert response.body == b'/subapp/models/one'
+
+    response = c.get('/extra')
+    assert response.body == b'/subapp/models/one'
+
+
+def test_mount_named_child_link_name_defaults_to_path():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        testing_config = config
+
+    @mounted.path(path='models/{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @app.view(model=Root)
+    def app_root_default(self, request):
+        return request.child(mounted).link(Model('one'))
+
+    @app.view(model=Root, name='extra')
+    def app_root_default2(self, request):
+        return request.child('subapp').link(Model('one'))
+
+    @app.mount(path='subapp', app=mounted)
+    def get_context():
+        return {}
+
+    config.commit()
+
+    c = Client(app())
+
+    response = c.get('/')
+    assert response.body == b'/subapp/models/one'
+
+    response = c.get('/extra')
+    assert response.body == b'/subapp/models/one'
+
+
+def test_named_mount_with_parameters():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        variables = ['mount_id']
+        testing_config = config
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @mounted.path(path='')
+    class MountedRoot(object):
+        def __init__(self, mount_id):
+            assert isinstance(mount_id, int)
+            self.mount_id = mount_id
+
+    @mounted.view(model=MountedRoot)
+    def root_default(self, request):
+        return "The root for mount id: %s" % self.mount_id
+
+    @app.mount(path='mounts/{mount_id}', app=mounted)
+    def get_context(mount_id=0):
+        return {
+            'mount_id': mount_id
+            }
+
+    class Item(object):
+        def __init__(self, id):
+            self.id = id
+
+    @mounted.path(path='items/{id}', model=Item)
+    def get_item(id):
+        return Item(id)
+
+    @app.view(model=Root, path='/')
+    def root_default(self, request):
+        return request.child('mounts/{mount_id}', mount_id=3).link(Item(4))
+
+    config.commit()
+
+    c = Client(app())
+
+    response = c.get('/')
+    assert response.body == b'/mounts/3/items/4'
+
+
+def test_named_mount_with_url_parameters():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        variables = ['mount_id']
+        testing_config = config
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @mounted.path(path='')
+    class MountedRoot(object):
+        def __init__(self, mount_id):
+            assert isinstance(mount_id, int)
+            self.mount_id = mount_id
+
+    @mounted.view(model=MountedRoot)
+    def root_default(self, request):
+        return "The root for mount id: %s" % self.mount_id
+
+    @app.mount(path='mounts', app=mounted)
+    def get_context(mount_id=0):
+        return {
+            'mount_id': mount_id
+            }
+
+    class Item(object):
+        def __init__(self, id):
+            self.id = id
+
+    @mounted.path(path='items/{id}', model=Item)
+    def get_item(id):
+        return Item(id)
+
+    @app.view(model=Root, path='/')
+    def root_default(self, request):
+        return request.child('mounts', mount_id=3).link(Item(4))
+
+    config.commit()
+
+    c = Client(app())
+
+    response = c.get('/')
+    assert response.body == b'/mounts/items/4?mount_id=3'

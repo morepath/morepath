@@ -42,6 +42,7 @@ class Registry(Configurable, ClassRegistry, ConverterRegistry, TweenRegistry):
         TweenRegistry.clear(self)
         self.traject = Traject()
         self.mounted = {}
+        self.named_mounted = {}
 
     @reify
     def lookup(self):

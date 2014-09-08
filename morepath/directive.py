@@ -466,7 +466,7 @@ class MountDirective(PathDirective):
     depends = [SettingDirective, ConverterDirective]
 
     def __init__(self, base_app, path, app, converters=None,
-                 required=None, get_converters=None):
+                 required=None, get_converters=None, name=None):
         """Mount sub application on path.
 
         The decorated function gets the variables specified in path as
@@ -486,11 +486,16 @@ class MountDirective(PathDirective):
           This function is called once during configuration time. It can
           be used to programmatically supply converters. It is merged
           with the ``converters`` dictionary, if supplied. Optional.
+        :param name: name of the mount. This name can be used with
+          :meth:`Request.child` to allow loose coupling between mounting
+          application and mounted application. Optional, and if not supplied
+          the ``path`` argument is taken as the name.
         """
         super(MountDirective, self).__init__(base_app, path,
                                              converters=converters,
                                              required=required,
                                              get_converters=get_converters)
+        self.name = name or path
         self.mounted_app = app
 
     def group_key(self):
@@ -507,7 +512,7 @@ class MountDirective(PathDirective):
 
     def perform(self, registry, obj):
         register_mount(registry, self.mounted_app, self.path, self.converters,
-                       self.required, self.get_converters, obj)
+                       self.required, self.get_converters, self.name, obj)
 
 
 tween_factory_id = 0

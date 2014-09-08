@@ -99,6 +99,13 @@ class Request(BaseRequest):
 
         Get an object that represents the application mounted in this app.
         You can call ``link`` and ``view`` on it.
+
+        :param app: either subclass of :class:`morepath.App` that you
+          want to link to, or a string. This string represents the
+          name of the mount (by default it's the path under which the mount
+          happened).
+        :param **variables: Keyword parameters. These are the mount variables
+          under which the app was mounted.
         """
         return generic.linkmaker(self, self.mounted.child(app, **variables),
                                  lookup=self.lookup)

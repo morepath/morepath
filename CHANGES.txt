@@ -9,6 +9,27 @@ CHANGES
 
 - Add #morepath IRC channel to the community docs.
 
+- Named mounts. Instead of referring to the app class when
+  constructing a link to an object in an application mounted
+  elsewhere, you can put in the name of the mount. The name of the
+  mount can be given explicitly in the mount directive but defaults to
+  the mount path.
+
+  This helps when an application is mounted several times and needs to
+  generate different links depending on where it's mounted; by
+  referring to the application by name this is loosely coupled and
+  will work no matter what application is mounted under that name.
+
+  This also helps when linking to an application that may or may not
+  be present; instead of doing an import while looking for
+  ``ImportError``, you can try to construct the link and you'll get a
+  ``LinkError`` exception if the application is not there. Though this
+  still assumes you can import the model class of what you're linking
+  to.
+
+  (see issue #197)
+
+
 0.5.1 (2014-08-28)
 ==================
 
