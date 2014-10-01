@@ -4,7 +4,7 @@ CHANGES
 0.7 (unreleased)
 ================
 
-- Nothing changed yet.
+- Minor improvement in docstrings.
 
 
 0.6 (2014-09-08)

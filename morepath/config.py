@@ -425,7 +425,7 @@ class Config(object):
         This is normally not invoked directly, instead is called
         indirectly by :meth:`scan`.
 
-        A :class:`App` object is a configurable.
+        A :class:`App` object's registry attribute is a configurable.
 
         :param: The :class:`morepath.config.Configurable` to register.
         """
