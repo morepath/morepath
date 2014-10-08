@@ -27,6 +27,12 @@ class Request(BaseRequest):
         self._after = []
 
     @reify
+    def obj(self):
+        if self.content_type != 'application/json':
+            return None
+        return generic.load_json(self, self.json, lookup=self.lookup)
+
+    @reify
     def identity(self):
         """Self-proclaimed identity of the user.
 
@@ -104,8 +110,8 @@ class Request(BaseRequest):
           want to link to, or a string. This string represents the
           name of the mount (by default it's the path under which the mount
           happened).
-        :param **variables: Keyword parameters. These are the mount variables
-          under which the app was mounted.
+        :param ``**variables``: Keyword parameters. These are the
+          mount variables under which the app was mounted.
         """
         return generic.linkmaker(self, self.mounted.child(app, **variables),
                                  lookup=self.lookup)
@@ -121,8 +127,8 @@ class Request(BaseRequest):
           want to link to, or a string. This string represents the
           name of the mount (by default it's the path under which the mount
           happened).
-        :param **variables: Keyword parameters. These are the mount variables
-          under which the app was mounted.
+        :param ``**variables``: Keyword parameters. These are the
+          mount variables under which the app was mounted.
         """
         if self.mounted.parent is None:
             return NothingMountedLinkMaker(self)

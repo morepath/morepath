@@ -115,7 +115,7 @@ def get_response(request, model, predicates=None):
     # XXX consider always setting a default render so that view.render
     # can never be None
     if view.render is not None:
-        response = view.render(content)
+        response = view.render(content, request)
     else:
         response = Response(content, content_type='text/plain')
     request.run_after(response)

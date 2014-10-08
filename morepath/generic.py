@@ -120,3 +120,24 @@ def linkmaker(request, mounted):
     """Returns a link maker for request and mounted.
     """
     raise NotImplementedError  # pragma: nocoverage
+
+
+@reg.generic
+def load_json(request, json):
+    """Load JSON as some object.
+
+    Can return any Python object.
+    """
+    return json
+
+
+@reg.generic
+def dump_json(request, obj):
+    """Dump an object as JSON.
+
+    ``obj`` is any Python object, try to interpret it as JSON.
+
+    The return value is JSON-serialized.
+    """
+    return obj
+

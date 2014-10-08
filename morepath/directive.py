@@ -309,8 +309,10 @@ class ViewDirective(Directive):
         If a specific ``render`` function is given the output of the
         function is passed to this first, and the function could
         return whatever the ``render`` parameter expects as input.
-        :func:`morepath.render_json` for instance expects a Python
-        object such as a dict that can be serialized to JSON.
+        This function should take the object to render and the
+        request.  func:`morepath.render_json` for instance expects as
+        its first argument a Python object such as a dict that can be
+        serialized to JSON.
 
         See also :meth:`morepath.App.json` and
         :meth:`morepath.App.html`.
@@ -320,7 +322,8 @@ class ViewDirective(Directive):
           of the model (or of a subclass).
         :param render: an optional function that can render the output of the
           view function to a response, and possibly set headers such as
-          ``Content-Type``, etc.
+          ``Content-Type``, etc. This function takes ``self`` and
+          ``request` parameters as input.
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
@@ -390,9 +393,11 @@ class JsonDirective(ViewDirective):
         :param model: the class of the model for which this view is registered.
         :param name: the name of the view as it appears in the URL. If omitted,
           it is the empty string, meaning the default view for the model.
-        :param render: an optional function that can render the output of the
-          view function to a response, and possibly set headers such as
-          ``Content-Type``, etc. Renders as JSON by default.
+        :param render: an optional function that can render the output
+          of the view function to a response, and possibly set headers
+          such as ``Content-Type``, etc. Renders as JSON by
+          default. This function takes ``self`` and
+          ``request` parameters as input.
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
@@ -433,9 +438,11 @@ class HtmlDirective(ViewDirective):
         :param model: the class of the model for which this view is registered.
         :param name: the name of the view as it appears in the URL. If omitted,
           it is the empty string, meaning the default view for the model.
-        :param render: an optional function that can render the output of the
-          view function to a response, and possibly set headers such as
-          ``Content-Type``, etc. Renders as HTML by default.
+        :param render: an optional function that can render the output
+          of the view function to a response, and possibly set headers
+          such as ``Content-Type``, etc. Renders as HTML by
+          default. This function takes ``self`` and
+          ``request` parameters as input.
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
@@ -649,3 +656,54 @@ class FunctionDirective(Directive):
 
     def perform(self, registry, obj):
         registry.register(self.target, self.sources, obj)
+
+
+
+@App.directive('dump_json')
+class DumpJsonDirective(Directive):
+    def __init__(self, app, model=object):
+        '''Register a function that converts model to JSON.
+
+        The decorated function gets ``self`` (model instance) and
+        ``request`` (:class:`morepath.Request`) parameters. The
+        function should return an JSON object. That is, a Python
+        object that can be dumped to a JSON string using
+        ``json.dump``.
+
+        :param model: the class of the model for which this function is
+          registered. The ``self`` passed into the function is an instance
+          of the model (or of a subclass). By default the model is ``object``,
+          meaning we register a function for all model classes.
+        '''
+        super(DumpJsonDirective, self).__init__(app)
+        self.model = model
+
+    def identifier(self, registry):
+        return self.model
+
+    def perform(self, registry, obj):
+        # reverse parameters
+        def dump(request, self):
+            return obj(self, request)
+        registry.register(generic.dump_json, (Request, self.model), dump)
+
+
+@App.directive('load_json')
+class LoadJsonDirective(Directive):
+    def __init__(self, app):
+        '''Register a function that converts JSON to an object.
+
+        The decorated function gets ``json`` and ``request``
+        (:class:`morepath.Request`) parameters. The function should
+        return a Python object based on the given JSON.
+        '''
+        super(LoadJsonDirective, self).__init__(app)
+
+    def identifier(self, registry):
+        return ()
+
+    def perform(self, registry, obj):
+        # reverse parameters
+        def load(request, json):
+            return obj(json, request)
+        registry.register(generic.load_json, (Request, object), load)

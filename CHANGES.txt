@@ -4,8 +4,19 @@ CHANGES
 0.7 (unreleased)
 ================
 
-- Minor improvement in docstrings.
+- ``dump_json`` and ``load_json`` directives. This lets you
+  automatically convert an object going to a response to JSON, and
+  converts JSON coming in as a request body from JSON to an
+  object. See http://morepath.readthedocs.org/en/latest/json.html for
+  more information.
 
+- **Breaking change**. Change the arguments to the ``render`` function
+  you can give a view directive. The render function now takes a
+  second argumen, the request. This only affects code that supplies an
+  explicit ``render`` function to the ``view``, ``json`` and ``html``
+  directives.
+
+- Minor improvement in docstrings.
 
 0.6 (2014-09-08)
 ================

@@ -14,6 +14,7 @@ Table of Contents
    superpowers
    paths_and_linking
    views
+   json
    security
    rest
    settings
