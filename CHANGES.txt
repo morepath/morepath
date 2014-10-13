@@ -10,11 +10,13 @@ CHANGES
   object. See http://morepath.readthedocs.org/en/latest/json.html for
   more information.
 
-- **Breaking change**. Change the arguments to the ``render`` function
-  you can give a view directive. The render function now takes a
-  second argumen, the request. This only affects code that supplies an
-  explicit ``render`` function to the ``view``, ``json`` and ``html``
-  directives.
+- **Breaking change**. The arguments to the ``render`` function have
+  changed. This is a function you can pass to a view directive.  The
+  render function now takes a second argument, the request. You need
+  to update your render functions to take this into account. This only
+  affects code that supplies an explicit ``render`` function to the
+  ``view``, ``json`` and ``html`` directives, and since not a lot of
+  those functions exist, the impact is expected to be minimal.
 
 - Minor improvement in docstrings.
 
