@@ -10,6 +10,12 @@ CHANGES
   object. See http://morepath.readthedocs.org/en/latest/json.html for
   more information.
 
+- Introduce the ``body_model`` predicate for views. You can give it
+  the class of the ``request.body_obj`` you want to handle with this
+  view. In combination with the ``load_json`` directive this allows
+  you to write views that respond only to the POSTing or PUTing of a
+  certain type of object.
+
 - **Breaking change**. The arguments to the ``render`` function have
   changed. This is a function you can pass to a view directive.  The
   render function now takes a second argument, the request. You need
