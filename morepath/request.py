@@ -27,7 +27,9 @@ class Request(BaseRequest):
         self._after = []
 
     @reify
-    def obj(self):
+    def body_obj(self):
+        if not self.body:
+            return None
         if self.content_type != 'application/json':
             return None
         return generic.load_json(self, self.json, lookup=self.lookup)

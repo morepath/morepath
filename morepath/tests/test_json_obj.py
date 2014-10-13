@@ -57,7 +57,7 @@ def test_json_obj_load():
 
     @app.json(model=Collection, request_method='POST')
     def default(self, request):
-        self.add(request.obj)
+        self.add(request.body_obj)
         return 'done'
 
     class Item(object):
