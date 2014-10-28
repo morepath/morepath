@@ -1,4 +1,5 @@
-from reg.mapping import Map, ClassMapKey
+from reg import PredicateRegistry, match_class
+
 try:
     from types import ClassType
 except ImportError:  # pragma: nocoverage
@@ -94,10 +95,10 @@ class ConverterRegistry(object):
     Is aware of inheritance.
     """
     def __init__(self):
-        self._map = Map()
+        self.clear()
 
     def clear(self):
-        self._map = Map()
+        self._registry = PredicateRegistry(match_class(lambda cls: cls))
 
     def register_converter(self, type, converter):
         """Register a converter for type.
@@ -106,7 +107,7 @@ class ConverterRegistry(object):
           the converter.
         :param converter: a :class:`morepath.Converter` instance.
         """
-        self._map[ClassMapKey(type)] = converter
+        self._registry.register(type, converter)
 
     def converter_for_type(self, type):
         """Get converter for type.
@@ -117,7 +118,7 @@ class ConverterRegistry(object):
         :param type: The type for which to look up the converter.
         :returns: a :class:`morepath.Converter` instance.
         """
-        result = self._map.get(ClassMapKey(type))
+        result = self._registry.component(type)
         if result is None:
             raise DirectiveError(
                 "Cannot find converter for type: %r" % type)

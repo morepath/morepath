@@ -1,6 +1,6 @@
 from morepath import generic
 from .request import Request, Response
-from reg import PredicateMatcher, Predicate, ANY
+#from reg import PredicateMatcher, Predicate, ANY
 import json
 from webob.exc import HTTPFound
 
@@ -18,6 +18,13 @@ class View(object):
         # but lets view authors write 'self, request'.
         return self.func(model, request)
 
+
+def register_view(registry, model, view, render=None, permission=None,
+                  internal=False, predicates=None):
+    # XXX this should be done elsewhere, before
+    registry.register_dispatch(generic.view, get_view_predicates())
+    v = View(view, render, permission, internal)
+    registry.register_dispatch_value(generic.view, get_predicate_key(), v)
 
 # XXX what happens if predicates is None for one registration
 # but filled for another?

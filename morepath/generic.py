@@ -1,7 +1,7 @@
 import reg
 
 
-@reg.generic
+@reg.dispatch('model')
 def consume(request, model):
     """Consume request.unconsumed to new model, starting with model.
 
@@ -12,26 +12,27 @@ def consume(request, model):
     return None
 
 
-@reg.generic
+@reg.dispatch('model')
 def path(model):
     """Get the path and parameters for a model in its own application.
     """
     return None
 
 
-@reg.generic
+@reg.dispatch('model')
 def link(request, model, mounted):
     """Create a link (URL) to a model, including any mounted applications.
     """
     raise NotImplementedError  # pragma: nocoverage
 
 
-@reg.generic
+
+@reg.dispatch('model')
 def deferred_link_app(mounted, model):
     return None
 
 
-@reg.generic
+@reg.dispatch('model')
 def view(request, model):
     """Get the view that represents the model in the context of a request.
 
@@ -43,14 +44,14 @@ def view(request, model):
     raise NotImplementedError  # pragma: nocoverage
 
 
-@reg.generic
+@reg.dispatch('model')
 def response(request, model):
     """Get a Response for the model in the context of the request.
     """
     raise NotImplementedError  # pragma: nocoverage
 
 
-@reg.generic
+@reg.dispatch()
 def settings():
     """Return current settings object.
 
@@ -64,7 +65,7 @@ def settings():
     raise NotImplementedError  # pragma: nocoverage
 
 
-@reg.generic
+@reg.dispatch()
 def identify(request):
     """Returns an Identity or None if no identity can be found.
 
@@ -74,28 +75,28 @@ def identify(request):
     raise NotImplementedError  # pragma: nocoverage
 
 
-@reg.generic
+@reg.dispatch()
 def verify_identity(identity):
     """Returns True if the claimed identity can be verified.
     """
     return False
 
 
-@reg.generic
+@reg.dispatch()
 def remember_identity(response, request, identity):
     """Modify response so that identity is remembered by client.
     """
     raise NotImplementedError  # pragma: nocoverage
 
 
-@reg.generic
+@reg.dispatch()
 def forget_identity(response, request):
     """Modify response so that identity is forgotten by client.
     """
     raise NotImplementedError  # pragma: nocoverage
 
 
-@reg.generic
+@reg.dispatch('identity', 'model', 'permission')
 def permits(identity, model, permission):
     """Returns True if identity has permission for model.
 
@@ -105,14 +106,14 @@ def permits(identity, model, permission):
     raise NotImplementedError  # pragma: nocoverage
 
 
-@reg.generic
+@reg.dispatch()
 def linkmaker(request, mounted):
     """Returns a link maker for request and mounted.
     """
     raise NotImplementedError  # pragma: nocoverage
 
 
-@reg.generic
+@reg.dispatch()
 def load_json(request, json):
     """Load JSON as some object.
 
@@ -121,7 +122,7 @@ def load_json(request, json):
     return json
 
 
-@reg.generic
+@reg.dispatch('obj')
 def dump_json(request, obj):
     """Dump an object as JSON.
 

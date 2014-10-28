@@ -6,16 +6,16 @@ from .config import Action
 class FunctionAction(Action):
     # XXX depends = [SettingDirective]
 
-    def __init__(self, configurable, target, *sources):
+    def __init__(self, configurable, func, *predicate_key):
         super(FunctionAction, self).__init__(configurable)
-        self.target = target
-        self.sources = tuple(sources)
+        self.func = func
+        self.predicate_key = predicate_key
 
     # def group_key(self):
     #     return FunctionDirective
 
     def identifier(self, app):
-        return (self.target, self.sources)
+        return (self.func, self.predicate_key)
 
     def perform(self, app, obj):
-        app.register(self.target, self.sources, obj)
+        app.register_dispatch_value(self.func, self.predicate_key, obj)

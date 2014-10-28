@@ -9,7 +9,7 @@ from .security import (register_permission_checker,
                        Identity, NoIdentity)
 from .path import register_path
 from .traject import Path
-from reg import KeyIndex
+from reg import KeyIndex, dispatch
 from .request import Request, Response
 from morepath import generic
 
@@ -82,6 +82,145 @@ class SettingSectionDirective(Directive):
         for name, value in section.items():
             yield (app.setting(section=self.section, name=name),
                    SettingValue(value))
+
+
+@App.directive('dispatch')
+class DispatchDirective(Directive):
+    def __init__(self, app, *predicates):
+        super(DispatchDirective, self).__init__(app)
+        self.predicates = predicates
+
+    def identifier(self, registry):
+        # as many duplicates we want XXX is this right?
+        return id(self)
+
+    def perform(self, registry, obj):
+        registry.register_callable_predicates(obj, self.predicates)
+
+    def __call__(self, wrapped):
+        super(DispatchDirective, self).__call__(wrapped)
+        return dispatch(self.predicates)(wrapped)
+
+
+@App.directive('predicate')
+class PredicateDirective(Directive):
+    depends = [SettingDirective]
+
+    def __init__(self, app, dispatch, index, default, before=None, after=None):
+        """Register custom predicate for a predicate_dispatch function.
+
+        The function registered should have arguments that are the
+        same or a subset of the arguments of the predicate_dispatch
+        function. From these arguments it should determine a predicate
+        value and return it. The predicates for a predicate_dispatch
+        function are ordered by their before and after arguments.
+
+        You can then register a function to dispatch to using the
+        :meth:`App.function` directive. This takes the
+        predicate_dispatch or dispatch function as its first argument
+        and the predicate key to match on as its other arguments.
+
+        :param dispatch: the predicate_dispatch function this predicate
+           is for.
+        :param index: the index to use. Typically morepath.KeyIndex or
+          morepath.ClassIndex.
+        :param default: the default value for this predicate. This is
+          used as a default value if the argument is ommitted.
+        :param before: predicate function this function wants to have
+           priority over.
+        :param after: predicate function we want to have priority over
+           this one.
+        """
+        super(PredicateDirective, self).__init__(app)
+        self.dispatch = dispatch
+        self.index = index
+        self.default = default
+        self.before = before
+        self.after = after
+
+    def identifier(self, registry):
+        return self.dispatch.wrapped_func, self.before, self.after
+
+    def perform(self, registry, obj):
+        registry.register_predicate(obj, self.dispatch.wrapped_func,
+                                    self.index, self.default, self.before,
+                                    self.after)
+
+
+@App.directive('predicate_fallback')
+class PredicateFallbackDirective(Directive):
+    depends = [SettingDirective, PredicateDirective]
+
+    def __init__(self, app, dispatch, func):
+        """For a given dispatch and function dispatched to, register fallback.
+
+        The fallback is called with the same arguments as the dispatch
+        function. It should return a response (or raise an exception
+        that can be turned into a response).
+
+        :param dispatch: the dispatch function
+        :param func: the registered function we are the fallback for
+        """
+        super(PredicateFallbackDirective, self).__init__(app)
+        self.dispatch = dispatch
+        self.func = func
+
+    def identifier(self, registry):
+        return self.dispatch.wrapped_func, self.func
+
+    def perform(self, registry, obj):
+        register_predicate_fallback(registry, self.dispatch.wrapped_func, obj)
+
+
+@App.directive('predicate_dispatch')
+class PredicateDispatchDirective(Directive):
+    depends = [PredicateDirective, PredicateFallbackDirective]
+
+    def identifier(self, registry):
+        # as many duplicates we want XXX is this right?
+        return id(self)
+
+    def perform(self, registry, obj):
+        registry.register_callable_predicates(obj,
+                                              registry.get_predicates(obj))
+
+    def __call__(self, wrapped):
+        super(PredicateDispatchDirective, self).__call__(wrapped)
+        return dispatch()(wrapped)
+
+
+@App.directive('function')
+class FunctionDirective(Directive):
+    depends = [SettingDirective,
+               DispatchDirective, PredicateDispatchDirective]
+
+    def __init__(self, app, func, *predicate_key):
+        '''Register function as implementation of generic dispatch function
+
+        The decorated function is an implementation of the generic
+        function supplied to the decorator. This way you can override
+        parts of the Morepath framework, or create new hookable
+        functions of your own.
+
+        The ``func`` argument is a generic dispatch function, so a
+        Python function marked with :func:`app.dispatch` or
+        :func:`app.predicate_dispatch`.
+
+        :param func: the generic function to register an implementation for.
+        :type func: dispatch function object
+        :param sources: predicate key to register for.
+
+        '''
+        super(FunctionDirective, self).__init__(app)
+        self.func = func
+        self.predicate_key = tuple(predicate_key)
+
+    def identifier(self, registry):
+        return (self.func.wrapped_func, self.predicate_key)
+
+    def perform(self, registry, obj):
+        registry.register_dispatch_value(
+            self.func, self.predicate_key, obj)
 
 
 @App.directive('converter')
@@ -221,73 +360,6 @@ class PermissionRuleDirective(Directive):
     def perform(self, registry, obj):
         register_permission_checker(
             registry, self.identity, self.model, self.permission, obj)
-
-
-@App.directive('predicate')
-class PredicateDirective(Directive):
-    depends = [SettingDirective]
-
-    def __init__(self, app, name, order, default, index=KeyIndex):
-        """Register custom view predicate.
-
-        The decorated function gets ``model`` and ``request`` (a
-        :class:`morepath.Request` object) parameters.
-
-        From this information it should calculate a predicate value
-        and return it. You can then pass these extra predicate
-        arguments to :meth:`morepath.App.view` and this view is
-        only found if the predicate matches.
-
-        :param name: the name of the view predicate.
-        :param order: when this custom view predicate should be checked
-          compared to the others. A lower order means a higher importance.
-        :type order: int
-        :param default: the default value for this view predicate.
-          This is used when the predicate is omitted or ``None`` when
-          supplied to the :meth:`morepath.App.view` directive.
-          This is also used when using :meth:`Request.view` to render
-          a view.
-        :param index: the predicate index to use. Default is
-          :class:`reg.KeyIndex` which matches by name.
-
-        """
-        super(PredicateDirective, self).__init__(app)
-        self.name = name
-        self.order = order
-        self.default = default
-        self.index = index
-
-    def identifier(self, registry):
-        return self.name
-
-    def perform(self, registry, obj):
-        register_predicate(registry, self.name, self.order, self.default,
-                           self.index, obj)
-
-
-@App.directive('predicate_fallback')
-class PredicateFallbackDirective(Directive):
-    depends = [SettingDirective, PredicateDirective]
-
-    def __init__(self, app, name):
-        """For a given predicate name, register fallback view.
-
-        The decorated function gets ``self`` and ``request`` parameters.
-
-        The fallback view is a view that gets called when the
-        named predicate does not match and no view has been registered
-        that can handle that case.
-
-        :param name: the name of the predicate.
-        """
-        super(PredicateFallbackDirective, self).__init__(app)
-        self.name = name
-
-    def identifier(self, registry):
-        return self.name
-
-    def perform(self, registry, obj):
-        register_predicate_fallback(registry, self.name, obj)
 
 
 @App.directive('view')
@@ -669,39 +741,6 @@ class VerifyIdentityDirective(Directive):
             generic.verify_identity, self.identity), obj
 
 
-@App.directive('function')
-class FunctionDirective(Directive):
-    depends = [SettingDirective]
-
-    def __init__(self, app, target, *sources):
-        '''Register function as implementation of generic function
-
-        The decorated function is an implementation of the generic
-        function supplied to the decorator. This way you can override
-        parts of the Morepath framework, or create new hookable
-        functions of your own. This is a layer over
-        :meth:`reg.IRegistry.register`.
-
-        The ``target`` argument is a generic function, so a Python
-        function marked with either :func:`reg.generic` or
-        with :func:`reg.classgeneric`.
-
-        :param target: the generic function to register an implementation for.
-        :type target: function object
-        :param sources: classes of parameters to register for.
-
-        '''
-        super(FunctionDirective, self).__init__(app)
-        self.target = target
-        self.sources = tuple(sources)
-
-    def identifier(self, registry):
-        return (self.target, self.sources)
-
-    def perform(self, registry, obj):
-        registry.register(self.target, self.sources, obj)
-
-
 @App.directive('dump_json')
 class DumpJsonDirective(Directive):
     def __init__(self, app, model=object):
@@ -728,7 +767,8 @@ class DumpJsonDirective(Directive):
         # reverse parameters
         def dump(request, self):
             return obj(self, request)
-        registry.register(generic.dump_json, (Request, self.model), dump)
+        registry.register_dispatch_value(generic.dump_json,
+                                         (self.model,), dump)
 
 
 @App.directive('load_json')
@@ -749,4 +789,4 @@ class LoadJsonDirective(Directive):
         # reverse parameters
         def load(request, json):
             return obj(json, request)
-        registry.register(generic.load_json, (Request, object), load)
+        registry.register_dispatch_value(generic.load_json, (), load)
