@@ -1,5 +1,6 @@
 from morepath.app import App
 from morepath import setup, Config
+import reg
 from reg import match_argname, ClassIndex, KeyIndex
 import morepath
 
@@ -23,7 +24,7 @@ def test_dispatch():
     class Other(object):
         pass
 
-    @app.dispatch(match_argname('obj'))
+    @reg.dispatch(match_argname('obj'))
     def f(obj):
         return "fallback"
 
