@@ -5,10 +5,11 @@ from .traject import Traject
 from .config import Configurable
 from .settings import SettingSectionContainer
 from .converter import ConverterRegistry
+from .predicate import PredicateRegistry
 from .error import MountError
 from .tween import TweenRegistry
 from morepath import generic
-from reg import ClassRegistry, Lookup, CachingClassLookup
+from reg import Registry as RegRegistry, CachingKeyLookup, Lookup
 import venusian
 from .reify import reify
 from .publish import publish
@@ -16,13 +17,19 @@ from functools import update_wrapper
 from .compat import with_metaclass
 
 
-class Registry(Configurable, ClassRegistry, ConverterRegistry, TweenRegistry):
+COMPONENT_CACHE_SIZE = 5000
+ALL_CACHE_SIZE = 5000
+
+
+class Registry(Configurable, RegRegistry, PredicateRegistry,
+               ConverterRegistry, TweenRegistry):
     """A registry holding an application's configuration.
     """
     def __init__(self, name, bases, testing_config, variables):
         self.name = name
         bases = [base.registry for base in bases if hasattr(base, 'registry')]
-        ClassRegistry.__init__(self)
+        RegRegistry.__init__(self)
+        PredicateRegistry.__init__(self)
         Configurable.__init__(self, bases, testing_config)
         ConverterRegistry.__init__(self)
         TweenRegistry.__init__(self)
@@ -31,12 +38,16 @@ class Registry(Configurable, ClassRegistry, ConverterRegistry, TweenRegistry):
         self.clear()
 
     def actions(self):
-        yield FunctionAction(self, generic.settings), lambda: self.settings
+        return []
+        # XXX ugh having to do register_dispatch here..
+        #self.register_dispatch(generic.settings)
+        #yield FunctionAction(self, generic.settings), lambda: self.settings
 
     def clear(self):
         """Clear all registrations in this application.
         """
-        ClassRegistry.clear(self)
+        RegRegistry.clear(self)
+        PredicateRegistry.clear(self)
         Configurable.clear(self)
         ConverterRegistry.clear(self)
         TweenRegistry.clear(self)
@@ -46,7 +57,10 @@ class Registry(Configurable, ClassRegistry, ConverterRegistry, TweenRegistry):
 
     @reify
     def lookup(self):
-        return Lookup(CachingClassLookup(self))
+        return CachingKeyLookup(
+            self,
+            COMPONENT_CACHE_SIZE,
+            ALL_CACHE_SIZE).lookup()
 
 
 def callback(scanner, name, obj):

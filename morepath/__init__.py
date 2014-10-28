@@ -14,7 +14,7 @@ from morepath.security import Identity, NO_IDENTITY
 from .converter import Converter
 from .reify import reify
 from .run import run
-from reg import ANY, implicit
+from reg import implicit
 from pdb import Pdb
 pdb = Pdb(skip=['reg.*', 'inspect'])
 implicit.initialize(None)

@@ -127,21 +127,21 @@ def has_permission(identity, model, permission):
     return False
 
 
-@App.predicate(name='name', index=KeyIndex, order=0,
-               default='')
-def name_predicate(self, request):
-    return request.view_name
+# @App.predicate(name='name', index=KeyIndex, order=0,
+#                default='')
+# def name_predicate(self, request):
+#     return request.view_name
 
 
-@App.predicate(name='request_method', index=KeyIndex, order=1,
-               default='GET')
-def request_method_predicate(self, request):
-    return request.method
+# @App.predicate(name='request_method', index=KeyIndex, order=1,
+#                default='GET')
+# def request_method_predicate(self, request):
+#     return request.method
 
 
-@App.predicate_fallback(name='request_method')
-def method_not_allowed(self, request):
-    raise HTTPMethodNotAllowed()
+# @App.predicate_fallback(name='request_method')
+# def method_not_allowed(self, request):
+#     raise HTTPMethodNotAllowed()
 
 
 @App.converter(type=int)
