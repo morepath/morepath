@@ -84,24 +84,6 @@ class SettingSectionDirective(Directive):
                    SettingValue(value))
 
 
-@App.directive('dispatch')
-class DispatchDirective(Directive):
-    def __init__(self, app, *predicates):
-        super(DispatchDirective, self).__init__(app)
-        self.predicates = predicates
-
-    def identifier(self, registry):
-        # as many duplicates we want XXX is this right?
-        return id(self)
-
-    def perform(self, registry, obj):
-        registry.register_callable_predicates(obj, self.predicates)
-
-    def __call__(self, wrapped):
-        super(DispatchDirective, self).__call__(wrapped)
-        return dispatch(self.predicates)(wrapped)
-
-
 @App.directive('predicate')
 class PredicateDirective(Directive):
     depends = [SettingDirective]
@@ -181,18 +163,20 @@ class PredicateDispatchDirective(Directive):
         return id(self)
 
     def perform(self, registry, obj):
-        registry.register_callable_predicates(obj,
-                                              registry.get_predicates(obj))
+        registry.register_callable_predicates(
+            obj.wrapped_func,
+            registry.get_predicates(obj.wrapped_func))
+        obj.initialized = True
 
     def __call__(self, wrapped):
-        super(PredicateDispatchDirective, self).__call__(wrapped)
-        return dispatch()(wrapped)
+        result = dispatch()(wrapped)
+        super(PredicateDispatchDirective, self).__call__(result)
+        return result
 
 
 @App.directive('function')
 class FunctionDirective(Directive):
-    depends = [SettingDirective,
-               DispatchDirective, PredicateDispatchDirective]
+    depends = [SettingDirective, PredicateDispatchDirective]
 
     def __init__(self, app, func, *predicate_key):
         '''Register function as implementation of generic dispatch function
@@ -219,8 +203,7 @@ class FunctionDirective(Directive):
         return (self.func.wrapped_func, self.predicate_key)
 
     def perform(self, registry, obj):
-        registry.register_dispatch_value(
-            self.func, self.predicate_key, obj)
+        registry.register_function(self.func, self.predicate_key, obj)
 
 
 @App.directive('converter')
@@ -767,8 +750,8 @@ class DumpJsonDirective(Directive):
         # reverse parameters
         def dump(request, self):
             return obj(self, request)
-        registry.register_dispatch_value(generic.dump_json,
-                                         (self.model,), dump)
+        registry.register_function(generic.dump_json,
+                                   (self.model,), dump)
 
 
 @App.directive('load_json')
@@ -789,4 +772,4 @@ class LoadJsonDirective(Directive):
         # reverse parameters
         def load(request, json):
             return obj(json, request)
-        registry.register_dispatch_value(generic.load_json, (), load)
+        registry.register_function(generic.load_json, (), load)
