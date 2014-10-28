@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from reg import Lookup, ClassRegistry
+from reg import Lookup, Registry
 import morepath
 from morepath import generic
 from morepath.traject import VIEW_PREFIX
@@ -45,7 +45,7 @@ def get_request(path, lookup):
 
 
 def get_registry():
-    return ClassRegistry()
+    return Registry()
 
 
 def get_lookup(registry):
@@ -117,8 +117,8 @@ def test_resolve_traverse():
 
     lookup = get_lookup(reg)
 
-    reg.register(generic.consume, [Request, Container],
-                 Traverser(traverse_container))
+    reg.register_function(generic.consume, [Container],
+                          Traverser(traverse_container))
 
     base = get_structure()
     request = get_request(path='/a', lookup=lookup)
