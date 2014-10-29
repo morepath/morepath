@@ -33,25 +33,25 @@ def setup():
 
 
 @App.function(generic.consume, Request, Mount)
-def traject_consume(request, model, lookup):
-    traject = model.app.registry.traject
+def traject_consume(request, mount, lookup):
+    traject = mount.app.registry.traject
     if traject is None:
         return None
     value, stack, traject_variables = traject.consume(request.unconsumed)
     if value is None:
         return None
-    get_model, get_parameters = value
+    get_obj, get_parameters = value
     variables = get_parameters(request.GET)
-    context = model.context
+    context = mount.context
     variables.update(context)
-    variables['parent'] = model
+    variables['parent'] = mount
     variables['request'] = request
     variables.update(traject_variables)
-    next_model = mapply(get_model, **variables)
-    if next_model is None:
+    next_obj = mapply(get_obj, **variables)
+    if next_obj is None:
         return None
     request.unconsumed = stack
-    return next_model
+    return next_obj
 
 
 @App.function(generic.link, Request, object, object)
