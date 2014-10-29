@@ -91,7 +91,7 @@ class App(with_metaclass(AppMeta)):
             if name not in context:
                 raise MountError(
                     "Cannot mount app without context variable: %s" % name)
-        self.mounted = Mount(self, lambda: context, {})
+        self.mounted = Mount(self, context, None, {})
 
     @reify
     def lookup(self):

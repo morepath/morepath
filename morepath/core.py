@@ -93,7 +93,7 @@ def mount_traject(model):
 
 @App.function(generic.context, Mount)
 def mount_context(mount):
-    return mount.create_context()
+    return mount.context
 
 
 @App.function(generic.response, Request, object)
