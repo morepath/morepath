@@ -17,7 +17,7 @@ def test_app_caching_lookup():
     class MockApp(morepath.App):
         pass
 
-    MockApp.registry = MockRegistry('MockApp', [morepath.App], None, [])
+    MockApp.registry = MockRegistry('MockApp', [morepath.App], None)
 
     myapp = MockApp()
     lookup = myapp.lookup

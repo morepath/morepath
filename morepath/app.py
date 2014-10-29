@@ -4,7 +4,6 @@ from .traject import Traject
 from .config import Configurable
 from .settings import SettingSectionContainer
 from .converter import ConverterRegistry
-from .error import MountError
 from .tween import TweenRegistry
 from . import compat
 from morepath import generic
@@ -19,7 +18,7 @@ from .implicit import set_implicit
 class Registry(Configurable, ClassRegistry, ConverterRegistry, TweenRegistry):
     """A registry holding an application's configuration.
     """
-    def __init__(self, name, bases, testing_config, variables):
+    def __init__(self, name, bases, testing_config):
         self.name = name
         bases = [base.registry for base in bases if hasattr(base, 'registry')]
         ClassRegistry.__init__(self)
@@ -27,7 +26,6 @@ class Registry(Configurable, ClassRegistry, ConverterRegistry, TweenRegistry):
         ConverterRegistry.__init__(self)
         TweenRegistry.__init__(self)
         self.settings = SettingSectionContainer()
-        self.variables = variables
         self.clear()
 
     def actions(self):
@@ -56,8 +54,7 @@ def callback(scanner, name, obj):
 class AppMeta(type):
     def __new__(cls, name, bases, d):
         testing_config = d.get('testing_config')
-        d['registry'] = Registry(name, bases, testing_config,
-                                 d.get('variables', []))
+        d['registry'] = Registry(name, bases, testing_config)
         result = super(AppMeta, cls).__new__(cls, name, bases, d)
         venusian.attach(result, callback)
         return result
@@ -82,16 +79,10 @@ class App(with_metaclass(AppMeta)):
     arguments.
     """
     testing_config = None
-    variables = set()
+    parent = None
 
-    def __init__(self, parent=None, **context):
-        self.settings = self.registry.settings
-        for name in self.variables:
-            if name not in context:
-                raise MountError(
-                    "Cannot mount app without context variable: %s" % name)
-        self.context = context
-        self.parent = parent
+    def __init__(self):
+        pass
 
     @reify
     def lookup(self):
@@ -115,7 +106,7 @@ class App(with_metaclass(AppMeta)):
         :returns: :class:`morepath.Request` instance
         """
         request = Request(environ)
-        request.mounted = self
+        request.app = self
         request.lookup = self.lookup
         return request
 
@@ -133,9 +124,10 @@ class App(with_metaclass(AppMeta)):
             factory = self.registry.mounted.get(app)
         if factory is None:
             return None
-        return factory(parent=self, **context)
+        result = factory(**context)
+        result.parent = self
+        return result
 
-    # XXX can do this in init now
     @reify
     def publish(self):
         # XXX import cycles...

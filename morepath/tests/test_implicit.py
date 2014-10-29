@@ -58,11 +58,13 @@ def test_implicit_function_mounted():
 
     class beta(morepath.App):
         testing_config = config
-        variables = ['id']
+
+        def __init__(self, id):
+            self.id = id
 
     @alpha.mount(path='mounted/{id}', app=beta)
     def mount_beta(id):
-        return {'id': id}
+        return beta(id=id)
 
     class AlphaRoot(object):
         pass
@@ -76,8 +78,8 @@ def test_implicit_function_mounted():
         return AlphaRoot()
 
     @beta.path(path='/', model=Root)
-    def get_root(id):
-        return Root(id)
+    def get_root(app):
+        return Root(app.id)
 
     @reg.generic
     def one():

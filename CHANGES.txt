@@ -7,12 +7,79 @@ CHANGES
 - **Breaking change**. The mount directive's behavior and behavior in
   the ``.child`` method has changed. The relevant changes are:
 
-  * the ``mount`` directive now takes a ``variables`` argument. This
+  * You can define your own custom ``__init__`` for ``morepath.App``
+    subclasses. Here you can specify the arguments with which your
+    application object should be mounted; this replaces the
+    ``variables`` class attribute (which is now ignored).
+
+    It's not necessary to use ``super()`` when you subclass from
+    ``morepath.App`` directly.
+
+    So, instead of this::
+
+       class MyApp(morepath.App):
+           variables = ['mount_id']
+
+    You should now write this::
+
+       class MyApp(morepath.App):
+           def __init__(self, mount_id):
+               self.mount_id = mount_id
+
+  * The ``mount`` directive should return an instance of the
+    application being mounted. The application is specified using the
+    ``app`` argument to the directive. So instead of this::
+
+      @RootApp.mount(app=MyApp, path='sub/{id}')
+      def mount_sub(id):
+          return {
+             'mount_id': id
+          }
+
+    You should now use this::
+
+      @RootApp.mount(app=MyApp, path='sub/{id}')
+      def mount_sub(id):
+          return MyApp(mount_id=id)
+
+  * The ``mount`` directive now takes a ``variables`` argument. This
     works like the ``variables`` argument to the ``path``
-    directive. It is given an instance of the App being mounted, and
-    it should reconstruct those variables needed in its path. If
-    omitted, Morepath tries to get the variables from the App
+    directive and is used to construct links.
+
+    It is given an instance of the app being mounted, and it should
+    reconstruct those variables needed in its path. If omitted,
+    Morepath tries to get them as attributes from the application
+    instance, just like it tries to get attributes of any model
     instance.
+
+    So to make linking to ``MyApp`` work, you should write write this::
+
+      @RootApp.mount(app=MyApp, path='sub/{id}',
+                     variables=lambda app: dict(id=app.mount_id))
+      def mount_sub(id):
+          return MyApp(mount_id=id)
+
+    Simplest way to avoid this is to name the attributes the same way
+    as the variables in the paths, just like for model classes.
+
+  * In the past if the app was mounted you'd get the mount context
+    variables as extra variables in function decorated by the ``path``
+    decorator. This does not happen anymore. Instead you can add a
+    special ``app`` parameter to the function decorated by ``path`` and
+    from it access attributes of app (under which it was mounted).
+
+    So instead of this::
+
+       @MyApp.path(path='models/{id}', model=Model)
+       def get_root(mount_id, id):
+           return Model(mount_id, id)
+
+    where ``mount_id`` is magically retrieved from the way ``MyApp`` was
+    mounted, you now write this::
+
+       @MyApp.path(path='models/{id}', model=Model)
+       def get_root(app, id):
+           return Model(app.mount_id, id)
 
   * the ``.child`` method on request used to take the variables as
     seen in the URL. This has changed: it now requires the arguments
@@ -20,11 +87,17 @@ CHANGES
     to be returned in a dictionary from the function decorated by the
     ``mount`` directive.
 
+  * There was an ``request.mounted`` attribute. This attribute is now
+    gone. Instead you can access the mounted application using
+    ``request.app``.
+
   Underneath, Morepath used to have a ``Mount`` class separate from
   the ``App`` classes you define. Since Morepath 0.4 application
   objects became classes, and it made sense to make their instances
   the same as the mounted application. This unification has now taken
-  place. This simplifies the implementation of mounting considerably.
+  place. This simplifies the implementation of mounting
+  considerably. This simplification helped create the new
+  ``defer_links`` directive.
 
 - **Breaking change**. The arguments to the ``render`` function have
   changed. This is a function you can pass to a view directive.  The
@@ -33,6 +106,11 @@ CHANGES
   affects code that supplies an explicit ``render`` function to the
   ``view``, ``json`` and ``html`` directives, and since not a lot of
   those functions exist, the impact is expected to be minimal.
+
+- **Breaking change**. In certain circumstances it was useful to
+  access the settings through an application instance using
+  ``app.settings``. This does not work anymore; access the settings
+  through ``app.registry.settings`` instead.
 
 - ``dump_json`` and ``load_json`` directives. This lets you
   automatically convert an object going to a response to JSON, and

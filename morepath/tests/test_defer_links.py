@@ -29,7 +29,7 @@ def test_defer_links():
 
     @root.mount(app=sub, path='sub')
     def mount_sub():
-        return {}
+        return sub()
 
     @root.defer_links(model=SubModel, app=sub)
     def defer_links_sub_model(obj):
@@ -50,9 +50,10 @@ def test_defer_links_mount_parameters():
         testing_config = config
 
     class sub(morepath.App):
-        variables = ['name']
-
         testing_config = config
+
+        def __init__(self, name):
+            self.name = name
 
     @root.path(path='')
     class RootModel(object):
@@ -67,13 +68,13 @@ def test_defer_links_mount_parameters():
             self.name = name
 
     @sub.path(path='', model=SubModel)
-    def get_sub_model(name):
-        return SubModel(name)
+    def get_sub_model(request):
+        return SubModel(request.app.name)
 
     @root.mount(app=sub, path='{mount_name}',
-                variables=lambda a: {'mount_name': a.context['name']})
+                variables=lambda a: {'mount_name': a.name})
     def mount_sub(mount_name):
-        return {'name': mount_name}
+        return sub(name=mount_name)
 
     @root.defer_links(model=SubModel, app=sub)
     def defer_links_sub_model(obj):

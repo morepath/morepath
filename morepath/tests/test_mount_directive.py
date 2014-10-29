@@ -27,13 +27,13 @@ def test_model_mount_conflict():
 
     @app.mount(app=app2, path='a')
     def get_mount():
-        return {}
+        return app2()
 
     with pytest.raises(ConflictError):
         config.commit()
 
 
-def test_mount():
+def test_mount_basic():
     config = setup()
 
     class app(morepath.App):
@@ -42,9 +42,12 @@ def test_mount():
     class mounted(morepath.App):
         testing_config = config
 
+        def __init__(self, id):
+            self.id = id
+
     @mounted.path(path='')
     class MountedRoot(object):
-        variables = ['id']
+        pass
 
     @mounted.view(model=MountedRoot)
     def root_default(self, request):
@@ -55,8 +58,8 @@ def test_mount():
         return request.link(self)
 
     @app.mount(path='{id}', app=mounted)
-    def get_context(id):
-        return {'id': id}
+    def get_mounted(id):
+        return mounted(id=id)
 
     config.commit()
 
@@ -69,7 +72,7 @@ def test_mount():
     assert response.body == b'/foo'
 
 
-def test_mount_empty_context_should_fail():
+def test_mount_none_should_fail():
     config = setup()
 
     class app(morepath.App):
@@ -91,7 +94,7 @@ def test_mount_empty_context_should_fail():
         return request.link(self)
 
     @app.mount(path='{id}', app=mounted)
-    def get_context():
+    def mount_mounted():
         return None
 
     config.commit()
@@ -109,13 +112,15 @@ def test_mount_context():
         testing_config = config
 
     class mounted(morepath.App):
-        variables = ['mount_id']
         testing_config = config
+
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
 
     @mounted.path(path='')
     class MountedRoot(object):
-        def __init__(self, mount_id):
-            self.mount_id = mount_id
+        def __init__(self, app):
+            self.mount_id = app.mount_id
 
     @mounted.view(model=MountedRoot)
     def root_default(self, request):
@@ -123,9 +128,7 @@ def test_mount_context():
 
     @app.mount(path='{id}', app=mounted)
     def get_context(id):
-        return {
-            'mount_id': id
-        }
+        return mounted(mount_id=id)
 
     config.commit()
 
@@ -144,14 +147,16 @@ def test_mount_context_parameters():
         testing_config = config
 
     class mounted(morepath.App):
-        variables = ['mount_id']
         testing_config = config
+
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
 
     @mounted.path(path='')
     class MountedRoot(object):
-        def __init__(self, mount_id):
-            assert isinstance(mount_id, int)
-            self.mount_id = mount_id
+        def __init__(self, app):
+            assert isinstance(app.mount_id, int)
+            self.mount_id = app.mount_id
 
     @mounted.view(model=MountedRoot)
     def root_default(self, request):
@@ -159,9 +164,7 @@ def test_mount_context_parameters():
 
     @app.mount(path='mounts', app=mounted)
     def get_context(mount_id=0):
-        return {
-            'mount_id': mount_id
-        }
+        return mounted(mount_id=mount_id)
 
     config.commit()
 
@@ -180,51 +183,51 @@ def test_mount_context_parameters_override_default():
         testing_config = config
 
     class mounted(morepath.App):
-        variables = ['mount_id']
         testing_config = config
+
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
 
     @mounted.path(path='')
     class MountedRoot(object):
-        # use a default parameter, which is ignored as the
-        # mount parameter is used instead
-        def __init__(self, mount_id='default'):
+        def __init__(self, app, mount_id):
             self.mount_id = mount_id
+            self.app_mount_id = app.mount_id
 
     @mounted.view(model=MountedRoot)
     def root_default(self, request):
-        return "The root for mount id: %s" % self.mount_id
+        return "mount_id: %s app_mount_id: %s" % (
+            self.mount_id, self.app_mount_id)
 
-    # the context creates an empty context.
-    # this means the parameters are instead constructed from the
-    # arguments of the MountedRoot constructor, and these
-    # default to 'default', not a URL parameter
     @app.mount(path='{id}', app=mounted)
     def get_context(id):
-        return {'mount_id': id}
+        return mounted(mount_id=id)
 
     config.commit()
 
     c = Client(app())
 
     response = c.get('/foo')
-    assert response.body == b'The root for mount id: foo'
+    assert response.body == b'mount_id: None app_mount_id: foo'
     # the URL parameter mount_id cannot interfere with the mounting
     # process
     response = c.get('/bar?mount_id=blah')
-    assert response.body == b'The root for mount id: bar'
+    assert response.body == b'mount_id: blah app_mount_id: bar'
 
 
 def test_mount_context_standalone():
     config = setup()
 
     class app(morepath.App):
-        variables = ['mount_id']
         testing_config = config
+
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
 
     @app.path(path='')
     class Root(object):
-        def __init__(self, mount_id):
-            self.mount_id = mount_id
+        def __init__(self, app):
+            self.mount_id = app.mount_id
 
     @app.view(model=Root)
     def root_default(self, request):
@@ -250,8 +253,10 @@ def test_mount_parent_link():
             self.id = id
 
     class mounted(morepath.App):
-        variables = ['mount_id']
         testing_config = config
+
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
 
     @mounted.path(path='')
     class MountedRoot(object):
@@ -264,9 +269,7 @@ def test_mount_parent_link():
 
     @app.mount(path='{id}', app=mounted)
     def get_context(id):
-        return {
-            'mount_id': id
-        }
+        return mounted(mount_id=id)
 
     config.commit()
 
@@ -283,8 +286,10 @@ def test_mount_child_link():
         testing_config = config
 
     class mounted(morepath.App):
-        variables = ['mount_id']
         testing_config = config
+
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
 
     @mounted.path(path='models/{id}')
     class Model(object):
@@ -300,11 +305,9 @@ def test_mount_child_link():
         return request.child(mounted, mount_id='foo').link(Model('one'))
 
     @app.mount(path='{id}', app=mounted,
-               variables=lambda a: {'id': a.context['mount_id']})
+               variables=lambda a: {'id': a.mount_id})
     def get_context(id):
-        return {
-            'mount_id': id
-        }
+        return mounted(mount_id=id)
 
     config.commit()
 
@@ -346,11 +349,11 @@ def test_mount_sibling_link():
 
     @app.mount(path='first', app=first)
     def get_context_first():
-        return {}
+        return first()
 
     @app.mount(path='second', app=second)
     def get_context_second():
-        return {}
+        return second()
 
     config.commit()
 
@@ -393,8 +396,10 @@ def test_mount_child_link_unknown_child():
         testing_config = config
 
     class mounted(morepath.App):
-        variables = ['mount_id']
         testing_config = config
+
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
 
     @mounted.path(path='models/{id}')
     class Model(object):
@@ -456,8 +461,10 @@ def test_mount_child_link_unknown_app():
         testing_config = config
 
     class mounted(morepath.App):
-        variables = ['mount_id']
         testing_config = config
+
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
 
     @mounted.path(path='models/{id}')
     class Model(object):
@@ -492,8 +499,10 @@ def test_request_view_in_mount():
         testing_config = config
 
     class mounted(morepath.App):
-        variables = ['mount_id']
         testing_config = config
+
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
 
     @app.path(path='')
     class Root(object):
@@ -514,11 +523,9 @@ def test_request_view_in_mount():
             Model('x'))['hey']
 
     @app.mount(path='{id}', app=mounted,
-               variables=lambda a: dict(id=a.context['mount_id']))
+               variables=lambda a: dict(id=a.mount_id))
     def get_context(id):
-        return {
-            'mount_id': id
-        }
+        return mounted(mount_id=id)
 
     config.commit()
 
@@ -535,8 +542,10 @@ def test_request_linkmaker_child_child():
         testing_config = config
 
     class mounted(morepath.App):
-        variables = ['mount_id']
         testing_config = config
+
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
 
     class submounted(morepath.App):
         testing_config = config
@@ -555,15 +564,13 @@ def test_request_linkmaker_child_child():
         return 'info'
 
     @app.mount(path='{id}', app=mounted,
-               variables=lambda a: dict(mount_id=a.context['mount_id']))
+               variables=lambda a: dict(mount_id=a.mount_id))
     def get_context(id):
-        return {
-            'mount_id': id
-        }
+        return mounted(mount_id=id)
 
     @mounted.mount(path='sub', app=submounted)
     def get_context2():
-        return {}
+        return submounted()
 
     @submounted.path(path='')
     class SubRoot(object):
@@ -594,8 +601,10 @@ def test_request_view_in_mount_broken():
         testing_config = config
 
     class mounted(morepath.App):
-        variables = ['mount_id']
         testing_config = config
+
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
 
     @app.path(path='')
     class Root(object):
@@ -649,7 +658,7 @@ def test_request_view_in_mount_broken():
     assert response.body == b'link error'
 
 
-def test_mount_implict_converters():
+def test_mount_implicit_converters():
     config = setup()
 
     class app(morepath.App):
@@ -658,13 +667,16 @@ def test_mount_implict_converters():
     class mounted(morepath.App):
         testing_config = config
 
+        def __init__(self, id):
+            self.id = id
+
     class MountedRoot(object):
         def __init__(self, id):
             self.id = id
 
     @mounted.path(path='', model=MountedRoot)
-    def get_root(id):
-        return MountedRoot(id)
+    def get_root(app):
+        return MountedRoot(app.id)
 
     @mounted.view(model=MountedRoot)
     def root_default(self, request):
@@ -672,7 +684,7 @@ def test_mount_implict_converters():
 
     @app.mount(path='{id}', app=mounted)
     def get_context(id=0):
-        return {'id': id}
+        return mounted(id=id)
 
     config.commit()
 
@@ -692,13 +704,16 @@ def test_mount_explicit_converters():
     class mounted(morepath.App):
         testing_config = config
 
+        def __init__(self, id):
+            self.id = id
+
     class MountedRoot(object):
         def __init__(self, id):
             self.id = id
 
     @mounted.path(path='', model=MountedRoot)
-    def get_root(id):
-        return MountedRoot(id)
+    def get_root(app):
+        return MountedRoot(id=app.id)
 
     @mounted.view(model=MountedRoot)
     def root_default(self, request):
@@ -706,7 +721,7 @@ def test_mount_explicit_converters():
 
     @app.mount(path='{id}', app=mounted, converters=dict(id=int))
     def get_context(id):
-        return {'id': id}
+        return mounted(id=id)
 
     config.commit()
 
@@ -748,7 +763,7 @@ def test_mount_view_in_child_view():
 
     @app.mount(path="foo", app=fooapp)
     def mount_to_root():
-        return {}
+        return fooapp()
 
     config.commit()
 
@@ -797,7 +812,7 @@ def test_mount_view_in_child_view_then_parent_view():
 
     @app.mount(path="foo", app=fooapp)
     def mount_to_root():
-        return {}
+        return fooapp()
 
     config.commit()
 
@@ -834,7 +849,7 @@ def test_mount_directive_with_link_and_absorb():
 
     @app1.mount(path="foo", app=app2)
     def get_mount():
-        return {}
+        return app2()
 
     config.commit()
 
@@ -875,7 +890,7 @@ def test_mount_named_child_link_explicit_name():
 
     @app.mount(path='subapp', app=mounted, name='sub')
     def get_context():
-        return {}
+        return mounted()
 
     config.commit()
 
@@ -916,7 +931,7 @@ def test_mount_named_child_link_name_defaults_to_path():
 
     @app.mount(path='subapp', app=mounted)
     def get_context():
-        return {}
+        return mounted()
 
     config.commit()
 
@@ -936,8 +951,10 @@ def test_named_mount_with_parameters():
         testing_config = config
 
     class mounted(morepath.App):
-        variables = ['mount_id']
         testing_config = config
+
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
 
     @app.path(path='')
     class Root(object):
@@ -955,9 +972,7 @@ def test_named_mount_with_parameters():
 
     @app.mount(path='mounts/{mount_id}', app=mounted)
     def get_context(mount_id=0):
-        return {
-            'mount_id': mount_id
-        }
+        return mounted(mount_id=mount_id)
 
     class Item(object):
         def __init__(self, id):
@@ -986,8 +1001,10 @@ def test_named_mount_with_url_parameters():
         testing_config = config
 
     class mounted(morepath.App):
-        variables = ['mount_id']
         testing_config = config
+
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
 
     @app.path(path='')
     class Root(object):
@@ -1005,9 +1022,7 @@ def test_named_mount_with_url_parameters():
 
     @app.mount(path='mounts', app=mounted)
     def get_context(mount_id=0):
-        return {
-            'mount_id': mount_id
-        }
+        return mounted(mount_id=mount_id)
 
     class Item(object):
         def __init__(self, id):
@@ -1027,3 +1042,44 @@ def test_named_mount_with_url_parameters():
 
     response = c.get('/')
     assert response.body == b'/mounts/items/4?mount_id=3'
+
+
+def test_access_app_through_request():
+    config = morepath.setup()
+
+    class root(morepath.App):
+        testing_config = config
+
+    class sub(morepath.App):
+        testing_config = config
+
+        def __init__(self, name):
+            self.name = name
+
+    @root.path(path='')
+    class RootModel(object):
+        pass
+
+    @root.view(model=RootModel)
+    def root_model_default(self, request):
+        return request.child(sub, name='foo').link(SubModel('foo'))
+
+    class SubModel(object):
+        def __init__(self, name):
+            self.name = name
+
+    @sub.path(path='', model=SubModel)
+    def get_sub_model(request):
+        return SubModel(request.app.name)
+
+    @root.mount(app=sub, path='{mount_name}',
+                variables=lambda a: {'mount_name': a.name})
+    def mount_sub(mount_name):
+        return sub(name=mount_name)
+
+    config.commit()
+
+    c = Client(root())
+
+    response = c.get('/')
+    assert response.body == b'/foo'

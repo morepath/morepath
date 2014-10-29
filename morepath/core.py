@@ -39,10 +39,8 @@ def traject_consume(request, app, lookup):
         return None
     get_obj, get_parameters = value
     variables = get_parameters(request.GET)
-    context = app.context
-    variables.update(context)
-    variables['parent'] = app
     variables['request'] = request
+    variables['app'] = app
     variables.update(traject_variables)
     next_obj = mapply(get_obj, **variables)
     if next_obj is None:

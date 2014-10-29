@@ -23,7 +23,6 @@ class Request(BaseRequest):
     def __init__(self, environ):
         super(Request, self).__init__(environ)
         self.unconsumed = parse_path(self.path_info)
-        self.mounted = None
         self._after = []
 
     @reify
@@ -72,7 +71,7 @@ class Request(BaseRequest):
           and the default ``request_method`` is ``GET``. If you introduce
           your own predicates you can specify your own default.
         """
-        return generic.linkmaker(self, self.mounted, lookup=self.lookup).view(
+        return generic.linkmaker(self, self.app, lookup=self.lookup).view(
             obj, default, **predicates)
 
     def link(self, obj, name='', default=None):
@@ -90,7 +89,7 @@ class Request(BaseRequest):
           returned. By default this is ``None``.
 
         """
-        return generic.linkmaker(self, self.mounted,
+        return generic.linkmaker(self, self.app,
                                  lookup=self.lookup).link(obj, name, default)
 
     @reify
@@ -100,7 +99,7 @@ class Request(BaseRequest):
         Get an object that represents the parent app that this app is mounted
         inside. You can call ``link`` and ``view`` on it.
         """
-        return generic.linkmaker(self, self.mounted.parent, lookup=self.lookup)
+        return generic.linkmaker(self, self.app.parent, lookup=self.lookup)
 
     def child(self, app, **context):
         """Obj to call :meth:`Request.link` or :meth:`Request.view` on child.
@@ -115,7 +114,7 @@ class Request(BaseRequest):
         :param ``**context``: Keyword parameters. These are the
           arguments with which the app was instantiated when mounted.
         """
-        return generic.linkmaker(self, self.mounted.child(app, **context),
+        return generic.linkmaker(self, self.app.child(app, **context),
                                  lookup=self.lookup)
 
     def sibling(self, app, **context):
@@ -132,10 +131,10 @@ class Request(BaseRequest):
         :param ``**context``: Keyword parameters. These are the
           arguments with which the app was instantiated when mounted.
         """
-        if self.mounted.parent is None:
+        if self.app.parent is None:
             return NothingMountedLinkMaker(self)
-        return generic.linkmaker(self, self.mounted.parent.child(app,
-                                                                 **context),
+        return generic.linkmaker(self, self.app.parent.child(app,
+                                                             **context),
                                  lookup=self.lookup)
 
     def after(self, func):
@@ -173,15 +172,15 @@ class Response(BaseResponse):
 
 
 class LinkMaker(object):
-    def __init__(self, request, mounted):
+    def __init__(self, request, app):
         self.request = request
-        self.mounted = mounted
+        self.app = app
 
     def link(self, obj, name='', default=None):
         if obj is None:
             return default
         path, parameters = generic.link(
-            self.request, obj, self.mounted, lookup=self.mounted.lookup)
+            self.request, obj, self.app, lookup=self.app.lookup)
         parts = []
         if path:
             parts.append(path)
@@ -194,27 +193,27 @@ class LinkMaker(object):
 
     def view(self, obj, default=None, **predicates):
         view = generic.view.component(
-            self.request, obj, lookup=self.mounted.lookup, default=default,
+            self.request, obj, lookup=self.app.lookup, default=default,
             predicates=predicates)
         if view is None:
             return None
-        old_mounted = self.request.mounted
-        self.mounted.set_implicit()
-        self.request.mounted = self.mounted
+        old_app = self.request.app
+        self.app.set_implicit()
+        self.request.app = self.app
         result = view(self.request, obj)
-        old_mounted.set_implicit()
-        self.request.mounted = old_mounted
+        old_app.set_implicit()
+        self.request.app = old_app
         return result
 
     @reify
     def parent(self):
-        return generic.linkmaker(self.request, self.mounted.parent,
-                                 lookup=self.mounted.lookup)
+        return generic.linkmaker(self.request, self.app.parent,
+                                 lookup=self.app.lookup)
 
     def child(self, app, **context):
         return generic.linkmaker(self.request,
-                                 self.mounted.child(app, **context),
-                                 lookup=self.mounted.lookup)
+                                 self.app.child(app, **context),
+                                 lookup=self.app.lookup)
 
 
 class NothingMountedLinkMaker(object):

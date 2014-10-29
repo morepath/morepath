@@ -11,7 +11,7 @@ class app(morepath.App):
 
 @outer_app.mount('inner', app)
 def inner_context():
-    return {}
+    return app()
 
 
 @app.path(path='')

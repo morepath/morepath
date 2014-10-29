@@ -55,7 +55,7 @@ using the :func:`morepath.settings` function, like this::
 In a tween factory (see :doc:tweens) or a directive implementation,
 you can access a setting through the ``app`` object like this::
 
-  app.settings.logging.logfile
+  app.registry.settings.logging.logfile
 
 Defining multiple settings
 --------------------------

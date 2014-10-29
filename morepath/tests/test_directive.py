@@ -1,7 +1,7 @@
 from .fixtures import (basic, nested, abbr, mapply_bug,
                        normalmethod, method, conflict, pkg, noconverter)
 from morepath import setup
-from morepath.error import (ConflictError, MountError, DirectiveError,
+from morepath.error import (ConflictError, DirectiveError,
                             LinkError, DirectiveReportError)
 from morepath.view import render_html
 from morepath.converter import Converter
@@ -1042,12 +1042,14 @@ def test_run_app_with_context_without_it():
     config = setup()
 
     class app(morepath.App):
-        variables = ['mount_id']
         testing_config = config
+
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
 
     config.commit()
 
-    with pytest.raises(MountError):
+    with pytest.raises(TypeError):
         app()
 
 

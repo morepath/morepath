@@ -4,7 +4,7 @@ from morepath.converter import ParameterFactory
 
 from reg import arginfo
 
-SPECIAL_ARGUMENTS = ['request', 'parent']
+SPECIAL_ARGUMENTS = ['request', 'app']
 
 
 def get_arguments(callable, exclude):
@@ -31,17 +31,15 @@ def get_variables_func(arguments, exclude):
 
 
 def register_path(app, model, path, variables, converters, required,
-                  get_converters, absorb, model_factory, arguments=None):
+                  get_converters, absorb, model_factory):
     traject = app.traject
 
     converters = converters or {}
     if get_converters is not None:
         converters.update(get_converters())
-    if arguments is None:
-        arguments = get_arguments(model_factory, SPECIAL_ARGUMENTS)
+    arguments = get_arguments(model_factory, SPECIAL_ARGUMENTS)
     converters = app.argument_and_explicit_converters(arguments, converters)
     exclude = Path(path).variables()
-    exclude.update(app.variables)
     parameters = get_url_parameters(arguments, exclude)
     if required is None:
         required = set()
