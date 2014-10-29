@@ -40,10 +40,8 @@ def resolve_model(request):
 
 def resolve_response(request, model):
     request.view_name = get_view_name(request.unconsumed)
-
-    response = generic.response(request, model, default=RESPONSE_SENTINEL,
-                                lookup=request.lookup)
-    if response is RESPONSE_SENTINEL:
+    response = generic.response(request, model, lookup=request.lookup)
+    if response is None:
         raise HTTPNotFound()
     return response
 

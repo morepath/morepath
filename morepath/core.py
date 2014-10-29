@@ -3,12 +3,14 @@ from .mount import Mount
 import morepath.directive
 from morepath import generic
 from .app import App
+from .view import View
 from .request import Request, Response, LinkMaker, NothingMountedLinkMaker
 from .converter import Converter, IDENTITY_CONVERTER
 from webob import Response as BaseResponse
-from webob.exc import HTTPException, HTTPForbidden, HTTPMethodNotAllowed
+from webob.exc import (
+    HTTPException, HTTPNotFound, HTTPForbidden, HTTPMethodNotAllowed)
 import morepath
-from reg import mapply, KeyIndex
+from reg import mapply, KeyIndex, ClassIndex
 from datetime import datetime, date
 from time import mktime, strptime
 
@@ -32,9 +34,9 @@ def setup():
     return config
 
 
-@App.function(generic.consume, Request, object)
+@App.function(generic.consume, object)
 def traject_consume(request, model, lookup):
-    traject = generic.traject(model, lookup=lookup, default=None)
+    traject = generic.traject(model, lookup=lookup)
     if traject is None:
         return None
     value, stack, traject_variables = traject.consume(request.unconsumed)
@@ -42,7 +44,7 @@ def traject_consume(request, model, lookup):
         return None
     get_model, get_parameters = value
     variables = get_parameters(request.GET)
-    context = generic.context(model, default=None, lookup=lookup)
+    context = generic.context(model, lookup=lookup)
     if context is None:
         return None
     variables.update(context)
@@ -56,7 +58,7 @@ def traject_consume(request, model, lookup):
     return next_model
 
 
-@App.function(generic.link, Request, object, object)
+@App.function(generic.link, object)
 def link(request, model, mounted):
     result = []
     parameters = {}
@@ -71,12 +73,12 @@ def link(request, model, mounted):
     return '/'.join(result).strip('/'), parameters
 
 
-@App.function(generic.linkmaker, Request, object)
+@App.function(generic.linkmaker, object)
 def linkmaker(request, mounted):
     return LinkMaker(request, mounted)
 
 
-@App.function(generic.linkmaker, Request, type(None))
+@App.function(generic.linkmaker, type(None))
 def none_linkmaker(request, mounted):
     return NothingMountedLinkMaker(request)
 
@@ -96,19 +98,21 @@ def mount_context(mount):
     return mount.create_context()
 
 
-@App.function(generic.response, Request, object)
-def get_response(request, model, predicates=None):
-    view = generic.view.component(
-        request, model, lookup=request.lookup,
-        predicates=predicates,
-        default=None)
+@App.function(generic.response, object)
+def get_response(request, obj):
+    view = generic.view.component(request, obj, lookup=request.lookup)
+    # XXX hardcoded shortcut to deal with view functions... ugh
+    # instead look into defining view separately from view content
+    # generation?
+    if not isinstance(view, View):
+        return view(request, obj)
     if view is None or view.internal:
         return None
     if (view.permission is not None and
-        not generic.permits(request.identity, model, view.permission,
+        not generic.permits(request.identity, obj, view.permission,
                             lookup=request.lookup)):
         raise HTTPForbidden()
-    content = view(request, model)
+    content = view(request, obj)
     if isinstance(content, BaseResponse):
         # the view took full control over the response
         return content
@@ -127,21 +131,38 @@ def has_permission(identity, model, permission):
     return False
 
 
-# @App.predicate(name='name', index=KeyIndex, order=0,
-#                default='')
-# def name_predicate(self, request):
-#     return request.view_name
+@App.predicate(generic.view, name='model', default=None, index=ClassIndex)
+def obj_predicate(obj):
+    return obj.__class__
 
 
-# @App.predicate(name='request_method', index=KeyIndex, order=1,
-#                default='GET')
-# def request_method_predicate(self, request):
-#     return request.method
+@App.predicate_fallback(generic.view, obj_predicate)
+def obj_not_found(self, request):
+    # this triggers a NotFound error later in the system
+    return None
 
 
-# @App.predicate_fallback(name='request_method')
-# def method_not_allowed(self, request):
-#     raise HTTPMethodNotAllowed()
+@App.predicate(generic.view, name='name', default='', index=KeyIndex,
+               after=obj_predicate)
+def name_predicate(request):
+    return request.view_name
+
+
+@App.predicate_fallback(generic.view, name_predicate)
+def name_not_found(self, request):
+    # this triggers a NotFound error later in the system
+    return None
+
+
+@App.predicate(generic.view, name='request_method', default='GET',
+               index=KeyIndex, after=name_predicate)
+def request_method_predicate(request):
+    return request.method
+
+
+@App.predicate_fallback(generic.view, request_method_predicate)
+def method_not_allowed(self, request):
+    raise HTTPMethodNotAllowed()
 
 
 @App.converter(type=int)
@@ -194,10 +215,12 @@ def excview_tween_factory(app, handler):
         try:
             response = handler(request)
         except Exception as exc:
-            # override predicates so that they aren't taken from request;
+            # XXX is there a nicer way to override predicates than
+            # poking in the request?
             # default name and GET is correct for exception views.
-            response = generic.response(request, exc, lookup=app.lookup,
-                                        default=None, predicates={})
+            request.view_name = ''
+            request.method = 'GET'
+            response = generic.response(request, exc, lookup=app.lookup)
             if response is None:
                 raise
             return response

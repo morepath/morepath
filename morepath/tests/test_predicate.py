@@ -47,7 +47,7 @@ def test_dispatch():
     assert f(Other(), lookup=lookup) == 'fallback'
 
 
-def test_predicate_dispatch():
+def test_dispatch_external_predicates():
     config = Config()
 
     class app(App):
@@ -62,11 +62,11 @@ def test_predicate_dispatch():
     class Other(object):
         pass
 
-    @app.predicate_dispatch()
+    @reg.dispatch_external_predicates()
     def f(obj):
         return "fallback"
 
-    @app.predicate(f, ClassIndex, None)
+    @app.predicate(f, name='model', default=None, index=ClassIndex)
     def f_obj(obj):
         return obj.__class__
 
@@ -89,7 +89,7 @@ def test_predicate_dispatch():
     assert f(Other(), lookup=lookup) == 'fallback'
 
 
-def test_predicate_dispatch_ordering_after():
+def test_dispatch_external_predicates_predicate_fallback():
     config = Config()
 
     class app(App):
@@ -104,15 +104,61 @@ def test_predicate_dispatch_ordering_after():
     class Other(object):
         pass
 
-    @app.predicate_dispatch()
+    @reg.dispatch_external_predicates()
+    def f(obj):
+        return "dispatch function"
+
+    @app.predicate(f, name='model', default=None, index=ClassIndex)
+    def f_obj(obj):
+        return obj.__class__
+
+    @app.predicate_fallback(f, f_obj)
+    def f_obj_fallback(obj):
+        return "f_obj_fallback"
+
+    @app.function(f, Foo)
+    def f_foo(obj):
+        return "foo"
+
+    @app.function(f, Bar)
+    def f_bar(obj):
+        return "bar"
+
+    config.commit()
+
+    a = app()
+
+    lookup = a.lookup
+
+    assert f(Foo(), lookup=lookup) == 'foo'
+    assert f(Bar(), lookup=lookup) == 'bar'
+    assert f(Other(), lookup=lookup) == 'f_obj_fallback'
+
+
+def test_dispatch_external_predicates_ordering_after():
+    config = Config()
+
+    class app(App):
+        testing_config = config
+
+    class Foo(object):
+        pass
+
+    class Bar(object):
+        pass
+
+    class Other(object):
+        pass
+
+    @reg.dispatch_external_predicates()
     def f(obj, name):
         return "fallback"
 
-    @app.predicate(f, ClassIndex, None)
+    @app.predicate(f, name='model', default=None, index=ClassIndex)
     def pred_obj(obj):
         return obj.__class__
 
-    @app.predicate(f, KeyIndex, None, after=pred_obj)
+    @app.predicate(f, name='name', default='', index=KeyIndex, after=pred_obj)
     def pred_name(name):
         return name
 
@@ -147,7 +193,7 @@ def test_predicate_dispatch_ordering_after():
     assert f(Other(), 'edit', lookup=lookup) == 'fallback'
 
 
-def test_predicate_dispatch_ordering_before():
+def test_dispatch_external_predicates_ordering_before():
     config = Config()
 
     class app(App):
@@ -162,15 +208,16 @@ def test_predicate_dispatch_ordering_before():
     class Other(object):
         pass
 
-    @app.predicate_dispatch()
+    @reg.dispatch_external_predicates()
     def f(obj, name):
         return "fallback"
 
-    @app.predicate(f, KeyIndex, None)
+    @app.predicate(f, name='name', default='', index=KeyIndex)
     def pred_name(name):
         return name
 
-    @app.predicate(f, ClassIndex, None, before=pred_name)
+    @app.predicate(f, name='model', default=None, index=ClassIndex,
+                   before=pred_name)
     def pred_obj(obj):
         return obj.__class__
 

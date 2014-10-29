@@ -56,4 +56,4 @@ def register_path(app, model, path, variables, converters, required,
 
     inverse = Inverse(path, variables, converters, parameters.keys(),
                       absorb)
-    app.register(generic.path, [model], inverse)
+    app.register_function(generic.path, [model], inverse)

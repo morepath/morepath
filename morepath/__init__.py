@@ -16,6 +16,6 @@ from .reify import reify
 from .run import run
 from reg import implicit
 from pdb import Pdb
-pdb = Pdb(skip=['reg.*', 'inspect'])
+pdb = Pdb(skip=['reg.*', 'inspect', 'repoze.lru'])
 implicit.initialize(None)
 enable_implicit()
