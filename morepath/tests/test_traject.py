@@ -5,6 +5,7 @@ from morepath.traject import (Traject, Node, Step, TrajectError,
 from morepath.converter import ParameterFactory
 from morepath import generic
 from morepath.app import App
+from morepath.mount import Mount
 from morepath.request import Request
 from morepath.core import traject_consume
 from morepath.converter import Converter, IDENTITY_CONVERTER
@@ -405,9 +406,9 @@ def test_parse_variables():
         parse_variables('{1illegal}')
 
 
-def consume(app, path):
-    request = app.request(webob.Request.blank(path).environ)
-    return traject_consume(request, app, lookup=app.lookup), request
+def consume(mount, path):
+    request = mount.app.request(webob.Request.blank(path).environ)
+    return traject_consume(request, mount, lookup=mount.lookup), request
 
 paramfac = ParameterFactory({}, {}, [])
 
@@ -416,14 +417,12 @@ def test_traject_consume():
     class app(morepath.App):
         pass
 
-    traject = Traject()
+    traject = app.registry.traject
     traject.add_pattern('sub', (Model, paramfac))
 
-    registry = app.registry
-    registry.register(generic.traject, [App], lambda base: traject)
-    registry.register(generic.context, [object], lambda obj: {})
+    mount = app().mounted
 
-    found, request = consume(app(), 'sub')
+    found, request = consume(mount, 'sub')
     assert isinstance(found, Model)
     assert request.unconsumed == []
 
@@ -432,7 +431,7 @@ def test_traject_consume_parameter():
     class app(morepath.App):
         pass
 
-    traject = Traject()
+    traject = app.registry.traject
 
     class Model(object):
         def __init__(self, a):
@@ -441,15 +440,13 @@ def test_traject_consume_parameter():
     get_param = ParameterFactory({'a': 0}, {'a': Converter(int)}, [])
     traject.add_pattern('sub', (Model, get_param))
 
-    registry = app.registry
-    registry.register(generic.traject, [App], lambda base: traject)
-    registry.register(generic.context, [object], lambda obj: {})
+    mount = app().mounted
 
-    found, request = consume(app(), 'sub?a=1')
+    found, request = consume(mount, 'sub?a=1')
     assert isinstance(found, Model)
     assert found.a == 1
     assert request.unconsumed == []
-    found, request = consume(app(), 'sub')
+    found, request = consume(mount, 'sub')
     assert isinstance(found, Model)
     assert found.a == 0
     assert request.unconsumed == []
@@ -459,7 +456,7 @@ def test_traject_consume_model_factory_gets_request():
     class app(morepath.App):
         pass
 
-    traject = Traject()
+    traject = app.registry.traject
 
     class Model(object):
         def __init__(self, info):
@@ -469,19 +466,24 @@ def test_traject_consume_model_factory_gets_request():
         return Model(request.method)
 
     traject.add_pattern('sub', (get_model, paramfac))
-    registry = app.registry
-    registry.register(generic.traject, [App], lambda base: traject)
-    registry.register(generic.context, [object], lambda obj: {})
 
-    found, request = consume(app(), 'sub')
+    mount = app().mounted
+
+    found, request = consume(mount, 'sub')
     assert isinstance(found, Model)
     assert request.unconsumed == []
     assert found.info == 'GET'
 
 
 def test_traject_consume_not_found():
-    app = App()
-    found, request = consume(app, 'sub')
+    class app(App):
+        pass
+
+    traject = app.registry.traject
+
+    mount = app().mounted
+
+    found, request = consume(mount, 'sub')
     assert found is None
     assert request.unconsumed == ['sub']
 
@@ -490,19 +492,14 @@ def test_traject_consume_factory_returns_none():
     class app(morepath.App):
         pass
 
-    traject = Traject()
+    traject = app.registry.traject
 
     def get_model():
         return None
 
     traject.add_pattern('sub', (get_model, paramfac))
 
-    registry = app.registry
-
-    registry.register(generic.traject, [App], lambda base: traject)
-    registry.register(generic.context, [object], lambda obj: {})
-
-    found, request = consume(app(), 'sub')
+    found, request = consume(app().mounted, 'sub')
 
     assert found is None
     assert request.unconsumed == ['sub']
@@ -512,7 +509,7 @@ def test_traject_consume_variable():
     class app(morepath.App):
         pass
 
-    traject = Traject()
+    traject = app.registry.traject
 
     def get_model(foo):
         result = Model()
@@ -521,11 +518,7 @@ def test_traject_consume_variable():
 
     traject.add_pattern('{foo}', (get_model, paramfac))
 
-    registry = app.registry
-    registry.register(generic.traject, [App], lambda base: traject)
-    registry.register(generic.context, [object], lambda obj: {})
-
-    found, request = consume(app(), 'something')
+    found, request = consume(app().mounted, 'something')
     assert isinstance(found, Model)
     assert found.foo == 'something'
     assert request.unconsumed == []
@@ -535,7 +528,7 @@ def test_traject_consume_view():
     class app(morepath.App):
         pass
 
-    traject = Traject()
+    traject = app.registry.traject
 
     def get_model(foo):
         result = Model()
@@ -545,12 +538,7 @@ def test_traject_consume_view():
     traject.add_pattern('', (Root, paramfac))
     traject.add_pattern('{foo}', (get_model, paramfac))
 
-    registry = app.registry
-
-    registry.register(generic.traject, [App], lambda base: traject)
-    registry.register(generic.context, [object], lambda obj: {})
-
-    found, request = consume(app(), '+something')
+    found, request = consume(app().mounted, '+something')
     assert isinstance(found, Root)
     assert request.unconsumed == ['+something']
 
@@ -559,16 +547,11 @@ def test_traject_root():
     class app(morepath.App):
         pass
 
-    traject = Traject()
+    traject = app.registry.traject
 
     traject.add_pattern('', (Root, paramfac))
 
-    registry = app.registry
-
-    registry.register(generic.traject, [App], lambda base: traject)
-    registry.register(generic.context, [object], lambda obj: {})
-
-    found, request = consume(app(), '')
+    found, request = consume(app().mounted, '')
     assert isinstance(found, Root)
     assert request.unconsumed == []
 
@@ -578,7 +561,7 @@ def test_traject_consume_combination():
     class app(morepath.App):
         pass
 
-    traject = Traject()
+    traject = app.registry.traject
 
     def get_model(foo):
         result = Model()
@@ -588,16 +571,14 @@ def test_traject_consume_combination():
     traject.add_pattern('special', (Special, paramfac))
     traject.add_pattern('{foo}', (get_model, paramfac))
 
-    registry = app.registry
-    registry.register(generic.traject, [App], lambda base: traject)
-    registry.register(generic.context, [object], lambda obj: {})
+    mount = app().mounted
 
-    found, request = consume(app(), 'something')
+    found, request = consume(mount, 'something')
     assert isinstance(found, Model)
     assert request.unconsumed == []
     assert found.foo == 'something'
 
-    found, request = consume(app(), 'special')
+    found, request = consume(mount, 'special')
     assert isinstance(found, Special)
     assert request.unconsumed == []
 
@@ -606,19 +587,16 @@ def test_traject_nested():
     class app(morepath.App):
         pass
 
-    traject = Traject()
+    traject = app.registry.traject
     traject.add_pattern('a', (Model, paramfac))
     traject.add_pattern('a/b', (Special, paramfac))
 
-    registry = app.registry
+    mount = app().mounted
 
-    registry.register(generic.traject, [App], lambda base: traject)
-    registry.register(generic.context, [object], lambda obj: {})
-
-    found, request = consume(app(), 'a')
+    found, request = consume(mount, 'a')
     assert isinstance(found, Model)
     assert request.unconsumed == []
-    found, request = consume(app(), 'a/b')
+    found, request = consume(mount, 'a/b')
     assert isinstance(found, Special)
     assert request.unconsumed == []
 
@@ -627,17 +605,15 @@ def test_traject_nested_not_resolved_entirely_by_consumer():
     class app(morepath.App):
         pass
 
-    traject = Traject()
+    traject = app.registry.traject
     traject.add_pattern('a', (Model, paramfac))
 
-    registry = app.registry
-    registry.register(generic.traject, [App], lambda base: traject)
-    registry.register(generic.context, [object], lambda obj: {})
+    mount = app().mounted
 
-    found, request = consume(app(), 'a')
+    found, request = consume(mount, 'a')
     assert isinstance(found, Model)
     assert request.unconsumed == []
-    found, request = consume(app(), 'a/b')
+    found, request = consume(mount, 'a/b')
     assert isinstance(found, Model)
     assert request.unconsumed == ['b']
 
@@ -646,7 +622,7 @@ def test_traject_nested_with_variable():
     class app(morepath.App):
         pass
 
-    traject = Traject()
+    traject = app.registry.traject
 
     def get_model(id):
         result = Model()
@@ -661,18 +637,15 @@ def test_traject_nested_with_variable():
     traject.add_pattern('{id}', (get_model, paramfac))
     traject.add_pattern('{id}/sub', (get_special, paramfac))
 
-    registry = app.registry
+    mount = app().mounted
 
-    registry.register(generic.traject, [App], lambda base: traject)
-    registry.register(generic.context, [object], lambda obj: {})
-
-    found, request = consume(app(), 'a')
+    found, request = consume(mount, 'a')
     assert isinstance(found, Model)
     assert request.unconsumed == []
-    found, request = consume(app(), 'b')
+    found, request = consume(mount, 'b')
     assert isinstance(found, Model)
     assert request.unconsumed == []
-    found, request = consume(app(), 'a/sub')
+    found, request = consume(mount, 'a/sub')
     assert isinstance(found, Special)
     assert request.unconsumed == []
 
@@ -681,7 +654,7 @@ def test_traject_with_multiple_variables():
     class app(morepath.App):
         pass
 
-    traject = Traject()
+    traject = app.registry.traject
 
     def get_model(first_id):
         result = Model()
@@ -696,17 +669,15 @@ def test_traject_with_multiple_variables():
     traject.add_pattern('{first_id}', (get_model, paramfac))
     traject.add_pattern('{first_id}/{second_id}', (get_special, paramfac))
 
-    registry = app.registry
-    registry.register(generic.traject, [App], lambda base: traject)
-    registry.register(generic.context, [object], lambda obj: {})
+    mount = app().mounted
 
-    found, request = consume(app(), 'a')
+    found, request = consume(mount, 'a')
     assert isinstance(found, Model)
     assert found.first_id == 'a'
     assert not hasattr(found, 'second_id')
     assert request.unconsumed == []
 
-    found, request = consume(app(), 'a/b')
+    found, request = consume(mount, 'a/b')
     assert isinstance(found, Special)
     assert found.first_id == 'a'
     assert found.second_id == 'b'

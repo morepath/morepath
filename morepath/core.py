@@ -32,9 +32,9 @@ def setup():
     return config
 
 
-@App.function(generic.consume, Request, object)
+@App.function(generic.consume, Request, Mount)
 def traject_consume(request, model, lookup):
-    traject = generic.traject(model, lookup=lookup, default=None)
+    traject = model.app.registry.traject
     if traject is None:
         return None
     value, stack, traject_variables = traject.consume(request.unconsumed)
@@ -42,9 +42,7 @@ def traject_consume(request, model, lookup):
         return None
     get_model, get_parameters = value
     variables = get_parameters(request.GET)
-    context = generic.context(model, default=None, lookup=lookup)
-    if context is None:
-        return None
+    context = model.context
     variables.update(context)
     variables['parent'] = model
     variables['request'] = request
@@ -79,21 +77,6 @@ def linkmaker(request, mounted):
 @App.function(generic.linkmaker, Request, type(None))
 def none_linkmaker(request, mounted):
     return NothingMountedLinkMaker(request)
-
-
-@App.function(generic.traject, App)
-def app_traject(app):
-    return app.traject
-
-
-@App.function(generic.traject, Mount)
-def mount_traject(model):
-    return model.app.registry.traject
-
-
-@App.function(generic.context, Mount)
-def mount_context(mount):
-    return mount.context
 
 
 @App.function(generic.response, Request, object)

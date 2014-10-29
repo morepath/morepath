@@ -14,13 +14,6 @@ def consume(request, model):
 
 
 @reg.generic
-def context(model):
-    """Get the context dictionary available for a model.
-    """
-    raise NotImplementedError  # pragma: nocoverage
-
-
-@reg.generic
 def path(model):
     """Get the path and parameters for a model in its own application.
     """
@@ -30,13 +23,6 @@ def path(model):
 @reg.generic
 def link(request, model, mounted):
     """Create a link (URL) to a model, including any mounted applications.
-    """
-    raise NotImplementedError  # pragma: nocoverage
-
-
-@reg.generic
-def traject(obj):
-    """Get traject for obj.
     """
     raise NotImplementedError  # pragma: nocoverage
 

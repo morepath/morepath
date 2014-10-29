@@ -16,11 +16,11 @@ def setup_module(module):
     morepath.disable_implicit()
 
 
-def consume(app, path, parameters=None):
+def consume(mount, path, parameters=None):
     if parameters:
         path += '?' + urlencode(parameters, True)
-    request = app.request(webob.Request.blank(path).environ)
-    return traject_consume(request, app, lookup=app.lookup), request
+    request = mount.app.request(webob.Request.blank(path).environ)
+    return traject_consume(request, mount, lookup=mount.lookup), request
 
 
 class Root(object):
@@ -56,9 +56,8 @@ def test_register_path():
                   lambda: root)
     register_path(registry, Model, '{id}', lambda model: {'id': model.id},
                   None, None, None, False, get_model)
-    registry.register(generic.context, [object], lambda obj: {})
 
-    obj, request = consume(app, 'a')
+    obj, request = consume(app.mounted, 'a')
     assert obj.id == 'a'
     model = Model()
     model.id = 'b'
@@ -91,13 +90,13 @@ def test_register_path_with_parameters():
     register_path(registry, Model, '{id}',
                   lambda model: {'id': model.id, 'param': model.param},
                   None, None, None, False, get_model)
-    registry.register(generic.context, [object], lambda obj: {})
 
-    obj, request = consume(app, 'a')
+    mount = app.mounted
+    obj, request = consume(mount, 'a')
     assert obj.id == 'a'
     assert obj.param == 'default'
 
-    obj, request = consume(app, 'a', {'param': 'value'})
+    obj, request = consume(mount, 'a', {'param': 'value'})
     assert obj.id == 'a'
     assert obj.param == 'value'
 
@@ -129,11 +128,11 @@ def test_traject_path_with_leading_slash():
                   lambda: root)
     register_path(registry, Model, '/foo/{id}', lambda model: {'id': model.id},
                   None, None, None, False, get_model)
-    registry.register(generic.context, [object], lambda obj: {})
 
-    obj, request = consume(app, 'foo/a')
+    mount = app.mounted
+    obj, request = consume(mount, 'foo/a')
     assert obj.id == 'a'
-    obj, request = consume(app, '/foo/a')
+    obj, request = consume(mount, '/foo/a')
     assert obj.id == 'a'
 
 
