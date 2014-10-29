@@ -70,13 +70,14 @@ def test_defer_links_mount_parameters():
     def get_sub_model(name):
         return SubModel(name)
 
-    @root.mount(app=sub, path='{mount_name}')
+    @root.mount(app=sub, path='{mount_name}',
+                variables=lambda a: {'mount_name': a.context['name']})
     def mount_sub(mount_name):
         return {'name': mount_name}
 
     @root.defer_links(model=SubModel, app=sub)
     def defer_links_sub_model(obj):
-        return {'mount_name': obj.name}
+        return {'name': obj.name}
 
     config.commit()
 
@@ -84,4 +85,3 @@ def test_defer_links_mount_parameters():
 
     response = c.get('/')
     assert response.body == b'/foo'
-

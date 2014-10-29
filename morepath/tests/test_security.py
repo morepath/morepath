@@ -360,7 +360,7 @@ def test_basic_auth_forget():
         ('Content-Length', '0'),
         ('Content-Type', 'text/plain; charset=UTF-8'),
         ('WWW-Authenticate', 'Basic realm="Realm"'),
-        ]
+    ]
 
 
 class DumbCookieIdentityPolicy(object):

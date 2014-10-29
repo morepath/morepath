@@ -1211,7 +1211,7 @@ def test_extra_parameters_with_get_converters():
         return {
             'a': int,
             'b': type(u""),
-            }
+        }
 
     @app.path(model=Model, path='/', get_converters=get_converters)
     def get_model(extra_parameters):

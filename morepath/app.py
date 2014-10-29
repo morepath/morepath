@@ -1,4 +1,3 @@
-from .mount import Mount
 from .action import FunctionAction
 from .request import Request
 from .traject import Traject
@@ -7,13 +6,14 @@ from .settings import SettingSectionContainer
 from .converter import ConverterRegistry
 from .error import MountError
 from .tween import TweenRegistry
+from . import compat
 from morepath import generic
 from reg import ClassRegistry, Lookup, CachingClassLookup
 import venusian
 from .reify import reify
-from .publish import publish
 from functools import update_wrapper
 from .compat import with_metaclass
+from .implicit import set_implicit
 
 
 class Registry(Configurable, ClassRegistry, ConverterRegistry, TweenRegistry):
@@ -54,11 +54,11 @@ def callback(scanner, name, obj):
 
 
 class AppMeta(type):
-    def __new__(mcl, name, bases, d):
+    def __new__(cls, name, bases, d):
         testing_config = d.get('testing_config')
         d['registry'] = Registry(name, bases, testing_config,
                                  d.get('variables', []))
-        result = super(AppMeta, mcl).__new__(mcl, name, bases, d)
+        result = super(AppMeta, cls).__new__(cls, name, bases, d)
         venusian.attach(result, callback)
         return result
 
@@ -84,14 +84,14 @@ class App(with_metaclass(AppMeta)):
     testing_config = None
     variables = set()
 
-    def __init__(self, **context):
+    def __init__(self, parent=None, **context):
         self.settings = self.registry.settings
-
         for name in self.variables:
             if name not in context:
                 raise MountError(
                     "Cannot mount app without context variable: %s" % name)
-        self.mounted = Mount(self, context, None, {})
+        self.context = context
+        self.parent = parent
 
     @reify
     def lookup(self):
@@ -100,6 +100,9 @@ class App(with_metaclass(AppMeta)):
         :returns: a :class:`reg.Lookup` instance.
         """
         return self.registry.lookup
+
+    def set_implicit(self):
+        set_implicit(self.lookup)
 
     @reify
     def traject(self):
@@ -112,20 +115,31 @@ class App(with_metaclass(AppMeta)):
         :returns: :class:`morepath.Request` instance
         """
         request = Request(environ)
+        request.mounted = self
         request.lookup = self.lookup
         return request
 
     def __call__(self, environ, start_response):
         """This app as a WSGI application.
-
-        This is only possible when the app expects no variables; if it
-        does, use ``mount()`` to create a WSGI app first.
         """
-        return self.mounted(environ, start_response)
+        request = self.request(environ)
+        response = self.publish(request)
+        return response(environ, start_response)
+
+    def child(self, app, **context):
+        if isinstance(app, compat.string_types):
+            factory = self.registry.named_mounted.get(app)
+        else:
+            factory = self.registry.mounted.get(app)
+        if factory is None:
+            return None
+        return factory(parent=self, **context)
 
     # XXX can do this in init now
     @reify
     def publish(self):
+        # XXX import cycles...
+        from .publish import publish
         result = publish
         for tween_factory in reversed(self.registry.sorted_tween_factories()):
             result = tween_factory(self, result)

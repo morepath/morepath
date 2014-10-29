@@ -44,7 +44,7 @@ def test_mount():
 
     @mounted.path(path='')
     class MountedRoot(object):
-        pass
+        variables = ['id']
 
     @mounted.view(model=MountedRoot)
     def root_default(self, request):
@@ -55,8 +55,8 @@ def test_mount():
         return request.link(self)
 
     @app.mount(path='{id}', app=mounted)
-    def get_context():
-        return {}
+    def get_context(id):
+        return {'id': id}
 
     config.commit()
 
@@ -125,7 +125,7 @@ def test_mount_context():
     def get_context(id):
         return {
             'mount_id': id
-            }
+        }
 
     config.commit()
 
@@ -161,7 +161,7 @@ def test_mount_context_parameters():
     def get_context(mount_id=0):
         return {
             'mount_id': mount_id
-            }
+        }
 
     config.commit()
 
@@ -173,7 +173,7 @@ def test_mount_context_parameters():
     assert response.body == b'The root for mount id: 0'
 
 
-def test_mount_context_parameters_empty_context():
+def test_mount_context_parameters_override_default():
     config = setup()
 
     class app(morepath.App):
@@ -185,7 +185,8 @@ def test_mount_context_parameters_empty_context():
 
     @mounted.path(path='')
     class MountedRoot(object):
-        # use a default parameter
+        # use a default parameter, which is ignored as the
+        # mount parameter is used instead
         def __init__(self, mount_id='default'):
             self.mount_id = mount_id
 
@@ -199,18 +200,18 @@ def test_mount_context_parameters_empty_context():
     # default to 'default', not a URL parameter
     @app.mount(path='{id}', app=mounted)
     def get_context(id):
-        return {}
+        return {'mount_id': id}
 
     config.commit()
 
     c = Client(app())
 
     response = c.get('/foo')
-    assert response.body == b'The root for mount id: default'
+    assert response.body == b'The root for mount id: foo'
     # the URL parameter mount_id cannot interfere with the mounting
     # process
     response = c.get('/bar?mount_id=blah')
-    assert response.body == b'The root for mount id: default'
+    assert response.body == b'The root for mount id: bar'
 
 
 def test_mount_context_standalone():
@@ -265,7 +266,7 @@ def test_mount_parent_link():
     def get_context(id):
         return {
             'mount_id': id
-            }
+        }
 
     config.commit()
 
@@ -296,13 +297,14 @@ def test_mount_child_link():
 
     @app.view(model=Root)
     def app_root_default(self, request):
-        return request.child(mounted, id='foo').link(Model('one'))
+        return request.child(mounted, mount_id='foo').link(Model('one'))
 
-    @app.mount(path='{id}', app=mounted)
+    @app.mount(path='{id}', app=mounted,
+               variables=lambda a: {'id': a.context['mount_id']})
     def get_context(id):
         return {
             'mount_id': id
-            }
+        }
 
     config.commit()
 
@@ -381,7 +383,7 @@ def test_mount_sibling_link_at_root_app():
     c = Client(app())
 
     with pytest.raises(LinkError):
-        response = c.get('/')
+        c.get('/')
 
 
 def test_mount_child_link_unknown_child():
@@ -409,11 +411,6 @@ def test_mount_child_link_unknown_child():
             return request.child(mounted, id='foo').link(Model('one'))
         except LinkError:
             return 'link error'
-
-    @app.mount(path='{id}', app=mounted)
-    def get_context(id):
-        # no child will be found ever
-        return None
 
     config.commit()
 
@@ -513,14 +510,15 @@ def test_request_view_in_mount():
 
     @app.view(model=Root)
     def root_default(self, request):
-        return request.child(mounted, id='foo').view(
+        return request.child(mounted, mount_id='foo').view(
             Model('x'))['hey']
 
-    @app.mount(path='{id}', app=mounted)
+    @app.mount(path='{id}', app=mounted,
+               variables=lambda a: dict(id=a.context['mount_id']))
     def get_context(id):
         return {
             'mount_id': id
-            }
+        }
 
     config.commit()
 
@@ -549,18 +547,19 @@ def test_request_linkmaker_child_child():
 
     @app.view(model=Root)
     def root_default(self, request):
-        return request.child(mounted, id='foo').child(submounted).view(
+        return request.child(mounted, mount_id='foo').child(submounted).view(
             SubRoot())
 
     @app.view(model=Root, name='info')
     def root_info(self, request):
         return 'info'
 
-    @app.mount(path='{id}', app=mounted)
+    @app.mount(path='{id}', app=mounted,
+               variables=lambda a: dict(mount_id=a.context['mount_id']))
     def get_context(id):
         return {
             'mount_id': id
-            }
+        }
 
     @mounted.mount(path='sub', app=submounted)
     def get_context2():
@@ -958,7 +957,7 @@ def test_named_mount_with_parameters():
     def get_context(mount_id=0):
         return {
             'mount_id': mount_id
-            }
+        }
 
     class Item(object):
         def __init__(self, id):
@@ -969,7 +968,7 @@ def test_named_mount_with_parameters():
         return Item(id)
 
     @app.view(model=Root, path='/')
-    def root_default(self, request):
+    def root_default2(self, request):
         return request.child('mounts/{mount_id}', mount_id=3).link(Item(4))
 
     config.commit()
@@ -1008,7 +1007,7 @@ def test_named_mount_with_url_parameters():
     def get_context(mount_id=0):
         return {
             'mount_id': mount_id
-            }
+        }
 
     class Item(object):
         def __init__(self, id):
@@ -1019,7 +1018,7 @@ def test_named_mount_with_url_parameters():
         return Item(id)
 
     @app.view(model=Root, path='/')
-    def root_default(self, request):
+    def root_default2(self, request):
         return request.child('mounts', mount_id=3).link(Item(4))
 
     config.commit()

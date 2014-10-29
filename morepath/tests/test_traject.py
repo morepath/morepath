@@ -3,9 +3,7 @@ from morepath.traject import (Traject, Node, Step, TrajectError,
                               is_identifier, parse_variables,
                               Path, parse_path, create_path)
 from morepath.converter import ParameterFactory
-from morepath import generic
 from morepath.app import App
-from morepath.mount import Mount
 from morepath.request import Request
 from morepath.core import traject_consume
 from morepath.converter import Converter, IDENTITY_CONVERTER
@@ -407,7 +405,7 @@ def test_parse_variables():
 
 
 def consume(mount, path):
-    request = mount.app.request(webob.Request.blank(path).environ)
+    request = mount.request(webob.Request.blank(path).environ)
     return traject_consume(request, mount, lookup=mount.lookup), request
 
 paramfac = ParameterFactory({}, {}, [])
@@ -420,7 +418,7 @@ def test_traject_consume():
     traject = app.registry.traject
     traject.add_pattern('sub', (Model, paramfac))
 
-    mount = app().mounted
+    mount = app()
 
     found, request = consume(mount, 'sub')
     assert isinstance(found, Model)
@@ -440,7 +438,7 @@ def test_traject_consume_parameter():
     get_param = ParameterFactory({'a': 0}, {'a': Converter(int)}, [])
     traject.add_pattern('sub', (Model, get_param))
 
-    mount = app().mounted
+    mount = app()
 
     found, request = consume(mount, 'sub?a=1')
     assert isinstance(found, Model)
@@ -467,7 +465,7 @@ def test_traject_consume_model_factory_gets_request():
 
     traject.add_pattern('sub', (get_model, paramfac))
 
-    mount = app().mounted
+    mount = app()
 
     found, request = consume(mount, 'sub')
     assert isinstance(found, Model)
@@ -479,9 +477,7 @@ def test_traject_consume_not_found():
     class app(App):
         pass
 
-    traject = app.registry.traject
-
-    mount = app().mounted
+    mount = app()
 
     found, request = consume(mount, 'sub')
     assert found is None
@@ -499,7 +495,7 @@ def test_traject_consume_factory_returns_none():
 
     traject.add_pattern('sub', (get_model, paramfac))
 
-    found, request = consume(app().mounted, 'sub')
+    found, request = consume(app(), 'sub')
 
     assert found is None
     assert request.unconsumed == ['sub']
@@ -518,7 +514,7 @@ def test_traject_consume_variable():
 
     traject.add_pattern('{foo}', (get_model, paramfac))
 
-    found, request = consume(app().mounted, 'something')
+    found, request = consume(app(), 'something')
     assert isinstance(found, Model)
     assert found.foo == 'something'
     assert request.unconsumed == []
@@ -538,7 +534,7 @@ def test_traject_consume_view():
     traject.add_pattern('', (Root, paramfac))
     traject.add_pattern('{foo}', (get_model, paramfac))
 
-    found, request = consume(app().mounted, '+something')
+    found, request = consume(app(), '+something')
     assert isinstance(found, Root)
     assert request.unconsumed == ['+something']
 
@@ -551,7 +547,7 @@ def test_traject_root():
 
     traject.add_pattern('', (Root, paramfac))
 
-    found, request = consume(app().mounted, '')
+    found, request = consume(app(), '')
     assert isinstance(found, Root)
     assert request.unconsumed == []
 
@@ -571,7 +567,7 @@ def test_traject_consume_combination():
     traject.add_pattern('special', (Special, paramfac))
     traject.add_pattern('{foo}', (get_model, paramfac))
 
-    mount = app().mounted
+    mount = app()
 
     found, request = consume(mount, 'something')
     assert isinstance(found, Model)
@@ -591,7 +587,7 @@ def test_traject_nested():
     traject.add_pattern('a', (Model, paramfac))
     traject.add_pattern('a/b', (Special, paramfac))
 
-    mount = app().mounted
+    mount = app()
 
     found, request = consume(mount, 'a')
     assert isinstance(found, Model)
@@ -608,7 +604,7 @@ def test_traject_nested_not_resolved_entirely_by_consumer():
     traject = app.registry.traject
     traject.add_pattern('a', (Model, paramfac))
 
-    mount = app().mounted
+    mount = app()
 
     found, request = consume(mount, 'a')
     assert isinstance(found, Model)
@@ -637,7 +633,7 @@ def test_traject_nested_with_variable():
     traject.add_pattern('{id}', (get_model, paramfac))
     traject.add_pattern('{id}/sub', (get_special, paramfac))
 
-    mount = app().mounted
+    mount = app()
 
     found, request = consume(mount, 'a')
     assert isinstance(found, Model)
@@ -669,7 +665,7 @@ def test_traject_with_multiple_variables():
     traject.add_pattern('{first_id}', (get_model, paramfac))
     traject.add_pattern('{first_id}/{second_id}', (get_special, paramfac))
 
-    mount = app().mounted
+    mount = app()
 
     found, request = consume(mount, 'a')
     assert isinstance(found, Model)

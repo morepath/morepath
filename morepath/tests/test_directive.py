@@ -1096,7 +1096,7 @@ def test_abbr_imperative():
     assert response.body == b'Edit view'
 
 
-def test_abbr_imperative():
+def test_abbr_imperative2():
     config = setup()
 
     class app(morepath.App):

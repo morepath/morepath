@@ -126,4 +126,3 @@ def dump_json(request, obj):
     The return value is JSON-serialized.
     """
     return obj
-

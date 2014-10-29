@@ -77,7 +77,6 @@ def test_notfound():
     config.commit()
 
     request = app().request(get_environ(path=''))
-    request.mounted = app().mounted
 
     with pytest.raises(HTTPNotFound):
         publish(request)
@@ -133,7 +132,6 @@ def test_request_view():
     register_view(app.registry, Model, view, render=render_json)
 
     request = app().request(get_environ(path=''))
-    request.mounted = app().mounted
 
     model = Model()
     response = resolve_response(request, model)
@@ -159,7 +157,6 @@ def test_request_view_with_predicates():
                   predicates=dict(name='foo'))
 
     request = app().request(get_environ(path=''))
-    request.mounted = app().mounted
 
     model = Model()
     # since the name is set to foo, we get nothing here
@@ -169,7 +166,6 @@ def test_request_view_with_predicates():
     # the predicate information in the request is ignored when we do a
     # manual view lookup using request.view
     request = app().request(get_environ(path='foo'))
-    request.mounted = app().mounted
     assert request.view(model) is None
 
 
@@ -209,7 +205,6 @@ def test_view_raises_http_error():
     register_view(registry, Model, view)
 
     request = app().request(get_environ(path='foo'))
-    request.mounted = app().mounted
 
     with pytest.raises(HTTPBadRequest):
         publish(request)

@@ -33,7 +33,7 @@ def test_converter_registry_inheritance():
     lifeforms = {
         'seaweed': seaweed,
         'elephant': elephant,
-        }
+    }
 
     def lifeform_decode(s):
         try:

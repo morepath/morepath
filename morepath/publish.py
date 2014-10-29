@@ -1,5 +1,5 @@
 from morepath import generic
-from .mount import Mount
+from .app import App
 from .traject import create_path
 from webob.exc import HTTPNotFound
 
@@ -25,12 +25,12 @@ def resolve_model(request):
         if next_model is None:
             return model
         model = next_model
-        if isinstance(model, Mount):
+        if isinstance(model, App):
             model.set_implicit()
             request.mounted = model
             request.lookup = model.lookup
     # if there is nothing (left), we consume toward a root model
-    if not request.unconsumed and isinstance(model, Mount):
+    if not request.unconsumed and isinstance(model, App):
         root_model = generic.consume(request, model, lookup=lookup)
         if root_model is not None:
             model = root_model

@@ -19,7 +19,7 @@ def setup_module(module):
 def consume(mount, path, parameters=None):
     if parameters:
         path += '?' + urlencode(parameters, True)
-    request = mount.app.request(webob.Request.blank(path).environ)
+    request = mount.request(webob.Request.blank(path).environ)
     return traject_consume(request, mount, lookup=mount.lookup), request
 
 
@@ -39,9 +39,6 @@ def test_register_path():
 
     root = Root()
 
-    app = App()
-    lookup = app.lookup
-
     def get_model(id):
         model = Model()
         model.id = id
@@ -49,7 +46,7 @@ def test_register_path():
 
     config.commit()
 
-    registry = app.registry
+    registry = App.registry
 
     register_path(registry, Root, '', lambda m: {},
                   None, None, None, False,
@@ -57,11 +54,13 @@ def test_register_path():
     register_path(registry, Model, '{id}', lambda model: {'id': model.id},
                   None, None, None, False, get_model)
 
-    obj, request = consume(app.mounted, 'a')
+    app = App()
+
+    obj, request = consume(app, 'a')
     assert obj.id == 'a'
     model = Model()
     model.id = 'b'
-    assert generic.path(model, lookup=lookup) == ('b', {})
+    assert generic.path(model, lookup=app.lookup) == ('b', {})
 
 
 def test_register_path_with_parameters():
@@ -70,10 +69,7 @@ def test_register_path_with_parameters():
     class App(morepath.App):
         testing_config = config
 
-    app = App()
-
     root = Root()
-    lookup = app.lookup
 
     def get_model(id, param='default'):
         model = Model()
@@ -83,15 +79,16 @@ def test_register_path_with_parameters():
 
     config.commit()
 
-    registry = app.registry
+    registry = App.registry
 
-    register_path(registry, Root,  '', lambda m: {}, None, None, None, False,
+    register_path(registry, Root, '', lambda m: {}, None, None, None, False,
                   lambda: root)
     register_path(registry, Model, '{id}',
                   lambda model: {'id': model.id, 'param': model.param},
                   None, None, None, False, get_model)
 
-    mount = app.mounted
+    mount = App()
+
     obj, request = consume(mount, 'a')
     assert obj.id == 'a'
     assert obj.param == 'default'
@@ -103,7 +100,8 @@ def test_register_path_with_parameters():
     model = Model()
     model.id = 'b'
     model.param = 'other'
-    assert generic.path(model, lookup=lookup) == ('b', {'param': ['other']})
+    assert generic.path(model, lookup=mount.lookup) == (
+        'b', {'param': ['other']})
 
 
 def test_traject_path_with_leading_slash():
@@ -112,7 +110,6 @@ def test_traject_path_with_leading_slash():
     class App(morepath.App):
         testing_config = config
 
-    app = App()
     root = Root()
 
     def get_model(id):
@@ -122,14 +119,14 @@ def test_traject_path_with_leading_slash():
 
     config.commit()
 
-    registry = app.registry
+    registry = App.registry
 
     register_path(registry, Root, '', lambda m: {}, None, None, None, False,
                   lambda: root)
     register_path(registry, Model, '/foo/{id}', lambda model: {'id': model.id},
                   None, None, None, False, get_model)
 
-    mount = app.mounted
+    mount = App()
     obj, request = consume(mount, 'foo/a')
     assert obj.id == 'a'
     obj, request = consume(mount, '/foo/a')

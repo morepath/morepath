@@ -1,5 +1,4 @@
 from .config import Config
-from .mount import Mount
 import morepath.directive
 from morepath import generic
 from .app import App
@@ -32,19 +31,17 @@ def setup():
     return config
 
 
-@App.function(generic.consume, Request, Mount)
-def traject_consume(request, mount, lookup):
-    traject = mount.app.registry.traject
-    if traject is None:
-        return None
+@App.function(generic.consume, Request, App)
+def traject_consume(request, app, lookup):
+    traject = app.registry.traject
     value, stack, traject_variables = traject.consume(request.unconsumed)
     if value is None:
         return None
     get_obj, get_parameters = value
     variables = get_parameters(request.GET)
-    context = mount.context
+    context = app.context
     variables.update(context)
-    variables['parent'] = mount
+    variables['parent'] = app
     variables['request'] = request
     variables.update(traject_variables)
     next_obj = mapply(get_obj, **variables)

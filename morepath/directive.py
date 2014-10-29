@@ -472,7 +472,7 @@ class HtmlDirective(ViewDirective):
 class MountDirective(PathDirective):
     depends = [SettingDirective, ConverterDirective]
 
-    def __init__(self, base_app, path, app, converters=None,
+    def __init__(self, base_app, path, app, variables=None, converters=None,
                  required=None, get_converters=None, name=None):
         """Mount sub application on path.
 
@@ -483,6 +483,10 @@ class MountDirective(PathDirective):
 
         :param path: the path to mount the application on.
         :param app: the :class:`morepath.App` subclass to mount.
+        :param variables: a function that given an app instance can construct
+          the variables used in the path (including any URL parameters).
+          If omitted, variables are retrieved from the app by using
+          the arguments of the decorated function.
         :param converters: converters as for the
           :meth:`morepath.App.path` directive.
         :param required: list or set of names of those URL parameters which
@@ -499,6 +503,7 @@ class MountDirective(PathDirective):
           the ``path`` argument is taken as the name.
         """
         super(MountDirective, self).__init__(base_app, path,
+                                             variables=variables,
                                              converters=converters,
                                              required=required,
                                              get_converters=get_converters)
@@ -518,8 +523,9 @@ class MountDirective(PathDirective):
         return [('mount', self.mounted_app)]
 
     def perform(self, registry, obj):
-        register_mount(registry, self.mounted_app, self.path, self.converters,
-                       self.required, self.get_converters, self.name, obj)
+        register_mount(registry, self.mounted_app, self.path, self.variables,
+                       self.converters, self.required,
+                       self.get_converters, self.name, obj)
 
 
 @App.directive('defer_links')
@@ -678,7 +684,6 @@ class FunctionDirective(Directive):
 
     def perform(self, registry, obj):
         registry.register(self.target, self.sources, obj)
-
 
 
 @App.directive('dump_json')

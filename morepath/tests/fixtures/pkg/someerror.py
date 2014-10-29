@@ -5,4 +5,4 @@ class app(morepath.App):
     pass
 
 
-1/0
+1 / 0

@@ -8,7 +8,7 @@ def setup_module(module):
 def test_cleanup():
     config = morepath.setup()
 
-    class app(morepath.App):
+    class App(morepath.App):
         testing_config = config
 
     config.commit()
@@ -21,9 +21,9 @@ def test_cleanup():
 def test_configurables():
     config = morepath.setup()
 
-    class app(morepath.App):
+    class App(morepath.App):
         testing_config = config
 
     assert config.configurables[0] is morepath.App.registry
-    assert config.configurables[1] is app.registry
+    assert config.configurables[1] is App.registry
     assert len(config.configurables) == 2

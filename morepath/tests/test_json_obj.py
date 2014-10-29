@@ -1,8 +1,5 @@
 import morepath
-from morepath import generic
-from morepath.error import ConflictError
 from webtest import TestApp as Client
-import pytest
 
 
 def setup_module(module):
@@ -26,14 +23,14 @@ def test_json_obj_dump():
 
     @app.dump_json(model=Model)
     def dump_model_json(self, request):
-        return { 'x': self.x }
+        return {'x': self.x}
 
     config.commit()
 
     c = Client(app())
 
     response = c.get('/models/foo')
-    assert response.json == { 'x': 'foo' }
+    assert response.json == {'x': 'foo'}
 
 
 def test_json_obj_load():

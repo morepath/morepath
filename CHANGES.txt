@@ -4,11 +4,27 @@ CHANGES
 0.7 (unreleased)
 ================
 
-- ``dump_json`` and ``load_json`` directives. This lets you
-  automatically convert an object going to a response to JSON, and
-  converts JSON coming in as a request body from JSON to an
-  object. See http://morepath.readthedocs.org/en/latest/json.html for
-  more information.
+- **Breaking change**. The mount directive's behavior and behavior in
+  the ``.child`` method has changed. The relevant changes are:
+
+  * the ``mount`` directive now takes a ``variables`` argument. This
+    works like the ``variables`` argument to the ``path``
+    directive. It is given an instance of the App being mounted, and
+    it should reconstruct those variables needed in its path. If
+    omitted, Morepath tries to get the variables from the App
+    instance.
+
+  * the ``.child`` method on request used to take the variables as
+    seen in the URL. This has changed: it now requires the arguments
+    required to instantiate the App. These are the same values as need
+    to be returned in a dictionary from the function decorated by the
+    ``mount`` directive.
+
+  Underneath, Morepath used to have a ``Mount`` class separate from
+  the ``App`` classes you define. Since Morepath 0.4 application
+  objects became classes, and it made sense to make their instances
+  the same as the mounted application. This unification has now taken
+  place. This simplifies the implementation of mounting considerably.
 
 - **Breaking change**. The arguments to the ``render`` function have
   changed. This is a function you can pass to a view directive.  The
@@ -17,6 +33,21 @@ CHANGES
   affects code that supplies an explicit ``render`` function to the
   ``view``, ``json`` and ``html`` directives, and since not a lot of
   those functions exist, the impact is expected to be minimal.
+
+- ``dump_json`` and ``load_json`` directives. This lets you
+  automatically convert an object going to a response to JSON, and
+  converts JSON coming in as a request body from JSON to an
+  object. See http://morepath.readthedocs.org/en/latest/json.html for
+  more information.
+
+- ``defer_links`` directive. This directive can be used to declare
+  that a particular mounted application takes care of linking to
+  instances of a class. This lets you combine applications with more
+  ease.
+
+- Several generic functions that weren't really pulling their weight
+  are now gone as part of the mount simplification:
+  ``generic.context`` and ``generic.traject`` are not needed anymore.
 
 - Minor improvement in docstrings.
 

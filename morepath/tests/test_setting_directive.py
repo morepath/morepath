@@ -96,7 +96,7 @@ def test_app_section_settings():
         return {
             'foo': "FOO",
             'bar': "BAR"
-            }
+        }
 
     config.commit()
 
@@ -116,7 +116,7 @@ def test_app_section_settings_conflict():
         return {
             'foo': "FOO",
             'bar': "BAR"
-            }
+        }
 
     @app.setting('one', 'foo')
     def get_foo():

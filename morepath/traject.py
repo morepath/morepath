@@ -196,7 +196,7 @@ class Inverse(object):
             name, value in all_variables.items()
             if (name in parameter_names and
                 value is not None and value != [])
-            }
+        }
         if extra_parameters:
             for name, value in extra_parameters.items():
                 parameters[name] = converters.get(
