@@ -1,42 +1,38 @@
 import reg
 
 
-@reg.dispatch('model')
-def consume(request, model):
-    """Consume request.unconsumed to new model, starting with model.
+@reg.dispatch('obj')
+def consume(request, obj):
+    """Consume request.unconsumed to new obj, starting with obj.
 
-    Returns the new model, or None if no new model could be found.
+    Returns the new model instance, or None if no new instance could be found.
 
     Adjusts request.unconsumed with the remaining unconsumed stack.
     """
     return None
 
 
-@reg.dispatch('model')
-def path(model):
-    """Get the path and parameters for a model in its own application.
+@reg.dispatch('obj')
+def path(obj):
+    """Get the path and parameters for an object in its own application.
+>>>>>>> Reorganize Morepath in terms of the new reg. Many tests are starting to
     """
     return None
 
 
-@reg.dispatch('model')
-def link(request, model, mounted):
+@reg.dispatch('obj')
+def link(request, obj, mounted):
     """Create a link (URL) to a model, including any mounted applications.
     """
     raise NotImplementedError  # pragma: nocoverage
 
 
 
-@reg.dispatch('model')
-def deferred_link_app(mounted, model):
-    return None
+@reg.dispatch_external_predicates()
+def view(request, obj):
+    """Get the view that represents the obj in the context of a request.
 
-
-@reg.dispatch('model')
-def view(request, model):
-    """Get the view that represents the model in the context of a request.
-
-    This view is a representation of the model that be rendered to
+    This view is a representation of the obj that can be rendered to
     a response. It may also return a Response directly. If a string is
     returned, the string is converted to a Response with the string as
     the response body.
@@ -44,11 +40,11 @@ def view(request, model):
     raise NotImplementedError  # pragma: nocoverage
 
 
-@reg.dispatch('model')
-def response(request, model):
-    """Get a Response for the model in the context of the request.
+@reg.dispatch('obj')
+def response(request, obj):
+    """Get a Response for the obj in the context of the request.
     """
-    raise NotImplementedError  # pragma: nocoverage
+    return None
 
 
 @reg.dispatch()
@@ -96,19 +92,12 @@ def forget_identity(response, request):
     raise NotImplementedError  # pragma: nocoverage
 
 
-@reg.dispatch('identity', 'model', 'permission')
-def permits(identity, model, permission):
+@reg.dispatch('identity', 'obj', 'permission')
+def permits(identity, obj, permission):
     """Returns True if identity has permission for model.
 
     identity can be the special NO_IDENTITY singleton; register for
     NoIdentity to handle this case separately.
-    """
-    raise NotImplementedError  # pragma: nocoverage
-
-
-@reg.dispatch()
-def linkmaker(request, mounted):
-    """Returns a link maker for request and mounted.
     """
     raise NotImplementedError  # pragma: nocoverage
 

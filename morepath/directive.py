@@ -2,11 +2,9 @@ from .app import App
 from .config import Directive as ConfigDirective
 from .settings import register_setting
 from .error import ConfigError
-from .view import (register_view, render_json, render_html,
-                   register_predicate, register_predicate_fallback,
-                   get_predicates_with_defaults)
 from .security import (register_permission_checker,
                        Identity, NoIdentity)
+from .view import render_json, render_html, register_view
 from .path import register_path
 from .traject import Path
 from reg import KeyIndex, dispatch
@@ -84,54 +82,13 @@ class SettingSectionDirective(Directive):
                    SettingValue(value))
 
 
-@App.directive('predicate')
-class PredicateDirective(Directive):
-    depends = [SettingDirective]
 
-    def __init__(self, app, dispatch, index, default, before=None, after=None):
-        """Register custom predicate for a predicate_dispatch function.
-
-        The function registered should have arguments that are the
-        same or a subset of the arguments of the predicate_dispatch
-        function. From these arguments it should determine a predicate
-        value and return it. The predicates for a predicate_dispatch
-        function are ordered by their before and after arguments.
-
-        You can then register a function to dispatch to using the
-        :meth:`App.function` directive. This takes the
-        predicate_dispatch or dispatch function as its first argument
-        and the predicate key to match on as its other arguments.
-
-        :param dispatch: the predicate_dispatch function this predicate
-           is for.
-        :param index: the index to use. Typically morepath.KeyIndex or
-          morepath.ClassIndex.
-        :param default: the default value for this predicate. This is
-          used as a default value if the argument is ommitted.
-        :param before: predicate function this function wants to have
-           priority over.
-        :param after: predicate function we want to have priority over
-           this one.
-        """
-        super(PredicateDirective, self).__init__(app)
-        self.dispatch = dispatch
-        self.index = index
-        self.default = default
-        self.before = before
-        self.after = after
-
-    def identifier(self, registry):
-        return self.dispatch.wrapped_func, self.before, self.after
-
-    def perform(self, registry, obj):
-        registry.register_predicate(obj, self.dispatch.wrapped_func,
-                                    self.index, self.default, self.before,
-                                    self.after)
-
-
+# XXX this allows predicate_fallback directives to be installed without
+# predicate directives, which has no meaning. Not sure how to detect
+# this.
 @App.directive('predicate_fallback')
 class PredicateFallbackDirective(Directive):
-    depends = [SettingDirective, PredicateDirective]
+    depends = [SettingDirective]
 
     def __init__(self, app, dispatch, func):
         """For a given dispatch and function dispatched to, register fallback.
@@ -147,36 +104,82 @@ class PredicateFallbackDirective(Directive):
         self.dispatch = dispatch
         self.func = func
 
+    def prepare(self, obj):
+        if not self.dispatch.external_predicates:
+            raise ConfigError(
+                "@predicate_fallback decorator may only be used with "
+                "@reg.dispatch_external_predicates, not: %s" % self.dispatch)
+        yield self, obj
+
     def identifier(self, registry):
         return self.dispatch.wrapped_func, self.func
 
     def perform(self, registry, obj):
-        register_predicate_fallback(registry, self.dispatch.wrapped_func, obj)
+        registry.register_predicate_fallback(self.dispatch, self.func, obj)
 
 
-@App.directive('predicate_dispatch')
-class PredicateDispatchDirective(Directive):
-    depends = [PredicateDirective, PredicateFallbackDirective]
+@App.directive('predicate')
+class PredicateDirective(Directive):
+    depends = [SettingDirective, PredicateFallbackDirective]
+
+    def __init__(self, app, dispatch, name, default, index,
+                 before=None, after=None):
+        """Register custom predicate for a predicate_dispatch function.
+
+        The function registered should have arguments that are the
+        same or a subset of the arguments of the predicate_dispatch
+        function. From these arguments it should determine a predicate
+        value and return it. The predicates for a predicate_dispatch
+        function are ordered by their before and after arguments.
+
+        You can then register a function to dispatch to using the
+        :meth:`App.function` directive. This takes the
+        predicate_dispatch or dispatch function as its first argument
+        and the predicate key to match on as its other arguments.
+
+        :param dispatch: the predicate_dispatch function this predicate
+           is for.
+        :param name: the name of the predicate. This is used when
+          constructing a predicate key from a predicate dictionary.
+        :param default: the default value for a predicate, in case the
+          value is missing in the predicate dictionary.
+        :param index: the index to use. Typically morepath.KeyIndex or
+          morepath.ClassIndex.
+        :param default: the default value for this predicate. This is
+          used as a default value if the argument is ommitted.
+        :param before: predicate function this function wants to have
+           priority over.
+        :param after: predicate function we want to have priority over
+           this one.
+        """
+        super(PredicateDirective, self).__init__(app)
+        self.dispatch = dispatch
+        self.name = name
+        self.default = default
+        self.index = index
+        self.before = before
+        self.after = after
+
+    def prepare(self, obj):
+        if not self.dispatch.external_predicates:
+            raise ConfigError(
+                "@predicate decorator may only be used with "
+                "@reg.dispatch_external_predicates, not: %s" % self.dispatch)
+        yield self, obj
 
     def identifier(self, registry):
-        # as many duplicates we want XXX is this right?
-        return id(self)
+        return self.dispatch.wrapped_func, self.before, self.after
 
     def perform(self, registry, obj):
-        registry.register_callable_predicates(
-            obj.wrapped_func,
-            registry.get_predicates(obj.wrapped_func))
-        obj.initialized = True
-
-    def __call__(self, wrapped):
-        result = dispatch()(wrapped)
-        super(PredicateDispatchDirective, self).__call__(result)
-        return result
+        registry.register_predicate(obj, self.dispatch,
+                                    self.name, self.default, self.index,
+                                    self.before, self.after)
 
 
 @App.directive('function')
 class FunctionDirective(Directive):
-    depends = [SettingDirective, PredicateDispatchDirective]
+    depends = [SettingDirective,
+               PredicateDirective, PredicateFallbackDirective]
 
     def __init__(self, app, func, *predicate_key):
         '''Register function as implementation of generic dispatch function
@@ -203,6 +206,11 @@ class FunctionDirective(Directive):
         return (self.func.wrapped_func, self.predicate_key)
 
     def perform(self, registry, obj):
+        # XXX would really like to do this once before any function
+        # directives get executed but after all predicate directives
+        # are executed. configuration ends needs a way to do extra
+        # work after a directive's phase ends
+        registry.install_predicates(self.func)
         registry.register_function(self.func, self.predicate_key, obj)
 
 
@@ -347,12 +355,10 @@ class PermissionRuleDirective(Directive):
 
 @App.directive('view')
 class ViewDirective(Directive):
-    depends = [SettingDirective, PredicateDirective,
-               PredicateFallbackDirective]
+    depends = [SettingDirective, PredicateDirective]
 
     def __init__(self, app, model, render=None, permission=None,
-                 internal=False,
-                 **predicates):
+                 internal=False, **predicates):
         '''Register a view for a model.
 
         The decorated function gets ``self`` (model instance) and
@@ -420,15 +426,19 @@ class ViewDirective(Directive):
         args.update(kw)
         return ViewDirective(**args)
 
+    def predicate_key(self, registry):
+        registry.install_predicates(generic.view)
+        p = self.predicates.copy()
+        p['model'] = self.model
+        return registry.predicate_key_by_predicate_name(generic.view, p)
+
     def identifier(self, registry):
-        predicates = get_predicates_with_defaults(
-            self.predicates, registry.exact('predicate_info', ()))
-        predicates_discriminator = tuple(sorted(predicates.items()))
-        return (self.model, predicates_discriminator)
+        return self.predicate_key(registry)
 
     def perform(self, registry, obj):
-        register_view(registry, self.model, obj, self.render, self.permission,
-                      self.internal, self.predicates)
+        predicate_key = self.predicate_key(registry)
+        register_view(registry, predicate_key, obj,
+                      self.render, self.permission, self.internal)
 
 
 @App.directive('json')

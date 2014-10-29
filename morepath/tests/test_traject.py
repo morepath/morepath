@@ -403,9 +403,9 @@ def test_parse_variables():
         parse_variables('{1illegal}')
 
 
-def consume(mount, path):
-    request = mount.request(webob.Request.blank(path).environ)
-    return traject_consume(request, mount, lookup=mount.lookup), request
+def consume(app, path):
+    request = app.request(webob.Request.blank(path).environ)
+    return traject_consume(request, app, lookup=app.lookup), request
 
 paramfac = ParameterFactory({}, {}, [])
 
@@ -473,12 +473,10 @@ def test_traject_consume_model_factory_gets_request():
 
 
 def test_traject_consume_not_found():
-    class app(App):
+    class app(morepath.App):
         pass
 
-    mount = app()
-
-    found, request = consume(mount, 'sub')
+    found, request = consume(app(), 'sub')
     assert found is None
     assert request.unconsumed == ['sub']
 
@@ -566,7 +564,6 @@ def test_traject_consume_combination():
     traject.add_pattern('special', (Special, paramfac))
     traject.add_pattern('{foo}', (get_model, paramfac))
 
-    mount = app()
 
     found, request = consume(mount, 'something')
     assert isinstance(found, Model)
@@ -589,6 +586,7 @@ def test_traject_nested():
     mount = app()
 
     found, request = consume(mount, 'a')
+
     assert isinstance(found, Model)
     assert request.unconsumed == []
     found, request = consume(mount, 'a/b')
