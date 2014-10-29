@@ -6,10 +6,9 @@ from .app import App
 from .request import Request, Response, LinkMaker, NothingMountedLinkMaker
 from .converter import Converter, IDENTITY_CONVERTER
 from webob import Response as BaseResponse
-from webob.exc import (HTTPException, HTTPForbidden, HTTPMethodNotAllowed,
-                       HTTPBadRequest)
+from webob.exc import HTTPException, HTTPForbidden, HTTPMethodNotAllowed
 import morepath
-from reg import mapply, KeyIndex, ClassIndex
+from reg import mapply, KeyIndex
 from datetime import datetime, date
 from time import mktime, strptime
 
@@ -140,20 +139,9 @@ def request_method_predicate(self, request):
     return request.method
 
 
-@App.predicate(name='body_model', index=ClassIndex, order=2,
-               default=object)
-def body_model_predicate(self, request):
-    return request.body_obj.__class__
-
-
 @App.predicate_fallback(name='request_method')
 def method_not_allowed(self, request):
     raise HTTPMethodNotAllowed()
-
-
-@App.predicate_fallback(name='body_model')
-def body_model_not_matched(self, request):
-    raise HTTPBadRequest()
 
 
 @App.converter(type=int)
