@@ -1126,3 +1126,50 @@ def test_access_app_through_request():
 
     response = c.get('/')
     assert response.body == b'/foo'
+
+
+def test_mount_ancestors():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class mounted(morepath.App):
+        testing_config = config
+
+        def __init__(self, id):
+            self.id = id
+
+    @app.path(path='')
+    class AppRoot(object):
+        pass
+
+    @app.view(model=AppRoot)
+    def app_root_default(self, request):
+        l = list(request.app.ancestors())
+        assert len(l) == 1
+        assert l[0] is request.app
+        assert request.app.root is request.app
+
+    @mounted.path(path='')
+    class MountedRoot(object):
+        pass
+
+    @mounted.view(model=MountedRoot)
+    def mounted_root_default(self, request):
+        l = list(request.app.ancestors())
+        assert len(l) == 2
+        assert l[0] is request.app
+        assert l[1] is request.app.parent
+        assert request.app.root is request.app.parent
+
+    @app.mount(path='{id}', app=mounted)
+    def get_mounted(id):
+        return mounted(id=id)
+
+    config.commit()
+
+    c = Client(app())
+
+    c.get('/')
+    c.get('/foo')

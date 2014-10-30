@@ -120,7 +120,35 @@ class App(with_metaclass(AppMeta)):
         response = self.publish(request)
         return response(environ, start_response)
 
+    def ancestors(self):
+        """Return iterable of all ancestors of this app.
+
+        Includes this app itself as the first ancestor, all the way
+        up to the root app in the mount chain.
+        """
+        app = self
+        while app is not None:
+            yield app
+            app = app.parent
+
+    @reify
+    def root(self):
+        """The root application.
+        """
+        return list(self.ancestors())[-1]
+
     def child(self, app, **variables):
+        """Get app mounted in this app.
+
+        Either give it an instance of the app class as the first
+        parameter, or the app class itself (or name under which it was
+        mounted) as the first parameter and as ``**variables`` the
+        parameters that go to its ``mount`` function.
+
+        Returns the mounted application object, with its ``parent``
+        attribute set to this app object, or ``None`` if this
+        application cannot be mounted in this one.
+        """
         if isinstance(app, App):
             result = app
             # XXX assert that variables is empty
