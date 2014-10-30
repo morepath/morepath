@@ -8,7 +8,6 @@ from .view import (register_view, render_json, render_html,
 from .security import (register_permission_checker,
                        Identity, NoIdentity)
 from .path import register_path
-from .mount import register_mount, register_defer_links
 from .traject import Path
 from reg import KeyIndex
 from .request import Request, Response
@@ -523,9 +522,10 @@ class MountDirective(PathDirective):
         return [('mount', self.mounted_app)]
 
     def perform(self, registry, obj):
-        register_mount(registry, self.mounted_app, self.path, self.variables,
-                       self.converters, self.required,
-                       self.get_converters, self.name, obj)
+        registry.register_mount(
+            self.mounted_app, self.path, self.variables,
+            self.converters, self.required,
+            self.get_converters, self.name, obj)
 
 
 @App.directive('defer_links')
@@ -547,7 +547,7 @@ class DeferLinksDirective(Directive):
         return [('model', self.model)]
 
     def perform(self, registry, obj):
-        register_defer_links(registry, self.mounted_app, self.model, obj)
+        registry.register_defer_links(self.mounted_app, self.model, obj)
 
 
 tween_factory_id = 0

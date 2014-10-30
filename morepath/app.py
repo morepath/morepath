@@ -1,27 +1,31 @@
-from .action import FunctionAction
-from .request import Request
-from .traject import Traject
-from .config import Configurable
-from .settings import SettingSectionContainer
-from .converter import ConverterRegistry
-from .tween import TweenRegistry
-from . import compat
+from functools import update_wrapper
 from morepath import generic
 from reg import ClassRegistry, Lookup, CachingClassLookup
 import venusian
-from .reify import reify
-from functools import update_wrapper
+
+from . import compat
+from .action import FunctionAction
 from .compat import with_metaclass
+from .config import Configurable
+from .converter import ConverterRegistry
 from .implicit import set_implicit
+from .mount import MountRegistry
+from .reify import reify
+from .request import Request
+from .settings import SettingSectionContainer
+from .traject import Traject
+from .tween import TweenRegistry
 
 
-class Registry(Configurable, ClassRegistry, ConverterRegistry, TweenRegistry):
+class Registry(Configurable, ClassRegistry, MountRegistry,
+               ConverterRegistry, TweenRegistry):
     """A registry holding an application's configuration.
     """
     def __init__(self, name, bases, testing_config):
         self.name = name
         bases = [base.registry for base in bases if hasattr(base, 'registry')]
         ClassRegistry.__init__(self)
+        MountRegistry.__init__(self)
         Configurable.__init__(self, bases, testing_config)
         ConverterRegistry.__init__(self)
         TweenRegistry.__init__(self)
@@ -35,12 +39,11 @@ class Registry(Configurable, ClassRegistry, ConverterRegistry, TweenRegistry):
         """Clear all registrations in this application.
         """
         ClassRegistry.clear(self)
+        MountRegistry.clear(self)
         Configurable.clear(self)
         ConverterRegistry.clear(self)
         TweenRegistry.clear(self)
         self.traject = Traject()
-        self.mounted = {}
-        self.named_mounted = {}
 
     @reify
     def lookup(self):
