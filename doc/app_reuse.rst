@@ -299,10 +299,15 @@ If the ``child_app`` is not mounted here, this will also raise a
 :exc:`morepath.error.LinkError`.
 
 This won't work though in the case of ``wiki_app`` of the previous
-example, as it mounted inside ``app`` using the ``wiki_id``. Here's
-how we supply it to get the appropriate ``wiki_app``::
+example, as it mounted inside ``app`` using the ``wiki_id``. We
+can pass a ``wiki_app`` instance to supply it::
 
-  request.child(wiki_app, wiki_id=3).link(obj)
+  request.child(wiki_app(wiki_id=3)).link(obj)
+
+Alternatively we can also give it the ``wiki_app`` class and the
+username and let it figure out the ``wiki_id`` itself::
+
+  request.child(wiki_app, username='faassen')
 
 You can compose ``parent`` and ``child`` together in order to get to
 anywhere in the mounted app graph; getting to a sibling app for

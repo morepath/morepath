@@ -120,14 +120,22 @@ class App(with_metaclass(AppMeta)):
         response = self.publish(request)
         return response(environ, start_response)
 
-    def child(self, app, **context):
-        if isinstance(app, compat.string_types):
-            factory = self.registry.named_mounted.get(app)
+    def child(self, app, **variables):
+        if isinstance(app, App):
+            result = app
+            # XXX assert that variables is empty
+
+            # XXX do we need to deal with subclasses of apps?
+            if app.__class__ not in self.registry.mounted:
+                return None
         else:
-            factory = self.registry.mounted.get(app)
-        if factory is None:
-            return None
-        result = factory(**context)
+            if isinstance(app, compat.string_types):
+                factory = self.registry.named_mounted.get(app)
+            else:
+                factory = self.registry.mounted.get(app)
+            if factory is None:
+                return None
+            result = factory(**variables)
         result.parent = self
         return result
 

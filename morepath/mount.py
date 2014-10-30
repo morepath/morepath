@@ -2,6 +2,7 @@ from . import generic
 from .path import register_path
 from .request import Request
 
+
 class MountRegistry(object):
     def __init__(self):
         self.clear()
@@ -16,12 +17,13 @@ class MountRegistry(object):
                       converters, required, get_converters, False,
                       app_factory)
 
-        self.mounted[app] = app  # XXX turn into a set
+        self.mounted[app] = app_factory
         mount_name = mount_name or path
-        self.named_mounted[mount_name] = app
+        self.named_mounted[mount_name] = app_factory
 
     def register_defer_links(self, app, model, context_factory):
         def get_link(request, obj, mounted):
-            child = request.app.child(app, **context_factory(obj))
+            child = request.app.child(context_factory(obj))
+            #child = request.app.child(app, **context_factory(obj))
             return generic.link(request, obj, child, lookup=child.lookup)
         self.register(generic.link, [Request, model, object], get_link)

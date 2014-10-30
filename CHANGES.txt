@@ -81,23 +81,29 @@ CHANGES
        def get_root(app, id):
            return Model(app.mount_id, id)
 
-  * the ``.child`` method on request used to take the variables as
-    seen in the URL. This has changed: it now requires the arguments
-    required to instantiate the App. These are the same values as need
-    to be returned in a dictionary from the function decorated by the
-    ``mount`` directive.
-
   * There was an ``request.mounted`` attribute. This attribute is now
     gone. Instead you can access the mounted application using
     ``request.app``.
+
+  * Not a breaking change, but worth mentioning: the ``.child`` method
+    on request takes the app class (or app name) as well as the
+    parameters for the function decorated by the ``mount`` directive::
+
+       request.child(MyApp, id='foo')
+
+    As an alternative you can now instead pass an app *instance*
+    (which of course takes the parameters specified in its
+    ``__init__`` method)::
+
+       request.child(MyApp(mount_id='foo'))
 
   Underneath, Morepath used to have a ``Mount`` class separate from
   the ``App`` classes you define. Since Morepath 0.4 application
   objects became classes, and it made sense to make their instances
   the same as the mounted application. This unification has now taken
-  place. This simplifies the implementation of mounting
-  considerably. This simplification helped create the new
-  ``defer_links`` directive.
+  place. This simplifies the implementation of mounting considerably,
+  while actually making available new features. This simplification
+  helped to create the new ``defer_links`` directive.
 
 - **Breaking change**. The arguments to the ``render`` function have
   changed. This is a function you can pass to a view directive.  The

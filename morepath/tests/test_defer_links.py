@@ -33,7 +33,7 @@ def test_defer_links():
 
     @root.defer_links(model=SubModel, app=sub)
     def defer_links_sub_model(obj):
-        return {}
+        return sub()
 
     config.commit()
 
@@ -78,7 +78,7 @@ def test_defer_links_mount_parameters():
 
     @root.defer_links(model=SubModel, app=sub)
     def defer_links_sub_model(obj):
-        return {'name': obj.name}
+        return sub(name=obj.name)
 
     config.commit()
 
