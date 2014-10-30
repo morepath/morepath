@@ -126,8 +126,9 @@ CHANGES
 
 - ``defer_links`` directive. This directive can be used to declare
   that a particular mounted application takes care of linking to
-  instances of a class. This lets you combine applications with more
-  ease.
+  instances of a class. Besides deferring ``request.link()`` it will
+  also defer ``request.view``. This lets you combine applications with
+  more ease.
 
 - ``app.ancestors()`` method and ``app.root`` attribute. These can be
   used for convenient access to the ancestor apps of a mounted

@@ -192,6 +192,11 @@ class LinkMaker(object):
         return result
 
     def view(self, obj, default=None, **predicates):
+        # Hack: squirrel away predicates on request, so
+        # we can access them again in defer_links implementation
+        # of the view, which has no other way to get at them
+        # using current reg
+        self.request._predicates = predicates
         view = generic.view.component(
             self.request, obj, lookup=self.app.lookup, default=default,
             predicates=predicates)

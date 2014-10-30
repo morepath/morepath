@@ -536,7 +536,9 @@ class DeferLinksDirective(Directive):
         """Defer link generation for model to mounted app.
 
         Using ``defer_links`` you can specify that link generation for
-        instances of model are to be handled by the given mounted ``app``.
+        instances of model are to be handled by the given mounted
+        ``app``. This makes sure that :meth:`Request.link` and
+        :meth:`Request.view` are deferred.
 
         The decorated function gets an instance of the object to link to,
         and should return an instance of ``app`` that can create a link
@@ -544,6 +546,7 @@ class DeferLinksDirective(Directive):
 
         :param model: the class for which we want to defer linking.
         :param app: the :class:`morepath.App` subclass that handles links.
+
         """
         super(DeferLinksDirective, self).__init__(base_app)
         self.model = model

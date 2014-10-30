@@ -24,6 +24,27 @@ class MountRegistry(object):
     def register_defer_links(self, app, model, context_factory):
         def get_link(request, obj, mounted):
             child = request.app.child(context_factory(obj))
-            #child = request.app.child(app, **context_factory(obj))
             return generic.link(request, obj, child, lookup=child.lookup)
+
         self.register(generic.link, [Request, model, object], get_link)
+
+        def get_view(request, obj):
+            child = request.app.child(context_factory(obj))
+
+            old_app = request.app
+            child.set_implicit()
+            request.app = child
+            # Hack: use squirreled away _predicates from request
+            view = generic.view.component(request, obj, lookup=child.lookup,
+                                          default=None,
+                                          predicates=request._predicates)
+            if view is not None:
+                result = view(request, obj)
+            else:
+                result = None
+            old_app.set_implicit()
+            request.app = old_app
+            return result
+
+        self.register(generic.view, [Request, model], get_view)
+

@@ -43,6 +43,129 @@ def test_defer_links():
     assert response.body == b'/sub'
 
 
+def test_defer_view():
+    config = morepath.setup()
+
+    class root(morepath.App):
+        testing_config = config
+
+    class sub(morepath.App):
+        testing_config = config
+
+    @root.path(path='')
+    class RootModel(object):
+        pass
+
+    @root.json(model=RootModel)
+    def root_model_default(self, request):
+        return request.view(SubModel())
+
+    @sub.path(path='')
+    class SubModel(object):
+        pass
+
+    @sub.json(model=SubModel)
+    def submodel_default(self, request):
+        return {'hello': 'world'}
+
+    @root.mount(app=sub, path='sub')
+    def mount_sub():
+        return sub()
+
+    @root.defer_links(model=SubModel, app=sub)
+    def defer_links_sub_model(obj):
+        return sub()
+
+    config.commit()
+
+    c = Client(root())
+
+    response = c.get('/')
+    assert response.json == {'hello': 'world'}
+
+
+def test_defer_view_predicates():
+    config = morepath.setup()
+
+    class root(morepath.App):
+        testing_config = config
+
+    class sub(morepath.App):
+        testing_config = config
+
+    @root.path(path='')
+    class RootModel(object):
+        pass
+
+    @root.json(model=RootModel)
+    def root_model_default(self, request):
+        return request.view(SubModel(), name='edit')
+
+    @sub.path(path='')
+    class SubModel(object):
+        pass
+
+    @sub.json(model=SubModel, name='edit')
+    def submodel_edit(self, request):
+        return {'hello': 'world'}
+
+    @root.mount(app=sub, path='sub')
+    def mount_sub():
+        return sub()
+
+    @root.defer_links(model=SubModel, app=sub)
+    def defer_links_sub_model(obj):
+        return sub()
+
+    config.commit()
+
+    c = Client(root())
+
+    response = c.get('/')
+    assert response.json == {'hello': 'world'}
+
+
+def test_defer_view_missing_view():
+    config = morepath.setup()
+
+    class root(morepath.App):
+        testing_config = config
+
+    class sub(morepath.App):
+        testing_config = config
+
+    @root.path(path='')
+    class RootModel(object):
+        pass
+
+    @root.json(model=RootModel)
+    def root_model_default(self, request):
+        return {'not_found': request.view(SubModel(), name='unknown') }
+
+    @sub.path(path='')
+    class SubModel(object):
+        pass
+
+    @sub.json(model=SubModel, name='edit')
+    def submodel_edit(self, request):
+        return {'hello': 'world'}
+
+    @root.mount(app=sub, path='sub')
+    def mount_sub():
+        return sub()
+
+    @root.defer_links(model=SubModel, app=sub)
+    def defer_links_sub_model(obj):
+        return sub()
+
+    config.commit()
+
+    c = Client(root())
+
+    response = c.get('/')
+    assert response.json == {'not_found': None}
+
+
 def test_defer_links_mount_parameters():
     config = morepath.setup()
 
