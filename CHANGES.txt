@@ -85,6 +85,18 @@ CHANGES
     gone. Instead you can access the mounted application using
     ``request.app``.
 
+  * Not a breaking change, but a new feature. When you generate a link
+    using ``request.link()`` or ``request.view()``, and the app in
+    question cannot generate the link or view, Morepath now can
+    consult the parent in which this app was mounted (if any) to see
+    whether it can handle this instead, and so on until the root is
+    reached. It therefore inherits or "acquires" link from its
+    containment.
+
+    You need to explicitly turn on this behavior in the ``mount``
+    directive: set the new ``inherit_links`` to the ``mount`` directive
+    to ``True``. By default links are not inherited.
+
   * Not a breaking change, but worth mentioning: the ``.child`` method
     on request takes the app class (or app name) as well as the
     parameters for the function decorated by the ``mount`` directive::

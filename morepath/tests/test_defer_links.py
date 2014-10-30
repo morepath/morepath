@@ -1,5 +1,6 @@
 import morepath
 from webtest import TestApp as Client
+from morepath.error import LinkError
 
 
 def setup_module(module):
@@ -140,7 +141,7 @@ def test_defer_view_missing_view():
 
     @root.json(model=RootModel)
     def root_model_default(self, request):
-        return {'not_found': request.view(SubModel(), name='unknown') }
+        return {'not_found': request.view(SubModel(), name='unknown')}
 
     @sub.path(path='')
     class SubModel(object):
@@ -209,3 +210,160 @@ def test_defer_links_mount_parameters():
 
     response = c.get('/')
     assert response.body == b'/foo'
+
+
+def test_defer_link_acquisition():
+    config = morepath.setup()
+
+    class root(morepath.App):
+        testing_config = config
+
+    class sub(morepath.App):
+        testing_config = config
+
+    @root.path(path='model/{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @root.view(model=Model)
+    def model_default(self, request):
+        return "Hello"
+
+    @sub.path(path='')
+    class SubModel(object):
+        pass
+
+    @sub.view(model=SubModel)
+    def sub_model_default(self, request):
+        return request.link(Model('foo'))
+
+    @root.mount(app=sub, path='sub', inherit_links=True)
+    def mount_sub():
+        return sub()
+
+    config.commit()
+
+    c = Client(root())
+
+    response = c.get('/sub')
+    assert response.body == b'/model/foo'
+
+
+def test_defer_view_acquisition():
+    config = morepath.setup()
+
+    class root(morepath.App):
+        testing_config = config
+
+    class sub(morepath.App):
+        testing_config = config
+
+    @root.path(path='model/{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @root.json(model=Model)
+    def model_default(self, request):
+        return {"Hello": "World"}
+
+    @sub.path(path='')
+    class SubModel(object):
+        pass
+
+    @sub.json(model=SubModel)
+    def sub_model_default(self, request):
+        return request.view(Model('foo'))
+
+    @root.mount(app=sub, path='sub', inherit_links=True)
+    def mount_sub():
+        return sub()
+
+    config.commit()
+
+    c = Client(root())
+
+    response = c.get('/sub')
+    assert response.json == {"Hello": "World"}
+
+
+def test_defer_link_acquisition_blocking():
+    config = morepath.setup()
+
+    class root(morepath.App):
+        testing_config = config
+
+    class sub(morepath.App):
+        testing_config = config
+
+    @root.path(path='model/{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @root.view(model=Model)
+    def model_default(self, request):
+        return "Hello"
+
+    @sub.path(path='')
+    class SubModel(object):
+        pass
+
+    @sub.view(model=SubModel)
+    def sub_model_default(self, request):
+        try:
+            return request.link(Model('foo'))
+        except LinkError:
+            return "link error"
+
+    # inherit_links is False by default
+    @root.mount(app=sub, path='sub')
+    def mount_sub():
+        return sub()
+
+    config.commit()
+
+    c = Client(root())
+
+    response = c.get('/sub')
+    assert response.body == b'link error'
+
+
+def test_defer_view_acquisition_blocking():
+    config = morepath.setup()
+
+    class root(morepath.App):
+        testing_config = config
+
+    class sub(morepath.App):
+        testing_config = config
+
+    @root.path(path='model/{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @root.json(model=Model)
+    def model_default(self, request):
+        return {"Hello": "World"}
+
+    @sub.path(path='')
+    class SubModel(object):
+        pass
+
+    @sub.json(model=SubModel)
+    def sub_model_default(self, request):
+        return request.view(Model('foo')) is None
+
+    # inherit_links is False by default
+    @root.mount(app=sub, path='sub')
+    def mount_sub():
+        return sub()
+
+    config.commit()
+
+    c = Client(root())
+
+    response = c.get('/sub')
+    assert response.json is True

@@ -54,7 +54,10 @@ def link(request, model, mounted):
     result = []
     parameters = {}
     while mounted is not None:
-        path, params = generic.path(model, lookup=mounted.lookup)
+        path_info = generic.path(model, lookup=mounted.lookup)
+        if path_info is None:
+            return None
+        path, params = path_info
         result.append(path)
         parameters.update(params)
         model = mounted

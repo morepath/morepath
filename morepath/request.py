@@ -179,8 +179,14 @@ class LinkMaker(object):
     def link(self, obj, name='', default=None):
         if obj is None:
             return default
-        path, parameters = generic.link(
-            self.request, obj, self.app, lookup=self.app.lookup)
+
+        def get(ancestor):
+            return generic.link(self.request, obj, ancestor,
+                                lookup=ancestor.lookup)
+        info = self._walk(get)
+        if info is None:
+            raise LinkError("Cannot link to: %r" % obj)
+        path, parameters = info
         parts = []
         if path:
             parts.append(path)
@@ -197,11 +203,16 @@ class LinkMaker(object):
         # of the view, which has no other way to get at them
         # using current reg
         self.request._predicates = predicates
-        view = generic.view.component(
-            self.request, obj, lookup=self.app.lookup, default=default,
-            predicates=predicates)
+
+        def get(ancestor):
+            return generic.view.component(
+                self.request, obj, lookup=ancestor.lookup, default=None,
+                predicates=predicates)
+
+        view = self._walk(get)
         if view is None:
-            return None
+            return default
+
         old_app = self.request.app
         self.app.set_implicit()
         self.request.app = self.app
@@ -209,6 +220,18 @@ class LinkMaker(object):
         old_app.set_implicit()
         self.request.app = old_app
         return result
+
+    def _walk(self, get):
+        child = None
+        for ancestor in self.app.ancestors():
+            if child is not None and\
+               not ancestor.registry.is_inherit_links_mount(child):
+                break
+            info = get(ancestor)
+            child = ancestor
+            if info is not None:
+                return info
+        return None
 
     @reify
     def parent(self):

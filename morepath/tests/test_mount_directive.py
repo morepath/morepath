@@ -540,7 +540,7 @@ def test_request_view_in_mount():
             Model('x'))['hey']
 
     @app.view(model=Root, name='inst')
-    def root_default(self, request):
+    def root_inst(self, request):
         return request.child(mounted(mount_id='foo')).view(
             Model('x'))['hey']
 
@@ -660,7 +660,7 @@ def test_request_view_in_mount_broken():
             return "link error"
 
     @app.view(model=Root, name='inst')
-    def root_default(self, request):
+    def root_inst(self, request):
         try:
             return request.child(mounted(mount_id='foo')).view(
                 Model('x'))['hey']

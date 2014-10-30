@@ -472,7 +472,8 @@ class MountDirective(PathDirective):
     depends = [SettingDirective, ConverterDirective]
 
     def __init__(self, base_app, path, app, variables=None, converters=None,
-                 required=None, get_converters=None, name=None):
+                 required=None, get_converters=None, name=None,
+                 inherit_links=False):
         """Mount sub application on path.
 
         The decorated function gets the variables specified in path as
@@ -499,6 +500,11 @@ class MountDirective(PathDirective):
           :meth:`Request.child` to allow loose coupling between mounting
           application and mounted application. Optional, and if not supplied
           the ``path`` argument is taken as the name.
+        :param inherit_links: the ``inherit_links`` flag determines
+           whether an application will consult its parent app to
+           create links and views for models it cannot create a link
+           or view for itself. If set to ``True``, it consults parent
+           apps. By default it is ``False``.
         """
         super(MountDirective, self).__init__(base_app, path,
                                              variables=variables,
@@ -507,6 +513,7 @@ class MountDirective(PathDirective):
                                              get_converters=get_converters)
         self.name = name or path
         self.mounted_app = app
+        self.inherit_links = inherit_links
 
     def group_key(self):
         return PathDirective
@@ -524,7 +531,7 @@ class MountDirective(PathDirective):
         registry.register_mount(
             self.mounted_app, self.path, self.variables,
             self.converters, self.required,
-            self.get_converters, self.name, obj)
+            self.get_converters, self.name, self.inherit_links, obj)
 
 
 @App.directive('defer_links')

@@ -1,5 +1,4 @@
 import reg
-from .error import LinkError
 
 
 @reg.generic
@@ -17,7 +16,7 @@ def consume(request, model):
 def path(model):
     """Get the path and parameters for a model in its own application.
     """
-    raise LinkError()
+    return None
 
 
 @reg.generic
