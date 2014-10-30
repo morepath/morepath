@@ -129,6 +129,11 @@ CHANGES
   instances of a class. This lets you combine applications with more
   ease.
 
+- ``app.ancestors()`` method and ``app.root`` attribute. These can be
+  used for convenient access to the ancestor apps of a mounted
+  application. To access from the request, use ``request.app.root``
+  and ``request.app.ancestors()``.
+
 - Several generic functions that weren't really pulling their weight
   are now gone as part of the mount simplification:
   ``generic.context`` and ``generic.traject`` are not needed anymore.
