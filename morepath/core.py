@@ -33,7 +33,7 @@ def setup():
 
 @App.function(generic.consume, Request, App)
 def traject_consume(request, app, lookup):
-    traject = app.registry.traject
+    traject = app.traject
     value, stack, traject_variables = traject.consume(request.unconsumed)
     if value is None:
         return None
