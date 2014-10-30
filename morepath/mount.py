@@ -10,11 +10,9 @@ class MountRegistry(object):
     def clear(self):
         self.mounted = {}
         self.named_mounted = {}
-        self.inherit_links = set()
 
     def register_mount(self, app, path, get_variables, converters, required,
-                       get_converters, mount_name, inherit_links,
-                       app_factory):
+                       get_converters, mount_name, app_factory):
         register_path(self, app, path, get_variables,
                       converters, required, get_converters, False,
                       app_factory)
@@ -22,24 +20,32 @@ class MountRegistry(object):
         self.mounted[app] = app_factory
         mount_name = mount_name or path
         self.named_mounted[mount_name] = app_factory
-        if inherit_links:
-            self.inherit_links.add(app)
 
-    def register_defer_links(self, app, model, context_factory):
+    def register_defer_links(self, model, context_factory):
+        def get_app(request, obj):
+            context = context_factory(obj)
+            if context is None:
+                return request.app.parent
+            return request.app.child(context)
+
         def get_link(request, obj, mounted):
-            child = request.app.child(context_factory(obj))
-            return generic.link(request, obj, child, lookup=child.lookup)
+            other = get_app(request, obj)
+            if other is None:
+                return None
+            return generic.link(request, obj, other, lookup=other.lookup)
 
         self.register(generic.link, [Request, model, object], get_link)
 
         def get_view(request, obj):
-            child = request.app.child(context_factory(obj))
+            other = get_app(request, obj)
+            if other is None:
+                return None
 
             old_app = request.app
-            child.set_implicit()
-            request.app = child
+            other.set_implicit()
+            request.app = other
             # Hack: use squirreled away _predicates from request
-            view = generic.view.component(request, obj, lookup=child.lookup,
+            view = generic.view.component(request, obj, lookup=other.lookup,
                                           default=None,
                                           predicates=request._predicates)
             if view is not None:
@@ -50,7 +56,7 @@ class MountRegistry(object):
             request.app = old_app
             return result
 
-        self.register(generic.view, [Request, model], get_view)
+        # these views are always internal so cannot be found
+        get_view.internal = True
 
-    def is_inherit_links_mount(self, app):
-        return app.__class__ in self.inherit_links
+        self.register(generic.view, [Request, model], get_view)

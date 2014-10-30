@@ -1,6 +1,7 @@
 import morepath
 from webtest import TestApp as Client
 from morepath.error import LinkError
+import pytest
 
 
 def setup_module(module):
@@ -32,7 +33,7 @@ def test_defer_links():
     def mount_sub():
         return sub()
 
-    @root.defer_links(model=SubModel, app=sub)
+    @root.defer_links(model=SubModel)
     def defer_links_sub_model(obj):
         return sub()
 
@@ -73,7 +74,7 @@ def test_defer_view():
     def mount_sub():
         return sub()
 
-    @root.defer_links(model=SubModel, app=sub)
+    @root.defer_links(model=SubModel)
     def defer_links_sub_model(obj):
         return sub()
 
@@ -114,7 +115,7 @@ def test_defer_view_predicates():
     def mount_sub():
         return sub()
 
-    @root.defer_links(model=SubModel, app=sub)
+    @root.defer_links(model=SubModel)
     def defer_links_sub_model(obj):
         return sub()
 
@@ -155,7 +156,7 @@ def test_defer_view_missing_view():
     def mount_sub():
         return sub()
 
-    @root.defer_links(model=SubModel, app=sub)
+    @root.defer_links(model=SubModel)
     def defer_links_sub_model(obj):
         return sub()
 
@@ -200,7 +201,7 @@ def test_defer_links_mount_parameters():
     def mount_sub(mount_name):
         return sub(name=mount_name)
 
-    @root.defer_links(model=SubModel, app=sub)
+    @root.defer_links(model=SubModel)
     def defer_links_sub_model(obj):
         return sub(name=obj.name)
 
@@ -238,9 +239,13 @@ def test_defer_link_acquisition():
     def sub_model_default(self, request):
         return request.link(Model('foo'))
 
-    @root.mount(app=sub, path='sub', inherit_links=True)
+    @root.mount(app=sub, path='sub')
     def mount_sub():
         return sub()
+
+    @sub.defer_links(model=Model)
+    def get_parent(obj):
+        return None
 
     config.commit()
 
@@ -276,9 +281,13 @@ def test_defer_view_acquisition():
     def sub_model_default(self, request):
         return request.view(Model('foo'))
 
-    @root.mount(app=sub, path='sub', inherit_links=True)
+    @root.mount(app=sub, path='sub')
     def mount_sub():
         return sub()
+
+    @sub.defer_links(model=Model)
+    def get_parent(obj):
+        return None
 
     config.commit()
 
@@ -317,10 +326,11 @@ def test_defer_link_acquisition_blocking():
         except LinkError:
             return "link error"
 
-    # inherit_links is False by default
     @root.mount(app=sub, path='sub')
     def mount_sub():
         return sub()
+
+    # no defer_links_to_parent
 
     config.commit()
 
@@ -356,10 +366,11 @@ def test_defer_view_acquisition_blocking():
     def sub_model_default(self, request):
         return request.view(Model('foo')) is None
 
-    # inherit_links is False by default
     @root.mount(app=sub, path='sub')
     def mount_sub():
         return sub()
+
+    # no defer_links_to_parent
 
     config.commit()
 
@@ -367,3 +378,84 @@ def test_defer_view_acquisition_blocking():
 
     response = c.get('/sub')
     assert response.json is True
+
+
+def test_defer_link_should_not_cause_web_views_to_exist():
+    config = morepath.setup()
+
+    class root(morepath.App):
+        testing_config = config
+
+    class sub(morepath.App):
+        testing_config = config
+
+    @root.path(path='')
+    class Model(object):
+        pass
+
+    @root.view(model=Model)
+    def model_default(self, request):
+        return "Hello"
+
+    @root.view(model=Model, name='extra')
+    def model_extra(self, request):
+        return "Extra"
+
+    # note inheritance from model. we still don't
+    # want the extra view to show up on the web
+    @sub.path(path='')
+    class SubModel(Model):
+        pass
+
+    @sub.view(model=SubModel)
+    def sub_model_default(self, request):
+        return request.link(Model())
+
+    @root.mount(app=sub, path='sub')
+    def mount_sub():
+        return sub()
+
+    @sub.defer_links(model=Model)
+    def get_parent(obj):
+        return None
+
+    config.commit()
+
+    c = Client(root())
+
+    response = c.get('/sub')
+    assert response.body == b'/'
+
+    c.get('/sub/+extra', status=404)
+
+
+def test_defer_link_to_parent_from_root():
+    config = morepath.setup()
+
+    class root(morepath.App):
+        testing_config = config
+
+    class sub(morepath.App):
+        testing_config = config
+
+    @root.path(path='')
+    class Model(object):
+        pass
+
+    class OtherModel(object):
+        pass
+
+    @root.view(model=Model)
+    def model_default(self, request):
+        return request.link(OtherModel())
+
+    @root.defer_links(model=OtherModel)
+    def get_parent(obj):
+        return None
+
+    config.commit()
+
+    c = Client(root())
+
+    with pytest.raises(LinkError):
+        response = c.get('/')
