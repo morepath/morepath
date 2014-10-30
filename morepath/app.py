@@ -142,7 +142,7 @@ class App(with_metaclass(AppMeta)):
 
         Either give it an instance of the app class as the first
         parameter, or the app class itself (or name under which it was
-        mounted) as the first parameter and as ``**variables`` the
+        mounted) as the first parameter and as ``variables`` the
         parameters that go to its ``mount`` function.
 
         Returns the mounted application object, with its ``parent``

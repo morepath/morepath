@@ -322,7 +322,7 @@ class ViewDirective(Directive):
         :param render: an optional function that can render the output of the
           view function to a response, and possibly set headers such as
           ``Content-Type``, etc. This function takes ``self`` and
-          ``request` parameters as input.
+          ``request`` parameters as input.
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
@@ -396,7 +396,7 @@ class JsonDirective(ViewDirective):
           of the view function to a response, and possibly set headers
           such as ``Content-Type``, etc. Renders as JSON by
           default. This function takes ``self`` and
-          ``request` parameters as input.
+          ``request`` parameters as input.
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
@@ -441,7 +441,7 @@ class HtmlDirective(ViewDirective):
           of the view function to a response, and possibly set headers
           such as ``Content-Type``, etc. Renders as HTML by
           default. This function takes ``self`` and
-          ``request` parameters as input.
+          ``request`` parameters as input.
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
