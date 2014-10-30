@@ -476,9 +476,8 @@ class MountDirective(PathDirective):
         """Mount sub application on path.
 
         The decorated function gets the variables specified in path as
-        parameters. It should return a dictionary with the required
-        variables for the mounted app. The variables are declared in
-        the :class:`morepath.App` constructor.
+        parameters. It should return an instance of the application
+        class given as ``app``.
 
         :param path: the path to mount the application on.
         :param app: the :class:`morepath.App` subclass to mount.
@@ -530,9 +529,23 @@ class MountDirective(PathDirective):
 
 @App.directive('defer_links')
 class DeferLinksDirective(Directive):
+
     depends = [SettingDirective, MountDirective]
 
     def __init__(self, base_app, model, app):
+        """Defer link generation for model to mounted app.
+
+        Using ``defer_links`` you can specify that link generation for
+        instances of model are to be handled by the given mounted ``app``.
+
+        The decorated function gets an instance of the object to link to,
+        and should return an instance of ``app`` that can create a link
+        to it.
+
+        :param model: the class for which we want to defer linking.
+        :param app: the :class:`morepath.App` subclass that handles links.
+        """
+
         super(DeferLinksDirective, self).__init__(base_app)
         self.model = model
         self.mounted_app = app
