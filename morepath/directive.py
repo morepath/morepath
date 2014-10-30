@@ -545,7 +545,6 @@ class DeferLinksDirective(Directive):
         :param model: the class for which we want to defer linking.
         :param app: the :class:`morepath.App` subclass that handles links.
         """
-
         super(DeferLinksDirective, self).__init__(base_app)
         self.model = model
         self.mounted_app = app
