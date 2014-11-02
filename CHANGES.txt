@@ -140,6 +140,8 @@ CHANGES
   are now gone as part of the mount simplification:
   ``generic.context`` and ``generic.traject`` are not needed anymore.
 
+- Added documentation about auto-reloading Morepath during development.
+
 - Minor improvement in docstrings.
 
 0.6 (2014-09-08)
