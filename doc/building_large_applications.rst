@@ -92,18 +92,18 @@ paths in a single application, like this::
 
   from .model import Root, User, Repository, Settings, Issues, Wiki
 
-  class app(morepath.App):
+  class App(morepath.App):
       pass
 
-  @app.path(path='', model=Root)
+  @App.path(path='', model=Root)
   def get_root():
      ...
 
-  @app.path(path='{user_name}', model=User)
+  @App.path(path='{user_name}', model=User)
   def get_user(user_name):
      ...
 
-  @app.path(path='{user_name}/{repository_name}', model=Repository)
+  @App.path(path='{user_name}/{repository_name}', model=Repository)
   def get_repository(user_name, repository_name):
      ...
 
@@ -112,24 +112,24 @@ repository, but these are complicated pieces of functionality that
 benefit from having sub-URLs (i.e. ``issues/12`` or
 ``...wiki/mypage``), so we model them using paths as well::
 
-  @app.path(path='{user_name}/{repository_name}/settings', model=Settings)
+  @App.path(path='{user_name}/{repository_name}/settings', model=Settings)
   def get_settings(user_name, repository_name):
      ...
 
-  @app.path(path='{user_name}/{repository_name}/issues', model=Issues)
+  @App.path(path='{user_name}/{repository_name}/issues', model=Issues)
   def get_issues(user_name, repository_name):
      ...
 
-  @app.path(path='{user_name}/{repository_name}/wiki', model=Wiki)
+  @App.path(path='{user_name}/{repository_name}/wiki', model=Wiki)
   def get_wiki(user_name, repository_name):
      ...
 
-Let's also make path to an individual issue,
+Let's also make a path to an individual issue,
 i.e. ``example.com/faassen/myproject/issues/12``::
 
   from .model import Issue
 
-  @app.path(path='{user_name}/{repository_name}/issues/{issue_id}', model=Issue)
+  @App.path(path='{user_name}/{repository_name}/issues/{issue_id}', model=Issue)
   def get_issue(user, repository, issue_id):
       ...
 
@@ -158,18 +158,18 @@ start, but there are some problems with it:
   vice versa.
 
 * You may want the abilitity to swap in new implementations of a issue
-  tracker or a wiki under the same paths, without having to change a lot
-  of code.
+  tracker or a wiki under the same paths, without having to change a
+  lot of code.
 
 We're going to show how Morepath can solve these problems by
-partitioning a larger app into smaller ones, and mounting them. The
-code to accomplish this is more involved than simply declaring all
+partitioning a larger app into smaller ones, and mounting them.
+
+The code to accomplish this is more involved than simply declaring all
 paths under a single core app as we did before. If you feel more
 comfortable doing that, by all means do so; you don't have these
 problems. But if your application is successful and grows larger you
-may encounter these problems, and Morepath is there to help.
-
-We'll now show what changes you would make.
+may encounter these problems, and these features are then there to
+help.
 
 Multiple sub-apps
 -----------------
@@ -187,139 +187,149 @@ complexity. So let's start with three application:
 
 In code::
 
-  class core_app(morepath.App):
+  class CoreApp(morepath.App):
       pass
 
-  class issues_app(morepath.App):
-      variables = ['issues_id']
+  class IssuesApp(morepath.App):
+      def __init__(self, issues_id):
+          self.issues_id = issues_id
 
-  class wiki_app(morepath.App):
-      variables = ['wiki_id']
+  class WikiApp(morepath.App):
+      def __init__(self, wiki_id):
+          self.wiki_id = wiki_id
 
-Note that ``issues_app`` and ``wiki_app`` expect variables; we'll
-learn more about this later.
+Note that ``IssuesApp`` and ``WikiApp`` expect arguments to be
+initialized; we'll learn more about this later.
 
 We now can group our paths into three. First we have the core app,
 which includes the repository and its settings::
 
-  @core_app.path(path='', model=Root)
+  @CoreApp.path(path='', model=Root)
   def get_root():
      ...
 
-  @core_app.path(path='{user_name}', model=User)
+  @CoreApp.path(path='{user_name}', model=User)
   def get_user(user_name):
      ...
 
-  @core_app.path(path='{user_name}/{repository_name}', model=Repository)
+  @CoreApp.path(path='{user_name}/{repository_name}', model=Repository)
   def get_repository(user_name, repository_name):
      ...
 
-  @core_app.path(path='{user_name}/{repository_name}/settings', model=Settings)
+  @CoreApp.path(path='{user_name}/{repository_name}/settings', model=Settings)
   def get_settings(user_name, repository_name):
      ...
 
 Then we have the paths for our issue tracker::
 
-  @issues_app.path(path='', model=Issues)
-  def get_issues(issues_id):
+  @IssuesApp.path(path='', model=Issues)
+  def get_issues():
      ...
 
-  @issues_app.path(path='{issue_id}', model=Issue)
-  def get_issue(issues_id, issue_id):
+  @IssuesApp.path(path='{issue_id}', model=Issue)
+  def get_issue(issue_id):
       ...
 
 And the paths for our wiki::
 
-  @wiki_app.path(path='', model=Wiki)
-  def get_wiki(wiki_id):
+  @WikiApp.path(path='', model=Wiki)
+  def get_wiki():
      ...
 
-We have drastically simplified the paths in ``issues_app`` and
-``wiki_app``; we don't deal with ``user_name`` and ``repository_name``
-anymore. Instead we get a ``issues_id`` and ``wiki_id``, but not from
-the path. Where does they come from? They are specified by the
-``variables`` argument for :class:`morepath.App` that we saw
-earlier. Next we need to explore the :meth:`App.mount` directive
-to see how they are actually obtained.
+We have drastically simplified the paths in ``IssuesApp`` and
+``WikiApp``; we don't deal with ``user_name`` and ``repository_name``
+anymore.
 
 Mounting apps
 -------------
 
-Now that we have an independent ``issues_app`` and ``wiki_app``, we want
-to be able to mount these under the right URLs under ``core_app``. We
-do this using the mount directive::
+Now that we have an independent ``IssuesApp`` and ``WikiApp``, we
+want to be able to mount these under the right URLs under
+``CoreApp``. We do this using the mount directive::
 
-  @core_app.mount(path='{user_name}/{repository_name}/issues',
-                  app=issues_app)
+  def variables(app):
+      repository = get_repository_for_wiki_id(app.wiki_id)
+      return dict(
+            repository_name=repository.name,
+            user_name=repository.user.name)
+
+  @CoreApp.mount(path='{user_name}/{repository_name}/issues',
+                 app=IssuesApp, variables=variables)
   def mount_issues(user_name, repository_name):
-      return { 'issues_id': get_issues_id(user_name, repository_name) }
+      return IssuesApp(issues_id=get_issues_id(user_name, repository_name))
 
 Let's look at what this does:
 
-* ``@core_app.mount``: We mount something onto ``core_app``.
-
-* ``app=issues_app``: We are mounting ``issues_app``.
+* ``@CoreApp.mount``: We mount something onto ``CoreApp``.
 
 * ``path='{user_name}/{repository_name}/issues'``: We are mounting it
   on that path. All sub-paths in the issue tracker app will fall under
   it.
 
+* ``app=IssuesApp``: We are mounting ``IssuesApp``.
+
 * The ``mount_issues`` function takes the path variables ``user_name``
-  and ``repository_name`` as arguments. It then returns a dictionary
-  with the mount variables expected by ``issues_app``, in this case
-  ``issues_id``. It does this by using ``get_issues_id``, which does
-  some kind of database access in order to determine ``issues_id`` for
-  ``user_name`` and ``repository_name``.
+  and ``repository_name`` as arguments. It then returns an instance of
+  the ``IssuesApp``. To create one we need to convert the
+  ``user_name`` and ``repository_name`` into an issues id. We do this
+  by looking it up in some kind of database.
+
+* The ``variables`` function needs to do the inverse: given a
+  ``WikiApp`` instance it needs to translate this back into a
+  ``repository_name`` and ``user_name``. This allows Morepath to link
+  to a mounted ``WikiApp``.
 
 Mounting the wiki is very similar::
 
-  @core_app.mount(path='{user_name}/{repository_name}/wiki',
-                  app=wiki_app)
+  def variables(app):
+      return dict(user_name=get_username_for_wiki_id(app.id))
+
+  @CoreApp.mount(path='{user_name}/{repository_name}/wiki',
+                  app=WikiApp, variables=variables)
   def mount_wiki(user_name, repository_name):
-      return { 'wiki_id': get_wiki_id(user_name, repository_name) }
+      return WikiApp(get_wiki_id(user_name, repository_name))
 
 No more path repetition
 -----------------------
 
 We have solved the repetition of paths issue now; the issue tracker
-and wiki can consist of many paths, but there is no more need to
-repeat '{user_name}/{repository_name}' everywhere.
+and wiki handle many paths, but there is no more need to repeat
+'{user_name}/{repository_name}' everywhere.
 
 Testing in isolation
 --------------------
 
 To test the issue tracker by itself, we can run it as a separate WSGI
-app.  To do this we first need to mount it by passing an ``issues_id``
-to it::
+app::
 
   def run_issue_tracker():
-      mounted = issues_app(issues_id=4)
+      mounted = IssuesApp(4)
       morepath.run(mounted)
 
 Here we mount and run the ``issues_app`` with issue tracker id
-``4``. We can hook the ``run_issue_tracker`` function up to a script
-by using an entry point in ``setup.py`` as we've seen in
+``4``.
+
+You can hook the ``run_issue_tracker`` function up to a script by
+using an entry point in ``setup.py`` as we've seen in
 :doc:`organizing_your_project`.
+
+You can also mount applications this way in automated tests and then
+use WebTest_ or some other WSGI testing library.
+
+.. _WebTest: http://webtest.readthedocs.org/
 
 Reusing an app
 --------------
 
 We can now reuse the issue tracker app in the sense that we can mount
-it in different apps; all we need is a way to get ``issues_id``. But
-what if we want to mount the issue tracker app in a separate project
-altogether? To use it we would need to import it from our project that
-also contains the core app and the wiki app, meaning that the new
-project would need to depend on all of this code. That can hinder
-reuse.
+it in different apps; all we need is a way to get ``issues_id``. What
+then if we have another Python project and we wanted to reuse the
+issue tracker in it as well? In that case it may start sense to start
+maintaining the issue tracker it in a separate Python project of its
+own.
 
-To make it more reusable across projects we can instead maintain the
-code for the issue tracker app in a separate project, and the same for
-the wiki app. The core app can then depend on the issue tracker and
-wiki projects. Another app that also wants to have an issue tracker
-can depend on the issue tracker project too.
-
-To do this we'd split our code into three separate Python projects,
-for instance:
+We could for instance split our code into three separate Python
+projects, for instance:
 
 * ``myproject.core``
 
@@ -330,14 +340,21 @@ for instance:
 Each would be organized as described in
 :doc:`organizing_your_project`.
 
-``myproject.core`` would have an ``install_requires`` in its
+``myproject.core`` could have an ``install_requires`` in its
 ``setup.py`` that depends on ``myproject.issues`` and
-``myproject.wiki``. To get ``issues_app`` and ``wiki_app`` in order to
+``myproject.wiki``. To get ``IssuesApp`` and ``WikiApp`` in order to
 mount them in the core, we would simply import them (for instance in
 ``myproject.core.main``)::
 
-  from myproject.issues.main import issues_app
-  from myproject.wiki.main import wiki_app
+  from myproject.issues.main import IssuesApp
+  from myproject.wiki.main import WikiApp
+
+In some scenarios you may want to turn this around: the ``IssuesApp``
+and ``WikiApp`` know they should be mounted in ``CoreApp``, but the
+``CoreApp`` wants to remain innocent of this. In that case, you would
+have ``myproject.issues`` and ``myproject.wiki`` both depend on
+``myproject.core``, whereas ``myproject.core`` depends on nothing. The
+wiki and issues projects then mount themselves into the core app.
 
 Different teams
 ---------------
@@ -352,19 +369,19 @@ your brain so you only have to worry about one detail at the time:
 this an important reason why we decomposition logic into functions and
 classes. By decomposing the project into three independent ones, you
 can temporarily forget about the core when you're working on the issue
-tracker, letting you free up your brain.
+tracker, allowing you to focus on the problems at hand.
 
 Swapping in a new sub-app
 -------------------------
 
 Perhaps a different, better wiki implementation is developed. Let's
-call it ``shiny_new_wiki_app``. Swapping in the new sub application
-is easy: it's just a matter of changing the mount directive::
+call it ``ShinyNewWikiApp``. Swapping in the new sub application is
+easy: it's just a matter of changing the mount directive::
 
-  @core_app.mount(path='{user_name}/{repository_name}/wiki',
-                  app=shiny_new_wiki_app)
+  @CoreApp.mount(path='{user_name}/{repository_name}/wiki',
+                 app=ShinyNewWikiApp, variables=variables)
   def mount_wiki(user_name, repository_name):
-      return { 'wiki_id': get_wiki_id(user_name, repository_name) }
+      return ShinyNewWikiApp(get_wiki_id(user_name, repository_name))
 
 Customizing an app
 ------------------
@@ -372,8 +389,8 @@ Customizing an app
 Let's change gears and talk about customization now.
 
 Imagine a scenario where a particular customer wants *exactly* core
-app, really, it's perfect, but then ... wait for it ... they actually
-need a minor tweak.
+app. Really, it's perfect, exactly what they need, no change needed,
+but then ... wait for it ... they actually do need a minor tweak.
 
 Let's say they want an extra view on ``Repository`` that shows some
 important customer-specific metadata. This metadata is retrieved from
@@ -385,26 +402,26 @@ separate project that is exactly like the original core app by
 extending it, but with the one extra view added. Let's call the
 project ``important_customer.core``. ``important_customer.core`` has
 an ``install_requires`` in its ``setup.py`` that depends on
-``myproject.core`` and also the customer database (which we imagine is
-called ``customerdatabase``).
+``myproject.core`` and also the customer database (which we call
+``customerdatabase`` in this example).
 
-Now we can import ``core_app`` from it in
-``important_customer.core``'s ``main.py`` module, and extend from it::
+Now we can import ``CoreApp`` in ``important_customer.core``'s
+``main.py`` module, and extend it::
 
-  from myproject.core.main import core_app
+  from myproject.core.main import CoreApp
 
-  class customer_app(core_app):
+  class CustomerApp(CoreApp):
       pass
 
-At this point ``customer_app`` behaves identically to
-``core_app``. Now let's make our customization and add a new JSON view
-to ``Repository``::
+At this point ``CustomerApp`` and ``CoreApp`` have identical
+behavior. We can now make our customization and add a new JSON view to
+``Repository``::
 
   from myproject.core.model import Repository
   # customer specific database
   from customerdatabase import query_metadata
 
-  @customer_app.json(model=Repository, name='customer_metadata')
+  @CustomerApp.json(model=Repository, name='customer_metadata')
   def repository_customer_metadata(self, request):
       metadata = query_metadata(self.id) # use repository id to find it
       return {
@@ -412,70 +429,68 @@ to ``Repository``::
         'internal_description': metadata.description
       }
 
-You can now run ``customer_app`` and get the core app with exactly the
-one tweak the customer wanted: a view with the extra metadata. The
+You can now run ``CustomerApp`` and get the core app with exactly the one
+tweak the customer wanted: a view with the extra metadata. The
 ``important_customer.core`` project depends on ``customerdatabase``,
 but ``myproject.core`` remains unchanged.
 
-We've now made exactly the tweak necessary without having to modify
-our original project. The original project continues to work the same
-way it always did.
+We've made exactly the tweak necessary without having to modify our
+original project. The original project continues to work the same way
+it always did.
 
 Swapping in, for one customer
 -----------------------------
 
-Morepath lets you add any directive, not just views. It also lets you
-*override* things in the applications you extend. What if we had a new
-wiki like before, but we only want to upgrade one particular to it,
-and leave the others with the original? Perhaps our important customer
-needs *exactly* the wiki app mounted in core app, really, it's
-perfect... but they actually need a minor tweak to the wiki too.
+Morepath lets you extend *any* directive, not just the ``view``
+directive. It also lets you *override* things in the applications you
+extend. Let's say the important customer wants *exactly* the original
+wiki, with just one tiny teeny little tweak. Other customers should
+still continue to use the original wiki.
 
 We'd tweak the wiki just as we would tweak the core app. We end up
-with a ``tweaked_wiki_app``::
+with a ``TweakedWikiApp``::
 
-  from myproject.wiki.main import wiki_app
+  from myproject.wiki.main import WikiApp
 
-  class tweaked_wiki_app(wiki_app):
+  class TweakedWikiApp(WikiApp):
        pass
 
   # some kind of tweak
-  @tweaked_wiki_app.json(model=WikiPage, name='extra_info')
+  @TweakedWikiApp.json(model=WikiPage, name='extra_info')
   def page_extra_info(self, request):
       ...
 
-We now want a new version of ``core_app`` just for this customer that
-mounts ``tweaked_wiki_app`` instead of ``wiki_app``::
+We want a new version of ``CoreApp`` just for this customer that
+mounts ``TweakedWikiApp`` instead of ``WikiApp``::
 
-  class important_customer_app(core_app):
+  class ImportantCustomerApp(CoreApp):
       pass
 
-  @important_customer_app.mount(path='{user_name}/{repository_name}/wiki',
-                                app=tweaked_wiki_app)
+  @ImportantCustomerApp.mount(path='{user_name}/{repository_name}/wiki',
+                              app=TweakedWikiApp, variables=variables)
   def mount_wiki(user_name, repository_name):
-      return { 'wiki_id': get_wiki_id(user_name, repository_name) }
+      return TweakedWikiApp(get_wiki_id(user_name, repository_name))
 
-The ``mount`` directive above overrides the one in the ``core_app``
+The ``mount`` directive above overrides the one in the ``CoreApp``
 that we're extending, because it uses the same ``path`` but mounts
-``tweaked_wiki_app`` instead.
-
-You can override any other directive (path, view, etc) the same way.
+``TweakedWikiApp`` instead.
 
 Framework apps
 --------------
 
 A ``morepath.App`` subclass does not need to be a full working web
-application. Instead it can be a framework consisting of just a few
-with only those paths, subpaths and views that we intend to be
-reusable.
+application. Instead it can be a framework with only those paths and
+views that we intend to be reusable.
 
-For views this works together well with Morepath's understanding of
-inheritance. We could for instance have a base class
-``Metadata``. Whenever any model subclasses from it, we want that
-model to gain a ``metadata`` view that returns this metadata as JSON
-data. Let's write some code for that::
+We could for instance have a base class ``Metadata`` and define some
+views for it in the framework app. If we then have an application that
+inherits from the framework app, any ``Metadata`` model we expose to
+the web using the ``path`` directive automatically gets its views
+supplied by the framework.
 
-  class framework(morepath.App):
+For instance::
+
+  class Framework(morepath.App):
       pass
 
   class Metadata(object):
@@ -485,13 +500,13 @@ data. Let's write some code for that::
       def get_metadata(self):
           return self.d
 
-  @framework.json(model=Metadata, name='metadata')
+  @Framework.json(model=Metadata, name='metadata')
   def metadata_view(self, request):
       return self.get_metadata()
 
 We want to use this framework in our own application::
 
-  class app(framework):
+  class App(Framework):
       pass
 
 Let's have a model that subclasses from ``Metadata``::
@@ -501,13 +516,13 @@ Let's have a model that subclasses from ``Metadata``::
 
 Let's put the model on a path::
 
-  @app.path(path='documents/{id}', model=Document)
+  @App.path(path='documents/{id}', model=Document)
   def get_document(id):
       ...
 
-Since ``app`` extends ``framework``, all documents published this way
+Since ``App`` extends ``Framework``, all documents published this way
 have a ``metadata`` view automatically. Apps that don't extend
-``framework`` won't have this behavior, of course.
+``Framework`` won't have this behavior, of course.
 
 As we mentioned before, there is a gray area between application and
 framework; applications tend to gain attributes of a framework, and
@@ -517,5 +532,5 @@ too much about which is which, but enjoy the creative possibilities!
 Note that Morepath itself is designed as an application
 (:class:`morepath.App`) that your apps extend. This means you can
 override parts of it (say, how links are generated) just like you
-would override a framework app!  We did our best to make Morepath do
+would override a framework app! We did our best to make Morepath do
 the right thing already, but if not, you *can* customize it.
