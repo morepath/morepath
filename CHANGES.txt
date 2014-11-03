@@ -224,6 +224,8 @@ CHANGES
   scenarios which can generate legitimate ``ImportError`` exceptions
   and how to handle them.
 
+- Fix of examples in tween documentation.
+
 - Minor improvement in docstrings.
 
 0.6 (2014-09-08)

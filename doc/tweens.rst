@@ -39,6 +39,7 @@ wraps around it::
           response = handler(request)
           print "Exit"
           return response
+      return my_tween
 
 We say that *my_tween* is *over* the ``handler`` argument, and
 conversely that ``handler`` is *under* ``my_tween``.
@@ -81,6 +82,7 @@ directive::
           response = handler(request)
           print "Exit"
           return response
+      return my_tween
 
 The tween chain is now:
 
@@ -96,6 +98,7 @@ by passing ``under`` or ``over`` to `tween_factory`::
       def another_tween(request):
           print "Another"
           return handler(request)
+      return another_tween
 
 The tween chain is now:
 
@@ -110,6 +113,7 @@ If instead you used ``under``::
       def another_tween(request):
           print "Another"
           return handler(request)
+      return another_tween
 
 Then the tween chain is:
 
