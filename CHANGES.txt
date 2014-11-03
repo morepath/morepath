@@ -205,6 +205,8 @@ CHANGES
 - Change documentation to use uppercase class names for App classes
   everywhere. This reflects a change in 0.4 and should help clarity.
 
+- Added documentation about auto-reloading Morepath during development.
+
 - Minor improvement in docstrings.
 
 0.6 (2014-09-08)
