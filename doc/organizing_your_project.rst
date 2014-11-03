@@ -182,34 +182,34 @@ in ``setup.py``. This main function does two things:
 The main module is also a good place to do other general configuration
 for the application, such as setting up a database connection.
 
-.. sidebar:: Automatically reload changes
+Variation: automatic restart
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  During development it can be very helpful to have the WSGI server reload
-  the Morepath app, whenever a file is changed.
+During development it can be very helpful to have the WSGI server
+restart the Morepath app whenever a file is changed.
 
-  Morepath itself doesn't offer such a feature, but you can achieve 
-  auto-reloading by using Werkzeug_.
+Morepath's built in development server does not offer this feature,
+but you can accomplish it with `Werkzeug's server`_.
 
-  Simply install Werkzeug_::
+First install the `Werkzeug package`_ into your project. Then modify
+your main module to look like this::
 
-    pip install werkzeug
+  import morepath
+  from werkzeug.serving import run_simple
 
-  Then modify your main module to look like this::
-
-    import morepath
-    from werkzeug.serving import run_simple
-
-    class app(morepath.App):
+  class App(morepath.App):
       pass
 
-    def main():
+  def main():
       morepath.autosetup()
-      run_simple('localhost', 8080, app(), use_reloader=True)
+      run_simple('localhost', 8080, App(), use_reloader=True)
 
-  Using this runner, changes to your package will trigger a reload of the WSGI
-  server.
+Using this runner changes to Python code in your package trigger a
+restart of the WSGI server.
 
-  .. _Werkzeug: http://werkzeug.pocoo.org/docs/latest/serving/
+.. _`Werkzeug's server`: http://werkzeug.pocoo.org/docs/latest/serving/
+
+.. _`Werkzeug package`: https://pypi.python.org/pypi/Werkzeug
 
 Variation: no or multiple entry points
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
