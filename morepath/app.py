@@ -85,6 +85,11 @@ class App(with_metaclass(AppMeta)):
     parent = None
     """The parent in which this app was mounted."""
 
+    request_class = Request
+    """The class of the Request to create. Must be a subclass of
+    :class:`morepath.Request`.
+    """
+
     def __init__(self):
         pass
 
@@ -109,7 +114,7 @@ class App(with_metaclass(AppMeta)):
         :param environ: WSGI environment
         :returns: :class:`morepath.Request` instance
         """
-        return Request(environ, self)
+        return self.request_class(environ, self)
 
     def __call__(self, environ, start_response):
         """This app as a WSGI application.

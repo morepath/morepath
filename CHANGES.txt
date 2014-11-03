@@ -193,9 +193,14 @@ CHANGES
   application. To access from the request, use ``request.app.root``
   and ``request.app.ancestors()``.
 
+- The ``App`` class now has a ``request_class`` class attribute. This
+  determines the class of the request that is created and can be
+  overridden by subclasses. ``more.static`` now makes use of this.
+
 - Several generic functions that weren't really pulling their weight
   are now gone as part of the mount simplification:
-  ``generic.context`` and ``generic.traject`` are not needed anymore.
+  ``generic.context`` and ``generic.traject`` are not needed anymore,
+  along with ``generic.link_maker``.
 
 - Minor improvement in docstrings.
 
