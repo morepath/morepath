@@ -2,7 +2,7 @@ from .config import Config
 import morepath.directive
 from morepath import generic
 from .app import App
-from .request import Request, Response, LinkMaker, NothingMountedLinkMaker
+from .request import Request, Response
 from .converter import Converter, IDENTITY_CONVERTER
 from webob import Response as BaseResponse
 from webob.exc import HTTPException, HTTPForbidden, HTTPMethodNotAllowed
@@ -65,16 +65,6 @@ def link(request, model, mounted):
     result.append(request.script_name)
     result.reverse()
     return '/'.join(result).strip('/'), parameters
-
-
-@App.function(generic.linkmaker, Request, object)
-def linkmaker(request, mounted):
-    return LinkMaker(request, mounted)
-
-
-@App.function(generic.linkmaker, Request, type(None))
-def none_linkmaker(request, mounted):
-    return NothingMountedLinkMaker(request)
 
 
 @App.function(generic.response, Request, object)

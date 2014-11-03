@@ -4,13 +4,17 @@ CHANGES
 0.7 (unreleased)
 ================
 
-- **Breaking change**. The mount directive's behavior and behavior in
-  the ``.child`` method has changed. The relevant changes are:
+- **Breaking change**. There has been a change the way the mount
+  directive works. There has also been a change in the way linking
+  between application works. The changes result into a simpler, more
+  powerful API and implementation.
 
-  * You can define your own custom ``__init__`` for ``morepath.App``
-    subclasses. Here you can specify the arguments with which your
-    application object should be mounted; this replaces the
-    ``variables`` class attribute (which is now ignored).
+  The relevant changes are:
+
+  * You can now define your own custom ``__init__`` for
+    ``morepath.App`` subclasses. Here you can specify the arguments
+    with which your application object should be mounted. The previous
+    ``variables`` class attribute is now ignored.
 
     It's not necessary to use ``super()`` when you subclass from
     ``morepath.App`` directly.
@@ -26,9 +30,10 @@ CHANGES
            def __init__(self, mount_id):
                self.mount_id = mount_id
 
-  * The ``mount`` directive should return an instance of the
-    application being mounted. The application is specified using the
-    ``app`` argument to the directive. So instead of this::
+  * The ``mount`` directive should now return an *instance* of the
+    application being mounted, not a dictionary with mount
+    parameters. The application is specified using the ``app``
+    argument to the directive. So instead of this::
 
       @RootApp.mount(app=MyApp, path='sub/{id}')
       def mount_sub(id):
@@ -47,26 +52,32 @@ CHANGES
     directive and is used to construct links.
 
     It is given an instance of the app being mounted, and it should
-    reconstruct those variables needed in its path. If omitted,
-    Morepath tries to get them as attributes from the application
-    instance, just like it tries to get attributes of any model
-    instance.
+    reconstruct those variables needed in its path as a dictionary. If
+    omitted, Morepath tries to get them as attributes from the
+    application instance, just like it tries to get attributes of any
+    model instance.
 
-    So to make linking to ``MyApp`` work, you should write write this::
+    ``MyApp`` above is a good example of where this is required: it
+    does store the correct information, but as the ``mount_id``
+    attribute, not the ``id`` attribute. You should add a ``variables``
+    argument to the ``mount`` directive to explain to Morepath how
+    to obtain ``id``::
 
       @RootApp.mount(app=MyApp, path='sub/{id}',
                      variables=lambda app: dict(id=app.mount_id))
       def mount_sub(id):
           return MyApp(mount_id=id)
 
-    Simplest way to avoid this is to name the attributes the same way
-    as the variables in the paths, just like for model classes.
+    The simplest way to avoid having to do this is to name the
+    attributes the same way as the variables in the paths, just like
+    you can do for model classes.
 
-  * In the past if the app was mounted you'd get the mount context
-    variables as extra variables in function decorated by the ``path``
-    decorator. This does not happen anymore. Instead you can add a
-    special ``app`` parameter to the function decorated by ``path`` and
-    from it access attributes of app (under which it was mounted).
+  * In the past you'd get additional mount context variables as extra
+    variables in the function decorated by the ``path`` decorator.
+    This does not happen anymore. Instead you can add a special
+    ``app`` parameter to this function. This gives you access to the
+    current application object, and you can extract its attributes
+    there.
 
     So instead of this::
 
@@ -81,29 +92,75 @@ CHANGES
        def get_root(app, id):
            return Model(app.mount_id, id)
 
-  * There was an ``request.mounted`` attribute. This attribute is now
-    gone. Instead you can access the mounted application using
+  * There was an ``request.mounted`` attribute. This was a special an
+    instance of a special ``Mounted`` class. This ``Mounted`` class is
+    now gone -- instead mounted applications are simply instances of
+    their class. To access the currently mounted application, use
     ``request.app``.
 
-  * Not a breaking change, but worth mentioning: the ``.child`` method
-    on request takes the app class (or app name) as well as the
+  * The ``Request`` object had ``child`` and ``sibling`` methods as
+    well as a ``parent`` attribute to navigate to different "link
+    makers".  You'd navigate to the link maker of an application in
+    order to create links to objects in that application. These are
+    now gone. Instead you can do this navigation from the application
+    object directly, and instead of link makers, you get application
+    instances. You can pass an application instance as a special
+    ``app`` argument to ``request.link`` and ``request.view``.
+
+    So instead of this::
+
+       request.child(foo).link(obj)
+
+    You now write this::
+
+       request.link(obj, app=request.app.child(foo))
+
+    And instead of this::
+
+       request.parent.link(obj)
+
+    You now write this::
+
+       request.link(obj, app=request.app.parent)
+
+    Note that the new ``defer_links`` directive can be used to
+    automate this behavior for particular models.
+
+  * The ``.child`` method on ``App`` can the app class as well as the
     parameters for the function decorated by the ``mount`` directive::
 
-       request.child(MyApp, id='foo')
+       app.child(MyApp, id='foo')
 
-    As an alternative you can now instead pass an app *instance*
-    (which of course takes the parameters specified in its
-    ``__init__`` method)::
+    This can also be done by name. So, assuming ``MyApp`` was mounted
+    under ``my_app``::
 
-       request.child(MyApp(mount_id='foo'))
+       app.child('my_app', id='foo')
 
-  Underneath, Morepath used to have a ``Mount`` class separate from
-  the ``App`` classes you define. Since Morepath 0.4 application
-  objects became classes, and it made sense to make their instances
-  the same as the mounted application. This unification has now taken
-  place. This simplifies the implementation of mounting considerably,
-  while actually making available new features. This simplification
-  helped to create the new ``defer_links`` directive.
+    This is how ``request.child`` worked already.
+
+    As an alternative you can now instead pass an app *instance*::
+
+       app.child(MyApp(mount_id='foo'))
+
+    Unlike the other ways to get the child, this takes the parameters
+    need to create the app instance, as opposed to taking the
+    parameters under which the app was mounted.
+
+  Motivation behind these changes:
+
+  Morepath used to have a ``Mount`` class separate from the ``App``
+  classes you define. Since Morepath 0.4 application objects became
+  classes, and it made sense to make their instances the same as the
+  mounted application. This unification has now taken place.
+
+  It then also made sense to use its navigation methods (``child`` and
+  friend) to navigate the mount tree, instead of using the rather
+  complicated "link maker" infrastructure we had before.
+
+  This change simplifies the implementation of mounting considerably,
+  without taking away features and actually making the APIs involved
+  more clear. This simplification in turn made it easier to implement
+  the new ``defer_links`` directive.
 
 - **Breaking change**. The arguments to the ``render`` function have
   changed. This is a function you can pass to a view directive.  The

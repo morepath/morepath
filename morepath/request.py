@@ -14,6 +14,8 @@ import reg
 
 NO_DEFAULT = reg.Sentinel('NO_DEFAULT')
 
+SAME_APP = reg.Sentinel('SAME_APP')
+
 
 class Request(BaseRequest):
     """Request.
@@ -57,7 +59,7 @@ class Request(BaseRequest):
             return NO_IDENTITY
         return result
 
-    def view(self, obj, default=None, **predicates):
+    def view(self, obj, default=None, app=SAME_APP, **predicates):
         """Call view for model instance.
 
         This does not render the view, but calls the appropriate
@@ -65,16 +67,43 @@ class Request(BaseRequest):
 
         :param obj: the model instance to call the view on.
         :param default: default value if view is not found.
+        :param app: If set, change the application in which to look up
+          the view. By default the view is looked up for the current
+          application. The ``defer_links`` directive can be used to change
+          the default app for all instances of a particular class.
         :param predicates: extra predicates to modify view
           lookup, such as ``name`` and ``request_method``. The default
           ``name`` is empty, so the default view is looked up,
           and the default ``request_method`` is ``GET``. If you introduce
           your own predicates you can specify your own default.
         """
-        return generic.linkmaker(self, self.app, lookup=self.lookup).view(
-            obj, default, **predicates)
+        if app is None:
+            raise LinkError("Cannot view: app is None")
 
-    def link(self, obj, name='', default=None):
+        if app is SAME_APP:
+            app = self.app
+
+        while True:
+            view = generic.view.component(self, obj, lookup=app.lookup,
+                                          default=None,
+                                          predicates=predicates)
+            if view is not None:
+                break
+            app = generic.deferred_link_app(app, obj, lookup=app.lookup)
+            if app is None:
+                return default
+        else:
+            return default
+
+        old_app = self.app
+        app.set_implicit()
+        self.app = app
+        result = view(self, obj)
+        old_app.set_implicit()
+        self.app = old_app
+        return result
+
+    def link(self, obj, name='', default=None, app=SAME_APP):
         """Create a link (URL) to a view on a model instance.
 
         If no link can be constructed for the model instance, a
@@ -87,55 +116,41 @@ class Request(BaseRequest):
           the default view is looked up.
         :param default: if ``None`` is passed in, the default value is
           returned. By default this is ``None``.
-
+        :param app: If set, change the application to which the
+          link is made. By default the link is made to an object
+          in the current application. The ``defer_links`` directive
+          can be used to change the default app for all instances of a
+          particular class (if this app doesn't handle them).
         """
-        return generic.linkmaker(self, self.app,
-                                 lookup=self.lookup).link(obj, name, default)
+        if obj is None:
+            return default
 
-    @reify
-    def parent(self):
-        """Obj to call :meth:`Request.link` or :meth:`Request.view` on parent.
+        if app is None:
+            raise LinkError("Cannot link: app is None")
 
-        Get an object that represents the parent app that this app is mounted
-        inside. You can call ``link`` and ``view`` on it.
-        """
-        return generic.linkmaker(self, self.app.parent, lookup=self.lookup)
+        if app is SAME_APP:
+            app = self.app
 
-    def child(self, app, **context):
-        """Obj to call :meth:`Request.link` or :meth:`Request.view` on child.
+        while True:
+            info = generic.link(self, obj, app, lookup=app.lookup)
+            if info is not None:
+                break
+            app = generic.deferred_link_app(app, obj, lookup=app.lookup)
+            if app is None:
+                raise LinkError("Cannot link to: %r" % obj)
+        else:
+            raise LinkError("Cannot link to: %r" % obj)
 
-        Get an object that represents the application mounted in this app.
-        You can call ``link`` and ``view`` on it.
-
-        :param app: either subclass of :class:`morepath.App` that you
-          want to link to, or a string. This string represents the
-          name of the mount (by default it's the path under which the mount
-          happened).
-        :param ``**context``: Keyword parameters. These are the
-          arguments with which the app was instantiated when mounted.
-        """
-        return generic.linkmaker(self, self.app.child(app, **context),
-                                 lookup=self.lookup)
-
-    def sibling(self, app, **context):
-        """Obj to call :meth:`Request.link` or :meth:`Request.view` on sibling.
-
-        Get an object that represents the application mounted as a
-        sibling to this app, so the child of the parent. You can call
-        ``link`` and ``view`` on it.
-
-        :param app: either subclass of :class:`morepath.App` that you
-          want to link to, or a string. This string represents the
-          name of the mount (by default it's the path under which the mount
-          happened).
-        :param ``**context``: Keyword parameters. These are the
-          arguments with which the app was instantiated when mounted.
-        """
-        if self.app.parent is None:
-            return NothingMountedLinkMaker(self)
-        return generic.linkmaker(self, self.app.parent.child(app,
-                                                             **context),
-                                 lookup=self.lookup)
+        path, parameters = info
+        parts = []
+        if path:
+            parts.append(path)
+        if name:
+            parts.append(name)
+        result = '/' + '/'.join(parts)
+        if parameters:
+            result += '?' + urlencode(parameters, True)
+        return result
 
     def after(self, func):
 
@@ -169,80 +184,3 @@ class Response(BaseResponse):
 
     Extends :class:`webob.response.Response`.
     """
-
-
-class LinkMaker(object):
-    def __init__(self, request, app):
-        self.request = request
-        self.app = app
-
-    def link(self, obj, name='', default=None):
-        if obj is None:
-            return default
-
-        info = generic.link(self.request, obj, self.app,
-                            lookup=self.app.lookup)
-
-        if info is None:
-            raise LinkError("Cannot link to: %r" % obj)
-
-        path, parameters = info
-        parts = []
-        if path:
-            parts.append(path)
-        if name:
-            parts.append(name)
-        result = '/' + '/'.join(parts)
-        if parameters:
-            result += '?' + urlencode(parameters, True)
-        return result
-
-    def view(self, obj, default=None, **predicates):
-        # Hack: squirrel away predicates on request, so
-        # we can access them again in defer_links implementation
-        # of the view, which has no other way to get at them
-        # using current reg
-        self.request._predicates = predicates
-
-        view = generic.view.component(
-            self.request, obj, lookup=self.app.lookup, default=None,
-            predicates=predicates)
-
-        if view is None:
-            return default
-
-        old_app = self.request.app
-        self.app.set_implicit()
-        self.request.app = self.app
-        result = view(self.request, obj)
-        old_app.set_implicit()
-        self.request.app = old_app
-        return result
-
-    @reify
-    def parent(self):
-        return generic.linkmaker(self.request, self.app.parent,
-                                 lookup=self.app.lookup)
-
-    def child(self, app, **context):
-        return generic.linkmaker(self.request,
-                                 self.app.child(app, **context),
-                                 lookup=self.app.lookup)
-
-
-class NothingMountedLinkMaker(object):
-    def __init__(self, request):
-        self.request = request
-
-    def link(self, obj, name='', default=None):
-        raise LinkError("Cannot link to %r (name %r)" % (obj, name))
-
-    def view(self, obj, default=None, **predicates):
-        raise LinkError("Cannot view %r (predicates %r)" % (obj, predicates))
-
-    @reify
-    def parent(self):
-        return NothingMountedLinkMaker(self.request)
-
-    def child(self, app, **context):
-        return NothingMountedLinkMaker(self.request)

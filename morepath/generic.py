@@ -27,6 +27,11 @@ def link(request, model, mounted):
 
 
 @reg.generic
+def deferred_link_app(mounted, model):
+    return None
+
+
+@reg.generic
 def view(request, model):
     """Get the view that represents the model in the context of a request.
 

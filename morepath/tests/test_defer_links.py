@@ -34,8 +34,8 @@ def test_defer_links():
         return sub()
 
     @root.defer_links(model=SubModel)
-    def defer_links_sub_model(obj):
-        return sub()
+    def defer_links_sub_model(app, obj):
+        return app.child(sub())
 
     config.commit()
 
@@ -75,8 +75,8 @@ def test_defer_view():
         return sub()
 
     @root.defer_links(model=SubModel)
-    def defer_links_sub_model(obj):
-        return sub()
+    def defer_links_sub_model(app, obj):
+        return app.child(sub())
 
     config.commit()
 
@@ -116,8 +116,8 @@ def test_defer_view_predicates():
         return sub()
 
     @root.defer_links(model=SubModel)
-    def defer_links_sub_model(obj):
-        return sub()
+    def defer_links_sub_model(app, obj):
+        return app.child(sub())
 
     config.commit()
 
@@ -157,8 +157,8 @@ def test_defer_view_missing_view():
         return sub()
 
     @root.defer_links(model=SubModel)
-    def defer_links_sub_model(obj):
-        return sub()
+    def defer_links_sub_model(app, obj):
+        return app.child(sub())
 
     config.commit()
 
@@ -202,8 +202,8 @@ def test_defer_links_mount_parameters():
         return sub(name=mount_name)
 
     @root.defer_links(model=SubModel)
-    def defer_links_sub_model(obj):
-        return sub(name=obj.name)
+    def defer_links_sub_model(app, obj):
+        return app.child(sub(name=obj.name))
 
     config.commit()
 
@@ -240,12 +240,12 @@ def test_defer_link_acquisition():
         return request.link(Model('foo'))
 
     @root.mount(app=sub, path='sub')
-    def mount_sub():
-        return sub()
+    def mount_sub(obj, app):
+        return app.child(sub())
 
     @sub.defer_links(model=Model)
-    def get_parent(obj):
-        return None
+    def get_parent(app, obj):
+        return app.parent
 
     config.commit()
 
@@ -282,12 +282,12 @@ def test_defer_view_acquisition():
         return request.view(Model('foo'))
 
     @root.mount(app=sub, path='sub')
-    def mount_sub():
-        return sub()
+    def mount_sub(obj, app):
+        return app.child(sub())
 
     @sub.defer_links(model=Model)
-    def get_parent(obj):
-        return None
+    def get_parent(app, obj):
+        return app.parent
 
     config.commit()
 
@@ -416,8 +416,8 @@ def test_defer_link_should_not_cause_web_views_to_exist():
         return sub()
 
     @sub.defer_links(model=Model)
-    def get_parent(obj):
-        return None
+    def get_parent(app, obj):
+        return app.parent
 
     config.commit()
 
@@ -450,12 +450,188 @@ def test_defer_link_to_parent_from_root():
         return request.link(OtherModel())
 
     @root.defer_links(model=OtherModel)
-    def get_parent(obj):
-        return None
+    def get_parent(app, obj):
+        return app.parent
 
     config.commit()
 
     c = Client(root())
 
     with pytest.raises(LinkError):
-        response = c.get('/')
+        c.get('/')
+
+
+def test_special_link_overrides_deferred_link():
+    config = morepath.setup()
+
+    class root(morepath.App):
+        testing_config = config
+
+    class alpha(morepath.App):
+        testing_config = config
+
+    class AlphaModel(object):
+        pass
+
+    class SpecialAlphaModel(AlphaModel):
+        pass
+
+    @root.mount(app=alpha, path='alpha')
+    def mount_alpha():
+        return alpha()
+
+    @root.path(path='')
+    class RootModel(object):
+        pass
+
+    @root.path(model=SpecialAlphaModel, path='roots_alpha')
+    def get_root_alpha():
+        return SpecialAlphaModel()
+
+    @root.view(model=RootModel)
+    def root_model_default(self, request):
+        return request.link(AlphaModel())
+
+    @root.view(model=RootModel, name='special')
+    def root_model_special(self, request):
+        return request.link(SpecialAlphaModel())
+
+    @alpha.path(path='', model=AlphaModel)
+    def get_alpha():
+        return AlphaModel()
+
+    @root.defer_links(model=AlphaModel)
+    def defer_links_alpha(app, obj):
+        return app.child(alpha())
+
+    config.commit()
+
+    c = Client(root())
+
+    response = c.get('/')
+    assert response.body == b'/alpha'
+
+    response = c.get('/special')
+    assert response.body == b'/roots_alpha'
+
+
+def test_deferred_deferred_link():
+    config = morepath.setup()
+
+    class root(morepath.App):
+        testing_config = config
+
+    class alpha(morepath.App):
+        testing_config = config
+
+    class beta(morepath.App):
+        testing_config = config
+
+    @root.path(path='')
+    class RootModel(object):
+        pass
+
+    @root.view(model=RootModel)
+    def root_model_default(self, request):
+        return request.link(AlphaModel())
+
+    @alpha.path(path='')
+    class AlphaModel(object):
+        pass
+
+    @beta.path(path='')
+    class BetaModel(object):
+        pass
+
+    @beta.view(model=BetaModel)
+    def beta_model_default(self, request):
+        return request.link(AlphaModel())
+
+    @root.mount(app=alpha, path='alpha')
+    def mount_alpha():
+        return alpha()
+
+    @root.mount(app=beta, path='beta')
+    def mount_beta():
+        return beta()
+
+    @beta.defer_links(model=AlphaModel)
+    def defer_links_parent(app, obj):
+        return app.parent
+
+    @root.defer_links(model=AlphaModel)
+    def defer_links_alpha(app, obj):
+        return app.child(alpha())
+
+    config.commit()
+
+    c = Client(root())
+
+    response = c.get('/')
+    assert response.body == b'/alpha'
+
+    response = c.get('/beta')
+    assert response.body == b'/alpha'
+
+
+def test_deferred_deferred_view():
+    config = morepath.setup()
+
+    class root(morepath.App):
+        testing_config = config
+
+    class alpha(morepath.App):
+        testing_config = config
+
+    class beta(morepath.App):
+        testing_config = config
+
+    @root.path(path='')
+    class RootModel(object):
+        pass
+
+    @root.json(model=RootModel)
+    def root_model_default(self, request):
+        return request.view(AlphaModel())
+
+    @alpha.path(path='')
+    class AlphaModel(object):
+        pass
+
+    @alpha.json(model=AlphaModel)
+    def alpha_model_default(self, request):
+        return {"model": "alpha"}
+
+    @beta.path(path='')
+    class BetaModel(object):
+        pass
+
+    @beta.json(model=BetaModel)
+    def beta_model_default(self, request):
+        return request.view(AlphaModel())
+
+    @root.mount(app=alpha, path='alpha')
+    def mount_alpha():
+        return alpha()
+
+    @root.mount(app=beta, path='beta')
+    def mount_beta():
+        return beta()
+
+    @beta.defer_links(model=AlphaModel)
+    def defer_links_parent(app, obj):
+        return app.parent
+
+    @root.defer_links(model=AlphaModel)
+    def defer_links_alpha(app, obj):
+        return app.child(alpha())
+
+    config.commit()
+
+    c = Client(root())
+
+    response = c.get('/')
+    assert response.json == {'model': 'alpha'}
+
+    response = c.get('/beta')
+    assert response.json == {'model': 'alpha'}

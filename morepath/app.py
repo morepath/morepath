@@ -167,6 +167,23 @@ class App(with_metaclass(AppMeta)):
         result.parent = self
         return result
 
+    def sibling(self, app, **variables):
+        """Get app mounted next to this app.
+
+        Either give it an instance of the app class as the first
+        parameter, or the app class itself (or name under which it was
+        mounted) as the first parameter and as ``variables`` the
+        parameters that go to its ``mount`` function.
+
+        Returns the mounted application object, with its ``parent``
+        attribute set to the same parent as this one, or ``None`` if such
+        a sibling application does not exist.
+        """
+        parent = self.parent
+        if parent is None:
+            return None
+        return parent.child(app, **variables)
+
     @reify
     def publish(self):
         # XXX import cycles...

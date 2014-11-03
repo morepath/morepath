@@ -265,7 +265,7 @@ def test_mount_parent_link():
 
     @mounted.view(model=MountedRoot)
     def root_default(self, request):
-        return request.parent.link(Model('one'))
+        return request.link(Model('one'), app=request.app.parent)
 
     @app.mount(path='{id}', app=mounted)
     def get_context(id):
@@ -302,11 +302,13 @@ def test_mount_child_link():
 
     @app.view(model=Root)
     def app_root_default(self, request):
-        return request.child(mounted, id='foo').link(Model('one'))
+        child = request.app.child(mounted, id='foo')
+        return request.link(Model('one'), app=child)
 
     @app.view(model=Root, name='inst')
     def app_root_inst(self, request):
-        return request.child(mounted(mount_id='foo')).link(Model('one'))
+        child = request.app.child(mounted(mount_id='foo'))
+        return request.link(Model('one'), app=child)
 
     @app.mount(path='{id}', app=mounted,
                variables=lambda a: {'id': a.mount_id})
@@ -342,7 +344,8 @@ def test_mount_sibling_link():
 
     @first.view(model=FirstModel)
     def first_model_default(self, request):
-        return request.sibling('second').link(SecondModel(2))
+        sibling = request.app.sibling('second')
+        return request.link(SecondModel(2), app=sibling)
 
     @second.path(path='foos/{id}')
     class SecondModel(object):
@@ -385,7 +388,8 @@ def test_mount_sibling_link_at_root_app():
 
     @app.view(model=Root)
     def root_default(self, request):
-        return request.sibling('foo').link(Item(3))
+        sibling = request.app.sibling('foo')
+        return request.link(Item(3), app=sibling)
 
     config.commit()
 
@@ -418,17 +422,17 @@ def test_mount_child_link_unknown_child():
 
     @app.view(model=Root)
     def app_root_default(self, request):
-        try:
-            return request.child(mounted, id='foo').link(Model('one'))
-        except LinkError:
+        child = request.app.child(mounted, id='foo')
+        if child is None:
             return 'link error'
+        return request.link(Model('one'), app=child)
 
     @app.view(model=Root, name='inst')
     def app_root_inst(self, request):
-        try:
-            return request.child(mounted(mount_id='foo')).link(Model('one'))
-        except LinkError:
+        child = request.app.child(mounted(mount_id='foo'))
+        if child is None:
             return 'link error'
+        return request.link(Model('one'), app=child)
 
     # no mount directive so linking will fail
 
@@ -458,10 +462,10 @@ def test_mount_child_link_unknown_parent():
 
     @app.view(model=Root)
     def app_root_default(self, request):
-        try:
-            return request.parent.link(Model('one'))
-        except LinkError:
+        parent = request.app.parent
+        if parent is None:
             return 'link error'
+        return request.link(Model('one'), app=parent)
 
     config.commit()
 
@@ -494,8 +498,9 @@ def test_mount_child_link_unknown_app():
 
     @app.view(model=Root)
     def app_root_default(self, request):
+        child = request.app.child(mounted, id='foo')
         try:
-            return request.child(mounted, id='foo').link(Model('one'))
+            return request.link(Model('one'), app=child)
         except LinkError:
             return "link error"
 
@@ -536,13 +541,13 @@ def test_request_view_in_mount():
 
     @app.view(model=Root)
     def root_default(self, request):
-        return request.child(mounted, id='foo').view(
-            Model('x'))['hey']
+        child = request.app.child(mounted, id='foo')
+        return request.view(Model('x'), app=child)['hey']
 
     @app.view(model=Root, name='inst')
     def root_inst(self, request):
-        return request.child(mounted(mount_id='foo')).view(
-            Model('x'))['hey']
+        child = request.app.child(mounted(mount_id='foo'))
+        return request.view(Model('x'), app=child)['hey']
 
     @app.mount(path='{id}', app=mounted,
                variables=lambda a: dict(id=a.mount_id))
@@ -560,7 +565,7 @@ def test_request_view_in_mount():
     assert response.body == b'Hey'
 
 
-def test_request_linkmaker_child_child():
+def test_request_link_child_child():
     config = setup()
 
     class app(morepath.App):
@@ -581,13 +586,13 @@ def test_request_linkmaker_child_child():
 
     @app.view(model=Root)
     def root_default(self, request):
-        return request.child(mounted, id='foo').child(submounted).view(
-            SubRoot())
+        child = request.app.child(mounted, id='foo').child(submounted)
+        return request.view(SubRoot(), app=child)
 
     @app.view(model=Root, name='inst')
     def root_inst(self, request):
-        return request.child(mounted(mount_id='foo')).child(submounted).view(
-            SubRoot())
+        child = request.app.child(mounted(mount_id='foo')).child(submounted())
+        return request.view(SubRoot(), app=child)
 
     @app.view(model=Root, name='info')
     def root_info(self, request):
@@ -612,7 +617,8 @@ def test_request_linkmaker_child_child():
 
     @submounted.view(model=SubRoot, name='parentage')
     def subroot_parentage(self, request):
-        return request.parent.parent.view(Root(), name='info')
+        ancestor = request.app.parent.parent
+        return request.view(Root(), name='info', app=ancestor)
     config.commit()
 
     c = Client(app())
@@ -653,33 +659,33 @@ def test_request_view_in_mount_broken():
 
     @app.view(model=Root)
     def root_default(self, request):
+        child = request.app.child(mounted, id='foo')
         try:
-            return request.child(mounted, id='foo').view(
-                Model('x'))['hey']
+            return request.view(Model('x'), app=child)['hey']
         except LinkError:
             return "link error"
 
     @app.view(model=Root, name='inst')
     def root_inst(self, request):
+        child = request.app.child(mounted(mount_id='foo'))
         try:
-            return request.child(mounted(mount_id='foo')).view(
-                Model('x'))['hey']
+            return request.view(Model('x'), app=child)['hey']
         except LinkError:
             return "link error"
 
     @app.view(model=Root, name='doublechild')
     def doublechild(self, request):
         try:
-            return request.child(mounted, id='foo').child(
-                mounted, id='bar').link(Model('x'))
-        except LinkError:
+            request.app.child(mounted, id='foo').child(
+                mounted, id='bar')
+        except AttributeError:
             return 'link error'
 
     @app.view(model=Root, name='childparent')
     def childparent(self, request):
         try:
-            return request.child(mounted, id='foo').parent.link(Model('x'))
-        except LinkError:
+            request.app.child(mounted, id='foo').parent
+        except AttributeError:
             return 'link error'
 
     # deliberately don't mount so using view is broken
@@ -790,7 +796,7 @@ def test_mount_view_in_child_view():
 
     @app.view(model=Root)
     def default_homepage(self, request):
-        return request.child(fooapp).view(FooRoot())
+        return request.view(FooRoot(), app=request.app.child(fooapp))
 
     @fooapp.path(path='')
     class FooRoot(object):
@@ -834,7 +840,8 @@ def test_mount_view_in_child_view_then_parent_view():
 
     @app.view(model=Root)
     def default_homepage(self, request):
-        return (request.child(fooapp).view(FooRoot()) + ' ' +
+        other = request.app.child(fooapp)
+        return (request.view(FooRoot(), app=other) + ' ' +
                 request.view(self, name='other'))
 
     @app.view(model=Root, name='other')
@@ -925,11 +932,11 @@ def test_mount_named_child_link_explicit_name():
 
     @app.view(model=Root)
     def app_root_default(self, request):
-        return request.child(mounted).link(Model('one'))
+        return request.link(Model('one'), app=request.app.child(mounted))
 
     @app.view(model=Root, name='extra')
     def app_root_default2(self, request):
-        return request.child('sub').link(Model('one'))
+        return request.link(Model('one'), app=request.app.child('sub'))
 
     @app.mount(path='subapp', app=mounted, name='sub')
     def get_context():
@@ -966,11 +973,11 @@ def test_mount_named_child_link_name_defaults_to_path():
 
     @app.view(model=Root)
     def app_root_default(self, request):
-        return request.child(mounted).link(Model('one'))
+        return request.link(Model('one'), app=request.app.child(mounted))
 
     @app.view(model=Root, name='extra')
     def app_root_default2(self, request):
-        return request.child('subapp').link(Model('one'))
+        return request.link(Model('one'), app=request.app.child('subapp'))
 
     @app.mount(path='subapp', app=mounted)
     def get_context():
@@ -1027,7 +1034,8 @@ def test_named_mount_with_parameters():
 
     @app.view(model=Root, path='/')
     def root_default2(self, request):
-        return request.child('mounts/{mount_id}', mount_id=3).link(Item(4))
+        child = request.app.child('mounts/{mount_id}', mount_id=3)
+        return request.link(Item(4), app=child)
 
     config.commit()
 
@@ -1077,7 +1085,8 @@ def test_named_mount_with_url_parameters():
 
     @app.view(model=Root, path='/')
     def root_default2(self, request):
-        return request.child('mounts', mount_id=3).link(Item(4))
+        child = request.app.child('mounts', mount_id=3)
+        return request.link(Item(4), app=child)
 
     config.commit()
 
@@ -1105,7 +1114,8 @@ def test_access_app_through_request():
 
     @root.view(model=RootModel)
     def root_model_default(self, request):
-        return request.child(sub, mount_name='foo').link(SubModel('foo'))
+        child = request.app.child(sub, mount_name='foo')
+        return request.link(SubModel('foo'), app=child)
 
     class SubModel(object):
         def __init__(self, name):
