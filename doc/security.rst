@@ -21,7 +21,8 @@ extract the username and password. The claimed identity can be
 accessed by looking at the :attr:`morepath.Request.identity` attribute
 on the request object.
 
-This is how you install an identity policy into a Morepath app::
+You use the :meth:`morepath.App.identity_policy` directive to install
+an identity policy into a Morepath app::
 
   from morepath.security import BasicAuthIdentityPolicy
 
