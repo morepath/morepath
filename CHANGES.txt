@@ -4,8 +4,7 @@ CHANGES
 0.8 (unreleased)
 ================
 
-- Nothing changed yet.
-
+- One test did not work correctly in Python 3. Fixed.
 
 0.7 (2014-11-03)
 ================

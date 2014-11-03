@@ -33,7 +33,7 @@ def test_scenario():
     assert response.json == ['/foo/a', '/document/b']
 
     response = c.get('/foo/a/link')
-    assert response.body == '/document/c'
+    assert response.body == b'/document/c'
 
     response = c.get('/document/a/link')
-    assert response.body == '/foo/d'
+    assert response.body == b'/foo/d'
