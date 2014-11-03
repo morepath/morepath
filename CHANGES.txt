@@ -11,6 +11,8 @@ CHANGES
 
 - Fix ReST error in API docs for ``autoconfig`` and ``autosetup``.
 
+- Fix a few ReST links to the API docs in the app reuse document.
+
 0.7 (2014-11-03)
 ================
 

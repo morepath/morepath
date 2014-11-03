@@ -261,22 +261,23 @@ the wiki app into the user app, like this:
 
 Note that in order to be able to link to ``WikiApp`` we need to supply
 a special ``variables`` function that takes the wiki app and returns
-the username for it.
+the username for it. For more details, see the documentation for the
+:meth:`morepath.App.mount` directive.
 
 Linking to other mounted apps
 -----------------------------
 
 .. sidebar:: Reusing views from other applications
 
-  Just like :meth:`Request.link`, :meth:`Request.view` also takes an
-  ``app`` parameter. This allows you to reuse a view from another
-  application.
+  Just like :meth:`morepath.Request.link`,
+  :meth:`morepath.Request.view` also takes an ``app`` parameter. This
+  allows you to reuse a view from another application.
 
 Now that we have applications mounted into each other, we want a way
 to make links between them.
 
 It is easy to make a link to an object in the same application. We use
-:meth:`Request.link`:
+:meth:`morepath.Request.link`:
 
 .. code-block:: python
 
@@ -293,7 +294,7 @@ the specific mounted application the wiki page is in. We can get this
 by navigating to it from the user app.
 
 If we are in the user application, we can navigate to the mounted wiki
-app using the :meth:`App.child` method:
+app using the :meth:`morepath.App.child` method:
 
   wiki_app = request.app.child(WikiApp(3))
 
@@ -321,15 +322,16 @@ a wiki page in the wiki app:
 
 What if we wanted to create a link from the wiki app into the user app
 in which it was mounted? We get to the user app from the wiki app with
-:attr:`App.parent`:
+:attr:`morepath.App.parent`:
 
 .. code-block:: python
 
   request.link(User('faassen'), app=request.app.parent)
 
 For a quick navigation to a sibling app, there is also
-:meth:`App.sibling`. You can also combine ``parent`` and ``child``
-together to navigate the application tree.
+:meth:`morepath.App.sibling`. To quickly get to the root app, use
+:attr:`morepath.App.root`. You can also combine ``parent`` and
+``child`` together to navigate the application tree.
 
 Deferring links and views
 -------------------------
@@ -337,7 +339,7 @@ Deferring links and views
 If we have a lot of code that links to objects in another app, it can
 get cumbersome to have to add the ``app`` parameter whenever we want
 to create a view. Instead, we can declare this centrally with the
-:meth:`App.defer_links` directive.
+:meth:`morepath.App.defer_links` directive.
 
 We can for instance declare for the ``WikiApp`` that to link to a
 ``User`` object we always use the parent app we were mounted in:
@@ -364,12 +366,11 @@ to, and then this app could defer to another sub-app. When creating a
 link Morepath follows the defers to the application that knows how to
 do it.
 
-The ``defer_links`` directive also affects the behavior of
-:meth:`Request.view` in the same way.
+The :meth:`morepath.App.defer_links` directive also affects the behavior of
+:meth:`morepath.Request.view` in the same way.
 
 Further reading
 ---------------
 
 To see an extended example of how you can structure larger
 applications to support reuse, see :doc:`building_large_applications`.
-
