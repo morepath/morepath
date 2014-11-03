@@ -38,7 +38,8 @@ Sounds interesting?
 Video intro
 -----------
 
-Here is a a 25 minute introduction to Morepath at EuroPython 2014:
+Here is a a 25 minute introduction to Morepath, originally given at
+EuroPython 2014:
 
 .. raw:: html
 
