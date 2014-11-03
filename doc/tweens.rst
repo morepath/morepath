@@ -74,7 +74,7 @@ factory is a function that given a handler constructs a tween. You can
 register a tween factory using the :meth:`App.tween_factory`
 directive::
 
-  @app.tween_factory()
+  @App.tween_factory()
   def make_tween(app, handler):
       def my_tween(request):
           print "Enter"
@@ -91,7 +91,7 @@ The tween chain is now:
 It can be useful to control the order of the tween chain. You can do this
 by passing ``under`` or ``over`` to `tween_factory`::
 
-  @app.tween_factory(over=make_tween)
+  @App.tween_factory(over=make_tween)
   def make_another_tween(app, handler):
       def another_tween(request):
           print "Another"
@@ -105,7 +105,7 @@ The tween chain is now:
 
 If instead you used ``under``::
 
-  @app.tween_factory(under=make_tween)
+  @App.tween_factory(under=make_tween)
   def make_another_tween(app, handler):
       def another_tween(request):
           print "Another"

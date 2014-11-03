@@ -13,14 +13,14 @@ Let's look at a minimal "Hello world!" application in Morepath::
 
   import morepath
 
-  class app(morepath.App):
+  class App(morepath.App):
       pass
 
-  @app.path(path='')
+  @App.path(path='')
   class Root(object):
       pass
 
-  @app.view(model=Root)
+  @App.view(model=Root)
   def hello_world(self, request):
       return "Hello world!"
 
@@ -28,7 +28,7 @@ Let's look at a minimal "Hello world!" application in Morepath::
       config = morepath.setup()
       config.scan()
       config.commit()
-      morepath.run(app())
+      morepath.run(App())
 
 You can save this as ``hello.py`` and then run it with Python:
 
@@ -48,7 +48,7 @@ You can save this as ``hello.py`` and then run it with Python:
   the outside world. This can be done by passing an explicit ``host``
   argument of ``0.0.0.0`` to the ``morepath.run()`` function.
 
-    morepath.run(app(), host='0.0.0.0')
+    morepath.run(App(), host='0.0.0.0')
 
   Note that the built-in web server is absolutely unsuitable for
   actual deployment. For those cases don't use ``morepath.run()`` at
@@ -79,10 +79,10 @@ Code Walkthrough
 
 1. We import ``morepath``.
 
-2. We create a subclass of :class:`morepath.App`. This class contains
-   our application's configuration: what models and views are
-   available.  It can also be instantiated into a WSGI application
-   object.
+2. We create a subclass of :class:`morepath.App` named ``App``. This
+   class contains our application's configuration: what models and
+   views are available.  It can also be instantiated into a WSGI
+   application object.
 
 3. We then set up a ``Root`` class. Morepath is model-driven and in
    order to create any views, we first need at least one model, in
@@ -124,7 +124,7 @@ Code Walkthrough
    This step ensures your configuration (model routes, views, etc) is
    loaded exactly once in a way that's reusable and extensible.
 
-8. We then instantiate the ``app`` class to create a ``WSGI`` app
+8. We then instantiate the ``App`` class to create a ``WSGI`` app
    using the default web server. Since you create a WSGI app you can
    also plug it into any other WSGI server.
 
@@ -201,7 +201,7 @@ Publishing models
   supply a custom ``variables`` function that given the model returns
   a dictionary with all the variables in it. Here's how::
 
-    @app.path(model=User, path='/users/{username}',
+    @App.path(model=User, path='/users/{username}',
               variables=lambda model: dict(username=model.username))
     def get_user(username):
         return users.get(username)
@@ -220,7 +220,7 @@ We want our application to have URLs that look like this::
 
 Here's the code to expose our users database to such a URL::
 
-  @app.path(model=User, path='/users/{username}')
+  @App.path(model=User, path='/users/{username}')
   def get_user(username):
       return users.get(username)
 
@@ -252,14 +252,14 @@ Now we've published the model to the web but we can't view it yet.
   know it doesn't match. You can specify a path variable contains an
   integer using the integer converter. For instance::
 
-    @app.path(model=Post, path='posts/{post_id}', converters=dict(post_id=int))
+    @App.path(model=Post, path='posts/{post_id}', converters=dict(post_id=int))
     def get_post(post_id):
         return query_post(post_id)
 
   You can do this more succinctly too by using a default parameter for
   ``post_id`` that is an int, for instance::
 
-    @app.path(model=Post, path='posts/{post_id}')
+    @App.path(model=Post, path='posts/{post_id}')
     def get_post(post_id=0):
         return query_post(post_id)
 
@@ -271,7 +271,7 @@ Views
 In order to actually see a web page for a user model, we need to
 create a view for it::
 
-  @app.view(model=User)
+  @App.view(model=User)
   def user_info(self, request):
       return "User's full name is: %s" % self.fullname
 
@@ -289,7 +289,7 @@ What if we want to provide an alternative view for the user, such as
 an ``edit`` view which allows us to edit it? We need to give it a
 name::
 
-  @app.view(model=User, name='edit')
+  @App.view(model=User, name='edit')
   def edit_user(self, request):
       return "An editing UI goes here"
 
@@ -333,7 +333,7 @@ For more on this, see :doc:`paths_and_linking`.
   don't need a route name, and if the default way of getting variables
   from a model is not correct, you only need to explain once how to
   create the variables for a route, with the ``variables`` argument to
-  ``@app.path``.
+  ``@App.path``.
 
   In addition, Morepath links are completely generic: you can pass in
   anything linkable. This means that writing a generic view that uses
@@ -344,11 +344,11 @@ For more on this, see :doc:`paths_and_linking`.
 JSON and HTML views
 ~~~~~~~~~~~~~~~~~~~
 
-``@app.view`` is rather bare-bones. You usually know more about what
+``@App.view`` is rather bare-bones. You usually know more about what
 you want to return than that. If you want to return JSON, you can use
-the shortcut ``@app.json`` instead to declare your view::
+the shortcut ``@App.json`` instead to declare your view::
 
-  @app.json(model=User, name='info')
+  @App.json(model=User, name='info')
   def user_json_info(self, request):
       return {'username': self.username,
               'fullname': self.fullname,
@@ -357,9 +357,9 @@ the shortcut ``@app.json`` instead to declare your view::
 This automatically serializes what is returned from the function JSON,
 and sets the content-type header to ``application/json``.
 
-If we want to return HTML, we can use ``@app.html``::
+If we want to return HTML, we can use ``@App.html``::
 
-  @app.html(model=User)
+  @App.html(model=User)
   def user_info(self, request):
       return "<p>User's full name is: %s</p>" % self.fullname
 
@@ -392,7 +392,7 @@ Redirects
 
 To redirect to another URL, use :func:`morepath.redirect`. For example::
 
-  @app.view(model=User, name='extra')
+  @App.view(model=User, name='extra')
   def redirecting(self, request):
       return morepath.redirect(request.link(self, 'other'))
 
@@ -404,6 +404,6 @@ exceptions (:mod:`webob.exc`). For instance::
 
   from webob.exc import HTTPNotAcceptable
 
-  @app.view(model=User, name='extra')
+  @App.view(model=User, name='extra')
   def erroring(self, request):
       raise HTTPNotAcceptable()

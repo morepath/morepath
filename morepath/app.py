@@ -203,7 +203,7 @@ class App(with_metaclass(AppMeta)):
         You use this as a class decorator for a :class:`morepath.Directive`
         subclass::
 
-           @app.directive('my_directive')
+           @App.directive('my_directive')
            class FooDirective(morepath.Directive):
                ...
 

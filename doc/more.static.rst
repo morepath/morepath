@@ -48,17 +48,17 @@ We give it a simple HTML page on the root HTML that contains a
 ``<head>`` section in its HTML::
 
 
-  @app.path(path='/')
+  @App.path(path='/')
   class Root(object):
       pass
 
 
-  @app.html(model=Root)
+  @App.html(model=Root)
   def root_default(self, request):
       return ("<!DOCTYPE html><html><head></head><body>"
               "jquery is inserted in the HTML source</body></html>")
 
-It's important to use ``@app.html`` as opposed to ``@app.view``, as
+It's important to use ``@App.html`` as opposed to ``@App.view``, as
 that sets the content-header to ``text/html``, something that
 BowerStatic checks before it inserts any ``<link>`` or ``<script>``
 tags. It's also important to include a ``<head>`` section, as that's
@@ -135,10 +135,10 @@ Saying which components to use
 
 We now need to tell our application to use the ``components``
 object. This causes it to look for static resources only in the
-components installed there. We do this using the ``@app.static_components``
+components installed there. We do this using the ``@App.static_components``
 directive, like this::
 
-  @app.static_components()
+  @App.static_components()
   def get_static_components():
       return components
 
@@ -157,7 +157,7 @@ Now we are ready to include static resources from ``bower_components``
 into our application. We can do this using the ``include()`` method on
 request. We modify our view to add an ``include()`` call::
 
-  @app.html(model=Root)
+  @App.html(model=Root)
   def root_default(self, request):
       request.include('jquery')
       return ("<!DOCTYPE html><html><head></head><body>"
@@ -206,7 +206,7 @@ You need to tell your application that instead of plain ``components``
 you want to use ``local`` instead, so we modify our
 ``static_components`` directive::
 
-  @app.static_components()
+  @App.static_components()
   def get_static_components():
       return local
 

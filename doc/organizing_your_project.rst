@@ -160,21 +160,21 @@ way to start it up as a web server. Here's a sketch of ``main.py``::
 
   import morepath
 
-  class app(morepath.App):
+  class App(morepath.App):
       pass
 
   def main():
      morepath.autosetup()
-     morepath.run(app())
+     morepath.run(App())
 
-We create an ``app`` class, then have a ``main()`` function that is
+We create an ``App`` class, then have a ``main()`` function that is
 going to be called by the ``myproject-start`` entry point we defined
 in ``setup.py``. This main function does two things:
 
 * Use :func:`morepath.autosetup()` to set up Morepath, including any
   of your code.
 
-* start a WSGI server for the ``app`` instance on port localhost,
+* start a WSGI server for the ``App`` instance on port localhost,
   port 5000. This uses the standard library wsgiref WSGI server. Note
   that this should only used for testing purposes, not production! For
   production, use an external WSGI server.
@@ -213,7 +213,7 @@ Then we modify ``main.py`` to use waitress::
 
   def main():
      ...
-     waitress.serve(app())
+     waitress.serve(App())
 
 Variation: command-line WSGI servers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -225,7 +225,7 @@ app::
 
   def wsgi_factory():
      morepath.autosetup()
-     return app()
+     return App()
 
   $ waitress-serve --call myproject.main:wsgi_factory
 
@@ -308,7 +308,7 @@ to define their paths. We do this in a ``path.py`` module::
   from myproject.main import app
   from myproject import model
 
-  @app.path(model=model.Document, path='documents/{id}')
+  @App.path(model=model.Document, path='documents/{id}')
   def get_document(id):
      if id != 'foo':
         return None # not found
@@ -318,7 +318,7 @@ In the functions decorated by :meth:`App.path` we do whatever
 query is necessary to retrieve the model instance from a database, or
 return ``None`` if the model cannot be found.
 
-Morepath allows you to scatter ``@app.path`` decorators throughout
+Morepath allows you to scatter ``@App.path`` decorators throughout
 your codebase, but by putting them all together in a single module it
 becomes really easy to inspect and adjust the URL structure of your
 application, and to see exactly what is done to query or construct the
@@ -336,7 +336,7 @@ them as actual web resources. We do this in the ``view.py`` module::
   from myproject.main import app
   from myproject import model
 
-  @app.json(model=model.Document)
+  @App.json(model=model.Document)
   def document_default(self, request):
       return {'id': self.id, 'title': self.title, 'content': self.content }
 

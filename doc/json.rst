@@ -22,7 +22,7 @@ for an ``Item`` class::
      def __init__(self, value):
          self.value = value
 
-  @app.dump_json(model=Item)
+  @App.dump_json(model=Item)
   def dump_item_json(self, request):
       return { 'type': 'Item', 'x': self.value }
 
@@ -38,7 +38,7 @@ general dump_json function that applies to all objects.
 
 Now we can write a JSON view that just returns an ``Item`` instance::
 
-  @app.json(model=Item)
+  @App.json(model=Item)
   def item_default(self, request):
       return self
 
@@ -53,7 +53,7 @@ turns incoming JSON into a Python object. We detect JSON with the
 type field ``Item`` and interpret it as an ``Item`` instance, and
 pass through everything else::
 
-  @app.load_json()
+  @App.load_json()
   def load_json(json, request):
       if json.get('type') != 'Item':
           return json
@@ -62,7 +62,7 @@ pass through everything else::
 When you write a ``json`` view you automatically get the ``Item``
 instance as the ``obj`` attribute of the ``request``::
 
-  @app.json(model=Collection, request_method='POST')
+  @App.json(model=Collection, request_method='POST')
   def collection_post(self, request):
       collection.add(request.obj)
       return "success!"

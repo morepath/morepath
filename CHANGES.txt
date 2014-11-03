@@ -202,6 +202,9 @@ CHANGES
   ``generic.context`` and ``generic.traject`` are not needed anymore,
   along with ``generic.link_maker``.
 
+- Change documentation to use uppercase class names for App classes
+  everywhere. This reflects a change in 0.4 and should help clarity.
+
 - Minor improvement in docstrings.
 
 0.6 (2014-09-08)

@@ -27,16 +27,16 @@ Defining a setting
 
 You can define a setting using the :meth:`App.setting` directive::
 
-  @app.setting(section="logging", name="logfile")
+  @App.setting(section="logging", name="logfile")
   def get_logfile():
       return "/path/to/logfile.log"
 
 You can also use this directive to override a setting in another app::
 
-  class sub(app):
+  class Sub(App):
       pass
 
-  @sub.setting(section="logging", name="logfile")
+  @Sub.setting(section="logging", name="logfile")
   def get_logfile_too():
      return "/a/different/logfile.log"
 
@@ -63,7 +63,7 @@ Defining multiple settings
 It can be convenient to define multiple settings in a section at once.
 You can do this using the :meth:`App.setting_section` directive::
 
-  @app.setting_section(section="logging")
+  @App.setting_section(section="logging")
   def get_setting_section():
       return {
          'logfile': "/path/to/logfile.log",

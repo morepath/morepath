@@ -25,7 +25,7 @@ This is how you install an identity policy into a Morepath app::
 
   from morepath.security import BasicAuthIdentityPolicy
 
-  @app.identity_policy()
+  @App.identity_policy()
   def get_identity_policy():
       return BasicAuthIdentityPolicy()
 
@@ -43,7 +43,7 @@ By default, Morepath will reject any claimed identities. To let your
 application verify identities, you need to use
 :meth:`morepath.App.verify_identity`::
 
-  @app.verify_identity()
+  @App.verify_identity()
   def verify_identity(identity):
       return user_has_password(identity.username, identity.password)
 
@@ -68,7 +68,7 @@ user earlier when they logged in. No database-based identity check is
 required to establish that this is a legitimate identity. You can
 therefore implement `verify_identity`` like this::
 
-  @app.verify_identity()
+  @App.verify_identity()
   def verify_identity(identity):
       # trust the identity established by the identity policy
       return True
@@ -170,7 +170,7 @@ we can use an exception view, something like this::
 
   from webob.exc import HTTPForbidden
 
-  @app.view(model=HTTPForbidden)
+  @App.view(model=HTTPForbidden)
   def make_unauthorized(self, request):
       @request.after
       def set_status_code(response):
@@ -210,11 +210,11 @@ edit. We define those as plain Python classes::
 Now we can protect views with those permissions. Let's say we have a
 ``Document`` model that we can view and edit::
 
-  @app.html(model=Document, permission=ViewPermission)
+  @App.html(model=Document, permission=ViewPermission)
   def document_view(request, model):
       return "<p>The title is: %s</p>" % model.title
 
-  @app.html(model=Document, name='edit', permission=EditPermission)
+  @App.html(model=Document, name='edit', permission=EditPermission)
   def document_edit(request, model):
       return "some kind of edit form"
 
@@ -238,14 +238,14 @@ This is very flexible. Let's look at some examples.
 
 Let's give absolutely everybody view permission on ``Document``::
 
-  @app.permission_rule(model=Document, permission=ViewPermission)
+  @App.permission_rule(model=Document, permission=ViewPermission)
   def document_view_permission(identity, model, permission)
       return True
 
 Let's give only those users that are in a list ``allowed_users`` on
 the ``Document`` the edit permission::
 
-  @app.permission_rule(model=Document, permission=EditPermission)
+  @App.permission_rule(model=Document, permission=EditPermission)
   def document_edit_permission(identity, model, permission):
       return identity.userid in model.allowed_users
 
@@ -262,7 +262,7 @@ basis? In our application, we may have a *generic* way to check for
 the edit permission on any kind of model. We can easily do that too,
 as Morepath knows about inheritance::
 
-  @app.permission_rule(model=object, permission=EditPermission)
+  @App.permission_rule(model=object, permission=EditPermission)
   def has_edit_permission(identity, model, permission):
       ... some generic rule ...
 
@@ -272,7 +272,7 @@ be valid for *all* models in our application.
 What if we want that policy for all models, except ``Document`` where
 we want to do something else? We can do that too::
 
-  @app.permission_rule(model=Document, permission=EditPermission)
+  @App.permission_rule(model=Document, permission=EditPermission)
   def document_edit_permission(identity, model, permission):
       ... some special rule ...
 
@@ -280,7 +280,7 @@ You can also register special rules that depend on identity. If you
 pass ``identity=None``, you can can register a permission policy for
 when the user has not logged in yet and has no claimed identity::
 
-  @app.permission_rule(model=object, permission=EditPermission, identity=None)
+  @App.permission_rule(model=object, permission=EditPermission, identity=None)
   def has_edit_permission_not_logged_in(identity, model, permission):
       return False
 
@@ -290,6 +290,6 @@ above.
 If you want to defer to a completely generic permission engine, you
 could define a permission check that works for *any* permission::
 
-  @app.permission_rule(model=object, permission=object)
+  @App.permission_rule(model=object, permission=object)
   def generic_permission_check(identity, model, permission):
        ... generic rule ...

@@ -44,7 +44,7 @@ For example, if we have this generic base class::
 We can easily define a generic default view that works for all
 subclasses::
 
-  @app.view(model=ContainerBase)
+  @App.view(model=ContainerBase)
   def overview(self, request):
       return ', '.join([entry.title for entry in self.entries()])
 
@@ -52,7 +52,7 @@ But what if you want to do something different for a particular
 subclass? What if ``MySpecialContainer`` needs it own custom default
 view? Easy::
 
-  @app.view(model=MySpecialContainer)
+  @App.view(model=MySpecialContainer)
   def special_overview(self, request):
       return "A special overview!"
 
@@ -77,7 +77,7 @@ Let's say we have an ``Edit`` permission; it's just a class::
 And we have a view for some ``Document`` class that we only want to be
 accessible if the user has an edit permission::
 
-  @app.view(model=Document, permission=Edit)
+  @App.view(model=Document, permission=Edit)
   def edit_document(self, request):
       return "Editable"
 
@@ -85,7 +85,7 @@ How does Morepath know whether someone has ``Edit`` permission? We
 need to tell it using the :meth:`morepath.App.permission`
 directive. We can implement any rule we want, for instance this one::
 
-  @app.permission(model=Document, permission=Edit)
+  @App.permission(model=Document, permission=Edit)
   def have_edit_permission(model, identity):
       return model.has_permission(identity.userid)
 
@@ -99,7 +99,7 @@ Composable Views
 
 Let's say you have a JSON view for a ``Document`` class::
 
-  @app.json(model=Document)
+  @App.json(model=Document)
   def document_json(self, request):
       return {'title': self.title}
 
@@ -107,7 +107,7 @@ And now we have a view for a container that contains documents. We want
 to automatically render the JSON views of the documents in a list. We
 can write this::
 
-  @app.json(model=DocumentContainer)
+  @App.json(model=DocumentContainer)
   def document_container_json(self, request):
       return [document_json(request, doc) for doc in self.entries()]
 
@@ -117,7 +117,7 @@ them is a ``SpecialDocument``? Our ``document_container_json``
 function breaks. How to fix it? Easy, we can use
 :meth:`morepath.Request.view`::
 
-  @app.json(model=DocumentContainer)
+  @App.json(model=DocumentContainer)
   def document_container_json(self, request):
       return [request.view(doc) for doc in self.entries()]
 
@@ -133,7 +133,7 @@ Somebody else has written an application with Morepath. It contains lots
 of stuff that does exactly what you want, and one view that *doesn't*
 do what you want::
 
-  @app.view(model=Document)
+  @App.view(model=Document)
   def recalcitrant_view(self, request):
       return "The wrong thing!"
 
@@ -143,13 +143,13 @@ else. What do we do now? Monkey-patch? Not at all: Morepath got you
 covered. You simply create a new application subclass that extends the
 original::
 
-  class my_app(app):
+  class MyApp(App):
       pass
 
 We now have an application that does exactly what ``app`` does. Now
 to override that one view to do what we want::
 
-  @my_app.view(model=Document)
+  @MyApp.view(model=Document)
   def whatwewant(self, request):
       return "The right thing!"
 

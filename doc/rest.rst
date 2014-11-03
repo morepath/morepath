@@ -87,7 +87,7 @@ We could for instance have a ``Document`` model in our application::
 
 We can expose it on a URL::
 
-  @app.path(model=Document, path='documents/{id}')
+  @App.path(model=Document, path='documents/{id}')
   def get_document(id):
      return document_by_id(id)
 
@@ -99,7 +99,7 @@ fine.
 Now we want a ``metadata`` resource that exposes its metadata as
 JSON::
 
-  @app.json(model=Document, name='metadata')
+  @App.json(model=Document, name='metadata')
   def document_metadata(self, request):
       return {
         'id': self.id,
@@ -139,7 +139,7 @@ Here is how we could make ``documents`` available on a URL::
 
   documents = DocumentCollection()
 
-  @app.path(model=DocumentCollection, path='documents')
+  @App.path(model=DocumentCollection, path='documents')
   def documents_collection():
      return documents
 
@@ -147,7 +147,7 @@ When someone accesses ``/documents`` they should get a JSON structure which
 includes ids of all documents in the collection. Here's how to do
 that::
 
-  @app.json(model=DocumentCollection)
+  @App.json(model=DocumentCollection)
   def collection_default(self, request):
       return {
          'type': 'document_collection',
@@ -157,7 +157,7 @@ that::
 Then we want to allow people to POST the document id (as a URL
 parameter) to the ``/documents/add`` resource::
 
-  @app.json(model=DocumentCollection, name='add', request_method='POST')
+  @App.json(model=DocumentCollection, name='add', request_method='POST')
   def collection_add_document(self, request):
       doc = document_by_id(request.args['id'])
       self.add(doc)
@@ -185,7 +185,7 @@ By default, ``request_method`` is ``GET``, meaning that ``/documents``
 only responds to a ``GET`` request, which is what we want. Let's
 make it explicit::
 
-  @app.json(model=DocumentCollection, request_method='GET')
+  @App.json(model=DocumentCollection, request_method='GET')
   def collection_default(self, request):
       ...
 
@@ -195,7 +195,7 @@ ids on ``/documents`` directly? Here's how you rewrite
 ``collection_add_document`` to be the view directly on
 ``/documents```::
 
-  @app.json(model=DocumentCollection, request_method='POST')
+  @App.json(model=DocumentCollection, request_method='POST')
   def collection_add_document(self, request):
       ...
 
@@ -212,7 +212,7 @@ be routed to a model or a view, a ``404`` error is raised.
 But what if the view did not manage to do something successfully? Let's
 get back to this view::
 
-  @app.json(model=DocumentCollection, name='add', request_method='POST')
+  @App.json(model=DocumentCollection, name='add', request_method='POST')
   def collection_add_document(self, request):
       doc = document_by_id(request.args['id'])
       self.add(doc)
@@ -240,7 +240,7 @@ our view so it is raised if there was no id::
 
   from webob.exc import HTTPBadRequest
 
-  @app.json(model=DocumentCollection, name='add', request_method='POST')
+  @App.json(model=DocumentCollection, name='add', request_method='POST')
   def collection_add_document(self, request):
       id = request.args.get('id')
       if id is None:
@@ -253,7 +253,7 @@ We also want to deal with the situation where an id was given, but no
 document with that id exists. Let's handle that with 400 Bad Request
 too::
 
-  @app.json(model=DocumentCollection, name='add', request_method='POST')
+  @App.json(model=DocumentCollection, name='add', request_method='POST')
   def collection_add_document(self, request):
       id = request.args.get('id')
       if id is None:
@@ -302,7 +302,7 @@ Morepath makes it very easy to create hyperlinks, so we won't
 have to do much. Let's first modify our default ``GET`` view for
 the collection so it also has a link to the ``add`` resource::
 
-  @app.json(model=DocumentCollection)
+  @App.json(model=DocumentCollection)
   def collection_default(self, request):
       return {
          'type': 'document_collection',
@@ -318,7 +318,7 @@ Let's make things more interesting though. Before we had the default
 view for the collection return a list of document ids. We can change
 this so we return a list of document URLs instead::
 
-  @app.json(model=DocumentCollection)
+  @App.json(model=DocumentCollection)
   def collection_default(self, request):
       return {
          'type': 'document_collection',
@@ -328,7 +328,7 @@ this so we return a list of document URLs instead::
 
 Or perhaps better, include the id *and* the URL::
 
-  @app.json(model=DocumentCollection)
+  @App.json(model=DocumentCollection)
   def collection_default(self, request):
       return {
          'type': 'document_collection',
