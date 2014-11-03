@@ -395,7 +395,8 @@ class Config(object):
         self.actions = []
         self.count = 0
 
-    def scan(self, package=None, ignore=None, recursive=True):
+    def scan(self, package=None, ignore=None, recursive=True,
+             onerror=None):
         """Scan package for configuration actions (decorators).
 
         Register any found configuration actions with this
@@ -407,17 +408,17 @@ class Config(object):
 
         :param package: The Python module or package to scan. Optional; if left
           empty case the calling package is scanned.
-        :ignore: A Venusian_ style ignore to ignore some modules during
+        :param ignore: A Venusian_ style ignore to ignore some modules during
           scanning. Optional.
-        :recursive: Scan packages recursively. By default this is ``True``.
+        :param recursive: Scan packages recursively. By default this is ``True``.
           If set to ``False``, only the ``__init__.py`` of a package is
           scanned.
+        :param onerror: onerror argument passed to Venusian's scan.
         """
         if package is None:
             package = caller_package()
         scanner = venusian.Scanner(config=self)
-        scanner.scan(package, ignore=ignore, onerror=ignore_import_error,
-                     recursive=recursive)
+        scanner.scan(package, ignore=ignore, recursive=recursive)
 
     def configurable(self, configurable):
         """Register a configurable with this config.

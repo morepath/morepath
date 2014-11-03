@@ -31,15 +31,37 @@ def autoconfig(ignore=None):
     Typically called immediately after startup just before the
     application starts serving using WSGI.
 
+    ``autoconfig`` always ignores ``.test`` and ``.tests``
+    sub-packages -- these are assumed never to contain useful Morepath
+    configuration and are not scanned.
+
+    ``autoconfig`` can fail with an ``ImportError`` when it tries to
+    scan code that imports an optional dependency that is not
+    installed. This happens most commonly in test code, which often
+    rely on test-only dependencies such as ``pytest`` or ``nose``. If
+    those tests are in a ``.test`` or ``.tests`` sub-package they
+    are automatically ignored, however.
+
+    If you have a special package with such expected import errors,
+    you can exclude them from ``autoconfig`` using the ``ignore``
+    argument, for instance using ``['special_package']``. You then can
+    use :class:`Config.scan` for that package, with a custom
+    ``ignore`` argument that excludes the modules that generate import
+    errors.
+
     See also :func:`autosetup`.
 
     :param ignore: Venusian_ style ignore to ignore some modules
-      during scanning. Optional.
+      during scanning. Optional. If ommitted, ignore ``.test`` and
+     ``.tests`` packages by default.
     :returns: :class:`Config` object.
 
     .. _Venusian: http://venusian.readthedocs.org
 
     """
+    if ignore is None:
+        ignore = []
+        ignore.extend(['.test', '.tests'])
     c = setup()
     for package in morepath_packages():
         c.scan(package, ignore)
@@ -56,8 +78,27 @@ def autosetup(ignore=None):
     Typically called immediately after startup just before the
     application starts serving using WSGI.
 
+    ``autosetup`` always ignores ``.test`` and ``.tests``
+    sub-packages -- these are assumed never to contain useful Morepath
+    configuration and are not scanned.
+
+    ``autosetup`` can fail with an ``ImportError`` when it tries to
+    scan code that imports an optional dependency that is not
+    installed. This happens most commonly in test code, which often
+    rely on test-only dependencies such as ``pytest`` or ``nose``. If
+    those tests are in a ``.test`` or ``.tests`` sub-package they
+    are automatically ignored, however.
+
+    If you have a special package with such expected import errors,
+    you may be better off switching to :func:`morepath.autoconfig`
+    with an ignore for this package, and then doing a manual
+    :class:`Config.scan` for that package with the resulting config
+    object. There you can add a custom ``ignore`` argument that
+    excludes the modules that generate import errors.
+
     :param ignore: Venusian_ style ignore to ignore some modules
-      during scanning. Optional.
+      during scanning. Optional. If ommitted, ignore ``.test`` and
+     ``.tests`` by default.
     """
     c = autoconfig(ignore)
     c.commit()

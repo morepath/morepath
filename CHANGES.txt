@@ -207,6 +207,23 @@ CHANGES
 
 - Added documentation about auto-reloading Morepath during development.
 
+- No longer silently suppress ImportError during scanning: this can
+  hide genuine ``ImportError`` in the underlying code.
+
+  We were suppressing ``ImportError`` before as it can be triggered
+  by packages that rely on optional dependencies.
+
+  This is a common case in the ``.tests`` subdirectory of a package
+  which may import a test runner like ``pytest``. ``pytest`` is only a
+  test dependency of the package and not a mainline dependencies, and
+  this can break scanning. To avoid this problem, Morepath's autosetup
+  and autoconfig now automatically ignore ``.tests`` and ``.test``
+  sub-packages.
+
+  Enhanced the API docs for ``autosetup`` and ``autoconfig`` to describe
+  scenarios which can generate legitimate ``ImportError`` exceptions
+  and how to handle them.
+
 - Minor improvement in docstrings.
 
 0.6 (2014-09-08)
