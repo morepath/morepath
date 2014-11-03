@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.7 (unreleased)
+0.7 (2014-11-03)
 ================
 
 - **Breaking change**. There has been a change the way the mount
