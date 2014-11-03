@@ -31,6 +31,9 @@ Morepath API
 .. autoclass:: morepath.security.Identity
   :members:
 
+.. autoclass:: morepath.security.IdentityPolicy
+  :members:
+
 .. autoclass:: morepath.security.BasicAuthIdentityPolicy
   :members:
 

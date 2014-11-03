@@ -621,9 +621,9 @@ class IdentityPolicyDirective(Directive):
     def __init__(self, app):
         '''Register identity policy.
 
-        The decorated function should return an instance of an
-        identity policy, which should have ``identify``, ``remember``
-        and ``forget`` methods.
+        The decorated function should return an instance of
+        :class:`morepath.security.IdentityPolicy`. Either use an identity
+        policy provided by a library or implement your own.
         '''
         super(IdentityPolicyDirective, self).__init__(app)
 

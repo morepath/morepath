@@ -9,6 +9,9 @@ CHANGES
 - Add API doc for ``body_obj``. Also fix JSON and objects doc to talk
   about ``request.body_obj`` instead of ``request.obj``.
 
+- Extend API docs for security: detail the API an identity policy
+  needs to implement and fix a few bugs.
+
 - Fix ReST error in API docs for ``autoconfig`` and ``autosetup``.
 
 - Fix a few ReST links to the API docs in the app reuse document.

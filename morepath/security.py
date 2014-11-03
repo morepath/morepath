@@ -42,11 +42,66 @@ class Identity(object):
         return result
 
 
+class IdentityPolicy(object):
+    """Identity policy API.
+
+    Implement this API if you want to have a custom way to establish
+    identities for users in your application.
+    """
+
+    def identify(self, request):
+        """Establish what identity this user claims to have from request.
+
+        :param request: Request to extract identity information from.
+        :type request: :class:`morepath.Request`.
+        :returns: :class:`morepath.security.Identity` instance or
+          :attr:`morepath.security.NO_IDENTITY` if identity cannot
+          be established.
+        """
+        raise NotImplementedError()
+
+    def remember(self, response, request, identity):
+        """Remember identity on response.
+
+        Implements ``morepath.remember_identity``, which is called
+        from user login code.
+
+        Given an identity object, store it on the response, for
+        instance as a cookie. Some policies may not do any storing but
+        instead retransmit authentication information each time in the
+        request. Basic authentication is an example of such a
+        non-storing policy.
+
+        :param response: response object on which to store identity.
+        :type response: :class:`morepath.Response`
+        :param request: request object.
+        :type request: :class:`morepath.Request`
+        :param identity: identity to remember.
+        :type identity: :class:`morepath.security.Identity`
+
+        """
+        raise NotImplementedError()
+
+    def forget(self, response, request):
+        """Forget identity on response.
+
+        Implements ``morepath.forget_identity``, which is called from
+        user logout code.
+
+        Remove identifying information from the response. This could
+        delete a cookie or issue a basic auth re-authentication.
+
+        :param response: response object on which to forget identity.
+        :type response: :class:`morepath.Response`
+        :param request: request object.
+        :type request: :class:`morepath.Request`
+
+        """
+        raise NotImplementedError()
+
+
 class BasicAuthIdentityPolicy(object):
     """Identity policy that uses HTTP Basic Authentication.
-
-    Note that this policy does **not** do any password validation. You're
-    expected to do so using permission directives.
     """
     def __init__(self, realm='Realm'):
         self.realm = realm

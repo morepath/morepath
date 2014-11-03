@@ -30,6 +30,10 @@ an identity policy into a Morepath app::
   def get_identity_policy():
       return BasicAuthIdentityPolicy()
 
+If you want to create your own identity policy, see the
+:class:`morepath.security.IdentityPolicy` API documentation to see
+what methods you need to implement.
+
 Verify identity
 ---------------
 
@@ -67,7 +71,7 @@ is actually enough.
 We know that the claimed identity is actually the one given to the
 user earlier when they logged in. No database-based identity check is
 required to establish that this is a legitimate identity. You can
-therefore implement `verify_identity`` like this::
+therefore implement ``verify_identity`` like this::
 
   @App.verify_identity()
   def verify_identity(identity):
@@ -115,7 +119,7 @@ the request (coming from a login form)::
     @request.after
     def remember(response):
         identity = morepath.Identity(username)
-        morepath.remember_identity(response, identity)
+        morepath.remember_identity(response, request, identity)
 
 This is enough for session-based or cryptographic ticket-based
 authentication.
@@ -128,9 +132,9 @@ it in the cookie so that it can be sent back to the server::
     @request.after
     def remember(response):
         identity = morepath.Identity(username, password=password)
-        morepath.remember_identity(response, identity)
+        morepath.remember_identity(response, request, identity)
 
-When you construct the identity using :class:`morepath.Identity`, you
+When you construct the identity using :class:`morepath.security.Identity`, you
 can any data you want in the identity object by using keyword
 parameters.
 
@@ -143,7 +147,7 @@ authentication except for basic auth (see later). You simply call
 
   @request.after
   def forget(response):
-      morepath.forget_identity(response)
+      morepath.forget_identity(response, request)
 
 This will cause the login information (in cookie-form) to be removed
 from the response.
