@@ -22,8 +22,16 @@ class Request(BaseRequest):
 
     Extends :class:`webob.request.BaseRequest`
     """
-    def __init__(self, environ):
+    app = None
+    """The :class:`App` object being handled by this request."""
+
+    lookup = None
+    """The :class:`reg.Lookup` object handling generic function calls."""
+
+    def __init__(self, environ, app):
         super(Request, self).__init__(environ)
+        self.app = app
+        self.lookup = app.lookup
         self.unconsumed = parse_path(self.path_info)
         self._after = []
 

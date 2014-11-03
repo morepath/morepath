@@ -4,7 +4,6 @@ from morepath.traject import (Traject, Node, Step, TrajectError,
                               Path, parse_path, create_path)
 from morepath.converter import ParameterFactory
 from morepath.app import App
-from morepath.request import Request
 from morepath.core import traject_consume
 from morepath.converter import Converter, IDENTITY_CONVERTER
 import pytest
@@ -706,7 +705,7 @@ def test_path_discriminator():
 
 
 def fake_request(path):
-    return Request(webob.Request.blank(path).environ)
+    return webob.Request.blank(path)
 
 
 def test_empty_parameter_factory():

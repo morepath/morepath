@@ -476,8 +476,8 @@ class MountDirective(PathDirective):
         """Mount sub application on path.
 
         The decorated function gets the variables specified in path as
-        parameters. It should return an instance of the application
-        class given as ``app``.
+        parameters. It should return a new instance of an application
+        class.
 
         :param path: the path to mount the application on.
         :param app: the :class:`morepath.App` subclass to mount.
@@ -499,6 +499,7 @@ class MountDirective(PathDirective):
           :meth:`Request.child` to allow loose coupling between mounting
           application and mounted application. Optional, and if not supplied
           the ``path`` argument is taken as the name.
+
         """
         super(MountDirective, self).__init__(base_app, path,
                                              variables=variables,
@@ -535,18 +536,19 @@ class DeferLinksDirective(Directive):
     def __init__(self, base_app, model):
         """Defer link generation for model to mounted app.
 
-        Using ``defer_links`` you can specify that link generation for
-        instances of model are to be handled by returned mounted
-        app. This makes sure that :meth:`Request.link` and
-        :meth:`Request.view` are deferred.
+        With ``defer_links`` you can specify that link generation for
+        instances of ``model`` is to be handled by a returned mounted
+        app it cannot be handled by the given app
+        itself. :meth:`Request.link` and :meth:`Request.view` are
+        affected by this directive.
 
-        The decorated function gets an instance of the object to link
-        to, and should return an instance of ``app`` that can create a
-        link to it. As a special case if it returns ``None`` is
-        interpreted as this app's parent (if it exists).
+        The decorated function gets an instance of the application and
+        object to link to. It should return another application that
+        it knows can create links for this object. The function uses
+        navigation methods on :class:`App` to do so like
+        :meth:`App.parent` and :meth:`App.child`.
 
         :param model: the class for which we want to defer linking.
-
         """
         super(DeferLinksDirective, self).__init__(base_app)
         self.model = model

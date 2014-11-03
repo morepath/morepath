@@ -83,6 +83,7 @@ class App(with_metaclass(AppMeta)):
     """
     testing_config = None
     parent = None
+    """The parent in which this app was mounted."""
 
     def __init__(self):
         pass
@@ -103,15 +104,12 @@ class App(with_metaclass(AppMeta)):
         return self.registry.traject
 
     def request(self, environ):
-        """Create a :class:`Request` given WSGI environment.
+        """Create a :class:`Request` given WSGI environment for this app.
 
         :param environ: WSGI environment
         :returns: :class:`morepath.Request` instance
         """
-        request = Request(environ)
-        request.app = self
-        request.lookup = self.lookup
-        return request
+        return Request(environ, self)
 
     def __call__(self, environ, start_response):
         """This app as a WSGI application.
