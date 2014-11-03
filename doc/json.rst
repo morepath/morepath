@@ -60,9 +60,9 @@ pass through everything else::
       return Item(json['x'])
 
 When you write a ``json`` view you automatically get the ``Item``
-instance as the ``obj`` attribute of the ``request``::
+instance as the ``body_obj`` attribute of the ``request``::
 
   @App.json(model=Collection, request_method='POST')
   def collection_post(self, request):
-      collection.add(request.obj)
+      collection.add(request.body_obj)
       return "success!"

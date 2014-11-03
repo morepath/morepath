@@ -6,6 +6,11 @@ CHANGES
 
 - One test did not work correctly in Python 3. Fixed.
 
+- Add API doc for ``body_obj``. Also fix JSON and objects doc to talk
+  about ``request.body_obj`` instead of ``request.obj``.
+
+- Fix ReST error in API docs for ``autoconfig`` and ``autosetup``.
+
 0.7 (2014-11-03)
 ================
 

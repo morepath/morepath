@@ -53,7 +53,7 @@ def autoconfig(ignore=None):
 
     :param ignore: Venusian_ style ignore to ignore some modules
       during scanning. Optional. If ommitted, ignore ``.test`` and
-     ``.tests`` packages by default.
+      ``.tests`` packages by default.
     :returns: :class:`Config` object.
 
     .. _Venusian: http://venusian.readthedocs.org
@@ -98,7 +98,7 @@ def autosetup(ignore=None):
 
     :param ignore: Venusian_ style ignore to ignore some modules
       during scanning. Optional. If ommitted, ignore ``.test`` and
-     ``.tests`` by default.
+      ``.tests`` by default.
     """
     c = autoconfig(ignore)
     c.commit()
