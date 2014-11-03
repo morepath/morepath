@@ -635,3 +635,45 @@ def test_deferred_deferred_view():
 
     response = c.get('/beta')
     assert response.json == {'model': 'alpha'}
+
+
+def test_deferred_loop():
+    config = morepath.setup()
+
+    class root(morepath.App):
+        testing_config = config
+
+    class alpha(morepath.App):
+        testing_config = config
+
+    @root.path(path='')
+    class RootModel(object):
+        pass
+
+    # not actually exposed with path anywhere!
+    class Model(object):
+        pass
+
+    @root.json(model=RootModel)
+    def root_model_default(self, request):
+        return request.link(Model())
+
+    @root.mount(app=alpha, path='alpha')
+    def mount_alpha():
+        return alpha()
+
+    # setup a loop: defer to parent and back to child!
+    @alpha.defer_links(model=Model)
+    def defer_links_parent(app, obj):
+        return app.parent
+
+    @root.defer_links(model=Model)
+    def defer_links_alpha(app, obj):
+        return app.child(alpha())
+
+    config.commit()
+
+    c = Client(root())
+
+    with pytest.raises(LinkError):
+        c.get('/')

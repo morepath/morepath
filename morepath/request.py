@@ -91,16 +91,13 @@ class Request(BaseRequest):
         if app is SAME_APP:
             app = self.app
 
-        while True:
-            view = generic.view.component(self, obj, lookup=app.lookup,
+        def find(app, obj):
+            return generic.view.component(self, obj, lookup=app.lookup,
                                           default=None,
                                           predicates=predicates)
-            if view is not None:
-                break
-            app = generic.deferred_link_app(app, obj, lookup=app.lookup)
-            if app is None:
-                return default
-        else:
+
+        view = _follow_defers(find, app, obj)
+        if view is None:
             return default
 
         old_app = self.app
@@ -139,14 +136,12 @@ class Request(BaseRequest):
         if app is SAME_APP:
             app = self.app
 
-        while True:
-            info = generic.link(self, obj, app, lookup=app.lookup)
-            if info is not None:
-                break
-            app = generic.deferred_link_app(app, obj, lookup=app.lookup)
-            if app is None:
-                raise LinkError("Cannot link to: %r" % obj)
-        else:
+        def find(app, obj):
+            return generic.link(self, obj, app, lookup=app.lookup)
+
+        info = _follow_defers(find, app, obj)
+
+        if info is None:
             raise LinkError("Cannot link to: %r" % obj)
 
         path, parameters = info
@@ -192,3 +187,16 @@ class Response(BaseResponse):
 
     Extends :class:`webob.response.Response`.
     """
+
+
+def _follow_defers(find, app, obj):
+    seen = set()
+    while app is not None:
+        if app in seen:
+            raise LinkError("Circular defer. Cannot link to: %r" % obj)
+        result = find(app, obj)
+        if result is not None:
+            return result
+        seen.add(app)
+        app = generic.deferred_link_app(app, obj, lookup=app.lookup)
+    return None
