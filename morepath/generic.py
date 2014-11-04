@@ -15,7 +15,6 @@ def consume(request, obj):
 @reg.dispatch('obj')
 def path(obj):
     """Get the path and parameters for an object in its own application.
->>>>>>> Reorganize Morepath in terms of the new reg. Many tests are starting to
     """
     return None
 
