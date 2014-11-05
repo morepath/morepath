@@ -123,8 +123,9 @@ class Request(BaseRequest):
     def link(self, obj, name='', default=None, app=SAME_APP):
         """Create a link (URL) to a view on a model instance.
 
-        The resulting linked is prefixed by ``link_prefix``, which defaults
-        to '' (no prefix).
+        The resulting link is prefixed by the link prefix. You can configure
+        the link prefix for an application using the
+        :meth:morepath.App.link_prefix directive.
 
         If no link can be constructed for the model instance, a
         :exc:``morepath.LinkError`` is raised. ``None`` is treated
