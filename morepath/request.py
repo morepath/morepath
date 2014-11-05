@@ -74,6 +74,11 @@ class Request(BaseRequest):
             return NO_IDENTITY
         return result
 
+    @reify
+    def link_prefix(self):
+        """Prefix to all links created by this request."""
+        return generic.link_prefix(self, lookup=self.lookup)
+
     def view(self, obj, default=None, app=SAME_APP, **predicates):
         """Call view for model instance.
 
@@ -118,6 +123,9 @@ class Request(BaseRequest):
     def link(self, obj, name='', default=None, app=SAME_APP):
         """Create a link (URL) to a view on a model instance.
 
+        The resulting linked is prefixed by ``link_prefix``, which defaults
+        to '' (no prefix).
+
         If no link can be constructed for the model instance, a
         :exc:``morepath.LinkError`` is raised. ``None`` is treated
         specially: if ``None`` is passed in the default value is
@@ -158,6 +166,8 @@ class Request(BaseRequest):
         if name:
             parts.append(name)
         result = '/' + '/'.join(parts)
+        if self.link_prefix:
+            result = self.link_prefix + result
         if parameters:
             result += '?' + urlencode(parameters, True)
         return result
