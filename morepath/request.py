@@ -75,11 +75,11 @@ class Request(BaseRequest):
             return NO_IDENTITY
         return result
 
-    @property
     def link_prefix(self):
         """Prefix to all links created by this request."""
-        if self.app.__class__ in self._link_prefix_cache:
-            return self._link_prefix_cache[self.app.__class__]
+        cached = self._link_prefix_cache.get(self.app.__class__)
+        if cached is not None:
+            return cached
 
         prefix = self._link_prefix_cache[self.app.__class__]\
                = generic.link_prefix(self, lookup=self.lookup)
@@ -176,7 +176,7 @@ class Request(BaseRequest):
             parts.append(path)
         if name:
             parts.append(name)
-        result = self.link_prefix + '/' + '/'.join(parts)
+        result = self.link_prefix() + '/' + '/'.join(parts)
         if parameters:
             result += '?' + urlencode(parameters, True)
         return result
