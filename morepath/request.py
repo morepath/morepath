@@ -113,11 +113,14 @@ class Request(BaseRequest):
             return default
 
         old_app = self.app
+        old_lookup = self.lookup
         app.set_implicit()
         self.app = app
+        self.lookup = app.lookup
         result = view(self, obj)
         old_app.set_implicit()
         self.app = old_app
+        self.lookup = old_lookup
         return result
 
     def link(self, obj, name='', default=None, app=SAME_APP):
