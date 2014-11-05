@@ -34,6 +34,7 @@ class Request(BaseRequest):
         self.lookup = app.lookup
         self.unconsumed = parse_path(self.path_info)
         self._after = []
+        self._link_prefix_cache = {}
 
     @reify
     def body_obj(self):
@@ -77,7 +78,13 @@ class Request(BaseRequest):
     @property
     def link_prefix(self):
         """Prefix to all links created by this request."""
-        return generic.link_prefix(self, lookup=self.lookup)
+        if self.app.__class__ in self._link_prefix_cache:
+            return self._link_prefix_cache[self.app.__class__]
+
+        prefix = self._link_prefix_cache[self.app.__class__]\
+               = generic.link_prefix(self, lookup=self.lookup)
+
+        return prefix
 
     def view(self, obj, default=None, app=SAME_APP, **predicates):
         """Call view for model instance.

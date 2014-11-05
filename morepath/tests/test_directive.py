@@ -535,6 +535,37 @@ def test_link_with_prefix():
     assert response.body == b'http://testhost/'
 
 
+def test_link_prefix_cache():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @app.view(model=Root, name='link')
+    def link(self, request):
+        request.link(self)  # make an extra call before returning
+        return request.link(self)
+
+    @app.link_prefix()
+    def link_prefix(request):
+        if not hasattr(request, 'callnumber'):
+            request.callnumber = 1
+        else:
+            request.callnumber += 1
+        return str(request.callnumber)
+
+    config.commit()
+
+    c = Client(app())
+
+    response = c.get('/link')
+    assert response.body == b'1/'
+
+
 def test_link_with_invalid_prefix():
     config = setup()
 
