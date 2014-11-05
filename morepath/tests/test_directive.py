@@ -520,13 +520,6 @@ def test_link_with_prefix():
 
     @app.link_prefix()
     def link_prefix(request):
-        if request.headers['TESTPREFIX'] == 'None':
-            return None
-        if request.headers['TESTPREFIX'] == 'False':
-            return False
-        if request.headers['TESTPREFIX'] == '0':
-            return 0
-
         return request.headers['TESTPREFIX']
 
     config.commit()
@@ -541,20 +534,31 @@ def test_link_with_prefix():
     response = c.get('/link', headers={'TESTPREFIX': 'http://testhost'})
     assert response.body == b'http://testhost/'
 
-    # we check if the prefix is falsy, so these are all equivalent, note that
-    # webtest needs strings for the headers and we therefore have to convert
-    # in the link_prefix function above.
-    response = c.get('/link', headers={'TESTPREFIX': ''})
-    assert response.body == b'/'
 
-    response = c.get('/link', headers={'TESTPREFIX': 'None'})
-    assert response.body == b'/'
+def test_link_with_invalid_prefix():
+    config = setup()
 
-    response = c.get('/link', headers={'TESTPREFIX': 'False'})
-    assert response.body == b'/'
+    class app(morepath.App):
+        testing_config = config
 
-    response = c.get('/link', headers={'TESTPREFIX': '0'})
-    assert response.body == b'/'
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @app.view(model=Root, name='link')
+    def link(self, request):
+        return request.link(self)
+
+    @app.link_prefix()
+    def link_prefix(request):
+        return None
+
+    config.commit()
+
+    c = Client(app())
+
+    with pytest.raises(TypeError):
+        c.get('/link')
 
 
 def test_implicit_variables():

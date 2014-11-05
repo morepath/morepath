@@ -166,9 +166,7 @@ class Request(BaseRequest):
             parts.append(path)
         if name:
             parts.append(name)
-        result = '/' + '/'.join(parts)
-        if self.link_prefix:
-            result = self.link_prefix + result
+        result = self.link_prefix + '/' + '/'.join(parts)
         if parameters:
             result += '?' + urlencode(parameters, True)
         return result
