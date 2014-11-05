@@ -514,6 +514,69 @@ def test_mount_child_link_unknown_app():
     assert response.body == b'link error'
 
 
+def test_mount_link_prefix():
+    config = setup()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Mounted(morepath.App):
+        testing_config = config
+
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
+
+    @App.path(path='')
+    class AppRoot(object):
+        pass
+
+    @Mounted.path(path='')
+    class MountedRoot(object):
+        pass
+
+    @App.link_prefix()
+    def link_prefix(request):
+        return 'http://app'
+
+    @Mounted.link_prefix()
+    def mounted_link_prefix(request):
+        return 'http://mounted'
+
+    @App.mount(path='/mnt/{id}', app=Mounted,
+               variables=lambda a: dict(id=a.mount_id))
+    def get_mounted(id):
+        return Mounted(mount_id=id)
+
+    @App.view(model=AppRoot, name='get-root-link')
+    def get_root_link(self, request):
+        return request.link(self)
+
+    @Mounted.view(model=MountedRoot, name='get-mounted-root-link')
+    def get_mounted_root_link(self, request):
+        return request.link(self)
+
+    @Mounted.view(model=MountedRoot, name='get-root-link-through-mount')
+    def get_root_link_through_mount(self, request):
+        parent = request.app.parent
+        return request.view(AppRoot(), app=parent, name='get-root-link')
+
+    config.commit()
+
+    c = Client(App())
+
+    response = c.get('/get-root-link')
+    assert response.body == b'http://app/'
+
+    response = c.get('/mnt/1/get-mounted-root-link')
+    assert response.body == b'http://mounted/mnt/1'
+
+    response = c.get('/mnt/1/get-root-link-through-mount')
+    assert response.body == b'http://app/'
+
+    response = c.get('/get-root-link')
+    assert response.body == b'http://app/'
+
+
 def test_request_view_in_mount():
     config = setup()
 

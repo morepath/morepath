@@ -74,7 +74,7 @@ class Request(BaseRequest):
             return NO_IDENTITY
         return result
 
-    @reify
+    @property
     def link_prefix(self):
         """Prefix to all links created by this request."""
         return generic.link_prefix(self, lookup=self.lookup)
