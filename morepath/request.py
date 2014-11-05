@@ -163,7 +163,6 @@ class Request(BaseRequest):
         return result
 
     def after(self, func):
-
         """Call function with response after this request is done.
 
         Can be used explicitly::
