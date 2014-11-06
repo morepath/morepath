@@ -7,6 +7,9 @@ CREDITS
 
 * Michael Bernstein (feedback)
 
+* Denis Krienbühl (link_prefix, feedback, bug reports, automatic
+  restart docs)
+
 * Ying Zhong (bug reports, test cases, feedback)
 
 * Reinout van Rees (misc documentation fixes)
@@ -14,8 +17,6 @@ CREDITS
 * Auke Willem Oosterhoff (installation doc improvements)
 
 * Bernd Meyer (bug reports)
-
-* Denis Krienbühl (feedback, bug reports, automatic restart docs)
 
 * Contributions by Souheil Chelfouh, Alex Garel, Wolfgang Schnerring
 
