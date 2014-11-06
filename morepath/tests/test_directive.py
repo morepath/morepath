@@ -504,6 +504,94 @@ def test_root_link_with_parameters():
     assert response.body == b'/?param=1'
 
 
+def test_link_with_prefix():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @app.view(model=Root, name='link')
+    def link(self, request):
+        return request.link(self)
+
+    @app.link_prefix()
+    def link_prefix(request):
+        return request.headers['TESTPREFIX']
+
+    config.commit()
+
+    c = Client(app())
+
+    # we don't do anything with the prefix, so a slash at the end of the prefix
+    # leads to a double prefix at the end
+    response = c.get('/link', headers={'TESTPREFIX': 'http://testhost/'})
+    assert response.body == b'http://testhost//'
+
+    response = c.get('/link', headers={'TESTPREFIX': 'http://testhost'})
+    assert response.body == b'http://testhost/'
+
+
+def test_link_prefix_cache():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @app.view(model=Root, name='link')
+    def link(self, request):
+        request.link(self)  # make an extra call before returning
+        return request.link(self)
+
+    @app.link_prefix()
+    def link_prefix(request):
+        if not hasattr(request, 'callnumber'):
+            request.callnumber = 1
+        else:
+            request.callnumber += 1
+        return str(request.callnumber)
+
+    config.commit()
+
+    c = Client(app())
+
+    response = c.get('/link')
+    assert response.body == b'1/'
+
+
+def test_link_with_invalid_prefix():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    @app.path(path='')
+    class Root(object):
+        pass
+
+    @app.view(model=Root, name='link')
+    def link(self, request):
+        return request.link(self)
+
+    @app.link_prefix()
+    def link_prefix(request):
+        return None
+
+    config.commit()
+
+    c = Client(app())
+
+    with pytest.raises(TypeError):
+        c.get('/link')
+
+
 def test_implicit_variables():
     config = setup()
 

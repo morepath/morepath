@@ -34,6 +34,7 @@ class Request(BaseRequest):
         self.lookup = app.lookup
         self.unconsumed = parse_path(self.path_info)
         self._after = []
+        self._link_prefix_cache = {}
 
     @reify
     def body_obj(self):
@@ -74,6 +75,17 @@ class Request(BaseRequest):
             return NO_IDENTITY
         return result
 
+    def link_prefix(self):
+        """Prefix to all links created by this request."""
+        cached = self._link_prefix_cache.get(self.app.__class__)
+        if cached is not None:
+            return cached
+
+        prefix = self._link_prefix_cache[self.app.__class__]\
+               = generic.link_prefix(self, lookup=self.lookup)
+
+        return prefix
+
     def view(self, obj, default=None, app=SAME_APP, **predicates):
         """Call view for model instance.
 
@@ -108,15 +120,22 @@ class Request(BaseRequest):
             return default
 
         old_app = self.app
+        old_lookup = self.lookup
         app.set_implicit()
         self.app = app
+        self.lookup = app.lookup
         result = view(self, obj)
         old_app.set_implicit()
         self.app = old_app
+        self.lookup = old_lookup
         return result
 
     def link(self, obj, name='', default=None, app=SAME_APP):
         """Create a link (URL) to a view on a model instance.
+
+        The resulting link is prefixed by the link prefix. You can configure
+        the link prefix for an application using the
+        :meth:morepath.App.link_prefix directive.
 
         If no link can be constructed for the model instance, a
         :exc:``morepath.LinkError`` is raised. ``None`` is treated
@@ -157,7 +176,7 @@ class Request(BaseRequest):
             parts.append(path)
         if name:
             parts.append(name)
-        result = '/' + '/'.join(parts)
+        result = self.link_prefix() + '/' + '/'.join(parts)
         if parameters:
             result += '?' + urlencode(parameters, True)
         return result

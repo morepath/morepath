@@ -332,6 +332,32 @@ to further demonstrate this behavior::
 When we now go to ``documents/link2?name=foo`` we get the link
 ``documents/link?name=foo``.
 
+Prefixing links with a baseurl
+------------------------------
+
+By default, Morepath generates links without protocol or host::
+
+    /document
+
+It is possible however, to add a custom prefix to every generated link::
+
+    @App.link_prefix()
+    def link_prefix(request):
+        return 'http://localhost'
+
+This would result in links to look like this::
+
+    http://localhost/document
+
+The request is passed to the link_prefix function, which makes this a handy
+way to set a base url by host variable::
+
+    @App.link_prefix()
+    def link_prefix(request):
+        return request.headers.get('X-BASE-URL')
+
+Note that the link_prefix method is called only once for each request.
+
 Type hints
 ----------
 
