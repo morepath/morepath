@@ -110,7 +110,7 @@ Code Walkthrough
    application you instead use a setuptools entry point so that a
    startup script for your application is created automatically.
 
-6. func:`morepath.setup` sets up Morepath's default behavior, and
+6. :func:`morepath.setup` sets up Morepath's default behavior, and
    returns a Morepath config object. If your app is in a Python
    package and you've set up the right ``install_requires`` in
    ``setup.py``, consider using :func:`morepath.autosetup` to be done
