@@ -43,8 +43,9 @@ class PredicateRegistry(object):
         for info in infos:
             fallback = self._predicate_fallbacks.get(dispatch, {}).get(
                 info.func)
-            predicate = Predicate(info.index, KeyExtractor(info.func),
-                                  fallback=fallback, name=info.name,
+            predicate = Predicate(info.name, info.index,
+                                  KeyExtractor(info.func),
+                                  fallback=fallback,
                                   default=info.default)
             result.append(predicate)
         return result

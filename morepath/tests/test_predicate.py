@@ -28,11 +28,11 @@ def test_dispatch():
     def f(obj):
         return "fallback"
 
-    @app.function(f, Foo)
+    @app.function(f, obj=Foo)
     def f_foo(obj):
         return "foo"
 
-    @app.function(f, Bar)
+    @app.function(f, obj=Bar)
     def f_bar(obj):
         return "bar"
 
@@ -70,11 +70,11 @@ def test_dispatch_external_predicates():
     def f_obj(obj):
         return obj.__class__
 
-    @app.function(f, Foo)
+    @app.function(f, model=Foo)
     def f_foo(obj):
         return "foo"
 
-    @app.function(f, Bar)
+    @app.function(f, model=Bar)
     def f_bar(obj):
         return "bar"
 
@@ -116,11 +116,11 @@ def test_dispatch_external_predicates_predicate_fallback():
     def f_obj_fallback(obj):
         return "f_obj_fallback"
 
-    @app.function(f, Foo)
+    @app.function(f, model=Foo)
     def f_foo(obj):
         return "foo"
 
-    @app.function(f, Bar)
+    @app.function(f, model=Bar)
     def f_bar(obj):
         return "bar"
 
@@ -162,19 +162,19 @@ def test_dispatch_external_predicates_ordering_after():
     def pred_name(name):
         return name
 
-    @app.function(f, Foo, '')
+    @app.function(f, model=Foo, name='')
     def f_foo_default(obj, name):
         return "foo default"
 
-    @app.function(f, Foo, 'edit')
+    @app.function(f, model=Foo, name='edit')
     def f_foo_edit(obj, name):
         return "foo edit"
 
-    @app.function(f, Bar, '')
+    @app.function(f, model=Bar, name='')
     def f_bar_default(obj, name):
         return "bar default"
 
-    @app.function(f, Bar, 'edit')
+    @app.function(f, model=Bar, name='edit')
     def f_bar_edit(obj, name):
         return "bar edit"
 
@@ -221,19 +221,19 @@ def test_dispatch_external_predicates_ordering_before():
     def pred_obj(obj):
         return obj.__class__
 
-    @app.function(f, Foo, '')
+    @app.function(f, model=Foo, name='')
     def f_foo_default(obj, name):
         return "foo default"
 
-    @app.function(f, Foo, 'edit')
+    @app.function(f, model=Foo, name='edit')
     def f_foo_edit(obj, name):
         return "foo edit"
 
-    @app.function(f, Bar, '')
+    @app.function(f, model=Bar, name='')
     def f_bar_default(obj, name):
         return "bar default"
 
-    @app.function(f, Bar, 'edit')
+    @app.function(f, model=Bar, name='edit')
     def f_bar_edit(obj, name):
         return "bar edit"
 

@@ -29,6 +29,7 @@ from .tween import TweenRegistry
 
 COMPONENT_CACHE_SIZE = 5000
 ALL_CACHE_SIZE = 5000
+FALLBACK_CACHE_SIZE = 5000
 
 
 class Registry(Configurable, RegRegistry, MountRegistry, PredicateRegistry,
@@ -69,7 +70,8 @@ class Registry(Configurable, RegRegistry, MountRegistry, PredicateRegistry,
         return CachingKeyLookup(
             self,
             COMPONENT_CACHE_SIZE,
-            ALL_CACHE_SIZE).lookup()
+            ALL_CACHE_SIZE,
+            FALLBACK_CACHE_SIZE).lookup()
 
 
 def callback(scanner, name, obj):

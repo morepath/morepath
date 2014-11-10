@@ -19,10 +19,10 @@ class View(object):
         # but lets view authors write 'self, request'.
         return self.func(model, request)
 
-def register_view(registry, predicate_key, view, render=None, permission=None,
+def register_view(registry, key_dict, view, render=None, permission=None,
                   internal=False):
     v = View(view, render, permission, internal)
-    registry.register_function(generic.view, predicate_key, v)
+    registry.register_function(generic.view, v, **key_dict)
 
 
 def render_json(content, request):

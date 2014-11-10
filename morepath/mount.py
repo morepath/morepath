@@ -21,5 +21,5 @@ class MountRegistry(object):
         self.named_mounted[mount_name] = app_factory
 
     def register_defer_links(self, model, app_factory):
-        self.register(generic.deferred_link_app, [object, model],
-                      app_factory)
+        self.register_function(generic.deferred_link_app, app_factory,
+                               obj=model)

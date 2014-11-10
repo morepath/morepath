@@ -564,6 +564,7 @@ def test_traject_consume_combination():
     traject.add_pattern('special', (Special, paramfac))
     traject.add_pattern('{foo}', (get_model, paramfac))
 
+    mount = app()
 
     found, request = consume(mount, 'something')
     assert isinstance(found, Model)
@@ -586,7 +587,6 @@ def test_traject_nested():
     mount = app()
 
     found, request = consume(mount, 'a')
-
     assert isinstance(found, Model)
     assert request.unconsumed == []
     found, request = consume(mount, 'a/b')

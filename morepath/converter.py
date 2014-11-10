@@ -98,7 +98,7 @@ class ConverterRegistry(object):
         self.clear()
 
     def clear(self):
-        self._registry = PredicateRegistry(match_class(lambda cls: cls))
+        self._registry = PredicateRegistry(match_class('cls', lambda cls: cls))
 
     def register_converter(self, type, converter):
         """Register a converter for type.

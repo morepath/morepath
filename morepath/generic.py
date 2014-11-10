@@ -26,6 +26,10 @@ def link(request, obj, mounted):
     raise NotImplementedError  # pragma: nocoverage
 
 
+@reg.dispatch('obj')
+def deferred_link_app(mounted, obj):
+    return None
+
 
 @reg.dispatch_external_predicates()
 def view(request, obj):

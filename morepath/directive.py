@@ -181,7 +181,7 @@ class FunctionDirective(Directive):
     depends = [SettingDirective,
                PredicateDirective, PredicateFallbackDirective]
 
-    def __init__(self, app, func, *predicate_key):
+    def __init__(self, app, func, **kw):
         '''Register function as implementation of generic dispatch function
 
         The decorated function is an implementation of the generic
@@ -195,23 +195,30 @@ class FunctionDirective(Directive):
 
         :param func: the generic function to register an implementation for.
         :type func: dispatch function object
-        :param sources: predicate key to register for.
-
+        :param kw: keyword parameters with the predicate keys to register for.
+           Argument names are names, values are the predicate value.
         '''
         super(FunctionDirective, self).__init__(app)
         self.func = func
-        self.predicate_key = tuple(predicate_key)
+        self.key_dict = kw
 
-    def identifier(self, registry):
-        return (self.func.wrapped_func, self.predicate_key)
-
-    def perform(self, registry, obj):
+    # XXX this is ugly, but can't really use prepare either
+    # best we can do in the limits of the configuration system
+    def predicate_key(self, registry):
         # XXX would really like to do this once before any function
         # directives get executed but after all predicate directives
         # are executed. configuration ends needs a way to do extra
         # work after a directive's phase ends
         registry.install_predicates(self.func)
-        registry.register_function(self.func, self.predicate_key, obj)
+        registry.register_dispatch(self.func)
+        return registry.key_dict_to_predicate_key(
+            self.func.wrapped_func, self.key_dict)
+
+    def identifier(self, registry):
+        return (self.func.wrapped_func, self.predicate_key(registry))
+
+    def perform(self, registry, obj):
+        registry.register_function(self.func, obj, **self.key_dict)
 
 
 @App.directive('converter')
@@ -426,18 +433,23 @@ class ViewDirective(Directive):
         args.update(kw)
         return ViewDirective(**args)
 
+    def key_dict(self):
+        result = self.predicates.copy()
+        result['model'] = self.model
+        return result
+
     def predicate_key(self, registry):
         registry.install_predicates(generic.view)
-        p = self.predicates.copy()
-        p['model'] = self.model
-        return registry.predicate_key_by_predicate_name(generic.view, p)
+        registry.register_dispatch(generic.view)
+        return registry.key_dict_to_predicate_key(generic.view.wrapped_func,
+                                                  self.key_dict())
 
     def identifier(self, registry):
         return self.predicate_key(registry)
 
     def perform(self, registry, obj):
         predicate_key = self.predicate_key(registry)
-        register_view(registry, predicate_key, obj,
+        register_view(registry, self.key_dict(), obj,
                       self.render, self.permission, self.internal)
 
 
@@ -760,8 +772,7 @@ class DumpJsonDirective(Directive):
         # reverse parameters
         def dump(request, self):
             return obj(self, request)
-        registry.register_function(generic.dump_json,
-                                   (self.model,), dump)
+        registry.register_function(generic.dump_json, dump, obj=self.model)
 
 
 @App.directive('load_json')
@@ -782,4 +793,4 @@ class LoadJsonDirective(Directive):
         # reverse parameters
         def load(request, json):
             return obj(json, request)
-        registry.register_function(generic.load_json, (), load)
+        registry.register_function(generic.load_json, load)

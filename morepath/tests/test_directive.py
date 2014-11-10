@@ -205,7 +205,7 @@ def test_imperative():
     class Foo(object):
         pass
 
-    @reg.generic
+    @reg.dispatch()
     def target():
         pass
 
@@ -213,13 +213,15 @@ def test_imperative():
         pass
 
     c = setup()
-    foo = Foo()
+
+    def x():
+        pass
 
     c.configurable(app.registry)
-    c.action(app.function(target), foo)
+    c.action(app.function(target), x)
     c.commit()
 
-    assert target.component(lookup=app().lookup) is foo
+    assert target.component(lookup=app().lookup) is x
 
 
 def test_basic_imperative():
@@ -997,14 +999,15 @@ def test_function_conflict():
     class A(object):
         pass
 
+    @reg.dispatch('a')
     def func(a):
         pass
 
-    @app.function(func, A)
+    @app.function(func, a=A)
     def a_func(self, request):
         pass
 
-    @app.function(func, A)
+    @app.function(func, a=A)
     def a1_func(self, request):
         pass
 
@@ -1021,17 +1024,18 @@ def test_function_no_conflict_different_apps():
     class app_b(morepath.App):
         testing_config = config
 
+    @reg.dispatch('a')
     def func(a):
         pass
 
     class A(object):
         pass
 
-    @app_a.function(func, A)
+    @app_a.function(func, a=A)
     def a_func(a):
         pass
 
-    @app_b.function(func, A)
+    @app_b.function(func, a=A)
     def a1_func(a):
         pass
 
@@ -1178,7 +1182,7 @@ def test_function_directive():
     class app(morepath.App):
         testing_config = config
 
-    @reg.generic
+    @reg.dispatch('o')
     def mygeneric(o):
         return "The object: %s" % o
 
@@ -1189,7 +1193,7 @@ def test_function_directive():
         def __repr__(self):
             return "<Foo with value: %s>" % self.value
 
-    @app.function(mygeneric, Foo)
+    @app.function(mygeneric, o=Foo)
     def mygeneric_for_foo(o):
         return "The foo object: %s" % o
 
@@ -1208,14 +1212,14 @@ def test_classgeneric_function_directive():
     class app(morepath.App):
         testing_config = config
 
-    @reg.classgeneric
+    @reg.dispatch(reg.match_class('o', lambda o: o))
     def mygeneric(o):
         return "The object"
 
     class Foo(object):
         pass
 
-    @app.function(mygeneric, Foo)
+    @app.function(mygeneric, o=Foo)
     def mygeneric_for_foo(o):
         return "The foo object"
 
