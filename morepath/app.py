@@ -49,10 +49,7 @@ class Registry(Configurable, RegRegistry, MountRegistry, PredicateRegistry,
         self.clear()
 
     def actions(self):
-        return []
-        # XXX ugh having to do register_dispatch here..
-        #self.register_dispatch(generic.settings)
-        #yield FunctionAction(self, generic.settings), lambda: self.settings
+        yield FunctionAction(self, generic.settings), lambda: self.settings
 
     def clear(self):
         """Clear all registrations in this application.
