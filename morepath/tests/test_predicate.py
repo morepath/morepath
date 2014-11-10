@@ -1,4 +1,3 @@
-from morepath.app import App
 from morepath import setup, Config
 import reg
 from reg import match_argname, ClassIndex, KeyIndex
@@ -12,7 +11,7 @@ def setup_module(module):
 def test_dispatch():
     config = Config()
 
-    class app(App):
+    class App(morepath.App):
         testing_config = config
 
     class Foo(object):
@@ -24,21 +23,21 @@ def test_dispatch():
     class Other(object):
         pass
 
-    @reg.dispatch(match_argname('obj'))
+    @reg.dispatch('obj')
     def f(obj):
         return "fallback"
 
-    @app.function(f, obj=Foo)
+    @App.function(f, obj=Foo)
     def f_foo(obj):
         return "foo"
 
-    @app.function(f, obj=Bar)
+    @App.function(f, obj=Bar)
     def f_bar(obj):
         return "bar"
 
     config.commit()
 
-    a = app()
+    a = App()
 
     lookup = a.lookup
 
@@ -50,7 +49,7 @@ def test_dispatch():
 def test_dispatch_external_predicates():
     config = Config()
 
-    class app(App):
+    class App(morepath.App):
         testing_config = config
 
     class Foo(object):
@@ -66,21 +65,21 @@ def test_dispatch_external_predicates():
     def f(obj):
         return "fallback"
 
-    @app.predicate(f, name='model', default=None, index=ClassIndex)
+    @App.predicate(f, name='model', default=None, index=ClassIndex)
     def f_obj(obj):
         return obj.__class__
 
-    @app.function(f, model=Foo)
+    @App.function(f, model=Foo)
     def f_foo(obj):
         return "foo"
 
-    @app.function(f, model=Bar)
+    @App.function(f, model=Bar)
     def f_bar(obj):
         return "bar"
 
     config.commit()
 
-    a = app()
+    a = App()
 
     lookup = a.lookup
 
@@ -92,7 +91,7 @@ def test_dispatch_external_predicates():
 def test_dispatch_external_predicates_predicate_fallback():
     config = Config()
 
-    class app(App):
+    class App(morepath.App):
         testing_config = config
 
     class Foo(object):
@@ -108,25 +107,25 @@ def test_dispatch_external_predicates_predicate_fallback():
     def f(obj):
         return "dispatch function"
 
-    @app.predicate(f, name='model', default=None, index=ClassIndex)
+    @App.predicate(f, name='model', default=None, index=ClassIndex)
     def f_obj(obj):
         return obj.__class__
 
-    @app.predicate_fallback(f, f_obj)
+    @App.predicate_fallback(f, f_obj)
     def f_obj_fallback(obj):
         return "f_obj_fallback"
 
-    @app.function(f, model=Foo)
+    @App.function(f, model=Foo)
     def f_foo(obj):
         return "foo"
 
-    @app.function(f, model=Bar)
+    @App.function(f, model=Bar)
     def f_bar(obj):
         return "bar"
 
     config.commit()
 
-    a = app()
+    a = App()
 
     lookup = a.lookup
 
@@ -138,7 +137,7 @@ def test_dispatch_external_predicates_predicate_fallback():
 def test_dispatch_external_predicates_ordering_after():
     config = Config()
 
-    class app(App):
+    class App(morepath.App):
         testing_config = config
 
     class Foo(object):
@@ -154,33 +153,33 @@ def test_dispatch_external_predicates_ordering_after():
     def f(obj, name):
         return "fallback"
 
-    @app.predicate(f, name='model', default=None, index=ClassIndex)
+    @App.predicate(f, name='model', default=None, index=ClassIndex)
     def pred_obj(obj):
         return obj.__class__
 
-    @app.predicate(f, name='name', default='', index=KeyIndex, after=pred_obj)
+    @App.predicate(f, name='name', default='', index=KeyIndex, after=pred_obj)
     def pred_name(name):
         return name
 
-    @app.function(f, model=Foo, name='')
+    @App.function(f, model=Foo, name='')
     def f_foo_default(obj, name):
         return "foo default"
 
-    @app.function(f, model=Foo, name='edit')
+    @App.function(f, model=Foo, name='edit')
     def f_foo_edit(obj, name):
         return "foo edit"
 
-    @app.function(f, model=Bar, name='')
+    @App.function(f, model=Bar, name='')
     def f_bar_default(obj, name):
         return "bar default"
 
-    @app.function(f, model=Bar, name='edit')
+    @App.function(f, model=Bar, name='edit')
     def f_bar_edit(obj, name):
         return "bar edit"
 
     config.commit()
 
-    a = app()
+    a = App()
 
     lookup = a.lookup
 
@@ -196,7 +195,7 @@ def test_dispatch_external_predicates_ordering_after():
 def test_dispatch_external_predicates_ordering_before():
     config = Config()
 
-    class app(App):
+    class App(morepath.App):
         testing_config = config
 
     class Foo(object):
@@ -212,34 +211,34 @@ def test_dispatch_external_predicates_ordering_before():
     def f(obj, name):
         return "fallback"
 
-    @app.predicate(f, name='name', default='', index=KeyIndex)
+    @App.predicate(f, name='name', default='', index=KeyIndex)
     def pred_name(name):
         return name
 
-    @app.predicate(f, name='model', default=None, index=ClassIndex,
+    @App.predicate(f, name='model', default=None, index=ClassIndex,
                    before=pred_name)
     def pred_obj(obj):
         return obj.__class__
 
-    @app.function(f, model=Foo, name='')
+    @App.function(f, model=Foo, name='')
     def f_foo_default(obj, name):
         return "foo default"
 
-    @app.function(f, model=Foo, name='edit')
+    @App.function(f, model=Foo, name='edit')
     def f_foo_edit(obj, name):
         return "foo edit"
 
-    @app.function(f, model=Bar, name='')
+    @App.function(f, model=Bar, name='')
     def f_bar_default(obj, name):
         return "bar default"
 
-    @app.function(f, model=Bar, name='edit')
+    @App.function(f, model=Bar, name='edit')
     def f_bar_edit(obj, name):
         return "bar edit"
 
     config.commit()
 
-    a = app()
+    a = App()
 
     lookup = a.lookup
 
