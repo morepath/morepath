@@ -33,10 +33,10 @@ class IdentityPolicy(object):
     def identify(self, request):
         return morepath.Identity('testidentity')
 
-    def remember(self, request, identity):
+    def remember(self, response, request, identity):
         return []
 
-    def forget(self, request):
+    def forget(self, response, request):
         return []
 
 

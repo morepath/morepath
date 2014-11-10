@@ -707,13 +707,9 @@ class IdentityPolicyDirective(Directive):
     def prepare(self, obj):
         policy = obj()
         app = self.app
-        yield app.function(
-            generic.identify, Request), policy.identify
-        yield (app.function(
-            generic.remember_identity, Response, Request, object),
-            policy.remember)
-        yield app.function(
-            generic.forget_identity, Response, Request), policy.forget
+        yield app.function(generic.identify), policy.identify
+        yield app.function(generic.remember_identity), policy.remember
+        yield app.function(generic.forget_identity), policy.forget
 
 
 @App.directive('verify_identity')
@@ -743,7 +739,7 @@ class VerifyIdentityDirective(Directive):
 
     def prepare(self, obj):
         yield self.app.function(
-            generic.verify_identity, self.identity), obj
+            generic.verify_identity, identity=self.identity), obj
 
 
 @App.directive('dump_json')

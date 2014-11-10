@@ -66,10 +66,9 @@ class Request(BaseRequest):
         """
         # XXX annoying circular dependency
         from .security import NO_IDENTITY
-        result = generic.identify(self, lookup=self.lookup,
-                                  default=NO_IDENTITY)
-        if result is NO_IDENTITY:
-            return result
+        result = generic.identify(self, lookup=self.lookup)
+        if result is None or result is NO_IDENTITY:
+            return NO_IDENTITY
         if not generic.verify_identity(result, lookup=self.lookup):
             return NO_IDENTITY
         return result

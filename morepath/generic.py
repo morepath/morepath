@@ -71,10 +71,10 @@ def identify(request):
     Can also return NO_IDENTITY, but None is converted automatically
     to this.
     """
-    raise NotImplementedError  # pragma: nocoverage
+    return None
 
 
-@reg.dispatch()
+@reg.dispatch('identity')
 def verify_identity(identity):
     """Returns True if the claimed identity can be verified.
     """
@@ -95,7 +95,9 @@ def forget_identity(response, request):
     raise NotImplementedError  # pragma: nocoverage
 
 
-@reg.dispatch('identity', 'obj', 'permission')
+@reg.dispatch('identity', 'obj',
+              reg.match_class('permission',
+                              lambda permission: permission))
 def permits(identity, obj, permission):
     """Returns True if identity has permission for model.
 

@@ -157,7 +157,9 @@ class BasicAuthIdentityPolicy(object):
 
 
 def register_permission_checker(registry, identity, model, permission, func):
-    registry.register(generic.permits, (identity, model, permission), func)
+    registry.register_function(
+        generic.permits,
+        func, identity=identity, obj=model, permission=permission)
 
 
 class BasicAuthInfo(object):
