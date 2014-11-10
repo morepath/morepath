@@ -1032,7 +1032,7 @@ def test_named_mount_with_parameters():
     def get_item(id):
         return Item(id)
 
-    @app.view(model=Root, path='/')
+    @app.view(model=Root)
     def root_default2(self, request):
         child = request.app.child('mounts/{mount_id}', mount_id=3)
         return request.link(Item(4), app=child)
@@ -1083,7 +1083,7 @@ def test_named_mount_with_url_parameters():
     def get_item(id):
         return Item(id)
 
-    @app.view(model=Root, path='/')
+    @app.view(model=Root)
     def root_default2(self, request):
         child = request.app.child('mounts', mount_id=3)
         return request.link(Item(4), app=child)

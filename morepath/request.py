@@ -97,10 +97,11 @@ class Request(BaseRequest):
         if app is SAME_APP:
             app = self.app
 
+        predicates['model'] = obj.__class__
+
         def find(app, obj):
-            return generic.view.component(self, obj, lookup=app.lookup,
-                                          default=None,
-                                          predicates=predicates)
+            return generic.view.component_key_dict(lookup=app.lookup,
+                                                   **predicates)
 
         view = _follow_defers(find, app, obj)
         if view is None:
