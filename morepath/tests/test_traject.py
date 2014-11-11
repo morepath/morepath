@@ -3,7 +3,7 @@ from morepath.traject import (Traject, Node, Step, TrajectError,
                               is_identifier, parse_variables,
                               Path, parse_path, create_path)
 from morepath.converter import ParameterFactory
-from morepath.core import traject_consume
+from morepath.publish import consume as traject_consume
 from morepath.converter import Converter, IDENTITY_CONVERTER
 import pytest
 from webob.exc import HTTPBadRequest
@@ -404,7 +404,7 @@ def test_parse_variables():
 
 def consume(app, path):
     request = app.request(webob.Request.blank(path).environ)
-    return traject_consume(request, app, lookup=app.lookup), request
+    return traject_consume(request, app), request
 
 paramfac = ParameterFactory({}, {}, [])
 

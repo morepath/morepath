@@ -8,7 +8,7 @@ from morepath.converter import Converter, IDENTITY_CONVERTER, ConverterRegistry
 import morepath
 from morepath import setup
 from morepath import generic
-from morepath.core import traject_consume
+from morepath.publish import consume as traject_consume
 import webob
 
 
@@ -20,7 +20,7 @@ def consume(mount, path, parameters=None):
     if parameters:
         path += '?' + urlencode(parameters, True)
     request = mount.request(webob.Request.blank(path).environ)
-    return traject_consume(request, mount, lookup=mount.lookup), request
+    return traject_consume(request, mount), request
 
 
 class Root(object):

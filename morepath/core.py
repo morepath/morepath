@@ -34,27 +34,6 @@ def setup():
     return config
 
 
-
-@App.function(generic.consume, obj=object)
-def traject_consume(request, app, lookup):
-    traject = app.traject
-    if traject is None:
-        return None
-    value, stack, traject_variables = traject.consume(request.unconsumed)
-    if value is None:
-        return None
-    get_obj, get_parameters = value
-    variables = get_parameters(request.GET)
-    variables['request'] = request
-    variables['app'] = app
-    variables.update(traject_variables)
-    next_obj = mapply(get_obj, **variables)
-    if next_obj is None:
-        return None
-    request.unconsumed = stack
-    return next_obj
-
-
 @App.function(generic.link, obj=object)
 def link(request, model, mounted):
     result = []

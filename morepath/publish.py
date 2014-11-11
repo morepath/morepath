@@ -2,6 +2,7 @@ from morepath import generic
 from .app import App
 from .traject import create_path
 from webob.exc import HTTPNotFound
+from reg import mapply
 
 
 DEFAULT_NAME = u''
@@ -20,7 +21,7 @@ def resolve_model(request):
     app = request.app
     app.set_implicit()
     while request.unconsumed:
-        next = generic.consume(request, app, lookup=app.lookup)
+        next = consume(request, app)
         if next is None:
             # cannot find next obj or app
             break
@@ -35,7 +36,7 @@ def resolve_model(request):
         app = next
     # if there is nothing (left), we consume toward a root obj
     if not request.unconsumed:
-        return generic.consume(request, app, lookup=app.lookup)
+        return consume(request, app)
     # cannot find obj or app
     return None
 
@@ -63,3 +64,29 @@ def get_view_name(stack):
 def publish(request):
     model = resolve_model(request)
     return resolve_response(request, model)
+
+
+def consume(request, app):
+    """Consume request.unconsumed to new obj, starting with app.
+
+    Returns the new model instance, or None if no new instance could be found.
+    The model instance may be an app instance.
+
+    Adjusts request.unconsumed with the remaining unconsumed stack.
+    """
+    traject = app.traject
+    if traject is None:
+        return None
+    value, stack, traject_variables = traject.consume(request.unconsumed)
+    if value is None:
+        return None
+    get_obj, get_parameters = value
+    variables = get_parameters(request.GET)
+    variables['request'] = request
+    variables['app'] = app
+    variables.update(traject_variables)
+    next_obj = mapply(get_obj, **variables)
+    if next_obj is None:
+        return None
+    request.unconsumed = stack
+    return next_obj

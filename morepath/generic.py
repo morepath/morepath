@@ -2,17 +2,6 @@ import reg
 
 
 @reg.dispatch('obj')
-def consume(request, obj):
-    """Consume request.unconsumed to new obj, starting with obj.
-
-    Returns the new model instance, or None if no new instance could be found.
-
-    Adjusts request.unconsumed with the remaining unconsumed stack.
-    """
-    return None
-
-
-@reg.dispatch('obj')
 def path(obj):
     """Get the path and parameters for an object in its own application.
     """
