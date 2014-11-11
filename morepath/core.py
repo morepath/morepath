@@ -7,7 +7,7 @@ from .request import Request, Response
 from .converter import Converter, IDENTITY_CONVERTER
 from webob import Response as BaseResponse
 from webob.exc import (
-    HTTPException, HTTPNotFound, HTTPForbidden, HTTPMethodNotAllowed)
+    HTTPException, HTTPNotFound, HTTPMethodNotAllowed)
 import morepath
 from reg import mapply, KeyIndex, ClassIndex
 from datetime import datetime, date
@@ -81,24 +81,7 @@ def get_response(request, obj):
         if fallback is None:
             return None
         return fallback(request, obj)
-    if view.internal:
-        return None
-    if (view.permission is not None and
-        not generic.permits(request.identity, obj, view.permission,
-                            lookup=request.lookup)):
-        raise HTTPForbidden()
-    content = view(request, obj)
-    if isinstance(content, BaseResponse):
-        # the view took full control over the response
-        return content
-    # XXX consider always setting a default render so that view.render
-    # can never be None
-    if view.render is not None:
-        response = view.render(content, request)
-    else:
-        response = Response(content, content_type='text/plain')
-    request.run_after(response)
-    return response
+    return view.response(request, obj)
 
 
 @App.function(generic.permits, obj=object, identity=object,
@@ -114,8 +97,7 @@ def model_predicate(obj):
 
 @App.predicate_fallback(generic.view, model_predicate)
 def model_not_found(self, request):
-    # this triggers a NotFound error later in the system
-    return None
+    raise HTTPNotFound()
 
 
 @App.predicate(generic.view, name='name', default='', index=KeyIndex,
@@ -126,8 +108,7 @@ def name_predicate(request):
 
 @App.predicate_fallback(generic.view, name_predicate)
 def name_not_found(self, request):
-    # this triggers a NotFound error later in the system
-    return None
+    raise HTTPNotFound()
 
 
 @App.predicate(generic.view, name='request_method', default='GET',
@@ -191,12 +172,11 @@ def excview_tween_factory(app, handler):
         try:
             response = handler(request)
         except Exception as exc:
-            # XXX is there a nicer way to override predicates than
-            # poking in the request?
-            # default name and GET is correct for exception views.
-            request.view_name = ''
-            request.method = 'GET'
-            response = generic.response(request, exc, lookup=app.lookup)
+            view = generic.view.component_key_dict(model=exc.__class__,
+                                                   lookup=request.lookup)
+            if view is None:
+                raise
+            response = view.response(request, exc)
             if response is None:
                 raise
             return response

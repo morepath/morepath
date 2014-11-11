@@ -1,7 +1,8 @@
 from . import generic
 from .request import Response
 import json
-from webob.exc import HTTPFound
+from webob.exc import HTTPFound, HTTPForbidden
+from webob import Response as BaseResponse
 
 
 class View(object):
@@ -16,6 +17,26 @@ class View(object):
         # this still makes request weigh stronger in multiple dispatch,
         # but lets view authors write 'self, request'.
         return self.func(model, request)
+
+    def response(self, request, obj):
+        if self.internal:
+            return None
+        if (self.permission is not None and
+            not generic.permits(request.identity, obj, self.permission,
+                                lookup=request.lookup)):
+            raise HTTPForbidden()
+        content = self(request, obj)
+        if isinstance(content, BaseResponse):
+            # the view took full control over the response
+            return content
+        # XXX consider always setting a default render so that self.render
+        # can never be None
+        if self.render is not None:
+            response = self.render(content, request)
+        else:
+            response = Response(content, content_type='text/plain')
+        request.run_after(response)
+        return response
 
 
 def register_view(registry, key_dict, view, render=None, permission=None,
