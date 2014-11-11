@@ -2,12 +2,14 @@ from .config import Config
 import morepath.directive
 from morepath import generic
 from .app import App
+from .view import View
 from .request import Request, Response
 from .converter import Converter, IDENTITY_CONVERTER
 from webob import Response as BaseResponse
-from webob.exc import HTTPException, HTTPForbidden, HTTPMethodNotAllowed
+from webob.exc import (
+    HTTPException, HTTPNotFound, HTTPForbidden, HTTPMethodNotAllowed)
 import morepath
-from reg import mapply, KeyIndex
+from reg import mapply, KeyIndex, ClassIndex
 from datetime import datetime, date
 from time import mktime, strptime
 
@@ -31,9 +33,12 @@ def setup():
     return config
 
 
-@App.function(generic.consume, Request, App)
+
+@App.function(generic.consume, obj=object)
 def traject_consume(request, app, lookup):
     traject = app.traject
+    if traject is None:
+        return None
     value, stack, traject_variables = traject.consume(request.unconsumed)
     if value is None:
         return None
@@ -49,7 +54,7 @@ def traject_consume(request, app, lookup):
     return next_obj
 
 
-@App.function(generic.link, Request, object, object)
+@App.function(generic.link, obj=object)
 def link(request, model, mounted):
     result = []
     parameters = {}
@@ -67,19 +72,22 @@ def link(request, model, mounted):
     return '/'.join(result).strip('/'), parameters
 
 
-@App.function(generic.response, Request, object)
-def get_response(request, model, predicates=None):
-    view = generic.view.component(
-        request, model, lookup=request.lookup,
-        predicates=predicates,
-        default=None)
-    if view is None or view.internal:
+@App.function(generic.response, obj=object)
+def get_response(request, obj):
+    view = generic.view.component(request, obj, lookup=request.lookup)
+    if view is None:
+        # try to look up fallback and use it
+        fallback = generic.view.fallback(request, obj, lookup=request.lookup)
+        if fallback is None:
+            return None
+        return fallback(request, obj)
+    if view.internal:
         return None
     if (view.permission is not None and
-        not generic.permits(request.identity, model, view.permission,
+        not generic.permits(request.identity, obj, view.permission,
                             lookup=request.lookup)):
         raise HTTPForbidden()
-    content = view(request, model)
+    content = view(request, obj)
     if isinstance(content, BaseResponse):
         # the view took full control over the response
         return content
@@ -93,24 +101,42 @@ def get_response(request, model, predicates=None):
     return response
 
 
-@App.function(generic.permits, object, object, object)
+@App.function(generic.permits, obj=object, identity=object,
+              permission=object)
 def has_permission(identity, model, permission):
     return False
 
 
-@App.predicate(name='name', index=KeyIndex, order=0,
-               default='')
-def name_predicate(self, request):
+@App.predicate(generic.view, name='model', default=None, index=ClassIndex)
+def model_predicate(obj):
+    return obj.__class__
+
+
+@App.predicate_fallback(generic.view, model_predicate)
+def model_not_found(self, request):
+    # this triggers a NotFound error later in the system
+    return None
+
+
+@App.predicate(generic.view, name='name', default='', index=KeyIndex,
+               after=model_predicate)
+def name_predicate(request):
     return request.view_name
 
 
-@App.predicate(name='request_method', index=KeyIndex, order=1,
-               default='GET')
-def request_method_predicate(self, request):
+@App.predicate_fallback(generic.view, name_predicate)
+def name_not_found(self, request):
+    # this triggers a NotFound error later in the system
+    return None
+
+
+@App.predicate(generic.view, name='request_method', default='GET',
+               index=KeyIndex, after=name_predicate)
+def request_method_predicate(request):
     return request.method
 
 
-@App.predicate_fallback(name='request_method')
+@App.predicate_fallback(generic.view, request_method_predicate)
 def method_not_allowed(self, request):
     raise HTTPMethodNotAllowed()
 
@@ -165,10 +191,12 @@ def excview_tween_factory(app, handler):
         try:
             response = handler(request)
         except Exception as exc:
-            # override predicates so that they aren't taken from request;
+            # XXX is there a nicer way to override predicates than
+            # poking in the request?
             # default name and GET is correct for exception views.
-            response = generic.response(request, exc, lookup=app.lookup,
-                                        default=None, predicates={})
+            request.view_name = ''
+            request.method = 'GET'
+            response = generic.response(request, exc, lookup=app.lookup)
             if response is None:
                 raise
             return response

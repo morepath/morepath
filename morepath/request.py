@@ -67,10 +67,9 @@ class Request(BaseRequest):
         """
         # XXX annoying circular dependency
         from .security import NO_IDENTITY
-        result = generic.identify(self, lookup=self.lookup,
-                                  default=NO_IDENTITY)
-        if result is NO_IDENTITY:
-            return result
+        result = generic.identify(self, lookup=self.lookup)
+        if result is None or result is NO_IDENTITY:
+            return NO_IDENTITY
         if not generic.verify_identity(result, lookup=self.lookup):
             return NO_IDENTITY
         return result
@@ -110,10 +109,11 @@ class Request(BaseRequest):
         if app is SAME_APP:
             app = self.app
 
+        predicates['model'] = obj.__class__
+
         def find(app, obj):
-            return generic.view.component(self, obj, lookup=app.lookup,
-                                          default=None,
-                                          predicates=predicates)
+            return generic.view.component_key_dict(lookup=app.lookup,
+                                                   **predicates)
 
         view, app = _follow_defers(find, app, obj)
         if view is None:
@@ -182,7 +182,6 @@ class Request(BaseRequest):
         return result
 
     def after(self, func):
-
         """Call function with response after this request is done.
 
         Can be used explicitly::

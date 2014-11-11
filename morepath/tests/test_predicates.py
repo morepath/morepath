@@ -3,6 +3,8 @@ from morepath import setup
 
 from webtest import TestApp as Client
 import morepath
+from morepath import generic
+from reg import KeyIndex
 
 
 def setup_module(module):
@@ -56,9 +58,11 @@ def test_extra_predicates():
     def get_b(self, request):
         return 'b'
 
-    @app.predicate(name='id', order=2, default='')
-    def get_id(self, request):
-        return self.id
+    @app.predicate(generic.view, name='id', default='', index=KeyIndex,
+                   after=morepath.request_method_predicate)
+    def id_predicate(obj):
+        return obj.id
+
     config.commit()
 
     c = Client(app())

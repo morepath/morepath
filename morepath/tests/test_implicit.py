@@ -22,11 +22,11 @@ def test_implicit_function():
         def __init__(self):
             pass
 
-    @reg.generic
+    @reg.dispatch()
     def one():
         return "Default one"
 
-    @reg.generic
+    @reg.dispatch()
     def two():
         return "Default two"
 
@@ -81,11 +81,11 @@ def test_implicit_function_mounted():
     def get_root(app):
         return Root(app.id)
 
-    @reg.generic
+    @reg.dispatch()
     def one():
         return "Default one"
 
-    @reg.generic
+    @reg.dispatch()
     def two():
         return "Default two"
 
@@ -128,7 +128,7 @@ def test_implicit_disabled():
         def __init__(self):
             pass
 
-    @reg.generic
+    @reg.dispatch()
     def one():
         return "default one"
 

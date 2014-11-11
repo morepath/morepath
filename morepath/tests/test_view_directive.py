@@ -1,11 +1,18 @@
 import morepath
+from morepath import generic
 from morepath.error import ConflictError
 from webtest import TestApp as Client
+from reg import ClassIndex
 import pytest
+from morepath.core import request_method_predicate
 
 
 def setup_module(module):
     morepath.disable_implicit()
+
+
+def setup_function(f):
+    morepath.App.registry.clear()
 
 
 def test_view_get_only():
@@ -30,32 +37,6 @@ def test_view_get_only():
     assert response.body == b'View'
 
     response = c.post('/', status=405)
-
-
-def test_view_any():
-    config = morepath.setup()
-
-    class app(morepath.App):
-        testing_config = config
-
-    @app.path(path='')
-    class Model(object):
-        def __init__(self):
-            pass
-
-    @app.view(model=Model, request_method=morepath.ANY)
-    def default(self, request):
-        return "View"
-
-    config.commit()
-
-    c = Client(app())
-
-    response = c.get('/')
-    assert response.body == b'View'
-
-    response = c.post('/')
-    assert response.body == b'View'
 
 
 def test_view_name_conflict_involving_default():
@@ -90,9 +71,11 @@ def test_view_custom_predicate_conflict_involving_default_extends():
     class app(core):
         testing_config = config
 
-    @core.predicate(name='foo', order=100, default='DEFAULT')
-    def get_foo(request, model):
-        return 'foo'
+    @core.predicate(generic.view, name='extra', default='DEFAULT',
+                    index=ClassIndex,
+                    after=request_method_predicate)
+    def dummy_predicate(request):
+        return None
 
     @app.path(path='')
     class Model(object):
@@ -103,7 +86,7 @@ def test_view_custom_predicate_conflict_involving_default_extends():
     def default(self, request):
         return "View"
 
-    @app.view(model=Model, foo='DEFAULT')
+    @app.view(model=Model, extra='DEFAULT')
     def default2(self, request):
         return "View"
 

@@ -15,36 +15,35 @@ RESPONSE_SENTINEL = ResponseSentinel()
 
 
 def resolve_model(request):
-    """Resolve path to a model using consumers.
+    """Resolve path to a obj.
     """
-    lookup = request.lookup  # XXX can get this from argument too
-    model = request.app
-    model.set_implicit()
+    app = request.app
+    app.set_implicit()
     while request.unconsumed:
-        next_model = generic.consume(request, model, lookup=lookup)
-        if next_model is None:
-            return model
-        model = next_model
-        if isinstance(model, App):
-            model.set_implicit()
-            model.parent = request.app
-            request.app = model
-            request.lookup = model.lookup
-    # if there is nothing (left), we consume toward a root model
-    if not request.unconsumed and isinstance(model, App):
-        root_model = generic.consume(request, model, lookup=lookup)
-        if root_model is not None:
-            model = root_model
-        # XXX handling mounting? lookups? write test cases
-    return model
+        next = generic.consume(request, app, lookup=app.lookup)
+        if next is None:
+            # cannot find next obj or app
+            break
+        # we found a non-app instance, return it
+        if not isinstance(next, App):
+            return next
+        # we found an app, make it the current app
+        next.set_implicit()
+        next.parent = app
+        request.app = next
+        request.lookup = next.lookup
+        app = next
+    # if there is nothing (left), we consume toward a root obj
+    if not request.unconsumed:
+        return generic.consume(request, app, lookup=app.lookup)
+    # cannot find obj or app
+    return None
 
 
 def resolve_response(request, model):
     request.view_name = get_view_name(request.unconsumed)
-
-    response = generic.response(request, model, default=RESPONSE_SENTINEL,
-                                lookup=request.lookup)
-    if response is RESPONSE_SENTINEL:
+    response = generic.response(request, model, lookup=request.lookup)
+    if response is None:
         raise HTTPNotFound()
     return response
 

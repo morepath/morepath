@@ -490,7 +490,7 @@ class Config(object):
         """
         # clear all previous configuration; commit can only be run
         # once during runtime so it's handy to clear this out for tests
-        for configurable in self.configurables:
+        for configurable in sort_configurables(self.configurables):
             configurable.clear()
 
         for action, obj in self.prepared():
