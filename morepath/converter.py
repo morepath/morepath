@@ -17,6 +17,11 @@ class Converter(object):
 
     Used for decoding/encoding URL parameters and path parameters.
     """
+
+    # must be set explicitly because __eq__ is defined below.
+    # see https://docs.python.org/3.1/reference/datamodel.html#object.__hash__
+    __hash__ = object.__hash__
+
     def __init__(self, decode, encode=None):
         """Create new converter.
 
