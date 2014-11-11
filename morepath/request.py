@@ -115,7 +115,7 @@ class Request(BaseRequest):
                                           default=None,
                                           predicates=predicates)
 
-        view = _follow_defers(find, app, obj)
+        view, app = _follow_defers(find, app, obj)
         if view is None:
             return default
 
@@ -165,7 +165,7 @@ class Request(BaseRequest):
         def find(app, obj):
             return generic.link(self, obj, app, lookup=app.lookup)
 
-        info = _follow_defers(find, app, obj)
+        info, app = _follow_defers(find, app, obj)
 
         if info is None:
             raise LinkError("Cannot link to: %r" % obj)
@@ -222,7 +222,7 @@ def _follow_defers(find, app, obj):
             raise LinkError("Circular defer. Cannot link to: %r" % obj)
         result = find(app, obj)
         if result is not None:
-            return result
+            return result, app
         seen.add(app)
         app = generic.deferred_link_app(app, obj, lookup=app.lookup)
-    return None
+    return None, app

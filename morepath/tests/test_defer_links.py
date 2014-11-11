@@ -637,6 +637,61 @@ def test_deferred_deferred_view():
     assert response.json == {'model': 'alpha'}
 
 
+def test_deferred_view_has_app_of_defer():
+    config = morepath.setup()
+
+    class root(morepath.App):
+        testing_config = config
+
+    class alpha(morepath.App):
+        testing_config = config
+
+    class beta(morepath.App):
+        testing_config = config
+
+    @root.mount(app=alpha, path='alpha')
+    def mount_alpha():
+        return alpha()
+
+    @root.mount(app=beta, path='beta')
+    def mount_beta():
+        return beta()
+
+    @root.path(path='')
+    class RootModel(object):
+        pass
+
+    @alpha.path(path='')
+    class AlphaModel(object):
+        pass
+
+    @alpha.json(model=AlphaModel)
+    def alpha_model_default(self, request):
+        if request.app.__class__ == alpha:
+            return 'correct'
+        else:
+            return 'wrong'
+
+    @beta.path(path='')
+    class BetaModel(object):
+        pass
+
+    @beta.json(model=BetaModel)
+    def beta_model_default(self, request):
+        return request.view(AlphaModel())
+
+    @beta.defer_links(model=AlphaModel)
+    def defer_links_parent(app, obj):
+        return app.parent.child('alpha')
+
+    config.commit()
+
+    c = Client(root())
+
+    response = c.get('/beta')
+    assert response.json == 'correct'
+
+
 def test_deferred_loop():
     config = morepath.setup()
 

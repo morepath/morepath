@@ -10,6 +10,10 @@ CHANGES
 - A bug fix in ``request.view()``; the ``lookup`` on the ``request``
   was not properly updated.
 
+- Another bug fix in ``request.view()``; if ``deferred_link_app`` app
+  is used, ``request.app`` should be adjusted to the app currently
+  being deferred to.
+
 - One test did not work correctly in Python 3. Fixed.
 
 - Add API doc for ``body_obj``. Also fix JSON and objects doc to talk
