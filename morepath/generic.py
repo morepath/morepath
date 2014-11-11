@@ -79,7 +79,7 @@ def permits(identity, obj, permission):
     identity can be the special NO_IDENTITY singleton; register for
     NoIdentity to handle this case separately.
     """
-    raise NotImplementedError  # pragma: nocoverage
+    return False
 
 
 @reg.dispatch()

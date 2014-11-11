@@ -34,12 +34,6 @@ def setup():
     return config
 
 
-@App.function(generic.permits, obj=object, identity=object,
-              permission=object)
-def has_permission(identity, model, permission):
-    return False
-
-
 @App.predicate(generic.view, name='model', default=None, index=ClassIndex)
 def model_predicate(obj):
     return obj.__class__
