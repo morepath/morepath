@@ -4,8 +4,8 @@ CHANGES
 0.7.2 (unreleased)
 ==================
 
-- Nothing changed yet.
-
+- 0.7.1 was a dud release; it *still* pulled in Reg 0.9 which isn't
+  compatible.  Fix ``install_requires`` now.
 
 0.7.1 (2014-11-11)
 ==================
