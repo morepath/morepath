@@ -1,7 +1,7 @@
 from . import generic
 from .request import Response
 import json
-from webob.exc import HTTPFound, HTTPForbidden
+from webob.exc import HTTPFound, HTTPNotFound, HTTPForbidden
 from webob import Response as BaseResponse
 
 
@@ -20,7 +20,7 @@ class View(object):
 
     def response(self, request, obj):
         if self.internal:
-            return None
+            raise HTTPNotFound()
         if (self.permission is not None and
             not generic.permits(request.identity, obj, self.permission,
                                 lookup=request.lookup)):
