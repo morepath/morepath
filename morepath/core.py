@@ -34,24 +34,6 @@ def setup():
     return config
 
 
-@App.function(generic.link, obj=object)
-def link(request, model, mounted):
-    result = []
-    parameters = {}
-    while mounted is not None:
-        path_info = generic.path(model, lookup=mounted.lookup)
-        if path_info is None:
-            return None
-        path, params = path_info
-        result.append(path)
-        parameters.update(params)
-        model = mounted
-        mounted = mounted.parent
-    result.append(request.script_name)
-    result.reverse()
-    return '/'.join(result).strip('/'), parameters
-
-
 @App.function(generic.response, obj=object)
 def get_response(request, obj):
     view = generic.view.component(request, obj, lookup=request.lookup)

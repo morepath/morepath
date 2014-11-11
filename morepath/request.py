@@ -4,6 +4,7 @@ from .reify import reify
 from .traject import parse_path
 from .error import LinkError
 
+
 try:
     from urllib.parse import urlencode
 except ImportError:
@@ -163,7 +164,7 @@ class Request(BaseRequest):
             app = self.app
 
         def find(app, obj):
-            return generic.link(self, obj, app, lookup=app.lookup)
+            return link(self, obj, app)
 
         info, app = _follow_defers(find, app, obj)
 
@@ -225,3 +226,22 @@ def _follow_defers(find, app, obj):
         seen.add(app)
         app = generic.deferred_link_app(app, obj, lookup=app.lookup)
     return None, app
+
+
+def link(request, model, app):
+    """Create a link (URL) to a model, including any mounted applications.
+    """
+    result = []
+    parameters = {}
+    while app is not None:
+        path_info = generic.path(model, lookup=app.lookup)
+        if path_info is None:
+            return None
+        path, params = path_info
+        result.append(path)
+        parameters.update(params)
+        model = app
+        app = app.parent
+    result.append(request.script_name)
+    result.reverse()
+    return '/'.join(result).strip('/'), parameters

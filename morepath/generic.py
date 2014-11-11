@@ -9,13 +9,6 @@ def path(obj):
 
 
 @reg.dispatch('obj')
-def link(request, obj, mounted):
-    """Create a link (URL) to a model, including any mounted applications.
-    """
-    raise NotImplementedError  # pragma: nocoverage
-
-
-@reg.dispatch('obj')
 def deferred_link_app(mounted, obj):
     return None
 
