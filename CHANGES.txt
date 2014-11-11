@@ -1,6 +1,13 @@
 CHANGES
 *******
 
+0.7.1 (unreleased)
+==================
+
+- Maintenance release that restricts the version of the Reg
+  dependency, as Reg post 0.8 is incompatible with this version of
+  Morepath.
+
 0.7 (2014-11-03)
 ================
 
