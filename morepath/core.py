@@ -7,7 +7,8 @@ from .request import Request, Response
 from .converter import Converter, IDENTITY_CONVERTER
 from webob import Response as BaseResponse
 from webob.exc import (
-    HTTPException, HTTPNotFound, HTTPMethodNotAllowed)
+    HTTPException, HTTPNotFound, HTTPMethodNotAllowed,
+    HTTPUnprocessableEntity)
 import morepath
 from reg import mapply, KeyIndex, ClassIndex
 from datetime import datetime, date
@@ -77,6 +78,7 @@ def get_response(request, obj):
     view = generic.view.component(request, obj, lookup=request.lookup)
     if view is None:
         # try to look up fallback and use it
+        import pdb; pdb.set_trace()
         fallback = generic.view.fallback(request, obj, lookup=request.lookup)
         if fallback is None:
             return None
@@ -120,6 +122,17 @@ def request_method_predicate(request):
 @App.predicate_fallback(generic.view, request_method_predicate)
 def method_not_allowed(self, request):
     raise HTTPMethodNotAllowed()
+
+
+@App.predicate(generic.view, name='body_model', default=object,
+               index=ClassIndex, after=request_method_predicate)
+def body_model_predicate(request):
+    return request.body_obj.__class__
+
+
+@App.predicate_fallback(generic.view, body_model_predicate)
+def body_model_unprocessable(self, request):
+    raise HTTPUnprocessableEntity()
 
 
 @App.converter(type=int)

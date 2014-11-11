@@ -74,3 +74,58 @@ def test_json_obj_load():
     assert len(collection.items) == 1
     assert isinstance(collection.items[0], Item)
     assert collection.items[0].value == 'foo'
+
+
+def test_json_body_model():
+    config = morepath.setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class Collection(object):
+        def __init__(self):
+            self.items = []
+
+        def add(self, item):
+            self.items.append(item)
+
+
+    class Item1(object):
+        def __init__(self, value):
+            self.value = value
+
+
+    class Item2(object):
+        def __init__(self, value):
+            self.value = value
+
+    collection = Collection()
+
+    @app.path(path='/', model=Collection)
+    def get_collection():
+        return collection
+
+    @app.json(model=Collection, request_method='POST',
+              body_model=Item1)
+    def default(self, request):
+        self.add(request.body_obj)
+        return 'done'
+
+    @app.load_json()
+    def load_json(json, request):
+        if json['@type'] == 'Item1':
+            return Item1(json['x'])
+        elif json['@type'] == 'Item2':
+            return Item2(json['x'])
+
+    config.commit()
+
+    c = Client(app())
+
+    c.post_json('/', {'@type': 'Item1', 'x': 'foo'})
+
+    assert len(collection.items) == 1
+    assert isinstance(collection.items[0], Item1)
+    assert collection.items[0].value == 'foo'
+
+    c.post_json('/', {'@type': 'Item2', 'x': 'foo'}, status=422)

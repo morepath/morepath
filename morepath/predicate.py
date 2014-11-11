@@ -19,6 +19,7 @@ class PredicateRegistry(object):
     def clear(self):
         self._predicate_infos = {}
         self._predicate_fallbacks = {}
+        self._predicates_installed = set()
 
     def register_predicate(self, func, dispatch, name, default, index,
                            before, after):
@@ -31,11 +32,14 @@ class PredicateRegistry(object):
             dispatch, {})[func] = fallback_func
 
     def install_predicates(self, dispatch):
+        if dispatch in self._predicates_installed:
+            return
         if not dispatch.external_predicates:
             return
         self.register_external_predicates(
             dispatch,
             self.get_predicates(dispatch))
+        self._predicates_installed.add(dispatch)
 
     def get_predicates(self, dispatch):
         infos = self.sorted_predicate_infos(dispatch)

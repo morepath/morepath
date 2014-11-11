@@ -403,13 +403,9 @@ class ViewDirective(Directive):
         :param request_method: the request method to which this view should
           answer, i.e. GET, POST, etc. If omitted, this view responds to
           GET requests only. This is a predicate.
-        :param predicates: predicates to match this view on. Use
-          :data:`morepath.ANY` for a predicate if you don't care what
-          the value is. If you don't specify a predicate, the default
-          value is used. Standard predicate values are
-          ``name`` and ``request_method``, but you can install your
-          own using the :meth:`morepath.App.predicate` directive.
-
+        :param predicates: additional predicates to match this view
+          on. You can install your own using the
+          :meth:`morepath.App.predicate` directive.
         '''
         super(ViewDirective, self).__init__(app)
         self.model = model
