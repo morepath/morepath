@@ -78,7 +78,6 @@ def get_response(request, obj):
     view = generic.view.component(request, obj, lookup=request.lookup)
     if view is None:
         # try to look up fallback and use it
-        import pdb; pdb.set_trace()
         fallback = generic.view.fallback(request, obj, lookup=request.lookup)
         if fallback is None:
             return None
