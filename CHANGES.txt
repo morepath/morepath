@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.7.1 (unreleased)
+0.7.1 (2014-11-11)
 ==================
 
 - Maintenance release that restricts the version of the Reg
