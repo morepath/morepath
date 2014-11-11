@@ -192,8 +192,9 @@ class FunctionDirective(Directive):
 
         :param func: the generic function to register an implementation for.
         :type func: dispatch function object
-        :param kw: keyword parameters with the predicate keys to register for.
-           Argument names are names, values are the predicate value.
+        :param kw: keyword parameters with the predicate keys to
+           register for.  Argument names are predicate names, values
+           are the predicate values to match on.
         '''
         super(FunctionDirective, self).__init__(app)
         self.func = func
