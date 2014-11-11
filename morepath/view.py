@@ -1,6 +1,5 @@
 from . import generic
-from .request import Request, Response
-from .app import App
+from .request import Response
 import json
 from webob.exc import HTTPFound
 
@@ -17,6 +16,7 @@ class View(object):
         # this still makes request weigh stronger in multiple dispatch,
         # but lets view authors write 'self, request'.
         return self.func(model, request)
+
 
 def register_view(registry, key_dict, view, render=None, permission=None,
                   internal=False):

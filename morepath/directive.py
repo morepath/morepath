@@ -7,8 +7,6 @@ from .security import (register_permission_checker,
 from .view import render_json, render_html, register_view
 from .path import register_path
 from .traject import Path
-from reg import KeyIndex, dispatch
-from .request import Request, Response
 from morepath import generic
 
 
@@ -80,7 +78,6 @@ class SettingSectionDirective(Directive):
         for name, value in section.items():
             yield (app.setting(section=self.section, name=name),
                    SettingValue(value))
-
 
 
 # XXX this allows predicate_fallback directives to be installed without
@@ -448,7 +445,8 @@ class ViewDirective(Directive):
         return self.predicate_key(registry)
 
     def perform(self, registry, obj):
-        predicate_key = self.predicate_key(registry)
+        registry.install_predicates(generic.view)
+        registry.register_dispatch(generic.view)
         register_view(registry, self.key_dict(), obj,
                       self.render, self.permission, self.internal)
 

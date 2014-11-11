@@ -10,21 +10,13 @@ from .converter import ConverterRegistry
 from .predicate import PredicateRegistry
 from .tween import TweenRegistry
 from . import generic
-from reg import Registry as RegRegistry, CachingKeyLookup, Lookup
+from reg import Registry as RegRegistry, CachingKeyLookup
 import venusian
 from . import compat
-from .action import FunctionAction
 from .compat import with_metaclass
-from .config import Configurable
-from .converter import ConverterRegistry
 from .implicit import set_implicit
 from .mount import MountRegistry
 from .reify import reify
-from .request import Request
-from .settings import SettingSectionContainer
-from .traject import Traject
-from .tween import TweenRegistry
-
 
 
 COMPONENT_CACHE_SIZE = 5000

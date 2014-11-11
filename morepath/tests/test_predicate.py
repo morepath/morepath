@@ -1,6 +1,6 @@
-from morepath import setup, Config
+from morepath import Config
 import reg
-from reg import match_argname, ClassIndex, KeyIndex
+from reg import ClassIndex, KeyIndex
 import morepath
 
 

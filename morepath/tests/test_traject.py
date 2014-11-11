@@ -3,7 +3,6 @@ from morepath.traject import (Traject, Node, Step, TrajectError,
                               is_identifier, parse_variables,
                               Path, parse_path, create_path)
 from morepath.converter import ParameterFactory
-from morepath.app import App
 from morepath.core import traject_consume
 from morepath.converter import Converter, IDENTITY_CONVERTER
 import pytest
