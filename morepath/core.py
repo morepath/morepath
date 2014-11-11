@@ -34,18 +34,6 @@ def setup():
     return config
 
 
-@App.function(generic.response, obj=object)
-def get_response(request, obj):
-    view = generic.view.component(request, obj, lookup=request.lookup)
-    if view is None:
-        # try to look up fallback and use it
-        fallback = generic.view.fallback(request, obj, lookup=request.lookup)
-        if fallback is None:
-            return None
-        return fallback(request, obj)
-    return view.response(request, obj)
-
-
 @App.function(generic.permits, obj=object, identity=object,
               permission=object)
 def has_permission(identity, model, permission):

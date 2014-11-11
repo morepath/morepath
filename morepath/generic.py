@@ -25,13 +25,6 @@ def view(request, obj):
     raise NotImplementedError  # pragma: nocoverage
 
 
-@reg.dispatch('obj')
-def response(request, obj):
-    """Get a Response for the obj in the context of the request.
-    """
-    return None
-
-
 @reg.dispatch()
 def settings():
     """Return current settings object.
