@@ -448,3 +448,35 @@ def test_predicate_not_for_dispatch_external_predicates():
 
     with pytest.raises(ConfigError):
         config.commit()
+
+
+def test_dispatch_external_predicates_without_predicate_directives():
+    config = Config()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Foo(object):
+        pass
+
+    class Bar(object):
+        pass
+
+    class Other(object):
+        pass
+
+    @reg.dispatch_external_predicates()
+    def f(obj):
+        return "fallback"
+
+    @App.function(f)
+    def f_foo(obj):
+        return "foo"
+
+    config.commit()
+
+    a = App()
+
+    lookup = a.lookup
+
+    assert f(Foo(), lookup=lookup) == 'foo'
