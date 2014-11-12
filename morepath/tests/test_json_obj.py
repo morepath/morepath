@@ -153,3 +153,29 @@ def test_json_body_model():
     assert collection.items[0].value == 'foo'
 
     c.post_json('/', {'@type': 'Item2', 'x': 'foo'}, status=422)
+
+
+def test_json_obj_load_no_json_post():
+    config = morepath.setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class Root(object):
+        pass
+
+    @app.path(path='/', model=Root)
+    def get_root():
+        return Root()
+
+    @app.json(model=Root, request_method='POST')
+    def default(self, request):
+        assert request.body_obj is None
+        return 'done'
+
+    config.commit()
+
+    c = Client(app())
+
+    response = c.post('/', {'x': 'foo'})
+    assert response.json == 'done'
