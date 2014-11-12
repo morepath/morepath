@@ -58,7 +58,7 @@ class IdentityPolicy(object):
           :attr:`morepath.security.NO_IDENTITY` if identity cannot
           be established.
         """
-        raise NotImplementedError()
+        raise NotImplementedError()  # pragma: nocoverage
 
     def remember(self, response, request, identity):
         """Remember identity on response.
@@ -80,7 +80,7 @@ class IdentityPolicy(object):
         :type identity: :class:`morepath.security.Identity`
 
         """
-        raise NotImplementedError()
+        raise NotImplementedError()  # pragma: nocoverage
 
     def forget(self, response, request):
         """Forget identity on response.
@@ -97,7 +97,7 @@ class IdentityPolicy(object):
         :type request: :class:`morepath.Request`
 
         """
-        raise NotImplementedError()
+        raise NotImplementedError()  # pragma: nocoverage
 
 
 class BasicAuthIdentityPolicy(object):
