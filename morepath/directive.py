@@ -101,13 +101,6 @@ class PredicateFallbackDirective(Directive):
         self.dispatch = dispatch
         self.func = func
 
-    def prepare(self, obj):
-        if not self.dispatch.external_predicates:
-            raise ConfigError(
-                "@predicate_fallback decorator may only be used with "
-                "@reg.dispatch_external_predicates, not: %s" % self.dispatch)
-        yield self, obj
-
     def identifier(self, registry):
         return self.dispatch.wrapped_func, self.func
 
@@ -161,7 +154,7 @@ class PredicateDirective(Directive):
         if not self.dispatch.external_predicates:
             raise ConfigError(
                 "@predicate decorator may only be used with "
-                "@reg.dispatch_external_predicates, not: %s" % self.dispatch)
+                "@reg.dispatch_external_predicates: %s" % self.dispatch)
         yield self, obj
 
     def identifier(self, registry):

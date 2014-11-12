@@ -2,6 +2,8 @@ from morepath import Config
 import reg
 from reg import ClassIndex, KeyIndex
 import morepath
+from morepath.error import ConfigError
+import pytest
 
 
 def setup_module(module):
@@ -428,3 +430,21 @@ def test_wrong_predicate_arguments_multi():
         return "foo"
 
     config.commit()
+
+
+def test_predicate_not_for_dispatch_external_predicates():
+    config = Config()
+
+    class App(morepath.App):
+        testing_config = config
+
+    @reg.dispatch('a')
+    def f(a):
+        pass
+
+    @App.predicate(f, name='model', default=None, index=ClassIndex)
+    def model_predicate(a):
+        return a.__class__
+
+    with pytest.raises(ConfigError):
+        config.commit()
