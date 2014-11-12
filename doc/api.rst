@@ -26,8 +26,6 @@ Morepath API
 
 .. autofunction:: render_json
 
-.. autodata:: morepath.ANY
-
 .. autoclass:: morepath.security.Identity
   :members:
 
