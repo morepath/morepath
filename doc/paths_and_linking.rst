@@ -13,6 +13,33 @@ in the model in order to construct a link to it.
 Paths
 -----
 
+.. sidebar:: Overlapping paths
+
+  Morepath lets you define multiple overlapping paths::
+
+    @App.path(model=Item, path='items/{id}')
+    def get_item(id):
+       ...
+
+    @App.path(model=ItemDetail, path='items/{id}/details/{detail_id}')
+    def get_item_detail(id, detail_id):
+       ...
+
+  If you have overlapping paths, you need to name the variable names
+  the same in the overlapping part of the paths, otherwise Morepath
+  reports a configuration conflict. So you can't have this::
+
+    @App.path(model=Item, path='items/{id}')
+    def get_item(id):
+       ...
+
+    @App.path(model=ItemDetail, path='items/{item_id}/details/{detail_id}')
+    def get_item_detail(item_id, detail_id):
+       ...
+
+  Morepath reports an error in this case, as ``{id}`` and
+  ``{item_id}`` overlap but are different variable names.
+
 Let's assume we have a model class ``Overview``::
 
   class Overview(object):
