@@ -76,6 +76,30 @@ def test_json_obj_load():
     assert collection.items[0].value == 'foo'
 
 
+def test_json_obj_load_default():
+    config = morepath.setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class Root(object):
+        pass
+
+    @app.path(path='/', model=Root)
+    def get_root():
+        return Root()
+
+    @app.json(model=Root, request_method='POST')
+    def default(self, request):
+        assert request.body_obj == request.json
+        return 'done'
+
+    config.commit()
+
+    c = Client(app())
+
+    c.post_json('/', {'x': 'foo'})
+
 def test_json_body_model():
     config = morepath.setup()
 
