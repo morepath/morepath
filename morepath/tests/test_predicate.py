@@ -382,3 +382,49 @@ def test_dispatch_external_override_predicate():
     assert f(Foo(), lookup=lookup) == 'foo'
     assert f(Bar(), lookup=lookup) == 'bar'
     assert f(Other(), lookup=lookup) == 'f_obj_fallback'
+
+
+def test_wrong_predicate_arguments_single():
+    config = Config()
+
+    class App(morepath.App):
+        testing_config = config
+
+    @reg.dispatch('obj')
+    def f(obj):
+        return "fallback"
+
+    class Foo(object):
+        pass
+
+    def bar(object):
+        pass
+
+    @App.function(f, wrong=Foo)
+    def f_foo(obj):
+        return "foo"
+
+    config.commit()
+
+
+def test_wrong_predicate_arguments_multi():
+    config = Config()
+
+    class App(morepath.App):
+        testing_config = config
+
+    @reg.dispatch('a', 'b')
+    def f(a, b):
+        return "fallback"
+
+    class Foo(object):
+        pass
+
+    def bar(object):
+        pass
+
+    @App.function(f, wrong=Foo)
+    def f_foo(a, b):
+        return "foo"
+
+    config.commit()
