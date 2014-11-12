@@ -84,6 +84,10 @@ CHANGES
   is used, ``request.app`` should be adjusted to the app currently
   being deferred to.
 
+- ``request.after`` behavior is clarified: it does not run for any
+  exceptions raised during the handling of the request, only for the
+  "proper" response. Fix a bug where it *did* sometimes run.
+
 - One test related to defer_links did not work correctly in Python 3. Fixed.
 
 - Add API doc for ``body_obj``. Also fix JSON and objects doc to talk

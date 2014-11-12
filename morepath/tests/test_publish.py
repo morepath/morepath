@@ -7,7 +7,7 @@ from morepath.view import register_view, render_json, render_html
 from morepath.core import setup
 from webob.exc import HTTPNotFound, HTTPBadRequest
 import webob
-
+from webtest import TestApp as Client
 import pytest
 
 
@@ -277,3 +277,67 @@ def test_view_after_non_decorator():
     result = resolve_response(app().request(get_environ(path='')), model)
     assert result.body == b'View!'
     assert result.headers.get('Foo') == 'FOO'
+
+
+def test_view_after_doesnt_apply_to_exception():
+    config = setup()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Root(object):
+        pass
+
+    @App.path(model=Root, path='')
+    def get_root():
+        return Root()
+
+    @App.view(model=Root)
+    def view(self, request):
+        @request.after
+        def set_header(response):
+            response.headers.add('Foo', 'FOO')
+        raise HTTPNotFound()
+
+    config.commit()
+
+    c = Client(App())
+
+    response = c.get('/', status=404)
+    assert response.headers.get('Foo') is None
+
+
+def test_view_after_doesnt_apply_to_exception_view():
+    config = setup()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Root(object):
+        pass
+
+    class MyException(Exception):
+        pass
+
+    @App.path(model=Root, path='')
+    def get_root():
+        return Root()
+
+    @App.view(model=Root)
+    def view(self, request):
+        @request.after
+        def set_header(response):
+            response.headers.add('Foo', 'FOO')
+        raise MyException()
+
+    @App.view(model=MyException)
+    def exc_view(self, request):
+        return "My exception"
+
+    config.commit()
+
+    c = Client(App())
+
+    response = c.get('/')
+    assert response.body == 'My exception'
+    assert response.headers.get('Foo') is None

@@ -131,6 +131,8 @@ def excview_tween_factory(app, handler):
                                                    lookup=request.lookup)
             if view is None:
                 raise
+            # we don't want to run any after already set in the exception view
+            request.clear_after()
             return view.response(request, exc)
         return response
     return excview_tween

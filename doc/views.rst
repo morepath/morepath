@@ -273,6 +273,10 @@ decorator. Here's how::
           response.set_cookie('my_cookie', 'cookie_data')
       return "document default"
 
+``after`` only applies if the view was successfully resolved into a
+response. If your view raises an exception for any reason, or if
+Morepath itself does, any ``after`` set in the view does not apply to
+the response for this exception.
 
 request_method
 --------------

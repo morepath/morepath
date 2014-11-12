@@ -197,6 +197,11 @@ class Request(BaseRequest):
           def myfunc(response):
               response.headers.add('blah', 'something')
 
+        If the normal response handling is interrupted by
+        an exception either in your own code or by Morepath
+        raising a HTTP exception, then ``after`` won't execute
+        for this exception.
+
         :param func: callable that is called with response
         :returns: func argument, not wrapped
         """
@@ -206,6 +211,9 @@ class Request(BaseRequest):
     def run_after(self, response):
         for after in self._after:
             after(response)
+
+    def clear_after(self):
+        self._after = []
 
 
 class Response(BaseResponse):
