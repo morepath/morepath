@@ -1190,6 +1190,44 @@ def test_abbr_imperative():
     assert response.body == b'Edit view'
 
 
+def test_abbr_exception():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class Model(object):
+        pass
+
+    @app.path(path='/', model=Model)
+    def get_model():
+        return Model()
+
+    try:
+        with app.view(model=Model) as view:
+            @view()
+            def default(self, request):
+                return "Default view"
+            1/0
+
+            @view(name='edit')
+            def edit(self, request):
+                return "Edit view"
+
+    except ZeroDivisionError:
+        pass
+
+    config.commit()
+
+    c = Client(app())
+
+    response = c.get('/')
+    assert response.body == b'Default view'
+
+    # an exception happened halfway, so this one is never registered
+    c.get('/edit', status=404)
+
+
 def test_abbr_imperative2():
     config = setup()
 
