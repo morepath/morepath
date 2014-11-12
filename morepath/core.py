@@ -131,10 +131,7 @@ def excview_tween_factory(app, handler):
                                                    lookup=request.lookup)
             if view is None:
                 raise
-            response = view.response(request, exc)
-            if response is None:
-                raise
-            return response
+            return view.response(request, exc)
         return response
     return excview_tween
 
