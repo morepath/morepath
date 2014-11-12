@@ -7,7 +7,7 @@ PY3 = sys.version_info[0] == 3
 
 
 if PY3:  # pragma: no cover
-    text_type = str
+    text_type = str  # pragma: nocoverage
 else:
     text_type = unicode
 
@@ -23,7 +23,7 @@ def bytes_(s, encoding='latin-1', errors='strict'):
 
 
 if PY3:
-    string_types = (str,)
+    string_types = (str,)  # pragma: nocoverage
 else:
     string_types = (basestring,)
 
