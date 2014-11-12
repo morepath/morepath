@@ -472,3 +472,49 @@ def test_verify_identity_directive():
     assert not generic.verify_identity(identity, lookup=app().lookup)
     identity = morepath.Identity('foo', password='right')
     assert generic.verify_identity(identity, lookup=app().lookup)
+
+
+def test_false_verify_identity():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    @app.path(path='{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    class Permission(object):
+        pass
+
+    @app.view(model=Model, permission=Permission)
+    def default(self, request):
+        return "Model: %s" % self.id
+
+    @app.view(model=Model, name='log_in')
+    def log_in(self, request):
+        response = Response()
+        generic.remember_identity(response, request,
+                                  Identity(userid='user',
+                                           payload='Amazing'),
+                                  lookup=request.lookup)
+        return response
+
+    @app.identity_policy()
+    def policy():
+        return DumbCookieIdentityPolicy()
+
+    @app.verify_identity()
+    def verify_identity(identity):
+        return False
+
+    config.commit()
+
+    c = Client(app(), cookiejar=CookieJar())
+
+    response = c.get('/foo', status=403)
+
+    response = c.get('/foo/log_in')
+
+    response = c.get('/foo', status=403)
