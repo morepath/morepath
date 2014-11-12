@@ -363,13 +363,6 @@ class DirectiveAbbreviation(object):
         return self.directive.clone(**kw)
 
 
-def ignore_import_error(pkg):
-    # ignore import errors
-    if issubclass(sys.exc_info()[0], ImportError):
-        return
-    raise  # reraise last exception
-
-
 class Config(object):
     """Contains and executes configuration actions.
 
