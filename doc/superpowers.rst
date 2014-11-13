@@ -156,12 +156,9 @@ to override that one view to do what we want::
 And we're done!
 
 It's not just the view directive that works this way: *all* Morepath
-directives work this way. Using the :meth:`morepath.App.function`
-decorator you could even override the core functionality of Morepath
-itself!
+directives work this way.
 
 Morepath also lets you mount one application within another, allowing
 composition-based reuse. See :doc:`app_reuse` for more
 information. Using these techniques you can build large applications,
 see :doc:`building_large_applications`.
-

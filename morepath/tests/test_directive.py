@@ -1355,3 +1355,32 @@ def test_classgeneric_function_directive():
 
     assert mygeneric(object, lookup=a.lookup) == 'The object'
     assert mygeneric(Foo, lookup=a.lookup) == 'The foo object'
+
+
+def test_rescan():
+    config = setup()
+
+    config.scan(basic)
+
+    config.commit()
+
+    config = setup()
+
+    config.scan(basic)
+
+    class Sub(basic.app):
+        testing_config = config
+
+    @Sub.view(model=basic.Model, name='extra')
+    def extra(self, request):
+        return "extra"
+
+    config.commit()
+
+    c = Client(Sub())
+
+    response = c.get('/1/extra')
+    assert response.body == b'extra'
+
+    response = c.get('/1')
+    assert response.body == b'The view for model: 1'
