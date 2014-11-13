@@ -209,6 +209,9 @@ class Inverse(object):
 
     def __call__(self, model):
         all_variables = self.get_variables(model)
+        if not isinstance(all_variables, dict):
+            raise LinkError("variables function for path %s "
+                            "did not return a dict" % self.path)
         extra_parameters = all_variables.pop('extra_parameters', None)
         if self.absorb:
             absorbed_path = all_variables.pop('absorb')

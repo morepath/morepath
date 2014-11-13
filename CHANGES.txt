@@ -92,6 +92,9 @@ CHANGES
   function for a path, you would get a path with ``None`` in it. Now
   it is a ``LinkError``.
 
+- If you return a non-dict for ``variables`` for a path, you get a proper
+  ``LinkError`` now.
+
 - One test related to defer_links did not work correctly in Python 3. Fixed.
 
 - Add API doc for ``body_obj``. Also fix JSON and objects doc to talk

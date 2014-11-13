@@ -1524,3 +1524,30 @@ def test_error_when_path_variable_is_None():
 
     with pytest.raises(LinkError):
         c.get('/models/1')
+
+
+def test_error_when_path_variables_isnt_dict():
+    config = setup()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Model(object):
+        def __init__(self, id):
+            self.store_id = id
+
+    @App.path(model=Model, path='models/{id}',
+              variables=lambda m: 'nondict')
+    def get_model(id):
+        return Model(id)
+
+    @App.view(model=Model)
+    def default(self, request):
+        return request.link(self)
+
+    config.commit()
+
+    c = Client(App())
+
+    with pytest.raises(LinkError):
+        c.get('/models/1')
