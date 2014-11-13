@@ -1380,7 +1380,7 @@ def test_rescan():
     c = Client(Sub())
 
     response = c.get('/1/extra')
-    assert response.body == 'extra'
+    assert response.body == b'extra'
 
     response = c.get('/1')
-    assert response.body == 'The view for model: 1'
+    assert response.body == b'The view for model: 1'
