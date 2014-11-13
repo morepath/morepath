@@ -339,5 +339,5 @@ def test_view_after_doesnt_apply_to_exception_view():
     c = Client(App())
 
     response = c.get('/')
-    assert response.body == 'My exception'
+    assert response.body == b'My exception'
     assert response.headers.get('Foo') is None
