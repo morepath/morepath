@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.8 (unreleased)
+0.8 (2014-11-13)
 ================
 
 - **Breaking change**. Reg 0.9 introduces a new, more powerful
