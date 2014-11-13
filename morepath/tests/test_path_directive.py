@@ -1,7 +1,7 @@
 import morepath
 from morepath import setup
 from morepath.converter import Converter
-from morepath.error import DirectiveReportError, ConfigError
+from morepath.error import DirectiveReportError, ConfigError, LinkError
 
 from webtest import TestApp as Client
 import pytest
@@ -1496,3 +1496,31 @@ def test_absorb_path_root():
 
     response = c.get('/a/b')
     assert response.body == b'A:a/b L:/a/b'
+
+
+
+def test_error_when_path_variable_is_None():
+    config = setup()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Model(object):
+        def __init__(self, id):
+            self.store_id = id
+
+    @App.path(model=Model, path='models/{id}',
+              variables=lambda m: { 'id': None })
+    def get_model(id):
+        return Model(id)
+
+    @App.view(model=Model)
+    def default(self, request):
+        return request.link(self)
+
+    config.commit()
+
+    c = Client(App())
+
+    with pytest.raises(LinkError):
+        c.get('/models/1')

@@ -1,7 +1,8 @@
 import re
 from functools import total_ordering
 from .converter import IDENTITY_CONVERTER
-from .error import TrajectError
+from .error import TrajectError, LinkError
+
 
 IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
 PATH_VARIABLE = re.compile(r'\{([^}]*)\}')
@@ -174,34 +175,50 @@ class Inverse(object):
         self.parameter_names = set(parameter_names)
         self.absorb = absorb
 
-    def __call__(self, model):
+    def path_variables(self, all_variables):
         converters = self.converters
         parameter_names = self.parameter_names
+        result = {}
+        for name, value in all_variables.items():
+            if name in parameter_names:
+                continue
+            if value is None:
+                raise LinkError(
+                    "Path variable %s for path %s is None" % (
+                        name, self.path))
+            result[name] = converters.get(
+                name, IDENTITY_CONVERTER).encode(value)[0]
+        return result
+
+    def query_parameters(self, all_variables, extra_parameters):
+        converters = self.converters
+        parameter_names = self.parameter_names
+        result = {}
+        for name, value in all_variables.items():
+            if name not in parameter_names:
+                continue
+            if value is None or value == []:
+                continue
+            result[name] = converters.get(
+                name, IDENTITY_CONVERTER).encode(value)
+        if extra_parameters:
+            for name, value in extra_parameters.items():
+                result[name] = converters.get(
+                    name, IDENTITY_CONVERTER).encode(value)
+        return result
+
+    def __call__(self, model):
         all_variables = self.get_variables(model)
+        extra_parameters = all_variables.pop('extra_parameters', None)
         if self.absorb:
             absorbed_path = all_variables.pop('absorb')
         else:
             absorbed_path = None
-        extra_parameters = all_variables.pop('extra_parameters', None)
         assert isinstance(all_variables, dict)
-        variables = {
-            name: converters.get(name, IDENTITY_CONVERTER).encode(value)[0] for
-            name, value in all_variables.items()
-            if name not in parameter_names}
 
-        # all remaining variables need to show up in the path
-        # XXX not sure about value != []
-        parameters = {
-            name: converters.get(name, IDENTITY_CONVERTER).encode(value) for
-            name, value in all_variables.items()
-            if (name in parameter_names and
-                value is not None and value != [])
-        }
-        if extra_parameters:
-            for name, value in extra_parameters.items():
-                parameters[name] = converters.get(
-                    name, IDENTITY_CONVERTER).encode(value)
-        path = self.interpolation_path % variables
+        path_variables = self.path_variables(all_variables)
+
+        path = self.interpolation_path % path_variables
         if absorbed_path is not None:
             if path:
                 path += '/' + absorbed_path
@@ -209,7 +226,7 @@ class Inverse(object):
                 # when there is no path yet, we are absorbing from
                 # the root, and we don't want an additional /
                 path = absorbed_path
-        return path, parameters
+        return path, self.query_parameters(all_variables, extra_parameters)
 
 
 class Traject(object):

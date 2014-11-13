@@ -88,6 +88,10 @@ CHANGES
   exceptions raised during the handling of the request, only for the
   "proper" response. Fix a bug where it *did* sometimes run.
 
+- Previously if you returned ``None`` for a path in a ``variables``
+  function for a path, you would get a path with ``None`` in it. Now
+  it is a ``LinkError``.
+
 - One test related to defer_links did not work correctly in Python 3. Fixed.
 
 - Add API doc for ``body_obj``. Also fix JSON and objects doc to talk
