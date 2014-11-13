@@ -118,14 +118,6 @@ specifies the path to the ``bower.components`` directory. The
 ``bower_components`` next to this module (``main.py``) in this Python
 package.
 
-Finally we need to adjust our ``main()`` function so that we plug in
-the BowerStatic WSGI middleware::
-
-  def main():
-     morepath.autosetup()
-     wsgi = bower.wrap(app())
-     morepath.run(wsgi)
-
 BowerStatic now lets you refer to files in the packages in
 ``bower_components`` to include them on the web, and also makes sure
 they are available.
@@ -220,3 +212,19 @@ too.
 
 As mentioned before, check the ``morepath_static`` `github repo`_ for
 the complete example.
+
+
+A note about mounted applications
+---------------------------------
+
+``mores.static`` uses tweens to inject scripts into the response
+(see :doc:tweens). To be explicit about the tweens that are in use Morepath
+won't run all of them, just the ones defined on the root application.
+
+So if an application you mount uses ``more.static`` you have to make sure
+that you inherit from ``more.static`` as follows::
+
+from more.static import StaticApp
+
+class App(StaticApp):
+    pass
