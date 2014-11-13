@@ -4,8 +4,7 @@ CHANGES
 0.9 (unreleased)
 ================
 
-- Nothing changed yet.
-
+- Updated the more.static doc to reflect changes in them.
 
 0.8 (2014-11-13)
 ================

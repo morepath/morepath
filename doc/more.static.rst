@@ -41,7 +41,7 @@ functionality::
 
   from more.static import StaticApp
 
-  class app(StaticApp):
+  class App(StaticApp):
       pass
 
 We give it a simple HTML page on the root HTML that contains a
@@ -217,14 +217,20 @@ the complete example.
 A note about mounted applications
 ---------------------------------
 
-``mores.static`` uses tweens to inject scripts into the response
-(see :doc:tweens). To be explicit about the tweens that are in use Morepath
-won't run all of them, just the ones defined on the root application.
+``more.static`` uses a tween to inject scripts into the response (see
+:doc:tweens). If you use ``more.static`` in a view in a mounted
+application, you need to make sure that the root application also
+derives from ``more.static.StaticApp``, otherwise the resources aren't
+inserted correctly::
 
-So if an application you mount uses ``more.static`` you have to make sure
-that you inherit from ``more.static`` as follows::
+  from more.static import StaticApp
 
-from more.static import StaticApp
+  class App(StaticApp):  # this needs to subclass StaticApp too
+      pass
 
-class App(StaticApp):
-    pass
+  class Mounted(StaticApp):
+      pass
+
+   @App.mount(app=Mounted, path='mounted')
+   def mount():
+      return Mounted()
