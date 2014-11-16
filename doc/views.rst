@@ -323,7 +323,7 @@ Instead of writing this::
 
 You can use the ``with`` statement to write this instead::
 
-  with @App.view(model=Document) as view:
+  with App.view(model=Document) as view:
      @view()
      def document_default(self, request):
          return "default"
