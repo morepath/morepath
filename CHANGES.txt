@@ -4,7 +4,15 @@ CHANGES
 0.9 (unreleased)
 ================
 
-- Updated the more.static doc to reflect changes in them.
+- Expose ``body_model_predicate`` to the public Morepath API. You
+  can now say your predicate comes after it.
+
+- Expose ``LAST_PREDICATE`` to the Morepath API. This is the last
+  predicate defined by the Morepath core.
+
+- Updated the more.static doc to reflect changes in it.
+
+- Fix doc for grouping views with the ``with`` statement.
 
 0.8 (2014-11-13)
 ================
