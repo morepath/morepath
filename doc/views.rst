@@ -345,15 +345,20 @@ indentation.
 Predicates
 ----------
 
-The ``name`` and ``request_method`` arguments on the ``@App.view``
-decorator are examples of *view predicates*. You can add new ones by
-using the :meth:`morepath.App.predicate` decorator.
+The ``model``, ``name``, ``request_method`` and ``body_model``
+arguments on the ``@App.view`` decorator are examples of *view
+predicates*. You can add new ones by using the
+:meth:`morepath.App.predicate` decorator.
 
 Let's say we have a view that we only want to kick in when a certain
 request header is set to something::
 
-  @App.predicate(name='something', order=100, default=None)
-  def get_something_header(self, request):
+  import reg
+
+  @App.predicate(generic.view, name='something', default=None,
+                 index=reg.KeyIndex,
+                 after=morepath.LAST_VIEW_PREDICATE)
+  def something_predicate(request):
       return request.headers.get('Something')
 
 We can use any information in the request and model to construct the
@@ -366,17 +371,28 @@ the `Something`` header is ``special``::
 
 If you have a predicate and you *don't* use it in a ``@App.view``, or
 set it to ``None``, the view works for the ``default`` value for that
-predicate. If you don't care what the predicate is and want the view
-to match for any value, you can pass in the special sentinel
-:data:`morepath.ANY`. The ``default`` parameter is also used when
-rendering a view using :meth:`morepath.Request.view` and you don't
-pass in a particular value for that predicate.
+predicate. The ``default`` parameter is also used when rendering a
+view using :meth:`morepath.Request.view` and you don't pass in a
+particular value for that predicate.
 
-The ``order`` parameter for the predicate determines which predicates
-match more strongly than another; lower order matches more
-strongly. If there are two view candidates that both match the
-predicates for a request and model, the strongest match is picked.
+Let's look into the predicate directive in a bit more detail.
 
+You can use either ``self`` or ``request`` as the argument for the
+predicate function. Morepath sees this argument and sends in either
+the object instance or the request.
+
+We use ``reg.KeyIndex`` as the index for this predicate. You can also
+have predicate functions that return a Python class. In that case you
+should use ``reg.ClassIndex``.
+
+``morepath.LAST_PREDICATE`` is the last predicate defined by Morepath
+itself. Here we want to insert the ``something_predicate`` after this
+predicate in the predicate evaluation order.
+
+The ``after`` parameter for the predicate determines which predicates
+match more strongly than another; a predicate after another one
+matches more weakly. If there are two view candidates that both match
+the predicates, the strongest match is picked.
 
 request.view
 ------------

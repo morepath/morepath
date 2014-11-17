@@ -1,14 +1,16 @@
 CHANGES
 *******
 
-0.9 (unreleased)
-================
+0.8.1 (unreleased)
+==================
 
 - Expose ``body_model_predicate`` to the public Morepath API. You
   can now say your predicate comes after it.
 
-- Expose ``LAST_PREDICATE`` to the Morepath API. This is the last
+- Expose ``LAST_VIEW_PREDICATE`` to the Morepath API. This is the last
   predicate defined by the Morepath core.
+
+- Update the predicate documentation.
 
 - Updated the more.static doc to reflect changes in it.
 

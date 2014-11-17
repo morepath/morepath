@@ -4,7 +4,7 @@ from .implicit import enable_implicit, disable_implicit
 from .core import (setup, excview_tween_factory as EXCVIEW,
                    model_predicate, name_predicate, request_method_predicate,
                    body_model_predicate)
-from .core import body_model_predicate as LAST_PREDICATE
+from .core import body_model_predicate as LAST_VIEW_PREDICATE
 from morepath import directive # register directive methods
 from .generic import remember_identity, forget_identity, settings
 from .view import render_json, render_html
