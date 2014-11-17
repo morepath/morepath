@@ -385,7 +385,7 @@ We use ``reg.KeyIndex`` as the index for this predicate. You can also
 have predicate functions that return a Python class. In that case you
 should use ``reg.ClassIndex``.
 
-``morepath.LAST_PREDICATE`` is the last predicate defined by Morepath
+``morepath.LAST_VIEW_PREDICATE`` is the last predicate defined by Morepath
 itself. Here we want to insert the ``something_predicate`` after this
 predicate in the predicate evaluation order.
 
