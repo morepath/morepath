@@ -1,5 +1,5 @@
-
 from functools import update_wrapper
+import logging
 
 from .action import FunctionAction
 from .request import Request
@@ -28,6 +28,8 @@ class Registry(Configurable, RegRegistry, MountRegistry, PredicateRegistry,
                ConverterRegistry, TweenRegistry):
     """A registry holding an application's configuration.
     """
+    app = None # app this registry belongs to. set later during scanning
+
     def __init__(self, name, bases, testing_config):
         self.name = name
         bases = [base.registry for base in bases if hasattr(base, 'registry')]
@@ -64,6 +66,7 @@ class Registry(Configurable, RegRegistry, MountRegistry, PredicateRegistry,
 
 
 def callback(scanner, name, obj):
+    obj.registry.app = obj
     scanner.config.configurable(obj.registry)
 
 
@@ -229,6 +232,10 @@ class App(with_metaclass(AppMeta)):
         """
         return DirectiveDirective(cls, name)
 
+    @classmethod
+    def dotted_name(cls):
+        return '%s.%s' % (cls.__module__, cls.__name__)
+
 
 class DirectiveDirective(object):
     def __init__(self, cls, name):
@@ -236,8 +243,15 @@ class DirectiveDirective(object):
         self.name = name
 
     def __call__(self, directive):
+        directive_name = self.name
         def method(self, *args, **kw):
-            return directive(self, *args, **kw)
+            result = directive(self, *args, **kw)
+            result.directive_name = directive_name
+            result.argument_info = args, kw
+            result.logger = logging.getLogger('morepath.directive.%s' %
+                                              directive_name)
+            return result
+
         # this is to help morepath.sphinxext to do the right thing
         method.actual_directive = directive
         update_wrapper(method, directive.__init__)

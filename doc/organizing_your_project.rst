@@ -375,3 +375,11 @@ Here we use :meth:`App.view`, :meth:`App.json` and
 By putting them all in a view module it becomes easy to inspect and
 adjust how models are represented, but of course if this becomes large
 it's easy to split it into multiple modules.
+
+Directive debugging
+-------------------
+
+Morepath's directive issue log messages that can help you debug your
+application: see :doc:`logging` for more information.
+
+

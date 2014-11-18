@@ -4,6 +4,10 @@ CHANGES
 0.9 (unreleased)
 ================
 
+- Directives are now logged to the ``morepath.directive`` log, which
+  is using the standard Python ``logging`` infrastructure. See
+  http://morepath.readthedocs.org/en/latest/logging.html
+
 - Expose ``body_model_predicate`` to the public Morepath API. You
   can now say your predicate comes after it.
 

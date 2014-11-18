@@ -1,4 +1,5 @@
 import sys
+import inspect
 from copy import copy
 import venusian
 from .error import (ConflictError, DirectiveError, DirectiveReportError)
@@ -171,6 +172,7 @@ class Actions(object):
         values.sort(key=lambda value: value[0].order or 0)
         for action, obj in values:
             try:
+                action.log(configurable, obj)
                 action.perform(configurable, obj)
             except DirectiveError as e:
                 raise DirectiveReportError(u"{}".format(e), action)
@@ -269,6 +271,10 @@ class Action(object):
         """
         raise NotImplementedError()
 
+    # XXX for now don't log plain non-directive actions
+    def log(self, configurable, obj):
+        pass
+
 
 class Directive(Action):
     """An :class:`Action` that can be used as a decorator.
@@ -287,6 +293,11 @@ class Directive(Action):
     When used as a decorator this tracks where in the source code
     the directive was used for the purposes of error reporting.
     """
+
+    # set later when directive is used
+    logger = None
+    # set later when directive is used, raw args and kw
+    argument_info = None
 
     def __init__(self, configurable):
         """Initialize Directive.
@@ -353,6 +364,41 @@ class Directive(Action):
                 return self.venusian_callback(wrapped, scanner, name, obj)
             self.attach_info = venusian.attach(wrapped, callback)
         return wrapped
+
+    def log(self, configurable, obj):
+        if self.logger is None:
+            return
+
+        if configurable.app is not None:
+            target_dotted_name = configurable.app.dotted_name()
+            is_same = configurable.app is self.app
+        else:
+            target_dotted_name = repr(configurable)
+            is_same = False
+
+        if inspect.isfunction(obj):
+            func_dotted_name = '%s.%s' % (obj.__module__, obj.__name__)
+        else:
+            func_dotted_name = repr(obj)
+
+        if self.argument_info is not None:
+            args, kw = self.argument_info
+            arguments = ', '.join([repr(arg) for arg in args])
+            if arguments:
+                arguments += ', '
+            arguments += ', '.join(['%s=%r' % (key, value) for key, value in
+                                    kw.items()])
+        else:
+            assert False
+
+        message = '@%s.%s(%s) on %s' % (
+            target_dotted_name, self.directive_name, arguments,
+            func_dotted_name)
+
+        if not is_same:
+            message += ' (from %s)' % self.app.dotted_name()
+
+        self.logger.debug(message)
 
 
 class DirectiveAbbreviation(object):

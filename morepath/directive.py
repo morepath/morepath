@@ -14,6 +14,8 @@ class Directive(ConfigDirective):
     def __init__(self, app):
         super(Directive, self).__init__(app.registry)
         self.app = app
+        self.directive_name = None
+        self.logger = None
 
 
 @App.directive('setting')
@@ -32,7 +34,6 @@ class SettingDirective(Directive):
           under.
         :param name: the name of the setting in its section.
         """
-
         super(SettingDirective, self).__init__(app)
         self.section = section
         self.name = name
@@ -68,7 +69,6 @@ class SettingSectionDirective(Directive):
         :param section: the name of the section the setting should go
           under.
         """
-
         super(SettingSectionDirective, self).__init__(app)
         self.section = section
 
@@ -315,6 +315,13 @@ class PathDirective(Directive):
                       self.variables, self.converters, self.required,
                       self.get_converters, self.absorb,
                       obj)
+
+    # def log(self, registry, obj):
+    #     self.debug(
+    #         'path(path=%r, model=%r, variables=%r, converters=%r, '
+    #         'required=%r, get_converters=%r, absorb=%r)' % (
+    #             self.path, self.model, self.variables, self.converters,
+    #             self.required, self.get_converters, self.absorb))
 
 
 @App.directive('permission_rule')

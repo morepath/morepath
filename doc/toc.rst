@@ -19,6 +19,7 @@ Table of Contents
    rest
    settings
    organizing_your_project
+   logging
    app_reuse
    building_large_applications
    tweens
