@@ -1,8 +1,8 @@
 CHANGES
 *******
 
-0.8.1 (unreleased)
-==================
+0.9 (unreleased)
+================
 
 - Expose ``body_model_predicate`` to the public Morepath API. You
   can now say your predicate comes after it.
