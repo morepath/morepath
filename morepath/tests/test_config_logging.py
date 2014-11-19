@@ -2,6 +2,8 @@ import logging
 import morepath
 import pytest
 
+from .fixtures import basic
+
 
 class Handler(logging.Handler):
     def __init__(self, level=logging.NOTSET):
@@ -45,9 +47,7 @@ def test_intercept_logging():
     assert test_handler.records[0].getMessage() == 'This is a log message'
 
 
-
-
-def test_intercept_config_logging():
+def test_simple_config_logging():
     log = logging.getLogger('morepath.directive.path')
 
     test_handler = Handler()
@@ -74,3 +74,26 @@ def test_intercept_config_logging():
         "@morepath.tests.test_config_logging.App.path(path='') on "
         "<class 'morepath.tests.test_config_logging.Model'>")
 
+
+def test_config_logging_fixture():
+    log = logging.getLogger('morepath.directive.path')
+
+    test_handler = Handler()
+
+    log.addHandler(test_handler)
+    log.setLevel(logging.DEBUG)
+
+    config = morepath.setup()
+    config.scan(basic)
+    config.commit()
+
+    messages = [r.getMessage() for r in test_handler.records]
+    messages.sort()
+
+    assert messages == [
+        "@morepath.tests.fixtures.basic.app.path("
+        "model=<class 'morepath.tests.fixtures.basic.Model'>, "
+        "path='{id}') on morepath.tests.fixtures.basic.get_model",
+        "@morepath.tests.fixtures.basic.app.path(path='/') on "
+        "<class 'morepath.tests.fixtures.basic.Root'>"
+    ]

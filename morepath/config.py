@@ -387,7 +387,7 @@ class Directive(Action):
             if arguments:
                 arguments += ', '
             arguments += ', '.join(['%s=%r' % (key, value) for key, value in
-                                    kw.items()])
+                                    sorted(kw.items())])
         else:
             assert False
 
