@@ -42,7 +42,7 @@ def test_defer_links():
     c = Client(root())
 
     response = c.get('/')
-    assert response.body == b'/sub'
+    assert response.body == b'http://localhost/sub'
 
 
 def test_defer_view():
@@ -210,7 +210,7 @@ def test_defer_links_mount_parameters():
     c = Client(root())
 
     response = c.get('/')
-    assert response.body == b'/foo'
+    assert response.body == b'http://localhost/foo'
 
 
 def test_defer_link_acquisition():
@@ -252,7 +252,7 @@ def test_defer_link_acquisition():
     c = Client(root())
 
     response = c.get('/sub')
-    assert response.body == b'/model/foo'
+    assert response.body == b'http://localhost/model/foo'
 
 
 def test_defer_view_acquisition():
@@ -424,7 +424,7 @@ def test_defer_link_should_not_cause_web_views_to_exist():
     c = Client(root())
 
     response = c.get('/sub')
-    assert response.body == b'/'
+    assert response.body == b'http://localhost/'
 
     c.get('/sub/+extra', status=404)
 
@@ -509,10 +509,10 @@ def test_special_link_overrides_deferred_link():
     c = Client(root())
 
     response = c.get('/')
-    assert response.body == b'/alpha'
+    assert response.body == b'http://localhost/alpha'
 
     response = c.get('/special')
-    assert response.body == b'/roots_alpha'
+    assert response.body == b'http://localhost/roots_alpha'
 
 
 def test_deferred_deferred_link():
@@ -568,10 +568,10 @@ def test_deferred_deferred_link():
     c = Client(root())
 
     response = c.get('/')
-    assert response.body == b'/alpha'
+    assert response.body == b'http://localhost/alpha'
 
     response = c.get('/beta')
-    assert response.body == b'/alpha'
+    assert response.body == b'http://localhost/alpha'
 
 
 def test_deferred_deferred_view():

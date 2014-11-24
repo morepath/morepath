@@ -69,7 +69,7 @@ def test_mount_basic():
     assert response.body == b'The root'
 
     response = c.get('/foo/link')
-    assert response.body == b'/foo'
+    assert response.body == b'http://localhost/foo'
 
 
 def test_mount_none_should_fail():
@@ -276,7 +276,7 @@ def test_mount_parent_link():
     c = Client(app())
 
     response = c.get('/foo')
-    assert response.body == b'/models/one'
+    assert response.body == b'http://localhost/models/one'
 
 
 def test_mount_child_link():
@@ -320,9 +320,9 @@ def test_mount_child_link():
     c = Client(app())
 
     response = c.get('/')
-    assert response.body == b'/foo/models/one'
+    assert response.body == b'http://localhost/foo/models/one'
     response = c.get('/+inst')
-    assert response.body == b'/foo/models/one'
+    assert response.body == b'http://localhost/foo/models/one'
 
 
 def test_mount_sibling_link():
@@ -369,7 +369,7 @@ def test_mount_sibling_link():
     c = Client(app())
 
     response = c.get('/first/models/1')
-    assert response.body == b'/second/foos/2'
+    assert response.body == b'http://localhost/second/foos/2'
 
 
 def test_mount_sibling_link_at_root_app():
@@ -969,10 +969,10 @@ def test_mount_directive_with_link_and_absorb():
     c = Client(app1())
 
     response = c.get('/foo')
-    assert response.body == b'A: L:/foo'
+    assert response.body == b'A: L:http://localhost/foo'
 
     response = c.get('/foo/bla')
-    assert response.body == b'A:bla L:/foo/bla'
+    assert response.body == b'A:bla L:http://localhost/foo/bla'
 
 
 def test_mount_named_child_link_explicit_name():
@@ -1010,10 +1010,10 @@ def test_mount_named_child_link_explicit_name():
     c = Client(app())
 
     response = c.get('/')
-    assert response.body == b'/subapp/models/one'
+    assert response.body == b'http://localhost/subapp/models/one'
 
     response = c.get('/extra')
-    assert response.body == b'/subapp/models/one'
+    assert response.body == b'http://localhost/subapp/models/one'
 
 
 def test_mount_named_child_link_name_defaults_to_path():
@@ -1051,10 +1051,10 @@ def test_mount_named_child_link_name_defaults_to_path():
     c = Client(app())
 
     response = c.get('/')
-    assert response.body == b'/subapp/models/one'
+    assert response.body == b'http://localhost/subapp/models/one'
 
     response = c.get('/extra')
-    assert response.body == b'/subapp/models/one'
+    assert response.body == b'http://localhost/subapp/models/one'
 
 
 def test_named_mount_with_parameters():
@@ -1105,7 +1105,7 @@ def test_named_mount_with_parameters():
     c = Client(app())
 
     response = c.get('/')
-    assert response.body == b'/mounts/3/items/4'
+    assert response.body == b'http://localhost/mounts/3/items/4'
 
 
 def test_named_mount_with_url_parameters():
@@ -1156,7 +1156,7 @@ def test_named_mount_with_url_parameters():
     c = Client(app())
 
     response = c.get('/')
-    assert response.body == b'/mounts/items/4?mount_id=3'
+    assert response.body == b'http://localhost/mounts/items/4?mount_id=3'
 
 
 def test_access_app_through_request():
@@ -1198,7 +1198,7 @@ def test_access_app_through_request():
     c = Client(root())
 
     response = c.get('/')
-    assert response.body == b'/foo'
+    assert response.body == b'http://localhost/foo'
 
 
 def test_mount_ancestors():

@@ -75,6 +75,51 @@ class Request(BaseRequest):
             return NO_IDENTITY
         return result
 
+
+    @reify
+    def safe_host_url(self):
+        host, port = self.forwarded_host_port
+        if not self._validate_host(host):
+            # XXX error? or empty string fallback?
+            pass
+        if not self._validate_port(port):
+            # XXX error? or empty string fallback?
+            pass
+        if not host_allowed(request, host, settings.morepath.ALLOWED_HOSTS):
+            # XXX error? or empty string fallback?
+            pass
+        # once we do the validation, we can safely return this
+        return request.host_url
+
+    def _validate_host(self, host):
+        # validate host by regex
+        if not host_regex.match(host):
+            return False
+        s = settings(lookup=self.lookup)
+        return self.host_allowed(host, s.morepath.ALLOWED_HOSTS)
+
+    def _validate_port(self, port):
+        # validate port by regex
+        return port_regex.match(port)
+
+    @reify
+    def forwarded_host_port(self):
+        s = settings(lookup=self.lookup)
+        if s.morepath.allow_forwarded:
+            forwarded = self.forwarded
+            if forwarded:
+                last = forwarded[-1]
+                # XXX what if these are missing?
+                host = forwarded.host
+                port = forwarded.port
+                return host, port
+            # XXX fall back on X-Forwarded-* headers
+        return request.host_port
+
+    @reify
+    def forwarded(self):
+        pass
+
     def link_prefix(self):
         """Prefix to all links created by this request."""
         cached = self._link_prefix_cache.get(self.app.__class__)
@@ -250,6 +295,5 @@ def link(request, model, app):
         parameters.update(params)
         model = app
         app = app.parent
-    result.append(request.script_name)
     result.reverse()
     return '/'.join(result).strip('/'), parameters

@@ -4,6 +4,27 @@ CHANGES
 0.9 (unreleased)
 ================
 
+- **Breaking change**. In previous releases of Morepath, Morepath did
+  not include the full hostname in generated links (so ``/a`` instead
+  of ``http://example.com/a``). Morepath 0.9 does include the full
+  hostname in generated links by default. This to support the
+  non-browser client use case better. In the previous system without
+  fully qualified URLs, client code needs to manually add the base of
+  links itself in order to be able to access them. That makes client
+  code more complicated than it should be. To make writing such client
+  code as easy as possible Morepath now generates complete URLs.
+
+  This should not break any code, though it can break tests that rely
+  on the previous behavior. To fix ``webtest`` style tests, prefix
+  the expected links with ``http://localhost/``.
+
+  If for some reason you want the old behavior back in an application,
+  you can use the ``link_prefix`` directive::
+
+    @App.link_prefix()
+    def my_link_prefix(request):
+        return '' # prefix nothing again
+
 - Directives are now logged to the ``morepath.directive`` log, which
   is using the standard Python ``logging`` infrastructure. See
   http://morepath.readthedocs.org/en/latest/logging.html

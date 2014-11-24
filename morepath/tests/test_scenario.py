@@ -30,10 +30,11 @@ def test_scenario():
     assert response.body == b'Generic model a'
 
     response = c.get('/')
-    assert response.json == ['/foo/a', '/document/b']
+    assert response.json == ['http://localhost/foo/a',
+                             'http://localhost/document/b']
 
     response = c.get('/foo/a/link')
-    assert response.body == b'/document/c'
+    assert response.body == b'http://localhost/document/c'
 
     response = c.get('/document/a/link')
-    assert response.body == b'/foo/d'
+    assert response.body == b'http://localhost/foo/d'

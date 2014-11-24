@@ -41,7 +41,7 @@ def test_simple_path_one_step():
     assert response.body == b'View'
 
     response = c.get('/simple/link')
-    assert response.body == b'/simple'
+    assert response.body == b'http://localhost/simple'
 
 
 def test_simple_path_two_steps():
@@ -74,7 +74,7 @@ def test_simple_path_two_steps():
     assert response.body == b'View'
 
     response = c.get('/one/two/link')
-    assert response.body == b'/one/two'
+    assert response.body == b'http://localhost/one/two'
 
 
 def test_variable_path_one_step():
@@ -107,7 +107,7 @@ def test_variable_path_one_step():
     assert response.body == b'View: foo'
 
     response = c.get('/foo/link')
-    assert response.body == b'/foo'
+    assert response.body == b'http://localhost/foo'
 
 
 def test_variable_path_two_steps():
@@ -140,7 +140,7 @@ def test_variable_path_two_steps():
     assert response.body == b'View: foo'
 
     response = c.get('/document/foo/link')
-    assert response.body == b'/document/foo'
+    assert response.body == b'http://localhost/document/foo'
 
 
 def test_variable_path_two_variables():
@@ -174,7 +174,7 @@ def test_variable_path_two_variables():
     assert response.body == b'View: foo one'
 
     response = c.get('/foo-one/link')
-    assert response.body == b'/foo-one'
+    assert response.body == b'http://localhost/foo-one'
 
 
 def test_variable_path_explicit_converter():
@@ -209,7 +209,7 @@ def test_variable_path_explicit_converter():
         (b"View: 1 (<type 'int'>)", b"View: 1 (<class 'int'>)")
 
     response = c.get('/1/link')
-    assert response.body == b'/1'
+    assert response.body == b'http://localhost/1'
 
     response = c.get('/broken', status=404)
 
@@ -245,7 +245,7 @@ def test_variable_path_implicit_converter():
         (b"View: 1 (<type 'int'>)", b"View: 1 (<class 'int'>)")
 
     response = c.get('/1/link')
-    assert response.body == b'/1'
+    assert response.body == b'http://localhost/1'
 
     response = c.get('/broken', status=404)
 
@@ -282,7 +282,7 @@ def test_variable_path_explicit_trumps_implicit():
         (b"View: 1 (<type 'int'>)", b"View: 1 (<class 'int'>)")
 
     response = c.get('/1/link')
-    assert response.body == b'/1'
+    assert response.body == b'http://localhost/1'
 
     response = c.get('/broken', status=404)
 
@@ -319,7 +319,7 @@ def test_url_parameter_explicit_converter():
         (b"View: 1 (<type 'int'>)", b"View: 1 (<class 'int'>)")
 
     response = c.get('/link?id=1')
-    assert response.body == b'/?id=1'
+    assert response.body == b'http://localhost/?id=1'
 
     response = c.get('/?id=broken', status=400)
 
@@ -362,7 +362,7 @@ def test_url_parameter_explicit_converter_get_converters():
         (b"View: 1 (<type 'int'>)", b"View: 1 (<class 'int'>)")
 
     response = c.get('/link?id=1')
-    assert response.body == b'/?id=1'
+    assert response.body == b'http://localhost/?id=1'
 
     response = c.get('/?id=broken', status=400)
 
@@ -406,7 +406,7 @@ def test_url_parameter_get_converters_overrides_converters():
         (b"View: 1 (<type 'int'>)", b"View: 1 (<class 'int'>)")
 
     response = c.get('/link?id=1')
-    assert response.body == b'/?id=1'
+    assert response.body == b'http://localhost/?id=1'
 
     response = c.get('/?id=broken', status=400)
 
@@ -446,7 +446,7 @@ def test_url_parameter_implicit_converter():
         (b"View: 1 (<type 'int'>)", b"View: 1 (<class 'int'>)")
 
     response = c.get('/link?id=1')
-    assert response.body == b'/?id=1'
+    assert response.body == b'http://localhost/?id=1'
 
     response = c.get('/?id=broken', status=400)
 
@@ -487,7 +487,7 @@ def test_url_parameter_explicit_trumps_implicit():
         (b"View: 1 (<type 'int'>)", b"View: 1 (<class 'int'>)")
 
     response = c.get('/link?id=1')
-    assert response.body == b'/?id=1'
+    assert response.body == b'http://localhost/?id=1'
 
     response = c.get('/?id=broken', status=400)
 
@@ -533,7 +533,7 @@ def test_decode_encode():
     assert response.body == b"View: fooADD"
 
     response = c.get('/link?id=foo')
-    assert response.body == b'/?id=foo'
+    assert response.body == b'http://localhost/?id=foo'
 
 
 def test_unknown_converter():
@@ -629,10 +629,10 @@ def test_default_date_converter():
     assert response.body == b"View: 2011-01-01"
 
     response = c.get('/link?d=20121110')
-    assert response.body == b'/?d=20121110'
+    assert response.body == b'http://localhost/?d=20121110'
 
     response = c.get('/link')
-    assert response.body == b'/?d=20110101'
+    assert response.body == b'http://localhost/?d=20110101'
 
     response = c.get('/?d=broken', status=400)
 
@@ -672,10 +672,10 @@ def test_default_datetime_converter():
     assert response.body == b"View: 2011-01-01 10:30:00"
 
     response = c.get('/link?d=20121110T144500')
-    assert response.body == b'/?d=20121110T144500'
+    assert response.body == b'http://localhost/?d=20121110T144500'
 
     response = c.get('/link')
-    assert response.body == b'/?d=20110101T103000'
+    assert response.body == b'http://localhost/?d=20110101T103000'
 
     c.get('/?d=broken', status=400)
 
@@ -726,10 +726,10 @@ def test_custom_date_converter():
     assert response.body == b"View: 2011-01-01"
 
     response = c.get('/link?d=10-11-2012')
-    assert response.body == b'/?d=10-11-2012'
+    assert response.body == b'http://localhost/?d=10-11-2012'
 
     response = c.get('/link')
-    assert response.body == b'/?d=01-01-2011'
+    assert response.body == b'http://localhost/?d=01-01-2011'
 
     response = c.get('/?d=broken', status=400)
 
@@ -830,7 +830,7 @@ def test_type_hints_and_converters():
     assert response.body == b"View: 2014-01-20"
 
     response = c.get('/link?d=20140120')
-    assert response.body == b'/?d=20140120'
+    assert response.body == b'http://localhost/?d=20140120'
 
 
 def test_link_for_none_means_no_parameter():
@@ -863,7 +863,7 @@ def test_link_for_none_means_no_parameter():
     assert response.body == b"View: None"
 
     response = c.get('/link')
-    assert response.body == b'/'
+    assert response.body == b'http://localhost/'
 
 
 def test_path_and_url_parameter_converter():
@@ -896,7 +896,7 @@ def test_path_and_url_parameter_converter():
     c = Client(app())
 
     response = c.get('/1/link')
-    assert response.body == b'/1'
+    assert response.body == b'http://localhost/1'
 
 
 def test_path_converter_fallback_on_view():
@@ -957,7 +957,7 @@ def test_root_named_link():
     c = Client(app())
 
     response = c.get('/')
-    assert response.body == b'/foo'
+    assert response.body == b'http://localhost/foo'
 
 
 def test_path_class_and_model_argument():
@@ -1021,10 +1021,10 @@ def test_url_parameter_list():
     assert response.body == b"[1, 2]"
 
     response = c.get('/link?item=1&item=2')
-    assert response.body == b'/?item=1&item=2'
+    assert response.body == b'http://localhost/?item=1&item=2'
 
     response = c.get('/link')
-    assert response.body == b'/'
+    assert response.body == b'http://localhost/'
 
     response = c.get('/?item=broken&item=1', status=400)
 
@@ -1062,10 +1062,10 @@ def test_url_parameter_list_empty():
     assert response.body in (b"[u'a', u'b']", b"['a', 'b']")
 
     response = c.get('/link?item=a&item=b')
-    assert response.body == b'/?item=a&item=b'
+    assert response.body == b'http://localhost/?item=a&item=b'
 
     response = c.get('/link')
-    assert response.body == b'/'
+    assert response.body == b'http://localhost/'
 
     response = c.get('/')
     assert response.body == b"[]"
@@ -1101,10 +1101,10 @@ def test_url_parameter_list_explicit_converter():
     assert response.body == b"[1, 2]"
 
     response = c.get('/link?item=1&item=2')
-    assert response.body == b'/?item=1&item=2'
+    assert response.body == b'http://localhost/?item=1&item=2'
 
     response = c.get('/link')
-    assert response.body == b'/'
+    assert response.body == b'http://localhost/'
 
     response = c.get('/?item=broken&item=1', status=400)
 
@@ -1194,7 +1194,8 @@ def test_extra_parameters():
     assert response.body in \
         (b"[(u'a', u'A'), (u'b', u'B')]", b"[('a', 'A'), ('b', 'B')]")
     response = c.get('/link?a=A&b=B')
-    assert sorted(response.body[2:].split(b"&")) == [b'a=A', b'b=B']
+    assert sorted(response.body[len('http://localhost/?'):].split(b"&")) == [
+        b'a=A', b'b=B']
 
 
 def test_extra_parameters_with_get_converters():
@@ -1233,7 +1234,8 @@ def test_extra_parameters_with_get_converters():
     assert response.body in \
         (b"[(u'a', 1), (u'b', u'B')]", b"[('a', 1), ('b', 'B')]")
     response = c.get('/link?a=1&b=B')
-    assert sorted(response.body[2:].split(b"&")) == [b'a=1', b'b=B']
+    assert sorted(response.body[len('http://localhost/?'):].split(b"&")) == [
+        b'a=1', b'b=B']
 
     c.get('/?a=broken&b=B', status=400)
 
@@ -1270,7 +1272,7 @@ def test_script_name():
 
     response = c.get('/prefix/simple/link',
                      extra_environ=dict(SCRIPT_NAME='/prefix'))
-    assert response.body == b'/prefix/simple'
+    assert response.body == b'http://localhost/prefix/simple'
 
 
 @pytest.mark.xfail
@@ -1313,7 +1315,7 @@ def test_sub_path_different_variable():
     assert response.body == b'M: a'
 
     response = c.get('/a/b')
-    assert response.body == b'/S: b a'
+    assert response.body == b'http://localhost/S: b a'
 
 
 def test_absorb_path():
@@ -1360,7 +1362,7 @@ def test_absorb_path():
 
     # link to a/b absorb
     response = c.get('/')
-    assert response.body == b'/foo/a/b'
+    assert response.body == b'http://localhost/foo/a/b'
 
 
 def test_absorb_path_with_variables():
@@ -1408,7 +1410,7 @@ def test_absorb_path_with_variables():
 
     # link to a/b absorb
     response = c.get('/')
-    assert response.body == b'/foo/a/b'
+    assert response.body == b'http://localhost/foo/a/b'
 
 
 def test_absorb_path_explicit_subpath_ignored():
@@ -1463,7 +1465,7 @@ def test_absorb_path_explicit_subpath_ignored():
 
     # link to another still works XXX is this wrong?
     response = c.get('/')
-    assert response.body == b'/foo/another'
+    assert response.body == b'http://localhost/foo/another'
 
 
 def test_absorb_path_root():
@@ -1489,13 +1491,13 @@ def test_absorb_path_root():
     c = Client(app())
 
     response = c.get('/a')
-    assert response.body == b'A:a L:/a'
+    assert response.body == b'A:a L:http://localhost/a'
 
     response = c.get('/')
-    assert response.body == b'A: L:/'
+    assert response.body == b'A: L:http://localhost/'
 
     response = c.get('/a/b')
-    assert response.body == b'A:a/b L:/a/b'
+    assert response.body == b'A:a/b L:http://localhost/a/b'
 
 
 

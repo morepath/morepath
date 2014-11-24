@@ -28,7 +28,7 @@ def test_basic():
     assert response.body == b'The view for model: foo'
 
     response = c.get('/foo/link')
-    assert response.body == b'/foo'
+    assert response.body == b'http://localhost/foo'
 
 
 def test_basic_json():
@@ -57,7 +57,7 @@ def test_basic_root():
     # + is to make sure we get the view, not the sub-model as
     # the model is greedy
     response = c.get('/+link')
-    assert response.body == b'/'
+    assert response.body == b'http://localhost/'
 
 
 def test_nested():
@@ -72,7 +72,7 @@ def test_nested():
     assert response.body == b'The view for model: foo'
 
     response = c.get('/inner/foo/link')
-    assert response.body == b'/inner/foo'
+    assert response.body == b'http://localhost/inner/foo'
 
 
 def test_abbr():
@@ -278,7 +278,7 @@ def test_basic_imperative():
     assert response.body == b'The view for model: foo'
 
     response = c.get('/foo/link')
-    assert response.body == b'/foo'
+    assert response.body == b'http://localhost/foo'
 
     response = c.get('/foo/json')
     assert response.body == b'{"id": "foo"}'
@@ -288,7 +288,7 @@ def test_basic_imperative():
 
     # + is to make sure we get the view, not the sub-model
     response = c.get('/+link')
-    assert response.body == b'/'
+    assert response.body == b'http://localhost/'
 
 
 def test_basic_testing_config():
@@ -338,7 +338,7 @@ def test_basic_testing_config():
     assert response.body == b'The view for model: foo'
 
     response = c.get('/foo/link')
-    assert response.body == b'/foo'
+    assert response.body == b'http://localhost/foo'
 
     response = c.get('/foo/json')
     assert response.body == b'{"id": "foo"}'
@@ -348,7 +348,7 @@ def test_basic_testing_config():
 
     # + is to make sure we get the view, not the sub-model
     response = c.get('/+link')
-    assert response.body == b'/'
+    assert response.body == b'http://localhost/'
 
 
 def test_link_to_unknown_model():
@@ -460,13 +460,13 @@ def test_link_with_parameters():
     assert response.body == b'The view for model: foo 0'
 
     response = c.get('/foo/link')
-    assert response.body == b'/foo?param=0'
+    assert response.body == b'http://localhost/foo?param=0'
 
     response = c.get('/foo?param=1')
     assert response.body == b'The view for model: foo 1'
 
     response = c.get('/foo/link?param=1')
-    assert response.body == b'/foo?param=1'
+    assert response.body == b'http://localhost/foo?param=1'
 
 
 def test_root_link_with_parameters():
@@ -497,13 +497,13 @@ def test_root_link_with_parameters():
     assert response.body == b'The view for root: 0'
 
     response = c.get('/link')
-    assert response.body == b'/?param=0'
+    assert response.body == b'http://localhost/?param=0'
 
     response = c.get('/?param=1')
     assert response.body == b'The view for root: 1'
 
     response = c.get('/link?param=1')
-    assert response.body == b'/?param=1'
+    assert response.body == b'http://localhost/?param=1'
 
 
 def test_link_with_prefix():
@@ -625,7 +625,7 @@ def test_implicit_variables():
     c = Client(app())
 
     response = c.get('/foo/link')
-    assert response.body == b'/foo'
+    assert response.body == b'http://localhost/foo'
 
 
 def test_implicit_parameters():
@@ -663,9 +663,9 @@ def test_implicit_parameters():
     response = c.get('/foo?id=bar')
     assert response.body == b'The view for model: bar'
     response = c.get('/foo/link')
-    assert response.body == b'/foo'
+    assert response.body == b'http://localhost/foo'
     response = c.get('/foo/link?id=bar')
-    assert response.body == b'/foo?id=bar'
+    assert response.body == b'http://localhost/foo?id=bar'
 
 
 def test_implicit_parameters_default():
@@ -703,9 +703,9 @@ def test_implicit_parameters_default():
     response = c.get('/foo?id=bar')
     assert response.body == b'The view for model: bar'
     response = c.get('/foo/link')
-    assert response.body == b'/foo?id=default'
+    assert response.body == b'http://localhost/foo?id=default'
     response = c.get('/foo/link?id=bar')
-    assert response.body == b'/foo?id=bar'
+    assert response.body == b'http://localhost/foo?id=bar'
 
 
 def test_simple_root():

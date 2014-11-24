@@ -362,34 +362,61 @@ When we now go to ``documents/link2?name=foo`` we get the link
 Prefixing links with a base URL
 -------------------------------
 
-By default, :meth:`morepath.Request.link` generates links without
-protocol or host::
+By default, :meth:`morepath.Request.link` generates links as fully
+qualified URLs using the ``HOST`` header and the given protocol
+(``http``, ``https``), for instance::
 
-    /document
+   http://localhost/document
 
-You can use the :meth:`morepath.App.link_prefix` decorator to set a
-custom prefix for every generated link. For example::
+You can use the :meth:`morepath.App.link_prefix` decorator to override
+this behavior. For example, if you *do* not want to add the full
+hostname (in fact the behavior of Morepath before version 0.9), you
+can write::
 
-    @App.link_prefix()
-    def link_prefix(request):
-        return 'http://localhost'
-
-This results in links that look like this::
-
-    http://localhost/document
-
-The request is passed to the ``link_prefix()`` function. You can
-therefore use information in the request to determine the link
-prefix::
-
-    @App.link_prefix()
-    def link_prefix(request):
-        return request.headers.get('X-BASE-URL')
+  @App.link_prefix()
+  def simple_link_prefix(request):
+      return ''
 
 The ``link_prefix`` function is only called once per request per app,
 during the first call to :meth:`morepath.Request.link` for an
 app. After this it is cached for the rest of the duration of that
 request.
+
+Linking to external applications
+--------------------------------
+
+As a more advanced use case for ``link_prefix``, you can use it to
+represent an application that is completely external, just for
+the purposes of making it easier to create a link to it.
+
+Let's say we want to be able to link to documents on the external site
+``http://example.com``, and that these documents live on URLs like
+``http://example.com/documents/{id}``.
+
+We can create a model for such an external document first::
+
+  class ExternalDocument(object):
+      def __init__(self, id):
+          self.id = id
+
+And declare the path space of the external site::
+
+  @ExternalApp.path(model=ExternalDocument, path='/documents/{id}')
+  def get_external_document(id):
+      return ExternalDocument(id)
+
+We don't need to declare any views for ``ExternalDocument``;
+``ExternalApp`` only exists to let you generate a link to the
+``example.com`` external site more easily.
+
+Now we want ``request.link(ExternalDocument('foo'))`` to result in the
+link ``http://example.com/documents/foo``. All we need to do is to
+declare a special ``link_prefix`` for the external app where we
+hardcode ``http://example.com``::
+
+  @ExternalApp.link_prefix()
+  def simple_link_prefix(request):
+      return 'http://example.com'
 
 Type hints
 ----------
