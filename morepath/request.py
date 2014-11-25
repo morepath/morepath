@@ -247,6 +247,11 @@ class Request(BaseRequest):
         raising a HTTP exception, then ``after`` won't execute
         for this exception.
 
+        If you directly return a response object from the view,
+        ``after`` won't have any effect either. Instead, you can
+        manipulate the response object directly. Note that this
+        is the case when you use :func:`morepath.redirect`.
+
         :param func: callable that is called with response
         :returns: func argument, not wrapped
         """

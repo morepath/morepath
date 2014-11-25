@@ -276,7 +276,11 @@ decorator. Here's how::
 ``after`` only applies if the view was successfully resolved into a
 response. If your view raises an exception for any reason, or if
 Morepath itself does, any ``after`` set in the view does not apply to
-the response for this exception.
+the response for this exception. If the view *returns* a response
+object directly itself, then ``after`` is also not run - you have the
+response object to manipulate directly. Note that this the case when
+you use :func:`morepath.redirect`: this returns a redirect response
+object.
 
 request_method
 --------------

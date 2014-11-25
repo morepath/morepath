@@ -29,6 +29,9 @@ CHANGES
   is using the standard Python ``logging`` infrastructure. See
   http://morepath.readthedocs.org/en/latest/logging.html
 
+- Document behavior of ``request.after`` in combination with directly
+  returning a response object from a view.
+
 - Expose ``body_model_predicate`` to the public Morepath API. You
   can now say your predicate comes after it.
 

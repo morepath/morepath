@@ -60,4 +60,6 @@ def render_html(content, request):
 
 
 def redirect(location):
+    """Return a response object that redirects to location.
+    """
     return HTTPFound(location=location)
