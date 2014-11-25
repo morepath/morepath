@@ -2,7 +2,7 @@ import morepath
 from morepath import generic
 from morepath.error import ConflictError
 from webtest import TestApp as Client
-from reg import ClassIndex
+from reg import ClassIndex, KeyIndex
 import pytest
 from morepath.core import request_method_predicate
 
@@ -92,3 +92,41 @@ def test_view_custom_predicate_conflict_involving_default_extends():
 
     with pytest.raises(ConflictError):
         config.commit()
+
+
+def test_view_custom_predicate_without_fallback():
+    config = morepath.setup()
+
+    class core(morepath.App):
+        testing_config = config
+
+    class app(core):
+        testing_config = config
+
+    @core.predicate(generic.view, name='extra', default='DEFAULT',
+                    index=KeyIndex,
+                    after=request_method_predicate)
+    def dummy_predicate(request):
+        return 'match'
+
+    @app.path(path='')
+    class Model(object):
+        def __init__(self):
+            pass
+
+    @app.view(model=Model, extra='match')
+    def default(self, request):
+        return "View"
+
+    @app.view(model=Model, name='foo', extra='not match')
+    def not_match(self, request):
+        return "Not match"
+
+    config.commit()
+
+
+    c = Client(app())
+
+    response = c.get('/')
+    assert response.body == b'View'
+    c.get('/foo', status=404)

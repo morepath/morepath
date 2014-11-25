@@ -47,6 +47,9 @@ def resolve_response(request, obj):
     if view is None:
         # try to look up fallback and use it
         fallback = generic.view.fallback(request, obj, lookup=request.lookup)
+        # the default fallback is not found
+        if fallback is None:
+            return HTTPNotFound()
         return fallback(request, obj)
     return view.response(request, obj)
 

@@ -47,6 +47,11 @@ CHANGES
 - Suggest a few things to try when your code doesn't appear to be
   scanned properly.
 
+- A new view predicate without a fallback resulted in an internal
+  server error if the predicate did not match. Now it results in a 404
+  Not Found by default. To override this default, define a predicate
+  fallback.
+
 0.8 (2014-11-13)
 ================
 
