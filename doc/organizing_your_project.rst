@@ -85,6 +85,10 @@ is automatically generated that you can use to start up the web
 server. It calls the ``main()`` function in the ``myproject.main``
 module. Let's create this next.
 
+You now need to install this project. If you want to install this
+project for development purposes you can use ``python setup.py
+develop``, or ``pip install -e .`` from within a virtualenv.
+
 See also the `setuptools documentation`_.
 
 .. _`setuptools documentation`: https://pythonhosted.org/setuptools/
@@ -181,6 +185,45 @@ in ``setup.py``. This main function does two things:
 
 The main module is also a good place to do other general configuration
 for the application, such as setting up a database connection.
+
+Debugging scanning problems
+---------------------------
+
+If you for some reason get ``404 Not Found`` errors where you expect
+some content, something may have gone wrong with scanning the
+configuration of your project. Here's a checklist:
+
+* Check whether your project has a ``setup.py`` with an
+  ``install_requires`` that depends ``morepath`` (possibly indirectly
+  through another dependency). You need to declare your code as a
+  project so that ``autosetup`` can find it.
+
+* Check whether your project is installed in a virtualenv using ``pip
+  install -e .`` or in a buildout. Morepath needs to be able to find
+  your project in order to scan it.
+
+* Be sure that you have your modules in an actual sub-directory to the
+  project with its own ``__init__.py``. Modules in the top-level of a
+  project won't be scanned as a package
+
+* Check whether manually scanning the individual modules or packages
+  helps. Try writing this code in main instead of ``autosetup``::
+
+    from . import path, view
+
+    config = morepath.config()
+    config.scan()
+    config.scan(path)
+    config.scan(view)
+    config.commit()
+
+  Alternatively you can try moving your code into ``main.py`` and see
+  whether it starts working.
+
+  If this fixes things, then your Python package seems not to be
+  properly installed as a Python package; only the ``main`` module get
+  scanned properly. Morepath should be able to pick up everything in
+  your package if only you organize it correctly.
 
 Variation: automatic restart
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

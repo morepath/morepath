@@ -44,6 +44,9 @@ CHANGES
 
 - Fix doc for grouping views with the ``with`` statement.
 
+- Suggest a few things to try when your code doesn't appear to be
+  scanned properly.
+
 0.8 (2014-11-13)
 ================
 
