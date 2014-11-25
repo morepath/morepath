@@ -531,6 +531,6 @@ too much about which is which, but enjoy the creative possibilities!
 
 Note that Morepath itself is designed as an application
 (:class:`morepath.App`) that your apps extend. This means you can
-override parts of it (say, how links are generated) just like you
-would override a framework app! We did our best to make Morepath do
-the right thing already, but if not, you *can* customize it.
+override parts of it just like you would override a framework app! We
+did our best to make Morepath do the right thing already, but if not,
+you *can* customize it.

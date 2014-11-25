@@ -328,7 +328,8 @@ What if we want to see Bob's edit view? We do this::
 
   request.link(bob, 'edit')
 
-And we get ``/users/bob/edit``.
+And we get ``/users/bob/edit`` (with the hostname, for instance
+``http://example.com``, as a prefix).
 
 Using :meth:`morepath.Request.link`` everywhere for link generation is
 easy. You only need models and remember which view names are
@@ -421,3 +422,7 @@ exceptions (:mod:`webob.exc`). For instance::
   @App.view(model=User, name='extra')
   def erroring(self, request):
       raise HTTPNotAcceptable()
+
+But note that Morepath already raises a lot of these errors for you
+automatically just by having your structure your code the Morepath
+way.

@@ -229,8 +229,8 @@ You can also give ``link`` a name to link to a named view. Here's a
   def document_self_link(self, request):
       return request.link(self, name='link')
 
-So the view ``documents/foo/link2`` produces the link
-``documents/foo/link``.
+So the view at ``/documents/foo/link2`` produces the link
+``/documents/foo/link``.
 
 Linking with path variables
 ---------------------------
@@ -357,7 +357,7 @@ to further demonstrate this behavior::
       return request.link(self, name='link')
 
 When we now go to ``documents/link2?name=foo`` we get the link
-``documents/link?name=foo``.
+``/documents/link?name=foo``.
 
 Prefixing links with a base URL
 -------------------------------
@@ -630,7 +630,7 @@ Now Morepath understand type hints for ``date`` differently::
 
 has models published on a URL like::
 
-  days/2013-12-31
+  /days/2013-12-31
 
 Type hints and converters
 -------------------------
