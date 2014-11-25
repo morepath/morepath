@@ -29,6 +29,9 @@ CHANGES
   is using the standard Python ``logging`` infrastructure. See
   http://morepath.readthedocs.org/en/latest/logging.html
 
+- Document ``more.forwarded`` proxy support in 
+  http://morepath.readthedocs.org/en/latest/paths_and_linking.html
+
 - Document behavior of ``request.after`` in combination with directly
   returning a response object from a view.
 
