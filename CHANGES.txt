@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.9 (unreleased)
+0.9 (2014-11-25)
 ================
 
 - **Breaking change**. In previous releases of Morepath, Morepath did
