@@ -124,13 +124,26 @@ Code Walkthrough
    This step ensures your configuration (model routes, views, etc) is
    loaded exactly once in a way that's reusable and extensible.
 
+   Note that if you want to use a Morepath extension like ``more.static``,
+   you need to either scan this as well::
+
+      import more.static
+
+      ...
+      config.scan(more.static)
+      ...
+
+   or use :func:`morepath.autosetup` to automate this. See
+   :doc:`organizing_your_project` for more information.
+
 8. We then instantiate the ``App`` class to create a ``WSGI`` app
    using the default web server. Since you create a WSGI app you can
    also plug it into any other WSGI server.
 
-This example presents a compact way to organize your code, but for a
-real project we recommend you read :doc:`organizing_your_project`. This
-supports organizing your project with multiple modules.
+This example presents a compact way to organize your code in a single
+module, but for a real project we recommend you read
+:doc:`organizing_your_project`. This supports organizing your project
+with multiple modules.
 
 Routing
 -------

@@ -69,10 +69,28 @@ application to the web::
 
   def main():
      morepath.autosetup()
-     wsgi = app()
+     wsgi = App()
      morepath.run(wsgi)
 
 All this code lives in the ``main.py`` module of a Python package.
+
+Manual scan
+-----------
+
+We recommend you use ``morepath.autosetup`` to make sure that all code
+that uses Morepath is automatically scanned. If you *do not* use
+``autosetup`` but use manual ``config.scan()`` instead, you need to
+scan ``more.static`` explicitly, like this::
+
+  import more.static
+
+  def main():
+     config = morepath.setup()
+     config.scan()
+     config.scan(more.static)
+     config.commit()
+     wsgi = App()
+     morepath.run(wsgi)
 
 Bower
 -----
