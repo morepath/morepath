@@ -3,6 +3,7 @@ import morepath
 import pytest
 
 from .fixtures import basic
+from morepath.compat import PY3
 
 
 class Handler(logging.Handler):
@@ -70,9 +71,16 @@ def test_simple_config_logging():
 
     messages = [r.getMessage() for r in test_handler.records]
     assert len(messages) == 1
-    assert messages[0] == (
-        "@morepath.tests.test_config_logging.App.path(path='') on "
-        "<class 'morepath.tests.test_config_logging.Model'>")
+    if PY3:
+        expected = (
+            "@morepath.tests.test_config_logging.App.path(path='') on "
+            "<class 'morepath.tests.test_config_logging."
+            "test_simple_config_logging.<locals>.Model'>")
+    else:
+        expected = (
+            "@morepath.tests.test_config_logging.App.path(path='') on "
+            "<class 'morepath.tests.test_config_logging.Model'>")
+    assert messages[0] == expected
 
 
 def test_config_logging_fixture():
