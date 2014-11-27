@@ -37,6 +37,7 @@ setup(name='morepath',
         test=['pytest >= 2.5.2',
               'py >= 1.4.20',
               'pytest-cov',
+              'pytest-remove-stale-bytecode',
               'WebTest >= 2.0.14'],
         ),
       )
