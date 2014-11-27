@@ -179,11 +179,11 @@ Django.
 Testability and Global state
 ----------------------------
 
-Developers that care about writing code try to avoid global state, in
-particular mutable global state, as it can make testing harder. If the
-framework is required to be in a certain global state before the code
-under test can be run, it becomes harder to test that code, as you
-need to know first what global state to manipulate.
+Developers that care about writing testable code try to avoid global
+state, in particular mutable global state, as it can make testing
+harder. If the framework is required to be in a certain global state
+before the code under test can be run, it becomes harder to test that
+code, as you need to know first what global state to manipulate.
 
 Globals can also be a problem when multiple threads try to write the
 global at the same time. Web frameworks avoid this by using *thread
