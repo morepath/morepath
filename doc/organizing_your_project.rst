@@ -377,8 +377,8 @@ Path module
 Now that we have models, we need to publish them on the web. First we need
 to define their paths. We do this in a ``path.py`` module::
 
-  from myproject.main import app
-  from myproject import model
+  from .main import App
+  from . import model
 
   @App.path(model=model.Document, path='documents/{id}')
   def get_document(id):
@@ -405,8 +405,8 @@ View module
 We have models and they're published on a path. Now we need to represent
 them as actual web resources. We do this in the ``view.py`` module::
 
-  from myproject.main import app
-  from myproject import model
+  from .main import App
+  from . import model
 
   @App.json(model=model.Document)
   def document_default(self, request):
