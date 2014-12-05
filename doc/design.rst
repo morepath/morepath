@@ -35,7 +35,7 @@ Traversal
 
 It should be possible to associate routes with specific models in the
 application, not just to the root. This way models with sub-paths to
-sub-components can be made available as reuable components; an example
+sub-components can be made available as reusable components; an example
 of this could be a container. If the model is published, its
 sub-components are then exposed as well.
 
