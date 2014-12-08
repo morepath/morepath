@@ -12,6 +12,7 @@ Table of Contents
    community
    installation
    superpowers
+   web
    paths_and_linking
    views
    json

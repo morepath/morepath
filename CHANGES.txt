@@ -4,8 +4,8 @@ CHANGES
 0.10 (unreleased)
 =================
 
-- Nothing changed yet.
-
+- Add a new "A Review of the Web" document to the docs to show how
+  Morepath fits within the web.
 
 0.9 (2014-11-25)
 ================
