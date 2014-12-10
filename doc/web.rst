@@ -208,14 +208,16 @@ A lot of different representations exist. HTML is a very common one,
 but for programmatic clients JSON is typically used.
 
 Morepath lets you create a :class:`morepath.Response` object directly,
-which is a subclass of :class:`webob.response.Response`, and return it from
-a view function.
+which is a subclass of :class:`webob.response.Response`, and return it
+from a view function.
 
-More commonly you use a specialized view type
+More conveniently you use a specialized view type
 (:meth:`morepath.App.json` or :meth:`morepath.App.html`) and return
 the content that should go into the response body, such as a HTML
 string or a JSON-serializable object. Morepath then automatically
-creates the response with the right content type for you.
+creates the response with the right content type for you. Should you
+wish to set additional information on the response object, you can use
+:meth:`morepath.Request.after`.
 
 Resource
 --------
