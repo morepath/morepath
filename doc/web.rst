@@ -188,7 +188,9 @@ The HTTP request contains a *URL path*, a *request method*, possibly a
 *request body*, and various *headers* such as the *content type*.
 
 A HTTP request in Morepath is made accessible programmatically as a
-Python request object using the WebOb_ library.
+Python request object using the WebOb_ library. It is a
+`class:`morepath.Request`, which is a subclass of
+:class:`webob.request.BaseRequest`.
 
 .. _WebOb: http://webob.org/
 
@@ -205,9 +207,15 @@ generated.
 A lot of different representations exist. HTML is a very common one,
 but for programmatic clients JSON is typically used.
 
-Morepath lets you create a full WebOb response object, but more
-commonly you only return what should go into the response body, and
-Morepath takes care of generating the response itself.
+Morepath lets you create a :class:`morepath.Response` object directly,
+which is a subclass of :class:`webob.response.Response`, and return it from
+a view function.
+
+More commonly you use a specialized view type
+(:meth:`morepath.App.json` or :meth:`morepath.App.html`) and return
+the content that should go into the response body, such as a HTML
+string or a JSON-serializable object. Morepath then automatically
+creates the response with the right content type for you.
 
 Resource
 --------
@@ -283,30 +291,126 @@ of ``Document`` using :meth:`morepath.Request.link`::
 
 This makes it easy to create links within Morepath view functions.
 
+Headers
+-------
+
+A HTTP request and a HTTP response have headers. Headers contain
+information about the message that are not the body: they are about
+the request or the response, or about the body. For example, the
+content-type is header named ``Content-Type`` and has a value that is
+a `MIME type`_ such as ``text/html``.
+
+Headers are used for a wide variety of purposes, such as to declare
+information about how a client may cache a response, or what kind of
+responses a client accepts from a server, or to pass cookies along.
+Here is an `overview of common headers`_.
+
+In Morepath, the headers are accessible on a request and response
+object as the attribute :attr:`webob.request.BaseRequest.headers` and
+:attr:`webob.response.Response.headers`.  which behaves like a Python
+dictionary. You could therefore access the request content-type using
+``request.headers['Content-Type']``. But see below for a more
+convenient way to access the content type.
+
+To set the headers (or other information) on a response, you can
+create a ``morepath.Response`` instance in a view function. You can
+then pass in the headers, or set them afterward.
+
+Often better is to use the :func:`morepath.Request.after` decorator to
+declare a function that sets headers the response object once it has
+been created for you by the framework.
+
+WebOb_ has APIs that help you deal with many headers at a higher level
+of abstraction. For example,
+:attr:`webob.request.BaseRequest.content_type` is a more convenient
+way to access the content type information of a request than to access
+the header directly, as additional charset information is not
+there. Before you start to manipulate headers directly it pays off to
+consult the WebOb documentation for :class:`webob.request.BaseRequest`
+and :class:`webob.response.Response`: there may well be a better way.
+
+Morepath also has special support for dealing with certain
+headers. For instance, the Forwarded_ header can be set by a HTTP
+proxy. To make Morepath use this header for URL generation, you can
+use the `more.forwarded`_ extension.
+
+.. _`MIME type`: https://en.wikipedia.org/wiki/Internet_media_type
+
+.. _`overview of common headers`: https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
+
+.. _`more.forwarded`: https://pypi.python.org/pypi/more.forwarded/
+
+.. _forwarded: http://tools.ietf.org/html/rfc7239
+
+Cookies
+-------
+
+One special set of headers deals with `HTTP cookies`_. A server can set a
+cookie on the client by passing back a special header in its
+response. A cookie is much like a key/value pair in a Python
+dictionary.
+
+Once the cookie has been set, the client sends back the cookie to the
+server during each subsequent request, again using a header, until the
+cookie expires or cookie is explicitly deleted by the server using a
+response header.
+
+Normally in HTTP requests are independent from each other: assuming
+the server database is the same, the same request should give the same
+response, no matter what other requests have gone before it. This
+makes it easier to reason about HTTP, and it makes it easier to scale
+it up, for instance by caching responses.
+
+Cookies change this: they can be used to make requests
+order-dependent. This can be useful, but it can also make it harder to
+reason about what is going on and scale, so be careful with them. In
+particular, a REST web service should be able to function without
+requiring the client to maintain cookies.
+
+Cookies are commonly used to store login session information on the
+client.
+
+WebOb makes management of cookies more convenient: the
+:attr:`webob.request.BaseRequest.cookies` attribute on the request
+object contains the list of cookies sent by the client, and the
+response object has an API incuding
+:meth:`webob.response.Response.set_cookie` and
+:meth:`webob.response.Response.delete_cookie` to allow you to manage
+cookies.
+
+.. _`HTTP cookies`: https://en.wikipedia.org/wiki/HTTP_cookie
+
 Content types
 -------------
 
 A resource may present itself in variety of representations. This is
-indicated by the content type set in the HTTP response.
+indicated by the content type set in the HTTP response, using the
+``Content-Type`` header.  There are a lot of content types, including
+HTML and JSON.  The value is a `MIME type`_ such as ``text/html`` for
+HTML and ``application/json`` for JSON. The value can also contain
+additional parameters such as character encoding information.
 
-There are a lot of content types, including HTML and JSON. We will
-describe some common content types below.
+WebOb makes content-type header information conveniently available
+with the :attr:`webob.request.BaseRequest.content_type`,
+:attr:`webob.response.Response.content_type` and
+:attr:`webob.response.Response.content_type_params` attributes.
 
 A request may also have a content type: the request content type
 determines what kind of content is sent to the server by the client in
 the request body.
 
 While you can create any kind of content type with Morepath, it has
-special support for generating HTML and JSON responses, and for
-processing a JSON request body.
+special support for generating HTML and JSON responses (using
+:meth:`morepath.App.html` and :meth:`morepath.App.json`), and for
+processing a JSON request body (see ``load_json`` in :doc:`json`).
 
 View
 ----
 
 In Morepath, a view is a Python function that takes a Python object to
-represent (``self``) and a request object (``request``) as arguments
-and returns something that can be turned into a HTTP response, or a
-HTTP response object directly.
+represent (``self``) and a :class:`morepath.Request` object
+(``request``) as arguments and returns something that can be turned
+into a HTTP response, or a HTTP response object directly.
 
 Here is an example of a Morepath view, using the most basic
 :meth:`morepath.App.view` directive::
@@ -343,49 +447,9 @@ just been POSTed)::
       self.add(item)
       return request.view(item)
 
-HTTP status codes
------------------
-
-HTTP status codes such as ``200 Ok`` and ``404 Not Found`` are part of
-the HTTP response. The server can use them to indicate to the client
-whether it was successfully able to create a response, or if not, what
-the problem was.
-
-Morepath can automatically generate the correct HTTP status codes
-for you in many cases:
-
-200 Ok:
-  When the path in the request is matched with a path directive, and
-  there is a view for the particular model and request method.
-
-404 Not Found:
-  When the path does not match, or when the path matches but the
-  path function returns ``None``.
-
-400 Bad Request
-  When information in the path or request methods could not be converted
-  to the required types.
-
-405 Method Not Allowed
-  When no view exists for the given HTTP request method.
-
-422 Unprocessable Entity
-  When the request body supplied with a ``POST`` or ``PUT`` request
-  can be parsed (as JSON, for instance), but is not the correct type.
-
-500 Internal Server Error
-  There is a bug in the server that causes an exception to be
-  raised. Morepath does not generate these itself, but a WSGI server
-  automatically catches any exceptions not handled by Morepath and
-  turns them into 500 errors.
-
-Instead of having to write code that sends back the right status codes
-manually, you declare paths and views with Morepath and Morepath can
-usually do the right thing for you automatically. This saves you from
-writing a lot of custom code when you want to implement HTTP properly.
-
-See also `List of HTTP status codes
-<https://en.wikipedia.org/wiki/List_of_HTTP_status_codes>`_.
+You can access the method on the request using
+:attr:`webob.request.BaseRequest.method`, but typically Morepath does
+this for you when you use the ``request_method`` predicate.
 
 View predicate
 --------------
@@ -399,8 +463,9 @@ This view directive::
   def add_to_collection(self, request):
      ...
 
-only matches when ``self`` is an instance of ``MyCollection`` and when
-``request.method`` is ``POST``. Only in this case will
+only matches when ``self`` is an instance of ``MyCollection``
+(``model`` predicate) and when ``request.method`` is ``POST``
+(``request_method`` predicate). Only in this case will
 ``add_to_collection`` be called.
 
 You can extend Morepath with additional view predicates. You can also
@@ -409,6 +474,63 @@ status code to set when the view cannot be matched.
 
 See `view predicates
 <http://morepath.readthedocs.org/en/latest/views.html#predicates>`_
+
+HTTP status codes
+-----------------
+
+HTTP status codes such as ``200 Ok`` and ``404 Not Found`` are part of
+the HTTP response. Here is a `list of HTTP status codes
+<https://en.wikipedia.org/wiki/List_of_HTTP_status_codes>`_.  The
+server can use them to indicate to the client whether it was
+successfully able to create a response, or if not, what the problem
+was.
+
+Morepath can automatically generate the correct HTTP status codes
+for you in many cases:
+
+200 Ok:
+  When the path in the request is matched with a path directive, and
+  there is a view for the particular model and request method.
+
+404 Not Found:
+  When the path does not match, or when the path matches but the path
+  function returns ``None``.
+
+  Also when no view is available for the request in combination with
+  the object returned by the path function. More specifically, the
+  ``model`` view predicate or the ``name`` view predicate do not
+  match.
+
+400 Bad Request:
+  When information in the path or request parameters could not be
+  converted to the required types.
+
+405 Method Not Allowed:
+  When no view exists for the given HTTP request method. More
+  specifically, the ``request_method`` view predicate does not match.
+
+422 Unprocessable Entity:
+  When the request body supplied with a ``POST`` or ``PUT`` request
+  can be parsed (as JSON, for instance), but is not the correct type.
+
+  More specifically, the ``body_model`` view predicate does not match.
+
+500 Internal Server Error:
+  There is a bug in the server that causes an exception to be
+  raised. Morepath does not generate these itself, but a WSGI server
+  automatically catches any exceptions not handled by Morepath and
+  turns them into 500 errors.
+
+Instead of having to write code that sends back the right status codes
+manually, you declare paths and views with Morepath and Morepath can
+usually do the right thing for you automatically. This saves you from
+writing a lot of custom code when you want to implement HTTP properly.
+
+Sometimes it is still useful to set the status code directly. WebOb
+lets you raise `special exceptions`_ for HTTP errors. You can also set
+the :attr:`webob.response.Response.status` attribute on the response.
+
+.. _`special exceptions`: http://docs.webob.org/en/latest/modules/exceptions.html
 
 JSON
 ----
