@@ -296,6 +296,8 @@ by navigating to it from the user app.
 If we are in the user application, we can navigate to the mounted wiki
 app using the :meth:`morepath.App.child` method:
 
+.. code-block:: python
+
   wiki_app = request.app.child(WikiApp(3))
 
 What if we want to navigate with the ``username`` under which it was
