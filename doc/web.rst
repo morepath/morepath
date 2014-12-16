@@ -145,7 +145,21 @@ JavaScript can also be run on the server with Node.JS, but Morepath is
 a Python web framework and does not make use of server-side
 JavaScript.
 
+Bower is a tool to help manage client-side JavaScript code.
+
 .. _JavaScript: https://en.wikipedia.org/wiki/JavaScript
+
+Bower
+-----
+
+A popular way to install client-side JavaScript (and CSS) code is to
+use the Bower_ package management tool. By using a package manager
+installing and updating a collection of JavaScript libraries becomes
+more easy than doing it by hand.
+
+Morepath offers Bower integration, see: :doc:`more.static`.
+
+.. _Bower: http://bower.io
 
 AJAX
 ----
@@ -538,8 +552,8 @@ JSON
 ----
 
 A representation of a resource. JSON_ is a language that represents
-information, not user interface (like HTML combined with CSS) or logic
-(like Python or JavaScript). JSON looks like this::
+data, not user interface (like HTML combined with CSS) or logic (like
+Python or JavaScript). JSON looks like this::
 
   {
     "id": "foo_barson",
@@ -550,6 +564,13 @@ information, not user interface (like HTML combined with CSS) or logic
                 "http://example.com/people/one_twonson"]
   }
 
+
+JSON is the most common data representation language used in REST web
+services. The main alternative is XML. While XML does offer more
+extensive tooling support, it is a lot more verbose and more difficult
+to process than JSON. JSON is already very close to the data
+structures of many programming languages, including JavaScript and
+Python.
 
 In Python, JSON can be constructed by combining Python dictionaries
 and lists with strings, numbers, booleans and ``None``.
@@ -577,14 +598,25 @@ client.
 JSON-LD
 -------
 
-`JSON-LD`_ is an extension on JSON. It helps support linked data in
-JSON. Using a ``@context``, it lets a JSON object describe which parts
-of it contain hyperlinks, and also allows JSON property names
-themselves to be interpreted as hyperlinks.
+`JSON-LD`_ is an extension of JSON that helps support linked data in
+JSON. Any JSON-LD structure is valid JSON, but not every JSON
+structure is valid JSON-LD.
 
-It also offers a standard way for a JSON object to have an id and a
-type, both hyperlinks, as the special ``@id`` and ``@type``
-properties.
+Using a ``@context``, it lets a JSON object describe which parts of it
+contain hyperlinks, and also allows JSON property names themselves to
+be interpreted as unique hyperlinks. You can also express that
+particular property values have a particular data type; this can range
+from basic data types like datetime to custom data types like
+"person". All of this can help when you want to process JSON coming
+from different data sources.
+
+Perhaps more important in practice for REST web services is that it
+also offers a standard way for a JSON object to have a unique id and a
+type. Both are identified by a hyperlink, as the special ``@id`` and
+``@type`` properties. ``@type`` in particular makes it easier to use
+JSON data as hypermedia: client behavior can be driven by the type of
+data that is retrieved, instead of what URL it happened to be
+retrieved from.
 
 Morepath does not mandate the use of JSON-LD, or has any special
 support for it, but its link generation facilities make it easier to
