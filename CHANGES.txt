@@ -170,9 +170,9 @@ CHANGES
 0.7 (2014-11-03)
 ================
 
-- **Breaking change**. There has been a change the way the mount
+- **Breaking change**. There has been a change in the way the mount
   directive works. There has also been a change in the way linking
-  between application works. The changes result into a simpler, more
+  between application works. The changes result in a simpler, more
   powerful API and implementation.
 
   The relevant changes are:
