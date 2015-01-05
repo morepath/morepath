@@ -4,7 +4,7 @@ from .settings import register_setting
 from .error import ConfigError
 from .security import (register_permission_checker,
                        Identity, NoIdentity)
-from .view import render_json, render_html, register_view
+from .view import render_view, render_json, render_html, register_view
 from .path import register_path
 from .traject import Path
 from morepath import generic
@@ -409,7 +409,7 @@ class ViewDirective(Directive):
         '''
         super(ViewDirective, self).__init__(app)
         self.model = model
-        self.render = render
+        self.render = render or render_view
         self.permission = permission
         self.internal = internal
         self.predicates = predicates

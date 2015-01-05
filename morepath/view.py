@@ -29,17 +29,19 @@ class View(object):
         if isinstance(content, BaseResponse):
             # the view took full control over the response
             return content
-        # XXX consider always setting a default render so that self.render
-        # can never be None
-        if self.render is not None:
-            response = self.render(content, request)
-        else:
-            response = Response(content, content_type='text/plain')
+        response = self.render(content, request)
         request.run_after(response)
         return response
 
 
-def register_view(registry, key_dict, view, render=None, permission=None,
+def render_view(content, request):
+    """Default render function for view if none was supplied.
+    """
+    return Response(content, content_type='text/plain')
+
+
+def register_view(registry, key_dict, view, render=render_view,
+                  permission=None,
                   internal=False):
     v = View(view, render, permission, internal)
     registry.register_function(generic.view, v, **key_dict)
