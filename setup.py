@@ -1,10 +1,10 @@
-import os
+import os, io
 from setuptools import setup, find_packages
 
 long_description = (
-    open('README.rst').read()
+    io.open('README.rst', encoding='utf-8').read()
     + '\n' +
-    open('CHANGES.txt').read())
+    io.open('CHANGES.txt', encoding='utf-8').read())
 
 setup(name='morepath',
       version='0.10.dev0',
