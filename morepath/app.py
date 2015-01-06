@@ -17,6 +17,7 @@ from .compat import with_metaclass
 from .implicit import set_implicit
 from .mount import MountRegistry
 from .reify import reify
+from .view import TemplateEngineRegistry
 
 
 COMPONENT_CACHE_SIZE = 5000
@@ -25,7 +26,7 @@ FALLBACK_CACHE_SIZE = 5000
 
 
 class Registry(Configurable, RegRegistry, MountRegistry, PredicateRegistry,
-               ConverterRegistry, TweenRegistry):
+               ConverterRegistry, TweenRegistry, TemplateEngineRegistry):
     """A registry holding an application's configuration.
     """
     app = None # app this registry belongs to. set later during scanning
@@ -39,6 +40,7 @@ class Registry(Configurable, RegRegistry, MountRegistry, PredicateRegistry,
         Configurable.__init__(self, bases, testing_config)
         ConverterRegistry.__init__(self)
         TweenRegistry.__init__(self)
+        TemplateEngineRegistry.__init__(self)
         self.settings = SettingSectionContainer()
         self.clear()
 
@@ -54,6 +56,7 @@ class Registry(Configurable, RegRegistry, MountRegistry, PredicateRegistry,
         Configurable.clear(self)
         ConverterRegistry.clear(self)
         TweenRegistry.clear(self)
+        TemplateEngineRegistry.clear(self)
         self.traject = Traject()
 
     @reify

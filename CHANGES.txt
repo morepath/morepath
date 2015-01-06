@@ -4,8 +4,16 @@ CHANGES
 0.10 (unreleased)
 =================
 
+- Server-side templating language support: there is now a ``template``
+  argument for the ``html`` directive (and ``view`` and ``json``).
+  You need to use a plugin to add particular template languages to
+  your project, such as ``more.chameleon`` and ``more.jinja2``, but
+  you can also add your own.
+
 - Add a new "A Review of the Web" document to the docs to show how
   Morepath fits within the web.
+
+  http://morepath.readthedocs.org/en/latest/web.html
 
 - The publisher does not respond to a ``None`` render function
   anymore. Instead, the ``view`` directive now uses a default

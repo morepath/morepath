@@ -4,6 +4,8 @@ A Review of the Web
 Morepath is a web framework. Here is a quick review of how the web
 works, how applications can be built with it, and how Morepath fits.
 
+.. _review-http-protocol:
+
 HTTP protocol
 -------------
 
@@ -38,6 +40,8 @@ response to incoming HTTP requests.
 
 .. _HTTP: https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol
 
+.. _review-web-browser:
+
 Web browser
 -----------
 
@@ -45,6 +49,8 @@ A web browser such as Firefox, Chrome and Internet Explorer uses the
 HTTP protocol to talk to web servers.
 
 A web browser is a type of *HTTP client*.
+
+.. _review-web-server:
 
 Web server
 ----------
@@ -66,6 +72,8 @@ A web server is programmable in various ways. Morepath can plug into
 web servers that implement the Python WSGI_ protocol.
 
 .. _WSGI: https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface
+
+.. _review-web-application:
 
 Web application
 ---------------
@@ -89,6 +97,8 @@ Morepath code runs entirely on the server, but supports web
 applications that want to implement a large part of their dynamic
 behavior within the web browser.
 
+.. _review-web-service:
+
 Web service
 -----------
 
@@ -103,6 +113,8 @@ tends to increase the quality of the implementation.
 
 Morepath helps developers to implement web services.
 
+.. _review-custom-http-client:
+
 Custom HTTP client
 ------------------
 
@@ -113,6 +125,8 @@ programmatically. This uses it as a web service.
 JavaScript code in a web browser can also use the browser's facilities
 to talk to the web server programmatically (a technique called AJAX),
 and can thus serve as a custom HTTP client as well.
+
+.. _review-framework:
 
 Framework
 ---------
@@ -127,12 +141,16 @@ need to fill in the details, and the framework handles the rest.
 There is a gray area between library and framework. Morepath is mostly
 a framework.
 
+.. _review-server-web-framework:
+
 Server web framework
 --------------------
 
 A framework that helps you program the behavior of a web
 server. Morepath is a server web framework written in the Python
 programming language.
+
+.. _review-javascript:
 
 JavaScript
 ----------
@@ -149,6 +167,8 @@ Bower is a tool to help manage client-side JavaScript code.
 
 .. _JavaScript: https://en.wikipedia.org/wiki/JavaScript
 
+.. _review-bower:
+
 Bower
 -----
 
@@ -161,6 +181,8 @@ Morepath offers Bower integration, see: :doc:`more.static`.
 
 .. _Bower: http://bower.io
 
+.. _review-ajax:
+
 AJAX
 ----
 
@@ -169,6 +191,8 @@ browser application in JavaScript. These resources typically have a
 JSON representation.
 
 .. _AJAX: https://en.wikipedia.org/wiki/Ajax_%28programming%29
+
+.. _review-client-web-framework:
 
 Client web framework
 --------------------
@@ -181,6 +205,8 @@ Morepath supports client-side code that uses a client web framework,
 but does not implement a client web framework itself. You can pick
 whichever you want.
 
+.. _review-wsgi:
+
 WSGI
 ----
 
@@ -191,6 +217,8 @@ which are layered between application code and server.
 A :class:`morepath.App` instance implements the WSGI protocol and can
 therefore be integrated with a WSGI-compliant web server and WSGI
 framework component.
+
+.. _review-http-request:
 
 HTTP request
 ------------
@@ -207,6 +235,8 @@ Python request object using the WebOb_ library. It is a
 :class:`webob.request.BaseRequest`.
 
 .. _WebOb: http://webob.org/
+
+.. _review-http-response:
 
 HTTP response
 -------------
@@ -233,6 +263,8 @@ creates the response with the right content type for you. Should you
 wish to set additional information on the response object, you can use
 :meth:`morepath.Request.after`.
 
+.. _review-resource:
+
 Resource
 --------
 
@@ -255,6 +287,8 @@ on other web servers.
 
 .. _IRI: https://en.wikipedia.org/wiki/Internationalized_resource_identifier
 
+.. _review-url:
+
 URL
 ---
 
@@ -274,6 +308,8 @@ A HTTP client such as a web browser uses URLs to determine:
 
 The server determines how it responds to requests for particular paths.
 
+.. _review-path:
+
 Path
 ----
 
@@ -292,6 +328,8 @@ Example::
   def get_document(id):
      return query_document(id)
 
+.. _review-link-generation:
+
 Link generation
 ---------------
 
@@ -306,6 +344,8 @@ of ``Document`` using :meth:`morepath.Request.link`::
   request.link(some_document)
 
 This makes it easy to create links within Morepath view functions.
+
+.. _review-headers:
 
 Headers
 -------
@@ -358,6 +398,8 @@ use the `more.forwarded`_ extension.
 
 .. _forwarded: http://tools.ietf.org/html/rfc7239
 
+.. _review-cookies:
+
 Cookies
 -------
 
@@ -396,6 +438,8 @@ cookies.
 
 .. _`HTTP cookies`: https://en.wikipedia.org/wiki/HTTP_cookie
 
+.. _review-content-types:
+
 Content types
 -------------
 
@@ -420,6 +464,8 @@ special support for generating HTML and JSON responses (using
 :meth:`morepath.App.html` and :meth:`morepath.App.json`), and for
 processing a JSON request body (see ``load_json`` in :doc:`json`).
 
+.. _review-view:
+
 View
 ----
 
@@ -439,6 +485,8 @@ There are also specific :meth:`morepath.App.json` and
 :meth:`morepath.App.html` directives to support those content types.
 
 See :doc:`views` for much more on how to construct Morepath views.
+
+.. _review-http-request-method:
 
 HTTP request method
 -------------------
@@ -467,6 +515,8 @@ You can access the method on the request using
 :attr:`webob.request.BaseRequest.method`, but typically Morepath does
 this for you when you use the ``request_method`` predicate.
 
+.. _review-view-predicate:
+
 View predicate
 --------------
 
@@ -490,6 +540,8 @@ status code to set when the view cannot be matched.
 
 See `view predicates
 <http://morepath.readthedocs.org/en/latest/views.html#predicates>`_
+
+.. _review-http-status-codes:
 
 HTTP status codes
 -----------------
@@ -548,6 +600,8 @@ the :attr:`webob.response.Response.status` attribute on the response.
 
 .. _`special exceptions`: http://docs.webob.org/en/latest/modules/exceptions.html
 
+.. _review-json:
+
 JSON
 ----
 
@@ -595,6 +649,8 @@ client.
 
 .. _JSON: https://en.wikipedia.org/wiki/JSON
 
+.. _review-json-ld:
+
 JSON-LD
 -------
 
@@ -624,6 +680,8 @@ use it.
 
 .. _`JSON-LD`: http://json-ld.org/
 
+.. _review-http-api:
+
 HTTP API
 --------
 
@@ -651,6 +709,8 @@ Morepath is designed to help you build HTTP APIs, but also to go you a
 step further to full REST.
 
 .. _`Richardson Maturity Model`: http://martinfowler.com/articles/richardsonMaturityModel.html
+
+.. _review-rest-web-service:
 
 REST web service
 ----------------
@@ -680,6 +740,8 @@ links.
 
 .. _REST: https://en.wikipedia.org/wiki/Representational_state_transfer
 
+.. _review-html-and-css:
+
 HTML and CSS
 ------------
 
@@ -705,8 +767,9 @@ Morepath at this point does not have support for server-side
 templating.
 
 See :doc:`more.static` for information on how you can load static
-resources such as CSS and JavaScript automatically to augment a HTML
-page.
+resources such as CSS and JavaScript automatically to augment a HTML page.
+
+.. _review-web-page:
 
 Web page
 --------
@@ -734,6 +797,8 @@ used to implement single-page web applications.
 .. _HTML: https://en.wikipedia.org/wiki/HTML
 
 .. _CSS: https://en.wikipedia.org/wiki/Cascading_Style_Sheets
+
+.. _review-single-page-web-application:
 
 Single-page web application
 ---------------------------

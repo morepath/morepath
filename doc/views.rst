@@ -233,6 +233,19 @@ Here's how you use them::
   def document_default(self, request):
       return {'my': 'json'}
 
+
+Templates
+---------
+
+You can use a server template with a view by using the ``template``
+argument::
+
+  @App.html(model=Document, template='document.pt')
+  def document_default(self, request):
+      return { 'title': self.title, 'content': self.content }
+
+See :doc:`templates` for more information.
+
 Permissions
 -----------
 

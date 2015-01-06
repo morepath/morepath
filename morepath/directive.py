@@ -1,3 +1,4 @@
+import os
 from .app import App
 from .config import Directive as ConfigDirective
 from .settings import register_setting
@@ -358,12 +359,43 @@ class PermissionRuleDirective(Directive):
             registry, self.identity, self.model, self.permission, obj)
 
 
+@App.directive('template_engine')
+class TemplateEngineDirective(Directive):
+    depends = [SettingDirective]
+
+    def __init__(self, app, extension):
+        '''Register a template engine.
+
+        :param extension: the template file extension (``.pt``, etc)
+          we want this template engine to handle.
+
+        The decorated function gets ``app``, ``template_path`` and
+        ``original_render`` arguments. It should return a ``callable``
+        that is a view ``render`` function: take a ``content`` and
+        ``request`` object and return a :class:`morepath.Response`
+        instance. This render callable should render the return value
+        of the view with the template supplied through its
+        ``template`` argument.
+        '''
+        super(TemplateEngineDirective, self).__init__(app)
+        self.extension = extension
+
+    def identifier(self, registry):
+        return self.extension
+
+    def perform(self, registry, obj):
+        registry.register_template_engine(self.extension, obj)
+
+
 @App.directive('view')
 class ViewDirective(Directive):
-    depends = [SettingDirective, PredicateDirective]
+    depends = [SettingDirective, PredicateDirective,
+               TemplateEngineDirective]
 
-    def __init__(self, app, model, render=None, permission=None,
+    def __init__(self, app, model, render=None, template=None,
+                 permission=None,
                  internal=False, **predicates):
+
         '''Register a view for a model.
 
         The decorated function gets ``self`` (model instance) and
@@ -389,6 +421,12 @@ class ViewDirective(Directive):
           view function to a response, and possibly set headers such as
           ``Content-Type``, etc. This function takes ``self`` and
           ``request`` parameters as input.
+        :param template: a path to a template file. The path is relative
+           to the directory this module is in. The template is applied to
+           the content returned from the decorated view function.
+
+           Use the :meth:`morepath.App.template_engine` directive to
+           define support for new template engines.
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
@@ -406,13 +444,29 @@ class ViewDirective(Directive):
         :param predicates: additional predicates to match this view
           on. You can install your own using the
           :meth:`morepath.App.predicate` directive.
+
         '''
         super(ViewDirective, self).__init__(app)
         self.model = model
         self.render = render or render_view
+        self.template = template
         self.permission = permission
         self.internal = internal
         self.predicates = predicates
+
+    def prepare(self, obj):
+        if self.template is None:
+            yield self, obj
+            return
+        if self.attach_info is not None:
+            module_path = os.path.dirname(self.attach_info.module.__file__)
+        else:
+            module_path = ''
+        full_template_path = os.path.join(module_path, self.template)
+        if not os.path.exists(full_template_path):
+            raise ConfigError(
+                    "Template file not found: %s" % full_template_path)
+        yield self.clone(template=full_template_path), obj
 
     def clone(self, **kw):
         # XXX standard clone doesn't work due to use of predicates
@@ -445,12 +499,13 @@ class ViewDirective(Directive):
         registry.install_predicates(generic.view)
         registry.register_dispatch(generic.view)
         register_view(registry, self.key_dict(), obj,
-                      self.render, self.permission, self.internal)
+                      self.render, self.template,
+                      self.permission, self.internal)
 
 
 @App.directive('json')
 class JsonDirective(ViewDirective):
-    def __init__(self, app, model, render=None, permission=None,
+    def __init__(self, app, model, render=None, template=None, permission=None,
                  internal=False, **predicates):
         """Register JSON view.
 
@@ -469,6 +524,12 @@ class JsonDirective(ViewDirective):
           such as ``Content-Type``, etc. Renders as JSON by
           default. This function takes ``self`` and
           ``request`` parameters as input.
+        :param template: a path to a template file. The path is relative
+           to the directory this module is in. The template is applied to
+           the content returned from the decorated view function.
+
+           Use the :meth:`morepath.App.template_engine` directive to
+           define support for new template engines.
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
@@ -487,8 +548,8 @@ class JsonDirective(ViewDirective):
           documentation of :meth:`App.view` for more information.
         """
         render = render or render_json
-        super(JsonDirective, self).__init__(app, model, render, permission,
-                                            internal, **predicates)
+        super(JsonDirective, self).__init__(app, model, render, template,
+                                            permission, internal, **predicates)
 
     def group_key(self):
         return ViewDirective
@@ -496,7 +557,7 @@ class JsonDirective(ViewDirective):
 
 @App.directive('html')
 class HtmlDirective(ViewDirective):
-    def __init__(self, app, model, render=None, permission=None,
+    def __init__(self, app, model, render=None, template=None, permission=None,
                  internal=False, **predicates):
         """Register HTML view.
 
@@ -514,6 +575,12 @@ class HtmlDirective(ViewDirective):
           such as ``Content-Type``, etc. Renders as HTML by
           default. This function takes ``self`` and
           ``request`` parameters as input.
+        :param template: a path to a template file. The path is relative
+           to the directory this module is in. The template is applied to
+           the content returned from the decorated view function.
+
+           Use the :meth:`morepath.App.template_engine` directive to
+           define support for new template engines.
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
@@ -532,8 +599,8 @@ class HtmlDirective(ViewDirective):
           documentation of :meth:`App.view` for more information.
         """
         render = render or render_html
-        super(HtmlDirective, self).__init__(app, model, render, permission,
-                                            internal, **predicates)
+        super(HtmlDirective, self).__init__(app, model, render, template,
+                                            permission, internal, **predicates)
 
     def group_key(self):
         return ViewDirective

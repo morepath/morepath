@@ -15,6 +15,7 @@ Table of Contents
    web
    paths_and_linking
    views
+   templates
    json
    security
    rest
