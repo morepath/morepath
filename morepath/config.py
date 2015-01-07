@@ -389,7 +389,7 @@ class Directive(Action):
             arguments += ', '.join(['%s=%r' % (key, value) for key, value in
                                     sorted(kw.items())])
         else:
-            assert False
+            assert False  # pragma: nocoverage
 
         message = '@%s.%s(%s) on %s' % (
             target_dotted_name, self.directive_name, arguments,
