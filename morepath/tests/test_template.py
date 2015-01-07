@@ -9,7 +9,7 @@ def setup_module(module):
     morepath.disable_implicit()
 
 
-def test_template():
+def test_template_fixture():
     config = morepath.setup()
     config.scan(template)
     config.commit()
@@ -19,7 +19,7 @@ def test_template():
     assert response.body == b'<p>Hello world!</p>\n'
 
 
-def test_template():
+def test_template_inline():
     config = morepath.setup()
 
     class App(morepath.App):
