@@ -12,24 +12,9 @@ class TemplateEngineRegistry(object):
 
     def clear(self):
         self._template_engines = {}
-        self._template_files = {}
 
     def register_template_engine(self, extension, func):
         self._template_engines[extension] = func
-
-    def register_template_file(self, name, base_path, func):
-        self._template_files[name] = base_path, func
-
-    def has_template_file(self, name):
-        return self._template_files.get(name) is not None
-
-    def get_template_file(self, name, request):
-        info = self._template_files.get(name)
-        if info is None:
-            raise TemplateFileError(
-                "Cannot find template_file for %s" % name)
-        base_path, func = info
-        return os.path.join(base_path, func(request))
 
     def get_template_render(self, name, original_render, module):
         _, extension = os.path.splitext(name)

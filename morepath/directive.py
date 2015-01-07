@@ -387,26 +387,26 @@ class TemplateEngineDirective(Directive):
         registry.register_template_engine(self.extension, obj)
 
 
-@App.directive('template_file')
-class TemplateFileDirective(Directive):
+@App.directive('template_path')
+class TemplatePathDirective(Directive):
     depends = [SettingDirective]
 
     def __init__(self, app, name):
-        '''Declare an explicit template file.
+        '''Declare template path explicitly.
 
-        This can be used to set a template file that is only
-        determined at runtime. Since it is a directive, it can also be
-        overridden.
+        This can be used to set a template path that is determined at
+        runtime. Since it is a directive, it can also be overridden.
 
         :param name: the template name. If referred to in the
           ``template`` argument of a view directive, the path returned
           from the decorated function is used.
 
-        The decorated function gets the request as an argument. It should
-        return a filesystem path, either absolute or relative. If a relative
-        path, the path is relative to the place this directive was used.
+        The decorated function gets the template name as an argument.
+        It should return a filesystem path, either absolute or
+        relative. If a relative path, the path is relative to the
+        place this directive was used.
         '''
-        super(TemplateFileDirective, self).__init__(app)
+        super(TemplatePathDirective, self).__init__(app)
         self.name = name
 
     def identifier(self, registry):
@@ -417,13 +417,17 @@ class TemplateFileDirective(Directive):
             package_path = os.path.dirname(self.attach_info.module.__file__)
         else:
             package_path = ''
-        registry.register_template_file(self.name, package_path, obj)
+
+        def template_path(name):
+            return os.path.join(package_path, obj())
+        registry.register_function(generic.template_path, template_path,
+                                   name=self.name)
 
 
 @App.directive('view')
 class ViewDirective(Directive):
     depends = [SettingDirective, PredicateDirective,
-               TemplateEngineDirective, TemplateFileDirective]
+               TemplateEngineDirective, TemplatePathDirective]
 
     def __init__(self, app, model, render=None, template=None,
                  permission=None,
