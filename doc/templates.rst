@@ -24,7 +24,7 @@ Example
 -------
 
 Here is an example that uses the `Chameleon template engine`_ using
-the ``more.chameleon`` extension::
+the `more.chameleon`_ extension::
 
   from more.chameleon import ChameleonApp
 
@@ -65,8 +65,8 @@ the request. This results in a rendered template that is returned as
 the response.
 
 Note that Morepath does not have a single preferred template
-language. The example used ``more.chameleon``, but you can use other
-template languages instead: ``more.jinja2`` for instance.
+language. The example used `more.chameleon`_, but you can use other
+template languages instead: `more.jinja2`_ for instance.
 
 Details
 -------
@@ -108,20 +108,23 @@ the view function along with a request object, and should return a
 WebOb response.
 
 Here is an example of how you can integrate the Chameleon template engine
-for ``.pt`` files::
+for ``.pt`` files (taken from `more.chameleon`_)::
 
   import chameleon
 
   @App.template_engine(extension='.pt')
   def get_chameleon_render(path, original_render, settings):
-      # construct Chameleon config dict from settings somehow
-      config = make_config(settings)
-      template = chameleon.PageTemplateFile(template_path, config)
+      config = settings.chameleon.__dict__
+      template = chameleon.PageTemplateFile(path, **config)
       def render(content, request):
-          variables = { 'request': request }
-          return original_render(template(options=content, **variables),
-                                 request)
+          variables = {'request': request}
+          variables.update(content)
+          return original_render(template.render(**variables), request)
       return render
+
+  @App.setting_section(section='chameleon')
+  def get_setting_section():
+      return {'auto_reload': False}
 
 Some details:
 
@@ -139,6 +142,10 @@ Some details:
   * App settings. This can contain useful information to configure the
     template engine.
 
+* The decorated function takes the configuration dictionary from a
+  special setting section for Chameleon called ``chameleon``, which is
+  then passed along to Chameleon.
+
 * The decorated function needs to return a ``render`` function which
   takes the content to render (output from view function) and the
   request as arguments.
@@ -147,3 +154,7 @@ Some details:
   which is passed in as an argument as ``original_render``
   function. It can also create a ``morepath.Response`` object
   directly.
+
+.. _`more.chameleon`: http://pypi.python.org/pypi/more.chameleon
+
+.. _`more.jinja2`: http://pypi.python.org/pypi/more.jinja2
