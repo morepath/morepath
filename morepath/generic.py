@@ -110,7 +110,7 @@ def link_prefix(request):
 
 
 @reg.dispatch(reg.match_key('name', lambda name: name))
-def template_path(name):
+def template_path(name, request):
     """Returns the template path given a template name.
     """
     return None

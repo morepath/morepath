@@ -401,10 +401,10 @@ class TemplatePathDirective(Directive):
           ``template`` argument of a view directive, the path returned
           from the decorated function is used.
 
-        The decorated function gets the template name as an argument.
-        It should return a filesystem path, either absolute or
-        relative. If a relative path, the path is relative to the
-        place this directive was used.
+        The decorated function gets the template name and the request
+        as an argument.  It should return a filesystem path, either
+        absolute or relative. If a relative path, the path is relative
+        to the place this directive was used.
         '''
         super(TemplatePathDirective, self).__init__(app)
         self.name = name
@@ -418,8 +418,8 @@ class TemplatePathDirective(Directive):
         else:
             package_path = ''
 
-        def template_path(name):
-            return os.path.join(package_path, obj())
+        def template_path(name, request):
+            return os.path.join(package_path, obj(request))
         registry.register_function(generic.template_path, template_path,
                                    name=self.name)
 
