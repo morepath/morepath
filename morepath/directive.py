@@ -387,10 +387,43 @@ class TemplateEngineDirective(Directive):
         registry.register_template_engine(self.extension, obj)
 
 
+@App.directive('template_file')
+class TemplateFileDirective(Directive):
+    depends = [SettingDirective]
+
+    def __init__(self, app, name):
+        '''Declare an explicit template file.
+
+        This can be used to set a template file that is only
+        determined at runtime. Since it is a directive, it can also be
+        overridden.
+
+        :param name: the template name. If referred to in the
+          ``template`` argument of a view directive, the path returned
+          from the decorated function is used.
+
+        The decorated function gets the request as an argument. It should
+        return a filesystem path, either absolute or relative. If a relative
+        path, the path is relative to the place this directive was used.
+        '''
+        super(TemplateFileDirective, self).__init__(app)
+        self.name = name
+
+    def identifier(self, registry):
+        return self.name
+
+    def perform(self, registry, obj):
+        if self.attach_info is not None:
+            package_path = os.path.dirname(self.attach_info.module.__file__)
+        else:
+            package_path = ''
+        registry.register_template_file(self.name, package_path, obj)
+
+
 @App.directive('view')
 class ViewDirective(Directive):
     depends = [SettingDirective, PredicateDirective,
-               TemplateEngineDirective]
+               TemplateEngineDirective, TemplateFileDirective]
 
     def __init__(self, app, model, render=None, template=None,
                  permission=None,
@@ -454,20 +487,6 @@ class ViewDirective(Directive):
         self.internal = internal
         self.predicates = predicates
 
-    def prepare(self, obj):
-        if self.template is None:
-            yield self, obj
-            return
-        if self.attach_info is not None:
-            module_path = os.path.dirname(self.attach_info.module.__file__)
-        else:
-            module_path = ''
-        full_template_path = os.path.join(module_path, self.template)
-        if not os.path.exists(full_template_path):
-            raise ConfigError(
-                "Template file not found: %s" % full_template_path)
-        yield self.clone(template=full_template_path), obj
-
     def clone(self, **kw):
         # XXX standard clone doesn't work due to use of predicates
         # non-immutable in __init__. move this to another phase so
@@ -479,7 +498,9 @@ class ViewDirective(Directive):
             permission=self.permission)
         args.update(self.predicates)
         args.update(kw)
-        return ViewDirective(**args)
+        result = ViewDirective(**args)
+        result.attach_info = self.attach_info
+        return result
 
     def key_dict(self):
         result = self.predicates.copy()
@@ -498,8 +519,12 @@ class ViewDirective(Directive):
     def perform(self, registry, obj):
         registry.install_predicates(generic.view)
         registry.register_dispatch(generic.view)
+        if self.attach_info is not None:
+            module = self.attach_info.module
+        else:
+            module = None
         register_view(registry, self.key_dict(), obj,
-                      self.render, self.template,
+                      self.render, self.template, module,
                       self.permission, self.internal)
 
 

@@ -3,7 +3,7 @@ import morepath
 from morepath.error import ConfigError
 from webtest import TestApp as Client
 import pytest
-from .fixtures import template
+from .fixtures import template, template_override
 
 
 def setup_module(module):
@@ -20,6 +20,21 @@ def test_template_fixture():
     assert response.body == b'<p>Hello world!</p>\n'
 
 
+def test_template_override_fixture():
+    config = morepath.setup()
+    config.scan(template_override)
+    config.commit()
+    c = Client(template_override.App())
+
+    response = c.get('/world')
+    assert response.body == b'<p>Hello world!</p>\n'
+
+    c = Client(template_override.SubApp())
+
+    response = c.get('/world')
+    assert response.body == b'<div>Hi world!</div>\n'
+
+
 def test_template_inline():
     config = morepath.setup()
 
@@ -32,8 +47,8 @@ def test_template_inline():
             self.name = name
 
     @App.template_engine(extension='.format')
-    def get_format_render(path, original_render, settings):
-        with open(path, 'rb') as f:
+    def get_format_render(name, original_render, settings, search_path):
+        with open(os.path.join(search_path, name), 'rb') as f:
             template = f.read()
         def render(content, request):
             return original_render(template.format(**content), request)
@@ -67,8 +82,8 @@ def test_template_file_missing():
             self.name = name
 
     @App.template_engine(extension='.format')
-    def get_format_render(path, original_render, settings):
-        with open(path, 'rb') as f:
+    def get_format_render(name, original_render, settings, search_path):
+        with open(os.path.join(search_path, name), 'rb') as f:
             template = f.read()
         def render(content, request):
             return original_render(template.format(**content), request)
@@ -82,5 +97,5 @@ def test_template_file_missing():
     def person_default(self, request):
         return { 'name': self.name }
 
-    with pytest.raises(ConfigError):
+    with pytest.raises(IOError):
         config.commit()

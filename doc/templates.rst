@@ -68,6 +68,38 @@ Note that Morepath does not have a single preferred template
 language. The example used `more.chameleon`_, but you can use other
 template languages instead: `more.jinja2`_ for instance.
 
+Explicit templates
+------------------
+
+In the example above we hardcoded the file from which the template is
+to be loaded. Sometimes this is not what you want: you want control
+which template is in use dynamically. For this you can use explicit
+templates.
+
+Here is an example::
+
+  @App.template_file('person.pt')
+  def get_person_template(request):
+      return 'some_templates/person.pt'
+
+Now when you refer to the template `person.pt` in a view using the
+``template`` argument, the explicit template with that name is found,
+and this function is called.
+
+The value returned from the function is the filesystem path to the
+template. If the path does not start with a ``/``, then the path is
+interpreted to be relative to the place of declaration, otherwise it
+is an absolute path.
+
+Overriding templates
+--------------------
+
+Explicit templates let you *override* templates in subclasses of your
+app. Just use the ``template_file`` directive with the name you want
+to override. The subclassed app now uses the overridden template
+instead of the original one. This can be especially handy when you use
+macros with Chameleon, or Jinja2 inheritance.
+
 Details
 -------
 

@@ -12,14 +12,34 @@ class TemplateEngineRegistry(object):
 
     def clear(self):
         self._template_engines = {}
+        self._template_files = {}
 
     def register_template_engine(self, extension, func):
         self._template_engines[extension] = func
 
-    def get_template_render(self, path, original_render):
-        _, extension = os.path.splitext(path)
+    def register_template_file(self, name, base_path, func):
+        self._template_files[name] = base_path, func
+
+    def has_template_file(self, name):
+        return self._template_files.get(name) is not None
+
+    def get_template_file(self, name, request):
+        info = self._template_files.get(name)
+        if info is None:
+            raise TemplateFileError(
+                "Cannot find template_file for %s" % name)
+        base_path, func = info
+        return os.path.join(base_path, func(request))
+
+    def get_template_render(self, name, original_render, module):
+        _, extension = os.path.splitext(name)
         engine = self._template_engines.get(extension)
-        return engine(path, original_render, self.settings)
+        if module is not None:
+            search_path = os.path.dirname(module.__file__)
+        else:
+            # only in testing scenarios
+            search_path = '/'
+        return engine(name, original_render, self, search_path)
 
 
 class View(object):
@@ -60,10 +80,11 @@ def render_view(content, request):
 def register_view(registry, key_dict, view,
                   render=render_view,
                   template=None,
+                  module=None,
                   permission=None,
                   internal=False):
     if template is not None:
-        render = registry.get_template_render(template, render)
+        render = registry.get_template_render(template, render, module)
     v = View(view, render, permission, internal)
     registry.register_function(generic.view, v, **key_dict)
 
