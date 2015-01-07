@@ -1,3 +1,4 @@
+import os
 import morepath
 from webtest import TestApp as Client
 import pytest
@@ -17,32 +18,37 @@ def test_template():
     response = c.get('/world')
     assert response.body == b'<p>Hello world!</p>\n'
 
-# def test_template():
-#     config = morepath.setup()
 
-#     class App(morepath.App):
-#         testing_config = config
+def test_template():
+    config = morepath.setup()
 
-#     @App.path(path='{name}')
-#     class Person(object):
-#         def __init__(self, name):
-#             self.name = name
+    class App(morepath.App):
+        testing_config = config
 
-#     @App.template_engine(extension='.format')
-#     def get_format_render(path, original_render, settings):
-#         with open(path, 'rb') as f:
-#             template = f.read()
-#         def render(content, request):
-#             return template.format(**content)
-#         return render
+    @App.path(path='{name}')
+    class Person(object):
+        def __init__(self, name):
+            self.name = name
 
-#     @App.html(model=Person, template='templates/person.format')
-#     def person_default(self, request):
-#         return { 'name': self.name }
+    @App.template_engine(extension='.format')
+    def get_format_render(path, original_render, settings):
+        with open(path, 'rb') as f:
+            template = f.read()
+        def render(content, request):
+            return original_render(template.format(**content), request)
+        return render
 
-#     config.commit()
+    # relative paths don't work inside a test, only in a real
+    # fixture
+    full_template_path = os.path.join(os.path.dirname(__file__),
+                                      'templates/person.format')
+    @App.html(model=Person, template=full_template_path)
+    def person_default(self, request):
+        return { 'name': self.name }
 
-#     c = Client(App())
+    config.commit()
 
-#     response = c.get('/world')
-#     assert response.body == b'<p>Hello world!</p>'
+    c = Client(App())
+
+    response = c.get('/world')
+    assert response.body == b'<p>Hello world!</p>\n'

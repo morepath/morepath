@@ -465,7 +465,7 @@ class ViewDirective(Directive):
         full_template_path = os.path.join(module_path, self.template)
         if not os.path.exists(full_template_path):
             raise ConfigError(
-                    "Template file not found: %s" % full_template_path)
+                "Template file not found: %s" % full_template_path)
         yield self.clone(template=full_template_path), obj
 
     def clone(self, **kw):
