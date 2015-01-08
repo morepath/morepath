@@ -24,7 +24,7 @@ def get_format_render(name, original_render, registry, search_path):
 
 
 @App.template_path('templates/person.format')
-def get_template_path(request):
+def get_template_path_original(request):
     return 'templates/person.format'
 
 
@@ -38,5 +38,5 @@ class SubApp(App):
 
 
 @SubApp.template_path('templates/person.format')
-def get_template_path(request):
+def get_template_path_override(request):
     return 'templates/person2.format'
