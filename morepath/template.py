@@ -46,10 +46,6 @@ class TemplateEngineRegistry(object):
         self._template_renders[extension] = func
 
     def initialize_template_loader(self, extension, func):
-        template_directories = self.sorted_template_directories()
-        if not template_directories:
-            raise ConfigError("No template directories configured, use "
-                              "template_directory to configure one.")
         self._template_loaders[extension] = func(
             self.sorted_template_directories(), self.settings)
 

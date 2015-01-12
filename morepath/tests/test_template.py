@@ -76,5 +76,6 @@ def test_unknown_extension_no_render():
 def test_no_template_directories():
     config = morepath.setup()
     config.scan(template_no_template_directories)
-    with pytest.raises(ConfigError):
-        config.commit()
+    # we accept no template directories, as it is possible
+    # for a base frameworky app not to define any (ChameleonApp, Jinja2App)
+    config.commit()
