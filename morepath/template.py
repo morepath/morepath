@@ -1,5 +1,6 @@
 import os
 from .toposort import toposorted
+from .error import ConfigError
 
 
 class TemplateDirectoryInfo(object):
@@ -44,6 +45,10 @@ class TemplateEngineRegistry(object):
         self._template_renders[extension] = func
 
     def initialize_template_loader(self, extension, func):
+        template_directories = self.sorted_template_directories()
+        if not template_directories:
+            raise ConfigError("No template directories configured, use "
+                              "template_directory to configure one.")
         self._template_loaders[extension] = func(
             self.sorted_template_directories(), self.settings)
 
@@ -61,5 +66,11 @@ class TemplateEngineRegistry(object):
     def get_template_render(self, name, original_render):
         _, extension = os.path.splitext(name)
         loader = self._template_loaders.get(extension)
+        if loader is None:
+            raise ConfigError(
+                "No template_loader configured for extension: %s" % extension)
         get_render = self._template_renders.get(extension)
+        if get_render is None:
+            raise ConfigError(
+                "No template_render configured for extension: %s" % extension)
         return get_render(loader, name, original_render)
