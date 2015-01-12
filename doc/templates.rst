@@ -159,13 +159,20 @@ for ``.pt`` files (taken from `more.chameleon`_)::
 
   @App.template_loader(extension='.pt')
   def get_template_loader(template_directories, settings):
-      config = settings.chameleon.__dict__
+      settings = settings.chameleon.__dict__.copy()
+      # we control the search_path entirely by what we pass here as
+      # template_directories, so we never want the template itself
+      # to prepend its own path
+      settings['prepend_relative_search_path'] = False
       return chameleon.PageTemplateLoader(
-          search_path=template_directories, **config)
+          template_directories,
+          default_extension='.pt',
+          **settings)
 
   @App.template_render(extension='.pt')
   def get_chameleon_render(loader, name, original_render):
       template = loader.load(name)
+
       def render(content, request):
           variables = {'request': request}
           variables.update(content)
@@ -181,22 +188,25 @@ Some details:
 * ``extension`` is the file extension. When you refer to a template
   with a particular extension, this template engine is used.
 
-* The decorated function gets three arguments:
+* The function decorated by :meth:`morepath.App.template_loader` gets
+  two arguments: directories to look in for templates (earliest in the
+  list first), and Morepath settings from which template engine
+  settings can be extracted.
 
-  * ``path``: the absolute path to the template file to load.
+* The function decorated by :meth:`morepath.App.template_render`
+  gets three arguments:
 
-  * the ``original_render`` function as passed into the view
+  * ``loader``: the loader constructed by the ``template_loader``
+    directive.
+
+  * ``name``: the name of the template to create a render function for.
+
+  * The ``original_render`` function as passed into the view
     decorator, so ``render_html`` for instance. It takes the content
     to render and the request and returns a webob response object.
+    then passed along to Chameleon.
 
-  * App settings. This can contain useful information to configure the
-    template engine.
-
-* The decorated function takes the configuration dictionary from a
-  special setting section for Chameleon called ``chameleon``, which is
-  then passed along to Chameleon.
-
-* The decorated function needs to return a ``render`` function which
+  The decorated function needs to return a ``render`` function which
   takes the content to render (output from view function) and the
   request as arguments.
 

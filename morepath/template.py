@@ -4,26 +4,20 @@ from .error import ConfigError, TopologicalSortError
 
 
 class TemplateDirectoryInfo(object):
-    def __init__(self, key, directory, over, under, app):
+    def __init__(self, key, directory, before, after, app):
         self.key = key
         self.directory = directory
-        if over is not None:
-            over = [over]
+        if before is not None:
+            before = [before]
         else:
-            over = []
-        if under is not None:
-            under = [under]
+            before = []
+        if after is not None:
+            after = [after]
         else:
-            under = []
-        self.over = over
-        self.under = under
+            after = []
+        self.before = before
+        self.after = after
         self.app = app
-
-    def before(self):
-        return self.over
-
-    def after(self):
-        return self.under
 
 
 class TemplateEngineRegistry(object):
@@ -37,9 +31,9 @@ class TemplateEngineRegistry(object):
         self._template_app_to_keys = {}
 
     def register_template_directory_info(self, key,
-                                         directory, over, under, app):
+                                         directory, before, after, app):
         self._template_directory_infos.append(
-            TemplateDirectoryInfo(key, directory, over, under, app))
+            TemplateDirectoryInfo(key, directory, before, after, app))
         self._template_app_to_keys.setdefault(app, []).append(key)
 
     def register_template_render(self, extension, func):
@@ -51,12 +45,12 @@ class TemplateEngineRegistry(object):
 
     def sorted_template_directories(self):
         # make sure that template directories defined in subclasses
-        # override those in base classes
+        # beforeride those in base classes
         for info in self._template_directory_infos:
             extra_before = []
             for base in info.app.__bases__:
                 extra_before.extend(self._template_app_to_keys.get(base, []))
-            info.over.extend(extra_before)
+            info.before.extend(extra_before)
         try:
             return [info.directory for info in
                     toposorted(self._template_directory_infos)]

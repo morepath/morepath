@@ -5,21 +5,17 @@ def test_toposorted_single_before_after():
     class Info(object):
         def __init__(self, key, before=None, after=None):
             self.key = key
-            self._before = before
-            self._after = after
+            if before is not None:
+                self.before = [before]
+            else:
+                self.before = []
+            if after is not None:
+                self.after = [after]
+            else:
+                self.after = []
 
         def __repr__(self):
             return '<Info %r>' % self.key
-
-        def before(self):
-            if self._before is None:
-                return []
-            return [self._before]
-
-        def after(self):
-            if self._after is None:
-                return []
-            return [self._after]
 
     a = Info(1)
     b = Info(2, 1)
@@ -41,17 +37,11 @@ def test_toposorted_multi_before_after():
     class Info(object):
         def __init__(self, key, before=None, after=None):
             self.key = key
-            self._before = before or []
-            self._after = after or []
+            self.before = before or []
+            self.after = after or []
 
         def __repr__(self):
             return '<Info %r>' % self.key
-
-        def before(self):
-            return self._before
-
-        def after(self):
-            return self._after
 
     a = Info(1)
     b = Info(2, [1])

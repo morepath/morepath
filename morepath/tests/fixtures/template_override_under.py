@@ -41,6 +41,6 @@ class SubApp(App):
 
 
 # will break the topological sort DAG
-@SubApp.template_directory(under=get_template_directory)
+@SubApp.template_directory(after=get_template_directory)
 def get_template_directory_override():
     return 'templates2'

@@ -359,32 +359,36 @@ template_directory_id = 0
 class TemplateDirectoryDirective(Directive):
     depends = [SettingDirective]
 
-    def __init__(self, app, under=None, over=None, name=None):
+    def __init__(self, app, after=None, before=None, name=None):
         '''Register template directory.
 
-        The decorated function should return a relative or absolute path
-        to a directory containing templates that can be loaded by
-        this app. If a relative path, it is made absolute from the
-        directory this module is in.
+        The decorated function gets no argument and should return a
+        relative or absolute path to a directory containing templates
+        that can be loaded by this app. If a relative path, it is made
+        absolute from the directory this module is in.
 
         Template directories can be ordered: templates in a directory
-        over another one are found before templates in a directory
-        under it.
+        ``before`` another one are found before templates in a
+        directory ``after`` it. But you can leave both ``before`` and
+        ``after`` out: template directories defined in
+        sub-applications automatically have a higher priority than
+        those defined in base applications.
 
-        :param under: Template directory function this template directory
+        :param after: Template directory function this template directory
           function to be under. The other template directory has a higher
           priority. You usually want to use ``over``. Optional.
-        :param over: Template directory function function this function
+        :param before: Template directory function function this function
           should have priority over. Optional.
         :param name: The name under which to register this template
           directory, so that it can be overridden by applications that
           extend this one.  If no name is supplied a default name is
           generated.
+
         '''
         super(TemplateDirectoryDirective, self).__init__(app)
         global template_directory_id
-        self.under = under
-        self.over = over
+        self.after = after
+        self.before = before
         if name is None:
             name = u'template_directory_%s' % template_directory_id
             template_directory_id += 1
@@ -399,7 +403,7 @@ class TemplateDirectoryDirective(Directive):
         directory = os.path.join(os.path.dirname(
             self.attach_info.module.__file__), directory)
         registry.register_template_directory_info(
-            obj, directory, self.over, self.under, self.app)
+            obj, directory, self.before, self.after, self.app)
 
 
 @App.directive('template_loader')

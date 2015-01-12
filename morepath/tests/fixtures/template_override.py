@@ -40,6 +40,6 @@ class SubApp(App):
     pass
 
 
-@SubApp.template_directory(over=get_template_directory)
+@SubApp.template_directory(before=get_template_directory)
 def get_template_directory_override():
     return 'templates2'
