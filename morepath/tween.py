@@ -1,27 +1,28 @@
-from .toposort import topological_sort
+from .toposort import toposorted
+
+
+class TweenInfo(object):
+    def __init__(self, key, before, after):
+        self.key = key
+        if before is not None:
+            self.before = [before]
+        else:
+            self.before = []
+        if after is not None:
+            self.after = [after]
+        else:
+            self.after = []
 
 
 class TweenRegistry(object):
     def __init__(self):
-        self._tween_factories = {}
+        self.clear()
 
     def register_tween_factory(self, tween_factory, over, under):
-        self._tween_factories[tween_factory] = over, under
+        self._tween_infos.append(TweenInfo(tween_factory, over, under))
 
     def clear(self):
-        self._tween_factories = {}
+        self._tween_infos = []
 
     def sorted_tween_factories(self):
-        tween_factory_depends = {}
-        for tween_factory, (over, under) in self._tween_factories.items():
-            depends = []
-            if under is not None:
-                depends.append(under)
-            tween_factory_depends[tween_factory] = depends
-        for tween_factory, (over, under) in self._tween_factories.items():
-            if over is not None:
-                depends = tween_factory_depends[over]
-                depends.append(tween_factory)
-        return topological_sort(
-            self._tween_factories.keys(),
-            lambda tween_factory: tween_factory_depends.get(tween_factory, []))
+        return [info.key for info in toposorted(self._tween_infos)]
