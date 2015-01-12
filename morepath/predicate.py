@@ -1,22 +1,14 @@
 from reg import Predicate, KeyExtractor
-from .toposort import toposorted
+from .toposort import toposorted, Info
 
 
-class PredicateInfo(object):
+class PredicateInfo(Info):
     def __init__(self, func, name, default, index, before, after):
-        self.key = func
+        super(PredicateInfo, self).__init__(func, before, after)
         self.func = func
         self.name = name
         self.default = default
         self.index = index
-        if before is not None:
-            self.before = [before]
-        else:
-            self.before = []
-        if after is not None:
-            self.after = [after]
-        else:
-            self.after = []
 
 
 class PredicateRegistry(object):

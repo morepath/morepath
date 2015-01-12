@@ -1,22 +1,12 @@
 import os
-from .toposort import toposorted
+from .toposort import toposorted, Info
 from .error import ConfigError, TopologicalSortError
 
 
-class TemplateDirectoryInfo(object):
+class TemplateDirectoryInfo(Info):
     def __init__(self, key, directory, before, after, app):
-        self.key = key
+        super(TemplateDirectoryInfo, self).__init__(key, before, after)
         self.directory = directory
-        if before is not None:
-            before = [before]
-        else:
-            before = []
-        if after is not None:
-            after = [after]
-        else:
-            after = []
-        self.before = before
-        self.after = after
         self.app = app
 
 

@@ -21,6 +21,27 @@ def topological_sort(l, get_depends):
     return result
 
 
+class Info(object):
+    """Toposorted info helper.
+
+    Base class that helps with toposorted. ``before`` and ``after``
+    can be lists of keys, or a single key, or ``None``.
+    """
+    def __init__(self, key, before, after):
+        self.key = key
+        self.before = _convert_before_after(before)
+        self.after = _convert_before_after(after)
+
+
+def _convert_before_after(l):
+    if isinstance(l, (list, tuple)):
+        return list(l)
+    elif l is None:
+        return []
+    else:
+        return [l]
+
+
 def toposorted(infos):
     """Sort infos topologically.
 
