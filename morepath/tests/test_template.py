@@ -3,7 +3,7 @@ import morepath
 from morepath.error import ConfigError
 from webtest import TestApp as Client
 import pytest
-from .fixtures import template, template_override
+from .fixtures import template, template_override, template_override_implicit
 
 
 def setup_module(module):
@@ -30,6 +30,22 @@ def test_template_override_fixture():
     assert response.body == b'<p>Hello world!</p>\n'
 
     c = Client(template_override.SubApp())
+
+    response = c.get('/world')
+    assert response.body == b'<div>Hi world!</div>'
+
+
+
+def test_template_override_implicit_fixture():
+    config = morepath.setup()
+    config.scan(template_override_implicit)
+    config.commit()
+    c = Client(template_override_implicit.App())
+
+    response = c.get('/world')
+    assert response.body == b'<p>Hello world!</p>\n'
+
+    c = Client(template_override_implicit.SubApp())
 
     response = c.get('/world')
     assert response.body == b'<div>Hi world!</div>'
