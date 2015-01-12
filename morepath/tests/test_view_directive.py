@@ -124,7 +124,6 @@ def test_view_custom_predicate_without_fallback():
 
     config.commit()
 
-
     c = Client(app())
 
     response = c.get('/')

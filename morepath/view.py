@@ -1,4 +1,3 @@
-import os
 from . import generic
 from .request import Response
 import json

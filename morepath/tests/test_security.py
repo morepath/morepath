@@ -513,8 +513,8 @@ def test_false_verify_identity():
 
     c = Client(app(), cookiejar=CookieJar())
 
-    response = c.get('/foo', status=403)
+    c.get('/foo', status=403)
 
-    response = c.get('/foo/log_in')
+    c.get('/foo/log_in')
 
-    response = c.get('/foo', status=403)
+    c.get('/foo', status=403)

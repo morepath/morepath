@@ -25,6 +25,7 @@ class TemplateDirectoryInfo(object):
     def after(self):
         return self.under
 
+
 class TemplateEngineRegistry(object):
     def __init__(self):
         self.clear()

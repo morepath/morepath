@@ -1,4 +1,3 @@
-import os
 import morepath
 from morepath.error import ConfigError
 from webtest import TestApp as Client
@@ -65,7 +64,6 @@ def test_unknown_extension_no_loader():
     config.scan(template_unknown_extension)
     with pytest.raises(ConfigError):
         config.commit()
-
 
 
 def test_unknown_extension_no_render():

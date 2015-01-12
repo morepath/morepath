@@ -21,7 +21,6 @@ def topological_sort(l, get_depends):
     return result
 
 
-
 def toposorted(infos):
     """Sort infos topologically.
 

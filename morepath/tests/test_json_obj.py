@@ -100,6 +100,7 @@ def test_json_obj_load_default():
 
     c.post_json('/', {'x': 'foo'})
 
+
 def test_json_body_model():
     config = morepath.setup()
 
@@ -113,11 +114,9 @@ def test_json_body_model():
         def add(self, item):
             self.items.append(item)
 
-
     class Item1(object):
         def __init__(self, value):
             self.value = value
-
 
     class Item2(object):
         def __init__(self, value):

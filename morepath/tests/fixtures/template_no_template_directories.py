@@ -1,5 +1,4 @@
 import morepath
-import os
 from .template_engine import FormatLoader
 
 
@@ -21,6 +20,7 @@ def get_template_loader(template_directories, settings):
 @App.template_render(extension='.format')
 def get_format_render(loader, name, original_render):
     template = loader.get(name)
+
     def render(content, request):
         return original_render(template.render(**content), request)
     return render
@@ -28,4 +28,4 @@ def get_format_render(loader, name, original_render):
 
 @App.html(model=Person, template='person.format')
 def person_default(self, request):
-    return { 'name': self.name }
+    return {'name': self.name}

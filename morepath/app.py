@@ -29,7 +29,7 @@ class Registry(Configurable, RegRegistry, MountRegistry, PredicateRegistry,
                ConverterRegistry, TweenRegistry, TemplateEngineRegistry):
     """A registry holding an application's configuration.
     """
-    app = None # app this registry belongs to. set later during scanning
+    app = None  # app this registry belongs to. set later during scanning
 
     def __init__(self, name, bases, testing_config):
         self.name = name
@@ -247,6 +247,7 @@ class DirectiveDirective(object):
 
     def __call__(self, directive):
         directive_name = self.name
+
         def method(self, *args, **kw):
             result = directive(self, *args, **kw)
             result.directive_name = directive_name

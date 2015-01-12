@@ -1,5 +1,4 @@
 import morepath
-import os
 from .template_engine import FormatLoader
 
 
@@ -25,4 +24,4 @@ def get_template_directory():
 
 @App.html(model=Person, template='person.unknown')
 def person_default(self, request):
-    return { 'name': self.name }
+    return {'name': self.name}

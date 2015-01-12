@@ -1208,7 +1208,7 @@ def test_abbr_exception():
             @view()
             def default(self, request):
                 return "Default view"
-            1/0
+            1 / 0
 
             @view(name='edit')
             def edit(self, request):

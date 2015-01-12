@@ -1500,8 +1500,7 @@ def test_absorb_path_root():
     assert response.body == b'A:a/b L:http://localhost/a/b'
 
 
-
-def test_error_when_path_variable_is_None():
+def test_error_when_path_variable_is_none():
     config = setup()
 
     class App(morepath.App):
@@ -1512,7 +1511,7 @@ def test_error_when_path_variable_is_None():
             self.store_id = id
 
     @App.path(model=Model, path='models/{id}',
-              variables=lambda m: { 'id': None })
+              variables=lambda m: {'id': None})
     def get_model(id):
         return Model(id)
 

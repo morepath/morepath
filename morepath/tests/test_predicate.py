@@ -345,7 +345,7 @@ def test_dispatch_external_override_predicate():
 
     @Sub.predicate(f, name='model', default=None, index=ClassIndex)
     def f_obj_sub(obj):
-        return Bar # ridiculous, but lets us test this
+        return Bar  # ridiculous, but lets us test this
 
     @App.predicate_fallback(f, f_obj)
     def f_obj_fallback(obj):
