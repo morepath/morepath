@@ -4,18 +4,24 @@ Templates
 Introduction
 ------------
 
-It is useful in HTML views to use a template language instead of
-generating the HTML output by hand from Python. A template language
+When you generate HTML from the server (using HTML views) it can be
+very handy to have a template language available. A template language
 provides some high-level constructs for generating HTML, which are
-handy. It can also help you avoid HTML injection security bugs
-because it takes care of escaping HTML. More abstractly it allows you
-to separate HTML presentation from Python view code.
+handy. It can also help you avoid HTML injection security bugs because
+it takes care of escaping HTML. It may also be useful to separate HTML
+presentation from code.
 
 This document discusses template rendering on the server. In some
-modern web applications template rendering is done on the client
-instead of on the server, or on both. To do client-side template
-rendering you need to use a :ref:`review-client-web-framework` with
-Morepath. See also :doc:`more.static`.
+modern web applications template rendering is done in the browser
+instead of on the server. To do client-side template rendering you
+need to use a :ref:`review-client-web-framework` with Morepath. See
+also :doc:`more.static`.
+
+Morepath does not have a template language built in. The example in
+this document uses `more.chameleon`_. `more.chameleon`_ integrates the
+Chameleon template engine, which implements the ZPT template
+language. If you prefer Jinja2_, you can use the `more.jinja2`_
+extension instead. You can also integrate other template languages.
 
 To use a template you need to use the ``template`` argument with the
 :meth:`morepath.App.html` view directive.
@@ -23,8 +29,8 @@ To use a template you need to use the ``template`` argument with the
 Example
 -------
 
-Here is an example that uses the `Chameleon template engine`_ using
-the `more.chameleon`_ extension::
+This example presupposes that `more.chameleon`_ and its dependencies
+have been installed. Here is how we use it::
 
   from more.chameleon import ChameleonApp
 
@@ -39,17 +45,15 @@ the `more.chameleon`_ extension::
   def person_default(self, request):
       return { 'name': self.name }
 
-.. _`Chameleon template engine`: https://chameleon.readthedocs.org
-
 Let's examine this code. First we import ``ChameleonApp`` and subclass
 from it in our own app. This enables Chameleon templating for the
 ``.pt`` file extension.
 
 We then need to specify the directory that contains our templates
-using the ``template_directory`` directive. The directive should
-return either an absolute or a relative path to this template
-directory. If a relative path is returned, it is automatically made
-relative to the directory the module is in.
+using the :meth:`morepath.App.template_directory` directive. The
+directive should return either an absolute or a relative path to this
+template directory. If a relative path is returned, it is
+automatically made relative to the directory the Python module is in.
 
 Next we use ``template='person.pt'`` in the HTML view
 directive. ``person.pt`` is a file sitting in the ``templates``
@@ -74,29 +78,42 @@ The template is applied on the return value of the view function and
 the request. This results in a rendered template that is returned as
 the response.
 
-Note that Morepath does not have a single preferred template
-language. The example used `more.chameleon`_, but you can use other
-template languages instead: `more.jinja2`_ for instance.
-
 Overrides
 ---------
 
 When you subclass an app you may want to override some of the
 templates it uses, or add new templates. You can do this by using the
-``template_directory`` directive with the ``over`` argument::
+``template_directory`` directive in your subclassed app::
 
   class SubApp(App):
       pass
 
-  @SubApp.template_directory(over=get_template_directory)
-  def get_new_template_directory():
-     return 'templates2'
+  @SubApp.template_directory()
+  def get_override_template_directory():
+     return 'templates_override'
 
-``over`` indicates the order in which the template directories are
-searched by the template engine for templates. Since ``templates2``
-has priority over ``templates``, you can override a template defined
-in the directory ``templates`` by placing a file with the same name in
-the directory ``templates2``.
+Morepath's template integration searches for templates in the template
+directories in application order, so for ``SubApp`` here, first
+``templates_override``, and then ``templates`` as defined by the base
+``App``. So for ``SubApp``, you can override a template defined in the
+directory ``templates`` by placing a file with the same name in the
+directory ``templates_override``. This only affects ``SubApp``, not
+``App`` itself.
+
+You can also use the ``before`` argument with the
+:meth:`morepath.App.template_directory` directive to specify more
+exactly how you want template directories to be searched. This can be
+useful if you want to organize your templates in multiple directories
+in the same application. If ``get_override_template_directory`` should
+come before ``get_template_directory`` in the directory search path,
+you should use ``before=get_template_directory``::
+
+  @SubApp.template_directory(before=get_template_directory)
+  def get_override_template_directory():
+     return 'templates_override'
+
+but it is usually simpler not to be this explicit and to rely on
+application inheritance instead.
 
 Details
 -------
@@ -114,7 +131,7 @@ implements it in your app.
 The template language integration works like this:
 
 * During startup time, ``person.pt`` is loaded from the configured
-  template directories.
+  template directories as a template object.
 
 * When the ``person_default`` view is rendered, its return value is
   passed into the template, along with the request. The template
@@ -191,3 +208,7 @@ Some details:
 .. _`more.chameleon`: http://pypi.python.org/pypi/more.chameleon
 
 .. _`more.jinja2`: http://pypi.python.org/pypi/more.jinja2
+
+.. _`ZPT`: http://chameleon.readthedocs.org/en/latest/reference.html
+
+.. _`Jinja2`: http://jinja.pocoo.org
