@@ -1,6 +1,6 @@
 import os
 from .toposort import toposorted
-from .error import ConfigError
+from .error import ConfigError, TopologicalSortError
 
 
 class TemplateDirectoryInfo(object):
@@ -60,8 +60,14 @@ class TemplateEngineRegistry(object):
             for base in info.app.__bases__:
                 extra_before.extend(self._template_app_to_keys.get(base, []))
             info.over.extend(extra_before)
-        return [info.directory for info in
-                toposorted(self._template_directory_infos)]
+        try:
+            return [info.directory for info in
+                    toposorted(self._template_directory_infos)]
+        except TopologicalSortError:
+            raise ConfigError(
+                "Cannot sort template directories as dependency graph has "
+                "cycles. Could be because explicit dependencies conflict with "
+                "application inheritance.")
 
     def get_template_render(self, name, original_render):
         _, extension = os.path.splitext(name)
