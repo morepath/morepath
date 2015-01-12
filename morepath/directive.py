@@ -415,8 +415,11 @@ class TemplateLoaderDirective(Directive):
 
         The decorated function gets a ``template_directories`` argument,
         which is a list of absolute paths to directories that contain
-        templates. It should return an object that can load the template
-        given this list of template directories.
+        templates. It also gets a ``settings`` argument, which is
+        application settings that can be used to configure the loader.
+
+        It should return an object that can load the template
+        given the list of template directories.
         '''
         super(TemplateLoaderDirective, self).__init__(app)
         self.extension = extension
@@ -438,7 +441,7 @@ class TemplateRenderDirective(Directive):
         :param extension: the template file extension (``.pt``, etc)
           we want this template engine to handle.
 
-        The decorated function gets ``app``, ``template_path`` and
+        The decorated function gets ``loader``, ``name`` and
         ``original_render`` arguments. It should return a ``callable``
         that is a view ``render`` function: take a ``content`` and
         ``request`` object and return a :class:`morepath.Response`
@@ -494,8 +497,9 @@ class ViewDirective(Directive):
            to the directory this module is in. The template is applied to
            the content returned from the decorated view function.
 
-           Use the :meth:`morepath.App.template_engine` directive to
-           define support for new template engines.
+           Use the :meth:`morepath.App.template_loader` and
+           :meth:`morepath.App.template_render` directives to define
+           support for new template engines.
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
