@@ -25,7 +25,7 @@ def toposorted(infos):
     """Sort infos topologically.
 
     Info object must have a key attribute, and before and after
-    methods that returns a list of keys.
+    attributes that returns a list of keys.
     """
     key_to_info = {}
     depends = {}
