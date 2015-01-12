@@ -6,8 +6,7 @@ from .core import (setup, excview_tween_factory as EXCVIEW,
                    body_model_predicate)
 from .core import body_model_predicate as LAST_VIEW_PREDICATE
 from morepath import directive # register directive methods
-from .generic import (remember_identity, forget_identity, settings,
-                      template_path)
+from .generic import remember_identity, forget_identity, settings
 from .view import render_json, render_html
 from .request import Request, Response
 from .config import Config
