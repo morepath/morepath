@@ -17,7 +17,7 @@ from .compat import with_metaclass
 from .implicit import set_implicit
 from .mount import MountRegistry
 from .reify import reify
-from .view import TemplateEngineRegistry
+from .template import TemplateEngineRegistry
 
 
 COMPONENT_CACHE_SIZE = 5000

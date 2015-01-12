@@ -317,13 +317,6 @@ class PathDirective(Directive):
                       self.get_converters, self.absorb,
                       obj)
 
-    # def log(self, registry, obj):
-    #     self.debug(
-    #         'path(path=%r, model=%r, variables=%r, converters=%r, '
-    #         'required=%r, get_converters=%r, absorb=%r)' % (
-    #             self.path, self.model, self.variables, self.converters,
-    #             self.required, self.get_converters, self.absorb))
-
 
 @App.directive('permission_rule')
 class PermissionRuleDirective(Directive):
@@ -359,9 +352,81 @@ class PermissionRuleDirective(Directive):
             registry, self.identity, self.model, self.permission, obj)
 
 
-@App.directive('template_engine')
-class TemplateEngineDirective(Directive):
+template_directory_id = 0
+
+
+@App.directive('template_directory')
+class TemplateDirectoryDirective(Directive):
     depends = [SettingDirective]
+
+    def __init__(self, app, under=None, over=None, name=None):
+        '''Register template directory.
+
+        The decorated function should return a relative or absolute path
+        to a directory containing templates that can be loaded by
+        this app. If a relative path, it is made absolute from the
+        directory this module is in.
+
+        Template directories can be ordered: templates in a directory
+        over another one are found before templates in a directory
+        under it.
+
+        :param under: Template directory function this template directory
+          function to be under. The other template directory has a higher
+          priority. You usually want to use ``over``. Optional.
+        :param over: Template directory function function this function
+          should have priority over. Optional.
+        :param name: The name under which to register this template
+          directory, so that it can be overridden by applications that
+          extend this one.  If no name is supplied a default name is
+          generated.
+        '''
+        super(TemplateDirectoryDirective, self).__init__(app)
+        global template_directory_id
+        self.under = under
+        self.over = over
+        if name is None:
+            name = u'template_directory_%s' % template_directory_id
+            template_directory_id += 1
+        self.name = name
+
+    def identifier(self, registry):
+        return self.name
+
+    def perform(self, registry, obj):
+        directory = obj()
+        assert self.attach_info is not None
+        directory = os.path.join(os.path.dirname(
+            self.attach_info.module.__file__), directory)
+        registry.register_template_directory_info(
+            obj, directory, self.over, self.under, self.app)
+
+
+@App.directive('template_loader')
+class TemplateLoaderDirective(Directive):
+    depends = [TemplateDirectoryDirective]
+
+    def __init__(self, app, extension):
+        '''Create a template loader.
+
+        The decorated function gets a ``template_directories`` argument,
+        which is a list of absolute paths to directories that contain
+        templates. It should return an object that can load the template
+        given this list of template directories.
+        '''
+        super(TemplateLoaderDirective, self).__init__(app)
+        self.extension = extension
+
+    def identifier(self, registry):
+        return self.extension
+
+    def perform(self, registry, obj):
+        registry.initialize_template_loader(self.extension, obj)
+
+
+@App.directive('template_render')
+class TemplateRenderDirective(Directive):
+    depends = [SettingDirective, TemplateLoaderDirective]
 
     def __init__(self, app, extension):
         '''Register a template engine.
@@ -377,57 +442,20 @@ class TemplateEngineDirective(Directive):
         of the view with the template supplied through its
         ``template`` argument.
         '''
-        super(TemplateEngineDirective, self).__init__(app)
+        super(TemplateRenderDirective, self).__init__(app)
         self.extension = extension
 
     def identifier(self, registry):
         return self.extension
 
     def perform(self, registry, obj):
-        registry.register_template_engine(self.extension, obj)
-
-
-@App.directive('template_path')
-class TemplatePathDirective(Directive):
-    depends = [SettingDirective]
-
-    def __init__(self, app, name):
-        '''Declare template path explicitly.
-
-        This can be used to set a template path that is determined at
-        runtime. Since it is a directive, it can also be overridden.
-
-        :param name: the template name. If referred to in the
-          ``template`` argument of a view directive, the path returned
-          from the decorated function is used.
-
-        The decorated function gets the template name and the request
-        as an argument.  It should return a filesystem path, either
-        absolute or relative. If a relative path, the path is relative
-        to the place this directive was used.
-        '''
-        super(TemplatePathDirective, self).__init__(app)
-        self.name = name
-
-    def identifier(self, registry):
-        return self.name
-
-    def perform(self, registry, obj):
-        if self.attach_info is not None:
-            package_path = os.path.dirname(self.attach_info.module.__file__)
-        else:
-            package_path = ''
-
-        def template_path(name, request):
-            return os.path.join(package_path, obj(request))
-        registry.register_function(generic.template_path, template_path,
-                                   name=self.name)
+        registry.register_template_render(self.extension, obj)
 
 
 @App.directive('view')
 class ViewDirective(Directive):
     depends = [SettingDirective, PredicateDirective,
-               TemplateEngineDirective, TemplatePathDirective]
+               TemplateRenderDirective]
 
     def __init__(self, app, model, render=None, template=None,
                  permission=None,
@@ -523,12 +551,8 @@ class ViewDirective(Directive):
     def perform(self, registry, obj):
         registry.install_predicates(generic.view)
         registry.register_dispatch(generic.view)
-        if self.attach_info is not None:
-            module = self.attach_info.module
-        else:
-            module = None
         register_view(registry, self.key_dict(), obj,
-                      self.render, self.template, module,
+                      self.render, self.template,
                       self.permission, self.internal)
 
 

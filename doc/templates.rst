@@ -31,6 +31,10 @@ the `more.chameleon`_ extension::
   class App(ChameleonApp):
       pass
 
+  @App.template_directory()
+  def get_template_directory():
+      return 'templates'
+
   @App.html(model=Person, template='person.pt')
   def person_default(self, request):
       return { 'name': self.name }
@@ -41,9 +45,15 @@ Let's examine this code. First we import ``ChameleonApp`` and subclass
 from it in our own app. This enables Chameleon templating for the
 ``.pt`` file extension.
 
+We then need to specify the directory that contains our templates
+using the ``template_directory`` directive. The directive should
+return either an absolute or a relative path to this template
+directory. If a relative path is returned, it is automatically made
+relative to the directory the module is in.
+
 Next we use ``template='person.pt'`` in the HTML view
-directive. ``person.pt`` is a file sitting in the same directory as
-the Python module, with this content::
+directive. ``person.pt`` is a file sitting in the ``templates``
+directory, with this content::
 
   <html>
   <body>
@@ -68,37 +78,25 @@ Note that Morepath does not have a single preferred template
 language. The example used `more.chameleon`_, but you can use other
 template languages instead: `more.jinja2`_ for instance.
 
-Explicit templates
-------------------
+Overrides
+---------
 
-In the example above we hardcoded the file from which the template is
-to be loaded. Sometimes this is not what you want: you want control
-which template is in use dynamically. For this you can use explicit
-templates.
+When you subclass an app you may want to override some of the
+templates it uses, or add new templates. You can do this by using the
+``template_directory`` directive with the ``over`` argument::
 
-Here is an example::
+  class SubApp(App):
+      pass
 
-  @App.template_file('person.pt')
-  def get_person_template(request):
-      return 'some_templates/person.pt'
+  @SubApp.template_directory(over=get_template_directory)
+  def get_new_template_directory():
+     return 'templates2'
 
-Now when you refer to the template `person.pt` in a view using the
-``template`` argument, the explicit template with that name is found,
-and this function is called.
-
-The value returned from the function is the filesystem path to the
-template. If the path does not start with a ``/``, then the path is
-interpreted to be relative to the place of declaration, otherwise it
-is an absolute path.
-
-Overriding templates
---------------------
-
-Explicit templates let you *override* templates in subclasses of your
-app. Just use the ``template_file`` directive with the name you want
-to override. The subclassed app now uses the overridden template
-instead of the original one. This can be especially handy when you use
-macros with Chameleon, or Jinja2 inheritance.
+``over`` indicates the order in which the template directories are
+searched by the template engine for templates. Since ``templates2``
+has priority over ``templates``, you can override a template defined
+in the directory ``templates`` by placing a file with the same name in
+the directory ``templates2``.
 
 Details
 -------
@@ -115,10 +113,8 @@ implements it in your app.
 
 The template language integration works like this:
 
-* During startup time, ``person.pt`` is loaded from the same directory
-  as the Python module. You can also use paths such as
-  ``templates/foo.pt`` to refer to ``foo.pt`` in a ``templates``
-  subdirectory.
+* During startup time, ``person.pt`` is loaded from the configured
+  template directories.
 
 * When the ``person_default`` view is rendered, its return value is
   passed into the template, along with the request. The template
@@ -144,10 +140,15 @@ for ``.pt`` files (taken from `more.chameleon`_)::
 
   import chameleon
 
-  @App.template_engine(extension='.pt')
-  def get_chameleon_render(path, original_render, settings):
+  @App.template_loader(extension='.pt')
+  def get_template_loader(template_directories, settings):
       config = settings.chameleon.__dict__
-      template = chameleon.PageTemplateFile(path, **config)
+      return chameleon.PageTemplateLoader(
+          search_path=template_directories, **config)
+
+  @App.template_render(extension='.pt')
+  def get_chameleon_render(loader, name, original_render):
+      template = loader.load(name)
       def render(content, request):
           variables = {'request': request}
           variables.update(content)

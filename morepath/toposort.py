@@ -19,3 +19,26 @@ def topological_sort(l, get_depends):
     for n in l:
         visit(n)
     return result
+
+
+
+def toposorted(infos):
+    """Sort infos topologically.
+
+    Info object must have a key attribute, and before and after
+    methods that returns a list of keys.
+    """
+    key_to_info = {}
+    depends = {}
+    for info in infos:
+        key_to_info[info.key] = info
+        depends[info.key] = []
+    for info in infos:
+        for after in info.after():
+            after_info = key_to_info[after]
+            depends[info.key].append(after_info)
+        for before in info.before():
+            before_info = key_to_info[before]
+            depends[before_info.key].append(info)
+    return topological_sort(
+        infos, lambda info: depends[info.key])

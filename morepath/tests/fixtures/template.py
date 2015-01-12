@@ -1,5 +1,6 @@
 import morepath
 import os
+from .template_engine import FormatLoader
 
 
 class App(morepath.App):
@@ -12,17 +13,24 @@ class Person(object):
         self.name = name
 
 
-@App.template_engine(extension='.format')
-def get_format_render(path, original_render, registry, search_path):
-    # this integration does not support template_file overrides, just
-    # loads them right from the start
-    with open(os.path.join(search_path, path), 'rb') as f:
-        template = f.read()
+@App.template_directory()
+def get_template_directory():
+    return 'templates'
+
+
+@App.template_loader(extension='.format')
+def get_template_loader(template_directories, settings):
+    return FormatLoader(template_directories)
+
+
+@App.template_render(extension='.format')
+def get_format_render(loader, name, original_render):
+    template = loader.get(name)
     def render(content, request):
-        return original_render(template.format(**content), request)
+        return original_render(template.render(**content), request)
     return render
 
 
-@App.html(model=Person, template='templates/person.format')
+@App.html(model=Person, template='person.format')
 def person_default(self, request):
     return { 'name': self.name }

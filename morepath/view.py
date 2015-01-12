@@ -6,27 +6,6 @@ from webob.exc import HTTPFound, HTTPNotFound, HTTPForbidden
 from webob import Response as BaseResponse
 
 
-class TemplateEngineRegistry(object):
-    def __init__(self):
-        self.clear()
-
-    def clear(self):
-        self._template_engines = {}
-
-    def register_template_engine(self, extension, func):
-        self._template_engines[extension] = func
-
-    def get_template_render(self, name, original_render, module):
-        _, extension = os.path.splitext(name)
-        engine = self._template_engines.get(extension)
-        if module is not None:
-            search_path = os.path.dirname(module.__file__)
-        else:
-            # only in testing scenarios
-            search_path = '/'
-        return engine(name, original_render, self, search_path)
-
-
 class View(object):
     def __init__(self, func, render, permission, internal):
         self.func = func
@@ -65,11 +44,10 @@ def render_view(content, request):
 def register_view(registry, key_dict, view,
                   render=render_view,
                   template=None,
-                  module=None,
                   permission=None,
                   internal=False):
     if template is not None:
-        render = registry.get_template_render(template, render, module)
+        render = registry.get_template_render(template, render)
     v = View(view, render, permission, internal)
     registry.register_function(generic.view, v, **key_dict)
 

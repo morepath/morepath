@@ -1,5 +1,7 @@
 import morepath
 import os
+from .template_engine import FormatLoader
+
 
 class App(morepath.App):
     pass
@@ -11,24 +13,25 @@ class Person(object):
         self.name = name
 
 
-@App.template_engine(extension='.format')
-def get_format_render(name, original_render, registry, search_path):
+@App.template_directory()
+def get_template_directory():
+    return 'templates'
+
+
+@App.template_loader(extension='.format')
+def get_template_loader(template_directories, settings):
+    return FormatLoader(template_directories)
+
+
+@App.template_render(extension='.format')
+def get_format_render(loader, name, original_render):
+    template = loader.get(name)
     def render(content, request):
-        path = morepath.template_path(name, request, lookup=request.lookup)
-        if path is None:
-            path = os.path.join(search_path, name)
-        with open(path, 'rb') as f:
-            found_template = f.read().format
-        return original_render(found_template(**content), request)
+        return original_render(template.render(**content), request)
     return render
 
 
-@App.template_path('templates/person.format')
-def get_template_path_original(request):
-    return 'templates/person.format'
-
-
-@App.html(model=Person, template='templates/person.format')
+@App.html(model=Person, template='person.format')
 def person_default(self, request):
     return { 'name': self.name }
 
@@ -37,6 +40,6 @@ class SubApp(App):
     pass
 
 
-@SubApp.template_path('templates/person.format')
-def get_template_path_override(request):
-    return 'templates/person2.format'
+@SubApp.template_directory(over=get_template_directory)
+def get_template_directory_override():
+    return 'templates2'
