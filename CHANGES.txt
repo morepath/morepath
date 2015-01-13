@@ -10,6 +10,8 @@ CHANGES
   your project, such as ``more.chameleon`` and ``more.jinja2``, but
   you can also add your own.
 
+  See http://morepath.readthedocs.org/en/latest/templates.html
+
 - Add a new "A Review of the Web" document to the docs to show how
   Morepath fits within the web.
 
