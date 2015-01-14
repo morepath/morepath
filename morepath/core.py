@@ -10,7 +10,7 @@ from webob.exc import (
     HTTPException, HTTPNotFound, HTTPMethodNotAllowed,
     HTTPUnprocessableEntity)
 import morepath
-from reg import mapply, KeyIndex, ClassIndex
+from reg import KeyIndex, ClassIndex
 from datetime import datetime, date
 from time import mktime, strptime
 
