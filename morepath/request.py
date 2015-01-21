@@ -29,8 +29,8 @@ class Request(BaseRequest):
     lookup = None
     """The :class:`reg.Lookup` object handling generic function calls."""
 
-    def __init__(self, environ, app):
-        super(Request, self).__init__(environ)
+    def __init__(self, environ, app, **kw):
+        super(Request, self).__init__(environ, **kw)
         self.app = app
         self.lookup = app.lookup
         self.unconsumed = parse_path(self.path_info)
@@ -184,6 +184,29 @@ class Request(BaseRequest):
         if parameters:
             result += '?' + urlencode(parameters, True)
         return result
+
+    def path(self, path, app=SAME_APP):
+        """Resolve a path to a model instance.
+
+        The resulting object is a model instance, or ``None`` if the
+        path could not be resolved.
+
+        :param path: URL path to resolve.
+        :param app: If set, change the application in which the
+          path is resolved. By default the path is resolved in the
+          current application.
+        :returns: instance or ``None`` if no path could be resolved.
+        """
+        if app is None:
+            raise LinkError("Cannot path: app is None")
+
+        if app is SAME_APP:
+            app = self.app
+
+        request = Request(self.environ.copy(), app, path_info=path)
+        # try to resolve imports..
+        from .publish import resolve_model
+        return resolve_model(request)
 
     def after(self, func):
         """Call function with response after this request is done.

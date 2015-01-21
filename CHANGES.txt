@@ -24,6 +24,9 @@ CHANGES
 
   Fixes https://github.com/morepath/morepath/issues/283
 
+- Introduce a ``request.path`` method that allows you to resolve
+  paths to objects programmatically.
+
 - Modify ``setup.py`` to use ``io.open`` instead of ``open`` to
   include the README and the CHANGELOG and hardcode UTF-8 so it works
   on all versions of Python with all default encodings.
