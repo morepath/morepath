@@ -1,4 +1,5 @@
 import os
+import io
 
 
 class FormatTemplate(object):
@@ -18,6 +19,6 @@ class FormatLoader(object):
             path = os.path.join(template_directory, name)
             if not os.path.exists(path):
                 continue
-            with open(path, 'rb') as f:
+            with io.open(path, 'r') as f:
                 return FormatTemplate(f.read())
         return None
