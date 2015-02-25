@@ -1555,7 +1555,7 @@ def test_error_when_path_variables_isnt_dict():
         c.get('/models/1')
 
 
-def test_path_method_on_request_same_app():
+def test_resolve_path_method_on_request_same_app():
     config = setup()
 
     class App(morepath.App):
@@ -1571,15 +1571,15 @@ def test_path_method_on_request_same_app():
 
     @App.view(model=Model)
     def default(self, request):
-        return text_type(isinstance(request.path('simple'), Model))
+        return text_type(isinstance(request.resolve_path('simple'), Model))
 
     @App.view(model=Model, name='extra')
     def extra(self, request):
-        return text_type(request.path('nonexistent') is None)
+        return text_type(request.resolve_path('nonexistent') is None)
 
     @App.view(model=Model, name='appnone')
     def appnone(self, request):
-        return request.path('simple', app=None)
+        return request.resolve_path('simple', app=None)
 
     config.commit()
 
@@ -1593,7 +1593,7 @@ def test_path_method_on_request_same_app():
         c.get('/simple/appnone')
 
 
-def test_path_method_on_request_different_app():
+def test_resolve_path_method_on_request_different_app():
     config = setup()
 
     class App(morepath.App):
@@ -1609,7 +1609,7 @@ def test_path_method_on_request_different_app():
 
     @App.view(model=Model)
     def default(self, request):
-        obj = request.path('p', app=request.app.child('sub'))
+        obj = request.resolve_path('p', app=request.app.child('sub'))
         return text_type(isinstance(obj, SubModel))
 
     class Sub(morepath.App):
