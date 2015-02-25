@@ -24,7 +24,7 @@ CHANGES
 
   Fixes https://github.com/morepath/morepath/issues/283
 
-- Introduce a ``request.path`` method that allows you to resolve
+- Introduce a ``request.resolve_path`` method that allows you to resolve
   paths to objects programmatically.
 
 - Modify ``setup.py`` to use ``io.open`` instead of ``open`` to

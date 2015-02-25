@@ -185,7 +185,7 @@ class Request(BaseRequest):
             result += '?' + urlencode(parameters, True)
         return result
 
-    def path(self, path, app=SAME_APP):
+    def resolve_path(self, path, app=SAME_APP):
         """Resolve a path to a model instance.
 
         The resulting object is a model instance, or ``None`` if the
