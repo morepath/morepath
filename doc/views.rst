@@ -193,7 +193,7 @@ do this by passing a ``render`` parameter to the ``@App.view`` decorator::
 
 :func:`morepath.render_html` is a very simple function::
 
-  def render_html(content):
+  def render_html(content, request):
       response = morepath.Response(content)
       response.content_type = 'text/html'
       return response
@@ -206,7 +206,7 @@ Another render function is :func:`morepath.render_json`. Here it is::
 
   import json
 
-  def render_json(content):
+  def render_json(content, request):
       response = morepath.Response(json.dumps(content))
       response.content_type = 'application/json'
       return response
