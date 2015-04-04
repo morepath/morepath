@@ -264,7 +264,7 @@ You can use such a class with a view::
       return 'edit document'
 
 You can define which users have what permission on which models by using
-the :meth:`morepath.App.permission` decorator. To learn more,
+the :meth:`morepath.App.permission_rule` decorator. To learn more,
 read :doc:`security`.
 
 Manipulating the response
