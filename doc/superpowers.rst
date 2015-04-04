@@ -82,11 +82,11 @@ accessible if the user has an edit permission::
       return "Editable"
 
 How does Morepath know whether someone has ``Edit`` permission? We
-need to tell it using the :meth:`morepath.App.permission`
+need to tell it using the :meth:`morepath.App.permission_rule`
 directive. We can implement any rule we want, for instance this one::
 
-  @App.permission(model=Document, permission=Edit)
-  def have_edit_permission(model, identity):
+  @App.permission_rule(model=Document, permission=Edit)
+  def have_edit_permission(identity, model, permission):
       return model.has_permission(identity.userid)
 
 Instead of a specific rule that only works for ``Document``, we can
