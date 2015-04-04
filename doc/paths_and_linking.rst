@@ -679,7 +679,7 @@ this particularly relevant if you want to supply converters for the
 values in ``extra_parameters``. You can supply the converters using
 the special ``get_converters`` parameter to ``@app.path``::
 
-  def get_converters():
+  def my_get_converters():
       return { 'something': int }
 
   @App.path(path='search', model=SearchResults,
