@@ -31,6 +31,8 @@ CHANGES
   include the README and the CHANGELOG and hardcode UTF-8 so it works
   on all versions of Python with all default encodings.
 
+- Various documentation fixes.
+
 0.9 (2014-11-25)
 ================
 
