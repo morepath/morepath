@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.10 (unreleased)
+0.10 (2015-04-09)
 =================
 
 - Server-side templating language support: there is now a ``template``
