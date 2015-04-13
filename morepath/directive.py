@@ -399,9 +399,10 @@ class TemplateDirectoryDirective(Directive):
 
     def perform(self, registry, obj):
         directory = obj()
-        assert self.attach_info is not None
-        directory = os.path.join(os.path.dirname(
-            self.attach_info.module.__file__), directory)
+        if not os.path.isabs(directory):
+            assert self.attach_info is not None
+            directory = os.path.join(os.path.dirname(
+                self.attach_info.module.__file__), directory)
         registry.register_template_directory_info(
             obj, directory, self.before, self.after, self.app)
 

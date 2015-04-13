@@ -4,8 +4,11 @@ CHANGES
 0.11 (unreleased)
 =================
 
-- Nothing changed yet.
+- The ``template_directory`` directive will no longer inspect the current
+  module if the template directory refers to an absolute path. This makes it
+  easier to write tests where the current module might not be available.
 
+  Fixes https://github.com/morepath/morepath/issues/299
 
 0.10 (2015-04-09)
 =================
