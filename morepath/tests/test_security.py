@@ -543,7 +543,7 @@ def test_settings():
         return "%s, your token is valid." % request.identity.userid
 
     @App.setting_section(section="test")
-    def get_jwtauth_settings():
+    def get_test_settings():
         return {'encryption_key': 'secret'}
 
     @App.identity_policy()
