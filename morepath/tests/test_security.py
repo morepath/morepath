@@ -3,6 +3,7 @@ import morepath
 from morepath import setup
 from morepath.request import Response
 from morepath import generic
+from morepath import settings
 from morepath.security import (Identity, BasicAuthIdentityPolicy,
                                NO_IDENTITY)
 from .fixtures import identity_policy
@@ -518,3 +519,70 @@ def test_false_verify_identity():
     c.get('/foo/log_in')
 
     c.get('/foo', status=403)
+
+
+def test_settings():
+    config = setup()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Model(object):
+        pass
+
+    @App.verify_identity()
+    def verify_identity(identity):
+        return True
+
+    @App.path(model=Model, path='test')
+    def get_model():
+        return Model()
+
+    @App.view(model=Model)
+    def default(self, request):
+        return "%s, your token is valid." % request.identity.userid
+
+    @App.setting_section(section="test")
+    def get_jwtauth_settings():
+        return {'encryption_key': 'secret'}
+
+    @App.identity_policy()
+    def get_identity_policy(settings):
+        test_settings = settings.test.__dict__.copy()
+        return IdentityPolicy(**test_settings)
+
+    class IdentityPolicy(object):
+        def __init__(self, encryption_key):
+            self.encryption_key = encryption_key
+
+        def identify(self, request):
+            token = self.get_token(request)
+            if token is None or not self.token_is_valid(token, self.encryption_key):
+                return NO_IDENTITY
+            return Identity('Testuser')
+
+        def remember(self, response, request, identity):
+            pass
+
+        def forget(self, response, request):
+            pass
+
+        def get_token(self, request):
+            try:
+                authtype, token = request.authorization
+            except ValueError:
+                return None
+            if authtype.lower() != 'bearer':
+                return None
+            return token
+
+        def token_is_valid(self, token, encryption_key):
+            return token == encryption_key  # fake validation
+
+    config.commit()
+
+    c = Client(App())
+
+    headers = {'Authorization': 'Bearer secret'}
+    response = c.get('/test', headers=headers)
+    assert response.body == b'Testuser, your token is valid.'
