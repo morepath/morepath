@@ -9,6 +9,7 @@ from .view import render_view, render_json, render_html, register_view
 from .path import register_path
 from .traject import Path
 from morepath import generic
+from reg import mapply
 
 
 class Directive(ConfigDirective):
@@ -820,20 +821,26 @@ class IdentityPolicyDirective(Directive):
     depends = [SettingDirective]
 
     def __init__(self, app):
-        '''Register identity policy.
+        """Register identity policy.
 
         The decorated function should return an instance of
         :class:`morepath.security.IdentityPolicy`. Either use an identity
         policy provided by a library or implement your own.
-        '''
+
+        It gets one optional argument: the settings of the app for which this identity policy is in use.
+        So you can pass some settings directly to the IdentityPolicy class.
+        """
         super(IdentityPolicyDirective, self).__init__(app)
 
-    def prepare(self, obj):
-        policy = obj()
+    def identifier(self, registry):
+        return ()
+
+    def perform(self, registry, obj):
         app = self.app
-        yield app.function(generic.identify), policy.identify
-        yield app.function(generic.remember_identity), policy.remember
-        yield app.function(generic.forget_identity), policy.forget
+        policy = mapply(obj, settings=app.registry.settings)
+        registry.register_function(generic.identify, policy.identify)
+        registry.register_function(generic.remember_identity, policy.remember)
+        registry.register_function(generic.forget_identity, policy.forget)
 
 
 @App.directive('verify_identity')
