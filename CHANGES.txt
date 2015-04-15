@@ -10,6 +10,12 @@ CHANGES
 
   Fixes https://github.com/morepath/morepath/issues/299
 
+- The ``identity_policy`` passes ``settings`` to the function if it
+  defines such an argument. This way an identity policy can be created
+  that takes settings into account.
+
+  See https://github.com/morepath/morepath/issues/309
+
 0.10 (2015-04-09)
 =================
 

@@ -20,7 +20,7 @@ CREDITS
 
 * Bernd Meyer (bug reports)
 
-* Henri Hulski (discussions, build issues)
+* Henri Hulski (``settings`` in identity policy, build issues)
 
 * Contributions by Souheil Chelfouh, Alex Garel, Wolfgang Schnerring
 
