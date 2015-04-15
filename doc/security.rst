@@ -12,6 +12,22 @@ they will get an appropriate HTTP error: HTTP Forbidden 403.
 Identity
 --------
 
+.. sidebar:: Using settings in the identity policy
+
+  The function decorated by the ``@App.identity_policy`` decorator takes
+  an optional settings argument, which provides access to the App settings.
+  So if you define some settings for the identity policy you can pass them
+  in like this::
+
+    @App.setting_section(section="policy")
+    def get_policy_settings():
+        return {'encryption_key': 'secret'}
+
+    @App.identity_policy()
+    def get_identity_policy(settings):
+        policy_settings = settings.policy.__dict__.copy()
+        return CustomIdentityPolicy(**policy_settings)
+
 Before we can determine who is allowed to do what, we need to be able
 to identify who people are in the first place.
 
