@@ -24,6 +24,7 @@ setup(name='morepath',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Topic :: Internet :: WWW/HTTP :: WSGI',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
         'Development Status :: 4 - Beta'
         ],
       keywords="web wsgi routing morepath",
