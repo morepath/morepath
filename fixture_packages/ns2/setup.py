@@ -1,7 +1,7 @@
 import os
 from setuptools import setup, find_packages
 
-setup(name='ns2',
+setup(name='ns.real2',
       version = '0.1dev',
       description="ns2 Test Fixture",
       author="Martijn Faassen",

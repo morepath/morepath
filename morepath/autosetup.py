@@ -1,5 +1,5 @@
+import importlib
 import pkg_resources
-from pkgutil import walk_packages
 from morepath.core import setup
 
 
@@ -132,58 +132,13 @@ class DependencyMap(object):
             yield dist
 
 
-# XXX support for venusian style ignore?
 def morepath_packages():
-    namespace_packages = set()
-    paths = []
+    """ Yields modules that depend on morepath. Each such module is
+    imported before it is returned.
+
+    """
     m = DependencyMap()
     m.load()
+
     for dist in m.relevant_dists('morepath'):
-        if dist.has_metadata('namespace_packages.txt'):
-            data = dist.get_metadata('namespace_packages.txt')
-            for ns in data.split('\n'):
-                ns = ns.strip()
-                if ns:
-                    namespace_packages.add(ns)
-        paths.append(dist.location)
-
-    seen = set()
-
-    for importer, dotted_name, is_pkg in walk_packages(paths):
-        if not is_pkg:
-            continue
-        if dotted_name in namespace_packages:
-            continue
-        if known_prefix(dotted_name, seen):
-            continue
-        for prefix in prefixes(dotted_name):
-            if prefix not in namespace_packages:
-                seen.add(prefix)
-        m = importer.find_module(dotted_name).load_module(dotted_name)
-        # XXX hack to work around bug in walk_packages that will load
-        # more than one namespace package: http://bugs.python.org/issue14787
-        # XXX performance
-        if in_path(m, paths):
-            yield m
-
-
-def prefixes(dottedname):
-    parts = dottedname.split('.')
-    yield dottedname
-    for i in range(1, len(parts)):
-        yield '.'.join(parts[:i])
-
-
-def known_prefix(dottedname, seen):
-    for prefix in prefixes(dottedname):
-        if prefix in seen:
-            return True
-    return False
-
-
-def in_path(m, paths):
-    for path in paths:
-        for p in m.__path__:
-            if p.startswith(path):
-                return True
-    return False
+        yield importlib.import_module(dist.project_name)
