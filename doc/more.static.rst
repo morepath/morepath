@@ -5,18 +5,22 @@ Introduction
 ------------
 
 A modern client-side web application is built around JavaScript and
-CSS. The code is in files that is served by the web server too.
+CSS. A web server is responsible for serving these and other types
+of static content such as images to the client.
 
 Morepath does not include in itself a way to serve these static
 resources. Instead it leaves the task to other WSGI components you can
 integrate with the Morepath WSGI component. Examples of such systems
-that can be integrated through WSGI are BowerStatic_, Fanstatic_ and
-Webassets_.
+that can be integrated through WSGI are BowerStatic_, Fanstatic_,
+Webassets_, and webob.static_.
 
-We will focus on BowerStatic integration here. We recommend you read
-its documentation, but we provide a small example of how to
-integrate it here that should help you get started. You can find
-all the example code in the `github repo`_.
+Examples will focus on BowerStatic integration to demonstrate a method
+for serving JavaScript and CSS. To demonstrate a method for serving
+other static resources such as an image we will use webob.static.
+
+We recommend you read the BowerStatic documentation, but we provide a
+small example of how to integrate it here that should help you get
+started. You can find all the example code in the `github repo`_.
 
 .. _BowerStatic: http://bowerstatic.readthedocs.org
 
@@ -25,6 +29,8 @@ all the example code in the `github repo`_.
 .. _Webassets: http://webassets.readthedocs.org/
 
 .. _`github repo`: https://github.com/morepath/morepath_static
+
+.. _webob.static: http://webob.readthedocs.org/en/latest/modules/static.html
 
 Application layout
 ------------------
@@ -252,3 +258,42 @@ inserted correctly::
    @App.mount(app=Mounted, path='mounted')
    def mount():
       return Mounted()
+
+
+Other static content
+--------------------
+
+In essence, Morepath doesn't enforce any particular method for serving
+static content to the client as long as the content eventually ends up
+in the response object returned. Therefore, there are different
+approaches to serving static content.
+
+Since a Morepath view returns a WebOb response object, that object
+can be loaded with any type of binary content in the body along
+with the necessary HTTP headers to describe the content type and size.
+
+In this example, we use a WebOb helper class webob.static.FileApp_
+to serve a PNG image::
+
+  from webob import static
+
+  @App.path(path='')
+  class Image(object):
+      path = 'image.png'
+
+  @App.view(model=Image)
+  def view_image(self, request):
+      return request.get_response(static.FileApp(self.path))
+
+In the above example FileApp does the heavy lifting by opening
+the file, guessing the MIME type, updating the headers, and returning
+the response object which is in-turn returned by the Morepath view.
+Note that the same helper class can be used to to serve most types
+of ``MIME`` content.
+
+This example is one way to serve an image, but its not the only way.
+In cases that require a more elaborate method for serving the content
+this `WebOb File-Serving Example`_ may be helpful.
+
+.. _`WebOb File-Serving Example`: http://webob.readthedocs.org/en/latest/file-example.html
+.. _webob.static.FileApp: http://webob.readthedocs.org/en/latest/modules/static.html#webob.static.FileApp
