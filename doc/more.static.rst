@@ -117,7 +117,7 @@ Registering ``bower_components``
 --------------------------------
 
 BowerStatic needs a single global ``bower`` object that you can
-register multiple ``bower_copmonents`` directories against. Let's
+register multiple ``bower_components`` directories against. Let's
 create it first::
 
   bower = bowerstatic.Bower()
