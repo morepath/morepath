@@ -291,7 +291,7 @@ the response object which is in-turn returned by the Morepath view.
 Note that the same helper class can be used to to serve most types
 of ``MIME`` content.
 
-This example is one way to serve an image, but its not the only way.
+This example is one way to serve an image, but it is not the only way.
 In cases that require a more elaborate method for serving the content
 this `WebOb File-Serving Example`_ may be helpful.
 

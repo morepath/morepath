@@ -16,6 +16,9 @@ CHANGES
 
   See https://github.com/morepath/morepath/issues/309
 
+- Additional documentation on how to serve static images in
+  https://morepath.readthedocs.org/en/latest/more.static.html
+
 0.10 (2015-04-09)
 =================
 
