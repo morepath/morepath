@@ -4,6 +4,20 @@ CHANGES
 0.11 (unreleased)
 =================
 
+- **Breaking change**. The ``morepath.autoconfig`` and ``morepath.autosetup``
+  methods had to be rewritten.
+
+  As a result, Morepath won't be able to autoload packages whose names differ
+  from the contained modules. For example: A package named 'my-app' containing
+  a module named 'myapp' won't be automatically loaded anymore.
+
+  Packages like this need to be loaded manually.
+
+  The reason for this change is the fact that Morepath was unable to autoload
+  packages installed using ``pip``.
+
+  See https://github.com/morepath/morepath/issues/319
+
 - The ``template_directory`` directive will no longer inspect the current
   module if the template directory refers to an absolute path. This makes it
   easier to write tests where the current module might not be available.

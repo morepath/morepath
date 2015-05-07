@@ -9,16 +9,20 @@ def autoconfig(ignore=None):
     Morepath configuration consists of decorator calls on :class:`App`
     instances, i.e. ``@App.view()`` and ``@App.path()``.
 
-    This function loads all needed Morepath configuration from all
-    packages automatically. These packages do need to be made
-    available using a ``setup.py`` file including currect
-    ``install_requires`` information so that they can be found using
-    setuptools_.
+    This function tries to load needed Morepath configuration from all
+    packages automatically. This only works if:
 
-    .. _setuptools: http://pythonhosted.org/setuptools/
+    * The package is made available using a ``setup.py`` file.
 
-    Creates a :class:`Config` object as with :func:`setup`, but before
-    returning it scans all packages, looking for those that depend on
+    * The package includes ``morepath`` in the ``install_requires`` list of
+    the ``setup.py`` file.
+
+    * The package is named like the module it contains. For example: if the
+    module inside the package is named 'myapp', the package must be named
+    'myapp' as well (not ``my-app`` or ``MyApp``).
+
+    This function creates a :class:`Config` object as with :func:`setup`, but
+    before returning it scans all packages, looking for those that depend on
     Morepath directly or indirectly. This includes the package that
     calls this function. Those packages are then scanned for
     configuration as with :meth:`Config.scan`.
@@ -135,6 +139,9 @@ class DependencyMap(object):
 def morepath_packages():
     """ Yields modules that depend on morepath. Each such module is
     imported before it is returned.
+
+    If the name of the package differs from the name of its module, the
+    import will fail. See :func:`autoconfig` for more information.
 
     """
     m = DependencyMap()
