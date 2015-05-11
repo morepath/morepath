@@ -1,6 +1,7 @@
 import importlib
 import pkg_resources
 from morepath.core import setup
+from morepath.error import AutoImportError
 
 
 def autoconfig(ignore=None):
@@ -148,5 +149,16 @@ def morepath_packages():
     m = DependencyMap()
     m.load()
 
-    for dist in m.relevant_dists('morepath'):
-        yield importlib.import_module(dist.project_name)
+    for distribution in m.relevant_dists('morepath'):
+        yield import_package(distribution)
+
+
+def import_package(distribution):
+    """ Takes a pkg_resources distribution and loads the module contained
+    in it, if it matches the rules layed out in :func:`autoconfig`.
+
+    """
+    try:
+        return importlib.import_module(distribution.project_name)
+    except ImportError:
+        raise AutoImportError(distribution.project_name)
