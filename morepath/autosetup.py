@@ -14,12 +14,13 @@ def autoconfig(ignore=None):
 
     * The package is made available using a ``setup.py`` file.
 
-    * The package includes ``morepath`` in the ``install_requires`` list of
-    the ``setup.py`` file.
+    * The package or a dependency of the package includes ``morepath`` in the
+      ``install_requires`` list of the ``setup.py`` file.
 
-    * The package is named like the module it contains. For example: if the
-    module inside the package is named 'myapp', the package must be named
-    'myapp' as well (not ``my-app`` or ``MyApp``).
+    * The setup.py name is the same as the name of the distributed package
+      or module. For example: if the module inside the package is named
+      ``myapp`` the package must be named ``myapp`` as well (not ``my-app`` or
+      ``MyApp``).
 
     This function creates a :class:`Config` object as with :func:`setup`, but
     before returning it scans all packages, looking for those that depend on
@@ -140,8 +141,8 @@ def morepath_packages():
     """ Yields modules that depend on morepath. Each such module is
     imported before it is returned.
 
-    If the name of the package differs from the name of its module, the
-    import will fail. See :func:`autoconfig` for more information.
+    If the setup.py name differs from the name of the distributed package or
+    module, the import will fail. See :func:`autoconfig` for more information.
 
     """
     m = DependencyMap()

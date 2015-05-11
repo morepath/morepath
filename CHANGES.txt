@@ -5,16 +5,23 @@ CHANGES
 =================
 
 - **Breaking change**. The ``morepath.autoconfig`` and ``morepath.autosetup``
-  methods had to be rewritten.
+  methods had to be rewritten. Before, Morepath was unable to autoload packages
+  installed using ``pip``.
 
-  As a result, Morepath won't be able to autoload packages whose names differ
-  from the contained modules. For example: A package named 'my-app' containing
-  a module named 'myapp' won't be automatically loaded anymore.
+  As a result, Morepath won't be able to autoload packages, if the setup.py
+  name differs from the name of the distributed package or module.
 
-  Packages like this need to be loaded manually.
+  For example: A package named ``my-app`` containing a module named ``myapp``
+  won't be automatically loaded anymore.
 
-  The reason for this change is the fact that Morepath was unable to autoload
-  packages installed using ``pip``.
+  Packages like this need to be loaded manually now::
+
+    import morepath
+    import myapp
+
+    config = morepath.setup()
+    config.scan(myapp)
+    config.commit()
 
   See https://github.com/morepath/morepath/issues/319
 
