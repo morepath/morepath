@@ -211,17 +211,23 @@ class Request(BaseRequest):
     def after(self, func):
         """Call function with response after this request is done.
 
-        Can be used explicitly::
+        You use `request.after` inside a view function definition.
 
-          def myfunc(response):
-              response.headers.add('blah', 'something')
-          request.after(my_func)
+        It can be used explicitly::
+
+          @App.view(model=SomeModel)
+          def some_model_default(self, request):
+              def myfunc(response):
+                  response.headers.add('blah', 'something')
+              request.after(my_func)
 
         or as a decorator::
 
-          @request.after
-          def myfunc(response):
-              response.headers.add('blah', 'something')
+          @App.view(model=SomeModel)
+          def some_model_default(self, request):
+              @request.after
+              def myfunc(response):
+                  response.headers.add('blah', 'something')
 
         If the normal response handling is interrupted by
         an exception either in your own code or by Morepath
