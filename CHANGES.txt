@@ -8,7 +8,7 @@ CHANGES
   methods had to be rewritten. Before, Morepath was unable to autoload packages
   installed using ``pip``.
 
-  As a result, Morepath won't be able to autoload packages, if the setup.py
+  As a result, Morepath won't be able to autoload packages if the setup.py
   name differs from the name of the distributed package or module.
 
   For example: A package named ``my-app`` containing a module named ``myapp``
