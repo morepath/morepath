@@ -1,6 +1,7 @@
+import importlib
 import pkg_resources
-from pkgutil import walk_packages
 from morepath.core import setup
+from morepath.error import AutoImportError
 
 
 def autoconfig(ignore=None):
@@ -9,16 +10,21 @@ def autoconfig(ignore=None):
     Morepath configuration consists of decorator calls on :class:`App`
     instances, i.e. ``@App.view()`` and ``@App.path()``.
 
-    This function loads all needed Morepath configuration from all
-    packages automatically. These packages do need to be made
-    available using a ``setup.py`` file including currect
-    ``install_requires`` information so that they can be found using
-    setuptools_.
+    This function tries to load needed Morepath configuration from all
+    packages automatically. This only works if:
 
-    .. _setuptools: http://pythonhosted.org/setuptools/
+    * The package is made available using a ``setup.py`` file.
 
-    Creates a :class:`Config` object as with :func:`setup`, but before
-    returning it scans all packages, looking for those that depend on
+    * The package or a dependency of the package includes ``morepath`` in the
+      ``install_requires`` list of the ``setup.py`` file.
+
+    * The setup.py name is the same as the name of the distributed package
+      or module. For example: if the module inside the package is named
+      ``myapp`` the package must be named ``myapp`` as well (not ``my-app`` or
+      ``MyApp``).
+
+    This function creates a :class:`Config` object as with :func:`setup`, but
+    before returning it scans all packages, looking for those that depend on
     Morepath directly or indirectly. This includes the package that
     calls this function. Those packages are then scanned for
     configuration as with :meth:`Config.scan`.
@@ -132,58 +138,27 @@ class DependencyMap(object):
             yield dist
 
 
-# XXX support for venusian style ignore?
 def morepath_packages():
-    namespace_packages = set()
-    paths = []
+    """ Yields modules that depend on morepath. Each such module is
+    imported before it is returned.
+
+    If the setup.py name differs from the name of the distributed package or
+    module, the import will fail. See :func:`autoconfig` for more information.
+
+    """
     m = DependencyMap()
     m.load()
-    for dist in m.relevant_dists('morepath'):
-        if dist.has_metadata('namespace_packages.txt'):
-            data = dist.get_metadata('namespace_packages.txt')
-            for ns in data.split('\n'):
-                ns = ns.strip()
-                if ns:
-                    namespace_packages.add(ns)
-        paths.append(dist.location)
 
-    seen = set()
-
-    for importer, dotted_name, is_pkg in walk_packages(paths):
-        if not is_pkg:
-            continue
-        if dotted_name in namespace_packages:
-            continue
-        if known_prefix(dotted_name, seen):
-            continue
-        for prefix in prefixes(dotted_name):
-            if prefix not in namespace_packages:
-                seen.add(prefix)
-        m = importer.find_module(dotted_name).load_module(dotted_name)
-        # XXX hack to work around bug in walk_packages that will load
-        # more than one namespace package: http://bugs.python.org/issue14787
-        # XXX performance
-        if in_path(m, paths):
-            yield m
+    for distribution in m.relevant_dists('morepath'):
+        yield import_package(distribution)
 
 
-def prefixes(dottedname):
-    parts = dottedname.split('.')
-    yield dottedname
-    for i in range(1, len(parts)):
-        yield '.'.join(parts[:i])
+def import_package(distribution):
+    """ Takes a pkg_resources distribution and loads the module contained
+    in it, if it matches the rules layed out in :func:`autoconfig`.
 
-
-def known_prefix(dottedname, seen):
-    for prefix in prefixes(dottedname):
-        if prefix in seen:
-            return True
-    return False
-
-
-def in_path(m, paths):
-    for path in paths:
-        for p in m.__path__:
-            if p.startswith(path):
-                return True
-    return False
+    """
+    try:
+        return importlib.import_module(distribution.project_name)
+    except ImportError:
+        raise AutoImportError(distribution.project_name)
