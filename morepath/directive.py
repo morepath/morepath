@@ -827,8 +827,9 @@ class IdentityPolicyDirective(Directive):
         :class:`morepath.security.IdentityPolicy`. Either use an identity
         policy provided by a library or implement your own.
 
-        It gets one optional argument: the settings of the app for which this identity policy is in use.
-        So you can pass some settings directly to the IdentityPolicy class.
+        It gets one optional argument: the settings of the app for which this
+        identity policy is in use. So you can pass some settings directly to
+        the IdentityPolicy class.
         """
         super(IdentityPolicyDirective, self).__init__(app)
 

@@ -3,7 +3,6 @@ import morepath
 from morepath import setup
 from morepath.request import Response
 from morepath import generic
-from morepath import settings
 from morepath.security import (Identity, BasicAuthIdentityPolicy,
                                NO_IDENTITY)
 from .fixtures import identity_policy
@@ -557,7 +556,9 @@ def test_settings():
 
         def identify(self, request):
             token = self.get_token(request)
-            if token is None or not self.token_is_valid(token, self.encryption_key):
+            if token is None or not self.token_is_valid(
+                token, self.encryption_key
+            ):
                 return NO_IDENTITY
             return Identity('Testuser')
 
