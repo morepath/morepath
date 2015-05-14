@@ -7,6 +7,6 @@ env:
     - TOXENV=pypy
     - TOXENV=pep8
 install:
-    - pip install to
+    - pip install tox
 script:
     - tox -e $TOXENV
