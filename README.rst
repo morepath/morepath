@@ -8,3 +8,9 @@ exposed to the web using *views*.
 Documentation_.
 
 .. _Documentation: http://morepath.readthedocs.org/
+
+Build Status
+------------
+
+.. image:: https://travis-ci.org/morepath/morepath.svg?branch=master
+    :target: https://travis-ci.org/morepath/morepath
