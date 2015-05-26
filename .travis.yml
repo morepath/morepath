@@ -8,5 +8,8 @@ env:
     - TOXENV=pep8
 install:
     - pip install tox
+    - if [ "$TOXENV" = 'py27' ]; then pip install coveralls; fi
 script:
     - tox -e $TOXENV
+after_success:
+    - if [ "$TOXENV" = 'py27' ]; then coveralls; fi
