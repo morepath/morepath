@@ -14,3 +14,6 @@ Build Status
 
 .. image:: https://travis-ci.org/morepath/morepath.svg?branch=master
     :target: https://travis-ci.org/morepath/morepath
+
+.. image:: https://coveralls.io/repos/morepath/morepath/badge.svg?branch=master
+    :target: https://coveralls.io/r/morepath/morepath?branch=master
