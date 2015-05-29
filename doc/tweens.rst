@@ -129,8 +129,8 @@ to construct its tweens. A logging tween for instance needs access to
 a setting that indicates the path of the logfile.
 
 The tween factory gets two arguments: the app and the handler. You can
-then access the app's settings using ``app.settings``. See also the
-:doc:`settings` section.
+then access the app's settings using ``app.registry.settings``. See
+also the :doc:`settings` section.
 
 Tweens and apps
 ---------------
