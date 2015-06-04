@@ -1632,3 +1632,41 @@ def test_resolve_path_method_on_request_different_app():
 
     response = c.get('/simple')
     assert response.body == b'True'
+
+
+def test_resolve_path_with_dots_in_url():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    class Root(object):
+        def __init__(self, absorb):
+            self.absorb = absorb
+
+    @app.path(model=Root, path='root', absorb=True)
+    def get_root(absorb):
+        return Root(absorb)
+
+    @app.view(model=Root)
+    def default(self, request):
+        return "%s" % self.absorb
+
+    config.commit()
+
+    c = Client(app())
+
+    response = c.get('/root/x/../child')
+    assert response.body == b'child'
+
+    response = c.get('/root/x/%2E%2E/child')
+    assert response.body == b'child'
+
+    response = c.get('/root/%2E%2E/%2E%2E/root')
+    assert response.body == b''
+
+    response = c.get('/root/%2E%2E/%2E%2E/root')
+    assert response.body == b''
+
+    response = c.get('/root/%2E%2E/%2E%2E/test', expect_errors=True)
+    assert response.status_code == 404

@@ -37,6 +37,12 @@ CHANGES
 
   See https://github.com/morepath/morepath/issues/309
 
+- Dots in the request path are now always normalized away. Before, Morepath
+  basically relied on the client to do this, which was a potential security
+  issue.
+
+  See https://github.com/morepath/morepath/issues/329
+
 - Additional documentation on how to serve static images in
   https://morepath.readthedocs.org/en/latest/more.static.html
 

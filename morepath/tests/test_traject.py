@@ -1,7 +1,7 @@
 import morepath
 from morepath.traject import (Traject, Node, Step, TrajectError,
                               is_identifier, parse_variables,
-                              Path, parse_path, create_path)
+                              Path, parse_path, create_path, normalize_path)
 from morepath.converter import ParameterFactory
 from morepath.publish import consume as traject_consume
 from morepath.converter import Converter, IDENTITY_CONVERTER
@@ -379,7 +379,17 @@ def test_create_path():
     assert create_path(['c', 'b', 'a']) == '/a/b/c'
 
 
-# XXX removing /./ from paths and checking for ../
+def test_normalize_path():
+    assert normalize_path('/a/..') == '/'
+    assert normalize_path('/a/../../../../b') == '/b'
+    assert normalize_path('/a/../c') == '/c'
+    assert normalize_path('/a/../../a/') == '/a'
+    assert normalize_path('/') == '/'
+    assert normalize_path('') == '/'
+    assert normalize_path('../../') == '/'
+    assert normalize_path('../static//../app.py') == '/app.py'
+    assert normalize_path('../a//b/') == '/a/b'
+    assert normalize_path('/////a/////../b') == '/b'
 
 
 def test_identifier():

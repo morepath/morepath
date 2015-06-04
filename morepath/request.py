@@ -1,7 +1,7 @@
 from morepath import generic
 from webob import BaseRequest, Response as BaseResponse
 from .reify import reify
-from .traject import parse_path
+from .traject import normalize_path, parse_path
 from .error import LinkError
 
 
@@ -30,6 +30,9 @@ class Request(BaseRequest):
     """The :class:`reg.Lookup` object handling generic function calls."""
 
     def __init__(self, environ, app, **kw):
+
+        environ['PATH_INFO'] = normalize_path(environ['PATH_INFO'])
+
         super(Request, self).__init__(environ, **kw)
         self.app = app
         self.lookup = app.lookup
