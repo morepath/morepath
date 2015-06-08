@@ -114,7 +114,7 @@ Code Walkthrough
    returns a Morepath config object. If your app is in a Python
    package and you've set up the right ``install_requires`` in
    ``setup.py``, consider using :func:`morepath.autosetup` to be done
-   in one step.
+   in one step. See :doc:`configuration` for more detail.
 
 7. We then ``scan()`` this module (or package) for configuration
    decorators (such as :meth:`morepath.App.path` and
