@@ -28,7 +28,7 @@ CHANGES
 - The ``config.scan`` method now excludes 'test' and 'tests' directories
   by default.
 
-  See https://github.com/morepath/morepath/issues/326  
+  See https://github.com/morepath/morepath/issues/326
 
 - The ``template_directory`` directive will no longer inspect the current
   module if the template directory refers to an absolute path. This makes it
@@ -47,6 +47,9 @@ CHANGES
   issue.
 
   See https://github.com/morepath/morepath/issues/329
+
+- Additional documentation on the Morepath config system:
+  http://morepath.readthedocs.org/en/latest/configuration.html
 
 - Additional documentation on how to serve static images in
   https://morepath.readthedocs.org/en/latest/more.static.html
