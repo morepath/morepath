@@ -2,7 +2,7 @@ import os
 from setuptools import setup, find_packages
 
 setup(name='ns.real',
-      version = '0.1dev',
+      version = '0.1.dev0',
       description="ns Test Fixture",
       author="Martijn Faassen",
       author_email="faassen@startifact.com",
