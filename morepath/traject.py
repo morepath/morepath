@@ -311,7 +311,6 @@ def normalize_path(path):
         ``../static//../app.py`` is turned into ``/app.py``
 
     """
-
     # the path is always absolute
     path = path.lstrip('.')
 
