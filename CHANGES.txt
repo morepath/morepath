@@ -54,6 +54,13 @@ CHANGES
 - Additional documentation on how to serve static images in
   https://morepath.readthedocs.org/en/latest/more.static.html
 
+- Move undocumented ``pdb`` out of ``__init__.py`` as it could
+  sometimes trip up things. Instead documented it in the API docs in
+  the special `morepath.pdbsupport` module.
+
+  https://github.com/morepath/morepath/issues/328
+
+
 0.10 (2015-04-09)
 =================
 

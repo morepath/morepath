@@ -58,3 +58,5 @@ Morepath API
   :members:
 
 .. autoclass:: directive
+
+.. autofunction:: morepath.pdbsupport.set_trace
