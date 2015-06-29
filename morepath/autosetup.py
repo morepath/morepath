@@ -184,8 +184,10 @@ def get_module_name(distribution):
 
     if entry_points and 'scan' in entry_points:
         return entry_points['scan'].module_name
-    else:
-        return distribution.project_name
+    # use normal setuptools project name.
+    # setuptools has the nasty habit to turn _ in package names
+    # into -. We turn them back again.
+    return distribution.project_name.replace('-', '_')
 
 
 def import_package(distribution):

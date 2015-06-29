@@ -1,11 +1,13 @@
 CHANGES
 *******
 
-0.12 (unreleased)
-=================
+0.11.1 (unreleased)
+===================
 
-- Nothing changed yet.
-
+- setuptools has the nasty habit to change underscores in project
+  names to minus characters. This broke the new autoscan machinery for
+  packages with an underscore in their name (such as
+  `morepath_sqlalchemy`). This was fixed.
 
 0.11 (2015-06-29)
 =================

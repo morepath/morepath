@@ -1,10 +1,14 @@
 import morepath
 
-app = morepath.App()
+
+class App(morepath.App):
+    pass
+
 
 class Foo(object):
     pass
 
-@app.path(path='bar', model=Foo)
+
+@App.path(path='bar', model=Foo)
 def get_foo():
     return Foo()
