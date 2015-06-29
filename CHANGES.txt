@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.11.1 (unreleased)
+0.11.1 (2015-06-29)
 ===================
 
 - setuptools has the nasty habit to change underscores in project
