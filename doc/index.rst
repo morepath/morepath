@@ -8,7 +8,7 @@ Morepath: Super Powered Python Web Framework
 
 **Morepath is a Python web microframework, with super powers.**
 
-Morepath is an Python WSGI microframework. It uses routing, but the
+Morepath is a Python WSGI microframework. It uses routing, but the
 routing is to models. Morepath is model-driven and **flexible**, which
 makes it **expressive**.
 
