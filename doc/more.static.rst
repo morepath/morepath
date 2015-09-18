@@ -70,15 +70,18 @@ BowerStatic checks before it inserts any ``<link>`` or ``<script>``
 tags. It's also important to include a ``<head>`` section, as that's
 where BowerStatic includes the static resources by default.
 
-We also set up a ``main()`` function that when run serves the WSGI
-application to the web::
+The app configuration code we store in the ``app.py`` module of the Python
+package.
 
-  def main():
+In the ``run.py`` module of the Python package we set up a ``run()`` function
+that when run serves the WSGI application to the web::
+
+  from .app import App
+
+  def run():
      morepath.autosetup()
      wsgi = App()
      morepath.run(wsgi)
-
-All this code lives in the ``main.py`` module of a Python package.
 
 Manual scan
 -----------
@@ -90,7 +93,7 @@ scan ``more.static`` explicitly, like this::
 
   import more.static
 
-  def main():
+  def run():
      config = morepath.setup()
      config.scan()
      config.scan(more.static)
@@ -105,7 +108,7 @@ BowerStatic_ integrates the Bower_ JavaScript package manager with a
 Python WSGI application such as Morepath.
 
 Once you have ``bower`` installed, go to your Python package directory
-(where the ``main.py`` lives), and install a Bower component. Let's
+(where the ``app.py`` lives), and install a Bower component. Let's
 take ``jquery``::
 
   bower install jquery
@@ -139,7 +142,7 @@ The first argument to ``bower.components`` is the name under which we
 want to publish them. We just pick ``app``. The second argument
 specifies the path to the ``bower.components`` directory. The
 ``os.path`` business here is a way to make sure that we get the
-``bower_components`` next to this module (``main.py``) in this Python
+``bower_components`` next to this module (``app.py``) in this Python
 package.
 
 BowerStatic now lets you refer to files in the packages in
