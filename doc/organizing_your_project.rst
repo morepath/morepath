@@ -172,6 +172,13 @@ The ``app.py`` module is where we define our Morepath app. Here's a sketch of
 Run Module
 ----------
 
+.. sidebar:: Why we keep app.py and run.py separate
+
+  Morepath attaches a configuration registry to each application class. This
+  can happen twice if we run the run function directly from python (through
+  use of ``__main__``). By keeping the application from the run code we can
+  be sure that this never happens.
+
 In the ``run.py`` module we define how our application should be served. We
 take the ``App`` class defined in ``app.py``, then have a ``run()`` function
 that is going to be called by the ``myproject-start`` entry point we defined
