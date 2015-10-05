@@ -732,3 +732,73 @@ def test_deferred_loop():
 
     with pytest.raises(LinkError):
         c.get('/')
+
+
+# see issue #342
+def test_defer_link_scenario():
+    config = morepath.setup()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Child(morepath.App):
+        testing_config = config
+
+    class Document(object):
+        pass
+
+    @App.mount(app=Child, path='child')
+    def mount_child():
+        return Child()
+
+    @App.defer_links(model=Document)
+    def defer_document(app, doc):
+        return app.child(Child())
+
+    @App.path(path='')
+    class Root(object):
+        pass
+
+    @App.json(model=Root)
+    def root_view(self, request):
+        return {
+            'link': request.link(Document()),
+            'view': request.view(Document())
+        }
+
+    # if this is commented out, the Child app's view for Document
+    # will be used by root_view, which is surprising.
+    @App.json(model=Document)
+    def app_document_default(self, request):
+        return {
+            'app': 'App'
+        }
+
+    @Child.path('', model=Document)
+    def get_document():
+        return Document()
+
+    @Child.json(model=Document)
+    def document_default(self, request):
+        return {
+            'app': 'Child',
+        }
+
+    config.commit()
+
+    c = Client(App())
+
+    response = c.get('/child')
+
+    assert response.json == {'app': 'Child'}
+
+    response = c.get('/')
+
+    # it is rather surprising that the view is not deferred to Child if there
+    # is a view defined for App. It is according to spec: the app uses
+    # its own behavior if it's there, and only defers afterwards. Is this
+    # really what we want, though?
+    assert response.json == {
+        'link': 'http://localhost/child',
+        'view': {'app': 'App'}
+    }
