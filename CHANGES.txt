@@ -6,6 +6,10 @@ CHANGES
 
 - Fixed a typo in the `defer_link` documentation.
 
+- Morepath's link generation wasn't properly quoting paths and
+  parameters in all circumstances where non-ascii characters or
+  URL-quoted characters were used. See issue #337.
+
 0.11.1 (2015-06-29)
 ===================
 

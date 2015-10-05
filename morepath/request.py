@@ -6,10 +6,10 @@ from .error import LinkError
 
 
 try:
-    from urllib.parse import urlencode
+    from urllib.parse import urlencode, quote
 except ImportError:
     # Python 2
-    from urllib import urlencode
+    from urllib import urlencode, quote
 import reg
 
 
@@ -180,11 +180,13 @@ class Request(BaseRequest):
         path, parameters = info
         parts = []
         if path:
-            parts.append(path)
+            parts.append(quote(path.encode('utf-8')))
         if name:
             parts.append(name)
         result = self.link_prefix() + '/' + '/'.join(parts)
         if parameters:
+            parameters = dict((key, [v.encode('utf-8') for v in value])
+                              for (key, value) in parameters.items())
             result += '?' + urlencode(parameters, True)
         return result
 
