@@ -740,7 +740,7 @@ class DeferLinksDirective(Directive):
 
         With ``defer_links`` you can specify that link generation for
         instances of ``model`` is to be handled by a returned mounted
-        app it cannot be handled by the given app
+        app if it cannot be handled by the given app
         itself. :meth:`Request.link` and :meth:`Request.view` are
         affected by this directive.
 
@@ -751,6 +751,7 @@ class DeferLinksDirective(Directive):
         :meth:`App.parent` and :meth:`App.child`.
 
         :param model: the class for which we want to defer linking.
+
         """
         super(DeferLinksDirective, self).__init__(base_app)
         self.model = model
