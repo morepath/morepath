@@ -4,8 +4,7 @@ CHANGES
 0.12 (unreleased)
 =================
 
-- Nothing changed yet.
-
+- Fixed a typo in the `defer_link` documentation.
 
 0.11.1 (2015-06-29)
 ===================
