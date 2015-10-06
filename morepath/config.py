@@ -1,7 +1,8 @@
 import inspect
 from copy import copy
 import venusian
-from .error import (ConflictError, DirectiveError, DirectiveReportError)
+from .error import (
+    ConfigError, ConflictError, DirectiveError, DirectiveReportError)
 from .toposort import topological_sort
 from .framehack import caller_package
 
@@ -503,9 +504,12 @@ class Config(object):
 
         :returns: An iterable of prepared action, obj combinations.
         """
-        for action, obj in self.actions:
-            for prepared, prepared_obj in action.prepare(obj):
-                yield (prepared, prepared_obj)
+        try:
+            for action, obj in self.actions:
+                for prepared, prepared_obj in action.prepare(obj):
+                    yield (prepared, prepared_obj)
+        except ConfigError as e:
+            raise DirectiveReportError(u"{}".format(e), action)
 
     def commit(self):
         """Commit all configuration.
