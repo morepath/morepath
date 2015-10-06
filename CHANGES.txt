@@ -21,6 +21,9 @@ CHANGES
   existing code, add all variables that are defined in the path
   (i.e. ``{id}``) to the function signature.
 
+- Certain errors (``ConfigError``) were not reporting directive line number
+  information. They now do.
+
 0.11.1 (2015-06-29)
 ===================
 
