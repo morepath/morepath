@@ -442,7 +442,7 @@ class Config(object):
         :class:`morepath.config.Configurable` objects.
 
         If given a package, it scans any modules and sub-packages as
-        well recursively.
+        well recursively, unless `recursive` is `False`.
 
         :param package: The Python module or package to scan. Optional; if left
           empty case the calling package is scanned.
