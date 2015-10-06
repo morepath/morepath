@@ -78,8 +78,10 @@ class SettingSectionDirective(Directive):
         section = obj()
         app = self.app
         for name, value in section.items():
-            yield (app.setting(section=self.section, name=name),
-                   SettingValue(value))
+            d = app.setting(section=self.section, name=name)
+            # attach info for better error reporting
+            d.attach_info = self.attach_info
+            yield d, SettingValue(value)
 
 
 # XXX this allows predicate_fallback directives to be installed without

@@ -24,6 +24,8 @@ CHANGES
 - Certain errors (``ConfigError``) were not reporting directive line number
   information. They now do.
 
+- Better ``ConfligError`` reporting when ``setting_section`` is in use.
+
 0.11.1 (2015-06-29)
 ===================
 
