@@ -10,6 +10,17 @@ CHANGES
   parameters in all circumstances where non-ascii characters or
   URL-quoted characters were used. See issue #337.
 
+- Morepath could not handle varargs or keyword arguments properly
+  in path functions. Now bails out with an error early during
+  configuration time. To fix existing code, get rid of any ``*args`` or
+  ``**kw``.
+
+- Morepath could not properly generate links if a path directive
+  defines a path variable for the path but does not actually use it in
+  the path function. Now we complain during configuration time. To fix
+  existing code, add all variables that are defined in the path
+  (i.e. ``{id}``) to the function signature.
+
 0.11.1 (2015-06-29)
 ===================
 

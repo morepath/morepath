@@ -1,6 +1,7 @@
 from morepath import generic
 from morepath.traject import Path, Inverse
 from morepath.converter import ParameterFactory
+from morepath.error import DirectiveError
 
 from reg import arginfo
 
@@ -39,8 +40,22 @@ def register_path(app, model, path, variables, converters, required,
         converters.update(get_converters())
     arguments = get_arguments(model_factory, SPECIAL_ARGUMENTS)
     converters = app.argument_and_explicit_converters(arguments, converters)
-    exclude = Path(path).variables()
-    parameters = get_url_parameters(arguments, exclude)
+    path_variables = Path(path).variables()
+
+    info = arginfo(model_factory)
+    if info.varargs is not None:
+        raise DirectiveError(
+            "Cannot use varargs in function signature: %s" % info.varargs)
+    if info.keywords is not None:
+        raise DirectiveError(
+            "Cannot use keywords in function signature: %s" % info.keywords)
+    for path_variable in path_variables:
+        if path_variable not in arguments:
+            raise DirectiveError(
+                "Variable in path not found in function signature: %s"
+                % path_variable)
+
+    parameters = get_url_parameters(arguments, path_variables)
     if required is None:
         required = set()
     required = set(required)

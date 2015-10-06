@@ -94,7 +94,7 @@ def test_mount_none_should_fail():
         return request.link(self)
 
     @app.mount(path='{id}', app=mounted)
-    def mount_mounted():
+    def mount_mounted(id):
         return None
 
     config.commit()
