@@ -344,10 +344,10 @@ Each would be organized as described in
 ``setup.py`` that depends on ``myproject.issues`` and
 ``myproject.wiki``. To get ``IssuesApp`` and ``WikiApp`` in order to
 mount them in the core, we would simply import them (for instance in
-``myproject.core.main``)::
+``myproject.core.app``)::
 
-  from myproject.issues.main import IssuesApp
-  from myproject.wiki.main import WikiApp
+  from myproject.issues.app import IssuesApp
+  from myproject.wiki.app import WikiApp
 
 In some scenarios you may want to turn this around: the ``IssuesApp``
 and ``WikiApp`` know they should be mounted in ``CoreApp``, but the
@@ -406,9 +406,9 @@ an ``install_requires`` in its ``setup.py`` that depends on
 ``customerdatabase`` in this example).
 
 Now we can import ``CoreApp`` in ``important_customer.core``'s
-``main.py`` module, and extend it::
+``app.py`` module, and extend it::
 
-  from myproject.core.main import CoreApp
+  from myproject.core.app import CoreApp
 
   class CustomerApp(CoreApp):
       pass
@@ -450,7 +450,7 @@ still continue to use the original wiki.
 We'd tweak the wiki just as we would tweak the core app. We end up
 with a ``TweakedWikiApp``::
 
-  from myproject.wiki.main import WikiApp
+  from myproject.wiki.app import WikiApp
 
   class TweakedWikiApp(WikiApp):
        pass

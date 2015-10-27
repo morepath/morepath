@@ -42,10 +42,11 @@ project that follows the guidelines in this document::
       setup.py
       myproject
            __init__.py
-          main.py
+          app.py
           model.py
           [collection.py]
           path.py
+          run.py
           view.py
 
 Project setup
@@ -63,7 +64,7 @@ things relevant to Morepath shown and everything else cut out::
         ],
         entry_points={
            'console_scripts': [
-            'myproject-start = myproject.main:main'
+            'myproject-start = myproject.run:run'
             ]
         })
 
@@ -82,7 +83,7 @@ Finally there is an ``entry_points`` section that declares a console
 script (something you can run on the command-prompt of your operating
 system). When you install this project, a ``myproject-start`` script
 is automatically generated that you can use to start up the web
-server. It calls the ``main()`` function in the ``myproject.main``
+server. It calls the ``run()`` function in the ``myproject.run``
 module. Let's create this next.
 
 You now need to install this project. If you want to install this
@@ -123,10 +124,11 @@ Different sub-projects could then be called ``myproject.core``,
           __init__.py
           core
               __init__.py
-              main.py
+              app.py
               model.py
               [collection.py]
               path.py
+              run.py
               view.py
 
 The change is the namespace package directory ``myproject`` that contains
@@ -148,7 +150,7 @@ Inside is the normal package called ``core``.
         ],
         entry_points={
            'console_scripts': [
-            'myproject.core-start = myproject.core.main:main'
+            'myproject.core-start = myproject.core.run:run'
             ]
         })
 
@@ -156,24 +158,39 @@ See also the `namespace packages documentation`_.
 
 .. _`namespace packages documentation`: http://pythonhosted.org/setuptools/setuptools.html#namespace-packages
 
-Main Module
+App Module
 -----------
 
-The ``main.py`` module is where we define our Morepath app and allow a
-way to start it up as a web server. Here's a sketch of ``main.py``::
+The ``app.py`` module is where we define our Morepath app. Here's a sketch of
+``app.py``::
 
   import morepath
 
   class App(morepath.App):
       pass
 
-  def main():
-     morepath.autosetup()
-     morepath.run(App())
+Run Module
+----------
 
-We create an ``App`` class, then have a ``main()`` function that is
-going to be called by the ``myproject-start`` entry point we defined
-in ``setup.py``. This main function does two things:
+.. sidebar:: Why we keep app.py and run.py separate
+
+  Morepath attaches a configuration registry to each application class. This
+  can happen twice if we run the run function directly from python (through
+  use of ``__main__``). By keeping the application from the run code we can
+  be sure that this never happens.
+
+In the ``run.py`` module we define how our application should be served. We
+take the ``App`` class defined in ``app.py``, then have a ``run()`` function
+that is going to be called by the ``myproject-start`` entry point we defined
+in ``setup.py``::
+
+  from .app import App
+
+  def run():
+      morepath.autosetup()
+      morepath.run(App())
+
+This run function does two things:
 
 * Use :func:`morepath.autosetup()` to set up Morepath, including any
   of your code.
@@ -183,7 +200,7 @@ in ``setup.py``. This main function does two things:
   that this should only used for testing purposes, not production! For
   production, use an external WSGI server.
 
-The main module is also a good place to do other general configuration
+The run module is also a good place to do other general configuration
 for the application, such as setting up a database connection.
 
 Debugging scanning problems
@@ -207,7 +224,7 @@ configuration of your project. Here's a checklist:
   project won't be scanned as a package
 
 * Check whether manually scanning the individual modules or packages
-  helps. Try writing this code in main instead of ``autosetup``::
+  helps. Try writing this code in run instead of ``autosetup``::
 
     from . import path, view
 
@@ -217,11 +234,11 @@ configuration of your project. Here's a checklist:
     config.scan(view)
     config.commit()
 
-  Alternatively you can try moving your code into ``main.py`` and see
+  Alternatively you can try moving your code into ``app.py`` and see
   whether it starts working.
 
   If this fixes things, then your Python package seems not to be
-  properly installed as a Python package; only the ``main`` module get
+  properly installed as a Python package; only the ``run`` module get
   scanned properly. Morepath should be able to pick up everything in
   your package if only you organize it correctly.
 
@@ -235,15 +252,13 @@ Morepath's built in development server does not offer this feature,
 but you can accomplish it with `Werkzeug's server`_.
 
 First install the `Werkzeug package`_ into your project. Then modify
-your main module to look like this::
+your run module to look like this::
 
   import morepath
   from werkzeug.serving import run_simple
+  from .app import App
 
-  class App(morepath.App):
-      pass
-
-  def main():
+  def run():
       morepath.autosetup()
       run_simple('localhost', 8080, App(), use_reloader=True)
 
@@ -277,13 +292,13 @@ waitress::
         ],
   ...
 
-Then we modify ``main.py`` to use waitress::
+Then we modify ``run.py`` to use waitress::
 
   import waitress
 
   ...
 
-  def main():
+  def run():
      ...
      waitress.serve(App())
 
@@ -299,7 +314,7 @@ app::
      morepath.autosetup()
      return App()
 
-  $ waitress-serve --call myproject.main:wsgi_factory
+  $ waitress-serve --call myproject.run:wsgi_factory
 
 This uses waitress's ``--call`` functionality to invoke a WSGI factory
 instead of a WSGI function. If you want to use a WSGI function
@@ -377,7 +392,7 @@ Path module
 Now that we have models, we need to publish them on the web. First we need
 to define their paths. We do this in a ``path.py`` module::
 
-  from .main import App
+  from .app import App
   from . import model
 
   @App.path(model=model.Document, path='documents/{id}')
@@ -405,7 +420,7 @@ View module
 We have models and they're published on a path. Now we need to represent
 them as actual web resources. We do this in the ``view.py`` module::
 
-  from .main import App
+  from .app import App
   from . import model
 
   @App.json(model=model.Document)
