@@ -170,7 +170,7 @@ class Request(BaseRequest):
             app = self.app
 
         def find(app, obj):
-            return link(self, obj, app)
+            return link(obj, app)
 
         info, app = _follow_defers(find, app, obj)
 
@@ -278,7 +278,7 @@ def _follow_defers(find, app, obj):
     return None, app
 
 
-def link(request, model, app):
+def link(model, app):
     """Create a link (URL) to a model, including any mounted applications.
     """
     result = []
