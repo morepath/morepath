@@ -28,9 +28,14 @@ class View(object):
         content = self(request, obj)
         if isinstance(content, BaseResponse):
             # the view took full control over the response
-            return content
-        response = self.render(content, request)
-        request.run_after(response)
+            response = content
+        else:
+            response = self.render(content, request)
+
+        # run request after if it's a 2XX or 3XX response
+        if 200 <= response.status_code <= 399:
+            request.run_after(response)
+
         return response
 
 

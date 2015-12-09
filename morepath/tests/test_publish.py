@@ -5,7 +5,7 @@ from morepath.path import register_path
 from morepath.request import Response
 from morepath.view import register_view, render_json, render_html
 from morepath.core import setup
-from webob.exc import HTTPNotFound, HTTPBadRequest
+from webob.exc import HTTPNotFound, HTTPBadRequest, HTTPFound, HTTPOk
 import webob
 from webtest import TestApp as Client
 import pytest
@@ -233,6 +233,30 @@ def test_view_after():
     assert result.headers.get('Foo') == 'FOO'
 
 
+def test_view_after_redirect():
+    config = setup()
+
+    class app(morepath.App):
+        testing_config = config
+
+    config.commit()
+
+    def view(self, request):
+        @request.after
+        def set_header(response):
+            response.headers.add('Foo', 'FOO')
+        return morepath.redirect('http://example.org')
+
+    register_view(app.registry, dict(model=Model),
+                  view)
+
+    model = Model()
+    result = resolve_response(app().request(get_environ(path='')), model)
+    assert result.status_code == 302
+    assert result.headers.get('Location') == 'http://example.org'
+    assert result.headers.get('Foo') == 'FOO'
+
+
 def test_conditional_view_after():
     config = setup()
 
@@ -305,6 +329,38 @@ def test_view_after_doesnt_apply_to_exception():
 
     response = c.get('/', status=404)
     assert response.headers.get('Foo') is None
+
+
+@pytest.mark.parametrize('status_code,exception_class', [
+    (200, HTTPOk),
+    (302, HTTPFound)
+])
+def test_view_after_applies_to_some_exceptions(status_code, exception_class):
+    config = setup()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Root(object):
+        pass
+
+    @App.path(model=Root, path='')
+    def get_root():
+        return Root()
+
+    @App.view(model=Root)
+    def view(self, request):
+        @request.after
+        def set_header(response):
+            response.headers.add('Foo', 'FOO')
+        raise exception_class()
+
+    config.commit()
+
+    c = Client(App())
+
+    response = c.get('/', status=status_code)
+    assert response.headers.get('Foo') == 'FOO'
 
 
 def test_view_after_doesnt_apply_to_exception_view():

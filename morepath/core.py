@@ -8,7 +8,7 @@ from .converter import Converter, IDENTITY_CONVERTER
 from webob import Response as BaseResponse
 from webob.exc import (
     HTTPException, HTTPNotFound, HTTPMethodNotAllowed,
-    HTTPUnprocessableEntity)
+    HTTPUnprocessableEntity, HTTPOk, HTTPRedirection)
 import morepath
 from reg import KeyIndex, ClassIndex
 from datetime import datetime, date
@@ -131,8 +131,11 @@ def excview_tween_factory(app, handler):
                                                    lookup=request.lookup)
             if view is None:
                 raise
+
             # we don't want to run any after already set in the exception view
-            request.clear_after()
+            if not isinstance(exc, (HTTPOk, HTTPRedirection)):
+                request.clear_after()
+
             return view.response(request, exc)
         return response
     return excview_tween

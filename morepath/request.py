@@ -214,7 +214,21 @@ class Request(BaseRequest):
         return resolve_model(request)
 
     def after(self, func):
-        """Call function with response after this request is done.
+        """Call a function with the response after a successful request.
+
+        A request is considered *successful* if the HTTP status is a 2XX or a
+        3XX code (e.g. 200 OK, 204 No Content, 302 Found).
+        In this case ``after`` *is* called.
+
+        A request is considered *unsuccessful* if the HTTP status lies outside
+        the 2XX-3XX range (e.g. 403 Forbidden, 404 Not Found,
+        500 Internal Server Error). Usually this happens if an exception
+        occurs. In this case ``after`` is *not* called.
+
+        Some exceptions indicate a successful request however and their
+        occurrence still leads to a call to ``after``. These exceptions
+        inherit from either :class:`webob.exc.HTTPOk` or
+        :class:`webob.exc.HTTPRedirection`.
 
         You use `request.after` inside a view function definition.
 
@@ -233,16 +247,6 @@ class Request(BaseRequest):
               @request.after
               def myfunc(response):
                   response.headers.add('blah', 'something')
-
-        If the normal response handling is interrupted by
-        an exception either in your own code or by Morepath
-        raising a HTTP exception, then ``after`` won't execute
-        for this exception.
-
-        If you directly return a response object from the view,
-        ``after`` won't have any effect either. Instead, you can
-        manipulate the response object directly. Note that this
-        is the case when you use :func:`morepath.redirect`.
 
         :param func: callable that is called with response
         :returns: func argument, not wrapped

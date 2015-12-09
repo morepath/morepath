@@ -4,6 +4,14 @@ CHANGES
 0.12 (unreleased)
 =================
 
+- **Breaking change**. The ``request.after`` function is now called even if
+  the response was directly created by the view (as opposed to the view
+  returning a value to be rendered by morepath). Basically, ``request.after``
+  is now guaranteed to be called if the response's HTTP status code lies within
+  the 2XX-3XX range.
+
+  See https://github.com/morepath/morepath/issues/346
+
 - Fixed a typo in the `defer_link` documentation.
 
 - Morepath's link generation wasn't properly quoting paths and
