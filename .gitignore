@@ -8,7 +8,7 @@ doc/build
 .coverage
 htmlcov
 .tox
-
+.cache
 build/
 dist/
 eggs/
