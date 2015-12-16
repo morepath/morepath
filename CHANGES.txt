@@ -32,7 +32,7 @@ CHANGES
 - Certain errors (``ConfigError``) were not reporting directive line number
   information. They now do.
 
-- Better ``ConfligError`` reporting when ``setting_section`` is in use.
+- Better ``ConfigError`` reporting when ``setting_section`` is in use.
 
 - Removed the unused ``request`` parameter from the ``link`` method in
   ``morepath.request``. See issue #351.
