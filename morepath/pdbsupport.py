@@ -11,4 +11,4 @@ def set_trace(*args, **kw):
 
     The debugger won't step into ``reg``, ``inspect`` or ``repoze.lru``.
     """
-    return morepath_pdb.set_trace(*args, **kw)
+    return morepath_pdb.set_trace(*args, **kw)  # pragma: nocoverage
