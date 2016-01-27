@@ -7,7 +7,7 @@ long_description = (
     io.open('CHANGES.txt', encoding='utf-8').read())
 
 setup(name='morepath',
-      version='0.12',
+      version='0.13.dev0',
       description="A micro web-framework with superpowers",
       long_description=long_description,
       author="Martijn Faassen",
