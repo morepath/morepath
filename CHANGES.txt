@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.12 (unreleased)
+0.12 (2016-01-27)
 =================
 
 - **Breaking change**. The ``request.after`` function is now called even if
