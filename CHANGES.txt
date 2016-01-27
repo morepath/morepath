@@ -37,6 +37,9 @@ CHANGES
 - Removed the unused ``request`` parameter from the ``link`` method in
   ``morepath.request``. See issue #351.
 
+- Require venusifork 2.0a3. This is a hacked version which works around
+  some unusual compatibility issues with ``six``.
+
 0.11.1 (2015-06-29)
 ===================
 
