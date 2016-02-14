@@ -331,7 +331,7 @@ What if we want to see Bob's edit view? We do this::
 And we get ``/users/bob/edit`` (with the hostname, for instance
 ``http://example.com``, as a prefix).
 
-Using :meth:`morepath.Request.link`` everywhere for link generation is
+Using :meth:`morepath.Request.link` everywhere for link generation is
 easy. You only need models and remember which view names are
 available, that's it. If you ever have to change the path of your
 model, you won't need to adjust any linking code.
