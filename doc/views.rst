@@ -380,7 +380,7 @@ request header is set to something::
 
 We can use any information in the request and model to construct the
 predicate. Now you can use it to make a view that only kicks in when
-the `Something`` header is ``special``::
+the ``Something`` header is ``special``::
 
   @App.view(model=Document, something='special')
   def document_default(self, request):
