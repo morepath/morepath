@@ -25,6 +25,10 @@ def test_defer_links():
     def root_model_default(self, request):
         return request.link(SubModel())
 
+    @root.view(model=RootModel, name='class_link')
+    def root_model_class_link(self, request):
+        return request.class_link(SubModel)
+
     @sub.path(path='')
     class SubModel(object):
         pass
@@ -43,6 +47,9 @@ def test_defer_links():
 
     response = c.get('/')
     assert response.body == b'http://localhost/sub'
+
+    with pytest.raises(LinkError):
+        c.get('/class_link')
 
 
 def test_defer_view():

@@ -215,14 +215,20 @@ class Request(BaseRequest):
         """
         if variables is None:
             variables = {}
-            
+
         if app is None:
             raise LinkError("Cannot link: app is None")
 
         if app is SAME_APP:
             app = self.app
 
-        path, parameters = class_link(model, variables, app)
+        info = class_link(model, variables, app)
+
+        if info is None:
+            raise LinkError("Cannot link to class: %r" % model)
+
+        path, parameters = info
+
         return self._encode_link(path, name, parameters)
 
     def _encode_link(self, path, name, parameters):
