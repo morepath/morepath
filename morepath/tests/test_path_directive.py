@@ -1951,3 +1951,114 @@ def test_class_link_with_subclass():
 
     response = c.get('/foo/3')
     assert response.body == u"http://localhost/foo/X"
+
+
+def test_absorb_class_path():
+    config = setup()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Root(object):
+        pass
+
+    class Model(object):
+        def __init__(self, absorb):
+            self.absorb = absorb
+
+    @App.path(model=Root, path='')
+    def get_root():
+        return Root()
+
+    @App.path(model=Model, path='foo', absorb=True)
+    def get_model(absorb):
+        return Model(absorb)
+
+    @App.view(model=Model)
+    def default(self, request):
+        return "%s" % self.absorb
+
+    @App.view(model=Root)
+    def default_root(self, request):
+        return request.class_link(Model, variables={'absorb': 'a/b'})
+
+    config.commit()
+
+    c = Client(App())
+
+    # link to a/b absorb
+    response = c.get('/')
+    assert response.body == b'http://localhost/foo/a/b'
+
+
+def test_absorb_class_path_with_variables():
+    config = setup()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Root(object):
+        pass
+
+    class Model(object):
+        def __init__(self, id, absorb):
+            self.id = id
+            self.absorb = absorb
+
+    @App.path(model=Root, path='')
+    def get_root():
+        return Root()
+
+    @App.path(model=Model, path='{id}', absorb=True)
+    def get_model(id, absorb):
+        return Model(id, absorb)
+
+    @App.view(model=Model)
+    def default(self, request):
+        return "I:%s A:%s" % (self.id, self.absorb)
+
+    @App.view(model=Root)
+    def default_root(self, request):
+        return request.class_link(Model,
+                                  variables=dict(id='foo', absorb='a/b'))
+
+    config.commit()
+
+    c = Client(App())
+
+    # link to a/b absorb
+    response = c.get('/')
+    assert response.body == b'http://localhost/foo/a/b'
+
+
+def test_class_link_extra_parameters():
+    config = setup()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Model(object):
+        def __init__(self, extra_parameters):
+            self.extra_parameters = extra_parameters
+
+    @App.path(model=Model, path='/')
+    def get_model(extra_parameters):
+        return Model(extra_parameters)
+
+    @App.view(model=Model)
+    def default(self, request):
+        return repr(sorted(self.extra_parameters.items()))
+
+    @App.view(model=Model, name='link')
+    def link(self, request):
+        return request.class_link(
+            Model,
+            variables={'extra_parameters': {'a': 'A', 'b': 'B'}})
+
+    config.commit()
+
+    c = Client(App())
+
+    response = c.get('/link?a=A&b=B')
+    assert sorted(response.body[len('http://localhost/?'):].split(b"&")) == [
+        b'a=A', b'b=B']
