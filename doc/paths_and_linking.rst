@@ -763,6 +763,31 @@ has no effect::
 You can still generate a link to a model that is under an
 absorbed path -- it uses the value of the ``absorb`` variable.
 
+Linking with the model class
+----------------------------
+
+Instead of using :meth:`morepath.Request.link` you can also construct
+links using :meth:`morepath.Request.class_link`. You can use this for
+optimization purposes when creating an instance to link to would be
+relatively expensive; if you do have the instance it's generally
+easier to just link to that instead using `request.link`.
+
+To use `request.class_link` you give the model *class* instead of an
+instance, and also provide a dictionary of variables to use to
+construct the link.
+
+  @App.view(model=Document, name='class_link')
+  def document_self_link(self, request):
+      return request.class_link(Document, variables={'name': 'Document name'})
+
+The variables are used in the same way as for `request.link`, so
+additional parameters listed in the path function are interpreted as
+URL parameters.
+
+Warning: `request.class_link` does *NOT* obey the `defer_links`
+directive, as this relies on the instance of what is being linked to
+in order to determine the application to which it defers.
+
 Proxy support
 -------------
 

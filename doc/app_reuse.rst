@@ -368,8 +368,10 @@ to, and then this app could defer to another sub-app. When creating a
 link Morepath follows the defers to the application that knows how to
 do it.
 
-The :meth:`morepath.App.defer_links` directive also affects the behavior of
-:meth:`morepath.Request.view` in the same way.
+The :meth:`morepath.App.defer_links` directive also affects the
+behavior of :meth:`morepath.Request.view` in the same way. It does
+however *not* affect :meth:`morepath.Request.class_link`, as without
+the instance, insufficient information is available to defer the link.
 
 Further reading
 ---------------
