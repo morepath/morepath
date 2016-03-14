@@ -1771,3 +1771,28 @@ def test_parameter_quoting():
 
     response = c.get('/link?s=sim%C3%ABple')
     assert response.body == b'http://localhost/?s=sim%C3%ABple'
+
+
+def test_class_link_without_variables():
+    config = setup()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Model(object):
+        pass
+
+    @App.path(model=Model, path='/foo')
+    def get_model():
+        return Model()
+
+    @App.view(model=Model)
+    def link(self, request):
+        return request.class_link(Model)
+
+    config.commit()
+
+    c = Client(App())
+
+    response = c.get('/foo')
+    assert response.body == u"http://localhost/foo"

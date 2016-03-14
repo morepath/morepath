@@ -8,6 +8,13 @@ def path(obj):
     return None
 
 
+@reg.dispatch(reg.match_class('cls', lambda cls: cls))
+def class_path(cls, variables):
+    """Get the path for a class.
+    """
+    return None
+
+
 @reg.dispatch('obj')
 def deferred_link_app(mounted, obj):
     return None

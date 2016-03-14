@@ -213,6 +213,9 @@ class Inverse(object):
         if not isinstance(all_variables, dict):
             raise LinkError("variables function for path %s "
                             "did not return a dict" % self.path)
+        return self.with_variables(all_variables)
+
+    def with_variables(self, all_variables):
         extra_parameters = all_variables.pop('extra_parameters', None)
         if self.absorb:
             absorbed_path = all_variables.pop('absorb')
@@ -231,7 +234,6 @@ class Inverse(object):
                 # the root, and we don't want an additional /
                 path = absorbed_path
         return path, self.query_parameters(all_variables, extra_parameters)
-
 
 class Traject(object):
     def __init__(self):

@@ -178,6 +178,54 @@ class Request(BaseRequest):
             raise LinkError("Cannot link to: %r" % obj)
 
         path, parameters = info
+        return self._encode_link(path, name, parameters)
+
+    def class_link(self, model, variables=None, name='', app=SAME_APP):
+        """Create a link (URL) to a view on a class.
+
+        Given a model class and a variables dictionary, create a link
+        based on the path registered for the class and interpolate the
+        variables.
+
+        If you have an instance of the model available you'd link to the
+        model instead, but in some cases it is expensive to instantiate
+        the model just to create a link. In this case `class_link` can be
+        used as an optimization.
+
+        Note that the `defer_links` directive has no effect on `class_link`,
+        as it needs an instance of the model to work, which is not
+        available.
+
+        If no link can be constructed for the model class, a
+        :exc:``morepath.LinkError`` is raised. This error is also
+        raised if you don't supply enough variables. Additional variables
+        not used in the path are interpreted as URL parameters.
+
+        :param model: the model class to link to.
+        :param variables: a dictionary with as keys the variable names,
+          and as values the variable values. These are used to construct
+          the link URL. If omitted, the dictionary is treated as containing
+          no variables.
+        :param name: the name of the view to link to. If omitted, the
+          the default view is looked up.
+        :param app: If set, change the application to which the
+          link is made. By default the link is made to an object
+          in the current application. The ``defer_links`` directive has
+          no effect.
+        """
+        if variables is None:
+            variables = {}
+            
+        if app is None:
+            raise LinkError("Cannot link: app is None")
+
+        if app is SAME_APP:
+            app = self.app
+
+        path, parameters = class_link(model, variables, app)
+        return self._encode_link(path, name, parameters)
+
+    def _encode_link(self, path, name, parameters):
         parts = []
         if path:
             parts.append(quote(path.encode('utf-8')))
@@ -282,19 +330,43 @@ def _follow_defers(find, app, obj):
     return None, app
 
 
-def link(model, app):
-    """Create a link (URL) to a model, including any mounted applications.
+def link(obj, app):
+    """Create a link (URL) to a model instance.
+
+    Take mounted applications into account.
     """
-    result = []
-    parameters = {}
+    path_info = generic.path(obj, lookup=app.lookup)
+    if path_info is None:
+        return None
+    path, parameters = path_info
+    return mounted_link(path, parameters, app)
+
+
+def class_link(model, variables, app):
+    """Create a link to a model class given variables.
+
+    Take mounted applications into account.
+    """
+    path_info = generic.class_path(model, variables=variables,
+                                   lookup=app.lookup)
+    if path_info is None:
+        return None
+    path, parameters = path_info
+    return mounted_link(path, parameters, app)
+
+
+def mounted_link(path, parameters, app):
+    result = [path]
+    obj = app
+    app = app.parent
     while app is not None:
-        path_info = generic.path(model, lookup=app.lookup)
+        path_info = generic.path(obj, lookup=app.lookup)
         if path_info is None:
             return None
         path, params = path_info
         result.append(path)
         parameters.update(params)
-        model = app
+        obj = app
         app = app.parent
     result.reverse()
     return '/'.join(result).strip('/'), parameters
