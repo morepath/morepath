@@ -1530,6 +1530,33 @@ def test_error_when_path_variable_is_none():
         c.get('/models/1')
 
 
+def test_error_when_path_variable_is_missing():
+    config = setup()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Model(object):
+        def __init__(self, id):
+            self.store_id = id
+
+    @App.path(model=Model, path='models/{id}',
+              variables=lambda m: {})
+    def get_model(id):
+        return Model(id)
+
+    @App.view(model=Model)
+    def default(self, request):
+        return request.link(self)
+
+    config.commit()
+
+    c = Client(App())
+
+    with pytest.raises(KeyError):
+        c.get('/models/1')
+
+
 def test_error_when_path_variables_isnt_dict():
     config = setup()
 
@@ -1796,3 +1823,131 @@ def test_class_link_without_variables():
 
     response = c.get('/foo')
     assert response.body == u"http://localhost/foo"
+
+
+def test_class_link_with_variables():
+    config = setup()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Model(object):
+        pass
+
+    @App.path(model=Model, path='/foo/{x}')
+    def get_model(x):
+        return Model()
+
+    @App.view(model=Model)
+    def link(self, request):
+        return request.class_link(Model, variables={'x': 'X'})
+
+    config.commit()
+
+    c = Client(App())
+
+    response = c.get('/foo/3')
+    assert response.body == u"http://localhost/foo/X"
+
+
+def test_class_link_with_missing_variables():
+    config = setup()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Model(object):
+        pass
+
+    @App.path(model=Model, path='/foo/{x}')
+    def get_model(x):
+        return Model()
+
+    @App.view(model=Model)
+    def link(self, request):
+        return request.class_link(Model, variables={})
+
+    config.commit()
+
+    c = Client(App())
+
+    with pytest.raises(KeyError):
+        response = c.get('/foo/3')
+
+
+def test_class_link_with_extra_variable():
+    config = setup()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Model(object):
+        pass
+
+    @App.path(model=Model, path='/foo/{x}')
+    def get_model(x):
+        return Model()
+
+    @App.view(model=Model)
+    def link(self, request):
+        return request.class_link(Model, variables={'x': 'X', 'y': 'Y'})
+
+    config.commit()
+
+    c = Client(App())
+
+    response = c.get('/foo/3')
+    assert response.body == u"http://localhost/foo/X"
+
+
+def test_class_link_with_url_parameter_variable():
+    config = setup()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Model(object):
+        pass
+
+    @App.path(model=Model, path='/foo/{x}')
+    def get_model(x, y):
+        return Model()
+
+    @App.view(model=Model)
+    def link(self, request):
+        return request.class_link(Model, variables={'x': 'X', 'y': 'Y'})
+
+    config.commit()
+
+    c = Client(App())
+
+    response = c.get('/foo/3')
+    assert response.body == u"http://localhost/foo/X?y=Y"
+
+
+def test_class_link_with_subclass():
+    config = setup()
+
+    class App(morepath.App):
+        testing_config = config
+
+    class Model(object):
+        pass
+
+    class Sub(Model):
+        pass
+
+    @App.path(model=Model, path='/foo/{x}')
+    def get_model(x):
+        return Model()
+
+    @App.view(model=Model)
+    def link(self, request):
+        return request.class_link(Sub, variables={'x': 'X'})
+
+    config.commit()
+
+    c = Client(App())
+
+    response = c.get('/foo/3')
+    assert response.body == u"http://localhost/foo/X"
