@@ -31,8 +31,8 @@ setup(name='morepath',
       install_requires=[
         'setuptools',
         'webob >= 1.3.1',
-        'venusifork >= 2.0a3',
         'reg >= 0.9.2'
+        'dectate',
         ],
       extras_require = dict(
         test=['pytest >= 2.5.2',
