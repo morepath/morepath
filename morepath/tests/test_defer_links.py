@@ -1,4 +1,5 @@
 import morepath
+import dectate
 from webtest import TestApp as Client
 from morepath.error import LinkError
 import pytest
@@ -9,41 +10,40 @@ def setup_module(module):
 
 
 def test_defer_links():
-    config = morepath.setup()
 
-    class root(morepath.App):
-        testing_config = config
+    class Root(morepath.App):
+        pass
 
-    class sub(morepath.App):
-        testing_config = config
+    class Sub(morepath.App):
+        pass
 
-    @root.path(path='')
+    @Root.path(path='')
     class RootModel(object):
         pass
 
-    @root.view(model=RootModel)
+    @Root.view(model=RootModel)
     def root_model_default(self, request):
         return request.link(SubModel())
 
-    @root.view(model=RootModel, name='class_link')
+    @Root.view(model=RootModel, name='class_link')
     def root_model_class_link(self, request):
         return request.class_link(SubModel)
 
-    @sub.path(path='')
+    @Sub.path(path='')
     class SubModel(object):
         pass
 
-    @root.mount(app=sub, path='sub')
+    @Root.mount(app=Sub, path='sub')
     def mount_sub():
-        return sub()
+        return Sub()
 
-    @root.defer_links(model=SubModel)
+    @Root.defer_links(model=SubModel)
     def defer_links_sub_model(app, obj):
-        return app.child(sub())
+        return app.child(Sub())
 
-    config.commit()
+    dectate.commit([Root, Sub])
 
-    c = Client(root())
+    c = Client(Root())
 
     response = c.get('/')
     assert response.body == b'http://localhost/sub'
@@ -53,136 +53,128 @@ def test_defer_links():
 
 
 def test_defer_view():
-    config = morepath.setup()
+    class Root(morepath.App):
+        pass
 
-    class root(morepath.App):
-        testing_config = config
+    class Sub(morepath.App):
+        pass
 
-    class sub(morepath.App):
-        testing_config = config
-
-    @root.path(path='')
+    @Root.path(path='')
     class RootModel(object):
         pass
 
-    @root.json(model=RootModel)
+    @Root.json(model=RootModel)
     def root_model_default(self, request):
         return request.view(SubModel())
 
-    @sub.path(path='')
+    @Sub.path(path='')
     class SubModel(object):
         pass
 
-    @sub.json(model=SubModel)
+    @Sub.json(model=SubModel)
     def submodel_default(self, request):
         return {'hello': 'world'}
 
-    @root.mount(app=sub, path='sub')
+    @Root.mount(app=Sub, path='sub')
     def mount_sub():
-        return sub()
+        return Sub()
 
-    @root.defer_links(model=SubModel)
+    @Root.defer_links(model=SubModel)
     def defer_links_sub_model(app, obj):
-        return app.child(sub())
+        return app.child(Sub())
 
-    config.commit()
+    dectate.commit([Root, Sub])
 
-    c = Client(root())
+    c = Client(Root())
 
     response = c.get('/')
     assert response.json == {'hello': 'world'}
 
 
 def test_defer_view_predicates():
-    config = morepath.setup()
+    class Root(morepath.App):
+        pass
 
-    class root(morepath.App):
-        testing_config = config
+    class Sub(morepath.App):
+        pass
 
-    class sub(morepath.App):
-        testing_config = config
-
-    @root.path(path='')
+    @Root.path(path='')
     class RootModel(object):
         pass
 
-    @root.json(model=RootModel)
+    @Root.json(model=RootModel)
     def root_model_default(self, request):
         return request.view(SubModel(), name='edit')
 
-    @sub.path(path='')
+    @Sub.path(path='')
     class SubModel(object):
         pass
 
-    @sub.json(model=SubModel, name='edit')
+    @Sub.json(model=SubModel, name='edit')
     def submodel_edit(self, request):
         return {'hello': 'world'}
 
-    @root.mount(app=sub, path='sub')
+    @Root.mount(app=Sub, path='sub')
     def mount_sub():
-        return sub()
+        return Sub()
 
-    @root.defer_links(model=SubModel)
+    @Root.defer_links(model=SubModel)
     def defer_links_sub_model(app, obj):
-        return app.child(sub())
+        return app.child(Sub())
 
-    config.commit()
+    dectate.commit([Root, Sub])
 
-    c = Client(root())
+    c = Client(Root())
 
     response = c.get('/')
     assert response.json == {'hello': 'world'}
 
 
 def test_defer_view_missing_view():
-    config = morepath.setup()
+    class Root(morepath.App):
+        pass
 
-    class root(morepath.App):
-        testing_config = config
+    class Sub(morepath.App):
+        pass
 
-    class sub(morepath.App):
-        testing_config = config
-
-    @root.path(path='')
+    @Root.path(path='')
     class RootModel(object):
         pass
 
-    @root.json(model=RootModel)
+    @Root.json(model=RootModel)
     def root_model_default(self, request):
         return {'not_found': request.view(SubModel(), name='unknown')}
 
-    @sub.path(path='')
+    @Sub.path(path='')
     class SubModel(object):
         pass
 
-    @sub.json(model=SubModel, name='edit')
+    @Sub.json(model=SubModel, name='edit')
     def submodel_edit(self, request):
         return {'hello': 'world'}
 
-    @root.mount(app=sub, path='sub')
+    @Root.mount(app=Sub, path='sub')
     def mount_sub():
-        return sub()
+        return Sub()
 
-    @root.defer_links(model=SubModel)
+    @Root.defer_links(model=SubModel)
     def defer_links_sub_model(app, obj):
-        return app.child(sub())
+        return app.child(Sub())
 
-    config.commit()
+    dectate.commit([Root, Sub])
 
-    c = Client(root())
+    c = Client(Root())
 
     response = c.get('/')
     assert response.json == {'not_found': None}
 
 
 def test_defer_links_mount_parameters():
-    config = morepath.setup()
-
     class root(morepath.App):
-        testing_config = config
+        pass
 
     class sub(morepath.App):
-        testing_config = config
+        pass
 
         def __init__(self, name):
             self.name = name
@@ -212,7 +204,7 @@ def test_defer_links_mount_parameters():
     def defer_links_sub_model(app, obj):
         return app.child(sub(name=obj.name))
 
-    config.commit()
+    dectate.commit([root, sub])
 
     c = Client(root())
 
@@ -221,13 +213,11 @@ def test_defer_links_mount_parameters():
 
 
 def test_defer_link_acquisition():
-    config = morepath.setup()
-
     class root(morepath.App):
-        testing_config = config
+        pass
 
     class sub(morepath.App):
-        testing_config = config
+        pass
 
     @root.path(path='model/{id}')
     class Model(object):
@@ -254,7 +244,7 @@ def test_defer_link_acquisition():
     def get_parent(app, obj):
         return app.parent
 
-    config.commit()
+    dectate.commit([root, sub])
 
     c = Client(root())
 
@@ -263,13 +253,11 @@ def test_defer_link_acquisition():
 
 
 def test_defer_view_acquisition():
-    config = morepath.setup()
-
     class root(morepath.App):
-        testing_config = config
+        pass
 
     class sub(morepath.App):
-        testing_config = config
+        pass
 
     @root.path(path='model/{id}')
     class Model(object):
@@ -296,7 +284,7 @@ def test_defer_view_acquisition():
     def get_parent(app, obj):
         return app.parent
 
-    config.commit()
+    dectate.commit([root, sub])
 
     c = Client(root())
 
@@ -305,13 +293,11 @@ def test_defer_view_acquisition():
 
 
 def test_defer_link_acquisition_blocking():
-    config = morepath.setup()
-
     class root(morepath.App):
-        testing_config = config
+        pass
 
     class sub(morepath.App):
-        testing_config = config
+        pass
 
     @root.path(path='model/{id}')
     class Model(object):
@@ -339,7 +325,7 @@ def test_defer_link_acquisition_blocking():
 
     # no defer_links_to_parent
 
-    config.commit()
+    dectate.commit([root, sub])
 
     c = Client(root())
 
@@ -348,13 +334,11 @@ def test_defer_link_acquisition_blocking():
 
 
 def test_defer_view_acquisition_blocking():
-    config = morepath.setup()
-
     class root(morepath.App):
-        testing_config = config
+        pass
 
     class sub(morepath.App):
-        testing_config = config
+        pass
 
     @root.path(path='model/{id}')
     class Model(object):
@@ -379,7 +363,7 @@ def test_defer_view_acquisition_blocking():
 
     # no defer_links_to_parent
 
-    config.commit()
+    dectate.commit([root, sub])
 
     c = Client(root())
 
@@ -388,13 +372,11 @@ def test_defer_view_acquisition_blocking():
 
 
 def test_defer_link_should_not_cause_web_views_to_exist():
-    config = morepath.setup()
-
     class root(morepath.App):
-        testing_config = config
+        pass
 
     class sub(morepath.App):
-        testing_config = config
+        pass
 
     @root.path(path='')
     class Model(object):
@@ -426,7 +408,7 @@ def test_defer_link_should_not_cause_web_views_to_exist():
     def get_parent(app, obj):
         return app.parent
 
-    config.commit()
+    dectate.commit([root, sub])
 
     c = Client(root())
 
@@ -437,13 +419,11 @@ def test_defer_link_should_not_cause_web_views_to_exist():
 
 
 def test_defer_link_to_parent_from_root():
-    config = morepath.setup()
-
     class root(morepath.App):
-        testing_config = config
+        pass
 
     class sub(morepath.App):
-        testing_config = config
+        pass
 
     @root.path(path='')
     class Model(object):
@@ -460,7 +440,7 @@ def test_defer_link_to_parent_from_root():
     def get_parent(app, obj):
         return app.parent
 
-    config.commit()
+    dectate.commit([root, sub])
 
     c = Client(root())
 
@@ -469,13 +449,11 @@ def test_defer_link_to_parent_from_root():
 
 
 def test_special_link_overrides_deferred_link():
-    config = morepath.setup()
-
     class root(morepath.App):
-        testing_config = config
+        pass
 
     class alpha(morepath.App):
-        testing_config = config
+        pass
 
     class AlphaModel(object):
         pass
@@ -511,7 +489,7 @@ def test_special_link_overrides_deferred_link():
     def defer_links_alpha(app, obj):
         return app.child(alpha())
 
-    config.commit()
+    dectate.commit([root, alpha])
 
     c = Client(root())
 
@@ -523,16 +501,14 @@ def test_special_link_overrides_deferred_link():
 
 
 def test_deferred_deferred_link():
-    config = morepath.setup()
-
     class root(morepath.App):
-        testing_config = config
+        pass
 
     class alpha(morepath.App):
-        testing_config = config
+        pass
 
     class beta(morepath.App):
-        testing_config = config
+        pass
 
     @root.path(path='')
     class RootModel(object):
@@ -570,7 +546,7 @@ def test_deferred_deferred_link():
     def defer_links_alpha(app, obj):
         return app.child(alpha())
 
-    config.commit()
+    dectate.commit([alpha, beta, root])
 
     c = Client(root())
 
@@ -582,16 +558,14 @@ def test_deferred_deferred_link():
 
 
 def test_deferred_deferred_view():
-    config = morepath.setup()
-
     class root(morepath.App):
-        testing_config = config
+        pass
 
     class alpha(morepath.App):
-        testing_config = config
+        pass
 
     class beta(morepath.App):
-        testing_config = config
+        pass
 
     @root.path(path='')
     class RootModel(object):
@@ -633,7 +607,7 @@ def test_deferred_deferred_view():
     def defer_links_alpha(app, obj):
         return app.child(alpha())
 
-    config.commit()
+    dectate.commit([root, alpha, beta])
 
     c = Client(root())
 
@@ -645,16 +619,14 @@ def test_deferred_deferred_view():
 
 
 def test_deferred_view_has_app_of_defer():
-    config = morepath.setup()
-
     class root(morepath.App):
-        testing_config = config
+        pass
 
     class alpha(morepath.App):
-        testing_config = config
+        pass
 
     class beta(morepath.App):
-        testing_config = config
+        pass
 
     @root.mount(app=alpha, path='alpha')
     def mount_alpha():
@@ -691,7 +663,7 @@ def test_deferred_view_has_app_of_defer():
     def defer_links_parent(app, obj):
         return app.parent.child('alpha')
 
-    config.commit()
+    dectate.commit([root, alpha, beta])
 
     c = Client(root())
 
@@ -700,13 +672,11 @@ def test_deferred_view_has_app_of_defer():
 
 
 def test_deferred_loop():
-    config = morepath.setup()
-
     class root(morepath.App):
-        testing_config = config
+        pass
 
     class alpha(morepath.App):
-        testing_config = config
+        pass
 
     @root.path(path='')
     class RootModel(object):
@@ -733,7 +703,7 @@ def test_deferred_loop():
     def defer_links_alpha(app, obj):
         return app.child(alpha())
 
-    config.commit()
+    dectate.commit([root, alpha])
 
     c = Client(root())
 
@@ -743,13 +713,11 @@ def test_deferred_loop():
 
 # see issue #342
 def test_defer_link_scenario():
-    config = morepath.setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Child(morepath.App):
-        testing_config = config
+        pass
 
     class Document(object):
         pass
@@ -791,7 +759,7 @@ def test_defer_link_scenario():
             'app': 'Child',
         }
 
-    config.commit()
+    dectate.commit([App, Child])
 
     c = Client(App())
 
