@@ -46,7 +46,7 @@ def test_register_path():
 
     config.commit()
 
-    registry = App.registry
+    registry = App.config.registry
 
     register_path(registry, Root, '', lambda m: {},
                   None, None, None, False,
@@ -79,7 +79,7 @@ def test_register_path_with_parameters():
 
     config.commit()
 
-    registry = App.registry
+    registry = App.config.registry
 
     register_path(registry, Root, '', lambda m: {}, None, None, None, False,
                   lambda: root)
@@ -119,7 +119,7 @@ def test_traject_path_with_leading_slash():
 
     config.commit()
 
-    registry = App.registry
+    registry = App.config.registry
 
     register_path(registry, Root, '', lambda m: {}, None, None, None, False,
                   lambda: root)

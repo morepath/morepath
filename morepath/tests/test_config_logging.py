@@ -61,7 +61,7 @@ def test_simple_config_logging():
     class App(morepath.App):
         testing_config = config
 
-    App.registry.app = App
+    App.config.registry.app = App
 
     @App.path(path='')
     class Model(object):

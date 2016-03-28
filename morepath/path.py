@@ -1,7 +1,7 @@
 from morepath import generic
 from morepath.traject import Path, Inverse
 from morepath.converter import ParameterFactory
-from morepath.error import DirectiveError
+from dectate import DirectiveError
 
 from reg import arginfo
 

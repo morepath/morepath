@@ -1,8 +1,8 @@
 from .fixtures import (basic, nested, abbr, mapply_bug,
                        normalmethod, method, conflict, pkg, noconverter)
 from morepath import setup
-from morepath.error import (ConflictError, DirectiveError,
-                            LinkError, DirectiveReportError)
+from dectate import ConflictError, DirectiveError, DirectiveReportError
+from morepath.error import LinkError
 from morepath.view import render_html
 from morepath.converter import Converter
 import morepath
@@ -217,7 +217,7 @@ def test_imperative():
     def x():
         pass
 
-    c.configurable(app.registry)
+    c.configurable(app.config.registry)
     c.action(app.function(target), x)
     c.commit()
 
@@ -255,7 +255,7 @@ def test_basic_imperative():
         return request.link(self)
 
     c = setup()
-    c.configurable(app.registry)
+    c.configurable(app.config.registry)
     c.action(app.path(path=''), Root)
     c.action(app.path(model=Model, path='{id}'),
              get_model)

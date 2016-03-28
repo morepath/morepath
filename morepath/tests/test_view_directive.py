@@ -1,6 +1,7 @@
 import morepath
 from morepath import generic
-from morepath.error import ConflictError
+import dectate
+from dectate import ConflictError
 from webtest import TestApp as Client
 from reg import ClassIndex, KeyIndex
 import pytest
@@ -12,26 +13,26 @@ def setup_module(module):
 
 
 def setup_function(f):
-    morepath.App.registry.clear()
+    if hasattr(morepath.App.config, 'registry'):
+        morepath.App.config.registry.clear()
 
 
 def test_view_get_only():
-    config = morepath.setup()
+    class App(morepath.App):
+        pass
 
-    class app(morepath.App):
-        testing_config = config
-
-    @app.path(path='')
+    @App.path(path='')
     class Model(object):
         def __init__(self):
             pass
 
-    @app.view(model=Model)
+    @App.view(model=Model)
     def default(self, request):
         return "View"
-    config.commit()
 
-    c = Client(app())
+    dectate.commit([App])
+
+    c = Client(App())
 
     response = c.get('/')
     assert response.body == b'View'
@@ -40,91 +41,85 @@ def test_view_get_only():
 
 
 def test_view_name_conflict_involving_default():
-    config = morepath.setup()
+    class App(morepath.App):
+        pass
 
-    class app(morepath.App):
-        testing_config = config
-
-    @app.path(path='')
+    @App.path(path='')
     class Model(object):
         def __init__(self):
             pass
 
-    @app.view(model=Model)
+    @App.view(model=Model)
     def default(self, request):
         return "View"
 
-    @app.view(model=Model, name='')
+    @App.view(model=Model, name='')
     def default2(self, request):
         return "View"
 
     with pytest.raises(ConflictError):
-        config.commit()
+        dectate.commit([App])
 
 
 def test_view_custom_predicate_conflict_involving_default_extends():
-    config = morepath.setup()
+    class Core(morepath.App):
+        pass
 
-    class core(morepath.App):
-        testing_config = config
+    class App(Core):
+        pass
 
-    class app(core):
-        testing_config = config
-
-    @core.predicate(generic.view, name='extra', default='DEFAULT',
+    @Core.predicate(generic.view, name='extra', default='DEFAULT',
                     index=ClassIndex,
                     after=request_method_predicate)
     def dummy_predicate(request):
         return None
 
-    @app.path(path='')
+    @App.path(path='')
     class Model(object):
         def __init__(self):
             pass
 
-    @app.view(model=Model)
+    @App.view(model=Model)
     def default(self, request):
         return "View"
 
-    @app.view(model=Model, extra='DEFAULT')
+    @App.view(model=Model, extra='DEFAULT')
     def default2(self, request):
         return "View"
 
     with pytest.raises(ConflictError):
-        config.commit()
+        dectate.commit([Core, App])
 
 
 def test_view_custom_predicate_without_fallback():
-    config = morepath.setup()
+    class Core(morepath.App):
+        pass
 
-    class core(morepath.App):
-        testing_config = config
+    class App(Core):
+        pass
 
-    class app(core):
-        testing_config = config
-
-    @core.predicate(generic.view, name='extra', default='DEFAULT',
+    @Core.predicate(generic.view, name='extra', default='DEFAULT',
                     index=KeyIndex,
                     after=request_method_predicate)
     def dummy_predicate(request):
         return 'match'
 
-    @app.path(path='')
+    @App.path(path='')
     class Model(object):
         def __init__(self):
             pass
 
-    @app.view(model=Model, extra='match')
+    @App.view(model=Model, extra='match')
     def default(self, request):
         return "View"
 
-    @app.view(model=Model, name='foo', extra='not match')
+    @App.view(model=Model, name='foo', extra='not match')
     def not_match(self, request):
         return "Not match"
 
-    config.commit()
+    dectate.commit([Core, App])
 
-    c = Client(app())
+    c = Client(App())
 
     response = c.get('/')
     assert response.body == b'View'

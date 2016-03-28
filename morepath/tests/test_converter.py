@@ -1,7 +1,7 @@
 from morepath.converter import (ConverterRegistry, Converter,
                                 ListConverter,
                                 IDENTITY_CONVERTER)
-from morepath.error import DirectiveError
+from dectate import DirectiveError
 import pytest
 
 

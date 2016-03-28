@@ -5,7 +5,7 @@ try:
 except ImportError:  # pragma: nocoverage
     # You're running Python 3!
     ClassType = None
-from morepath.error import DirectiveError
+from dectate import DirectiveError
 from webob.exc import HTTPBadRequest
 
 

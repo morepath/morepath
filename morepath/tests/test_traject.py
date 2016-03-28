@@ -423,7 +423,7 @@ def test_traject_consume():
     class app(morepath.App):
         pass
 
-    traject = app.registry.traject
+    traject = app.config.registry.traject
     traject.add_pattern('sub', (Model, paramfac))
 
     mount = app()
@@ -437,7 +437,7 @@ def test_traject_consume_parameter():
     class app(morepath.App):
         pass
 
-    traject = app.registry.traject
+    traject = app.config.registry.traject
 
     class Model(object):
         def __init__(self, a):
@@ -462,7 +462,7 @@ def test_traject_consume_model_factory_gets_request():
     class app(morepath.App):
         pass
 
-    traject = app.registry.traject
+    traject = app.config.registry.traject
 
     class Model(object):
         def __init__(self, info):
@@ -494,7 +494,7 @@ def test_traject_consume_factory_returns_none():
     class app(morepath.App):
         pass
 
-    traject = app.registry.traject
+    traject = app.config.registry.traject
 
     def get_model():
         return None
@@ -511,7 +511,7 @@ def test_traject_consume_variable():
     class app(morepath.App):
         pass
 
-    traject = app.registry.traject
+    traject = app.config.registry.traject
 
     def get_model(foo):
         result = Model()
@@ -530,7 +530,7 @@ def test_traject_consume_view():
     class app(morepath.App):
         pass
 
-    traject = app.registry.traject
+    traject = app.config.registry.traject
 
     def get_model(foo):
         result = Model()
@@ -549,7 +549,7 @@ def test_traject_root():
     class app(morepath.App):
         pass
 
-    traject = app.registry.traject
+    traject = app.config.registry.traject
 
     traject.add_pattern('', (Root, paramfac))
 
@@ -563,7 +563,7 @@ def test_traject_consume_combination():
     class app(morepath.App):
         pass
 
-    traject = app.registry.traject
+    traject = app.config.registry.traject
 
     def get_model(foo):
         result = Model()
@@ -589,7 +589,7 @@ def test_traject_nested():
     class app(morepath.App):
         pass
 
-    traject = app.registry.traject
+    traject = app.config.registry.traject
     traject.add_pattern('a', (Model, paramfac))
     traject.add_pattern('a/b', (Special, paramfac))
 
@@ -607,7 +607,7 @@ def test_traject_nested_not_resolved_entirely_by_consumer():
     class app(morepath.App):
         pass
 
-    traject = app.registry.traject
+    traject = app.config.registry.traject
     traject.add_pattern('a', (Model, paramfac))
 
     mount = app()
@@ -624,7 +624,7 @@ def test_traject_nested_with_variable():
     class app(morepath.App):
         pass
 
-    traject = app.registry.traject
+    traject = app.config.registry.traject
 
     def get_model(id):
         result = Model()
@@ -656,7 +656,7 @@ def test_traject_with_multiple_variables():
     class app(morepath.App):
         pass
 
-    traject = app.registry.traject
+    traject = app.config.registry.traject
 
     def get_model(first_id):
         result = Model()

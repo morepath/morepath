@@ -1,8 +1,7 @@
 import os
-from .app import App
-from .config import Directive as ConfigDirective
+from .app import App, Registry
+import dectate
 from .settings import register_setting
-from .error import ConfigError
 from .security import (register_permission_checker,
                        Identity, NoIdentity)
 from .view import render_view, render_json, render_html, register_view
@@ -12,17 +11,16 @@ from morepath import generic
 from reg import mapply
 
 
-class Directive(ConfigDirective):
-    def __init__(self, app):
-        super(Directive, self).__init__(app.registry)
-        self.app = app
-        self.directive_name = None
-        self.logger = None
+DEFAULT_CONFIG = {
+    'registry': Registry
+}
 
 
 @App.directive('setting')
-class SettingDirective(Directive):
-    def __init__(self, app, section, name):
+class SettingAction(dectate.Action):
+    config = DEFAULT_CONFIG
+
+    def __init__(self, section, name):
         """Register application setting.
 
         An application setting is registered under the ``settings``
@@ -36,14 +34,13 @@ class SettingDirective(Directive):
           under.
         :param name: the name of the setting in its section.
         """
-        super(SettingDirective, self).__init__(app)
         self.section = section
         self.name = name
 
     def identifier(self, registry):
         return self.section, self.name
 
-    def perform(self, registry, obj):
+    def perform(self, obj, registry):
         register_setting(registry, self.section, self.name, obj)
 
 
@@ -56,8 +53,10 @@ class SettingValue(object):
 
 
 @App.directive('setting_section')
-class SettingSectionDirective(Directive):
-    def __init__(self, app, section):
+class SettingSectionAction(dectate.Composite):
+    config = DEFAULT_CONFIG
+
+    def __init__(self, section):
         """Register application setting in a section.
 
         An application settings are registered under the ``settings``
@@ -71,27 +70,25 @@ class SettingSectionDirective(Directive):
         :param section: the name of the section the setting should go
           under.
         """
-        super(SettingSectionDirective, self).__init__(app)
         self.section = section
 
-    def prepare(self, obj):
+    def actions(self, obj):
         section = obj()
-        app = self.app
         for name, value in section.items():
-            d = app.setting(section=self.section, name=name)
-            # attach info for better error reporting
-            d.attach_info = self.attach_info
-            yield d, SettingValue(value)
+            yield (SettingAction(section=self.section, name=name),
+                   SettingValue(value))
 
 
 # XXX this allows predicate_fallback directives to be installed without
 # predicate directives, which has no meaning. Not sure how to detect
 # this.
 @App.directive('predicate_fallback')
-class PredicateFallbackDirective(Directive):
-    depends = [SettingDirective]
+class PredicateFallbackAction(dectate.Action):
+    config = DEFAULT_CONFIG
 
-    def __init__(self, app, dispatch, func):
+    depends = [SettingAction]
+
+    def __init__(self, dispatch, func):
         """For a given dispatch and function dispatched to, register fallback.
 
         The fallback is called with the same arguments as the dispatch
@@ -101,22 +98,23 @@ class PredicateFallbackDirective(Directive):
         :param dispatch: the dispatch function
         :param func: the registered function we are the fallback for
         """
-        super(PredicateFallbackDirective, self).__init__(app)
         self.dispatch = dispatch
         self.func = func
 
     def identifier(self, registry):
         return self.dispatch.wrapped_func, self.func
 
-    def perform(self, registry, obj):
+    def perform(self, obj, registry):
         registry.register_predicate_fallback(self.dispatch, self.func, obj)
 
 
 @App.directive('predicate')
-class PredicateDirective(Directive):
-    depends = [SettingDirective, PredicateFallbackDirective]
+class PredicateAction(dectate.Action):
+    config = DEFAULT_CONFIG
 
-    def __init__(self, app, dispatch, name, default, index,
+    depends = [SettingAction, PredicateFallbackAction]
+
+    def __init__(self, dispatch, name, default, index,
                  before=None, after=None):
         """Register custom predicate for a predicate_dispatch function.
 
@@ -146,36 +144,39 @@ class PredicateDirective(Directive):
         :param after: predicate function we want to have priority over
            this one.
         """
-        super(PredicateDirective, self).__init__(app)
         self.dispatch = dispatch
         self.name = name
         self.default = default
         self.index = index
         self.before = before
-        self.after = after
-
-    def prepare(self, obj):
-        if not self.dispatch.external_predicates:
-            raise ConfigError(
-                "@predicate decorator may only be used with "
-                "@reg.dispatch_external_predicates: %s" % self.dispatch)
-        yield self, obj
+        self._after = after
 
     def identifier(self, registry):
-        return self.dispatch.wrapped_func, self.before, self.after
+        return self.dispatch.wrapped_func, self.before, self._after
 
-    def perform(self, registry, obj):
+    def perform(self, obj, registry):
+        if not self.dispatch.external_predicates:
+            raise dectate.DirectiveError(
+                "@predicate decorator may only be used with "
+                "@reg.dispatch_external_predicates: %s" % self.dispatch)
+
         registry.register_predicate(obj, self.dispatch,
                                     self.name, self.default, self.index,
-                                    self.before, self.after)
+                                    self.before, self._after)
+
+    @staticmethod
+    def after(registry):
+        registry.install_predicates()
 
 
 @App.directive('function')
-class FunctionDirective(Directive):
-    depends = [SettingDirective,
-               PredicateDirective, PredicateFallbackDirective]
+class FunctionAction(dectate.Action):
+    config = DEFAULT_CONFIG
 
-    def __init__(self, app, func, **kw):
+    depends = [SettingAction,
+               PredicateAction, PredicateFallbackAction]
+
+    def __init__(self, func, **kw):
         '''Register function as implementation of generic dispatch function
 
         The decorated function is an implementation of the generic
@@ -193,34 +194,27 @@ class FunctionDirective(Directive):
            register for.  Argument names are predicate names, values
            are the predicate values to match on.
         '''
-        super(FunctionDirective, self).__init__(app)
         self.func = func
         self.key_dict = kw
 
-    # XXX this is ugly, but can't really use prepare either
-    # best we can do in the limits of the configuration system
     def predicate_key(self, registry):
-        # XXX would really like to do this once before any function
-        # directives get executed but after all predicate directives
-        # are executed. configuration ends needs a way to do extra
-        # work after a directive's phase ends
-        registry.install_predicates(self.func)
-        registry.register_dispatch(self.func)
         return registry.key_dict_to_predicate_key(
             self.func.wrapped_func, self.key_dict)
 
     def identifier(self, registry):
         return (self.func.wrapped_func, self.predicate_key(registry))
 
-    def perform(self, registry, obj):
+    def perform(self, obj, registry):
         registry.register_function(self.func, obj, **self.key_dict)
 
 
 @App.directive('converter')
-class ConverterDirective(Directive):
-    depends = [SettingDirective]
+class ConverterAction(dectate.Action):
+    config = DEFAULT_CONFIG
 
-    def __init__(self, app, type):
+    depends = [SettingAction]
+
+    def __init__(self, type):
         """Register custom converter for type.
 
         :param type: the Python type for which to register the
@@ -233,21 +227,22 @@ class ConverterDirective(Directive):
           the value of the default argument of the decorated model
           function or class using ``type()``.
         """
-        super(ConverterDirective, self).__init__(app)
         self.type = type
 
     def identifier(self, registry):
         return ('converter', self.type)
 
-    def perform(self, registry, obj):
+    def perform(self, obj, registry):
         registry.register_converter(self.type, obj())
 
 
 @App.directive('path')
-class PathDirective(Directive):
-    depends = [SettingDirective, ConverterDirective]
+class PathAction(dectate.Action):
+    config = DEFAULT_CONFIG
 
-    def __init__(self, app, path, model=None,
+    depends = [SettingAction, ConverterAction]
+
+    def __init__(self, path, model=None,
                  variables=None, converters=None, required=None,
                  get_converters=None, absorb=False):
         """Register a model for a path.
@@ -286,7 +281,6 @@ class PathDirective(Directive):
           matches this path as well. This is passed into the decorated
           function as the ``remaining`` variable.
         """
-        super(PathDirective, self).__init__(app)
         self.model = model
         self.path = path
         self.variables = variables
@@ -301,31 +295,30 @@ class PathDirective(Directive):
     def discriminators(self, registry):
         return [('model', self.model)]
 
-    def prepare(self, obj):
+    def perform(self, obj, registry):
         model = self.model
         if isinstance(obj, type):
             if model is not None:
-                raise ConfigError(
+                raise dectate.DirectiveError(
                     "@path decorates class so cannot "
                     "have explicit model: %s" % model)
             model = obj
         if model is None:
-            raise ConfigError(
+            raise dectate.DirectiveError(
                 "@path does not decorate class and has no explicit model")
-        yield self.clone(model=model), obj
-
-    def perform(self, registry, obj):
-        register_path(registry, self.model, self.path,
+        register_path(registry, model, self.path,
                       self.variables, self.converters, self.required,
                       self.get_converters, self.absorb,
                       obj)
 
 
 @App.directive('permission_rule')
-class PermissionRuleDirective(Directive):
-    depends = [SettingDirective]
+class PermissionRuleAction(dectate.Action):
+    config = DEFAULT_CONFIG
 
-    def __init__(self, app, model, permission, identity=Identity):
+    depends = [SettingAction]
+
+    def __init__(self, model, permission, identity=Identity):
         """Declare whether a model has a permission.
 
         The decorated function receives ``model``, `permission``
@@ -340,7 +333,6 @@ class PermissionRuleDirective(Directive):
           the identity to check for is the special
           :data:`morepath.security.NO_IDENTITY`.
         """
-        super(PermissionRuleDirective, self).__init__(app)
         self.model = model
         self.permission = permission
         if identity is None:
@@ -350,7 +342,7 @@ class PermissionRuleDirective(Directive):
     def identifier(self, registry):
         return (self.model, self.permission, self.identity)
 
-    def perform(self, registry, obj):
+    def perform(self, obj, registry):
         register_permission_checker(
             registry, self.identity, self.model, self.permission, obj)
 
@@ -359,10 +351,12 @@ template_directory_id = 0
 
 
 @App.directive('template_directory')
-class TemplateDirectoryDirective(Directive):
-    depends = [SettingDirective]
+class TemplateDirectoryAction(dectate.Action):
+    config = DEFAULT_CONFIG
 
-    def __init__(self, app, after=None, before=None, name=None):
+    depends = [SettingAction]
+
+    def __init__(self, after=None, before=None, name=None):
         '''Register template directory.
 
         The decorated function gets no argument and should return a
@@ -388,9 +382,8 @@ class TemplateDirectoryDirective(Directive):
           generated.
 
         '''
-        super(TemplateDirectoryDirective, self).__init__(app)
         global template_directory_id
-        self.after = after
+        self._after = after
         self.before = before
         if name is None:
             name = u'template_directory_%s' % template_directory_id
@@ -400,21 +393,23 @@ class TemplateDirectoryDirective(Directive):
     def identifier(self, registry):
         return self.name
 
-    def perform(self, registry, obj):
+    def perform(self, obj, registry):
         directory = obj()
         if not os.path.isabs(directory):
             assert self.attach_info is not None
             directory = os.path.join(os.path.dirname(
                 self.attach_info.module.__file__), directory)
         registry.register_template_directory_info(
-            obj, directory, self.before, self.after, self.app)
+            obj, directory, self.before, self._after, self.app)
 
 
 @App.directive('template_loader')
-class TemplateLoaderDirective(Directive):
-    depends = [TemplateDirectoryDirective]
+class TemplateLoaderAction(dectate.Action):
+    config = DEFAULT_CONFIG
 
-    def __init__(self, app, extension):
+    depends = [TemplateDirectoryAction]
+
+    def __init__(self, extension):
         '''Create a template loader.
 
         The decorated function gets a ``template_directories`` argument,
@@ -425,21 +420,22 @@ class TemplateLoaderDirective(Directive):
         It should return an object that can load the template
         given the list of template directories.
         '''
-        super(TemplateLoaderDirective, self).__init__(app)
         self.extension = extension
 
     def identifier(self, registry):
         return self.extension
 
-    def perform(self, registry, obj):
+    def perform(self, obj, registry):
         registry.initialize_template_loader(self.extension, obj)
 
 
 @App.directive('template_render')
-class TemplateRenderDirective(Directive):
-    depends = [SettingDirective, TemplateLoaderDirective]
+class TemplateRenderAction(dectate.Action):
+    config = DEFAULT_CONFIG
 
-    def __init__(self, app, extension):
+    depends = [SettingAction, TemplateLoaderAction]
+
+    def __init__(self, extension):
         '''Register a template engine.
 
         :param extension: the template file extension (``.pt``, etc)
@@ -453,25 +449,25 @@ class TemplateRenderDirective(Directive):
         of the view with the template supplied through its
         ``template`` argument.
         '''
-        super(TemplateRenderDirective, self).__init__(app)
         self.extension = extension
 
     def identifier(self, registry):
         return self.extension
 
-    def perform(self, registry, obj):
+    def perform(self, obj, registry):
         registry.register_template_render(self.extension, obj)
 
 
 @App.directive('view')
-class ViewDirective(Directive):
-    depends = [SettingDirective, PredicateDirective,
-               TemplateRenderDirective]
+class ViewAction(dectate.Action):
+    config = DEFAULT_CONFIG
 
-    def __init__(self, app, model, render=None, template=None,
+    depends = [SettingAction, PredicateAction,
+               TemplateRenderAction]
+
+    def __init__(self, model, render=None, template=None,
                  permission=None,
                  internal=False, **predicates):
-
         '''Register a view for a model.
 
         The decorated function gets ``self`` (model instance) and
@@ -521,9 +517,7 @@ class ViewDirective(Directive):
         :param predicates: additional predicates to match this view
           on. You can install your own using the
           :meth:`morepath.App.predicate` directive.
-
         '''
-        super(ViewDirective, self).__init__(app)
         self.model = model
         self.render = render or render_view
         self.template = template
@@ -531,46 +525,31 @@ class ViewDirective(Directive):
         self.internal = internal
         self.predicates = predicates
 
-    def clone(self, **kw):
-        # XXX standard clone doesn't work due to use of predicates
-        # non-immutable in __init__. move this to another phase so
-        # that this more complex clone isn't needed?
-        args = dict(
-            app=self.app,
-            model=self.model,
-            render=self.render,
-            permission=self.permission)
-        args.update(self.predicates)
-        args.update(kw)
-        result = ViewDirective(**args)
-        result.attach_info = self.attach_info
-        return result
-
     def key_dict(self):
         result = self.predicates.copy()
         result['model'] = self.model
         return result
 
     def predicate_key(self, registry):
-        registry.install_predicates(generic.view)
-        registry.register_dispatch(generic.view)
         return registry.key_dict_to_predicate_key(generic.view.wrapped_func,
                                                   self.key_dict())
 
     def identifier(self, registry):
         return self.predicate_key(registry)
 
-    def perform(self, registry, obj):
-        registry.install_predicates(generic.view)
-        registry.register_dispatch(generic.view)
+    def perform(self, obj, registry):
         register_view(registry, self.key_dict(), obj,
                       self.render, self.template,
                       self.permission, self.internal)
 
 
 @App.directive('json')
-class JsonDirective(ViewDirective):
-    def __init__(self, app, model, render=None, template=None, permission=None,
+class JsonAction(ViewAction):
+    config = DEFAULT_CONFIG
+
+    group_class = ViewAction
+
+    def __init__(self, model, render=None, template=None, permission=None,
                  internal=False, **predicates):
         """Register JSON view.
 
@@ -613,16 +592,17 @@ class JsonDirective(ViewDirective):
           documentation of :meth:`App.view` for more information.
         """
         render = render or render_json
-        super(JsonDirective, self).__init__(app, model, render, template,
-                                            permission, internal, **predicates)
-
-    def group_key(self):
-        return ViewDirective
+        super(JsonAction, self).__init__(model, render, template,
+                                         permission, internal, **predicates)
 
 
 @App.directive('html')
-class HtmlDirective(ViewDirective):
-    def __init__(self, app, model, render=None, template=None, permission=None,
+class HtmlAction(ViewAction):
+    config = DEFAULT_CONFIG
+
+    group_class = ViewAction
+
+    def __init__(self, model, render=None, template=None, permission=None,
                  internal=False, **predicates):
         """Register HTML view.
 
@@ -664,18 +644,18 @@ class HtmlDirective(ViewDirective):
           documentation of :meth:`App.view` for more information.
         """
         render = render or render_html
-        super(HtmlDirective, self).__init__(app, model, render, template,
-                                            permission, internal, **predicates)
-
-    def group_key(self):
-        return ViewDirective
+        super(HtmlAction, self).__init__(model, render, template,
+                                         permission, internal, **predicates)
 
 
 @App.directive('mount')
-class MountDirective(PathDirective):
-    depends = [SettingDirective, ConverterDirective]
+class MountAction(PathAction):
+    config = DEFAULT_CONFIG
 
-    def __init__(self, base_app, path, app, variables=None, converters=None,
+    group_class = PathAction
+    depends = [SettingAction, ConverterAction]
+
+    def __init__(self, path, app, variables=None, converters=None,
                  required=None, get_converters=None, name=None):
         """Mount sub application on path.
 
@@ -705,27 +685,25 @@ class MountDirective(PathDirective):
           the ``path`` argument is taken as the name.
 
         """
-        super(MountDirective, self).__init__(base_app, path,
-                                             variables=variables,
-                                             converters=converters,
-                                             required=required,
-                                             get_converters=get_converters)
+        super(MountAction, self).__init__(path,
+                                          variables=variables,
+                                          converters=converters,
+                                          required=required,
+                                          get_converters=get_converters)
         self.name = name or path
         self.mounted_app = app
 
-    def group_key(self):
-        return PathDirective
-
+    # XXX what is this for?
     # XXX it's a bit of a hack to make the mount directive
     # group with the path directive so we get conflicts,
     # we need to override prepare to shut it up again
-    def prepare(self, obj):
-        yield self.clone(), obj
+    # def prepare(self, obj):
+    #     yield self.clone(), obj
 
-    def discriminators(self, app):
+    def discriminators(self, registry):
         return [('mount', self.mounted_app)]
 
-    def perform(self, registry, obj):
+    def perform(self, obj, registry):
         registry.register_mount(
             self.mounted_app, self.path, self.variables,
             self.converters, self.required,
@@ -733,11 +711,13 @@ class MountDirective(PathDirective):
 
 
 @App.directive('defer_links')
-class DeferLinksDirective(Directive):
+class DeferLinksAction(dectate.Action):
+    config = DEFAULT_CONFIG
 
-    depends = [SettingDirective, MountDirective]
+    group_class = PathAction
+    depends = [SettingAction, MountAction]
 
-    def __init__(self, base_app, model):
+    def __init__(self, model):
         """Defer link generation for model to mounted app.
 
         With ``defer_links`` you can specify that link generation for
@@ -755,11 +735,7 @@ class DeferLinksDirective(Directive):
         :param model: the class for which we want to defer linking.
 
         """
-        super(DeferLinksDirective, self).__init__(base_app)
         self.model = model
-
-    def group_key(self):
-        return PathDirective
 
     def identifier(self, registry):
         return ('defer_links', self.model)
@@ -767,7 +743,7 @@ class DeferLinksDirective(Directive):
     def discriminators(self, registry):
         return [('model', self.model)]
 
-    def perform(self, registry, obj):
+    def perform(self, obj, registry):
         registry.register_defer_links(self.model, obj)
 
 
@@ -775,10 +751,12 @@ tween_factory_id = 0
 
 
 @App.directive('tween_factory')
-class TweenFactoryDirective(Directive):
-    depends = [SettingDirective]
+class TweenFactoryAction(dectate.Action):
+    config = DEFAULT_CONFIG
 
-    def __init__(self, app, under=None, over=None, name=None):
+    depends = [SettingAction]
+
+    def __init__(self, under=None, over=None, name=None):
         '''Register tween factory.
 
         The tween system allows the creation of lightweight middleware
@@ -803,7 +781,6 @@ class TweenFactoryDirective(Directive):
           so that it can be overridden by applications that extend this one.
           If no name is supplied a default name is generated.
         '''
-        super(TweenFactoryDirective, self).__init__(app)
         global tween_factory_id
         self.under = under
         self.over = over
@@ -815,15 +792,17 @@ class TweenFactoryDirective(Directive):
     def identifier(self, registry):
         return self.name
 
-    def perform(self, registry, obj):
+    def perform(self, obj, registry):
         registry.register_tween_factory(obj, over=self.over, under=self.under)
 
 
 @App.directive('identity_policy')
-class IdentityPolicyDirective(Directive):
-    depends = [SettingDirective]
+class IdentityPolicyAction(dectate.Composite):
+    config = DEFAULT_CONFIG
 
-    def __init__(self, app):
+    config = DEFAULT_CONFIG
+
+    def __init__(self):
         """Register identity policy.
 
         The decorated function should return an instance of
@@ -834,22 +813,18 @@ class IdentityPolicyDirective(Directive):
         identity policy is in use. So you can pass some settings directly to
         the IdentityPolicy class.
         """
-        super(IdentityPolicyDirective, self).__init__(app)
+        pass
 
-    def identifier(self, registry):
-        return ()
-
-    def perform(self, registry, obj):
-        app = self.app
-        policy = mapply(obj, settings=app.registry.settings)
-        registry.register_function(generic.identify, policy.identify)
-        registry.register_function(generic.remember_identity, policy.remember)
-        registry.register_function(generic.forget_identity, policy.forget)
+    def actions(self, obj, registry):
+        policy = mapply(obj, settings=registry.settings)
+        yield FunctionAction(generic.identify), policy.identify
+        yield FunctionAction(generic.remember_identity), policy.remember
+        yield FunctionAction(generic.forget_identity), policy.forget
 
 
 @App.directive('verify_identity')
-class VerifyIdentityDirective(Directive):
-    def __init__(self, app, identity=object):
+class VerifyIdentityAction(dectate.Composite):
+    def __init__(self, identity=object):
         '''Verify claimed identity.
 
         The decorated function gives a single ``identity`` argument which
@@ -869,17 +844,18 @@ class VerifyIdentityDirective(Directive):
 
         :param identity: identity class to verify. Optional.
         '''
-        super(VerifyIdentityDirective, self).__init__(app)
         self.identity = identity
 
-    def prepare(self, obj):
-        yield self.app.function(
-            generic.verify_identity, identity=self.identity), obj
+    def actions(self, obj):
+        yield FunctionAction(generic.verify_identity,
+                             identity=self.identity), obj
 
 
 @App.directive('dump_json')
-class DumpJsonDirective(Directive):
-    def __init__(self, app, model=object):
+class DumpJsonAction(dectate.Action):
+    config = DEFAULT_CONFIG
+
+    def __init__(self, model=object):
         '''Register a function that converts model to JSON.
 
         The decorated function gets ``self`` (model instance) and
@@ -893,13 +869,12 @@ class DumpJsonDirective(Directive):
           of the model (or of a subclass). By default the model is ``object``,
           meaning we register a function for all model classes.
         '''
-        super(DumpJsonDirective, self).__init__(app)
         self.model = model
 
     def identifier(self, registry):
         return self.model
 
-    def perform(self, registry, obj):
+    def perform(self, obj, registry):
         # reverse parameters
         def dump(request, self):
             return obj(self, request)
@@ -907,20 +882,22 @@ class DumpJsonDirective(Directive):
 
 
 @App.directive('load_json')
-class LoadJsonDirective(Directive):
-    def __init__(self, app):
+class LoadJsonAction(dectate.Action):
+    config = DEFAULT_CONFIG
+
+    def __init__(self):
         '''Register a function that converts JSON to an object.
 
         The decorated function gets ``json`` and ``request``
         (:class:`morepath.Request`) parameters. The function should
         return a Python object based on the given JSON.
         '''
-        super(LoadJsonDirective, self).__init__(app)
+        pass
 
     def identifier(self, registry):
         return ()
 
-    def perform(self, registry, obj):
+    def perform(self, obj, registry):
         # reverse parameters
         def load(request, json):
             return obj(json, request)
@@ -928,7 +905,9 @@ class LoadJsonDirective(Directive):
 
 
 @App.directive('link_prefix')
-class LinkPrefixDirective(Directive):
+class LinkPrefixAction(dectate.Action):
+    config = DEFAULT_CONFIG
+
     def __init__(self, app):
         '''Register a function that returns the prefix added to every link
         generated by the request.
@@ -939,10 +918,10 @@ class LinkPrefixDirective(Directive):
         The decorated function gets the ``request`` (:class:`morepath.Request`)
         as its only paremeter. The function should return a string.
         '''
-        super(LinkPrefixDirective, self).__init__(app)
+        pass
 
     def identifier(self, registry):
         return ()
 
-    def perform(self, registry, obj):
+    def perform(self, obj, registry):
         registry.register_function(generic.link_prefix, obj)

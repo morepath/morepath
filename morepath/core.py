@@ -1,4 +1,4 @@
-from .config import Config
+import dectate
 import morepath.directive
 from morepath import generic
 from .app import App
@@ -18,6 +18,11 @@ from time import mktime, strptime
 assert morepath.directive  # we need to make the function directive work
 
 
+class FakeConfig(object):
+    def commit(self):
+        dectate.autocommit()
+
+
 def setup():
     """Set up core Morepath framework configuration.
 
@@ -29,9 +34,11 @@ def setup():
 
     :returns: :class:`Config` object.
     """
-    config = Config()
-    config.scan(morepath, ignore=['.tests'])
-    return config
+    return FakeConfig()
+
+    #config = Config()
+    #config.scan(morepath, ignore=['.tests'])
+    #return config
 
 
 @App.predicate(generic.view, name='model', default=None, index=ClassIndex)

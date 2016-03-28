@@ -1,19 +1,19 @@
 from functools import update_wrapper
 import logging
 
-from .action import FunctionAction
+import dectate
+#from .action import FunctionAction
 from .request import Request
 from .traject import Traject
-from .config import Configurable
 from .settings import SettingSectionContainer
 from .converter import ConverterRegistry
 from .predicate import PredicateRegistry
 from .tween import TweenRegistry
-from . import generic
+#from . import generic
 from reg import Registry as RegRegistry, CachingKeyLookup
-import venusian
+#import venusian
 from . import compat
-from .compat import with_metaclass
+# from .compat import with_metaclass
 from .implicit import set_implicit
 from .mount import MountRegistry
 from .reify import reify
@@ -25,27 +25,24 @@ ALL_CACHE_SIZE = 5000
 FALLBACK_CACHE_SIZE = 5000
 
 
-class Registry(Configurable, RegRegistry, MountRegistry, PredicateRegistry,
+class Registry(RegRegistry, MountRegistry, PredicateRegistry,
                ConverterRegistry, TweenRegistry, TemplateEngineRegistry):
     """A registry holding an application's configuration.
     """
     app = None  # app this registry belongs to. set later during scanning
 
-    def __init__(self, name, bases, testing_config):
-        self.name = name
-        bases = [base.registry for base in bases if hasattr(base, 'registry')]
+    def __init__(self):
         RegRegistry.__init__(self)
         MountRegistry.__init__(self)
         PredicateRegistry.__init__(self)
-        Configurable.__init__(self, bases, testing_config)
         ConverterRegistry.__init__(self)
         TweenRegistry.__init__(self)
         TemplateEngineRegistry.__init__(self)
         self.settings = SettingSectionContainer()
         self.clear()
 
-    def actions(self):
-        yield FunctionAction(self, generic.settings), lambda: self.settings
+    # def actions(self):
+    #     yield FunctionAction(self, generic.settings), lambda: self.settings
 
     def clear(self):
         """Clear all registrations in this application.
@@ -53,7 +50,6 @@ class Registry(Configurable, RegRegistry, MountRegistry, PredicateRegistry,
         RegRegistry.clear(self)
         MountRegistry.clear(self)
         PredicateRegistry.clear(self)
-        Configurable.clear(self)
         ConverterRegistry.clear(self)
         TweenRegistry.clear(self)
         TemplateEngineRegistry.clear(self)
@@ -68,21 +64,21 @@ class Registry(Configurable, RegRegistry, MountRegistry, PredicateRegistry,
             FALLBACK_CACHE_SIZE).lookup()
 
 
-def callback(scanner, name, obj):
-    obj.registry.app = obj
-    scanner.config.configurable(obj.registry)
+# def callback(scanner, name, obj):
+#     obj.registry.app = obj
+#     scanner.config.configurable(obj.registry)
 
 
-class AppMeta(type):
-    def __new__(cls, name, bases, d):
-        testing_config = d.get('testing_config')
-        d['registry'] = Registry(name, bases, testing_config)
-        result = super(AppMeta, cls).__new__(cls, name, bases, d)
-        venusian.attach(result, callback)
-        return result
+# class AppMeta(type):
+#     def __new__(cls, name, bases, d):
+#         testing_config = d.get('testing_config')
+#         d['registry'] = Registry(name, bases, testing_config)
+#         result = super(AppMeta, cls).__new__(cls, name, bases, d)
+#         venusian.attach(result, callback)
+#         return result
 
 
-class App(with_metaclass(AppMeta)):
+class App(dectate.App):
     """A Morepath-based application object.
 
     You subclass App to create a morepath application class. You can
@@ -100,7 +96,6 @@ class App(with_metaclass(AppMeta)):
     it. You can then call it with the ``environ`` and ``start_response``
     arguments.
     """
-    testing_config = None
     parent = None
     """The parent in which this app was mounted."""
 
@@ -118,14 +113,14 @@ class App(with_metaclass(AppMeta)):
 
         :returns: a :class:`reg.Lookup` instance.
         """
-        return self.registry.lookup
+        return self.config.registry.lookup
 
     def set_implicit(self):
         set_implicit(self.lookup)
 
     @reify
     def traject(self):
-        return self.registry.traject
+        return self.config.registry.traject
 
     def request(self, environ):
         """Create a :class:`Request` given WSGI environment for this app.
@@ -176,13 +171,13 @@ class App(with_metaclass(AppMeta)):
             # XXX assert that variables is empty
 
             # XXX do we need to deal with subclasses of apps?
-            if app.__class__ not in self.registry.mounted:
+            if app.__class__ not in self.config.registry.mounted:
                 return None
         else:
             if isinstance(app, compat.string_types):
-                factory = self.registry.named_mounted.get(app)
+                factory = self.config.registry.named_mounted.get(app)
             else:
-                factory = self.registry.mounted.get(app)
+                factory = self.config.registry.mounted.get(app)
             if factory is None:
                 return None
             result = factory(**variables)
@@ -211,33 +206,34 @@ class App(with_metaclass(AppMeta)):
         # XXX import cycles...
         from .publish import publish
         result = publish
-        for tween_factory in reversed(self.registry.sorted_tween_factories()):
+        for tween_factory in reversed(
+                self.config.registry.sorted_tween_factories()):
             result = tween_factory(self, result)
         return result
 
-    @classmethod
-    def directive(cls, name):
-        """Decorator to register a new directive with this application class.
+    # @classmethod
+    # def directive(cls, name):
+    #     """Decorator to register a new directive with this application class.
 
-        You use this as a class decorator for a :class:`morepath.Directive`
-        subclass::
+    #     You use this as a class decorator for a :class:`morepath.Directive`
+    #     subclass::
 
-           @App.directive('my_directive')
-           class FooDirective(morepath.Directive):
-               ...
+    #        @App.directive('my_directive')
+    #        class FooDirective(morepath.Directive):
+    #            ...
 
-        This needs to be executed *before* the directive is being used
-        and thus might introduce import dependency issues unlike
-        normal Morepath configuration, so beware! An easy way to make
-        sure that all directives are installed before you use them is
-        to make sure you define them in the same module as where you
-        define the application class that has them.
-        """
-        return DirectiveDirective(cls, name)
+    #     This needs to be executed *before* the directive is being used
+    #     and thus might introduce import dependency issues unlike
+    #     normal Morepath configuration, so beware! An easy way to make
+    #     sure that all directives are installed before you use them is
+    #     to make sure you define them in the same module as where you
+    #     define the application class that has them.
+    #     """
+    #     return DirectiveDirective(cls, name)
 
-    @classmethod
-    def dotted_name(cls):
-        return '%s.%s' % (cls.__module__, cls.__name__)
+    # @classmethod
+    # def dotted_name(cls):
+    #     return '%s.%s' % (cls.__module__, cls.__name__)
 
 
 class DirectiveDirective(object):

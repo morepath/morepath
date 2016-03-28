@@ -31,9 +31,9 @@ setup(name='morepath',
       install_requires=[
         'setuptools',
         'webob >= 1.3.1',
-        'reg >= 0.9.2'
+        'reg >= 0.9.2',
         'dectate',
-        ],
+      ],
       extras_require = dict(
         test=['pytest >= 2.5.2',
               'py >= 1.4.20',

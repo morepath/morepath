@@ -29,14 +29,14 @@ def test_app_extends_settings():
 
     alpha_inst = alpha()
 
-    settings = alpha_inst.registry.settings
+    settings = alpha_inst.config.registry.settings
 
     assert settings.one.foo == 'FOO'
     with pytest.raises(AttributeError):
         settings.one.bar
 
     beta_inst = beta()
-    settings = beta_inst.registry.settings
+    settings = beta_inst.config.registry.settings
 
     assert settings.one.foo == 'FOO'
     assert settings.one.bar == 'BAR'
@@ -61,8 +61,8 @@ def test_app_overrides_settings():
 
     config.commit()
 
-    assert alpha().registry.settings.one.foo == 'FOO'
-    assert beta().registry.settings.one.foo == 'OVERRIDE'
+    assert alpha().config.registry.settings.one.foo == 'FOO'
+    assert beta().config.registry.settings.one.foo == 'OVERRIDE'
 
 
 def test_app_overrides_settings_three():
@@ -87,7 +87,7 @@ def test_app_overrides_settings_three():
 
     config.commit()
 
-    assert gamma().registry.settings.one.foo == 'OVERRIDE'
+    assert gamma().config.registry.settings.one.foo == 'OVERRIDE'
 
 
 def test_app_section_settings():
@@ -107,7 +107,7 @@ def test_app_section_settings():
 
     app_inst = app()
 
-    s = app_inst.registry.settings
+    s = app_inst.config.registry.settings
 
     assert s.one.foo == 'FOO'
     assert s.one.bar == 'BAR'
