@@ -1,5 +1,5 @@
 import morepath
-from morepath import setup
+import dectate
 from morepath.error import LinkError, ConflictError
 from webtest import TestApp as Client
 import pytest
@@ -10,13 +10,11 @@ def setup_module():
 
 
 def test_model_mount_conflict():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class app2(morepath.App):
-        testing_config = config
+        pass
 
     class A(object):
         pass
@@ -30,18 +28,14 @@ def test_model_mount_conflict():
         return app2()
 
     with pytest.raises(ConflictError):
-        config.commit()
+        dectate.commit([app])()
 
 
 def test_mount_basic():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class mounted(morepath.App):
-        testing_config = config
-
         def __init__(self, id):
             self.id = id
 
@@ -61,7 +55,7 @@ def test_mount_basic():
     def get_mounted(id):
         return mounted(id=id)
 
-    config.commit()
+    dectate.commit([app, mounted])
 
     c = Client(app())
 
@@ -73,13 +67,11 @@ def test_mount_basic():
 
 
 def test_mount_none_should_fail():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class mounted(morepath.App):
-        testing_config = config
+        pass
 
     @mounted.path(path='')
     class MountedRoot(object):
@@ -97,7 +89,7 @@ def test_mount_none_should_fail():
     def mount_mounted(id):
         return None
 
-    config.commit()
+    dectate.commit([app, mounted])
 
     c = Client(app())
 
@@ -106,14 +98,10 @@ def test_mount_none_should_fail():
 
 
 def test_mount_context():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class mounted(morepath.App):
-        testing_config = config
-
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
@@ -130,7 +118,7 @@ def test_mount_context():
     def get_context(id):
         return mounted(mount_id=id)
 
-    config.commit()
+    dectate.commit([app, mounted])
 
     c = Client(app())
 
@@ -141,14 +129,10 @@ def test_mount_context():
 
 
 def test_mount_context_parameters():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class mounted(morepath.App):
-        testing_config = config
-
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
@@ -166,7 +150,7 @@ def test_mount_context_parameters():
     def get_context(mount_id=0):
         return mounted(mount_id=mount_id)
 
-    config.commit()
+    dectate.commit([app, mounted])
 
     c = Client(app())
 
@@ -177,14 +161,10 @@ def test_mount_context_parameters():
 
 
 def test_mount_context_parameters_override_default():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class mounted(morepath.App):
-        testing_config = config
-
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
@@ -203,7 +183,7 @@ def test_mount_context_parameters_override_default():
     def get_context(id):
         return mounted(mount_id=id)
 
-    config.commit()
+    dectate.commit([app, mounted])
 
     c = Client(app())
 
@@ -216,11 +196,7 @@ def test_mount_context_parameters_override_default():
 
 
 def test_mount_context_standalone():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
-
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
@@ -233,7 +209,7 @@ def test_mount_context_standalone():
     def root_default(self, request):
         return "The root for mount id: %s" % self.mount_id
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app(mount_id='foo'))
 
@@ -242,10 +218,8 @@ def test_mount_context_standalone():
 
 
 def test_mount_parent_link():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='models/{id}')
     class Model(object):
@@ -253,8 +227,6 @@ def test_mount_parent_link():
             self.id = id
 
     class mounted(morepath.App):
-        testing_config = config
-
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
@@ -271,7 +243,7 @@ def test_mount_parent_link():
     def get_context(id):
         return mounted(mount_id=id)
 
-    config.commit()
+    dectate.commit([app, mounted])
 
     c = Client(app())
 
@@ -280,14 +252,10 @@ def test_mount_parent_link():
 
 
 def test_mount_child_link():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class mounted(morepath.App):
-        testing_config = config
-
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
@@ -315,7 +283,7 @@ def test_mount_child_link():
     def get_context(id):
         return mounted(mount_id=id)
 
-    config.commit()
+    dectate.commit([app, mounted])
 
     c = Client(app())
 
@@ -326,16 +294,14 @@ def test_mount_child_link():
 
 
 def test_mount_sibling_link():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class first(morepath.App):
-        testing_config = config
+        pass
 
     class second(morepath.App):
-        testing_config = config
+        pass
 
     @first.path(path='models/{id}')
     class FirstModel(object):
@@ -364,7 +330,7 @@ def test_mount_sibling_link():
     def get_context_second():
         return second()
 
-    config.commit()
+    dectate.commit([app, first, second])
 
     c = Client(app())
 
@@ -373,10 +339,8 @@ def test_mount_sibling_link():
 
 
 def test_mount_sibling_link_at_root_app():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -391,7 +355,7 @@ def test_mount_sibling_link_at_root_app():
         sibling = request.app.sibling('foo')
         return request.link(Item(3), app=sibling)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -400,14 +364,10 @@ def test_mount_sibling_link_at_root_app():
 
 
 def test_mount_child_link_unknown_child():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class mounted(morepath.App):
-        testing_config = config
-
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
@@ -436,7 +396,7 @@ def test_mount_child_link_unknown_child():
 
     # no mount directive so linking will fail
 
-    config.commit()
+    dectate.commit([app, mounted])
 
     c = Client(app())
 
@@ -447,10 +407,8 @@ def test_mount_child_link_unknown_child():
 
 
 def test_mount_child_link_unknown_parent():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -467,7 +425,7 @@ def test_mount_child_link_unknown_parent():
             return 'link error'
         return request.link(Model('one'), app=parent)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -476,14 +434,10 @@ def test_mount_child_link_unknown_parent():
 
 
 def test_mount_child_link_unknown_app():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class mounted(morepath.App):
-        testing_config = config
-
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
@@ -506,7 +460,7 @@ def test_mount_child_link_unknown_app():
 
     # no mounting, so mounted is unknown when making link
 
-    config.commit()
+    dectate.commit([app, mounted])
 
     c = Client(app())
 
@@ -515,14 +469,10 @@ def test_mount_child_link_unknown_app():
 
 
 def test_mount_link_prefix():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Mounted(morepath.App):
-        testing_config = config
-
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
@@ -560,7 +510,7 @@ def test_mount_link_prefix():
         parent = request.app.parent
         return request.view(AppRoot(), app=parent, name='get-root-link')
 
-    config.commit()
+    dectate.commit([App, Mounted])
 
     c = Client(App())
 
@@ -578,14 +528,10 @@ def test_mount_link_prefix():
 
 
 def test_request_view_in_mount():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class mounted(morepath.App):
-        testing_config = config
-
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
@@ -617,7 +563,7 @@ def test_request_view_in_mount():
     def get_context(id):
         return mounted(mount_id=id)
 
-    config.commit()
+    dectate.commit([app, mounted])
 
     c = Client(app())
 
@@ -629,19 +575,15 @@ def test_request_view_in_mount():
 
 
 def test_request_link_child_child():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class mounted(morepath.App):
-        testing_config = config
-
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
     class submounted(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -682,7 +624,8 @@ def test_request_link_child_child():
     def subroot_parentage(self, request):
         ancestor = request.app.parent.parent
         return request.view(Root(), name='info', app=ancestor)
-    config.commit()
+
+    dectate.commit([app, mounted, submounted])
 
     c = Client(app())
 
@@ -696,14 +639,10 @@ def test_request_link_child_child():
 
 
 def test_request_view_in_mount_broken():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class mounted(morepath.App):
-        testing_config = config
-
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
@@ -753,7 +692,7 @@ def test_request_view_in_mount_broken():
 
     # deliberately don't mount so using view is broken
 
-    config.commit()
+    dectate.commit([app, mounted])
 
     c = Client(app())
 
@@ -771,14 +710,10 @@ def test_request_view_in_mount_broken():
 
 
 def test_mount_implicit_converters():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class mounted(morepath.App):
-        testing_config = config
-
         def __init__(self, id):
             self.id = id
 
@@ -798,7 +733,7 @@ def test_mount_implicit_converters():
     def get_context(id=0):
         return mounted(id=id)
 
-    config.commit()
+    dectate.commit([app, mounted])
 
     c = Client(app())
 
@@ -808,14 +743,10 @@ def test_mount_implicit_converters():
 
 
 def test_mount_explicit_converters():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class mounted(morepath.App):
-        testing_config = config
-
         def __init__(self, id):
             self.id = id
 
@@ -835,7 +766,7 @@ def test_mount_explicit_converters():
     def get_context(id):
         return mounted(id=id)
 
-    config.commit()
+    dectate.commit([app, mounted])
 
     c = Client(app())
 
@@ -845,13 +776,11 @@ def test_mount_explicit_converters():
 
 
 def test_mount_view_in_child_view():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class fooapp(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -877,7 +806,7 @@ def test_mount_view_in_child_view():
     def mount_to_root():
         return fooapp()
 
-    config.commit()
+    dectate.commit([app, fooapp])
 
     c = Client(app())
 
@@ -889,13 +818,11 @@ def test_mount_view_in_child_view():
 
 
 def test_mount_view_in_child_view_then_parent_view():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class fooapp(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -927,7 +854,7 @@ def test_mount_view_in_child_view_then_parent_view():
     def mount_to_root():
         return fooapp()
 
-    config.commit()
+    dectate.commit([app, fooapp])
 
     c = Client(app())
 
@@ -936,17 +863,15 @@ def test_mount_view_in_child_view_then_parent_view():
 
 
 def test_mount_directive_with_link_and_absorb():
-    config = setup()
-
     class app1(morepath.App):
-        testing_config = config
+        pass
 
     @app1.path(path="")
     class Model1(object):
         pass
 
     class app2(morepath.App):
-        testing_config = config
+        pass
 
     class Model2(object):
         def __init__(self, absorb):
@@ -964,7 +889,7 @@ def test_mount_directive_with_link_and_absorb():
     def get_mount():
         return app2()
 
-    config.commit()
+    dectate.commit([app1, app2])
 
     c = Client(app1())
 
@@ -976,13 +901,11 @@ def test_mount_directive_with_link_and_absorb():
 
 
 def test_mount_named_child_link_explicit_name():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class mounted(morepath.App):
-        testing_config = config
+        pass
 
     @mounted.path(path='models/{id}')
     class Model(object):
@@ -1005,7 +928,7 @@ def test_mount_named_child_link_explicit_name():
     def get_context():
         return mounted()
 
-    config.commit()
+    dectate.commit([app, mounted])
 
     c = Client(app())
 
@@ -1017,13 +940,11 @@ def test_mount_named_child_link_explicit_name():
 
 
 def test_mount_named_child_link_name_defaults_to_path():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class mounted(morepath.App):
-        testing_config = config
+        pass
 
     @mounted.path(path='models/{id}')
     class Model(object):
@@ -1046,7 +967,7 @@ def test_mount_named_child_link_name_defaults_to_path():
     def get_context():
         return mounted()
 
-    config.commit()
+    dectate.commit([app, mounted])
 
     c = Client(app())
 
@@ -1058,14 +979,10 @@ def test_mount_named_child_link_name_defaults_to_path():
 
 
 def test_named_mount_with_parameters():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class mounted(morepath.App):
-        testing_config = config
-
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
@@ -1100,7 +1017,7 @@ def test_named_mount_with_parameters():
         child = request.app.child('mounts/{mount_id}', mount_id=3)
         return request.link(Item(4), app=child)
 
-    config.commit()
+    dectate.commit([app, mounted])
 
     c = Client(app())
 
@@ -1109,14 +1026,10 @@ def test_named_mount_with_parameters():
 
 
 def test_named_mount_with_url_parameters():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class mounted(morepath.App):
-        testing_config = config
-
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
@@ -1151,7 +1064,7 @@ def test_named_mount_with_url_parameters():
         child = request.app.child('mounts', mount_id=3)
         return request.link(Item(4), app=child)
 
-    config.commit()
+    dectate.commit([app, mounted])
 
     c = Client(app())
 
@@ -1160,14 +1073,10 @@ def test_named_mount_with_url_parameters():
 
 
 def test_access_app_through_request():
-    config = morepath.setup()
-
     class root(morepath.App):
-        testing_config = config
+        pass
 
     class sub(morepath.App):
-        testing_config = config
-
         def __init__(self, name):
             self.name = name
 
@@ -1193,7 +1102,7 @@ def test_access_app_through_request():
     def mount_sub(mount_name):
         return sub(name=mount_name)
 
-    config.commit()
+    dectate.commit([root, sub])
 
     c = Client(root())
 
@@ -1202,14 +1111,10 @@ def test_access_app_through_request():
 
 
 def test_mount_ancestors():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class mounted(morepath.App):
-        testing_config = config
-
         def __init__(self, id):
             self.id = id
 
@@ -1240,7 +1145,7 @@ def test_mount_ancestors():
     def get_mounted(id):
         return mounted(id=id)
 
-    config.commit()
+    dectate.commit([app, mounted])
 
     c = Client(app())
 
