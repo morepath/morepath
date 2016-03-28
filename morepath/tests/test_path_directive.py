@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import dectate
 import morepath
 from morepath import setup
 from morepath.converter import Converter
@@ -15,10 +16,8 @@ def setup_module(module):
 
 
 def test_simple_path_one_step():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self):
@@ -36,7 +35,7 @@ def test_simple_path_one_step():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -48,10 +47,8 @@ def test_simple_path_one_step():
 
 
 def test_simple_path_two_steps():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self):
@@ -69,7 +66,7 @@ def test_simple_path_two_steps():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -81,10 +78,8 @@ def test_simple_path_two_steps():
 
 
 def test_variable_path_one_step():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, name):
@@ -102,7 +97,7 @@ def test_variable_path_one_step():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -114,10 +109,8 @@ def test_variable_path_one_step():
 
 
 def test_variable_path_two_steps():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, name):
@@ -135,7 +128,7 @@ def test_variable_path_two_steps():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -147,10 +140,8 @@ def test_variable_path_two_steps():
 
 
 def test_variable_path_two_variables():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, name, version):
@@ -169,7 +160,7 @@ def test_variable_path_two_variables():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -181,10 +172,8 @@ def test_variable_path_two_variables():
 
 
 def test_variable_path_explicit_converter():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -203,7 +192,7 @@ def test_variable_path_explicit_converter():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -218,10 +207,8 @@ def test_variable_path_explicit_converter():
 
 
 def test_variable_path_implicit_converter():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -239,7 +226,7 @@ def test_variable_path_implicit_converter():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -254,10 +241,8 @@ def test_variable_path_implicit_converter():
 
 
 def test_variable_path_explicit_trumps_implicit():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -276,7 +261,7 @@ def test_variable_path_explicit_trumps_implicit():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -291,10 +276,8 @@ def test_variable_path_explicit_trumps_implicit():
 
 
 def test_url_parameter_explicit_converter():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -313,7 +296,7 @@ def test_url_parameter_explicit_converter():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -332,10 +315,8 @@ def test_url_parameter_explicit_converter():
 
 
 def test_url_parameter_explicit_converter_get_converters():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -356,7 +337,7 @@ def test_url_parameter_explicit_converter_get_converters():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -375,10 +356,8 @@ def test_url_parameter_explicit_converter_get_converters():
 
 
 def test_url_parameter_get_converters_overrides_converters():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -400,7 +379,7 @@ def test_url_parameter_get_converters_overrides_converters():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -419,10 +398,8 @@ def test_url_parameter_get_converters_overrides_converters():
 
 
 def test_url_parameter_implicit_converter():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -440,7 +417,7 @@ def test_url_parameter_implicit_converter():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -459,10 +436,8 @@ def test_url_parameter_implicit_converter():
 
 
 def test_url_parameter_explicit_trumps_implicit():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -481,7 +456,7 @@ def test_url_parameter_explicit_trumps_implicit():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -500,10 +475,8 @@ def test_url_parameter_explicit_trumps_implicit():
 
 
 def test_decode_encode():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -528,7 +501,7 @@ def test_decode_encode():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -540,10 +513,8 @@ def test_decode_encode():
 
 
 def test_unknown_converter():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, d):
@@ -565,14 +536,12 @@ def test_unknown_converter():
         return request.link(self)
 
     with pytest.raises(DirectiveReportError):
-        config.commit()
+        dectate.commit([app])
 
 
 def test_unknown_explicit_converter():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, d):
@@ -594,14 +563,12 @@ def test_unknown_explicit_converter():
         return request.link(self)
 
     with pytest.raises(DirectiveReportError):
-        config.commit()
+        dectate.commit([app])
 
 
 def test_default_date_converter():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, d):
@@ -621,7 +588,7 @@ def test_default_date_converter():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -641,10 +608,8 @@ def test_default_date_converter():
 
 
 def test_default_datetime_converter():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, d):
@@ -664,7 +629,7 @@ def test_default_datetime_converter():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -684,10 +649,8 @@ def test_default_datetime_converter():
 
 
 def test_custom_date_converter():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, d):
@@ -718,7 +681,7 @@ def test_custom_date_converter():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -738,10 +701,8 @@ def test_custom_date_converter():
 
 
 def test_variable_path_parameter_required_no_default():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -759,7 +720,7 @@ def test_variable_path_parameter_required_no_default():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -770,10 +731,8 @@ def test_variable_path_parameter_required_no_default():
 
 
 def test_variable_path_parameter_required_with_default():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -791,7 +750,7 @@ def test_variable_path_parameter_required_with_default():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -802,10 +761,8 @@ def test_variable_path_parameter_required_with_default():
 
 
 def test_type_hints_and_converters():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, d):
@@ -825,7 +782,7 @@ def test_type_hints_and_converters():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -837,10 +794,8 @@ def test_type_hints_and_converters():
 
 
 def test_link_for_none_means_no_parameter():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -858,7 +813,7 @@ def test_link_for_none_means_no_parameter():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -870,10 +825,8 @@ def test_link_for_none_means_no_parameter():
 
 
 def test_path_and_url_parameter_converter():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id, param):
@@ -894,7 +847,7 @@ def test_path_and_url_parameter_converter():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -903,10 +856,8 @@ def test_path_and_url_parameter_converter():
 
 
 def test_path_converter_fallback_on_view():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Root(object):
         pass
@@ -931,7 +882,7 @@ def test_path_converter_fallback_on_view():
     def named(self, request):
         return "Named view on root"
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -942,10 +893,8 @@ def test_path_converter_fallback_on_view():
 
 
 def test_root_named_link():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -955,7 +904,7 @@ def test_root_named_link():
     def default(self, request):
         return request.link(self, 'foo')
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -964,10 +913,8 @@ def test_root_named_link():
 
 
 def test_path_class_and_model_argument():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Foo(object):
         pass
@@ -977,28 +924,24 @@ def test_path_class_and_model_argument():
         pass
 
     with pytest.raises(ConfigError):
-        config.commit()
+        dectate.commit([app])
 
 
 def test_path_no_class_and_no_model_argument():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     def get_foo():
         return None
 
     with pytest.raises(ConfigError):
-        config.commit()
+        dectate.commit([app])
 
 
 def test_url_parameter_list():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, item):
@@ -1016,7 +959,7 @@ def test_url_parameter_list():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -1036,10 +979,8 @@ def test_url_parameter_list():
 
 
 def test_url_parameter_list_empty():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, item):
@@ -1057,7 +998,7 @@ def test_url_parameter_list_empty():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -1075,10 +1016,8 @@ def test_url_parameter_list_empty():
 
 
 def test_url_parameter_list_explicit_converter():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, item):
@@ -1096,7 +1035,7 @@ def test_url_parameter_list_explicit_converter():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -1116,10 +1055,8 @@ def test_url_parameter_list_explicit_converter():
 
 
 def test_url_parameter_list_unknown_explicit_converter():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, item):
@@ -1133,14 +1070,12 @@ def test_url_parameter_list_unknown_explicit_converter():
         return Model(item)
 
     with pytest.raises(DirectiveReportError):
-        config.commit()
+        dectate.commit([app])
 
 
 def test_url_parameter_list_but_only_one_allowed():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, item):
@@ -1158,7 +1093,7 @@ def test_url_parameter_list_but_only_one_allowed():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -1168,10 +1103,8 @@ def test_url_parameter_list_but_only_one_allowed():
 
 
 def test_extra_parameters():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, extra_parameters):
@@ -1189,7 +1122,7 @@ def test_extra_parameters():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -1202,10 +1135,8 @@ def test_extra_parameters():
 
 
 def test_extra_parameters_with_get_converters():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, extra_parameters):
@@ -1229,7 +1160,7 @@ def test_extra_parameters_with_get_converters():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -1244,10 +1175,8 @@ def test_extra_parameters_with_get_converters():
 
 
 def test_script_name():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self):
@@ -1265,7 +1194,7 @@ def test_script_name():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -1280,10 +1209,8 @@ def test_script_name():
 
 @pytest.mark.xfail
 def test_sub_path_different_variable():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class M(object):
         def __init__(self, id):
@@ -1310,7 +1237,7 @@ def test_sub_path_different_variable():
     def default_s(self, request):
         return "S: %s %s" % (self.id, self.m)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -1322,10 +1249,8 @@ def test_sub_path_different_variable():
 
 
 def test_absorb_path():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Root(object):
         pass
@@ -1350,7 +1275,7 @@ def test_absorb_path():
     def default_root(self, request):
         return request.link(Model('a/b'))
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -1369,10 +1294,8 @@ def test_absorb_path():
 
 
 def test_absorb_path_with_variables():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Root(object):
         pass
@@ -1398,7 +1321,7 @@ def test_absorb_path_with_variables():
     def default_root(self, request):
         return request.link(Model('foo', 'a/b'))
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -1417,10 +1340,8 @@ def test_absorb_path_with_variables():
 
 
 def test_absorb_path_explicit_subpath_ignored():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Root(object):
         pass
@@ -1456,7 +1377,7 @@ def test_absorb_path_explicit_subpath_ignored():
     def default_root(self, request):
         return request.link(Another())
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -1472,10 +1393,8 @@ def test_absorb_path_explicit_subpath_ignored():
 
 
 def test_absorb_path_root():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, absorb):
@@ -1489,7 +1408,7 @@ def test_absorb_path_root():
     def default(self, request):
         return "A:%s L:%s" % (self.absorb, request.link(self))
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -1504,10 +1423,8 @@ def test_absorb_path_root():
 
 
 def test_error_when_path_variable_is_none():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -1522,7 +1439,7 @@ def test_error_when_path_variable_is_none():
     def default(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
@@ -1531,10 +1448,8 @@ def test_error_when_path_variable_is_none():
 
 
 def test_error_when_path_variable_is_missing():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -1549,7 +1464,7 @@ def test_error_when_path_variable_is_missing():
     def default(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
@@ -1558,10 +1473,8 @@ def test_error_when_path_variable_is_missing():
 
 
 def test_error_when_path_variables_isnt_dict():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -1576,7 +1489,7 @@ def test_error_when_path_variables_isnt_dict():
     def default(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
@@ -1585,10 +1498,8 @@ def test_error_when_path_variables_isnt_dict():
 
 
 def test_resolve_path_method_on_request_same_app():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self):
@@ -1610,7 +1521,7 @@ def test_resolve_path_method_on_request_same_app():
     def appnone(self, request):
         return request.resolve_path('simple', app=None)
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
@@ -1623,10 +1534,8 @@ def test_resolve_path_method_on_request_same_app():
 
 
 def test_resolve_path_method_on_request_different_app():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self):
@@ -1642,7 +1551,7 @@ def test_resolve_path_method_on_request_different_app():
         return text_type(isinstance(obj, SubModel))
 
     class Sub(morepath.App):
-        testing_config = config
+        pass
 
     class SubModel(object):
         pass
@@ -1655,7 +1564,7 @@ def test_resolve_path_method_on_request_different_app():
     def mount_sub():
         return Sub()
 
-    config.commit()
+    dectate.commit([App, Sub])
 
     c = Client(App())
 
@@ -1664,10 +1573,8 @@ def test_resolve_path_method_on_request_different_app():
 
 
 def test_resolve_path_with_dots_in_url():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Root(object):
         def __init__(self, absorb):
@@ -1681,7 +1588,7 @@ def test_resolve_path_with_dots_in_url():
     def default(self, request):
         return "%s" % self.absorb
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -1702,10 +1609,8 @@ def test_resolve_path_with_dots_in_url():
 
 
 def test_quoting_link_generation():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self):
@@ -1723,7 +1628,7 @@ def test_quoting_link_generation():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
@@ -1735,10 +1640,8 @@ def test_quoting_link_generation():
 
 
 def test_quoting_link_generation_umlaut():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self):
@@ -1756,7 +1659,7 @@ def test_quoting_link_generation_umlaut():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
@@ -1768,10 +1671,8 @@ def test_quoting_link_generation_umlaut():
 
 
 def test_parameter_quoting():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, s):
@@ -1789,7 +1690,7 @@ def test_parameter_quoting():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
@@ -1801,10 +1702,8 @@ def test_parameter_quoting():
 
 
 def test_class_link_without_variables():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         pass
@@ -1817,7 +1716,7 @@ def test_class_link_without_variables():
     def link(self, request):
         return request.class_link(Model)
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
@@ -1826,10 +1725,8 @@ def test_class_link_without_variables():
 
 
 def test_class_link_with_variables():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         pass
@@ -1842,7 +1739,7 @@ def test_class_link_with_variables():
     def link(self, request):
         return request.class_link(Model, variables={'x': 'X'})
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
@@ -1851,10 +1748,8 @@ def test_class_link_with_variables():
 
 
 def test_class_link_with_missing_variables():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         pass
@@ -1867,19 +1762,17 @@ def test_class_link_with_missing_variables():
     def link(self, request):
         return request.class_link(Model, variables={})
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
     with pytest.raises(KeyError):
-        response = c.get('/foo/3')
+        c.get('/foo/3')
 
 
 def test_class_link_with_extra_variable():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         pass
@@ -1892,7 +1785,7 @@ def test_class_link_with_extra_variable():
     def link(self, request):
         return request.class_link(Model, variables={'x': 'X', 'y': 'Y'})
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
@@ -1901,10 +1794,8 @@ def test_class_link_with_extra_variable():
 
 
 def test_class_link_with_url_parameter_variable():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         pass
@@ -1917,7 +1808,7 @@ def test_class_link_with_url_parameter_variable():
     def link(self, request):
         return request.class_link(Model, variables={'x': 'X', 'y': 'Y'})
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
@@ -1926,10 +1817,8 @@ def test_class_link_with_url_parameter_variable():
 
 
 def test_class_link_with_subclass():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         pass
@@ -1945,7 +1834,7 @@ def test_class_link_with_subclass():
     def link(self, request):
         return request.class_link(Sub, variables={'x': 'X'})
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
@@ -1954,10 +1843,8 @@ def test_class_link_with_subclass():
 
 
 def test_absorb_class_path():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Root(object):
         pass
@@ -1982,7 +1869,7 @@ def test_absorb_class_path():
     def default_root(self, request):
         return request.class_link(Model, variables={'absorb': 'a/b'})
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
@@ -1992,10 +1879,8 @@ def test_absorb_class_path():
 
 
 def test_absorb_class_path_with_variables():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Root(object):
         pass
@@ -2022,7 +1907,7 @@ def test_absorb_class_path_with_variables():
         return request.class_link(Model,
                                   variables=dict(id='foo', absorb='a/b'))
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
@@ -2032,10 +1917,8 @@ def test_absorb_class_path_with_variables():
 
 
 def test_class_link_extra_parameters():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, extra_parameters):
@@ -2055,7 +1938,7 @@ def test_class_link_extra_parameters():
             Model,
             variables={'extra_parameters': {'a': 'A', 'b': 'B'}})
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
