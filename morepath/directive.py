@@ -196,6 +196,14 @@ class FunctionAction(dectate.Action):
         self.key_dict = kw
 
     def predicate_key(self, registry):
+        # XXX either reg should keep track of dispatch and
+        # dispatch_external_predicates functions that have been used,
+        # or we should only allow their registration through a special
+        # Morepath directive so that we can.
+        if self.func.external_predicates and not registry.get_predicates(
+                self.func):
+            registry.register_external_predicates(self.func, [])
+        registry.register_dispatch(self.func)
         return registry.key_dict_to_predicate_key(
             self.func.wrapped_func, self.key_dict)
 

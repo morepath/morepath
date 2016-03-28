@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import textwrap
-from dectate import ConfigError
+from dectate import (ConfigError, ConflictError,  # noqa
+                     DirectiveReportError, DirectiveError)  # noqa
 
 
 # XXX is ConfigError the right base class?

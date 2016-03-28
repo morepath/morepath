@@ -1,5 +1,5 @@
-from morepath import Config
 import reg
+import dectate
 from reg import ClassIndex, KeyIndex
 import morepath
 from morepath.error import ConfigError
@@ -11,10 +11,8 @@ def setup_module(module):
 
 
 def test_dispatch():
-    config = Config()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Foo(object):
         pass
@@ -37,7 +35,7 @@ def test_dispatch():
     def f_bar(obj):
         return "bar"
 
-    config.commit()
+    dectate.commit([App])
 
     a = App()
 
@@ -49,10 +47,8 @@ def test_dispatch():
 
 
 def test_dispatch_external_predicates():
-    config = Config()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Foo(object):
         pass
@@ -79,7 +75,7 @@ def test_dispatch_external_predicates():
     def f_bar(obj):
         return "bar"
 
-    config.commit()
+    dectate.commit([App])
 
     a = App()
 
@@ -91,10 +87,8 @@ def test_dispatch_external_predicates():
 
 
 def test_dispatch_external_predicates_predicate_fallback():
-    config = Config()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Foo(object):
         pass
@@ -125,7 +119,7 @@ def test_dispatch_external_predicates_predicate_fallback():
     def f_bar(obj):
         return "bar"
 
-    config.commit()
+    dectate.commit([App])
 
     a = App()
 
@@ -137,10 +131,8 @@ def test_dispatch_external_predicates_predicate_fallback():
 
 
 def test_dispatch_external_predicates_ordering_after():
-    config = Config()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Foo(object):
         pass
@@ -179,7 +171,7 @@ def test_dispatch_external_predicates_ordering_after():
     def f_bar_edit(obj, name):
         return "bar edit"
 
-    config.commit()
+    dectate.commit([App])
 
     a = App()
 
@@ -195,10 +187,8 @@ def test_dispatch_external_predicates_ordering_after():
 
 
 def test_dispatch_external_predicates_ordering_before():
-    config = Config()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Foo(object):
         pass
@@ -238,7 +228,7 @@ def test_dispatch_external_predicates_ordering_before():
     def f_bar_edit(obj, name):
         return "bar edit"
 
-    config.commit()
+    dectate.commit([App])
 
     a = App()
 
@@ -254,13 +244,11 @@ def test_dispatch_external_predicates_ordering_before():
 
 
 def test_dispatch_external_override_fallback():
-    config = Config()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Sub(App):
-        testing_config = config
+        pass
 
     class Foo(object):
         pass
@@ -299,7 +287,7 @@ def test_dispatch_external_override_fallback():
     def f_bar(obj):
         return "bar"
 
-    config.commit()
+    dectate.commit([App, Sub])
 
     s = Sub()
     lookup = s.lookup
@@ -318,13 +306,11 @@ def test_dispatch_external_override_fallback():
 
 
 def test_dispatch_external_override_predicate():
-    config = Config()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Sub(App):
-        testing_config = config
+        pass
 
     class Foo(object):
         pass
@@ -367,7 +353,7 @@ def test_dispatch_external_override_predicate():
     def f_bar_sub(obj):
         return "bar sub"
 
-    config.commit()
+    dectate.commit([App, Sub])
 
     s = Sub()
 
@@ -387,10 +373,8 @@ def test_dispatch_external_override_predicate():
 
 
 def test_wrong_predicate_arguments_single():
-    config = Config()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     @reg.dispatch('obj')
     def f(obj):
@@ -406,14 +390,12 @@ def test_wrong_predicate_arguments_single():
     def f_foo(obj):
         return "foo"
 
-    config.commit()
+    dectate.commit([App])
 
 
 def test_wrong_predicate_arguments_multi():
-    config = Config()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     @reg.dispatch('a', 'b')
     def f(a, b):
@@ -429,14 +411,12 @@ def test_wrong_predicate_arguments_multi():
     def f_foo(a, b):
         return "foo"
 
-    config.commit()
+    dectate.commit([App])
 
 
 def test_predicate_not_for_dispatch_external_predicates():
-    config = Config()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     @reg.dispatch('a')
     def f(a):
@@ -447,14 +427,12 @@ def test_predicate_not_for_dispatch_external_predicates():
         return a.__class__
 
     with pytest.raises(ConfigError):
-        config.commit()
+        dectate.commit([App])
 
 
 def test_dispatch_external_predicates_without_predicate_directives():
-    config = Config()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Foo(object):
         pass
@@ -473,7 +451,7 @@ def test_dispatch_external_predicates_without_predicate_directives():
     def f_foo(obj):
         return "foo"
 
-    config.commit()
+    dectate.commit([App])
 
     a = App()
 
