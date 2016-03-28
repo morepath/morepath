@@ -1,4 +1,5 @@
 import dectate
+import importscan
 import morepath.directive
 from morepath import generic
 from .app import App
@@ -21,6 +22,9 @@ assert morepath.directive  # we need to make the function directive work
 class FakeConfig(object):
     def commit(self):
         dectate.autocommit()
+
+    def scan(self, package, ignore=None, handle_error=None):
+        importscan.scan(package, ignore, handle_error)
 
 
 def setup():

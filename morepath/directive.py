@@ -54,8 +54,6 @@ class SettingValue(object):
 
 @App.directive('setting_section')
 class SettingSectionAction(dectate.Composite):
-    config = DEFAULT_CONFIG
-
     def __init__(self, section):
         """Register application setting in a section.
 

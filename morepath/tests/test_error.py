@@ -1,15 +1,14 @@
 import pytest
+import dectate
 import morepath
-from morepath.error import DirectiveReportError, ConflictError
+from dectate import DirectiveReportError, ConflictError
 from .fixtures import conflicterror
 from morepath.compat import text_type
 
 
 def test_missing_arguments_in_path_function_error():
-    config = morepath.setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         pass
@@ -19,14 +18,12 @@ def test_missing_arguments_in_path_function_error():
         return Model()
 
     with pytest.raises(DirectiveReportError):
-        config.commit()
+        dectate.commit([App])
 
 
 def test_path_function_with_args_error():
-    config = morepath.setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -37,14 +34,12 @@ def test_path_function_with_args_error():
         return Model(args[0])
 
     with pytest.raises(DirectiveReportError):
-        config.commit()
+        dectate.commit([App])
 
 
 def test_path_function_with_kwargs():
-    config = morepath.setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -55,14 +50,12 @@ def test_path_function_with_kwargs():
         return Model(kw['id'])
 
     with pytest.raises(DirectiveReportError):
-        config.commit()
+        dectate.commit([App])
 
 
 def test_config_error_is_also_directive_report_error():
-    config = morepath.setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         def __init__(self, id):
@@ -73,7 +66,7 @@ def test_config_error_is_also_directive_report_error():
         return Model(id)
 
     with pytest.raises(DirectiveReportError):
-        config.commit()
+        dectate.commit([App])
 
 
 def test_conflict_error_should_report_line_numbers():

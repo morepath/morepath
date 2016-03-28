@@ -33,6 +33,7 @@ setup(name='morepath',
         'webob >= 1.3.1',
         'reg >= 0.9.2',
         'dectate',
+        'importscan',
       ],
       extras_require = dict(
         test=['pytest >= 2.5.2',
