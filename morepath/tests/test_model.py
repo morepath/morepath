@@ -1,3 +1,4 @@
+import dectate
 try:
     from urllib.parse import urlencode
 except ImportError:
@@ -32,10 +33,8 @@ class Model(object):
 
 
 def test_register_path():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     root = Root()
 
@@ -44,7 +43,7 @@ def test_register_path():
         model.id = id
         return model
 
-    config.commit()
+    dectate.commit([App])
 
     registry = App.config.registry
 
@@ -64,10 +63,8 @@ def test_register_path():
 
 
 def test_register_path_with_parameters():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     root = Root()
 
@@ -77,7 +74,7 @@ def test_register_path_with_parameters():
         model.param = param
         return model
 
-    config.commit()
+    dectate.commit([App])
 
     registry = App.config.registry
 
@@ -105,10 +102,8 @@ def test_register_path_with_parameters():
 
 
 def test_traject_path_with_leading_slash():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     root = Root()
 
@@ -117,7 +112,7 @@ def test_traject_path_with_leading_slash():
         model.id = id
         return model
 
-    config.commit()
+    dectate.commit([App])
 
     registry = App.config.registry
 
