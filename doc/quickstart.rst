@@ -109,8 +109,8 @@ Code Walkthrough
    startup script for your application is created automatically.
 
 6. :func:`morepath.autocommit` commits all directives for all
-  :class:`morepath.App` subclasses in the application, in this case
-  ``App``. Anything you imported, directly or indirectly, is committed.
+   :class:`morepath.App` subclasses in the application, in this case
+   ``App``. Anything you imported, directly or indirectly, is committed.
 
    This step ensures your configuration (model routes, views, etc) is
    loaded exactly once in a way that's reusable and extensible.
