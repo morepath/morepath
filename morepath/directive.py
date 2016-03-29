@@ -43,6 +43,11 @@ class SettingAction(dectate.Action):
     def perform(self, obj, registry):
         register_setting(registry, self.section, self.name, obj)
 
+    @staticmethod
+    def after(registry):
+        registry.register_function(generic.settings,
+                                   lambda: registry.settings)
+
 
 class SettingValue(object):
     def __init__(self, value):
@@ -802,10 +807,37 @@ class TweenFactoryAction(dectate.Action):
         registry.register_tween_factory(obj, over=self.over, under=self.under)
 
 
+@App.private_action_class
+class IdentityPolicyFunctionAction(dectate.Action):
+    """A special action that helps register the identity policy.
+
+    We need this as it needs to be sorted after SettingAction and
+    composite actions can't be sorted nor have access to the registry.
+    """
+    config = DEFAULT_CONFIG
+    depends = [SettingAction]
+
+    def __init__(self, dispatch, name):
+        self.dispatch = dispatch
+        self.name = name
+
+    def identifier(self, registry):
+        return (self.dispatch, self.name)
+
+    def perform(self, obj, registry):
+        # ugly but it needs to only happen once
+        identity_policy = getattr(registry, 'identity_policy', None)
+        if identity_policy is None:
+            registry.identity_policy = identity_policy = mapply(
+                obj,
+                settings=registry.settings)
+        registry.register_function(
+            self.dispatch,
+            getattr(identity_policy, self.name))
+
+
 @App.directive('identity_policy')
 class IdentityPolicyAction(dectate.Composite):
-    config = DEFAULT_CONFIG
-
     config = DEFAULT_CONFIG
 
     def __init__(self):
@@ -821,11 +853,14 @@ class IdentityPolicyAction(dectate.Composite):
         """
         pass
 
-    def actions(self, obj, registry):
-        policy = mapply(obj, settings=registry.settings)
-        yield FunctionAction(generic.identify), policy.identify
-        yield FunctionAction(generic.remember_identity), policy.remember
-        yield FunctionAction(generic.forget_identity), policy.forget
+    def actions(self, obj):
+        yield IdentityPolicyFunctionAction(generic.identify,
+                                           'identify'), obj
+        yield IdentityPolicyFunctionAction(generic.remember_identity,
+                                           'remember'), obj
+        yield IdentityPolicyFunctionAction(generic.forget_identity,
+                                           'forget'), obj
+
 
 
 @App.directive('verify_identity')

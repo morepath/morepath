@@ -1,3 +1,4 @@
+import dectate
 import morepath
 from morepath.error import ConflictError
 import pytest
@@ -9,13 +10,11 @@ def setup_module(module):
 
 
 def test_app_extends_settings():
-    config = morepath.setup()
-
     class alpha(morepath.App):
-        testing_config = config
+        pass
 
     class beta(alpha):
-        testing_config = config
+        pass
 
     @alpha.setting('one', 'foo')
     def get_foo_setting():
@@ -25,7 +24,7 @@ def test_app_extends_settings():
     def get_bar_setting():
         return 'BAR'
 
-    config.commit()
+    dectate.commit([alpha, beta])
 
     alpha_inst = alpha()
 
@@ -43,13 +42,11 @@ def test_app_extends_settings():
 
 
 def test_app_overrides_settings():
-    config = morepath.setup()
-
     class alpha(morepath.App):
-        testing_config = config
+        pass
 
     class beta(alpha):
-        testing_config = config
+        pass
 
     @alpha.setting('one', 'foo')
     def get_foo_setting():
@@ -59,23 +56,21 @@ def test_app_overrides_settings():
     def get_bar_setting():
         return 'OVERRIDE'
 
-    config.commit()
+    dectate.commit([alpha, beta])
 
     assert alpha().config.registry.settings.one.foo == 'FOO'
     assert beta().config.registry.settings.one.foo == 'OVERRIDE'
 
 
 def test_app_overrides_settings_three():
-    config = morepath.setup()
-
     class alpha(morepath.App):
-        testing_config = config
+        pass
 
     class beta(alpha):
-        testing_config = config
+        pass
 
     class gamma(beta):
-        testing_config = config
+        pass
 
     @alpha.setting('one', 'foo')
     def get_foo_setting():
@@ -85,16 +80,14 @@ def test_app_overrides_settings_three():
     def get_bar_setting():
         return 'OVERRIDE'
 
-    config.commit()
+    dectate.commit([alpha, beta, gamma])
 
     assert gamma().config.registry.settings.one.foo == 'OVERRIDE'
 
 
 def test_app_section_settings():
-    config = morepath.setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.setting_section('one')
     def settings():
@@ -103,7 +96,7 @@ def test_app_section_settings():
             'bar': "BAR"
         }
 
-    config.commit()
+    dectate.commit([app])
 
     app_inst = app()
 
@@ -114,10 +107,8 @@ def test_app_section_settings():
 
 
 def test_app_section_settings_conflict():
-    config = morepath.setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.setting_section('one')
     def settings():
@@ -131,16 +122,14 @@ def test_app_section_settings_conflict():
         return 'another'
 
     with pytest.raises(ConflictError):
-        config.commit()
+        dectate.commit([app])
 
 
 def test_settings_function():
     morepath.enable_implicit()
 
-    config = morepath.setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.setting('section', 'name')
     def setting():
@@ -155,7 +144,7 @@ def test_settings_function():
     def default(self, request):
         return morepath.settings().section.name
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
