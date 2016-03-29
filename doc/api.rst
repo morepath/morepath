@@ -47,9 +47,4 @@ Morepath API
 .. autoclass:: morepath.converter.ConverterRegistry
   :members:
 
-.. autoclass:: Directive
-  :members:
-
-.. autoclass:: directive
-
 .. autofunction:: morepath.pdbsupport.set_trace
