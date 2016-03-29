@@ -159,6 +159,9 @@ CHANGES
 
   * ``group_key`` method has changed to ``group_class`` class variable.
 
+  If you were using ``morepath.sphinxext`` to document directives
+  using Sphinx autodoc, use ``dectate.sphinxext`` instead.
+
 - Add `request.class_link`. This lets you link using classes instead
   of instances as an optimization. In some cases instantiating an
   object just so you can generate a link to it is relatively
