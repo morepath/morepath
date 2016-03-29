@@ -1,7 +1,8 @@
-from morepath import generic
-from .compat import bytes_
 import binascii
 import base64
+
+from . import generic
+from .compat import bytes_
 
 
 class NoIdentity(object):
