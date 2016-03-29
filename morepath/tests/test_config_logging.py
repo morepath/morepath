@@ -2,7 +2,6 @@ import importscan
 import dectate
 import logging
 import morepath
-import pytest
 
 from .fixtures import basic
 from morepath.compat import PY3
@@ -15,24 +14,6 @@ class Handler(logging.Handler):
 
     def emit(self, record):
         self.records.append(record)
-
-
-@pytest.fixture(scope='module')
-def setup_amount():
-    log = logging.getLogger('morepath.config')
-
-    test_handler = Handler()
-
-    log.addHandler(test_handler)
-    log.setLevel(logging.DEBUG)
-
-    config = morepath.setup()
-    config.commit()
-
-    # multiply this by 2, as the application subclass always
-    # repeats all setup directives again.
-    # XXX This will fail for deeper inheritance
-    return len(test_handler.records) * 2
 
 
 def test_intercept_logging():

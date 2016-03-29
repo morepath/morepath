@@ -1,4 +1,5 @@
 import morepath
+import dectate
 
 
 def setup_module(module):
@@ -6,24 +7,11 @@ def setup_module(module):
 
 
 def test_cleanup():
-    config = morepath.setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
-    config.commit()
+    dectate.commit([App])
 
     # second commit should clean up after the first one, so we
     # expect no conflict errors
-    config.commit()
-
-
-# def test_configurables():
-#     config = morepath.setup()
-
-#     class App(morepath.App):
-#         testing_config = config
-
-#     assert config.configurables[0] is morepath.App.config.registry
-#     assert config.configurables[1] is App.registry
-#     assert len(config.configurables) == 2
+    dectate.commit([App])
