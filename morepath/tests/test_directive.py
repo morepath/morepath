@@ -115,32 +115,6 @@ def test_scanned_some_error():
         importscan.scan(pkg)
 
 
-@pytest.mark.xfail
-def test_scanned_caller_package():
-    from .fixtures import callerpkg
-    callerpkg.main()
-
-    from .fixtures.callerpkg.other import app
-
-    c = Client(app())
-
-    response = c.get('/')
-    assert response.body == b'Hello world'
-
-
-@pytest.mark.xfail
-def test_scanned_caller_package_scan_module():
-    from .fixtures import callerpkg2
-    callerpkg2.main()
-
-    from .fixtures.callerpkg2.other import app
-
-    c = Client(app())
-
-    response = c.get('/')
-    assert response.body == b'Hello world'
-
-
 def test_basic_scenario():
     class app(morepath.App):
         pass
