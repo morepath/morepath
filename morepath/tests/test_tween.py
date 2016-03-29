@@ -1,3 +1,4 @@
+import dectate
 import morepath
 from morepath.tween import TweenRegistry
 from morepath.error import TopologicalSortError
@@ -159,10 +160,8 @@ def test_tween_sorting_dag_error4():
 
 
 def test_tween_directive():
-    config = morepath.setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -180,7 +179,7 @@ def test_tween_directive():
             return response
         return plusplustween
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
