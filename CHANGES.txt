@@ -51,6 +51,70 @@ CHANGES
   renamed to ``handle_error`` and has different behavior; the
   importscan_ documentation describes the details.
 
+  If you were writing tests that involve Morepath, the old structure of
+  the test was::
+
+    import morepath
+
+    def test_foo():
+        config = morepath.setup()
+
+        class App(morepath.App):
+            testing_config = config
+
+        ... use directives on App ...
+
+        config.commit()
+
+        ... do asserts ...
+
+  This now needs to change to::
+
+    import morepath
+
+    def test_foo():
+        class App(morepath.App):
+            pass
+
+        ... use directives on App ...
+
+        morepath.commit([App])
+
+        ... do asserts ...
+
+  So, you need to use the ``morepath.commit()`` function and give it a
+  list of the application objects you want to commit,
+  explicitly. ``morepath.autocommit()`` won't work in the context of a
+  test.
+
+  If you used a test that scanned code you need to adjust it too, from::
+
+    import morepath
+    import some_package
+
+    def test_foo():
+        config = morepath.setup()
+
+        config.scan(some_package)
+
+        config.commit()
+
+        ... do asserts ...
+
+  to this::
+
+    import morepath
+    import some_package
+
+    def test_foo():
+        morepath.scan(some_package)
+        morepath.commit([some_package.App])
+
+        ... do asserts ...
+
+  Again you need to be explicit and use ``morepath.commit`` to commit
+  those apps you want to test.
+
   If you had a low-level reference to ``app.registry`` in your code
   you now need to change this to ``app.config.registry``. Expect more
   changes to this in future versions -- thanks to the dectate library
