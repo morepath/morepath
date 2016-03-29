@@ -1,14 +1,15 @@
 import os
-from .app import App, Registry
+from reg import mapply
 import dectate
+
+from .app import App, Registry
 from .settings import register_setting
 from .security import (register_permission_checker,
                        Identity, NoIdentity)
 from .view import render_view, render_json, render_html, register_view
 from .path import register_path
 from .traject import Path
-from morepath import generic
-from reg import mapply
+from . import generic
 
 
 DEFAULT_CONFIG = {
