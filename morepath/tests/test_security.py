@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import dectate
+import importscan
 import morepath
-from morepath import setup
 from morepath.request import Response
 from morepath import generic
 from morepath.security import (Identity, BasicAuthIdentityPolicy,
@@ -136,9 +136,8 @@ def test_permission_directive_no_identity():
 
 
 def test_policy_action():
-    config = setup()
-    config.scan(identity_policy)
-    config.commit()
+    importscan.scan(identity_policy)
+    dectate.commit([identity_policy.app])
 
     c = Client(identity_policy.app())
 

@@ -1,4 +1,5 @@
 import pytest
+import importscan
 import dectate
 import morepath
 from dectate import DirectiveReportError, ConflictError
@@ -70,10 +71,9 @@ def test_config_error_is_also_directive_report_error():
 
 
 def test_conflict_error_should_report_line_numbers():
-    config = morepath.setup()
-    config.scan(conflicterror)
+    importscan.scan(conflicterror)
     with pytest.raises(ConflictError) as e:
-        config.commit()
+        dectate.commit([conflicterror.App])
     v = text_type(e.value)
     assert 'line 8' in v
     assert 'line 15' in v
