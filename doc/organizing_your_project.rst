@@ -211,9 +211,9 @@ some content, something may have gone wrong with scanning the
 configuration of your project. Here's a checklist:
 
 * Check whether your project has a ``setup.py`` with an
-  ``install_requires`` that depends ``morepath`` (possibly indirectly
-  through another dependency). You need to declare your code as a
-  project so that ``autosetup`` can find it.
+  ``install_requires`` that depends on ``morepath`` (possibly
+  indirectly through another dependency). You need to declare your
+  code as a project so that ``autosetup`` can find it.
 
 * Check whether your project is installed in a virtualenv using ``pip
   install -e .`` or in a buildout. Morepath needs to be able to find
@@ -223,24 +223,29 @@ configuration of your project. Here's a checklist:
   project with its own ``__init__.py``. Modules in the top-level of a
   project won't be scanned as a package
 
-* Check whether manually scanning the individual modules or packages
-  helps. Try writing this code in run instead of ``autosetup``::
+* Try manually scanning a package and see whether it works then::
 
-    from . import path, view
+    import mysterious_package
 
-    config = morepath.config()
-    config.scan()
-    config.scan(path)
-    config.scan(view)
-    config.commit()
+    morepath.scan(mysterious_package)
+    morepath.autosetup()
 
-  Alternatively you can try moving your code into ``app.py`` and see
-  whether it starts working.
+  If this fixes things, the package is somehow not being picked up for
+  automatic scanning. Check the package's ``setup.py``.
 
-  If this fixes things, then your Python package seems not to be
-  properly installed as a Python package; only the ``run`` module get
-  scanned properly. Morepath should be able to pick up everything in
-  your package if only you organize it correctly.
+* Try manually importing the modules before doing a
+  :func:`morepath.autosetup` and see whether it works then::
+
+    import mysterious_module
+
+    morepath.autosetup()
+
+  If this fixes things, then your own package is not being picked up
+  as a Morepath package for some reason.
+
+* Try moving Morepath directives into the module that also runs
+  the application. If this works, your own package is not recognized
+  as a proper Morepath package.
 
 Variation: automatic restart
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
