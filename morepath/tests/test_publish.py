@@ -5,7 +5,6 @@ from morepath.publish import publish, resolve_response
 from morepath.path import register_path
 from morepath.request import Response
 from morepath.view import register_view, render_json, render_html
-from morepath.core import setup
 from webob.exc import HTTPNotFound, HTTPBadRequest, HTTPFound, HTTPOk
 import webob
 from webtest import TestApp as Client

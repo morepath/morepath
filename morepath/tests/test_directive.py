@@ -1,8 +1,7 @@
 import importscan
 import dectate
 from .fixtures import (basic, nested, abbr, mapply_bug,
-                       normalmethod, method, conflict, pkg, noconverter)
-from morepath import setup
+                       method, conflict, pkg, noconverter)
 from dectate import ConflictError, DirectiveError, DirectiveReportError
 from morepath.error import LinkError
 from morepath.view import render_html
