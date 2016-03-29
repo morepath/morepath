@@ -18,13 +18,15 @@ class TemplateEngineRegistry(object):
         self._template_loaders = {}
         self._template_renders = {}
         self._template_directory_infos = []
-        self._template_app_to_keys = {}
+        self._template_configurable_to_keys = {}
 
     def register_template_directory_info(self, key,
-                                         directory, before, after, app):
+                                         directory, before, after,
+                                         configurable):
         self._template_directory_infos.append(
-            TemplateDirectoryInfo(key, directory, before, after, app))
-        self._template_app_to_keys.setdefault(app, []).append(key)
+            TemplateDirectoryInfo(key, directory, before, after, configurable))
+        self._template_configurable_to_keys.setdefault(
+            configurable, []).append(key)
 
     def register_template_render(self, extension, func):
         self._template_renders[extension] = func
@@ -35,11 +37,12 @@ class TemplateEngineRegistry(object):
 
     def sorted_template_directories(self):
         # make sure that template directories defined in subclasses
-        # beforeride those in base classes
+        # override those in base classes
         for info in self._template_directory_infos:
             extra_before = []
-            for base in info.app.__bases__:
-                extra_before.extend(self._template_app_to_keys.get(base, []))
+            for base in info.app.extends:
+                extra_before.extend(
+                    self._template_configurable_to_keys.get(base, []))
             info.before.extend(extra_before)
         try:
             return [info.directory for info in

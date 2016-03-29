@@ -405,13 +405,14 @@ class TemplateDirectoryAction(dectate.Action):
         return self.name
 
     def perform(self, obj, registry):
+        # XXX hacky to have to get configurable and pass it in
         directory = obj()
         if not os.path.isabs(directory):
-            assert self.attach_info is not None
             directory = os.path.join(os.path.dirname(
-                self.attach_info.module.__file__), directory)
+                self.directive.code_info.path), directory)
         registry.register_template_directory_info(
-            obj, directory, self.before, self._after, self.app)
+            obj, directory, self.before, self._after,
+            self.directive.configurable)
 
 
 @App.directive('template_loader')

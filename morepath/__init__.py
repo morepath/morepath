@@ -1,7 +1,8 @@
 # flake8: noqa
 from .app import App
 from .implicit import enable_implicit, disable_implicit
-from .core import (setup, excview_tween_factory as EXCVIEW,
+from .backwards import setup, Config
+from .core import (excview_tween_factory as EXCVIEW,
                    model_predicate, name_predicate, request_method_predicate,
                    body_model_predicate)
 from .core import body_model_predicate as LAST_VIEW_PREDICATE

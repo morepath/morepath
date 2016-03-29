@@ -1,6 +1,6 @@
 import importlib
 import pkg_resources
-from morepath.core import setup
+from .backwards import setup
 from morepath.error import AutoImportError
 
 

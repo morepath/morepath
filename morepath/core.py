@@ -19,32 +19,6 @@ from time import mktime, strptime
 assert morepath.directive  # we need to make the function directive work
 
 
-class FakeConfig(object):
-    def commit(self):
-        dectate.autocommit()
-
-    def scan(self, package, ignore=None, handle_error=None):
-        importscan.scan(package, ignore, handle_error)
-
-
-def setup():
-    """Set up core Morepath framework configuration.
-
-    Returns a :class:`Config` object; you can then :meth:`Config.scan`
-    the configuration of other packages you want to load and then
-    :meth:`Config.commit` it.
-
-    See also :func:`autoconfig` and :func:`autosetup`.
-
-    :returns: :class:`Config` object.
-    """
-    return FakeConfig()
-
-    #config = Config()
-    #config.scan(morepath, ignore=['.tests'])
-    #return config
-
-
 @App.predicate(generic.view, name='model', default=None, index=ClassIndex)
 def model_predicate(obj):
     return obj.__class__
