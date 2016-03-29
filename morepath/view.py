@@ -1,8 +1,9 @@
-from . import generic
-from .request import Response
 import json
 from webob.exc import HTTPFound, HTTPNotFound, HTTPForbidden
 from webob import Response as BaseResponse
+
+from . import generic
+from .request import Response
 
 
 class View(object):
