@@ -4,6 +4,97 @@ CHANGES
 0.13 (unreleased)
 =================
 
+- **Breaking change**. Morepath has a new, extensively refactored
+  configuration system based on dectate_ and importscan_. Dectate is
+  an extracted, and heavily refactored version of Morepath's
+  configuration system that used to be in ``morepath.config``
+  module. It's finally documented too!
+
+  .. _dectate: http://dectate.readthedocs.org
+
+  .. _importscan: http://importscan.readthedocs.org
+
+  Dectate and thus Morepath does not use Venusian (or Venusifork)
+  anymore so that dependency is gone.
+
+  Code that uses ``morepath.autosetup`` should still work.
+
+  Code that uses ``morepath.setup`` and scans and commits manually
+  needs to change. Change this::
+
+    from morepath import setup
+
+    config = morepath.setup()
+    config.scan(package)
+    config.commit()
+
+  into this::
+
+    import morepath
+
+    morepath.scan(package)
+    morepath.autocommit()
+
+  Similarly ``config.scan()`` without arguments to scan its own
+  package needs to be rewritten to use ``morepath.scan()`` without
+  arguments.
+
+  Anything you import directly now does not need to be scanned
+  anymore; the act of importing a module directly registers the
+  directives with Morepath, though as before they won't be active
+  until you commit. But scanning something you've imported before
+  won't do any harm.
+
+  The signature for ``morepath.scan`` is somewhat different than that
+  of the old ``config.scan``. There is no third argument
+  ``recursive=True`` anymore. The ``onerror`` argument has been
+  renamed to ``handle_error`` and has different behavior; the
+  importscan_ documentation describes the details.
+
+  If you had a low-level reference to ``app.registry`` in your code
+  you now need to change this to ``app.config.registry``. Expect more
+  changes to this in future versions -- thanks to the dectate library
+  we can now start breaking up the big registry into multiple
+  independent ones all stored under ``app.config``.
+
+  If you created custom directives, the way to create directives
+  is now documented as part of the dectate_ project. The main updates you
+  need to do are:
+
+  * subclass from `dectate.Action` instead of `morepath.Directive`.
+
+  * no more ``app`` first argument.
+
+  * no ``super`` call is needed anymore in ``__init__``.
+
+  * add a ``config`` class variable to declare the registries
+    you want to affect. Until we break up the main registry this
+    is::
+
+      from morepath.app import Registry
+
+      ...
+      config = { 'registry': Registry }
+
+
+  * reverse the arguments to ``perform``, so change::
+
+      def perform(self, registry, obj):
+         ...
+
+    into::
+
+      def perform(self, obj, registry):
+         ...
+
+  * no more ``prepare``. Do error checking inside the ``perform``
+    method and raise a ``DirectiveError`` if something is wrong.
+
+    If you created sub-actions from ``prepare``, subclass from
+    `dectate.Composite` instead and implement an ``actions`` method.
+
+  * ``group_key`` method has changed to ``group_class`` class variable.
+
 - Add `request.class_link`. This lets you link using classes instead
   of instances as an optimization. In some cases instantiating an
   object just so you can generate a link to it is relatively
