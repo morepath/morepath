@@ -165,7 +165,8 @@ def test_render_html():
     def view(self, request):
         return '<p>Hello world!</p>'
 
-    register_view(app.config.registry, dict(model=Model), view, render=render_html)
+    register_view(app.config.registry, dict(model=Model), view,
+                  render=render_html)
 
     request = app().request(get_environ(path=''))
     model = Model()

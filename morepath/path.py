@@ -70,6 +70,7 @@ def register_path(app, model, path, variables, converters, required,
     inverse = Inverse(path, variables, converters, parameters.keys(),
                       absorb)
     app.register_function(generic.path, inverse, obj=model)
+
     def class_path(cls, variables):
         return inverse.with_variables(variables)
     app.register_function(generic.class_path, class_path, cls=model)

@@ -1,6 +1,6 @@
 from collections import namedtuple
 from morepath.autosetup import (
-    morepath_packages, autosetup, import_package)
+    morepath_packages, import_package)
 from base.m import App
 import morepath
 import pytest

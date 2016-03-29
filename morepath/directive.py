@@ -864,7 +864,6 @@ class IdentityPolicyAction(dectate.Composite):
                                            'forget'), obj
 
 
-
 @App.directive('verify_identity')
 class VerifyIdentityAction(dectate.Composite):
     def __init__(self, identity=object):

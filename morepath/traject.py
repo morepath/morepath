@@ -235,6 +235,7 @@ class Inverse(object):
                 path = absorbed_path
         return path, self.query_parameters(all_variables, extra_parameters)
 
+
 class Traject(object):
     def __init__(self):
         super(Traject, self).__init__()
