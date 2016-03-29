@@ -18,26 +18,49 @@ need to run the necessary configuration steps before you pass a new
 instance of your application to your WSGI server::
 
   if __name__ == '__main__':
-      config = morepath.setup()
-      config.scan()
-      config.commit()
+      morepath.autocommit()
 
       application = App()
       morepath.run(application)
 
-With :meth:`morepath.setup` you cause Morepath to scan its own configuration
-first. You then get the configuration object to you. You can use it to
-scan more Python modules and packages -- this could be your own code
-or third-party code.
+Morepath registers any directive you used in modules that you have
+imported, directly or indirectly, with the :class:`App` subclass you
+used it on. It also creates a list of your app classes (:class:`App`
+subclasses) you have imported.
 
-In the example above, we use :meth:`Config.scan` without any
-arguments. In that case it scans the Python package or module it is
-called from. In this example, that's just the current Python module.
+:func:`morepath.autocommit` then commits the configuration for all of
+your app classes. After this, the application can be run. The commit
+procedure makes sure there are no conflicting pieces of configuration
+and resolves any configuration overrides.
 
-Once all scanning is completed, the configuration is committed and the
-application can be run. The commit procedure makes sure there are no
-conflicting pieces of configuration and resolves any configuration
-overrides.
+When you depend on a package that contains Morepath code it is
+convenient to be able to scan all of it at once. That way you can't
+accidentally forget to import a module and thus have its directives
+not be active. You can scan a whole package with
+:func:`morepath.scan`::
+
+  import my_package
+
+  if __name__ == '__main__':
+      morepath.scan(my_package)
+      morepath.autocommit()
+
+      application = App()
+      morepath.run(application)
+
+Since scanning the current package is common, we have a convenience
+shortcut that scan the package the code is in automatically. You use
+it by calling :func:`morepath.scan` without arguments::
+
+  if __name__ == '__main__':
+      morepath.scan()
+      morepath.autocommit()
+
+      application = App()
+      morepath.run(application)
+
+You can also use :func:`scan` with packages that contain third-party
+Morepath code, but there is actually a better way.
 
 Scanning dependencies
 ---------------------
@@ -65,16 +88,15 @@ This is what you do::
   import more.jinja2
 
   if __name__ == '__main__':
-      config = morepath.setup() # setup core Morepath
-      config.scan(more.jinja2) # scan Jinja2 package
-      config.scan() # scan this package
-      config.commit()
+      morepath.scan(more.jinja2) # scan Jinja2 package
+      morepath.scan() # scan this package
+      morepath.autocommit()
 
       application = App()
       morepath.run(application)
 
 As you can see, you need to import your dependency and scan it using
-``config.scan``. If you have more dependencies, just add them in this
+:func:`scan`. If you have more dependencies, just add them in this
 fashion.
 
 Automatic scan
@@ -97,33 +119,31 @@ Automatic scan
 Manual scanning can get tedious and error-prone as you need to add
 each and every new dependency that you rely on.
 
-You can use :func:`morepath.autoconfig` instead, which scans all
+You can use :func:`autoscan` instead, which scans all
 packages that have a dependency on Morepath declared. Let's look at a
-modified example that uses ``autoconfig``::
+modified example that uses ``autoscan``::
 
   if __name__ == '__main__':
-      config = morepath.autoconfig()
-      config.scan()
-      config.commit()
+      morepath.autoscan()
+      morepath.scan()
+      morepath.autocommit()
 
       application = App()
       morepath.run(application)
 
-Note that we did not use ``morepath.setup`` anymore;
-:func:`morepath.autoconfig` does this for you already. As you can see,
-we also don't need to import any dependencies anymore. We still need
-to run ``config.scan`` without parameters however, so our own package
-or module gets scanned.
+As you can see, we also don't need to import or scan dependencies
+anymore. We still need to run :func:`scan` without parameters
+however, so our own package or module gets scanned.
 
-We can get rid of the `config.scan()` line if we move our own code
-into a proper Python project too.
+We can get rid of the :func:`scan` line if we move our own code into a
+proper Python project too.
 
 Autosetup
 ~~~~~~~~~
 
 In the previous example we still needed to scan the startup module
-itself, so that is why we need ``config.scan()``. We can get rid of
-that line by turning the code into a full Python project with its own
+itself, so that is why we need :func:`scan`. We can get rid of that
+line by turning the code into a full Python project with its own
 ``setup.py``. The ``setup.py`` looks like this::
 
   setup(name='myapp',

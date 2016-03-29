@@ -29,10 +29,9 @@ Creating a Morepath Project
 
 When you develop a web application it's a good idae to use standard
 Python project organization practices. :doc:`organizing_your_project`
-describes some recommendations on how to do this with
-Morepath. Relevant in particular is the contents of ``setup.py``,
-which depends on Morepath and also sets up an entry point to start the
-web server.
+has some recommendations on how to do this with Morepath. Relevant in
+particular is the contents of ``setup.py``, which depends on Morepath
+and also sets up an entry point to start the web server.
 
 Once you have a project you can use tools like pip_ or
 buildout_. We'll briefly describe how to use both.

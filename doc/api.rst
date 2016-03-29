@@ -6,11 +6,13 @@ Morepath API
 .. autoclass:: App
   :members:
 
-.. autofunction:: autoconfig
+.. autofunction:: autoscan
 
 .. autofunction:: autosetup
 
-.. autofunction:: setup
+.. autofunction:: commit
+
+.. autofunction:: autocommit
 
 .. autofunction:: run
 
@@ -40,15 +42,6 @@ Morepath API
 .. autodata:: morepath.security.NO_IDENTITY
 
 .. autoclass:: morepath.Converter
-  :members:
-
-.. autoclass:: Config
-  :members:
-
-.. autoclass:: morepath.config.Configurable
-  :members:
-
-.. autoclass:: morepath.config.Action
   :members:
 
 .. autoclass:: morepath.converter.ConverterRegistry
