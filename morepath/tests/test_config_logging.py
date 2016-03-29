@@ -1,3 +1,4 @@
+import dectate
 import logging
 import morepath
 import pytest
@@ -56,18 +57,14 @@ def test_simple_config_logging():
     log.addHandler(test_handler)
     log.setLevel(logging.DEBUG)
 
-    config = morepath.setup()
-
     class App(morepath.App):
-        testing_config = config
-
-    App.config.registry.app = App
+        pass
 
     @App.path(path='')
     class Model(object):
         pass
 
-    config.commit()
+    dectate.commit([App])
 
     messages = [r.getMessage() for r in test_handler.records]
     assert len(messages) == 1

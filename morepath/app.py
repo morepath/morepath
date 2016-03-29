@@ -1,19 +1,14 @@
 from functools import update_wrapper
 import logging
-
 import dectate
-#from .action import FunctionAction
 from .request import Request
 from .traject import Traject
 from .settings import SettingSectionContainer
 from .converter import ConverterRegistry
 from .predicate import PredicateRegistry
 from .tween import TweenRegistry
-#from . import generic
 from reg import Registry as RegRegistry, CachingKeyLookup
-#import venusian
 from . import compat
-# from .compat import with_metaclass
 from .implicit import set_implicit
 from .mount import MountRegistry
 from .reify import reify
@@ -41,9 +36,6 @@ class Registry(RegRegistry, MountRegistry, PredicateRegistry,
         self.settings = SettingSectionContainer()
         self.clear()
 
-    # def actions(self):
-    #     yield FunctionAction(self, generic.settings), lambda: self.settings
-
     def clear(self):
         """Clear all registrations in this application.
         """
@@ -62,20 +54,6 @@ class Registry(RegRegistry, MountRegistry, PredicateRegistry,
             COMPONENT_CACHE_SIZE,
             ALL_CACHE_SIZE,
             FALLBACK_CACHE_SIZE).lookup()
-
-
-# def callback(scanner, name, obj):
-#     obj.registry.app = obj
-#     scanner.config.configurable(obj.registry)
-
-
-# class AppMeta(type):
-#     def __new__(cls, name, bases, d):
-#         testing_config = d.get('testing_config')
-#         d['registry'] = Registry(name, bases, testing_config)
-#         result = super(AppMeta, cls).__new__(cls, name, bases, d)
-#         venusian.attach(result, callback)
-#         return result
 
 
 class App(dectate.App):
@@ -103,6 +81,8 @@ class App(dectate.App):
     """The class of the Request to create. Must be a subclass of
     :class:`morepath.Request`.
     """
+
+    logger_name = 'morepath.directive'
 
     def __init__(self):
         pass
@@ -210,30 +190,6 @@ class App(dectate.App):
                 self.config.registry.sorted_tween_factories()):
             result = tween_factory(self, result)
         return result
-
-    # @classmethod
-    # def directive(cls, name):
-    #     """Decorator to register a new directive with this application class.
-
-    #     You use this as a class decorator for a :class:`morepath.Directive`
-    #     subclass::
-
-    #        @App.directive('my_directive')
-    #        class FooDirective(morepath.Directive):
-    #            ...
-
-    #     This needs to be executed *before* the directive is being used
-    #     and thus might introduce import dependency issues unlike
-    #     normal Morepath configuration, so beware! An easy way to make
-    #     sure that all directives are installed before you use them is
-    #     to make sure you define them in the same module as where you
-    #     define the application class that has them.
-    #     """
-    #     return DirectiveDirective(cls, name)
-
-    # @classmethod
-    # def dotted_name(cls):
-    #     return '%s.%s' % (cls.__module__, cls.__name__)
 
 
 class DirectiveDirective(object):
