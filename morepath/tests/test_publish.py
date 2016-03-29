@@ -1,3 +1,4 @@
+import dectate
 import morepath
 from morepath.app import App
 from morepath.publish import publish, resolve_response
@@ -24,12 +25,10 @@ class Model(object):
 
 
 def test_view():
-    config = setup()
-
     class app(App):
-        testing_config = config
+        pass
 
-    config.commit()
+    dectate.commit([app])
 
     def view(self, request):
         return "View!"
@@ -42,12 +41,10 @@ def test_view():
 
 
 def test_predicates():
-    config = setup()
-
     class app(App):
-        testing_config = config
+        pass
 
-    config.commit()
+    dectate.commit([app])
 
     def view(self, request):
         return "all"
@@ -69,12 +66,10 @@ def test_predicates():
 
 
 def test_notfound():
-    config = setup()
-
     class app(App):
-        testing_config = config
+        pass
 
-    config.commit()
+    dectate.commit([app])
 
     request = app().request(get_environ(path=''))
 
@@ -83,12 +78,10 @@ def test_notfound():
 
 
 def test_notfound_with_predicates():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
-    config.commit()
+    dectate.commit([app])
 
     def view(self, request):
         return "view"
@@ -102,12 +95,10 @@ def test_notfound_with_predicates():
 
 
 def test_response_returned():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
-    config.commit()
+    dectate.commit([app])
 
     def view(self, request):
         return Response('Hello world!')
@@ -119,17 +110,16 @@ def test_response_returned():
 
 
 def test_request_view():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
-    config.commit()
+    dectate.commit([app])
 
     def view(self, request):
         return {'hey': 'hey'}
 
-    register_view(app.config.registry, dict(model=Model), view, render=render_json)
+    register_view(app.config.registry, dict(model=Model), view,
+                  render=render_json)
 
     request = app().request(get_environ(path=''))
 
@@ -143,12 +133,10 @@ def test_request_view():
 
 
 def test_request_view_with_predicates():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
-    config.commit()
+    dectate.commit([app])
 
     def view(self, request):
         return {'hey': 'hey'}
@@ -170,12 +158,10 @@ def test_request_view_with_predicates():
 
 
 def test_render_html():
-    config = setup()
-
     class app(App):
-        testing_config = config
+        pass
 
-    config.commit()
+    dectate.commit([app])
 
     def view(self, request):
         return '<p>Hello world!</p>'
@@ -190,12 +176,10 @@ def test_render_html():
 
 
 def test_view_raises_http_error():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
-    config.commit()
+    dectate.commit([app])
 
     def view(self, request):
         raise HTTPBadRequest()
@@ -211,12 +195,10 @@ def test_view_raises_http_error():
 
 
 def test_view_after():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
-    config.commit()
+    dectate.commit([app])
 
     def view(self, request):
         @request.after
@@ -234,12 +216,10 @@ def test_view_after():
 
 
 def test_view_after_redirect():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
-    config.commit()
+    dectate.commit([app])
 
     def view(self, request):
         @request.after
@@ -258,12 +238,10 @@ def test_view_after_redirect():
 
 
 def test_conditional_view_after():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
-    config.commit()
+    dectate.commit([app])
 
     def view(self, request):
         if False:
@@ -281,12 +259,10 @@ def test_conditional_view_after():
 
 
 def test_view_after_non_decorator():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
-    config.commit()
+    dectate.commit([app])
 
     def set_header(response):
         response.headers.add('Foo', 'FOO')
@@ -304,10 +280,8 @@ def test_view_after_non_decorator():
 
 
 def test_view_after_doesnt_apply_to_exception():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Root(object):
         pass
@@ -323,7 +297,7 @@ def test_view_after_doesnt_apply_to_exception():
             response.headers.add('Foo', 'FOO')
         raise HTTPNotFound()
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
@@ -336,10 +310,8 @@ def test_view_after_doesnt_apply_to_exception():
     (302, HTTPFound)
 ])
 def test_view_after_applies_to_some_exceptions(status_code, exception_class):
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Root(object):
         pass
@@ -355,7 +327,7 @@ def test_view_after_applies_to_some_exceptions(status_code, exception_class):
             response.headers.add('Foo', 'FOO')
         raise exception_class()
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
@@ -364,10 +336,8 @@ def test_view_after_applies_to_some_exceptions(status_code, exception_class):
 
 
 def test_view_after_doesnt_apply_to_exception_view():
-    config = setup()
-
     class App(morepath.App):
-        testing_config = config
+        pass
 
     class Root(object):
         pass
@@ -390,7 +360,7 @@ def test_view_after_doesnt_apply_to_exception_view():
     def exc_view(self, request):
         return "My exception"
 
-    config.commit()
+    dectate.commit([App])
 
     c = Client(App())
 
