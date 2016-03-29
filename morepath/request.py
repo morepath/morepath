@@ -1,5 +1,6 @@
-from morepath import generic
 from webob import BaseRequest, Response as BaseResponse
+
+from . import generic
 from .reify import reify
 from .traject import normalize_path, parse_path
 from .error import LinkError
