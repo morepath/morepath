@@ -1,3 +1,5 @@
+import importscan
+import dectate
 from .fixtures import (basic, nested, abbr, mapply_bug,
                        normalmethod, method, conflict, pkg, noconverter)
 from morepath import setup
@@ -17,9 +19,8 @@ def setup_module(module):
 
 
 def test_basic():
-    config = setup()
-    config.scan(basic)
-    config.commit()
+    importscan.scan(basic)
+    dectate.commit([basic.app])
 
     c = Client(basic.app())
 
@@ -32,9 +33,8 @@ def test_basic():
 
 
 def test_basic_json():
-    config = setup()
-    config.scan(basic)
-    config.commit()
+    importscan.scan(basic)
+    dectate.commit([basic.app])
 
     c = Client(basic.app())
 
@@ -44,9 +44,8 @@ def test_basic_json():
 
 
 def test_basic_root():
-    config = setup()
-    config.scan(basic)
-    config.commit()
+    importscan.scan(basic)
+    dectate.commit([basic.app])
 
     c = Client(basic.app())
 
@@ -61,9 +60,8 @@ def test_basic_root():
 
 
 def test_nested():
-    config = setup()
-    config.scan(nested)
-    config.commit()
+    importscan.scan(nested)
+    dectate.commit([nested.outer_app, nested.app])
 
     c = Client(nested.outer_app())
 
@@ -76,9 +74,8 @@ def test_nested():
 
 
 def test_abbr():
-    config = setup()
-    config.scan(abbr)
-    config.commit()
+    importscan.scan(abbr)
+    dectate.commit([abbr.app])
 
     c = Client(abbr.app())
 
@@ -89,16 +86,9 @@ def test_abbr():
     assert response.body == b'Edit view: foo'
 
 
-def test_scanned_normal_method():
-    config = setup()
-    with pytest.raises(DirectiveError):
-        config.scan(normalmethod)
-
-
 def test_scanned_static_method():
-    config = setup()
-    config.scan(method)
-    config.commit()
+    importscan.scan(method)
+    dectate.commit([method.app])
 
     c = Client(method.app())
 
@@ -109,40 +99,24 @@ def test_scanned_static_method():
     assert isinstance(root.static_method(), method.StaticMethod)
 
 
-def test_scanned_class_method():
-    config = setup()
-    config.scan(method)
-    config.commit()
-
-    c = Client(method.app())
-
-    response = c.get('/class')
-    assert response.body == b'Class Method'
-
-    root = method.Root()
-    assert isinstance(root.class_method(), method.ClassMethod)
-
-
 def test_scanned_no_converter():
-    config = setup()
-    config.scan(noconverter)
+    importscan.scan(noconverter)
     with pytest.raises(DirectiveReportError):
-        config.commit()
+        dectate.commit([noconverter.app])
 
 
 def test_scanned_conflict():
-    config = setup()
-    config.scan(conflict)
+    importscan.scan(conflict)
     with pytest.raises(ConflictError):
-        config.commit()
+        dectate.commit([conflict.app])
 
 
 def test_scanned_some_error():
-    config = setup()
     with pytest.raises(ZeroDivisionError):
-        config.scan(pkg)
+        importscan.scan(pkg)
 
 
+@pytest.mark.xfail
 def test_scanned_caller_package():
     from .fixtures import callerpkg
     callerpkg.main()
@@ -155,6 +129,7 @@ def test_scanned_caller_package():
     assert response.body == b'Hello world'
 
 
+@pytest.mark.xfail
 def test_scanned_caller_package_scan_module():
     from .fixtures import callerpkg2
     callerpkg2.main()
@@ -167,135 +142,9 @@ def test_scanned_caller_package_scan_module():
     assert response.body == b'Hello world'
 
 
-def test_scan_module_only_init():
-    config = setup()
-    from morepath.tests.fixtures import scanmodule
-    from morepath.tests.fixtures.scanmodule import theapp
-    config.scan(scanmodule, recursive=False)
-    config.scan(theapp, recursive=False)
-    config.commit()
-
-    c = Client(scanmodule.app())
-
-    response = c.get('/')
-
-    assert response.body == b'The root: ROOT'
-
-    c.get('/foo', status=404)
-
-
-def test_scan_module_only_submodule():
-    config = setup()
-    from morepath.tests.fixtures.scanmodule import submodule, theapp
-    from morepath.tests.fixtures import scanmodule
-    config.scan(submodule, recursive=False)
-    config.scan(theapp, recursive=False)
-    config.commit()
-
-    c = Client(scanmodule.app())
-
-    c.get('/', status=404)
-
-    response = c.get('/foo')
-
-    assert response.body == b'The view for model: foo'
-
-
-def test_imperative():
-    class Foo(object):
-        pass
-
-    @reg.dispatch()
-    def target():
-        pass
-
+def test_basic_scenario():
     class app(morepath.App):
         pass
-
-    c = setup()
-
-    def x():
-        pass
-
-    c.configurable(app.config.registry)
-    c.action(app.function(target), x)
-    c.commit()
-
-    assert target.component(lookup=app().lookup) is x
-
-
-def test_basic_imperative():
-    class app(morepath.App):
-        pass
-
-    class Root(object):
-        def __init__(self):
-            self.value = 'ROOT'
-
-    class Model(object):
-        def __init__(self, id):
-            self.id = id
-
-    def get_model(id):
-        return Model(id)
-
-    def default(self, request):
-        return "The view for model: %s" % self.id
-
-    def link(self, request):
-        return request.link(self)
-
-    def json(self, request):
-        return {'id': self.id}
-
-    def root_default(self, request):
-        return "The root: %s" % self.value
-
-    def root_link(self, request):
-        return request.link(self)
-
-    c = setup()
-    c.configurable(app.config.registry)
-    c.action(app.path(path=''), Root)
-    c.action(app.path(model=Model, path='{id}'),
-             get_model)
-    c.action(app.view(model=Model),
-             default)
-    c.action(app.view(model=Model, name='link'),
-             link)
-    c.action(app.view(model=Model, name='json',
-                      render=morepath.render_json),
-             json)
-    c.action(app.view(model=Root),
-             root_default)
-    c.action(app.view(model=Root, name='link'),
-             root_link)
-    c.commit()
-
-    c = Client(app())
-
-    response = c.get('/foo')
-    assert response.body == b'The view for model: foo'
-
-    response = c.get('/foo/link')
-    assert response.body == b'http://localhost/foo'
-
-    response = c.get('/foo/json')
-    assert response.body == b'{"id": "foo"}'
-
-    response = c.get('/')
-    assert response.body == b'The root: ROOT'
-
-    # + is to make sure we get the view, not the sub-model
-    response = c.get('/+link')
-    assert response.body == b'http://localhost/'
-
-
-def test_basic_testing_config():
-    config = setup()
-
-    class app(morepath.App):
-        testing_config = config
 
     @app.path(path='')
     class Root(object):
@@ -330,7 +179,7 @@ def test_basic_testing_config():
     def root_link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -352,10 +201,8 @@ def test_basic_testing_config():
 
 
 def test_link_to_unknown_model():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -380,7 +227,7 @@ def test_link_to_unknown_model():
         except LinkError:
             return "Link Error"
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -391,10 +238,8 @@ def test_link_to_unknown_model():
 
 
 def test_link_to_none():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -413,7 +258,7 @@ def test_link_to_none():
     def root_link_with_default(self, request):
         return request.link(None, default='unknown')
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -424,10 +269,8 @@ def test_link_to_none():
 
 
 def test_link_with_parameters():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -452,7 +295,7 @@ def test_link_with_parameters():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -470,10 +313,8 @@ def test_link_with_parameters():
 
 
 def test_root_link_with_parameters():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -489,7 +330,7 @@ def test_root_link_with_parameters():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -507,10 +348,8 @@ def test_root_link_with_parameters():
 
 
 def test_link_with_prefix():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -524,7 +363,7 @@ def test_link_with_prefix():
     def link_prefix(request):
         return request.headers['TESTPREFIX']
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -538,10 +377,8 @@ def test_link_with_prefix():
 
 
 def test_link_prefix_cache():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -560,7 +397,7 @@ def test_link_prefix_cache():
             request.callnumber += 1
         return str(request.callnumber)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -569,10 +406,8 @@ def test_link_prefix_cache():
 
 
 def test_link_with_invalid_prefix():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -586,7 +421,7 @@ def test_link_with_invalid_prefix():
     def link_prefix(request):
         return None
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -595,10 +430,8 @@ def test_link_with_invalid_prefix():
 
 
 def test_implicit_variables():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -620,7 +453,7 @@ def test_implicit_variables():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -629,10 +462,8 @@ def test_implicit_variables():
 
 
 def test_implicit_parameters():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -654,7 +485,7 @@ def test_implicit_parameters():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -669,10 +500,8 @@ def test_implicit_parameters():
 
 
 def test_implicit_parameters_default():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -694,7 +523,7 @@ def test_implicit_parameters_default():
     def link(self, request):
         return request.link(self)
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -709,10 +538,8 @@ def test_implicit_parameters_default():
 
 
 def test_simple_root():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Hello(object):
         pass
@@ -727,7 +554,7 @@ def test_simple_root():
     def hello_view(self, request):
         return 'hello'
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -736,10 +563,8 @@ def test_simple_root():
 
 
 def test_json_directive():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='{id}')
     class Model(object):
@@ -750,7 +575,7 @@ def test_json_directive():
     def json(self, request):
         return {'id': self.id}
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -759,10 +584,8 @@ def test_json_directive():
 
 
 def test_redirect():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -773,7 +596,7 @@ def test_redirect():
     def default(self, request):
         return morepath.redirect('/')
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -781,10 +604,8 @@ def test_redirect():
 
 
 def test_root_conflict():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -795,14 +616,12 @@ def test_root_conflict():
         pass
 
     with pytest.raises(ConflictError):
-        config.commit()
+        dectate.commit([app])
 
 
 def test_root_conflict2():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -813,17 +632,15 @@ def test_root_conflict2():
         pass
 
     with pytest.raises(ConflictError):
-        config.commit()
+        dectate.commit([app])
 
 
 def test_root_no_conflict_different_apps():
-    config = setup()
-
     class app_a(morepath.App):
-        testing_config = config
+        pass
 
     class app_b(morepath.App):
-        testing_config = config
+        pass
 
     @app_a.path(path='')
     class Root(object):
@@ -833,14 +650,12 @@ def test_root_no_conflict_different_apps():
     class Something(object):
         pass
 
-    config.commit()
+    dectate.commit([app_a, app_b])
 
 
 def test_model_conflict():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class A(object):
         pass
@@ -854,14 +669,12 @@ def test_model_conflict():
         return A()
 
     with pytest.raises(ConflictError):
-        config.commit()
+        dectate.commit([app])
 
 
 def test_path_conflict():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class A(object):
         pass
@@ -878,14 +691,12 @@ def test_path_conflict():
         return B()
 
     with pytest.raises(ConflictError):
-        config.commit()
+        dectate.commit([app])
 
 
 def test_path_conflict_with_variable():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class A(object):
         pass
@@ -902,14 +713,12 @@ def test_path_conflict_with_variable():
         return B()
 
     with pytest.raises(ConflictError):
-        config.commit()
+        dectate.commit([app])
 
 
 def test_path_conflict_with_variable_different_converters():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class A(object):
         pass
@@ -926,17 +735,15 @@ def test_path_conflict_with_variable_different_converters():
         return B()
 
     with pytest.raises(ConflictError):
-        config.commit()
+        dectate.commit([app])
 
 
 def test_model_no_conflict_different_apps():
-    config = setup()
-
     class app_a(morepath.App):
-        testing_config = config
+        pass
 
     class app_b(morepath.App):
-        testing_config = config
+        pass
 
     class A(object):
         pass
@@ -949,14 +756,12 @@ def test_model_no_conflict_different_apps():
     def get_a_again():
         return A()
 
-    config.commit()
+    dectate.commit([app_a, app_b])
 
 
 def test_view_conflict():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         pass
@@ -970,14 +775,12 @@ def test_view_conflict():
         pass
 
     with pytest.raises(ConflictError):
-        config.commit()
+        dectate.commit([app])
 
 
 def test_view_no_conflict_different_names():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         pass
@@ -990,14 +793,12 @@ def test_view_no_conflict_different_names():
     def b_view(self, request):
         pass
 
-    config.commit()
+    dectate.commit([app])
 
 
 def test_view_no_conflict_different_predicates():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         pass
@@ -1010,17 +811,15 @@ def test_view_no_conflict_different_predicates():
     def b_view(self, request):
         pass
 
-    config.commit()
+    dectate.commit([app])
 
 
 def test_view_no_conflict_different_apps():
-    config = setup()
-
     class app_a(morepath.App):
-        testing_config = config
+        pass
 
     class app_b(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         pass
@@ -1033,14 +832,12 @@ def test_view_no_conflict_different_apps():
     def a1_view(self, request):
         pass
 
-    config.commit()
+    dectate.commit([app_a, app_b])
 
 
 def test_view_conflict_with_json():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         pass
@@ -1054,14 +851,12 @@ def test_view_conflict_with_json():
         pass
 
     with pytest.raises(ConflictError):
-        config.commit()
+        dectate.commit([app])
 
 
 def test_view_conflict_with_html():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         pass
@@ -1075,14 +870,12 @@ def test_view_conflict_with_html():
         pass
 
     with pytest.raises(ConflictError):
-        config.commit()
+        dectate.commit([app])
 
 
 def test_function_conflict():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class A(object):
         pass
@@ -1100,17 +893,15 @@ def test_function_conflict():
         pass
 
     with pytest.raises(ConflictError):
-        config.commit()
+        dectate.commit([app])
 
 
 def test_function_no_conflict_different_apps():
-    config = setup()
-
     class app_a(morepath.App):
-        testing_config = config
+        pass
 
     class app_b(morepath.App):
-        testing_config = config
+        pass
 
     @reg.dispatch('a')
     def func(a):
@@ -1127,28 +918,25 @@ def test_function_no_conflict_different_apps():
     def a1_func(a):
         pass
 
-    config.commit()
+    dectate.commit([app_a, app_b])
 
 
 def test_run_app_with_context_without_it():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
-    config.commit()
+    dectate.commit([app])
 
     with pytest.raises(TypeError):
         app()
 
 
 def test_mapply_bug():
-    config = setup()
-    config.scan(mapply_bug)
-    config.commit()
+    importscan.scan(mapply_bug)
+    dectate.commit([mapply_bug.app])
 
     c = Client(mapply_bug.app())
 
@@ -1158,10 +946,8 @@ def test_mapply_bug():
 
 
 def test_abbr_imperative():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         pass
@@ -1179,7 +965,7 @@ def test_abbr_imperative():
         def edit(self, request):
             return "Edit view"
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -1191,10 +977,8 @@ def test_abbr_imperative():
 
 
 def test_abbr_exception():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         pass
@@ -1217,7 +1001,7 @@ def test_abbr_exception():
     except ZeroDivisionError:
         pass
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -1229,10 +1013,8 @@ def test_abbr_exception():
 
 
 def test_abbr_imperative2():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         pass
@@ -1250,7 +1032,7 @@ def test_abbr_imperative2():
         def edit(self, request):
             return "Edit view"
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -1262,10 +1044,8 @@ def test_abbr_imperative2():
 
 
 def test_abbr_nested():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Model(object):
         pass
@@ -1288,7 +1068,7 @@ def test_abbr_nested():
             def post(self, request):
                 return "Post"
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -1303,10 +1083,8 @@ def test_abbr_nested():
 
 
 def test_function_directive():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @reg.dispatch('o')
     def mygeneric(o):
@@ -1323,7 +1101,7 @@ def test_function_directive():
     def mygeneric_for_foo(o):
         return "The foo object: %s" % o
 
-    config.commit()
+    dectate.commit([app])
 
     a = app()
 
@@ -1333,10 +1111,8 @@ def test_function_directive():
 
 
 def test_classgeneric_function_directive():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @reg.dispatch(reg.match_class('o', lambda o: o))
     def mygeneric(o):
@@ -1349,7 +1125,7 @@ def test_classgeneric_function_directive():
     def mygeneric_for_foo(o):
         return "The foo object"
 
-    config.commit()
+    dectate.commit([app])
 
     a = app()
 
@@ -1358,24 +1134,18 @@ def test_classgeneric_function_directive():
 
 
 def test_rescan():
-    config = setup()
-
-    config.scan(basic)
-
-    config.commit()
-
-    config = setup()
-
-    config.scan(basic)
+    importscan.scan(basic)
+    dectate.commit([basic.app])
+    importscan.scan(basic)
 
     class Sub(basic.app):
-        testing_config = config
+        pass
 
     @Sub.view(model=basic.Model, name='extra')
     def extra(self, request):
         return "extra"
 
-    config.commit()
+    dectate.commit([Sub])
 
     c = Client(Sub())
 

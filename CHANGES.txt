@@ -11,6 +11,25 @@ CHANGES
   instead. This lets you link to a model class and supply a
   `variables` dictionary manually.
 
+- If you want to use Morepath directives on ``@staticmethod``, you need
+  to change the order in which these are applied. In the past::
+
+    @App.path(model=Foo, path='bar')
+    @staticmethod
+    def get_foo():
+        ....
+
+  But now you need to write::
+
+    @staticmethod
+    @App.path(model=Foo, path='bar')
+    def get_foo():
+        ....
+
+- You cannot use a Morepath ``path`` directive on a ``@staticmethod``
+  anymore.
+
+
 0.12 (2016-01-27)
 =================
 
