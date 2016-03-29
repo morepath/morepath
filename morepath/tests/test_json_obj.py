@@ -1,3 +1,4 @@
+import dectate
 import morepath
 from webtest import TestApp as Client
 
@@ -7,10 +8,8 @@ def setup_module(module):
 
 
 def test_json_obj_dump():
-    config = morepath.setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='/models/{x}')
     class Model(object):
@@ -25,7 +24,7 @@ def test_json_obj_dump():
     def dump_model_json(self, request):
         return {'x': self.x}
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -34,10 +33,8 @@ def test_json_obj_dump():
 
 
 def test_json_obj_load():
-    config = morepath.setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Collection(object):
         def __init__(self):
@@ -65,7 +62,7 @@ def test_json_obj_load():
     def load_json(json, request):
         return Item(json['x'])
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -77,10 +74,8 @@ def test_json_obj_load():
 
 
 def test_json_obj_load_default():
-    config = morepath.setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Root(object):
         pass
@@ -94,7 +89,7 @@ def test_json_obj_load_default():
         assert request.body_obj == request.json
         return 'done'
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -102,10 +97,8 @@ def test_json_obj_load_default():
 
 
 def test_json_body_model():
-    config = morepath.setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Collection(object):
         def __init__(self):
@@ -141,7 +134,7 @@ def test_json_body_model():
         elif json['@type'] == 'Item2':
             return Item2(json['x'])
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -155,10 +148,8 @@ def test_json_body_model():
 
 
 def test_json_obj_load_no_json_post():
-    config = morepath.setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class Root(object):
         pass
@@ -172,7 +163,7 @@ def test_json_obj_load_no_json_post():
         assert request.body_obj is None
         return 'done'
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
