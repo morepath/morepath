@@ -35,6 +35,8 @@ autodoc_member_order = 'groupwise'
 
 intersphinx_mapping = {
     'reg': ('http://reg.readthedocs.org/en/latest', None),
+    'importscan': ('http://importscan.readthedocs.org/en/latest', None),
+    'dectate': ('http://dectate.readthedocs.org/en/latest', None),
     'webob': ('http://docs.webob.org/en/latest', None),
     'bowerstatic': ('http://bowerstatic.readthedocs.org/en/latest', None),
     }
