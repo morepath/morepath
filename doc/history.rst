@@ -42,7 +42,23 @@ project) into Venusian, a simpler, decorator based approach:
 
 https://pypi.python.org/pypi/venusian
 
-Now Morepath uses Venusian as a foundation to its configuration system.
+Morepath originally used Venusian as a foundation to its configuration
+system. I like the way Venusian separates decorators from their
+execution, but Venusian also makes setup more difficult to reason
+about for users than simply registering the decorator with the configuration
+system during import-time.
+
+Morepath's configuration system had grown over time and had grown a
+few hacks here and there. Removing Venusian was not simple as a
+result, plus I had a long-standing issue where I wanted to document
+the configuration system properly.
+
+So in 2016 I extracted Morepath's configuration system into its own
+reusable project, called `dectate`_. I also extensively refactored it
+and removed the Venusian dependency. Morepath now uses Dectate as a
+clean and well-documented configuration system.
+
+.. _dectate: http://dectate.readthedocs.org
 
 Routing system
 --------------

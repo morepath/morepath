@@ -297,16 +297,21 @@ Python code, decorators, and an extension that uses Zope-style XML.
 
 In order to do its decorator based configuration, the Pyramid project
 created the Venusian_ python library. This is in turn a reimagined
-version of the Martian_ python library created by the Grok project.
+version of the Martian_ python library created by the Grok
+project. Venusian was used by the Morepath project originally, and
+even though it is gone it still helped inspire Morepath's
+configuration system.
 
-Morepath has a new configuration system that is based around
-decorators (using Venusian) attached to application objects. These
-application objects can extend other ones. This way it supports a
-range sophisticated extension and override use cases in a general way.
+Morepath uses a new configuration system called Dectate_ that is based
+around decorators attached to application objects. These application
+objects can extend other ones. Dectate supports a range sophisticated
+extension and override use cases in a general way.
 
 .. _Venusian: http://pypi.python.org/pypi/venusian
 
 .. _Martian: http://pypi.python.org/pypi/martian
+
+.. _Dectate: http://dectate.readthedocs.org
 
 Components and Generic functions
 --------------------------------
