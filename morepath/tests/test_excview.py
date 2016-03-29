@@ -1,3 +1,4 @@
+import dectate
 import morepath
 from morepath import setup
 from webob.exc import HTTPNotFound
@@ -10,26 +11,22 @@ def setup_module(module):
 
 
 def test_404_http_exception():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
         pass
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
     c.get('/', status=404)
 
 
 def test_other_exception_not_handled():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class MyException(Exception):
         pass
@@ -42,7 +39,7 @@ def test_other_exception_not_handled():
     def root_default(self, request):
         raise MyException()
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -53,10 +50,8 @@ def test_other_exception_not_handled():
 
 
 def test_http_exception_excview():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -66,7 +61,7 @@ def test_http_exception_excview():
     def notfound_default(self, request):
         return "Not found!"
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
     response = c.get('/')
@@ -74,10 +69,8 @@ def test_http_exception_excview():
 
 
 def test_other_exception_excview():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     class MyException(Exception):
         pass
@@ -94,7 +87,7 @@ def test_other_exception_excview():
     def myexception_default(self, request):
         return "My exception"
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -103,10 +96,8 @@ def test_other_exception_excview():
 
 
 def test_http_exception_excview_retain_status():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -119,7 +110,7 @@ def test_http_exception_excview_retain_status():
         request.after(set_status)
         return "Not found!!"
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
     response = c.get('/', status=404)
@@ -127,10 +118,8 @@ def test_http_exception_excview_retain_status():
 
 
 def test_excview_named_view():
-    config = setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -148,7 +137,7 @@ def test_excview_named_view():
     def myexception_default(self, request):
         return "My exception"
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
     response = c.get('/view')
