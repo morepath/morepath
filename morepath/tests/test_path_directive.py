@@ -1723,6 +1723,29 @@ def test_class_link_without_variables():
     assert response.body == b"http://localhost/foo"
 
 
+def test_class_link_no_app():
+    class App(morepath.App):
+        pass
+
+    class Model(object):
+        pass
+
+    @App.path(model=Model, path='/foo')
+    def get_model():
+        return Model()
+
+    @App.view(model=Model)
+    def link(self, request):
+        return request.class_link(Model, app=None)
+
+    dectate.commit([App])
+
+    c = Client(App())
+
+    with pytest.raises(LinkError):
+        c.get('/foo')
+
+
 def test_class_link_with_variables():
     class App(morepath.App):
         pass
