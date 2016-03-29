@@ -774,7 +774,7 @@ easier to just link to that instead using `request.link`.
 
 To use `request.class_link` you give the model *class* instead of an
 instance, and also provide a dictionary of variables to use to
-construct the link.
+construct the link::
 
   @App.view(model=Document, name='class_link')
   def document_self_link(self, request):
