@@ -11,7 +11,7 @@ from .view import render_json, render_html
 from .request import Request, Response
 from .view import redirect
 from dectate import commit, autocommit
-from morepath.autosetup import autoscan, autosetup
+from morepath.autosetup import scan, autoscan, autosetup
 from morepath.security import Identity, NO_IDENTITY
 from .converter import Converter
 from .reify import reify
