@@ -1,10 +1,11 @@
+import dectate
+import importscan
 import importlib
 import pkg_resources
-from .backwards import setup
 from morepath.error import AutoImportError
 
 
-def autoconfig(ignore=None):
+def autoscan(ignore=None):
     """Automatically load Morepath configuration from packages.
 
     Morepath configuration consists of decorator calls on :class:`App`
@@ -15,13 +16,14 @@ def autoconfig(ignore=None):
 
      - The package is made available using a ``setup.py`` file.
 
-     - The package or a dependency of the package includes ``morepath`` in the
-       ``install_requires`` list of the ``setup.py`` file.
+     - The package or a dependency of the package includes
+       ``morepath`` in the ``install_requires`` list of the
+       ``setup.py`` file.
 
-     - The setup.py name is the same as the name of the distributed package
-       or module. For example: if the module inside the package is named
-       ``myapp`` the package must be named ``myapp`` as well (not ``my-app`` or
-       ``MyApp``).
+     - The setup.py name is the same as the name of the distributed
+       package or module. For example: if the module inside the
+       package is named ``myapp`` the package must be named ``myapp``
+       as well (not ``my-app`` or ``MyApp``).
 
     If the setup.py differs from the package name, it's possible
     to specify the module morepath should scan using entry points::
@@ -38,25 +40,22 @@ def autoconfig(ignore=None):
               ]
           })
 
-    This function creates a :class:`Config` object as with :func:`setup`, but
-    before returning it scans all packages, looking for those that depend on
-    Morepath directly or indirectly. This includes the package that
-    calls this function. Those packages are then scanned for
-    configuration as with :meth:`Config.scan`.
+    This function simply recursively imports everything in those packages,
+    except for test directories.
 
-    You can add manual :meth:`Config.scan` calls yourself on the
-    returned :class:`Config` object. Finally you need to call
-    :meth:`Config.commit` on the returned :class:`Config` object so
-    the configuration is committed.
+    In addition to calling this function you can also import modules
+    that use Morepath directives manually, and you can use
+    :func:`scan` to automatically import everything in a
+    single package.
 
     Typically called immediately after startup just before the
     application starts serving using WSGI.
 
-    ``autoconfig`` always ignores ``.test`` and ``.tests``
+    ``autoscan`` always ignores ``.test`` and ``.tests``
     sub-packages -- these are assumed never to contain useful Morepath
     configuration and are not scanned.
 
-    ``autoconfig`` can fail with an ``ImportError`` when it tries to
+    ``autoscan`` can fail with an ``ImportError`` when it tries to
     scan code that imports an optional dependency that is not
     installed. This happens most commonly in test code, which often
     rely on test-only dependencies such as ``pytest`` or ``nose``. If
@@ -64,33 +63,28 @@ def autoconfig(ignore=None):
     are automatically ignored, however.
 
     If you have a special package with such expected import errors,
-    you can exclude them from ``autoconfig`` using the ``ignore``
+    you can exclude them from ``autoscan`` using the ``ignore``
     argument, for instance using ``['special_package']``. You then can
-    use :class:`Config.scan` for that package, with a custom
+    use :func:`scan` for that package, with a custom
     ``ignore`` argument that excludes the modules that generate import
     errors.
 
-    See also :func:`autosetup`.
+    See also :func:`scan`.
 
-    :param ignore: Venusian_ style ignore to ignore some modules
+    :param ignore: ignore to ignore some modules
       during scanning. Optional. If ommitted, ignore ``.test`` and
-      ``.tests`` packages by default.
-    :returns: :class:`Config` object.
-
-    .. _Venusian: http://venusian.readthedocs.org
-
+      ``.tests`` packages by default. See :func:`importscan.scan` for
+      more details.
     """
     if ignore is None:
         ignore = []
         ignore.extend(['.test', '.tests'])
-    c = setup()
     for package in morepath_packages():
-        c.scan(package, ignore)
-    return c
+        importscan.scan(package, ignore)
 
 
 def autosetup(ignore=None):
-    """Automatically commit Morepath configuration from packages.
+    """Automatically scan and commit Morepath configuration.
 
     As with :func:`autoconfig`, but also commits
     configuration. This can be your one-stop function to load all
@@ -111,18 +105,19 @@ def autosetup(ignore=None):
     are automatically ignored, however.
 
     If you have a special package with such expected import errors,
-    you may be better off switching to :func:`morepath.autoconfig`
+    you may be better off switching to :func:`morepath.autoscan`
     with an ignore for this package, and then doing a manual
-    :class:`Config.scan` for that package with the resulting config
+    :func:`scan` for that package with the resulting config
     object. There you can add a custom ``ignore`` argument that
     excludes the modules that generate import errors.
 
-    :param ignore: Venusian_ style ignore to ignore some modules
+    :param ignore: ignore to ignore some modules
       during scanning. Optional. If ommitted, ignore ``.test`` and
-      ``.tests`` by default.
+      ``.tests`` packages by default. See :func:`importscan.scan` for
+      more details.
     """
-    c = autoconfig(ignore)
-    c.commit()
+    autoscan(ignore)
+    dectate.autocommit()
 
 
 class DependencyMap(object):

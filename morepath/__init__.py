@@ -10,9 +10,9 @@ from morepath import directive # register directive methods
 from .generic import remember_identity, forget_identity, settings
 from .view import render_json, render_html
 from .request import Request, Response
-#from .directive import Action
 from .view import redirect
-from morepath.autosetup import autoconfig, autosetup
+from dectate import commit, autocommit
+from morepath.autosetup import autoscan, autosetup
 from morepath.security import Identity, NO_IDENTITY
 from .converter import Converter
 from .reify import reify
