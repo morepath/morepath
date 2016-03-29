@@ -1,3 +1,4 @@
+import dectate
 from morepath.app import App
 from morepath import setup
 
@@ -12,10 +13,8 @@ def setup_module(module):
 
 
 def test_view_predicates():
-    config = setup()
-
     class app(App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -29,7 +28,7 @@ def test_view_predicates():
     def post(self, request):
         return 'POST'
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -40,10 +39,8 @@ def test_view_predicates():
 
 
 def test_extra_predicates():
-    config = setup()
-
     class app(App):
-        testing_config = config
+        pass
 
     @app.path(path='{id}')
     class Model(object):
@@ -63,7 +60,7 @@ def test_extra_predicates():
     def id_predicate(obj):
         return obj.id
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
