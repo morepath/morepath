@@ -74,7 +74,7 @@ class App(dectate.App):
     arguments.
 
     Subclasses from :class:`dectate.App`, which provides the
-    :meth:`dectate.App.directive` decorator to allow you to register
+    :meth:`dectate.App.directive` decorator that lets you register
     new directives.
     """
     parent = None
