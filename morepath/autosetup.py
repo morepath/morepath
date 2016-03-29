@@ -2,7 +2,32 @@ import dectate
 import importscan
 import importlib
 import pkg_resources
-from morepath.error import AutoImportError
+from .error import AutoImportError
+from .framehack import caller_package
+
+
+def scan(package=None, ignore=None, handle_error=None):
+    """Scan package for configuration actions (decorators).
+
+    It scans by recursively importing the package and any modules
+    in it, including any sub-packages.
+
+    Register any found directives with their app classes. It also
+    makes a list of :class:`App` subclasses that can be commited using
+    :func:`autocommit`.
+
+    :param package: The Python module or package to scan. Optional; if left
+      empty case the calling package is scanned.
+    :param ignore: A list of packages to ignore. Optional. Defaults to
+      ``['.test', '.tests']``. See :func:`importscan.scan` for details.
+    :param handle_error: Optional error handling function. See
+      :func:`importscan.scan` for details.
+    """
+    if package is None:
+        package = caller_package()
+    if ignore is None:
+        ignore = ['.test', '.tests']
+    importscan.scan(package, ignore, handle_error)
 
 
 def autoscan(ignore=None):
