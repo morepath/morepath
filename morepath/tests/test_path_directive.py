@@ -1720,7 +1720,7 @@ def test_class_link_without_variables():
     c = Client(App())
 
     response = c.get('/foo')
-    assert response.body == u"http://localhost/foo"
+    assert response.body == b"http://localhost/foo"
 
 
 def test_class_link_with_variables():
@@ -1743,7 +1743,7 @@ def test_class_link_with_variables():
     c = Client(App())
 
     response = c.get('/foo/3')
-    assert response.body == u"http://localhost/foo/X"
+    assert response.body == b"http://localhost/foo/X"
 
 
 def test_class_link_with_missing_variables():
@@ -1789,7 +1789,7 @@ def test_class_link_with_extra_variable():
     c = Client(App())
 
     response = c.get('/foo/3')
-    assert response.body == u"http://localhost/foo/X"
+    assert response.body == b"http://localhost/foo/X"
 
 
 def test_class_link_with_url_parameter_variable():
@@ -1812,7 +1812,7 @@ def test_class_link_with_url_parameter_variable():
     c = Client(App())
 
     response = c.get('/foo/3')
-    assert response.body == u"http://localhost/foo/X?y=Y"
+    assert response.body == b"http://localhost/foo/X?y=Y"
 
 
 def test_class_link_with_subclass():
@@ -1838,7 +1838,7 @@ def test_class_link_with_subclass():
     c = Client(App())
 
     response = c.get('/foo/3')
-    assert response.body == u"http://localhost/foo/X"
+    assert response.body == b"http://localhost/foo/X"
 
 
 def test_absorb_class_path():
