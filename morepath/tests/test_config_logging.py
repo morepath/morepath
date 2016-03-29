@@ -1,3 +1,4 @@
+import importscan
 import dectate
 import logging
 import morepath
@@ -88,9 +89,8 @@ def test_config_logging_fixture():
     log.addHandler(test_handler)
     log.setLevel(logging.DEBUG)
 
-    config = morepath.setup()
-    config.scan(basic)
-    config.commit()
+    importscan.scan(basic)
+    dectate.commit([basic.app])
 
     messages = [r.getMessage() for r in test_handler.records]
     messages.sort()
