@@ -25,9 +25,7 @@ Let's look at a minimal "Hello world!" application in Morepath::
       return "Hello world!"
 
   if __name__ == '__main__':
-      config = morepath.setup()
-      config.scan()
-      config.commit()
+      morepath.autocommit()
       morepath.run(App())
 
 You can save this as ``hello.py`` and then run it with Python:
@@ -110,30 +108,29 @@ Code Walkthrough
    application you instead use a setuptools entry point so that a
    startup script for your application is created automatically.
 
-6. :func:`morepath.setup` sets up Morepath's default behavior, and
-   returns a Morepath config object. If your app is in a Python
-   package and you've set up the right ``install_requires`` in
-   ``setup.py``, consider using :func:`morepath.autosetup` to be done
-   in one step. See :doc:`configuration` for more detail.
-
-7. We then ``scan()`` this module (or package) for configuration
-   decorators (such as :meth:`morepath.App.path` and
-   :meth:`morepath.App.view`) and cause the registration to be
-   registered using :meth:`morepath.Config.commit`.
+6. :func:`morepath.autocommit` commits all directives for all
+  :class:`morepath.App` subclasses in the application, in this case
+  ``App``. Anything you imported, directly or indirectly, is committed.
 
    This step ensures your configuration (model routes, views, etc) is
    loaded exactly once in a way that's reusable and extensible.
 
-   Note that if you want to use a Morepath extension like ``more.static``,
-   you need to either scan this as well::
+   If you have package dependencies you want to import recursively
+   automatically, you can use :func:`morepath.scan` before you call
+   ``autocommit``.  For instance, if you want to use the Morepath
+   extension ``more.static``, you ::
 
       import more.static
 
       ...
-      config.scan(more.static)
-      ...
+      morepath.scan(more.static)
+      morepath.autocommit()
 
-   or use :func:`morepath.autosetup` to automate this. See
+   If your app is in a Python package and you've set up the right
+   ``install_requires`` in ``setup.py``, consider using
+   :func:`morepath.autoscan` or :func:`morepath.autosetup` so all
+   dependencies also get set up automatically. See
+   :doc:`configuration` for more detail. See
    :doc:`organizing_your_project` for more information.
 
 8. We then instantiate the ``App`` class to create a ``WSGI`` app
