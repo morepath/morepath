@@ -1,3 +1,4 @@
+import dectate
 import morepath
 import reg
 from webtest import TestApp as Client
@@ -12,10 +13,8 @@ def setup_function(f):
 
 
 def test_implicit_function():
-    config = morepath.setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Model(object):
@@ -42,7 +41,7 @@ def test_implicit_function():
     def default(self, request):
         return one()
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
@@ -51,14 +50,10 @@ def test_implicit_function():
 
 
 def test_implicit_function_mounted():
-    config = morepath.setup()
-
     class alpha(morepath.App):
-        testing_config = config
+        pass
 
     class beta(morepath.App):
-        testing_config = config
-
         def __init__(self, id):
             self.id = id
 
@@ -105,7 +100,7 @@ def test_implicit_function_mounted():
     def default(self, request):
         return "View for %s, message: %s" % (self.id, one())
 
-    config.commit()
+    dectate.commit([alpha, beta])
 
     c = Client(alpha())
 
@@ -118,10 +113,9 @@ def test_implicit_function_mounted():
 
 def test_implicit_disabled():
     morepath.disable_implicit()
-    config = morepath.setup()
 
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Model(object):
@@ -139,7 +133,7 @@ def test_implicit_disabled():
         except reg.NoImplicitLookupError:
             return "No implicit found"
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
