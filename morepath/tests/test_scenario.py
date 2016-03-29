@@ -1,6 +1,7 @@
+import importscan
+import dectate
 from .fixtures import scenario
 from .fixtures.scenario import app
-from morepath import setup
 import morepath
 
 from webtest import TestApp as Client
@@ -11,9 +12,8 @@ def setup_module(module):
 
 
 def test_scenario():
-    config = setup()
-    config.scan(scenario)
-    config.commit()
+    importscan.scan(scenario)
+    dectate.commit([app.Root, app.Generic, app.Document])
 
     c = Client(app.Root())
 
