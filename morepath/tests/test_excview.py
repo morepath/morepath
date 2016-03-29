@@ -1,6 +1,5 @@
 import dectate
 import morepath
-from morepath import setup
 from webob.exc import HTTPNotFound
 from webtest import TestApp as Client
 import pytest

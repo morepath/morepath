@@ -1,6 +1,5 @@
 import dectate
 from morepath.app import App
-from morepath import setup
 
 from webtest import TestApp as Client
 import morepath

@@ -2,7 +2,6 @@
 
 import dectate
 import morepath
-from morepath import setup
 from morepath.converter import Converter
 from morepath.error import DirectiveReportError, ConfigError, LinkError
 from morepath.compat import text_type

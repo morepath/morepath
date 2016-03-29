@@ -7,7 +7,6 @@ except ImportError:
 from morepath.path import register_path, get_arguments
 from morepath.converter import Converter, IDENTITY_CONVERTER, ConverterRegistry
 import morepath
-from morepath import setup
 from morepath import generic
 from morepath.publish import consume as traject_consume
 import webob
