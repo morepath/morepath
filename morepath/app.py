@@ -1,5 +1,3 @@
-from functools import update_wrapper
-import logging
 import dectate
 from .request import Request
 from .traject import Traject
@@ -190,26 +188,3 @@ class App(dectate.App):
                 self.config.registry.sorted_tween_factories()):
             result = tween_factory(self, result)
         return result
-
-
-class DirectiveDirective(object):
-    def __init__(self, cls, name):
-        self.cls = cls
-        self.name = name
-
-    def __call__(self, directive):
-        directive_name = self.name
-
-        def method(self, *args, **kw):
-            result = directive(self, *args, **kw)
-            result.directive_name = directive_name
-            result.argument_info = args, kw
-            result.logger = logging.getLogger('morepath.directive.%s' %
-                                              directive_name)
-            return result
-
-        # this is to help morepath.sphinxext to do the right thing
-        method.actual_directive = directive
-        update_wrapper(method, directive.__init__)
-        setattr(self.cls, self.name, classmethod(method))
-        return directive
