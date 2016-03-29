@@ -1,3 +1,4 @@
+import dectate
 import morepath
 from webtest import TestApp as Client
 
@@ -7,10 +8,8 @@ def setup_module(module):
 
 
 def test_internal():
-    config = morepath.setup()
-
     class app(morepath.App):
-        testing_config = config
+        pass
 
     @app.path(path='')
     class Root(object):
@@ -24,7 +23,7 @@ def test_internal():
     def root_internal(self, request):
         return 'Internal!'
 
-    config.commit()
+    dectate.commit([app])
 
     c = Client(app())
 
