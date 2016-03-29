@@ -1,11 +1,12 @@
 import dectate
+from reg import Registry as RegRegistry, CachingKeyLookup
+
 from .request import Request
 from .traject import Traject
 from .settings import SettingSectionContainer
 from .converter import ConverterRegistry
 from .predicate import PredicateRegistry
 from .tween import TweenRegistry
-from reg import Registry as RegRegistry, CachingKeyLookup
 from . import compat
 from .implicit import set_implicit
 from .mount import MountRegistry
@@ -71,6 +72,10 @@ class App(dectate.App):
     You can turn your app class into a WSGI application by instantiating
     it. You can then call it with the ``environ`` and ``start_response``
     arguments.
+
+    Subclasses from :class:`dectate.App`, which provides the
+    :meth:`dectate.App.directive` decorator to allow you to register
+    new directives.
     """
     parent = None
     """The parent in which this app was mounted."""
