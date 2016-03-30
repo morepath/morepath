@@ -192,6 +192,19 @@ CHANGES
   instead. This lets you link to a model class and supply a
   `variables` dictionary manually.
 
+- **Breaking change**. In Morepath versions before this there was an
+  class attribute on ``App`` subclasses called ``registry``. This was
+  a giant mixed registry which subclassed a lot of different
+  registries used by Morepath (reg registry, converter registry,
+  traject registry, etc). The Dectate configuration system allows us
+  to break this registry into a lot of smaller interdependent registries
+  that are configured in the ``config`` of the directives.
+
+  While normally you shouldn't be, if you were somehow relying on
+  ``App.registry`` in your code you should now rewrite it to use
+  ``App.config.reg_registry``, ``App.config.setting_registry``,
+  ``App.config.path_registry`` etc.
+
 0.12 (2016-01-27)
 =================
 
