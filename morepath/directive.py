@@ -11,6 +11,7 @@ from .path import register_path
 from .traject import Path
 from .converter import ConverterRegistry
 from .tween import TweenRegistry
+from .template import TemplateEngineRegistry
 from . import generic
 
 
@@ -369,7 +370,9 @@ template_directory_id = 0
 
 @App.directive('template_directory')
 class TemplateDirectoryAction(dectate.Action):
-    config = DEFAULT_CONFIG
+    config = {
+        'template_engine_registry': TemplateEngineRegistry
+    }
 
     depends = [SettingAction]
 
@@ -401,29 +404,32 @@ class TemplateDirectoryAction(dectate.Action):
         '''
         global template_directory_id
         self._after = after
-        self.before = before
+        self._before = before
         if name is None:
             name = u'template_directory_%s' % template_directory_id
             template_directory_id += 1
         self.name = name
 
-    def identifier(self, registry):
+    def identifier(self, template_engine_registry):
         return self.name
 
-    def perform(self, obj, registry):
+    def perform(self, obj, template_engine_registry):
         # XXX hacky to have to get configurable and pass it in
         directory = obj()
         if not os.path.isabs(directory):
             directory = os.path.join(os.path.dirname(
                 self.directive.code_info.path), directory)
-        registry.register_template_directory_info(
-            obj, directory, self.before, self._after,
+        template_engine_registry.register_template_directory_info(
+            obj, directory, self._before, self._after,
             self.directive.configurable)
 
 
 @App.directive('template_loader')
 class TemplateLoaderAction(dectate.Action):
-    config = DEFAULT_CONFIG
+    config = {
+        'registry': Registry,
+        'template_engine_registry': TemplateEngineRegistry
+    }
 
     depends = [TemplateDirectoryAction]
 
@@ -440,16 +446,19 @@ class TemplateLoaderAction(dectate.Action):
         '''
         self.extension = extension
 
-    def identifier(self, registry):
+    def identifier(self, registry, template_engine_registry):
         return self.extension
 
-    def perform(self, obj, registry):
-        registry.initialize_template_loader(self.extension, obj)
+    def perform(self, obj, registry, template_engine_registry):
+        template_engine_registry.initialize_template_loader(
+            self.extension, obj, registry.settings)
 
 
 @App.directive('template_render')
 class TemplateRenderAction(dectate.Action):
-    config = DEFAULT_CONFIG
+    config = {
+        'template_engine_registry': TemplateEngineRegistry
+    }
 
     depends = [SettingAction, TemplateLoaderAction]
 
@@ -469,16 +478,19 @@ class TemplateRenderAction(dectate.Action):
         '''
         self.extension = extension
 
-    def identifier(self, registry):
+    def identifier(self, template_engine_registry):
         return self.extension
 
-    def perform(self, obj, registry):
-        registry.register_template_render(self.extension, obj)
+    def perform(self, obj, template_engine_registry):
+        template_engine_registry.register_template_render(self.extension, obj)
 
 
 @App.directive('view')
 class ViewAction(dectate.Action):
-    config = DEFAULT_CONFIG
+    config = {
+        'registry': Registry,
+        'template_engine_registry': TemplateEngineRegistry
+    }
 
     depends = [SettingAction, PredicateAction,
                TemplateRenderAction]
@@ -552,19 +564,18 @@ class ViewAction(dectate.Action):
         return registry.key_dict_to_predicate_key(generic.view.wrapped_func,
                                                   self.key_dict())
 
-    def identifier(self, registry):
+    def identifier(self, registry, template_engine_registry):
         return self.predicate_key(registry)
 
-    def perform(self, obj, registry):
-        register_view(registry, self.key_dict(), obj,
+    def perform(self, obj, registry, template_engine_registry):
+        register_view(registry, template_engine_registry,
+                      self.key_dict(), obj,
                       self.render, self.template,
                       self.permission, self.internal)
 
 
 @App.directive('json')
 class JsonAction(ViewAction):
-    config = DEFAULT_CONFIG
-
     group_class = ViewAction
 
     def __init__(self, model, render=None, template=None, permission=None,
@@ -616,8 +627,6 @@ class JsonAction(ViewAction):
 
 @App.directive('html')
 class HtmlAction(ViewAction):
-    config = DEFAULT_CONFIG
-
     group_class = ViewAction
 
     def __init__(self, model, render=None, template=None, permission=None,

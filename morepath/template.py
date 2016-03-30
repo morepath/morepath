@@ -31,9 +31,9 @@ class TemplateEngineRegistry(object):
     def register_template_render(self, extension, func):
         self._template_renders[extension] = func
 
-    def initialize_template_loader(self, extension, func):
+    def initialize_template_loader(self, extension, func, settings):
         self._template_loaders[extension] = func(
-            self.sorted_template_directories(), self.settings)
+            self.sorted_template_directories(), settings)
 
     def sorted_template_directories(self):
         # make sure that template directories defined in subclasses
