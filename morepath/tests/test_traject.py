@@ -1,6 +1,7 @@
 import dectate
 import morepath
-from morepath.traject import (Traject, Node, Step, TrajectError,
+from morepath.traject import (TrajectRegistry,
+                              Node, Step, TrajectError,
                               is_identifier, parse_variables,
                               Path, parse_path, create_path, normalize_path)
 from morepath.converter import ParameterFactory
@@ -251,7 +252,7 @@ def test_variable_node_optional_colon():
 
 
 def test_traject_simple():
-    traject = Traject()
+    traject = TrajectRegistry()
     traject.add_pattern('a/b/c', 'abc')
     traject.add_pattern('a/b/d', 'abd')
     traject.add_pattern('x/y', 'xy')
@@ -270,7 +271,7 @@ def test_traject_simple():
 
 
 def test_traject_variable_specific_first():
-    traject = Traject()
+    traject = TrajectRegistry()
     traject.add_pattern('a/{x}/b', 'axb')
     traject.add_pattern('a/prefix{x}/b', 'aprefixxb')
     assert traject.consume(['b', 'lah', 'a']) == ('axb', [], {'x': 'lah'})
@@ -279,34 +280,34 @@ def test_traject_variable_specific_first():
 
 
 def test_traject_multiple_steps_with_variables():
-    traject = Traject()
+    traject = TrajectRegistry()
     traject.add_pattern('{x}/{y}', 'xy')
     assert traject.consume(['y', 'x']) == ('xy', [], {'x': 'x', 'y': 'y'})
 
 
 def test_traject_with_converter():
-    traject = Traject()
+    traject = TrajectRegistry()
     traject.add_pattern('{x}', 'found', dict(x=Converter(int)))
     assert traject.consume(['1']) == ('found', [], {'x': 1})
     assert traject.consume(['foo']) == (None, ['foo'], {})
 
 
 def test_traject_type_conflict():
-    traject = Traject()
+    traject = TrajectRegistry()
     traject.add_pattern('{x}', 'found_int', dict(x=Converter(int)))
     with pytest.raises(TrajectError):
         traject.add_pattern('{x}', 'found_str', dict(x=Converter(str)))
 
 
 def test_traject_type_conflict_default_type():
-    traject = Traject()
+    traject = TrajectRegistry()
     traject.add_pattern('{x}', 'found_str')
     with pytest.raises(TrajectError):
         traject.add_pattern('{x}', 'found_int', dict(x=Converter(int)))
 
 
 def test_traject_type_conflict_explicit_default():
-    traject = Traject()
+    traject = TrajectRegistry()
     traject.add_pattern('{x}', 'found_explicit', dict(x=IDENTITY_CONVERTER))
     traject.add_pattern('{x}', 'found_implicit')
     # these add_pattern calls are equivalent so will not result in an error
@@ -314,20 +315,20 @@ def test_traject_type_conflict_explicit_default():
 
 
 def test_traject_type_conflict_middle():
-    traject = Traject()
+    traject = TrajectRegistry()
     traject.add_pattern('a/{x}/y', 'int', dict(x=Converter(int)))
     with pytest.raises(TrajectError):
         traject.add_pattern('a/{x}/z', 'str')
 
 
 def test_traject_no_type_conflict_middle():
-    traject = Traject()
+    traject = TrajectRegistry()
     traject.add_pattern('a/{x}/y', 'int', dict(x=Converter(int)))
     traject.add_pattern('a/{x}/z', 'int2', dict(x=Converter(int)))
 
 
 def test_traject_greedy_middle_prefix():
-    traject = Traject()
+    traject = TrajectRegistry()
     traject.add_pattern('a/prefix{x}/y', 'prefix')
     traject.add_pattern('a/{x}/z', 'no_prefix')
 
@@ -338,14 +339,14 @@ def test_traject_greedy_middle_prefix():
 
 
 def test_traject_type_conflict_middle_end():
-    traject = Traject()
+    traject = TrajectRegistry()
     traject.add_pattern('a/{x}/y', 'int', dict(x=Converter(int)))
     with pytest.raises(TrajectError):
         traject.add_pattern('a/{x}', 'str')
 
 
 def test_traject_no_type_conflict_middle_end():
-    traject = Traject()
+    traject = TrajectRegistry()
     traject.add_pattern('a/{x}/y', 'int', dict(x=Converter(int)))
     traject.add_pattern('a/{x}', 'int2', dict(x=Converter(int)))
     assert True
@@ -426,7 +427,7 @@ def test_traject_consume():
 
     dectate.commit([app])
 
-    traject = app.config.registry.traject
+    traject = app.config.path_registry
     traject.add_pattern('sub', (Model, paramfac))
 
     mount = app()
@@ -442,7 +443,7 @@ def test_traject_consume_parameter():
 
     dectate.commit([app])
 
-    traject = app.config.registry.traject
+    traject = app.config.path_registry
 
     class Model(object):
         def __init__(self, a):
@@ -469,7 +470,7 @@ def test_traject_consume_model_factory_gets_request():
 
     dectate.commit([app])
 
-    traject = app.config.registry.traject
+    traject = app.config.path_registry
 
     class Model(object):
         def __init__(self, info):
@@ -505,7 +506,7 @@ def test_traject_consume_factory_returns_none():
 
     dectate.commit([app])
 
-    traject = app.config.registry.traject
+    traject = app.config.path_registry
 
     def get_model():
         return None
@@ -524,7 +525,7 @@ def test_traject_consume_variable():
 
     dectate.commit([app])
 
-    traject = app.config.registry.traject
+    traject = app.config.path_registry
 
     def get_model(foo):
         result = Model()
@@ -545,7 +546,7 @@ def test_traject_consume_view():
 
     dectate.commit([app])
 
-    traject = app.config.registry.traject
+    traject = app.config.path_registry
 
     def get_model(foo):
         result = Model()
@@ -566,7 +567,7 @@ def test_traject_root():
 
     dectate.commit([app])
 
-    traject = app.config.registry.traject
+    traject = app.config.path_registry
 
     traject.add_pattern('', (Root, paramfac))
 
@@ -582,7 +583,7 @@ def test_traject_consume_combination():
 
     dectate.commit([app])
 
-    traject = app.config.registry.traject
+    traject = app.config.path_registry
 
     def get_model(foo):
         result = Model()
@@ -610,7 +611,7 @@ def test_traject_nested():
 
     dectate.commit([app])
 
-    traject = app.config.registry.traject
+    traject = app.config.path_registry
     traject.add_pattern('a', (Model, paramfac))
     traject.add_pattern('a/b', (Special, paramfac))
 
@@ -630,7 +631,7 @@ def test_traject_nested_not_resolved_entirely_by_consumer():
 
     dectate.commit([app])
 
-    traject = app.config.registry.traject
+    traject = app.config.path_registry
     traject.add_pattern('a', (Model, paramfac))
 
     mount = app()
@@ -649,7 +650,7 @@ def test_traject_nested_with_variable():
 
     dectate.commit([app])
 
-    traject = app.config.registry.traject
+    traject = app.config.path_registry
 
     def get_model(id):
         result = Model()
@@ -683,7 +684,7 @@ def test_traject_with_multiple_variables():
 
     dectate.commit([app])
 
-    traject = app.config.registry.traject
+    traject = app.config.path_registry
 
     def get_model(first_id):
         result = Model()
@@ -714,14 +715,14 @@ def test_traject_with_multiple_variables():
 
 
 def test_traject_no_concecutive_variables():
-    traject = Traject()
+    traject = TrajectRegistry()
 
     with pytest.raises(TrajectError):
         traject.add_pattern('{foo}{bar}', 'value')
 
 
 def test_traject_no_duplicate_variables():
-    traject = Traject()
+    traject = TrajectRegistry()
 
     with pytest.raises(TrajectError):
         traject.add_pattern('{foo}-{foo}', 'value')

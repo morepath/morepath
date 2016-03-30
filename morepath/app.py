@@ -2,7 +2,6 @@ import dectate
 from reg import Registry as RegRegistry, CachingKeyLookup
 
 from .request import Request
-from .traject import Traject
 from . import compat
 from .implicit import set_implicit
 from .reify import reify
@@ -26,7 +25,6 @@ class Registry(RegRegistry):
         """Clear all registrations in this application.
         """
         RegRegistry.clear(self)
-        self.traject = Traject()
 
     @reify
     def lookup(self):
@@ -83,10 +81,6 @@ class App(dectate.App):
     def set_implicit(self):
         set_implicit(self.lookup)
 
-    @reify
-    def traject(self):
-        return self.config.registry.traject
-
     def request(self, environ):
         """Create a :class:`Request` given WSGI environment for this app.
 
@@ -136,13 +130,13 @@ class App(dectate.App):
             # XXX assert that variables is empty
 
             # XXX do we need to deal with subclasses of apps?
-            if app.__class__ not in self.config.mount_registry.mounted:
+            if app.__class__ not in self.config.path_registry.mounted:
                 return None
         else:
             if isinstance(app, compat.string_types):
-                factory = self.config.mount_registry.named_mounted.get(app)
+                factory = self.config.path_registry.named_mounted.get(app)
             else:
-                factory = self.config.mount_registry.mounted.get(app)
+                factory = self.config.path_registry.mounted.get(app)
             if factory is None:
                 return None
             result = factory(**variables)

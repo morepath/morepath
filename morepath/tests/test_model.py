@@ -4,7 +4,7 @@ try:
 except ImportError:
     # Python 2
     from urllib import urlencode
-from morepath.path import register_path, get_arguments
+from morepath.path import get_arguments
 from morepath.converter import Converter, IDENTITY_CONVERTER, ConverterRegistry
 import morepath
 from morepath import generic
@@ -44,16 +44,15 @@ def test_register_path():
 
     dectate.commit([App])
 
-    registry = App.config.registry
-    converter_registry = App.config.converter_registry
+    path_registry = App.config.path_registry
 
-    register_path(registry, converter_registry,
-                  Root, '', lambda m: {},
-                  None, None, None, False,
-                  lambda: root)
-    register_path(registry, converter_registry,
-                  Model, '{id}', lambda model: {'id': model.id},
-                  None, None, None, False, get_model)
+    path_registry.register_path(
+        Root, '', lambda m: {},
+        None, None, None, False,
+        lambda: root)
+    path_registry.register_path(
+        Model, '{id}', lambda model: {'id': model.id},
+        None, None, None, False, get_model)
 
     app = App()
 
@@ -78,16 +77,15 @@ def test_register_path_with_parameters():
 
     dectate.commit([App])
 
-    registry = App.config.registry
-    converter_registry = App.config.converter_registry
+    path_registry = App.config.path_registry
 
-    register_path(registry, converter_registry,
-                  Root, '', lambda m: {}, None, None, None, False,
-                  lambda: root)
-    register_path(registry, converter_registry,
-                  Model, '{id}',
-                  lambda model: {'id': model.id, 'param': model.param},
-                  None, None, None, False, get_model)
+    path_registry.register_path(
+        Root, '', lambda m: {}, None, None, None, False,
+        lambda: root)
+    path_registry.register_path(
+        Model, '{id}',
+        lambda model: {'id': model.id, 'param': model.param},
+        None, None, None, False, get_model)
 
     mount = App()
 
@@ -119,15 +117,14 @@ def test_traject_path_with_leading_slash():
 
     dectate.commit([App])
 
-    registry = App.config.registry
-    converter_registry = App.config.converter_registry
+    path_registry = App.config.path_registry
 
-    register_path(registry, converter_registry,
-                  Root, '', lambda m: {}, None, None, None, False,
-                  lambda: root)
-    register_path(registry, converter_registry,
-                  Model, '/foo/{id}', lambda model: {'id': model.id},
-                  None, None, None, False, get_model)
+    path_registry.register_path(
+        Root, '', lambda m: {}, None, None, None, False,
+        lambda: root)
+    path_registry.register_path(
+        Model, '/foo/{id}', lambda model: {'id': model.id},
+        None, None, None, False, get_model)
 
     mount = App()
     obj, request = consume(mount, 'foo/a')

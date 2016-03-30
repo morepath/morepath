@@ -6,13 +6,12 @@ from .app import App, Registry
 from .security import (register_permission_checker,
                        Identity, NoIdentity)
 from .view import render_view, render_json, render_html, register_view
-from .path import register_path
 from .traject import Path
 from .converter import ConverterRegistry
 from .tween import TweenRegistry
 from .template import TemplateEngineRegistry
 from .predicate import PredicateRegistry
-from .mount import MountRegistry
+from .path import PathRegistry
 from . import generic
 from .settings import SettingRegistry
 
@@ -270,9 +269,7 @@ class ConverterAction(dectate.Action):
 @App.directive('path')
 class PathAction(dectate.Action):
     config = {
-        'registry': Registry,
-        'converter_registry': ConverterRegistry,
-        'mount_registry': MountRegistry
+        'path_registry': PathRegistry
     }
 
     depends = [SettingAction, ConverterAction]
@@ -324,13 +321,13 @@ class PathAction(dectate.Action):
         self.get_converters = get_converters
         self.absorb = absorb
 
-    def identifier(self, registry, converter_registry, mount_registry):
+    def identifier(self, path_registry):
         return ('path', Path(self.path).discriminator())
 
-    def discriminators(self, registry, converter_registry, mount_registry):
+    def discriminators(self, path_registry):
         return [('model', self.model)]
 
-    def perform(self, obj, registry, converter_registry, mount_registry):
+    def perform(self, obj, path_registry):
         model = self.model
         if isinstance(obj, type):
             if model is not None:
@@ -341,10 +338,11 @@ class PathAction(dectate.Action):
         if model is None:
             raise dectate.DirectiveError(
                 "@path does not decorate class and has no explicit model")
-        register_path(registry, converter_registry, model, self.path,
-                      self.variables, self.converters, self.required,
-                      self.get_converters, self.absorb,
-                      obj)
+        path_registry.register_path(
+            model, self.path,
+            self.variables, self.converters, self.required,
+            self.get_converters, self.absorb,
+            obj)
 
 
 @App.directive('permission_rule')
@@ -735,13 +733,12 @@ class MountAction(PathAction):
         self.name = name or path
         self.mounted_app = app
 
-    def discriminators(self, registry, converter_registry,
-                       mount_registry):
+    def discriminators(self, path_registry):
         return [('mount', self.mounted_app)]
 
-    def perform(self, obj, registry, converter_registry, mount_registry):
-        mount_registry.register_mount(
-            self.mounted_app, converter_registry, self.path, self.variables,
+    def perform(self, obj, path_registry):
+        path_registry.register_mount(
+            self.mounted_app, self.path, self.variables,
             self.converters, self.required,
             self.get_converters, self.name, obj)
 
@@ -771,14 +768,14 @@ class DeferLinksAction(dectate.Action):
         """
         self.model = model
 
-    def identifier(self, registry, converter_registry, mount_registry):
+    def identifier(self, path_registry):
         return ('defer_links', self.model)
 
-    def discriminators(self, registry, converter_registry, mount_registry):
+    def discriminators(self, path_registry):
         return [('model', self.model)]
 
-    def perform(self, obj, registry, converter_registry, mount_registry):
-        mount_registry.register_defer_links(self.model, obj)
+    def perform(self, obj, path_registry):
+        path_registry.register_defer_links(self.model, obj)
 
 
 tween_factory_id = 0

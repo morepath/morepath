@@ -236,9 +236,8 @@ class Inverse(object):
         return path, self.query_parameters(all_variables, extra_parameters)
 
 
-class Traject(object):
+class TrajectRegistry(object):
     def __init__(self):
-        super(Traject, self).__init__()
         self._root = Node()
 
     def add_pattern(self, path, value, converters=None, absorb=False):

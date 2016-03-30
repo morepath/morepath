@@ -2,7 +2,6 @@ import dectate
 import morepath
 from morepath.app import App
 from morepath.publish import publish, resolve_response
-from morepath.path import register_path
 from morepath.request import Response
 from morepath.view import register_view, render_json, render_html
 from webob.exc import HTTPNotFound, HTTPBadRequest, HTTPFound, HTTPOk
@@ -195,11 +194,11 @@ def test_view_raises_http_error():
         raise HTTPBadRequest()
 
     registry = app.config.registry
-    converter_registry = app.config.converter_registry
+    path_registry = app.config.path_registry
     template_engine_registry = app.config.template_engine_registry
 
-    register_path(registry, converter_registry,
-                  Model, 'foo', None, None, None, None, False, Model)
+    path_registry.register_path(
+        Model, 'foo', None, None, None, None, False, Model)
     register_view(registry, template_engine_registry,
                   dict(model=Model), view)
 

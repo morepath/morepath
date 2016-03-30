@@ -80,7 +80,8 @@ def consume(request, app):
 
     Adjusts request.unconsumed with the remaining unconsumed stack.
     """
-    value, stack, traject_variables = app.traject.consume(request.unconsumed)
+    value, stack, traject_variables = app.config.path_registry.consume(
+        request.unconsumed)
     if value is None:
         return None
     get_obj, get_parameters = value
