@@ -443,7 +443,6 @@ class TemplateDirectoryAction(dectate.Action):
 @App.directive('template_loader')
 class TemplateLoaderAction(dectate.Action):
     config = {
-        'setting_registry': SettingRegistry,
         'template_engine_registry': TemplateEngineRegistry
     }
 
@@ -462,12 +461,12 @@ class TemplateLoaderAction(dectate.Action):
         '''
         self.extension = extension
 
-    def identifier(self, setting_registry, template_engine_registry):
+    def identifier(self, template_engine_registry):
         return self.extension
 
-    def perform(self, obj, setting_registry, template_engine_registry):
+    def perform(self, obj, template_engine_registry):
         template_engine_registry.initialize_template_loader(
-            self.extension, obj, setting_registry)
+            self.extension, obj)
 
 
 @App.directive('template_render')

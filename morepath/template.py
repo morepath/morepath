@@ -1,6 +1,7 @@
 import os
 from .toposort import toposorted, Info
 from .error import ConfigError, TopologicalSortError
+from .settings import SettingRegistry
 
 
 class TemplateDirectoryInfo(Info):
@@ -11,10 +12,12 @@ class TemplateDirectoryInfo(Info):
 
 
 class TemplateEngineRegistry(object):
-    def __init__(self):
-        self.clear()
+    factory_arguments = {
+        'setting_registry': SettingRegistry
+    }
 
-    def clear(self):
+    def __init__(self, setting_registry):
+        self._setting_registry = setting_registry
         self._template_loaders = {}
         self._template_renders = {}
         self._template_directory_infos = []
@@ -31,9 +34,9 @@ class TemplateEngineRegistry(object):
     def register_template_render(self, extension, func):
         self._template_renders[extension] = func
 
-    def initialize_template_loader(self, extension, func, settings):
+    def initialize_template_loader(self, extension, func):
         self._template_loaders[extension] = func(
-            self.sorted_template_directories(), settings)
+            self.sorted_template_directories(), self._setting_registry)
 
     def sorted_template_directories(self):
         # make sure that template directories defined in subclasses
