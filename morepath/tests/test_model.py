@@ -45,11 +45,14 @@ def test_register_path():
     dectate.commit([App])
 
     registry = App.config.registry
+    converter_registry = App.config.converter_registry
 
-    register_path(registry, Root, '', lambda m: {},
+    register_path(registry, converter_registry,
+                  Root, '', lambda m: {},
                   None, None, None, False,
                   lambda: root)
-    register_path(registry, Model, '{id}', lambda model: {'id': model.id},
+    register_path(registry, converter_registry,
+                  Model, '{id}', lambda model: {'id': model.id},
                   None, None, None, False, get_model)
 
     app = App()
@@ -76,10 +79,13 @@ def test_register_path_with_parameters():
     dectate.commit([App])
 
     registry = App.config.registry
+    converter_registry = App.config.converter_registry
 
-    register_path(registry, Root, '', lambda m: {}, None, None, None, False,
+    register_path(registry, converter_registry,
+                  Root, '', lambda m: {}, None, None, None, False,
                   lambda: root)
-    register_path(registry, Model, '{id}',
+    register_path(registry, converter_registry,
+                  Model, '{id}',
                   lambda model: {'id': model.id, 'param': model.param},
                   None, None, None, False, get_model)
 
@@ -114,10 +120,13 @@ def test_traject_path_with_leading_slash():
     dectate.commit([App])
 
     registry = App.config.registry
+    converter_registry = App.config.converter_registry
 
-    register_path(registry, Root, '', lambda m: {}, None, None, None, False,
+    register_path(registry, converter_registry,
+                  Root, '', lambda m: {}, None, None, None, False,
                   lambda: root)
-    register_path(registry, Model, '/foo/{id}', lambda model: {'id': model.id},
+    register_path(registry, converter_registry,
+                  Model, '/foo/{id}', lambda model: {'id': model.id},
                   None, None, None, False, get_model)
 
     mount = App()

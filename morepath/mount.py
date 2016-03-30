@@ -10,9 +10,11 @@ class MountRegistry(object):
         self.mounted = {}
         self.named_mounted = {}
 
-    def register_mount(self, app, path, get_variables, converters, required,
+    def register_mount(self, app, converter_registry,
+                       path, get_variables, converters, required,
                        get_converters, mount_name, app_factory):
-        register_path(self, app, path, get_variables,
+        register_path(self, converter_registry, app,
+                      path, get_variables,
                       converters, required, get_converters, False,
                       app_factory)
 

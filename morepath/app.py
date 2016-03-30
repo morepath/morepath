@@ -20,7 +20,7 @@ FALLBACK_CACHE_SIZE = 5000
 
 
 class Registry(RegRegistry, MountRegistry, PredicateRegistry,
-               ConverterRegistry, TweenRegistry, TemplateEngineRegistry):
+               TweenRegistry, TemplateEngineRegistry):
     """A registry holding an application's configuration.
     """
     app = None  # app this registry belongs to. set later during scanning
@@ -29,19 +29,17 @@ class Registry(RegRegistry, MountRegistry, PredicateRegistry,
         RegRegistry.__init__(self)
         MountRegistry.__init__(self)
         PredicateRegistry.__init__(self)
-        ConverterRegistry.__init__(self)
         TweenRegistry.__init__(self)
         TemplateEngineRegistry.__init__(self)
         self.settings = SettingSectionContainer()
-        self.clear()
+        self._clear()
 
-    def clear(self):
+    def _clear(self):
         """Clear all registrations in this application.
         """
         RegRegistry.clear(self)
         MountRegistry.clear(self)
         PredicateRegistry.clear(self)
-        ConverterRegistry.clear(self)
         TweenRegistry.clear(self)
         TemplateEngineRegistry.clear(self)
         self.traject = Traject()

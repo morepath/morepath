@@ -31,15 +31,17 @@ def get_variables_func(arguments, exclude):
                           name in names}
 
 
-def register_path(app, model, path, variables, converters, required,
-                  get_converters, absorb, model_factory):
-    traject = app.traject
+def register_path(registry, converter_registry, model, path,
+                  variables, converters, required, get_converters,
+                  absorb, model_factory):
+    traject = registry.traject
 
     converters = converters or {}
     if get_converters is not None:
         converters.update(get_converters())
     arguments = get_arguments(model_factory, SPECIAL_ARGUMENTS)
-    converters = app.argument_and_explicit_converters(arguments, converters)
+    converters = converter_registry.argument_and_explicit_converters(
+        arguments, converters)
     path_variables = Path(path).variables()
 
     info = arginfo(model_factory)
@@ -69,8 +71,8 @@ def register_path(app, model, path, variables, converters, required,
 
     inverse = Inverse(path, variables, converters, parameters.keys(),
                       absorb)
-    app.register_function(generic.path, inverse, obj=model)
+    registry.register_function(generic.path, inverse, obj=model)
 
     def class_path(cls, variables):
         return inverse.with_variables(variables)
-    app.register_function(generic.class_path, class_path, cls=model)
+    registry.register_function(generic.class_path, class_path, cls=model)

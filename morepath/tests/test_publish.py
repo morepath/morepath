@@ -185,7 +185,10 @@ def test_view_raises_http_error():
         raise HTTPBadRequest()
 
     registry = app.config.registry
-    register_path(registry, Model, 'foo', None, None, None, None, False, Model)
+    converter_registry = app.config.converter_registry
+
+    register_path(registry, converter_registry,
+                  Model, 'foo', None, None, None, None, False, Model)
     register_view(registry, dict(model=Model), view)
 
     request = app().request(get_environ(path='foo'))
