@@ -100,9 +100,6 @@ class ConverterRegistry(object):
     Is aware of inheritance.
     """
     def __init__(self):
-        self.clear()
-
-    def clear(self):
         self._registry = PredicateRegistry(match_class('cls', lambda cls: cls))
 
     def register_converter(self, type, converter):

@@ -12,11 +12,6 @@ def setup_module(module):
     morepath.disable_implicit()
 
 
-# def setup_function(f):
-#     if hasattr(morepath.App.config, 'registry'):
-#         morepath.App.config.registry.clear()
-
-
 def test_view_get_only():
     class App(morepath.App):
         pass
