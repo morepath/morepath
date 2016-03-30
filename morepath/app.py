@@ -1,5 +1,5 @@
 import dectate
-from reg import Registry as RegRegistry, CachingKeyLookup
+from reg import CachingKeyLookup, Registry
 
 from .request import Request
 from . import compat
@@ -12,20 +12,9 @@ ALL_CACHE_SIZE = 5000
 FALLBACK_CACHE_SIZE = 5000
 
 
-class Registry(RegRegistry):
-    """A registry holding an application's configuration.
+class RegRegistry(Registry):
+    """A reg registry with a cached lookup.
     """
-    app = None  # app this registry belongs to. set later during scanning
-
-    def __init__(self):
-        RegRegistry.__init__(self)
-        self._clear()
-
-    def _clear(self):
-        """Clear all registrations in this application.
-        """
-        RegRegistry.clear(self)
-
     @reify
     def lookup(self):
         return CachingKeyLookup(
@@ -76,7 +65,10 @@ class App(dectate.App):
 
         :returns: a :class:`reg.Lookup` instance.
         """
-        return self.config.registry.lookup
+        # this in turn uses a cached lookup from the reg_registry
+        # the caching happens on the reg_registry and not here to
+        # ensure that each instance of App uses the same cache.
+        return self.config.reg_registry.lookup
 
     def set_implicit(self):
         set_implicit(self.lookup)

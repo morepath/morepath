@@ -1,5 +1,5 @@
 from reg import Predicate, KeyExtractor
-from .app import Registry
+from .app import RegRegistry
 from .toposort import toposorted, Info
 
 
@@ -14,11 +14,11 @@ class PredicateInfo(Info):
 
 class PredicateRegistry(object):
     factory_arguments = {
-        'registry': Registry
+        'reg_registry': RegRegistry
     }
 
-    def __init__(self, registry):
-        self._reg_registry = registry
+    def __init__(self, reg_registry):
+        self._reg_registry = reg_registry
         self._predicate_infos = {}
         self._predicate_fallbacks = {}
 

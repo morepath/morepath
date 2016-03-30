@@ -2,7 +2,7 @@ import os
 from reg import mapply
 import dectate
 
-from .app import App, Registry
+from .app import App, RegRegistry
 from .security import (register_permission_checker,
                        Identity, NoIdentity)
 from .view import render_view, render_json, render_html, register_view
@@ -16,15 +16,10 @@ from . import generic
 from .settings import SettingRegistry
 
 
-DEFAULT_CONFIG = {
-    'registry': Registry
-}
-
-
 @App.directive('setting')
 class SettingAction(dectate.Action):
     config = {
-        'registry': Registry,
+        'reg_registry': RegRegistry,
         'setting_registry': SettingRegistry
     }
 
@@ -46,16 +41,16 @@ class SettingAction(dectate.Action):
         self.section = section
         self.name = name
 
-    def identifier(self, registry, setting_registry):
+    def identifier(self, reg_registry, setting_registry):
         return self.section, self.name
 
-    def perform(self, obj, registry, setting_registry):
+    def perform(self, obj, reg_registry, setting_registry):
         setting_registry.register_setting(self.section, self.name, obj)
 
     @staticmethod
-    def after(registry, setting_registry):
-        registry.register_function(generic.settings,
-                                   lambda: setting_registry)
+    def after(reg_registry, setting_registry):
+        reg_registry.register_function(generic.settings,
+                                       lambda: setting_registry)
 
 
 class SettingValue(object):
@@ -190,7 +185,7 @@ class PredicateAction(dectate.Action):
 @App.directive('function')
 class FunctionAction(dectate.Action):
     config = {
-        'registry': Registry,
+        'reg_registry': RegRegistry,
         'predicate_registry': PredicateRegistry
     }
 
@@ -218,29 +213,31 @@ class FunctionAction(dectate.Action):
         self.func = func
         self.key_dict = kw
 
-    def predicate_key(self, registry, predicate_registry):
+    def predicate_key(self, reg_registry, predicate_registry):
         # XXX either reg should keep track of dispatch and
         # dispatch_external_predicates functions that have been used,
         # or we should only allow their registration through a special
         # Morepath directive so that we can.
         if (self.func.external_predicates and
             not predicate_registry.get_predicates(self.func)):
-            registry.register_external_predicates(self.func, [])
-        registry.register_dispatch(self.func)
-        return registry.key_dict_to_predicate_key(
+            reg_registry.register_external_predicates(self.func, [])
+        reg_registry.register_dispatch(self.func)
+        return reg_registry.key_dict_to_predicate_key(
             self.func.wrapped_func, self.key_dict)
 
-    def identifier(self, registry, predicate_registry):
+    def identifier(self, reg_registry, predicate_registry):
         return (self.func.wrapped_func, self.predicate_key(
-            registry, predicate_registry))
+            reg_registry, predicate_registry))
 
-    def perform(self, obj, registry, predicate_registry):
-        registry.register_function(self.func, obj, **self.key_dict)
+    def perform(self, obj, reg_registry, predicate_registry):
+        reg_registry.register_function(self.func, obj, **self.key_dict)
 
 
 @App.directive('converter')
 class ConverterAction(dectate.Action):
-    config = {'converter_registry': ConverterRegistry}
+    config = {
+        'converter_registry': ConverterRegistry
+    }
 
     depends = [SettingAction]
 
@@ -347,7 +344,9 @@ class PathAction(dectate.Action):
 
 @App.directive('permission_rule')
 class PermissionRuleAction(dectate.Action):
-    config = DEFAULT_CONFIG
+    config = {
+        'reg_registry': RegRegistry
+    }
 
     depends = [SettingAction]
 
@@ -372,12 +371,12 @@ class PermissionRuleAction(dectate.Action):
             identity = NoIdentity
         self.identity = identity
 
-    def identifier(self, registry):
+    def identifier(self, reg_registry):
         return (self.model, self.permission, self.identity)
 
-    def perform(self, obj, registry):
+    def perform(self, obj, reg_registry):
         register_permission_checker(
-            registry, self.identity, self.model, self.permission, obj)
+            reg_registry, self.identity, self.model, self.permission, obj)
 
 
 template_directory_id = 0
@@ -503,7 +502,7 @@ class TemplateRenderAction(dectate.Action):
 @App.directive('view')
 class ViewAction(dectate.Action):
     config = {
-        'registry': Registry,
+        'reg_registry': RegRegistry,
         'template_engine_registry': TemplateEngineRegistry
     }
 
@@ -575,15 +574,16 @@ class ViewAction(dectate.Action):
         result['model'] = self.model
         return result
 
-    def predicate_key(self, registry):
-        return registry.key_dict_to_predicate_key(generic.view.wrapped_func,
-                                                  self.key_dict())
+    def predicate_key(self, reg_registry):
+        return reg_registry.key_dict_to_predicate_key(
+            generic.view.wrapped_func,
+            self.key_dict())
 
-    def identifier(self, registry, template_engine_registry):
-        return self.predicate_key(registry)
+    def identifier(self, reg_registry, template_engine_registry):
+        return self.predicate_key(reg_registry)
 
-    def perform(self, obj, registry, template_engine_registry):
-        register_view(registry, template_engine_registry,
+    def perform(self, obj, reg_registry, template_engine_registry):
+        register_view(reg_registry, template_engine_registry,
                       self.key_dict(), obj,
                       self.render, self.template,
                       self.permission, self.internal)
@@ -838,7 +838,7 @@ class IdentityPolicyFunctionAction(dectate.Action):
     composite actions can't be sorted nor have access to the registry.
     """
     config = {
-        'registry': Registry,
+        'reg_registry': RegRegistry,
         'setting_registry': SettingRegistry
     }
 
@@ -848,25 +848,23 @@ class IdentityPolicyFunctionAction(dectate.Action):
         self.dispatch = dispatch
         self.name = name
 
-    def identifier(self, registry, setting_registry):
+    def identifier(self, reg_registry, setting_registry):
         return (self.dispatch, self.name)
 
-    def perform(self, obj, registry, setting_registry):
+    def perform(self, obj, reg_registry, setting_registry):
         # ugly but it needs to only happen once
-        identity_policy = getattr(registry, 'identity_policy', None)
+        identity_policy = getattr(reg_registry, 'identity_policy', None)
         if identity_policy is None:
-            registry.identity_policy = identity_policy = mapply(
+            reg_registry.identity_policy = identity_policy = mapply(
                 obj,
                 settings=setting_registry)
-        registry.register_function(
+        reg_registry.register_function(
             self.dispatch,
             getattr(identity_policy, self.name))
 
 
 @App.directive('identity_policy')
 class IdentityPolicyAction(dectate.Composite):
-    config = DEFAULT_CONFIG
-
     def __init__(self):
         """Register identity policy.
 
@@ -920,7 +918,9 @@ class VerifyIdentityAction(dectate.Composite):
 
 @App.directive('dump_json')
 class DumpJsonAction(dectate.Action):
-    config = DEFAULT_CONFIG
+    config = {
+        'reg_registry': RegRegistry
+    }
 
     def __init__(self, model=object):
         '''Register a function that converts model to JSON.
@@ -938,19 +938,21 @@ class DumpJsonAction(dectate.Action):
         '''
         self.model = model
 
-    def identifier(self, registry):
+    def identifier(self, reg_registry):
         return self.model
 
-    def perform(self, obj, registry):
+    def perform(self, obj, reg_registry):
         # reverse parameters
         def dump(request, self):
             return obj(self, request)
-        registry.register_function(generic.dump_json, dump, obj=self.model)
+        reg_registry.register_function(generic.dump_json, dump, obj=self.model)
 
 
 @App.directive('load_json')
 class LoadJsonAction(dectate.Action):
-    config = DEFAULT_CONFIG
+    config = {
+        'reg_registry': RegRegistry
+    }
 
     def __init__(self):
         '''Register a function that converts JSON to an object.
@@ -961,19 +963,21 @@ class LoadJsonAction(dectate.Action):
         '''
         pass
 
-    def identifier(self, registry):
+    def identifier(self, reg_registry):
         return ()
 
-    def perform(self, obj, registry):
+    def perform(self, obj, reg_registry):
         # reverse parameters
         def load(request, json):
             return obj(json, request)
-        registry.register_function(generic.load_json, load)
+        reg_registry.register_function(generic.load_json, load)
 
 
 @App.directive('link_prefix')
 class LinkPrefixAction(dectate.Action):
-    config = DEFAULT_CONFIG
+    config = {
+        'reg_registry': RegRegistry
+    }
 
     def __init__(self):
         '''Register a function that returns the prefix added to every link
@@ -987,8 +991,8 @@ class LinkPrefixAction(dectate.Action):
         '''
         pass
 
-    def identifier(self, registry):
+    def identifier(self, reg_registry):
         return ()
 
-    def perform(self, obj, registry):
-        registry.register_function(generic.link_prefix, obj)
+    def perform(self, obj, reg_registry):
+        reg_registry.register_function(generic.link_prefix, obj)

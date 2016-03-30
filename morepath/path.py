@@ -1,8 +1,8 @@
 from dectate import DirectiveError
 from reg import arginfo
 
+from .app import RegRegistry
 from . import generic
-from .app import Registry
 from .traject import Path, Inverse, TrajectRegistry
 from .converter import ParameterFactory, ConverterRegistry
 
@@ -35,13 +35,13 @@ def get_variables_func(arguments, exclude):
 
 class PathRegistry(TrajectRegistry):
     factory_arguments = {
-        'registry': Registry,
+        'reg_registry': RegRegistry,
         'converter_registry': ConverterRegistry
     }
 
-    def __init__(self, registry, converter_registry):
+    def __init__(self, reg_registry, converter_registry):
         super(PathRegistry, self).__init__()
-        self.reg_registry = registry
+        self.reg_registry = reg_registry
         self.converter_registry = converter_registry
         self.mounted = {}
         self.named_mounted = {}

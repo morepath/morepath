@@ -31,7 +31,8 @@ def test_view():
     def view(self, request):
         return "View!"
 
-    register_view(app.config.registry, app.config.template_engine_registry,
+    register_view(app.config.reg_registry,
+                  app.config.template_engine_registry,
                   dict(model=Model), view)
 
     model = Model()
@@ -51,7 +52,7 @@ def test_predicates():
     def post_view(self, request):
         return "post"
 
-    registry = app.config.registry
+    registry = app.config.reg_registry
     template_engine_registry = app.config.template_engine_registry
 
     register_view(registry, template_engine_registry,
@@ -89,7 +90,7 @@ def test_notfound_with_predicates():
     def view(self, request):
         return "view"
 
-    register_view(app.config.registry, app.config.template_engine_registry,
+    register_view(app.config.reg_registry, app.config.template_engine_registry,
                   dict(model=Model), view)
     model = Model()
     request = app().request(get_environ(''))
@@ -107,7 +108,7 @@ def test_response_returned():
     def view(self, request):
         return Response('Hello world!')
 
-    register_view(app.config.registry, app.config.template_engine_registry,
+    register_view(app.config.reg_registry, app.config.template_engine_registry,
                   dict(model=Model), view)
     model = Model()
     response = resolve_response(app().request(get_environ(path='')), model)
@@ -123,7 +124,7 @@ def test_request_view():
     def view(self, request):
         return {'hey': 'hey'}
 
-    register_view(app.config.registry, app.config.template_engine_registry,
+    register_view(app.config.reg_registry, app.config.template_engine_registry,
                   dict(model=Model), view,
                   render=render_json)
 
@@ -147,7 +148,7 @@ def test_request_view_with_predicates():
     def view(self, request):
         return {'hey': 'hey'}
 
-    register_view(app.config.registry, app.config.template_engine_registry,
+    register_view(app.config.reg_registry, app.config.template_engine_registry,
                   dict(model=Model, name='foo'), view,
                   render=render_json)
 
@@ -173,7 +174,7 @@ def test_render_html():
     def view(self, request):
         return '<p>Hello world!</p>'
 
-    register_view(app.config.registry, app.config.template_engine_registry,
+    register_view(app.config.reg_registry, app.config.template_engine_registry,
                   dict(model=Model), view,
                   render=render_html)
 
@@ -193,7 +194,7 @@ def test_view_raises_http_error():
     def view(self, request):
         raise HTTPBadRequest()
 
-    registry = app.config.registry
+    registry = app.config.reg_registry
     path_registry = app.config.path_registry
     template_engine_registry = app.config.template_engine_registry
 
@@ -220,7 +221,7 @@ def test_view_after():
             response.headers.add('Foo', 'FOO')
         return "View!"
 
-    register_view(app.config.registry, app.config.template_engine_registry,
+    register_view(app.config.reg_registry, app.config.template_engine_registry,
                   dict(model=Model),
                   view)
 
@@ -242,7 +243,7 @@ def test_view_after_redirect():
             response.headers.add('Foo', 'FOO')
         return morepath.redirect('http://example.org')
 
-    register_view(app.config.registry, app.config.template_engine_registry,
+    register_view(app.config.reg_registry, app.config.template_engine_registry,
                   dict(model=Model),
                   view)
 
@@ -266,7 +267,7 @@ def test_conditional_view_after():
                 response.headers.add('Foo', 'FOO')
         return "View!"
 
-    register_view(app.config.registry, app.config.template_engine_registry,
+    register_view(app.config.reg_registry, app.config.template_engine_registry,
                   dict(model=Model), view)
 
     model = Model()
@@ -288,7 +289,7 @@ def test_view_after_non_decorator():
         request.after(set_header)
         return "View!"
 
-    register_view(app.config.registry, app.config.template_engine_registry,
+    register_view(app.config.reg_registry, app.config.template_engine_registry,
                   dict(model=Model), view)
 
     model = Model()
