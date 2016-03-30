@@ -3,8 +3,7 @@ from reg import mapply
 import dectate
 
 from .app import App, RegRegistry
-from .security import (register_permission_checker,
-                       Identity, NoIdentity)
+from .security import Identity, NoIdentity
 from .view import render_view, render_json, render_html, register_view
 from .traject import Path
 from .converter import ConverterRegistry
@@ -375,8 +374,11 @@ class PermissionRuleAction(dectate.Action):
         return (self.model, self.permission, self.identity)
 
     def perform(self, obj, reg_registry):
-        register_permission_checker(
-            reg_registry, self.identity, self.model, self.permission, obj)
+        reg_registry.register_function(
+            generic.permits, obj,
+            identity=self.identity,
+            obj=self.model,
+            permission=self.permission)
 
 
 template_directory_id = 0
