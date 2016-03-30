@@ -20,7 +20,7 @@ FALLBACK_CACHE_SIZE = 5000
 
 
 class Registry(RegRegistry, MountRegistry, PredicateRegistry,
-               TweenRegistry, TemplateEngineRegistry):
+               TemplateEngineRegistry):
     """A registry holding an application's configuration.
     """
     app = None  # app this registry belongs to. set later during scanning
@@ -29,7 +29,6 @@ class Registry(RegRegistry, MountRegistry, PredicateRegistry,
         RegRegistry.__init__(self)
         MountRegistry.__init__(self)
         PredicateRegistry.__init__(self)
-        TweenRegistry.__init__(self)
         TemplateEngineRegistry.__init__(self)
         self.settings = SettingSectionContainer()
         self._clear()
@@ -40,7 +39,6 @@ class Registry(RegRegistry, MountRegistry, PredicateRegistry,
         RegRegistry.clear(self)
         MountRegistry.clear(self)
         PredicateRegistry.clear(self)
-        TweenRegistry.clear(self)
         TemplateEngineRegistry.clear(self)
         self.traject = Traject()
 
@@ -188,6 +186,6 @@ class App(dectate.App):
         from .publish import publish
         result = publish
         for tween_factory in reversed(
-                self.config.registry.sorted_tween_factories()):
+                self.config.tween_registry.sorted_tween_factories()):
             result = tween_factory(self, result)
         return result

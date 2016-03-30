@@ -10,6 +10,7 @@ from .view import render_view, render_json, render_html, register_view
 from .path import register_path
 from .traject import Path
 from .converter import ConverterRegistry
+from .tween import TweenRegistry
 from . import generic
 
 
@@ -763,7 +764,9 @@ tween_factory_id = 0
 
 @App.directive('tween_factory')
 class TweenFactoryAction(dectate.Action):
-    config = DEFAULT_CONFIG
+    config = {
+        'tween_registry': TweenRegistry
+    }
 
     depends = [SettingAction]
 
@@ -800,11 +803,12 @@ class TweenFactoryAction(dectate.Action):
             tween_factory_id += 1
         self.name = name
 
-    def identifier(self, registry):
+    def identifier(self, tween_registry):
         return self.name
 
-    def perform(self, obj, registry):
-        registry.register_tween_factory(obj, over=self.over, under=self.under)
+    def perform(self, obj, tween_registry):
+        tween_registry.register_tween_factory(
+            obj, over=self.over, under=self.under)
 
 
 @App.private_action_class
