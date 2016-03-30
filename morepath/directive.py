@@ -4,7 +4,7 @@ import dectate
 
 from .app import App, RegRegistry
 from .security import Identity, NoIdentity
-from .view import render_view, render_json, render_html, register_view
+from .view import render_view, render_json, render_html, ViewRegistry
 from .traject import Path
 from .converter import ConverterRegistry
 from .tween import TweenRegistry
@@ -503,8 +503,7 @@ class TemplateRenderAction(dectate.Action):
 @App.directive('view')
 class ViewAction(dectate.Action):
     config = {
-        'reg_registry': RegRegistry,
-        'template_engine_registry': TemplateEngineRegistry
+        'view_registry': ViewRegistry,
     }
 
     depends = [SettingAction, PredicateAction,
@@ -575,19 +574,14 @@ class ViewAction(dectate.Action):
         result['model'] = self.model
         return result
 
-    def predicate_key(self, reg_registry):
-        return reg_registry.key_dict_to_predicate_key(
-            generic.view.wrapped_func,
-            self.key_dict())
+    def identifier(self, view_registry):
+        return view_registry.predicate_key(self.key_dict())
 
-    def identifier(self, reg_registry, template_engine_registry):
-        return self.predicate_key(reg_registry)
-
-    def perform(self, obj, reg_registry, template_engine_registry):
-        register_view(reg_registry, template_engine_registry,
-                      self.key_dict(), obj,
-                      self.render, self.template,
-                      self.permission, self.internal)
+    def perform(self, obj, view_registry):
+        view_registry.register_view(
+            self.key_dict(), obj,
+            self.render, self.template,
+            self.permission, self.internal)
 
 
 @App.directive('json')

@@ -3,7 +3,7 @@ import morepath
 from morepath.app import App
 from morepath.publish import publish, resolve_response
 from morepath.request import Response
-from morepath.view import register_view, render_json, render_html
+from morepath.view import render_json, render_html
 from webob.exc import HTTPNotFound, HTTPBadRequest, HTTPFound, HTTPOk
 import webob
 from webtest import TestApp as Client
@@ -31,9 +31,7 @@ def test_view():
     def view(self, request):
         return "View!"
 
-    register_view(app.config.reg_registry,
-                  app.config.template_engine_registry,
-                  dict(model=Model), view)
+    app.config.view_registry.register_view(dict(model=Model), view)
 
     model = Model()
     result = resolve_response(app().request(get_environ(path='')), model)
@@ -52,14 +50,12 @@ def test_predicates():
     def post_view(self, request):
         return "post"
 
-    registry = app.config.reg_registry
-    template_engine_registry = app.config.template_engine_registry
+    view_registry = app.config.view_registry
 
-    register_view(registry, template_engine_registry,
-                  dict(model=Model), view)
-    register_view(registry, template_engine_registry,
-                  dict(model=Model, request_method='POST'),
-                  post_view)
+    view_registry.register_view(dict(model=Model), view)
+    view_registry.register_view(
+        dict(model=Model, request_method='POST'),
+        post_view)
 
     model = Model()
     assert resolve_response(
@@ -90,8 +86,8 @@ def test_notfound_with_predicates():
     def view(self, request):
         return "view"
 
-    register_view(app.config.reg_registry, app.config.template_engine_registry,
-                  dict(model=Model), view)
+    app.config.view_registry.register_view(dict(model=Model), view)
+
     model = Model()
     request = app().request(get_environ(''))
     request.unconsumed = ['foo']
@@ -108,8 +104,8 @@ def test_response_returned():
     def view(self, request):
         return Response('Hello world!')
 
-    register_view(app.config.reg_registry, app.config.template_engine_registry,
-                  dict(model=Model), view)
+    app.config.view_registry.register_view(dict(model=Model), view)
+
     model = Model()
     response = resolve_response(app().request(get_environ(path='')), model)
     assert response.body == b'Hello world!'
@@ -124,9 +120,9 @@ def test_request_view():
     def view(self, request):
         return {'hey': 'hey'}
 
-    register_view(app.config.reg_registry, app.config.template_engine_registry,
-                  dict(model=Model), view,
-                  render=render_json)
+    app.config.view_registry.register_view(
+        dict(model=Model), view,
+        render=render_json)
 
     request = app().request(get_environ(path=''))
 
@@ -148,9 +144,9 @@ def test_request_view_with_predicates():
     def view(self, request):
         return {'hey': 'hey'}
 
-    register_view(app.config.reg_registry, app.config.template_engine_registry,
-                  dict(model=Model, name='foo'), view,
-                  render=render_json)
+    app.config.view_registry.register_view(
+        dict(model=Model, name='foo'), view,
+        render=render_json)
 
     request = app().request(get_environ(path=''))
 
@@ -174,9 +170,9 @@ def test_render_html():
     def view(self, request):
         return '<p>Hello world!</p>'
 
-    register_view(app.config.reg_registry, app.config.template_engine_registry,
-                  dict(model=Model), view,
-                  render=render_html)
+    app.config.view_registry.register_view(
+        dict(model=Model), view,
+        render=render_html)
 
     request = app().request(get_environ(path=''))
     model = Model()
@@ -194,14 +190,12 @@ def test_view_raises_http_error():
     def view(self, request):
         raise HTTPBadRequest()
 
-    registry = app.config.reg_registry
     path_registry = app.config.path_registry
-    template_engine_registry = app.config.template_engine_registry
 
     path_registry.register_path(
         Model, 'foo', None, None, None, None, False, Model)
-    register_view(registry, template_engine_registry,
-                  dict(model=Model), view)
+
+    app.config.view_registry.register_view(dict(model=Model), view)
 
     request = app().request(get_environ(path='foo'))
 
@@ -221,9 +215,9 @@ def test_view_after():
             response.headers.add('Foo', 'FOO')
         return "View!"
 
-    register_view(app.config.reg_registry, app.config.template_engine_registry,
-                  dict(model=Model),
-                  view)
+    app.config.view_registry.register_view(
+        dict(model=Model),
+        view)
 
     model = Model()
     result = resolve_response(app().request(get_environ(path='')), model)
@@ -243,9 +237,9 @@ def test_view_after_redirect():
             response.headers.add('Foo', 'FOO')
         return morepath.redirect('http://example.org')
 
-    register_view(app.config.reg_registry, app.config.template_engine_registry,
-                  dict(model=Model),
-                  view)
+    app.config.view_registry.register_view(
+        dict(model=Model),
+        view)
 
     model = Model()
     result = resolve_response(app().request(get_environ(path='')), model)
@@ -267,8 +261,8 @@ def test_conditional_view_after():
                 response.headers.add('Foo', 'FOO')
         return "View!"
 
-    register_view(app.config.reg_registry, app.config.template_engine_registry,
-                  dict(model=Model), view)
+    app.config.view_registry.register_view(
+        dict(model=Model), view)
 
     model = Model()
     result = resolve_response(app().request(get_environ(path='')), model)
@@ -289,8 +283,7 @@ def test_view_after_non_decorator():
         request.after(set_header)
         return "View!"
 
-    register_view(app.config.reg_registry, app.config.template_engine_registry,
-                  dict(model=Model), view)
+    app.config.view_registry.register_view(dict(model=Model), view)
 
     model = Model()
     result = resolve_response(app().request(get_environ(path='')), model)

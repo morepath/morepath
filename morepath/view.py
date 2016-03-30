@@ -4,6 +4,8 @@ from webob import Response as BaseResponse
 
 from . import generic
 from .request import Response
+from .app import RegRegistry
+from .template import TemplateEngineRegistry
 
 
 class View(object):
@@ -46,15 +48,31 @@ def render_view(content, request):
     return Response(content, content_type='text/plain')
 
 
-def register_view(registry, template_registry, key_dict, view,
-                  render=render_view,
-                  template=None,
-                  permission=None,
-                  internal=False):
-    if template is not None:
-        render = template_registry.get_template_render(template, render)
-    v = View(view, render, permission, internal)
-    registry.register_function(generic.view, v, **key_dict)
+class ViewRegistry(object):
+    factory_arguments = {
+        'reg_registry': RegRegistry,
+        'template_engine_registry': TemplateEngineRegistry,
+    }
+
+    def __init__(self, reg_registry, template_engine_registry):
+        self.reg_registry = reg_registry
+        self.template_engine_registry = template_engine_registry
+
+    def predicate_key(self, key_dict):
+        return self.reg_registry.key_dict_to_predicate_key(
+            generic.view.wrapped_func,
+            key_dict)
+
+    def register_view(self, key_dict, view,
+                      render=render_view,
+                      template=None,
+                      permission=None,
+                      internal=False):
+        if template is not None:
+            render = self.template_engine_registry.get_template_render(
+                template, render)
+        v = View(view, render, permission, internal)
+        self.reg_registry.register_function(generic.view, v, **key_dict)
 
 
 def render_json(content, request):
