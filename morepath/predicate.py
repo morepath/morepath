@@ -1,4 +1,5 @@
 from reg import Predicate, KeyExtractor
+from .app import Registry
 from .toposort import toposorted, Info
 
 
@@ -12,10 +13,12 @@ class PredicateInfo(Info):
 
 
 class PredicateRegistry(object):
-    def __init__(self):
-        self.clear()
+    factory_arguments = {
+        'registry': Registry
+    }
 
-    def clear(self):
+    def __init__(self, registry):
+        self._reg_registry = registry
         self._predicate_infos = {}
         self._predicate_fallbacks = {}
 
@@ -33,9 +36,9 @@ class PredicateRegistry(object):
         for dispatch in self._predicate_infos.keys():
             if not dispatch.external_predicates:
                 continue
-            self.register_external_predicates(
+            self._reg_registry.register_external_predicates(
                 dispatch, self.get_predicates(dispatch))
-            self.register_dispatch(dispatch)
+            self._reg_registry.register_dispatch(dispatch)
 
     def get_predicates(self, dispatch):
         infos = self.sorted_predicate_infos(dispatch)

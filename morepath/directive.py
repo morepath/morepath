@@ -12,6 +12,7 @@ from .traject import Path
 from .converter import ConverterRegistry
 from .tween import TweenRegistry
 from .template import TemplateEngineRegistry
+from .predicate import PredicateRegistry
 from . import generic
 
 
@@ -91,7 +92,9 @@ class SettingSectionAction(dectate.Composite):
 # this.
 @App.directive('predicate_fallback')
 class PredicateFallbackAction(dectate.Action):
-    config = DEFAULT_CONFIG
+    config = {
+        'predicate_registry': PredicateRegistry
+    }
 
     depends = [SettingAction]
 
@@ -108,16 +111,19 @@ class PredicateFallbackAction(dectate.Action):
         self.dispatch = dispatch
         self.func = func
 
-    def identifier(self, registry):
+    def identifier(self, predicate_registry):
         return self.dispatch.wrapped_func, self.func
 
-    def perform(self, obj, registry):
-        registry.register_predicate_fallback(self.dispatch, self.func, obj)
+    def perform(self, obj, predicate_registry):
+        predicate_registry.register_predicate_fallback(
+            self.dispatch, self.func, obj)
 
 
 @App.directive('predicate')
 class PredicateAction(dectate.Action):
-    config = DEFAULT_CONFIG
+    config = {
+        'predicate_registry': PredicateRegistry
+    }
 
     depends = [SettingAction, PredicateFallbackAction]
 
@@ -155,30 +161,34 @@ class PredicateAction(dectate.Action):
         self.name = name
         self.default = default
         self.index = index
-        self.before = before
+        self._before = before
         self._after = after
 
-    def identifier(self, registry):
-        return self.dispatch.wrapped_func, self.before, self._after
+    def identifier(self, predicate_registry):
+        return self.dispatch.wrapped_func, self._before, self._after
 
-    def perform(self, obj, registry):
+    def perform(self, obj, predicate_registry):
         if not self.dispatch.external_predicates:
             raise dectate.DirectiveError(
                 "@predicate decorator may only be used with "
                 "@reg.dispatch_external_predicates: %s" % self.dispatch)
 
-        registry.register_predicate(obj, self.dispatch,
-                                    self.name, self.default, self.index,
-                                    self.before, self._after)
+        predicate_registry.register_predicate(
+            obj, self.dispatch,
+            self.name, self.default, self.index,
+            self._before, self._after)
 
     @staticmethod
-    def after(registry):
-        registry.install_predicates()
+    def after(predicate_registry):
+        predicate_registry.install_predicates()
 
 
 @App.directive('function')
 class FunctionAction(dectate.Action):
-    config = DEFAULT_CONFIG
+    config = {
+        'registry': Registry,
+        'predicate_registry': PredicateRegistry
+    }
 
     depends = [SettingAction,
                PredicateAction, PredicateFallbackAction]
@@ -204,22 +214,23 @@ class FunctionAction(dectate.Action):
         self.func = func
         self.key_dict = kw
 
-    def predicate_key(self, registry):
+    def predicate_key(self, registry, predicate_registry):
         # XXX either reg should keep track of dispatch and
         # dispatch_external_predicates functions that have been used,
         # or we should only allow their registration through a special
         # Morepath directive so that we can.
-        if self.func.external_predicates and not registry.get_predicates(
-                self.func):
+        if (self.func.external_predicates and
+            not predicate_registry.get_predicates(self.func)):
             registry.register_external_predicates(self.func, [])
         registry.register_dispatch(self.func)
         return registry.key_dict_to_predicate_key(
             self.func.wrapped_func, self.key_dict)
 
-    def identifier(self, registry):
-        return (self.func.wrapped_func, self.predicate_key(registry))
+    def identifier(self, registry, predicate_registry):
+        return (self.func.wrapped_func, self.predicate_key(
+            registry, predicate_registry))
 
-    def perform(self, obj, registry):
+    def perform(self, obj, registry, predicate_registry):
         registry.register_function(self.func, obj, **self.key_dict)
 
 

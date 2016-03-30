@@ -4,14 +4,10 @@ from reg import Registry as RegRegistry, CachingKeyLookup
 from .request import Request
 from .traject import Traject
 from .settings import SettingSectionContainer
-from .converter import ConverterRegistry
-from .predicate import PredicateRegistry
-from .tween import TweenRegistry
 from . import compat
 from .implicit import set_implicit
 from .mount import MountRegistry
 from .reify import reify
-from .template import TemplateEngineRegistry
 
 
 COMPONENT_CACHE_SIZE = 5000
@@ -19,7 +15,7 @@ ALL_CACHE_SIZE = 5000
 FALLBACK_CACHE_SIZE = 5000
 
 
-class Registry(RegRegistry, MountRegistry, PredicateRegistry):
+class Registry(RegRegistry, MountRegistry):
     """A registry holding an application's configuration.
     """
     app = None  # app this registry belongs to. set later during scanning
@@ -27,7 +23,6 @@ class Registry(RegRegistry, MountRegistry, PredicateRegistry):
     def __init__(self):
         RegRegistry.__init__(self)
         MountRegistry.__init__(self)
-        PredicateRegistry.__init__(self)
         self.settings = SettingSectionContainer()
         self._clear()
 
@@ -36,7 +31,6 @@ class Registry(RegRegistry, MountRegistry, PredicateRegistry):
         """
         RegRegistry.clear(self)
         MountRegistry.clear(self)
-        PredicateRegistry.clear(self)
         self.traject = Traject()
 
     @reify
