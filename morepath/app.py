@@ -3,7 +3,6 @@ from reg import Registry as RegRegistry, CachingKeyLookup
 
 from .request import Request
 from .traject import Traject
-from .settings import SettingSectionContainer
 from . import compat
 from .implicit import set_implicit
 from .reify import reify
@@ -21,7 +20,6 @@ class Registry(RegRegistry):
 
     def __init__(self):
         RegRegistry.__init__(self)
-        self.settings = SettingSectionContainer()
         self._clear()
 
     def _clear(self):

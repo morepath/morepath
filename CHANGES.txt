@@ -162,15 +162,9 @@ CHANGES
   If you were using ``morepath.sphinxext`` to document directives
   using Sphinx autodoc, use ``dectate.sphinxext`` instead.
 
-- Add `request.class_link`. This lets you link using classes instead
-  of instances as an optimization. In some cases instantiating an
-  object just so you can generate a link to it is relatively
-  expensive. In that case you can use `request.class_link`
-  instead. This lets you link to a model class and supply a
-  `variables` dictionary manually.
-
-- If you want to use Morepath directives on ``@staticmethod``, you need
-  to change the order in which these are applied. In the past::
+- **Breaking change** If you want to use Morepath directives on
+  ``@staticmethod``, you need to change the order in which these are
+  applied. In the past::
 
     @App.path(model=Foo, path='bar')
     @staticmethod
@@ -184,9 +178,19 @@ CHANGES
     def get_foo():
         ....
 
-- You cannot use a Morepath ``path`` directive on a ``@staticmethod``
-  anymore.
+- **Breaking change** You cannot use a Morepath ``path`` directive on
+  a ``@classmethod`` anymore.
 
+- **Breaking change**. If you use settings, you need to replace any
+  references to ``app.registry.settings`` to
+  ``app.config.setting_registry``..
+
+- Add `request.class_link`. This lets you link using classes instead
+  of instances as an optimization. In some cases instantiating an
+  object just so you can generate a link to it is relatively
+  expensive. In that case you can use `request.class_link`
+  instead. This lets you link to a model class and supply a
+  `variables` dictionary manually.
 
 0.12 (2016-01-27)
 =================

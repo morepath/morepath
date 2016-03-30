@@ -3,7 +3,6 @@ from reg import mapply
 import dectate
 
 from .app import App, Registry
-from .settings import register_setting
 from .security import (register_permission_checker,
                        Identity, NoIdentity)
 from .view import render_view, render_json, render_html, register_view
@@ -15,6 +14,7 @@ from .template import TemplateEngineRegistry
 from .predicate import PredicateRegistry
 from .mount import MountRegistry
 from . import generic
+from .settings import SettingRegistry
 
 
 DEFAULT_CONFIG = {
@@ -24,15 +24,19 @@ DEFAULT_CONFIG = {
 
 @App.directive('setting')
 class SettingAction(dectate.Action):
-    config = DEFAULT_CONFIG
+    config = {
+        'registry': Registry,
+        'setting_registry': SettingRegistry
+    }
 
     def __init__(self, section, name):
         """Register application setting.
 
-        An application setting is registered under the ``settings``
-        attribute of :class:`morepath.app.Registry`. It will
-        be executed early in configuration so other configuration
-        directives can depend on the settings being there.
+        An application setting is registered under the
+        ``.config.settings_registry`` class attribute of
+        :class:`morepath.App`` subclasses. It will be executed early
+        in configuration so other configuration directives can depend
+        on the settings being there.
 
         The decorated function returns the setting value when executed.
 
@@ -43,16 +47,16 @@ class SettingAction(dectate.Action):
         self.section = section
         self.name = name
 
-    def identifier(self, registry):
+    def identifier(self, registry, setting_registry):
         return self.section, self.name
 
-    def perform(self, obj, registry):
-        register_setting(registry, self.section, self.name, obj)
+    def perform(self, obj, registry, setting_registry):
+        setting_registry.register_setting(self.section, self.name, obj)
 
     @staticmethod
-    def after(registry):
+    def after(registry, setting_registry):
         registry.register_function(generic.settings,
-                                   lambda: registry.settings)
+                                   lambda: setting_registry)
 
 
 class SettingValue(object):
@@ -440,7 +444,7 @@ class TemplateDirectoryAction(dectate.Action):
 @App.directive('template_loader')
 class TemplateLoaderAction(dectate.Action):
     config = {
-        'registry': Registry,
+        'setting_registry': SettingRegistry,
         'template_engine_registry': TemplateEngineRegistry
     }
 
@@ -459,12 +463,12 @@ class TemplateLoaderAction(dectate.Action):
         '''
         self.extension = extension
 
-    def identifier(self, registry, template_engine_registry):
+    def identifier(self, setting_registry, template_engine_registry):
         return self.extension
 
-    def perform(self, obj, registry, template_engine_registry):
+    def perform(self, obj, setting_registry, template_engine_registry):
         template_engine_registry.initialize_template_loader(
-            self.extension, obj, registry.settings)
+            self.extension, obj, setting_registry)
 
 
 @App.directive('template_render')
@@ -836,23 +840,27 @@ class IdentityPolicyFunctionAction(dectate.Action):
     We need this as it needs to be sorted after SettingAction and
     composite actions can't be sorted nor have access to the registry.
     """
-    config = DEFAULT_CONFIG
+    config = {
+        'registry': Registry,
+        'setting_registry': SettingRegistry
+    }
+
     depends = [SettingAction]
 
     def __init__(self, dispatch, name):
         self.dispatch = dispatch
         self.name = name
 
-    def identifier(self, registry):
+    def identifier(self, registry, setting_registry):
         return (self.dispatch, self.name)
 
-    def perform(self, obj, registry):
+    def perform(self, obj, registry, setting_registry):
         # ugly but it needs to only happen once
         identity_policy = getattr(registry, 'identity_policy', None)
         if identity_policy is None:
             registry.identity_policy = identity_policy = mapply(
                 obj,
-                settings=registry.settings)
+                settings=setting_registry)
         registry.register_function(
             self.dispatch,
             getattr(identity_policy, self.name))
