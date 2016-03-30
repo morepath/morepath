@@ -1,7 +1,10 @@
 import binascii
 import base64
+from reg import mapply
 
 from .compat import bytes_
+from .app import RegRegistry
+from .settings import SettingRegistry
 
 
 class NoIdentity(object):
@@ -9,6 +12,29 @@ class NoIdentity(object):
 
 
 NO_IDENTITY = NoIdentity()
+
+
+class IdentityPolicyRegistry(object):
+    factory_arguments = {
+        'reg_registry': RegRegistry,
+        'setting_registry': SettingRegistry,
+    }
+
+    def __init__(self, reg_registry, setting_registry):
+        self.reg_registry = reg_registry
+        self.setting_registry = setting_registry
+        self.identity_policy = None
+
+    def register_identity_policy_function(self, obj, dispatch, name):
+        # make sure we only have a single identity policy
+        identity_policy = self.identity_policy
+        if identity_policy is None:
+            self.identity_policy = identity_policy = mapply(
+                obj,
+                settings=self.setting_registry)
+        self.reg_registry.register_function(
+            dispatch,
+            getattr(identity_policy, name))
 
 
 class Identity(object):

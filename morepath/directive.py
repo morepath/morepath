@@ -1,9 +1,8 @@
 import os
-from reg import mapply
 import dectate
 
 from .app import App, RegRegistry
-from .security import Identity, NoIdentity
+from .security import Identity, NoIdentity, IdentityPolicyRegistry
 from .view import render_view, render_json, render_html, ViewRegistry
 from .traject import Path
 from .converter import ConverterRegistry
@@ -833,8 +832,7 @@ class IdentityPolicyFunctionAction(dectate.Action):
     composite actions can't be sorted nor have access to the registry.
     """
     config = {
-        'reg_registry': RegRegistry,
-        'setting_registry': SettingRegistry
+        'identity_policy_registry': IdentityPolicyRegistry,
     }
 
     depends = [SettingAction]
@@ -843,19 +841,12 @@ class IdentityPolicyFunctionAction(dectate.Action):
         self.dispatch = dispatch
         self.name = name
 
-    def identifier(self, reg_registry, setting_registry):
+    def identifier(self, identity_policy_registry):
         return (self.dispatch, self.name)
 
-    def perform(self, obj, reg_registry, setting_registry):
-        # ugly but it needs to only happen once
-        identity_policy = getattr(reg_registry, 'identity_policy', None)
-        if identity_policy is None:
-            reg_registry.identity_policy = identity_policy = mapply(
-                obj,
-                settings=setting_registry)
-        reg_registry.register_function(
-            self.dispatch,
-            getattr(identity_policy, self.name))
+    def perform(self, obj, identity_policy_registry):
+        identity_policy_registry.register_identity_policy_function(
+            obj, self.dispatch, self.name)
 
 
 @App.directive('identity_policy')
