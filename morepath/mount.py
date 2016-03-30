@@ -1,19 +1,22 @@
 from . import generic
 from .path import register_path
+from .app import Registry
 
 
 class MountRegistry(object):
-    def __init__(self):
-        self.clear()
+    factory_arguments = {
+        'registry': Registry
+    }
 
-    def clear(self):
+    def __init__(self, registry):
+        self.reg_registry = registry
         self.mounted = {}
         self.named_mounted = {}
 
     def register_mount(self, app, converter_registry,
                        path, get_variables, converters, required,
                        get_converters, mount_name, app_factory):
-        register_path(self, converter_registry, app,
+        register_path(self.reg_registry, converter_registry, app,
                       path, get_variables,
                       converters, required, get_converters, False,
                       app_factory)
@@ -23,5 +26,6 @@ class MountRegistry(object):
         self.named_mounted[mount_name] = app_factory
 
     def register_defer_links(self, model, app_factory):
-        self.register_function(generic.deferred_link_app, app_factory,
-                               obj=model)
+        self.reg_registry.register_function(
+            generic.deferred_link_app, app_factory,
+            obj=model)

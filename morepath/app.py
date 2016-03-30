@@ -6,7 +6,6 @@ from .traject import Traject
 from .settings import SettingSectionContainer
 from . import compat
 from .implicit import set_implicit
-from .mount import MountRegistry
 from .reify import reify
 
 
@@ -15,14 +14,13 @@ ALL_CACHE_SIZE = 5000
 FALLBACK_CACHE_SIZE = 5000
 
 
-class Registry(RegRegistry, MountRegistry):
+class Registry(RegRegistry):
     """A registry holding an application's configuration.
     """
     app = None  # app this registry belongs to. set later during scanning
 
     def __init__(self):
         RegRegistry.__init__(self)
-        MountRegistry.__init__(self)
         self.settings = SettingSectionContainer()
         self._clear()
 
@@ -30,7 +28,6 @@ class Registry(RegRegistry, MountRegistry):
         """Clear all registrations in this application.
         """
         RegRegistry.clear(self)
-        MountRegistry.clear(self)
         self.traject = Traject()
 
     @reify
@@ -141,13 +138,13 @@ class App(dectate.App):
             # XXX assert that variables is empty
 
             # XXX do we need to deal with subclasses of apps?
-            if app.__class__ not in self.config.registry.mounted:
+            if app.__class__ not in self.config.mount_registry.mounted:
                 return None
         else:
             if isinstance(app, compat.string_types):
-                factory = self.config.registry.named_mounted.get(app)
+                factory = self.config.mount_registry.named_mounted.get(app)
             else:
-                factory = self.config.registry.mounted.get(app)
+                factory = self.config.mount_registry.mounted.get(app)
             if factory is None:
                 return None
             result = factory(**variables)

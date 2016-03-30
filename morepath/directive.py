@@ -13,6 +13,7 @@ from .converter import ConverterRegistry
 from .tween import TweenRegistry
 from .template import TemplateEngineRegistry
 from .predicate import PredicateRegistry
+from .mount import MountRegistry
 from . import generic
 
 
@@ -266,7 +267,8 @@ class ConverterAction(dectate.Action):
 class PathAction(dectate.Action):
     config = {
         'registry': Registry,
-        'converter_registry': ConverterRegistry
+        'converter_registry': ConverterRegistry,
+        'mount_registry': MountRegistry
     }
 
     depends = [SettingAction, ConverterAction]
@@ -318,13 +320,13 @@ class PathAction(dectate.Action):
         self.get_converters = get_converters
         self.absorb = absorb
 
-    def identifier(self, registry, converter_registry):
+    def identifier(self, registry, converter_registry, mount_registry):
         return ('path', Path(self.path).discriminator())
 
-    def discriminators(self, registry, converter_registry):
+    def discriminators(self, registry, converter_registry, mount_registry):
         return [('model', self.model)]
 
-    def perform(self, obj, registry, converter_registry):
+    def perform(self, obj, registry, converter_registry, mount_registry):
         model = self.model
         if isinstance(obj, type):
             if model is not None:
@@ -688,11 +690,6 @@ class HtmlAction(ViewAction):
 
 @App.directive('mount')
 class MountAction(PathAction):
-    config = {
-        'registry': Registry,
-        'converter_registry': ConverterRegistry
-    }
-
     group_class = PathAction
     depends = [SettingAction, ConverterAction]
 
@@ -734,11 +731,12 @@ class MountAction(PathAction):
         self.name = name or path
         self.mounted_app = app
 
-    def discriminators(self, registry, converter_registry):
+    def discriminators(self, registry, converter_registry,
+                       mount_registry):
         return [('mount', self.mounted_app)]
 
-    def perform(self, obj, registry, converter_registry):
-        registry.register_mount(
+    def perform(self, obj, registry, converter_registry, mount_registry):
+        mount_registry.register_mount(
             self.mounted_app, converter_registry, self.path, self.variables,
             self.converters, self.required,
             self.get_converters, self.name, obj)
@@ -769,14 +767,14 @@ class DeferLinksAction(dectate.Action):
         """
         self.model = model
 
-    def identifier(self, registry, converter_registry):
+    def identifier(self, registry, converter_registry, mount_registry):
         return ('defer_links', self.model)
 
-    def discriminators(self, registry, converter_registry):
+    def discriminators(self, registry, converter_registry, mount_registry):
         return [('model', self.model)]
 
-    def perform(self, obj, registry, converter_registry):
-        registry.register_defer_links(self.model, obj)
+    def perform(self, obj, registry, converter_registry, mount_registry):
+        mount_registry.register_defer_links(self.model, obj)
 
 
 tween_factory_id = 0
