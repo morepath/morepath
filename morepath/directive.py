@@ -433,7 +433,7 @@ class TemplateDirectoryAction(dectate.Action):
         directory = obj()
         if not os.path.isabs(directory):
             directory = os.path.join(os.path.dirname(
-                self.directive.code_info.path), directory)
+                self.code_info.path), directory)
         template_engine_registry.register_template_directory_info(
             obj, directory, self._before, self._after,
             self.directive.configurable)
