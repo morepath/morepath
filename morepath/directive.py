@@ -429,11 +429,11 @@ class TemplateDirectoryAction(dectate.Action):
         return self.name
 
     def perform(self, obj, template_engine_registry):
-        # XXX hacky to have to get configurable and pass it in
         directory = obj()
         if not os.path.isabs(directory):
             directory = os.path.join(os.path.dirname(
                 self.code_info.path), directory)
+        # XXX hacky to have to get configurable and pass it in
         template_engine_registry.register_template_directory_info(
             obj, directory, self._before, self._after,
             self.directive.configurable)

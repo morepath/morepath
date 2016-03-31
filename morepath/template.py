@@ -5,10 +5,10 @@ from .settings import SettingRegistry
 
 
 class TemplateDirectoryInfo(Info):
-    def __init__(self, key, directory, before, after, app):
+    def __init__(self, key, directory, before, after, configurable):
         super(TemplateDirectoryInfo, self).__init__(key, before, after)
         self.directory = directory
-        self.app = app
+        self.configurable = configurable
 
 
 class TemplateEngineRegistry(object):
@@ -43,7 +43,7 @@ class TemplateEngineRegistry(object):
         # override those in base classes
         for info in self._template_directory_infos:
             extra_before = []
-            for base in info.app.extends:
+            for base in info.configurable.extends:
                 extra_before.extend(
                     self._template_configurable_to_keys.get(base, []))
             info.before.extend(extra_before)
