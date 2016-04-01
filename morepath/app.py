@@ -161,3 +161,16 @@ class App(dectate.App):
                 self.config.tween_registry.sorted_tween_factories()):
             result = tween_factory(self, result)
         return result
+
+    @property
+    def settings(self):
+        """Returns the settings bound to this app.
+
+        Works the same way as :func:`morepath.generic.settings`. Unlike calling
+        ``morepath.settings`` however, this property does not rely on the
+        global lookup. It's simply a shortcut to
+        ``app.config.setting_registry``.
+
+        """
+
+        return self.config.setting_registry
