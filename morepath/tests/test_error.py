@@ -54,22 +54,6 @@ def test_path_function_with_kwargs():
         dectate.commit([App])
 
 
-def test_config_error_is_also_directive_report_error():
-    class App(morepath.App):
-        pass
-
-    class Model(object):
-        def __init__(self, id):
-            self.id = id
-
-    @App.path(path='{id}')
-    def get_model(id):
-        return Model(id)
-
-    with pytest.raises(DirectiveReportError):
-        dectate.commit([App])
-
-
 def test_conflict_error_should_report_line_numbers():
     importscan.scan(conflicterror)
     with pytest.raises(ConflictError) as e:

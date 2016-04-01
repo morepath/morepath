@@ -261,7 +261,7 @@ class ConverterAction(dectate.Action):
         converter_registry.register_converter(self.type, obj())
 
 
-@App.directive('path')
+@App.private_action_class
 class PathAction(dectate.Action):
     config = {
         'path_registry': PathRegistry
@@ -269,6 +269,33 @@ class PathAction(dectate.Action):
 
     depends = [SettingAction, ConverterAction]
 
+    def __init__(self, path, model=None,
+                 variables=None, converters=None, required=None,
+                 get_converters=None, absorb=False):
+        self.model = model
+        self.path = path
+        self.variables = variables
+        self.converters = converters
+        self.required = required
+        self.get_converters = get_converters
+        self.absorb = absorb
+
+    def identifier(self, path_registry):
+        return ('path', Path(self.path).discriminator())
+
+    def discriminators(self, path_registry):
+        return [('model', self.model)]
+
+    def perform(self, obj, path_registry):
+        path_registry.register_path(
+            self.model, self.path,
+            self.variables, self.converters, self.required,
+            self.get_converters, self.absorb,
+            obj)
+
+
+@App.directive('path')
+class PathCompositeAction(dectate.Composite):
     def __init__(self, path, model=None,
                  variables=None, converters=None, required=None,
                  get_converters=None, absorb=False):
@@ -316,13 +343,11 @@ class PathAction(dectate.Action):
         self.get_converters = get_converters
         self.absorb = absorb
 
-    def identifier(self, path_registry):
-        return ('path', Path(self.path).discriminator())
-
-    def discriminators(self, path_registry):
-        return [('model', self.model)]
-
-    def perform(self, obj, path_registry):
+    def actions(self, obj):
+        # this composite action exists to let you use path with a
+        # class and still have the path action discriminator work
+        # correctly, which reports a conflict if you use the path
+        # action with the same model multiple times.
         model = self.model
         if isinstance(obj, type):
             if model is not None:
@@ -333,11 +358,8 @@ class PathAction(dectate.Action):
         if model is None:
             raise dectate.DirectiveError(
                 "@path does not decorate class and has no explicit model")
-        path_registry.register_path(
-            model, self.path,
-            self.variables, self.converters, self.required,
-            self.get_converters, self.absorb,
-            obj)
+        yield PathAction(self.path, model, self.variables, self.converters,
+                         self.required, self.get_converters, self.absorb), obj
 
 
 @App.directive('permission_rule')

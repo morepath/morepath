@@ -1967,3 +1967,75 @@ def test_class_link_extra_parameters():
     response = c.get('/link?a=A&b=B')
     assert sorted(response.body[len('http://localhost/?'):].split(b"&")) == [
         b'a=A', b'b=B']
+
+
+def test_path_on_model_class():
+    class App(morepath.App):
+        pass
+
+    @App.path('/')
+    class Model(object):
+        def __init__(self):
+            pass
+
+    @App.path('/login')
+    class Login(object):
+        pass
+
+    @App.view(model=Model)
+    def model_view(self, request):
+        return "Model"
+
+    @App.view(model=Login)
+    def login_view(self, request):
+        return "Login"
+
+    dectate.commit([App])
+
+    c = Client(App())
+
+    response = c.get('/')
+    assert response.body == b'Model'
+    response = c.get('/login')
+    assert response.body == b'Login'
+
+
+def test_path_without_model():
+    class App(morepath.App):
+        pass
+
+    @App.path('/')
+    def get_path():
+        pass
+
+    with pytest.raises(dectate.DirectiveReportError):
+        dectate.commit([App])
+
+
+def test_two_path_on_same_model_should_conflict():
+    class App(morepath.App):
+        pass
+
+    @App.path('/login')
+    @App.path('/')
+    class Login(object):
+        pass
+
+    with pytest.raises(dectate.ConflictError):
+        dectate.commit([App])
+
+
+def test_path_on_same_model_explicit_and_class_should_conflict():
+    class App(morepath.App):
+        pass
+
+    @App.path('/')
+    class Login(object):
+        pass
+
+    @App.path('/login', model=Login)
+    def get_path():
+        return Login()
+
+    with pytest.raises(dectate.ConflictError):
+        dectate.commit([App])
