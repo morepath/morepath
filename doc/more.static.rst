@@ -88,16 +88,14 @@ Manual scan
 
 We recommend you use ``morepath.autosetup`` to make sure that all code
 that uses Morepath is automatically scanned. If you *do not* use
-``autosetup`` but use manual ``config.scan()`` instead, you need to
+``autosetup`` but use manual ``morepath.scan()`` instead, you need to
 scan ``more.static`` explicitly, like this::
 
   import more.static
 
   def run():
-     config = morepath.setup()
-     config.scan()
-     config.scan(more.static)
-     config.commit()
+     morepath.scan(more.static)
+     morepath.autocommit()
      wsgi = App()
      morepath.run(wsgi)
 
