@@ -27,7 +27,7 @@ def test_view_predicates():
     def post(self, request):
         return 'POST'
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -59,7 +59,7 @@ def test_extra_predicates():
     def id_predicate(obj):
         return obj.id
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 

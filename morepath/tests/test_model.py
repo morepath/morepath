@@ -42,7 +42,7 @@ def test_register_path():
         model.id = id
         return model
 
-    dectate.commit([App])
+    dectate.commit(App)
 
     path_registry = App.config.path_registry
 
@@ -75,7 +75,7 @@ def test_register_path_with_parameters():
         model.param = param
         return model
 
-    dectate.commit([App])
+    dectate.commit(App)
 
     path_registry = App.config.path_registry
 
@@ -115,7 +115,7 @@ def test_traject_path_with_leading_slash():
         model.id = id
         return model
 
-    dectate.commit([App])
+    dectate.commit(App)
 
     path_registry = App.config.path_registry
 

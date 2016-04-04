@@ -27,7 +27,7 @@ def test_extends():
     def edit_user(self, request):
         return "Edit user: %s" % self.username
 
-    dectate.commit([App, Extending])
+    dectate.commit(App, Extending)
 
     cl = Client(App())
     response = cl.get('/users/foo')
@@ -61,7 +61,7 @@ def test_overrides_view():
     def render_user2(self, request):
         return "USER: %s" % self.username
 
-    dectate.commit([App, Overriding])
+    dectate.commit(App, Overriding)
 
     cl = Client(App())
     response = cl.get('/users/foo')
@@ -94,7 +94,7 @@ def test_overrides_model():
             return None
         return User(username)
 
-    dectate.commit([App, Overriding])
+    dectate.commit(App, Overriding)
 
     cl = Client(App())
     response = cl.get('/users/foo')

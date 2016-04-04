@@ -25,7 +25,7 @@ def test_view_get_only():
     def default(self, request):
         return "View"
 
-    dectate.commit([App])
+    dectate.commit(App)
 
     c = Client(App())
 
@@ -53,7 +53,7 @@ def test_view_name_conflict_involving_default():
         return "View"
 
     with pytest.raises(ConflictError):
-        dectate.commit([App])
+        dectate.commit(App)
 
 
 def test_view_custom_predicate_conflict_involving_default_extends():
@@ -83,7 +83,7 @@ def test_view_custom_predicate_conflict_involving_default_extends():
         return "View"
 
     with pytest.raises(ConflictError):
-        dectate.commit([Core, App])
+        dectate.commit(Core, App)
 
 
 def test_view_custom_predicate_without_fallback():
@@ -112,7 +112,7 @@ def test_view_custom_predicate_without_fallback():
     def not_match(self, request):
         return "Not match"
 
-    dectate.commit([Core, App])
+    dectate.commit(Core, App)
 
     c = Client(App())
 

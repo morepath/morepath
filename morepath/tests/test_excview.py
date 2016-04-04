@@ -17,7 +17,7 @@ def test_404_http_exception():
     class Root(object):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
     c.get('/', status=404)
@@ -38,7 +38,7 @@ def test_other_exception_not_handled():
     def root_default(self, request):
         raise MyException()
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -60,7 +60,7 @@ def test_http_exception_excview():
     def notfound_default(self, request):
         return "Not found!"
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
     response = c.get('/')
@@ -86,7 +86,7 @@ def test_other_exception_excview():
     def myexception_default(self, request):
         return "My exception"
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -109,7 +109,7 @@ def test_http_exception_excview_retain_status():
         request.after(set_status)
         return "Not found!!"
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
     response = c.get('/', status=404)
@@ -136,7 +136,7 @@ def test_excview_named_view():
     def myexception_default(self, request):
         return "My exception"
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
     response = c.get('/view')

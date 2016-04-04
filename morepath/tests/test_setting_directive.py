@@ -24,7 +24,7 @@ def test_app_extends_settings():
     def get_bar_setting():
         return 'BAR'
 
-    dectate.commit([alpha, beta])
+    dectate.commit(alpha, beta)
 
     alpha_inst = alpha()
 
@@ -56,7 +56,7 @@ def test_app_overrides_settings():
     def get_bar_setting():
         return 'OVERRIDE'
 
-    dectate.commit([alpha, beta])
+    dectate.commit(alpha, beta)
 
     assert alpha().config.setting_registry.one.foo == 'FOO'
     assert beta().config.setting_registry.one.foo == 'OVERRIDE'
@@ -80,7 +80,7 @@ def test_app_overrides_settings_three():
     def get_bar_setting():
         return 'OVERRIDE'
 
-    dectate.commit([alpha, beta, gamma])
+    dectate.commit(alpha, beta, gamma)
 
     assert gamma().config.setting_registry.one.foo == 'OVERRIDE'
 
@@ -96,7 +96,7 @@ def test_app_section_settings():
             'bar': "BAR"
         }
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     app_inst = app()
 
@@ -122,7 +122,7 @@ def test_app_section_settings_conflict():
         return 'another'
 
     with pytest.raises(ConflictError):
-        dectate.commit([app])
+        dectate.commit(app)
 
 
 def test_settings_function():
@@ -144,7 +144,7 @@ def test_settings_function():
     def default(self, request):
         return morepath.settings().section.name
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 

@@ -26,7 +26,7 @@ def test_view():
     class app(App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     def view(self, request):
         return "View!"
@@ -42,7 +42,7 @@ def test_predicates():
     class app(App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     def view(self, request):
         return "all"
@@ -69,7 +69,7 @@ def test_notfound():
     class app(App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     request = app().request(get_environ(path=''))
 
@@ -81,7 +81,7 @@ def test_notfound_with_predicates():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     def view(self, request):
         return "view"
@@ -99,7 +99,7 @@ def test_response_returned():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     def view(self, request):
         return Response('Hello world!')
@@ -115,7 +115,7 @@ def test_request_view():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     def view(self, request):
         return {'hey': 'hey'}
@@ -139,7 +139,7 @@ def test_request_view_with_predicates():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     def view(self, request):
         return {'hey': 'hey'}
@@ -165,7 +165,7 @@ def test_render_html():
     class app(App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     def view(self, request):
         return '<p>Hello world!</p>'
@@ -185,7 +185,7 @@ def test_view_raises_http_error():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     def view(self, request):
         raise HTTPBadRequest()
@@ -207,7 +207,7 @@ def test_view_after():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     def view(self, request):
         @request.after
@@ -229,7 +229,7 @@ def test_view_after_redirect():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     def view(self, request):
         @request.after
@@ -252,7 +252,7 @@ def test_conditional_view_after():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     def view(self, request):
         if False:
@@ -274,7 +274,7 @@ def test_view_after_non_decorator():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     def set_header(response):
         response.headers.add('Foo', 'FOO')
@@ -309,7 +309,7 @@ def test_view_after_doesnt_apply_to_exception():
             response.headers.add('Foo', 'FOO')
         raise HTTPNotFound()
 
-    dectate.commit([App])
+    dectate.commit(App)
 
     c = Client(App())
 
@@ -339,7 +339,7 @@ def test_view_after_applies_to_some_exceptions(status_code, exception_class):
             response.headers.add('Foo', 'FOO')
         raise exception_class()
 
-    dectate.commit([App])
+    dectate.commit(App)
 
     c = Client(App())
 
@@ -372,7 +372,7 @@ def test_view_after_doesnt_apply_to_exception_view():
     def exc_view(self, request):
         return "My exception"
 
-    dectate.commit([App])
+    dectate.commit(App)
 
     c = Client(App())
 

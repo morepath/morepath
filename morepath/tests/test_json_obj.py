@@ -24,7 +24,7 @@ def test_json_obj_dump():
     def dump_model_json(self, request):
         return {'x': self.x}
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -62,7 +62,7 @@ def test_json_obj_load():
     def load_json(json, request):
         return Item(json['x'])
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -89,7 +89,7 @@ def test_json_obj_load_default():
         assert request.body_obj == request.json
         return 'done'
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -134,7 +134,7 @@ def test_json_body_model():
         elif json['@type'] == 'Item2':
             return Item2(json['x'])
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -163,7 +163,7 @@ def test_json_obj_load_no_json_post():
         assert request.body_obj is None
         return 'done'
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 

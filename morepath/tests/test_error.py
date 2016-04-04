@@ -19,7 +19,7 @@ def test_missing_arguments_in_path_function_error():
         return Model()
 
     with pytest.raises(DirectiveReportError):
-        dectate.commit([App])
+        dectate.commit(App)
 
 
 def test_path_function_with_args_error():
@@ -35,7 +35,7 @@ def test_path_function_with_args_error():
         return Model(args[0])
 
     with pytest.raises(DirectiveReportError):
-        dectate.commit([App])
+        dectate.commit(App)
 
 
 def test_path_function_with_kwargs():
@@ -51,13 +51,13 @@ def test_path_function_with_kwargs():
         return Model(kw['id'])
 
     with pytest.raises(DirectiveReportError):
-        dectate.commit([App])
+        dectate.commit(App)
 
 
 def test_conflict_error_should_report_line_numbers():
     importscan.scan(conflicterror)
     with pytest.raises(ConflictError) as e:
-        dectate.commit([conflicterror.App])
+        dectate.commit(conflicterror.App)
     v = text_type(e.value)
     assert 'line 8' in v
     assert 'line 15' in v

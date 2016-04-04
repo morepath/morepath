@@ -41,7 +41,7 @@ def test_implicit_function():
     def default(self, request):
         return one()
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -100,7 +100,7 @@ def test_implicit_function_mounted():
     def default(self, request):
         return "View for %s, message: %s" % (self.id, one())
 
-    dectate.commit([alpha, beta])
+    dectate.commit(alpha, beta)
 
     c = Client(alpha())
 
@@ -133,7 +133,7 @@ def test_implicit_disabled():
         except reg.NoImplicitLookupError:
             return "No implicit found"
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 

@@ -17,16 +17,16 @@ class AutoImportError(ConfigError):
             no such module could be imported.
 
             Make sure your module name matches the setup.py name, or use
-            manual configuration:
+            autoscan directly::
 
+                import autoscan
                 import yourmodule
                 import morepath
 
-                config = morepath.setup()
-                config.scan(yourmodule)
-                config.commit()
+                autoscan.scan(yourmodule)
+                morepath.autosetup()
 
-            For more information have a look at the 'morepath.autoconfig' docs.
+            For more information have a look at the 'configuration' docs.
         """
 
         msg = textwrap.dedent(msg).format(module_name)

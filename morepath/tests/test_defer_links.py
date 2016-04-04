@@ -41,7 +41,7 @@ def test_defer_links():
     def defer_links_sub_model(app, obj):
         return app.child(Sub())
 
-    dectate.commit([Root, Sub])
+    dectate.commit(Root, Sub)
 
     c = Client(Root())
 
@@ -83,7 +83,7 @@ def test_defer_view():
     def defer_links_sub_model(app, obj):
         return app.child(Sub())
 
-    dectate.commit([Root, Sub])
+    dectate.commit(Root, Sub)
 
     c = Client(Root())
 
@@ -122,7 +122,7 @@ def test_defer_view_predicates():
     def defer_links_sub_model(app, obj):
         return app.child(Sub())
 
-    dectate.commit([Root, Sub])
+    dectate.commit(Root, Sub)
 
     c = Client(Root())
 
@@ -161,7 +161,7 @@ def test_defer_view_missing_view():
     def defer_links_sub_model(app, obj):
         return app.child(Sub())
 
-    dectate.commit([Root, Sub])
+    dectate.commit(Root, Sub)
 
     c = Client(Root())
 
@@ -204,7 +204,7 @@ def test_defer_links_mount_parameters():
     def defer_links_sub_model(app, obj):
         return app.child(sub(name=obj.name))
 
-    dectate.commit([root, sub])
+    dectate.commit(root, sub)
 
     c = Client(root())
 
@@ -244,7 +244,7 @@ def test_defer_link_acquisition():
     def get_parent(app, obj):
         return app.parent
 
-    dectate.commit([root, sub])
+    dectate.commit(root, sub)
 
     c = Client(root())
 
@@ -284,7 +284,7 @@ def test_defer_view_acquisition():
     def get_parent(app, obj):
         return app.parent
 
-    dectate.commit([root, sub])
+    dectate.commit(root, sub)
 
     c = Client(root())
 
@@ -325,7 +325,7 @@ def test_defer_link_acquisition_blocking():
 
     # no defer_links_to_parent
 
-    dectate.commit([root, sub])
+    dectate.commit(root, sub)
 
     c = Client(root())
 
@@ -363,7 +363,7 @@ def test_defer_view_acquisition_blocking():
 
     # no defer_links_to_parent
 
-    dectate.commit([root, sub])
+    dectate.commit(root, sub)
 
     c = Client(root())
 
@@ -408,7 +408,7 @@ def test_defer_link_should_not_cause_web_views_to_exist():
     def get_parent(app, obj):
         return app.parent
 
-    dectate.commit([root, sub])
+    dectate.commit(root, sub)
 
     c = Client(root())
 
@@ -440,7 +440,7 @@ def test_defer_link_to_parent_from_root():
     def get_parent(app, obj):
         return app.parent
 
-    dectate.commit([root, sub])
+    dectate.commit(root, sub)
 
     c = Client(root())
 
@@ -489,7 +489,7 @@ def test_special_link_overrides_deferred_link():
     def defer_links_alpha(app, obj):
         return app.child(alpha())
 
-    dectate.commit([root, alpha])
+    dectate.commit(root, alpha)
 
     c = Client(root())
 
@@ -546,7 +546,7 @@ def test_deferred_deferred_link():
     def defer_links_alpha(app, obj):
         return app.child(alpha())
 
-    dectate.commit([alpha, beta, root])
+    dectate.commit(alpha, beta, root)
 
     c = Client(root())
 
@@ -607,7 +607,7 @@ def test_deferred_deferred_view():
     def defer_links_alpha(app, obj):
         return app.child(alpha())
 
-    dectate.commit([root, alpha, beta])
+    dectate.commit(root, alpha, beta)
 
     c = Client(root())
 
@@ -663,7 +663,7 @@ def test_deferred_view_has_app_of_defer():
     def defer_links_parent(app, obj):
         return app.parent.child('alpha')
 
-    dectate.commit([root, alpha, beta])
+    dectate.commit(root, alpha, beta)
 
     c = Client(root())
 
@@ -703,7 +703,7 @@ def test_deferred_loop():
     def defer_links_alpha(app, obj):
         return app.child(alpha())
 
-    dectate.commit([root, alpha])
+    dectate.commit(root, alpha)
 
     c = Client(root())
 
@@ -759,7 +759,7 @@ def test_defer_link_scenario():
             'app': 'Child',
         }
 
-    dectate.commit([App, Child])
+    dectate.commit(App, Child)
 
     c = Client(App())
 

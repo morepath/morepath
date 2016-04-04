@@ -19,7 +19,7 @@ def setup_module(module):
 
 def test_basic():
     importscan.scan(basic)
-    dectate.commit([basic.app])
+    dectate.commit(basic.app)
 
     c = Client(basic.app())
 
@@ -33,7 +33,7 @@ def test_basic():
 
 def test_basic_json():
     importscan.scan(basic)
-    dectate.commit([basic.app])
+    dectate.commit(basic.app)
 
     c = Client(basic.app())
 
@@ -44,7 +44,7 @@ def test_basic_json():
 
 def test_basic_root():
     importscan.scan(basic)
-    dectate.commit([basic.app])
+    dectate.commit(basic.app)
 
     c = Client(basic.app())
 
@@ -60,7 +60,7 @@ def test_basic_root():
 
 def test_nested():
     importscan.scan(nested)
-    dectate.commit([nested.outer_app, nested.app])
+    dectate.commit(nested.outer_app, nested.app)
 
     c = Client(nested.outer_app())
 
@@ -74,7 +74,7 @@ def test_nested():
 
 def test_abbr():
     importscan.scan(abbr)
-    dectate.commit([abbr.app])
+    dectate.commit(abbr.app)
 
     c = Client(abbr.app())
 
@@ -87,7 +87,7 @@ def test_abbr():
 
 def test_scanned_static_method():
     importscan.scan(method)
-    dectate.commit([method.app])
+    dectate.commit(method.app)
 
     c = Client(method.app())
 
@@ -101,13 +101,13 @@ def test_scanned_static_method():
 def test_scanned_no_converter():
     importscan.scan(noconverter)
     with pytest.raises(DirectiveReportError):
-        dectate.commit([noconverter.app])
+        dectate.commit(noconverter.app)
 
 
 def test_scanned_conflict():
     importscan.scan(conflict)
     with pytest.raises(ConflictError):
-        dectate.commit([conflict.app])
+        dectate.commit(conflict.app)
 
 
 def test_scanned_some_error():
@@ -152,7 +152,7 @@ def test_basic_scenario():
     def root_link(self, request):
         return request.link(self)
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -200,7 +200,7 @@ def test_link_to_unknown_model():
         except LinkError:
             return "Link Error"
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -231,7 +231,7 @@ def test_link_to_none():
     def root_link_with_default(self, request):
         return request.link(None, default='unknown')
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -268,7 +268,7 @@ def test_link_with_parameters():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -303,7 +303,7 @@ def test_root_link_with_parameters():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -336,7 +336,7 @@ def test_link_with_prefix():
     def link_prefix(request):
         return request.headers['TESTPREFIX']
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -370,7 +370,7 @@ def test_link_prefix_cache():
             request.callnumber += 1
         return str(request.callnumber)
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -394,7 +394,7 @@ def test_link_with_invalid_prefix():
     def link_prefix(request):
         return None
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -426,7 +426,7 @@ def test_implicit_variables():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -458,7 +458,7 @@ def test_implicit_parameters():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -496,7 +496,7 @@ def test_implicit_parameters_default():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -527,7 +527,7 @@ def test_simple_root():
     def hello_view(self, request):
         return 'hello'
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -548,7 +548,7 @@ def test_json_directive():
     def json(self, request):
         return {'id': self.id}
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -569,7 +569,7 @@ def test_redirect():
     def default(self, request):
         return morepath.redirect('/')
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -589,7 +589,7 @@ def test_root_conflict():
         pass
 
     with pytest.raises(ConflictError):
-        dectate.commit([app])
+        dectate.commit(app)
 
 
 def test_root_conflict2():
@@ -605,7 +605,7 @@ def test_root_conflict2():
         pass
 
     with pytest.raises(ConflictError):
-        dectate.commit([app])
+        dectate.commit(app)
 
 
 def test_root_no_conflict_different_apps():
@@ -623,7 +623,7 @@ def test_root_no_conflict_different_apps():
     class Something(object):
         pass
 
-    dectate.commit([app_a, app_b])
+    dectate.commit(app_a, app_b)
 
 
 def test_model_conflict():
@@ -642,7 +642,7 @@ def test_model_conflict():
         return A()
 
     with pytest.raises(ConflictError):
-        dectate.commit([app])
+        dectate.commit(app)
 
 
 def test_path_conflict():
@@ -664,7 +664,7 @@ def test_path_conflict():
         return B()
 
     with pytest.raises(ConflictError):
-        dectate.commit([app])
+        dectate.commit(app)
 
 
 def test_path_conflict_with_variable():
@@ -686,7 +686,7 @@ def test_path_conflict_with_variable():
         return B()
 
     with pytest.raises(ConflictError):
-        dectate.commit([app])
+        dectate.commit(app)
 
 
 def test_path_conflict_with_variable_different_converters():
@@ -708,7 +708,7 @@ def test_path_conflict_with_variable_different_converters():
         return B()
 
     with pytest.raises(ConflictError):
-        dectate.commit([app])
+        dectate.commit(app)
 
 
 def test_model_no_conflict_different_apps():
@@ -729,7 +729,7 @@ def test_model_no_conflict_different_apps():
     def get_a_again():
         return A()
 
-    dectate.commit([app_a, app_b])
+    dectate.commit(app_a, app_b)
 
 
 def test_view_conflict():
@@ -748,7 +748,7 @@ def test_view_conflict():
         pass
 
     with pytest.raises(ConflictError):
-        dectate.commit([app])
+        dectate.commit(app)
 
 
 def test_view_no_conflict_different_names():
@@ -766,7 +766,7 @@ def test_view_no_conflict_different_names():
     def b_view(self, request):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
 
 def test_view_no_conflict_different_predicates():
@@ -784,7 +784,7 @@ def test_view_no_conflict_different_predicates():
     def b_view(self, request):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
 
 def test_view_no_conflict_different_apps():
@@ -805,7 +805,7 @@ def test_view_no_conflict_different_apps():
     def a1_view(self, request):
         pass
 
-    dectate.commit([app_a, app_b])
+    dectate.commit(app_a, app_b)
 
 
 def test_view_conflict_with_json():
@@ -824,7 +824,7 @@ def test_view_conflict_with_json():
         pass
 
     with pytest.raises(ConflictError):
-        dectate.commit([app])
+        dectate.commit(app)
 
 
 def test_view_conflict_with_html():
@@ -843,7 +843,7 @@ def test_view_conflict_with_html():
         pass
 
     with pytest.raises(ConflictError):
-        dectate.commit([app])
+        dectate.commit(app)
 
 
 def test_function_conflict():
@@ -866,7 +866,7 @@ def test_function_conflict():
         pass
 
     with pytest.raises(ConflictError):
-        dectate.commit([app])
+        dectate.commit(app)
 
 
 def test_function_no_conflict_different_apps():
@@ -891,7 +891,7 @@ def test_function_no_conflict_different_apps():
     def a1_func(a):
         pass
 
-    dectate.commit([app_a, app_b])
+    dectate.commit(app_a, app_b)
 
 
 def test_run_app_with_context_without_it():
@@ -901,7 +901,7 @@ def test_run_app_with_context_without_it():
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     with pytest.raises(TypeError):
         app()
@@ -909,7 +909,7 @@ def test_run_app_with_context_without_it():
 
 def test_mapply_bug():
     importscan.scan(mapply_bug)
-    dectate.commit([mapply_bug.app])
+    dectate.commit(mapply_bug.app)
 
     c = Client(mapply_bug.app())
 
@@ -938,7 +938,7 @@ def test_abbr_imperative():
         def edit(self, request):
             return "Edit view"
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -974,7 +974,7 @@ def test_abbr_exception():
     except ZeroDivisionError:
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -1005,7 +1005,7 @@ def test_abbr_imperative2():
         def edit(self, request):
             return "Edit view"
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -1041,7 +1041,7 @@ def test_abbr_nested():
             def post(self, request):
                 return "Post"
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -1074,7 +1074,7 @@ def test_function_directive():
     def mygeneric_for_foo(o):
         return "The foo object: %s" % o
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     a = app()
 
@@ -1098,7 +1098,7 @@ def test_classgeneric_function_directive():
     def mygeneric_for_foo(o):
         return "The foo object"
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     a = app()
 
@@ -1108,7 +1108,7 @@ def test_classgeneric_function_directive():
 
 def test_rescan():
     importscan.scan(basic)
-    dectate.commit([basic.app])
+    dectate.commit(basic.app)
     importscan.scan(basic)
 
     class Sub(basic.app):
@@ -1118,7 +1118,7 @@ def test_rescan():
     def extra(self, request):
         return "extra"
 
-    dectate.commit([Sub])
+    dectate.commit(Sub)
 
     c = Client(Sub())
 

@@ -46,7 +46,7 @@ def test_simple_config_logging():
     class Model(object):
         pass
 
-    dectate.commit([App])
+    dectate.commit(App)
 
     messages = [r.getMessage() for r in test_handler.records]
     assert len(messages) == 1
@@ -71,7 +71,7 @@ def test_config_logging_fixture():
     log.setLevel(logging.DEBUG)
 
     importscan.scan(basic)
-    dectate.commit([basic.app])
+    dectate.commit(basic.app)
 
     messages = [r.getMessage() for r in test_handler.records]
     messages.sort()

@@ -425,7 +425,7 @@ def test_traject_consume():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     traject = app.config.path_registry
     traject.add_pattern('sub', (Model, paramfac))
@@ -441,7 +441,7 @@ def test_traject_consume_parameter():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     traject = app.config.path_registry
 
@@ -468,7 +468,7 @@ def test_traject_consume_model_factory_gets_request():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     traject = app.config.path_registry
 
@@ -493,7 +493,7 @@ def test_traject_consume_not_found():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     found, request = consume(app(), 'sub')
     assert found is None
@@ -504,7 +504,7 @@ def test_traject_consume_factory_returns_none():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     traject = app.config.path_registry
 
@@ -523,7 +523,7 @@ def test_traject_consume_variable():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     traject = app.config.path_registry
 
@@ -544,7 +544,7 @@ def test_traject_consume_view():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     traject = app.config.path_registry
 
@@ -565,7 +565,7 @@ def test_traject_root():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     traject = app.config.path_registry
 
@@ -581,7 +581,7 @@ def test_traject_consume_combination():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     traject = app.config.path_registry
 
@@ -609,7 +609,7 @@ def test_traject_nested():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     traject = app.config.path_registry
     traject.add_pattern('a', (Model, paramfac))
@@ -629,7 +629,7 @@ def test_traject_nested_not_resolved_entirely_by_consumer():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     traject = app.config.path_registry
     traject.add_pattern('a', (Model, paramfac))
@@ -648,7 +648,7 @@ def test_traject_nested_with_variable():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     traject = app.config.path_registry
 
@@ -682,7 +682,7 @@ def test_traject_with_multiple_variables():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     traject = app.config.path_registry
 

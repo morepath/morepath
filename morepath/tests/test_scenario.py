@@ -13,7 +13,7 @@ def setup_module(module):
 
 def test_scenario():
     importscan.scan(scenario)
-    dectate.commit([app.Root, app.Generic, app.Document])
+    dectate.commit(app.Root, app.Generic, app.Document)
 
     c = Client(app.Root())
 

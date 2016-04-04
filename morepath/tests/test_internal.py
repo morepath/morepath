@@ -23,7 +23,7 @@ def test_internal():
     def root_internal(self, request):
         return 'Internal!'
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 

@@ -179,7 +179,7 @@ def test_tween_directive():
             return response
         return plusplustween
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 

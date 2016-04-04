@@ -35,7 +35,7 @@ def test_dispatch():
     def f_bar(obj):
         return "bar"
 
-    dectate.commit([App])
+    dectate.commit(App)
 
     a = App()
 
@@ -75,7 +75,7 @@ def test_dispatch_external_predicates():
     def f_bar(obj):
         return "bar"
 
-    dectate.commit([App])
+    dectate.commit(App)
 
     a = App()
 
@@ -119,7 +119,7 @@ def test_dispatch_external_predicates_predicate_fallback():
     def f_bar(obj):
         return "bar"
 
-    dectate.commit([App])
+    dectate.commit(App)
 
     a = App()
 
@@ -171,7 +171,7 @@ def test_dispatch_external_predicates_ordering_after():
     def f_bar_edit(obj, name):
         return "bar edit"
 
-    dectate.commit([App])
+    dectate.commit(App)
 
     a = App()
 
@@ -228,7 +228,7 @@ def test_dispatch_external_predicates_ordering_before():
     def f_bar_edit(obj, name):
         return "bar edit"
 
-    dectate.commit([App])
+    dectate.commit(App)
 
     a = App()
 
@@ -287,7 +287,7 @@ def test_dispatch_external_override_fallback():
     def f_bar(obj):
         return "bar"
 
-    dectate.commit([App, Sub])
+    dectate.commit(App, Sub)
 
     s = Sub()
     lookup = s.lookup
@@ -353,7 +353,7 @@ def test_dispatch_external_override_predicate():
     def f_bar_sub(obj):
         return "bar sub"
 
-    dectate.commit([App, Sub])
+    dectate.commit(App, Sub)
 
     s = Sub()
 
@@ -390,7 +390,7 @@ def test_wrong_predicate_arguments_single():
     def f_foo(obj):
         return "foo"
 
-    dectate.commit([App])
+    dectate.commit(App)
 
 
 def test_wrong_predicate_arguments_multi():
@@ -411,7 +411,7 @@ def test_wrong_predicate_arguments_multi():
     def f_foo(a, b):
         return "foo"
 
-    dectate.commit([App])
+    dectate.commit(App)
 
 
 def test_predicate_not_for_dispatch_external_predicates():
@@ -427,7 +427,7 @@ def test_predicate_not_for_dispatch_external_predicates():
         return a.__class__
 
     with pytest.raises(ConfigError):
-        dectate.commit([App])
+        dectate.commit(App)
 
 
 def test_dispatch_external_predicates_without_predicate_directives():
@@ -451,7 +451,7 @@ def test_dispatch_external_predicates_without_predicate_directives():
     def f_foo(obj):
         return "foo"
 
-    dectate.commit([App])
+    dectate.commit(App)
 
     a = App()
 

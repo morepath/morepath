@@ -41,7 +41,7 @@ def test_no_permission():
     def default(self, request):
         return "Model: %s" % self.id
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -90,7 +90,7 @@ def test_permission_directive_identity():
         def forget(self, response, request):
             pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -126,7 +126,7 @@ def test_permission_directive_no_identity():
     def default(self, request):
         return "Model: %s" % self.id
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -137,7 +137,7 @@ def test_permission_directive_no_identity():
 
 def test_policy_action():
     importscan.scan(identity_policy)
-    dectate.commit([identity_policy.app])
+    dectate.commit(identity_policy.app)
 
     c = Client(identity_policy.app())
 
@@ -186,7 +186,7 @@ def test_basic_auth_identity_policy():
             response.status_code = 401
         return "Unauthorized"
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -234,7 +234,7 @@ def test_basic_auth_identity_policy_errors():
     def verify_identity(identity):
         return True
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -306,7 +306,7 @@ def test_basic_auth_remember():
     def policy():
         return BasicAuthIdentityPolicy()
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -335,7 +335,7 @@ def test_basic_auth_forget():
     def policy():
         return BasicAuthIdentityPolicy()
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app())
 
@@ -412,7 +412,7 @@ def test_cookie_identity_policy():
     def verify_identity(identity):
         return True
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app(), cookiejar=CookieJar())
 
@@ -432,7 +432,7 @@ def test_default_verify_identity():
     class app(morepath.App):
         pass
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     identity = morepath.Identity('foo')
 
@@ -447,7 +447,7 @@ def test_verify_identity_directive():
     def verify_identity(identity):
         return identity.password == 'right'
 
-    dectate.commit([app])
+    dectate.commit(app)
     identity = morepath.Identity('foo', password='wrong')
     assert not generic.verify_identity(identity, lookup=app().lookup)
     identity = morepath.Identity('foo', password='right')
@@ -487,7 +487,7 @@ def test_false_verify_identity():
     def verify_identity(identity):
         return False
 
-    dectate.commit([app])
+    dectate.commit(app)
 
     c = Client(app(), cookiejar=CookieJar())
 
@@ -556,7 +556,7 @@ def test_settings():
         def token_is_valid(self, token, encryption_key):
             return token == encryption_key  # fake validation
 
-    dectate.commit([App])
+    dectate.commit(App)
 
     c = Client(App())
 
