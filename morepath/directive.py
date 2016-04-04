@@ -216,9 +216,9 @@ class FunctionAction(dectate.Action):
         # dispatch_external_predicates functions that have been used,
         # or we should only allow their registration through a special
         # Morepath directive so that we can.
-        if (self.func.external_predicates and
-            not predicate_registry.get_predicates(self.func)):
-            reg_registry.register_external_predicates(self.func, [])
+        if self.func.external_predicates:
+            if not predicate_registry.get_predicates(self.func):
+                reg_registry.register_external_predicates(self.func, [])
         reg_registry.register_dispatch(self.func)
         return reg_registry.key_dict_to_predicate_key(
             self.func.wrapped_func, self.key_dict)
