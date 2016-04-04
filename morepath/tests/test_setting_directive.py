@@ -17,7 +17,7 @@ def test_settings_property():
     def get_foo_setting():
         return 'bar'
 
-    dectate.commit([App])
+    dectate.commit(App)
     app = App()
 
     assert app.settings is app.config.setting_registry
