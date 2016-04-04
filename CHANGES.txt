@@ -187,7 +187,7 @@ CHANGES
 
 - **Breaking change**. If you use settings, you need to replace any
   references to ``app.registry.settings`` to
-  ``app.config.setting_registry``..
+  ``app.settings``..
 
 - Add `request.class_link`. This lets you link using classes instead
   of instances as an optimization. In some cases instantiating an
@@ -195,6 +195,8 @@ CHANGES
   expensive. In that case you can use `request.class_link`
   instead. This lets you link to a model class and supply a
   `variables` dictionary manually.
+
+- Brought `app.settings` back, a shortcut to the settings registry.
 
 - **Breaking change**. In Morepath versions before this there was an
   class attribute on ``App`` subclasses called ``registry``. This was

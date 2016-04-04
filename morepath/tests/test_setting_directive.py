@@ -9,6 +9,20 @@ def setup_module(module):
     morepath.disable_implicit()
 
 
+def test_settings_property():
+    class App(morepath.App):
+        pass
+
+    @App.setting('foo', 'bar')
+    def get_foo_setting():
+        return 'bar'
+
+    dectate.commit([App])
+    app = App()
+
+    assert app.settings is app.config.setting_registry
+
+
 def test_app_extends_settings():
     class alpha(morepath.App):
         pass
