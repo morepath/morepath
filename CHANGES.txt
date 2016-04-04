@@ -141,7 +141,8 @@ CHANGES
       config = { 'registry': Registry }
 
 
-  * reverse the arguments to ``perform``, so change::
+  * reverse the arguments to ``perform``, so that the object
+    being registered comes first. So change::
 
       def perform(self, registry, obj):
          ...
@@ -150,6 +151,9 @@ CHANGES
 
       def perform(self, obj, registry):
          ...
+
+    But instead of ``registry`` use the registry you set up in your
+    action's ``config``.
 
   * no more ``prepare``. Do error checking inside the ``perform``
     method and raise a ``DirectiveError`` if something is wrong.
