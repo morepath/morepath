@@ -162,3 +162,39 @@ Morepath also lets you mount one application within another, allowing
 composition-based reuse. See :doc:`app_reuse` for more
 information. Using these techniques you can build large applications,
 see :doc:`building_large_applications`.
+
+.. _extensible-framework:
+
+Extensible Framework
+--------------------
+
+Morepath's directives are implemented using Dectate_, the
+meta-framework for configuring Python frameworks. You can define new
+directives and registries for Morepath with ease::
+
+  class Extended(morepath.App):
+      pass
+
+  @Extended.directive('widget')
+  class WidgetAction(dectate.Action):
+      config = {
+          'widget_registry': dict  # use dict as a registry
+      }
+      def __init__(self, name):
+          self.name = name
+
+       def identifier(self):
+          return self.name
+
+       def perform(self, obj, widget_registry):
+          widget_registry[self.name] = obj
+
+  @Extended.widget('input')
+  def input_widget():
+      ...
+
+  @Extended.widget('label')
+  def label_widget():
+      ...
+
+.. _Dectate: http://dectate.readthedocs.org

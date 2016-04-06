@@ -31,11 +31,13 @@ Overview
 Morepath aims to be foundational. All web applications are
 different. Some are simple. Some, like CMSes, are like frameworks
 themselves. It's likely that some of you will need to build your own
-frameworky things on top of Morepath. Morepath doesn't get in your
-way. Morepath isn't there to be hidden away under another framework
-though - these extensions still look like Morepath. The orientation
-towards being foundational makes Morepath more like Pyramid, or
-perhaps Flask, than like Django.
+frameworky things on top of Morepath. Morepath offers various
+facilities to help you there: you can define reusable base
+applications and it even allows you to extend Morepath with new
+directives. Morepath isn't there to be hidden away under another
+framework though - these extensions still look like Morepath. The
+orientation towards being foundational makes Morepath more like
+Pyramid, or perhaps Flask, than like Django.
 
 Morepath aims to have a small core. It isn't full stack; it's a
 microframework. It should be easy to pick up. This makes it similar to
@@ -55,11 +57,16 @@ awareness of models.
 
 Paradoxically enough one thing Morepath is opinionated about is
 *flexibility*, as that's part of its mission to be a good foundation.
-That's what its configuration and generic function systems are all
-about. Want to change behavior? You can override everything. Even core
-behavior of Morepath can be changed by overriding its generic
-functions. This makes Morepath like Zope, and especially like
-Pyramid, but less like Django or Flask.
+That's what its configuration system (Dectate_) and generic function
+system (Reg_) are all about. Want to change behavior? You can override
+everything. You can introduce new registries and new directives. Even
+core behavior of Morepath can be changed by overriding its generic
+functions. This makes Morepath like Zope, and especially like Pyramid,
+but less like Django or Flask.
+
+.. _Dectate: http://dectate.readthedocs.org
+
+.. _Reg: http://reg.readthedocs.org
 
 Routing
 -------
@@ -199,16 +206,16 @@ else.
 
 Morepath is built on the Reg generic function library. Implementations
 of generic functions can be plugged in separately per Morepath app:
-each app is a registry. When you call a generic function Reg needs to
-know what registry to use to look it up. You can make this completely
-explicit by using a special ``lookup`` argument::
+each app has a separate reg registry. When you call a generic function
+Reg needs to know what registry to use to look it up. You can make
+this completely explicit by using a special ``lookup`` argument::
 
   some_generic_function(doc, 3, lookup=app.lookup())
 
 That's all right in framework code, but doing that all the time is not
-very pretty in application code. For convenience, Morepath therefore sets up the
-current lookup implicitly as thread local state. Then you can
-simply write this::
+very pretty in application code. For convenience, Morepath therefore
+sets up the current lookup implicitly as thread local state. Then you
+can simply write this::
 
   some_generic_function(doc, 3)
 
@@ -232,28 +239,31 @@ all. You could use SQLAlchemy, or the ZODB. Morepath lets you treat
 anything as models. We're not against writing examples or extensions
 that help you do this, though we haven't done so yet. Contribute!
 
-No template language
---------------------
+Pluggable template languages
+-----------------------------
 
 Some micro-frameworks like Flask and Bottle and web.py have template
 languages built-in, some, like CherryPy and the Werkzeug toolkit,
 don't. Pyramid doesn't have built-in support either, but has standard
 plugins for the Chameleon and Mako template languages.
 
-Morepath aims to be a good fit for modern, client-side web
-applications written in JavaScript. So we've focused on making it easy
-to send anything to the client, especially JSON. If templating is used
-for such applications, it's done on the client, in the web browser,
-not on the server.
+Morepath allows you to plug in server templates. You can plug in
+Jinja2_ through `more.jinja2`_ and plug in Chameleon_ through
+`more.chameleon`_.
 
-We're planning on letting you plug in server-side template languages
-as they're sometimes useful, but we haven't done so yet. Feel free to
-contribute!
+.. _Jinja2: http://jinja.pocoo.org/
 
-For now, you can plug in something yourself. CherryPy has a `good document`_
-on how to do that with CherryPy, and it'd look very similar with Morepath.
+.. _Chameleon: https://chameleon.readthedocs.org
 
-.. _`good document`: http://cherrypy.readthedocs.org/en/latest/progguide/choosingtemplate.html
+.. _`more.jinja2`: https://pypi.python.org/pypi/more.jinja2
+
+.. _`more.chameleon`: https://pypi.python.org/pypi/more.chameleon
+
+You don't have to use a server template language though: Morepath aims
+to be a good fit for modern, client-side web applications written in
+JavaScript. We've made it easy to send anything to the client,
+especially JSON. If templating is used for such applications, it's
+done on the client, in the web browser, not on the server.
 
 Code configuration
 ------------------
@@ -261,7 +271,7 @@ Code configuration
 Most Python web frameworks don't have an explicit code configuration
 system. With "code configuration" I mean expressing things like "this
 function handles this route", "this view works for this model", and
-"this is the current authentication system". It also includes
+"this is the authentication system for this app". It also includes
 extension and overrides, such as "here is an additional route", "use
 this function to handle this route instead of what the core said".
 
@@ -302,10 +312,10 @@ project. Venusian was used by the Morepath project originally, and
 even though it is gone it still helped inspire Morepath's
 configuration system.
 
-Morepath uses a new configuration system called Dectate_ that is based
-around decorators attached to application objects. These application
-objects can extend other ones. Dectate supports a range sophisticated
-extension and override use cases in a general way.
+Morepath uses a new, general configuration system called Dectate_ that
+is based around decorators attached to application objects. These
+application objects can extend other ones. Dectate supports a range
+sophisticated extension and override use cases in a general way.
 
 .. _Venusian: http://pypi.python.org/pypi/venusian
 

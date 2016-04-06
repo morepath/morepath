@@ -61,6 +61,9 @@ Morepath Super Powers
 * :ref:`Extensible apps. Nestable apps. Override apps, even override
   Morepath itself! <extensible-apps>`
 
+* :ref:`Extensible framework. Morepath itself can be easily extended, and
+  your extensions behave exactly like core extensions. <extensible-framework>`
+
 Curious how Morepath compares with other Python web frameworks? See
 :doc:`compared`.
 
