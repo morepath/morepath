@@ -14,6 +14,10 @@ from . import generic
 from .settings import SettingRegistry
 
 
+def isbaseclass(a, b):
+    return issubclass(b, a)
+
+
 @App.directive('setting')
 class SettingAction(dectate.Action):
     config = {
@@ -61,6 +65,8 @@ class SettingValue(object):
 
 @App.directive('setting_section')
 class SettingSectionAction(dectate.Composite):
+    query_classes = [SettingAction]
+
     def __init__(self, section):
         """Register application setting in a section.
 
@@ -95,6 +101,11 @@ class PredicateFallbackAction(dectate.Action):
 
     depends = [SettingAction]
 
+    filter_convert = {
+        'dispatch': dectate.convert_dotted_name,
+        'func': dectate.convert_dotted_name
+    }
+
     def __init__(self, dispatch, func):
         """For a given dispatch and function dispatched to, register fallback.
 
@@ -124,6 +135,18 @@ class PredicateAction(dectate.Action):
 
     depends = [SettingAction, PredicateFallbackAction]
 
+    filter_convert = {
+        'dispatch': dectate.convert_dotted_name,
+        'index': dectate.convert_dotted_name,
+        'before': dectate.convert_dotted_name,
+        'after': dectate.convert_dotted_name,
+    }
+
+    filter_name = {
+        'before': '_before',
+        'after': '_after'
+    }
+
     def __init__(self, dispatch, name, default, index,
                  before=None, after=None):
         """Register custom predicate for a predicate_dispatch function.
@@ -147,8 +170,6 @@ class PredicateAction(dectate.Action):
           value is missing in the predicate dictionary.
         :param index: the index to use. Typically morepath.KeyIndex or
           morepath.ClassIndex.
-        :param default: the default value for this predicate. This is
-          used as a default value if the argument is ommitted.
         :param before: predicate function this function wants to have
            priority over.
         :param after: predicate function we want to have priority over
@@ -189,6 +210,15 @@ class FunctionAction(dectate.Action):
 
     depends = [SettingAction,
                PredicateAction, PredicateFallbackAction]
+
+    def filter_get_value(self, name):
+        return self.key_dict.get(name, dectate.NOT_FOUND)
+
+    # XXX we cannot search for non-string kw as we cannot define
+    # the convert
+    filter_convert = {
+        'func': dectate.convert_dotted_name
+    }
 
     def __init__(self, func, **kw):
         '''Register function as implementation of generic dispatch function
@@ -239,6 +269,11 @@ class ConverterAction(dectate.Action):
 
     depends = [SettingAction]
 
+    # use __builtin__.foo to match with builtin foo
+    filter_convert = {
+        'type': dectate.convert_dotted_name
+    }
+
     def __init__(self, type):
         """Register custom converter for type.
 
@@ -269,6 +304,11 @@ class PathAction(dectate.Action):
 
     depends = [SettingAction, ConverterAction]
 
+    filter_compare = {
+        'model': isbaseclass,
+        'path': lambda a, b: Path(a).discriminator() == Path(b).discriminator()
+    }
+
     def __init__(self, path, model=None,
                  variables=None, converters=None, required=None,
                  get_converters=None, absorb=False):
@@ -296,6 +336,15 @@ class PathAction(dectate.Action):
 
 @App.directive('path')
 class PathCompositeAction(dectate.Composite):
+    filter_convert = {
+        'model': dectate.convert_dotted_name,
+        'variables': dectate.convert_dotted_name,
+        'get_converters': dectate.convert_dotted_name,
+        'absorb': dectate.convert_bool,
+    }
+
+    query_classes = [PathAction]
+
     def __init__(self, path, model=None,
                  variables=None, converters=None, required=None,
                  get_converters=None, absorb=False):
@@ -368,6 +417,18 @@ class PermissionRuleAction(dectate.Action):
         'reg_registry': RegRegistry
     }
 
+    filter_convert = {
+        'model': dectate.convert_dotted_name,
+        'permission': dectate.convert_dotted_name,
+        'identity': dectate.convert_dotted_name,
+    }
+
+    filter_compare = {
+        'model': isbaseclass,
+        'permission': issubclass,
+        'identity': issubclass
+    }
+
     depends = [SettingAction]
 
     def __init__(self, model, permission, identity=Identity):
@@ -412,6 +473,16 @@ class TemplateDirectoryAction(dectate.Action):
     }
 
     depends = [SettingAction]
+
+    filter_name = {
+        'after': '_after',
+        'before': '_before'
+    }
+
+    filter_convert = {
+        'after': dectate.convert_dotted_name,
+        'before': dectate.convert_dotted_name,
+    }
 
     def __init__(self, after=None, before=None, name=None):
         '''Register template directory.
@@ -521,6 +592,19 @@ class TemplateRenderAction(dectate.Action):
         template_engine_registry.register_template_render(self.extension, obj)
 
 
+def issubclass_or_none(a, b):
+    if a is None or b is None:
+        return a == b
+    return issubclass(a, b)
+
+
+def isbaseclass_notfound(a, b):
+    # NOT_FOUND can happen in case of a fallback
+    if a is dectate.NOT_FOUND:
+        a = object
+    return isbaseclass(a, b)
+
+
 @App.directive('view')
 class ViewAction(dectate.Action):
     config = {
@@ -529,6 +613,23 @@ class ViewAction(dectate.Action):
 
     depends = [SettingAction, PredicateAction,
                TemplateRenderAction]
+
+    filter_convert = {
+        'model': dectate.convert_dotted_name,
+        'render': dectate.convert_dotted_name,
+        'permission': dectate.convert_dotted_name,
+        'internal': dectate.convert_bool,
+        'body_model': dectate.convert_dotted_name,
+    }
+
+    def filter_get_value(self, name):
+        return self.predicates.get(name, dectate.NOT_FOUND)
+
+    filter_compare = {
+        'model': isbaseclass,
+        'permission': issubclass_or_none,
+        'body_model': isbaseclass_notfound,
+    }
 
     def __init__(self, model, render=None, template=None,
                  permission=None,
@@ -706,10 +807,20 @@ class HtmlAction(ViewAction):
                                          permission, internal, **predicates)
 
 
+# used by Mount to make sure there's at least a model to filter in a query
+class DummyModel(object):
+    pass
+
+
 @App.directive('mount')
 class MountAction(PathAction):
     group_class = PathAction
     depends = [SettingAction, ConverterAction]
+
+    filter_convert = {
+        'app': dectate.convert_dotted_name
+    }
+    filter_convert.update(PathCompositeAction.filter_convert)
 
     def __init__(self, path, app, variables=None, converters=None,
                  required=None, get_converters=None, name=None):
@@ -742,19 +853,20 @@ class MountAction(PathAction):
 
         """
         super(MountAction, self).__init__(path,
+                                          model=DummyModel,
                                           variables=variables,
                                           converters=converters,
                                           required=required,
                                           get_converters=get_converters)
         self.name = name or path
-        self.mounted_app = app
+        self.app = app
 
     def discriminators(self, path_registry):
-        return [('mount', self.mounted_app)]
+        return [('mount', self.app)]
 
     def perform(self, obj, path_registry):
         path_registry.register_mount(
-            self.mounted_app, self.path, self.variables,
+            self.app, self.path, self.variables,
             self.converters, self.required,
             self.get_converters, self.name, obj)
 
@@ -763,6 +875,12 @@ class MountAction(PathAction):
 class DeferLinksAction(dectate.Action):
     group_class = PathAction
     depends = [SettingAction, MountAction]
+
+    filter_convert = PathCompositeAction.filter_convert
+
+    filter_compare = {
+        'model': isbaseclass
+    }
 
     def __init__(self, model):
         """Defer link generation for model to mounted app.
@@ -804,6 +922,11 @@ class TweenFactoryAction(dectate.Action):
     }
 
     depends = [SettingAction]
+
+    filter_convert = {
+        'under': dectate.convert_dotted_name,
+        'over': dectate.convert_dotted_name,
+    }
 
     def __init__(self, under=None, over=None, name=None):
         '''Register tween factory.
@@ -873,6 +996,8 @@ class IdentityPolicyFunctionAction(dectate.Action):
 
 @App.directive('identity_policy')
 class IdentityPolicyAction(dectate.Composite):
+    query_classes = [IdentityPolicyFunctionAction]
+
     def __init__(self):
         """Register identity policy.
 
@@ -897,6 +1022,12 @@ class IdentityPolicyAction(dectate.Composite):
 
 @App.directive('verify_identity')
 class VerifyIdentityAction(dectate.Composite):
+    query_classes = [FunctionAction]
+
+    filter_convert = {
+        'identity': dectate.convert_dotted_name,
+    }
+
     def __init__(self, identity=object):
         '''Verify claimed identity.
 
@@ -928,6 +1059,14 @@ class VerifyIdentityAction(dectate.Composite):
 class DumpJsonAction(dectate.Action):
     config = {
         'reg_registry': RegRegistry
+    }
+
+    filter_convert = {
+        'model': dectate.convert_dotted_name
+    }
+
+    filter_compare = {
+        'model': isbaseclass
     }
 
     def __init__(self, model=object):

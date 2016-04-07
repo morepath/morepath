@@ -4,8 +4,7 @@ CHANGES
 0.14 (unreleased)
 =================
 
-- Nothing changed yet.
-
+- Enable queries by the Dectate query tool.
 
 0.13 (2016-04-06)
 =================
