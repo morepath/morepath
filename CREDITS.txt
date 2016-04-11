@@ -24,6 +24,8 @@ CREDITS
 
 * James Pharis (documentation improvements)
 
+* Stefano Taschini (documentation fixes)
+
 * Contributions by Souheil Chelfouh, Alex Garel, Wolfgang Schnerring
 
 * Special thanks to CONTACT software.
