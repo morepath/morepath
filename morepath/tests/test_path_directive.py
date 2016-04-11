@@ -1669,6 +1669,42 @@ def test_quoting_link_generation_umlaut():
     assert response.body == b'http://localhost/sim%C3%ABple'
 
 
+def test_quoting_link_generation_tilde():
+    # tilde is an unreserved character according to
+    # https://www.ietf.org/rfc/rfc3986.txt but urllib.quote
+    # quotes it anyway. We test whether our workaround using
+    # the safe parameter works
+
+    class App(morepath.App):
+        pass
+
+    class Model(object):
+        def __init__(self):
+            pass
+
+    @App.path(model=Model, path='sim~ple')
+    def get_model():
+        return Model()
+
+    @App.view(model=Model)
+    def default(self, request):
+        return "View"
+
+    @App.view(model=Model, name='link')
+    def link(self, request):
+        return request.link(self)
+
+    dectate.commit(App)
+
+    c = Client(App())
+
+    response = c.get('/sim~ple')
+    assert response.body == b'View'
+
+    response = c.get('/sim~ple/link')
+    assert response.body == b'http://localhost/sim~ple'
+
+
 def test_parameter_quoting():
     class App(morepath.App):
         pass
@@ -1698,6 +1734,37 @@ def test_parameter_quoting():
 
     response = c.get('/link?s=sim%C3%ABple')
     assert response.body == b'http://localhost/?s=sim%C3%ABple'
+
+
+def test_parameter_quoting_tilde():
+    class App(morepath.App):
+        pass
+
+    class Model(object):
+        def __init__(self, s):
+            self.s = s
+
+    @App.path(model=Model, path='')
+    def get_model(s):
+        return Model(s)
+
+    @App.view(model=Model)
+    def default(self, request):
+        return u"View: %s" % self.s
+
+    @App.view(model=Model, name='link')
+    def link(self, request):
+        return request.link(self)
+
+    dectate.commit(App)
+
+    c = Client(App())
+
+    response = c.get('/?s=sim~ple')
+    assert response.body == u"View: sim~ple".encode('utf-8')
+
+    response = c.get('/link?s=sim~ple')
+    assert response.body == b'http://localhost/?s=sim~ple'
 
 
 def test_class_link_without_variables():

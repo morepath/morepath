@@ -235,14 +235,14 @@ class Request(BaseRequest):
     def _encode_link(self, path, name, parameters):
         parts = []
         if path:
-            parts.append(quote(path.encode('utf-8')))
+            parts.append(fixed_quote(path.encode('utf-8')))
         if name:
             parts.append(name)
         result = self.link_prefix() + '/' + '/'.join(parts)
         if parameters:
             parameters = dict((key, [v.encode('utf-8') for v in value])
                               for (key, value) in parameters.items())
-            result += '?' + urlencode(parameters, True)
+            result += '?' + fixed_urlencode(parameters, True)
         return result
 
     def resolve_path(self, path, app=SAME_APP):
@@ -377,3 +377,27 @@ def mounted_link(path, parameters, app):
         app = app.parent
     result.reverse()
     return '/'.join(result).strip('/'), parameters
+
+
+def fixed_quote(s, safe='/'):
+    """urllib.quote fixed for ~
+
+    Workaround for Python bug:
+
+    https://bugs.python.org/issue16285
+
+    tilde should not be encoded according to RFC3986
+    """
+    return quote(s, safe=safe + '~')
+
+
+def fixed_urlencode(s, doseq=0):
+    """urllib.urlencode fixed for ~
+
+    Workaround for Python bug:
+
+    https://bugs.python.org/issue16285
+
+    tilde should not be encoded according to RFC3986
+    """
+    return urlencode(s, doseq).replace('%7E', '~')
