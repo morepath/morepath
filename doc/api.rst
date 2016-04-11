@@ -1,10 +1,12 @@
-Morepath API
-============
+API
+===
 
 .. py:module:: morepath
 
 .. autoclass:: App
   :members:
+
+.. autofunction:: scan
 
 .. autofunction:: autoscan
 

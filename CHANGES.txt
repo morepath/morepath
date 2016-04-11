@@ -6,6 +6,8 @@ CHANGES
 
 - Enable queries by the Dectate query tool.
 
+- Document ``scan`` function in API docs.
+
 0.13 (2016-04-06)
 =================
 
