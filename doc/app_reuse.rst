@@ -35,7 +35,7 @@ Morepath lets you create app classes like this:
 
 When you instantiate the app class, you get a WSGI application. The
 app class itself serves as a registry for application construction
-information. This configuration is specify used decorators. Apps
+information. This configuration is specified by using decorators. Apps
 consist of paths and views for models:
 
 .. code-block:: python

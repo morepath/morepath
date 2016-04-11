@@ -243,7 +243,7 @@ A note about mounted applications
 ---------------------------------
 
 ``more.static`` uses a tween to inject scripts into the response (see
-:doc:tweens). If you use ``more.static`` in a view in a mounted
+:doc:`tweens`). If you use ``more.static`` in a view in a mounted
 application, you need to make sure that the root application also
 derives from ``more.static.StaticApp``, otherwise the resources aren't
 inserted correctly::
