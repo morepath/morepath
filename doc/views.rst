@@ -474,6 +474,12 @@ name='extra')``, but it is not available on the web -- there is no
 Exception views
 ---------------
 
+.. sidebar:: WebOb HTTP exceptions
+
+  `A list of standard WebOb HTTP exceptions
+  <http://docs.webob.org/en/stable/api/exceptions.html>`_
+
+
 Sometimes your application raises an exception. This can either be a
 HTTP exception, for instance when the user goes to a URL that does not
 exist, or an arbitrary exception raised by the application.
