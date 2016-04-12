@@ -5,7 +5,7 @@ Introduction
 ------------
 
 A typical application has some settings: if an application logs, a
-setting is the path to the log file. If an aplication sends email,
+setting is the path to the log file. If an application sends email,
 there are settings to control how email is sent, such as the email
 address of the sender.
 
