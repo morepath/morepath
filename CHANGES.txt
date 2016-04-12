@@ -14,6 +14,9 @@ CHANGES
 
   https://www.ietf.org/rfc/rfc3986.txt
 
+- Document some tricks you can do with directives in a new "Directive
+  tricks" document.
+
 0.13 (2016-04-06)
 =================
 

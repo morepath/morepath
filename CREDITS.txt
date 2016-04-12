@@ -24,7 +24,7 @@ CREDITS
 
 * James Pharis (documentation improvements)
 
-* Stefano Taschini (documentation fixes)
+* Stefano Taschini (documentation improvements)
 
 * Contributions by Souheil Chelfouh, Alex Garel, Wolfgang Schnerring
 
