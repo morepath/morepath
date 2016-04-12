@@ -154,13 +154,7 @@ class App(dectate.App):
 
     @reify
     def publish(self):
-        # XXX import cycles...
-        from .publish import publish
-        result = publish
-        for tween_factory in reversed(
-                self.config.tween_registry.sorted_tween_factories()):
-            result = tween_factory(self, result)
-        return result
+        return self.config.tween_registry.wrap(self)
 
     @property
     def settings(self):

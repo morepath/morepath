@@ -17,6 +17,8 @@ CHANGES
 - Document some tricks you can do with directives in a new "Directive
   tricks" document.
 
+- Refactor creation of tweens into function on TweenRegistry.
+
 0.13 (2016-04-06)
 =================
 
