@@ -1127,3 +1127,73 @@ def test_rescan():
 
     response = c.get('/1')
     assert response.body == b'The view for model: 1'
+
+
+def test_staticmethod():
+    class App(morepath.App):
+        pass
+
+    @App.path('/')
+    class Root(object):
+        pass
+
+    class A(object):
+        @staticmethod
+        @App.view(model=Root)
+        def root_default(self, request):
+            assert isinstance(self, Root)
+            return "Hello world"
+
+    dectate.commit(App)
+
+    c = Client(App())
+
+    response = c.get('/')
+    assert response.body == b'Hello world'
+
+
+def test_classmethod_equivalent_to_staticmethod():
+    class App(morepath.App):
+        pass
+
+    @App.path('/')
+    class Root(object):
+        pass
+
+    class A(object):
+        @classmethod
+        @App.view(model=Root)
+        def root_default(self, request):
+            assert isinstance(self, Root)
+            return "Hello world"
+
+    dectate.commit(App)
+
+    c = Client(App())
+
+    response = c.get('/')
+    assert response.body == b'Hello world'
+
+
+def test_classmethod_bound_outside():
+    class App(morepath.App):
+        pass
+
+    @App.path('/')
+    class Root(object):
+        pass
+
+    class A(object):
+        @classmethod
+        def root_default(cls, self, request):
+            assert isinstance(self, Root)
+            return "Hello world"
+
+    App.view(model=Root)(A.root_default)
+
+    dectate.commit(App)
+
+    c = Client(App())
+
+    response = c.get('/')
+    assert response.body == b'Hello world'
