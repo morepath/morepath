@@ -79,8 +79,7 @@ render function baked in.
 We could for instance have a ``Document`` model in our application::
 
   class Document(object):
-      def __init__(self, id, title, author, content):
-          self.id = id
+      def __init__(self, title, author, content):
           self.title = title
           self.author = author
           self.content = content
@@ -88,181 +87,188 @@ We could for instance have a ``Document`` model in our application::
 We can expose it on a URL::
 
   @App.path(model=Document, path='documents/{id}')
-  def get_document(id):
+  def get_document(id=0):
      return document_by_id(id)
 
 We assume here that a ``document_by_id()`` function exists that
-returns a ``Document`` instance by id from some database, or ``None``
-if the document cannot be found. Any way to get your model instance is
-fine.
+returns a ``Document`` instance by integer id from some database, or
+``None`` if the document cannot be found. Any way to get your model
+instance is fine. We use ``id=0`` to tell Morepath that ids should be
+converted to integers, and to with a ``BadRequest`` if that is not
+possible.
 
-Now we want a ``metadata`` resource that exposes its metadata as
-JSON::
+Now we need a view that exposes the resource to JSON::
 
-  @App.json(model=Document, name='metadata')
-  def document_metadata(self, request):
+  @App.json(model=Document)
+  def document_default(self, request):
       return {
+        'type': 'document',
         'id': self.id,
         'title': self.title,
-        'author': self.author
+        'author': self.author,
+        'content': self.content
       }
 
 Modeling as resources
 ---------------------
 
 Modeling a web service as multiple resources comes pretty naturally to
-Morepath, as it's model-oriented in the first place. You can think
-carefully about how to place models in the URL space and expose them
-using :meth:`morepath.App.path`. In Morepath each model class can
-only be exposed on a single URL (per app), which gives them a
-canonical URL automatically.
+Morepath. You think carefully about how to place models in the URL
+space and then expose them using :meth:`morepath.App.path`. Each model
+class can only be exposed on a single URL (per app), which gives them
+a canonical URL automatically.
 
 A collection resource could be modelled like this::
 
   class DocumentCollection(object):
       def __init__(self):
           self.documents = []
+          self.id_counter = 0
 
       def add(self, doc):
-          self.documents.append(doc)
+          doc.id = self.id_counter
+          self.id_counter += 1
+          return doc
 
 We now want to expose this collection to a URL path ``/documents``. We
 want:
 
-* a resource ``/documents`` to GET the ids of all documents in the
+* when you ``GET`` ``/documents`` we want to get the ids documents in the
   collection.
 
-* a resource ``/documents/add`` that lets you POST an ``id`` to it so that
-  this document is added to the collection.
+* when you ``POST`` to ``/documents`` with a JSON body we want to add
+  it to the collection.
 
-Here is how we could make ``documents`` available on a URL::
+Here is how we can make ``documents`` available on a URL::
 
   documents = DocumentCollection()
 
   @App.path(model=DocumentCollection, path='documents')
-  def documents_collection():
-     return documents
+  def get_document_collection():
+      return documents
 
-When someone accesses ``/documents`` they should get a JSON structure which
-includes ids of all documents in the collection. Here's how to do
-that::
+When someone accesses ``/documents`` they should get a JSON structure
+which includes ids of all documents in the collection. Here's how to
+do that (for ``GET``, the default)::
 
   @App.json(model=DocumentCollection)
-  def collection_default(self, request):
+  def document_collection_default(self, request):
       return {
          'type': 'document_collection',
          'ids': [doc.id for doc in self.documents]
       }
 
-Then we want to allow people to POST the document id (as a URL
-parameter) to the ``/documents/add`` resource::
-
-  @App.json(model=DocumentCollection, name='add', request_method='POST')
-  def collection_add_document(self, request):
-      doc = document_by_id(request.args['id'])
-      self.add(doc)
-      return {}
-
-We again use the ``document_by_id`` function. We also return an empty
-JSON object in the response; not very useful, but in this simple view
-we don't have anything more interesting to report when the POST
-succeeds.
-
-Note the use of ``request_method``, which we'll talk about
-more next.
-
-Note also that there are some things still missing: giving back a
-proper response with status codes, and error handling when things go
-wrong.
-
-HTTP methods
-------------
-
-As you saw above, we've used ``request_method`` to make sure that
-``/documents/add`` only works for ``POST`` requests.
-
-By default, ``request_method`` is ``GET``, meaning that ``/documents``
-only responds to a ``GET`` request, which is what we want. Let's
-make it explicit::
-
-  @App.json(model=DocumentCollection, request_method='GET')
-  def collection_default(self, request):
-      ...
-
-What if we had defined our web service differently, and instead of
-having a ``/documents/add`` we wanted to allow the POSTing of document
-ids on ``/documents`` directly? Here's how you rewrite
-``collection_add_document`` to be the view directly on
-``/documents```::
+We also want to allow people to ``POST`` new documents (as a JSON POST
+body)::
 
   @App.json(model=DocumentCollection, request_method='POST')
-  def collection_add_document(self, request):
-      ...
+  def document_collection_post(self, request):
+      json = request.json
+      result = self.add(Document(title=json['title],
+                                 author=json['author'],
+                                 content=json['content']))
+      return request.view(result)
 
-It's just a matter of removing the ``name`` parameter so that it becomes
-the default view on ``DocumentCollection``.
+We use :meth:`Request.view` to return the JSON structure for the added
+document again. This is handy as it includes the ``id`` field.
 
 HTTP response status codes
 --------------------------
 
-When a view did its thing with success, Morepath automatically returns
-the HTTP status code ``200``. When you try to access a URL that cannot
-be routed to a model or a view, a ``404`` error is raised.
+When a view function returns normally, Morepath automatically sets the
+response HTTP status code to ``200 Ok``.
 
-But what if the view did not manage to do something successfully? Let's
-get back to this view::
+When you try to access a URL that cannot be routed to a model because
+no path exists, or because the function involved returns ``None``, or
+because the view cannot be found, a ``404 Not Found`` error is raised.
 
-  @App.json(model=DocumentCollection, name='add', request_method='POST')
-  def collection_add_document(self, request):
-      doc = document_by_id(request.args['id'])
-      self.add(doc)
-      return {}
+If you access a URL that does exist but with a request method that is
+not supported, a ``405 Method Not Allowed`` error is raised.
 
-What if there is no ``id`` parameter in the request? That's something
-our application cannot handle: a bad request, status code 400.
+What if the user sends the wrong information to a view? Let's consider
+the ``POST`` view again::
+
+  @App.json(model=DocumentCollection, request_method='POST')
+  def document_collection_post(self, request):
+      json = request.json
+      result = self.add(Document(title=json['title],
+                                 author=json['author'],
+                                 content=json['content']))
+      return request.view(result)
+
+What if the structure of the JSON submitted is not a valid document
+but contains some other information, or misses essential information?
+We should reject it if so. We can do this by raising a HTTP error
+ourselves. WebOb, the request/response library upon which Morepath is
+built, defines a set of HTTP exception classes :mod:`webob.exc` that
+we can use::
+
+  @App.json(model=DocumentCollection, request_method='POST')
+  def document_collection_post(self, request):
+      if not is_valid_document_json(request.json):
+          raise webob.exc.HTTPUnprocessableEntity()
+      result = self.add(Document(title=json['title],
+                                 author=json['author'],
+                                 content=json['content']))
+      return request.view(result)
 
 .. sidebar:: What status code is right?
 
-  There is some debate over what status code to pick for particular
-  errors. Sometimes the HTTP specification is pretty clear, but in the
-  case of a missing parameter, it's not. Status code 400 (Bad Request)
-  while according to the HTTP specd more about the syntax of a request
-  than its content, is still chosen by many implementers in case of
-  errors like this.
+  There is some debate over what status code to pick for content that
+  is submitted that can be parsed but is incorrect. Some REST
+  implementations use ``400 Bad Request``, others use ``422
+  Unprocessable Entity``. Morepath uses the latter by default, as
+  we'll see in a bit.
 
-  But no matter what kind of HTTP error you pick, how you cause them
-  to happen is the same: just raise the appropriate exception.
+Now we raise ``422 Unprocessable Entity`` when the submitted JSON body
+is invalid, using a function ``is_valid_document_json`` that does the
+checking. ``is_valid_document`` could look this::
 
-WebOb, the request/response library upon which Morepath is built,
-defines a set of HTTP exception classes :mod:`webob.exc` that we can
-use. In this case we need :exc:`webob.exc.HTTPBadRequest`. We modify
-our view so it is raised if there was no id::
+  def is_valid_document_json(json):
+     if json['type'] != 'document':
+        return False
+     for name in ['title', 'author', 'content']:
+        if name not in json:
+           return False
+     return True
 
-  from webob.exc import HTTPBadRequest
+``body_model``
+--------------
 
-  @App.json(model=DocumentCollection, name='add', request_method='POST')
-  def collection_add_document(self, request):
-      id = request.args.get('id')
-      if id is None:
-          raise HTTPBadRequest()
-      doc = document_by_id(id)
-      self.add(doc)
-      return {}
+Instead of checking the content for validity in the view, we can use
+:meth:`App.load_json`::
 
-We also want to deal with the situation where an id was given, but no
-document with that id exists. Let's handle that with 400 Bad Request
-too::
+  @App.load_json():
+  def load_json(json, request):
+     if is_valid_document_json(json):
+        return Document(title=json['title'],
+                        author=json['author']
+                        content=json['content'])
+     # fallback, just return plain JSON
+     return json
 
-  @App.json(model=DocumentCollection, name='add', request_method='POST')
-  def collection_add_document(self, request):
-      id = request.args.get('id')
-      if id is None:
-          raise BadRequest()
-      doc = document_by_id(id)
-      if doc is None:
-          raise BadRequest()
-      self.add(doc)
-      return {}
+Now we get a ``Document`` instance in :attr:`Request.body_obj`, so
+we can simplify ``document_collection_post``::
+
+  @App.json(model=DocumentCollection, request_method='POST')
+  def document_collection_post(self, request):
+      if not isinstance(request.body_obj, Document):
+         raise webob.exc.HTTPUnprocessableEntity()
+      result = self.add(request.body_obj)
+      return request.view(result)
+
+To only match if ``body_obj`` is an instance of ``Document`` we can
+use ``body_model`` on the view instead::
+
+  @App.json(model=DocumentCollection, request_method='POST', body_model=Document)
+  def document_collection_post(self, request):
+      result = self.add(request.body_obj)
+      return request.view(result)
+
+Now you get the ``422`` error for free if no matching ``body_model``
+can be found. You can also create additional ``POST`` views for
+``DocumentCollection`` that handle other types of JSON content this
+way.
 
 Linking: HATEOAS
 ----------------
@@ -298,51 +304,31 @@ hyperlinks. That ugly acronym HATEOAS_ thing.
   get the initial URL of a site, and then you go to pages in that site
   by clicking links.
 
-Morepath makes it very easy to create hyperlinks, so we won't
-have to do much. Let's first modify our default ``GET`` view for
-the collection so it also has a link to the ``add`` resource::
+Morepath makes it easy to create hyperlinks, so we won't have to do
+much. Before we had this for the collection view::
 
   @App.json(model=DocumentCollection)
-  def collection_default(self, request):
+  def document_collection_default(self, request):
       return {
          'type': 'document_collection',
-         'ids': [doc.id for doc in self.documents],
-         'add': request.link(documents, 'add')
+         'ids': [doc.id for doc in self.documents]
       }
 
-``documents``, if you can remember, is the instance of
-``DocumentCollection`` we were working with, and we want
-to link to its ``add`` view.
-
-Let's make things more interesting though. Before we had the default
-view for the collection return a list of document ids. We can change
-this so we return a list of document URLs instead::
+We can change this so instead of ids, we return a list of document
+URLs instead::
 
   @App.json(model=DocumentCollection)
-  def collection_default(self, request):
+  def document_collection_default(self, request):
       return {
          'type': 'document_collection',
          'documents': [request.link(doc) for doc in self.documents],
-         'add': request.link(documents, 'add')
-      }
-
-Or perhaps better, include the id *and* the URL::
-
-  @App.json(model=DocumentCollection)
-  def collection_default(self, request):
-      return {
-         'type': 'document_collection',
-         'documents': [dict(id=doc.id, link=request.link(doc))
-                       for doc in self.documents],
-         'add': request.link(documents, 'add')
       }
 
 Now we've got HATEOAS: the collection links to the documents it
-contains, and also to the ``add`` URL that can be used to add a new
-document. The developers looking at the responses your web service
+contains. The developers looking at the responses your web service
 sends get a few clues about where to go next. Coupling is looser.
 
-We got HATEOAS, so at last we got true REST. Why is hyperlinking so
+We have HATEOAS, so at last we got true REST. Why is hyperlinking so
 often ignored? Why don't more systems implement HATEOAS? Perhaps
 because they make linking to things too hard or too brittle. Morepath
 instead makes it easy. Link away!

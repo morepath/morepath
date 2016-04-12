@@ -66,3 +66,5 @@ instance as the ``body_obj`` attribute of the ``request``::
   def collection_post(self, request):
       collection.add(request.body_obj)
       return "success!"
+
+For a worked out example that uses ``load_json`` see :doc:`rest`.
