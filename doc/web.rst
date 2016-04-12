@@ -310,6 +310,16 @@ The server determines how it responds to requests for particular paths.
 
 .. _review-path:
 
+URL parameters
+--------------
+
+A URL can have additional parameters::
+
+  http://example.com/documents/3?expand=1&highlight=foo
+
+The list of parameters start with ``?``. Names are connected with
+values using ``=``, and name/value pairs are connected with ``&``.
+
 Path
 ----
 
@@ -328,6 +338,10 @@ Example::
   def get_document(id):
      return query_document(id)
 
+If you declare arguments for ``get_document`` that do not get listed
+as variables in the ``path`` these are interpreted as expected URL
+parameters.
+
 .. _review-link-generation:
 
 Link generation
@@ -344,6 +358,9 @@ of ``Document`` using :meth:`morepath.Request.link`::
   request.link(some_document)
 
 This makes it easy to create links within Morepath view functions.
+
+Morepath's link generation can generate links that include URL
+parameters.
 
 .. _review-headers:
 
