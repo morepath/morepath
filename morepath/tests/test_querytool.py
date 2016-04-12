@@ -12,6 +12,13 @@ def objects(actions):
     return result
 
 
+def builtin_ref(s):
+    if compat.PY3:
+        return 'builtins.%s' % s
+    else:
+        return '__builtin__.%s' % s
+
+
 def test_setting():
     class App(morepath.App):
         pass
@@ -167,18 +174,19 @@ def test_converter():
 
     expected = [
         core.int_converter,
-        core.unicode_converter,
-        core.str_converter,
+        core.unicode_converter
+    ]
+    if not compat.PY3:
+        expected.append(core.str_converter)
+
+    expected.extend([
         core.date_converter,
         core.datetime_converter
-    ]
-
-    if compat.PY3:
-        del expected[2]  # str_converter only in PY2
+    ])
 
     assert r == expected
 
-    r = objects(dectate.query_app(App, 'converter', type='__builtin__.int'))
+    r = objects(dectate.query_app(App, 'converter', type=builtin_ref('int')))
 
     assert r == [
         core.int_converter
@@ -542,7 +550,7 @@ def test_view_permission():
 
     r = objects(dectate.query_app(App, 'view',
                                   model='morepath.tests.test_querytool.Foo',
-                                  permission='__builtin__.None'))
+                                  permission=builtin_ref('None')))
 
     assert r == [foo_n]
 
