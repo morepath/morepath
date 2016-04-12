@@ -22,6 +22,9 @@ CHANGES
 - Update the REST document; it was rather old and made no mention of
   ``body_model``.
 
+- Bail out with an error if an App is instantiated without being
+  committed.
+
 0.13 (2016-04-06)
 =================
 

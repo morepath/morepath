@@ -3,7 +3,7 @@ import dectate
 from .fixtures import (basic, nested, abbr, mapply_bug,
                        method, conflict, pkg, noconverter)
 from dectate import ConflictError, DirectiveReportError
-from morepath.error import LinkError
+from morepath.error import LinkError, ConfigError
 from morepath.view import render_html
 from morepath.converter import Converter
 import morepath
@@ -1197,3 +1197,15 @@ def test_classmethod_bound_outside():
 
     response = c.get('/')
     assert response.body == b'Hello world'
+
+
+def test_cannot_run_if_uncommitted():
+    class App(morepath.App):
+        pass
+
+    @App.path('/')
+    class Hello(object):
+        pass
+
+    with pytest.raises(ConfigError):
+        App()
