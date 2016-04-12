@@ -11,15 +11,15 @@ facilities.
 
 We'll talk about how Morepath lets you isolate applications, extend
 and override applications, and compose applications together. Morepath
-tries to make these things not only possible, but simple.
+makes this not only possible, but also *simple*.
 
-Many other web frameworks have mechanisms for overriding behavior and
-reusing code. But these tend to have been developed in an ad-hoc
-fashion as new needs arose.
+Other web frameworks have mechanisms for overriding behavior and
+reusing code. But these were typically added in an ad-hoc fashion as
+new needs arose.
 
 Morepath instead has *general* mechanisms for app extension and
-reuse. Any normal Morepath app can without extra effort be
-reused. Anything registered in a Morepath app can be overridden.
+reuse. Any normal Morepath app is reusable without extra
+effort. Anything registered in a Morepath app can be overridden.
 
 .. _Reg: http://blog.startifact.com/posts/reg-now-with-more-generic.html
 
@@ -35,7 +35,7 @@ Morepath lets you create app classes like this:
 
 When you instantiate the app class, you get a WSGI application. The
 app class itself serves as a registry for application construction
-information. This configuration is specified by using decorators. Apps
+information. You specify this configuration with decorators. Apps
 consist of paths and views for models:
 
 .. code-block:: python
@@ -49,12 +49,12 @@ consist of paths and views for models:
       return "User: %s" % self.username
 
 Here we've exposed the ``User`` model class under the path
-``/users/{username}``. When you go to such a URL, the default
-(unnamed) view is found. We've provided that too: it just renders
+``/users/{username}``. When you go to such a URL, Morepath looks up
+the default (unnamed) view. We've implemented that too: it renders
 "User: {username}".
 
 What now if we have another app where we want to publish ``User`` in a
-different way? No problem, we can just create one:
+different way? No problem, we can create one:
 
 .. code-block:: python
 
@@ -73,9 +73,9 @@ Here we expose ``User`` to the web again, but use a different path and
 a different view. If you use ``OtherApp`` (even in the same runtime), it
 functions independently from ``App``.
 
-This app isolation is nothing really special; it's kind of obvious
-that this is possible. But that's what we wanted. Let's look at a few
-more involved possibilities next.
+App isolation is nothing special in Morepath; it's obvious that this
+is possible. But that's what we wanted. Let's look at some other
+features next.
 
 Application Extension
 ---------------------
@@ -98,15 +98,15 @@ but you get the idea.
 But what if we have a scenario where there is a core application and
 we want to extend it *without modifying it*?
 
-Why would this ever happen, you may ask? Well, it can, especially in
-more complex applications and reuse scenarios. Often you have a common
-application core and you want to be able to plug into it. Meanwhile,
-you want that core application to still function as before when used
-(or tested!) by itself. Perhaps there's somebody else who has created
-another extension of it.
+Why would this ever happen, you may ask? In complex applications and
+reuse scenarios it does. Imagine you have a common application core
+and you want to be able to plug into it. Meanwhile, you want that core
+application to still function as before when used (or tested!) by
+itself. Perhaps there's somebody else who has created another
+extension of it.
 
-This architectural principle is called the `Open/Closed Principle`_ in
-software engineering, and Morepath makes it really easy to follow
+In software engineering we call this architectural principle the
+`Open/Closed Principle`_, and Morepath makes it easy to follow
 it. What you do is create another app that subclasses the original:
 
 .. code-block:: python
@@ -125,7 +125,7 @@ And then we can add the view to the extended app:
 Now when we publish ``ExtendedApp`` using WSGI, the new ``edit`` view
 is there, but when we publish ``App`` it won't be.
 
-Just subclassing. Kind of obvious, perhaps. Good. Let's move on.
+Subclassing. Obvious, perhaps. Good! Let's move on.
 
 .. _`Open/Closed Principle`: https://en.wikipedia.org/wiki/Open/closed_principle
 
@@ -148,9 +148,8 @@ Here's how we can do that:
 We've now overridden the default view for ``User`` to a new view that
 renders it differently.
 
-You can also do this for what is returned for model paths. We might
-for instance want to return a different user object altogether in
-our overriding app:
+We can also do this for model paths. Here we return a different user
+object altogether in our overriding app:
 
 .. code-block:: python
 
@@ -158,15 +157,14 @@ our overriding app:
   def get_user_differently(username):
       return OtherUser(username)
 
-To make ``OtherUser`` actually be published on the web under
-``/users/{username}`` it either needs to be a subclass of ``User``, for
-which we've already registered a default view, or we need to register
-a new default view for ``OtherUser``.
+To publish ``OtherUser`` under ``/users/{username}`` it either needs
+to be a subclass of ``User``. We've already registered a default view
+for that class. We can also register a new default view for
+``OtherUser``.
 
 Overriding apps actually doesn't look much different from how you
-build apps in the first place. Again, it's just like
-subclassing. Hopefully not so obvious that it's boring. Let's talk
-about something new.
+build apps in the first place. Again, it's just subclassing. Hopefully
+this isn't getting boring, so let's talk about something new.
 
 Nesting Applications
 --------------------
