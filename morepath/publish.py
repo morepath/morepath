@@ -45,7 +45,7 @@ def resolve_response(request, obj):
         if fallback is None:
             return HTTPNotFound()
         return fallback(obj, request)
-    return view.response(obj, request)
+    return view(obj, request)
 
 
 def get_view_name(stack):

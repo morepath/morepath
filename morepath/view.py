@@ -16,16 +16,13 @@ class View(object):
         self.internal = internal
 
     def __call__(self, obj, request):
-        return self.func(obj, request)
-
-    def response(self, obj, request):
         if self.internal:
             raise HTTPNotFound()
         if (self.permission is not None and
             not generic.permits(request.identity, obj, self.permission,
                                 lookup=request.lookup)):
             raise HTTPForbidden()
-        content = self(obj, request)
+        content = self.func(obj, request)
         if isinstance(content, BaseResponse):
             # the view took full control over the response
             response = content
