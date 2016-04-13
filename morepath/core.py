@@ -6,7 +6,7 @@ from .app import App
 from .view import View
 from .request import Request, Response
 from .converter import Converter, IDENTITY_CONVERTER
-from webob import Response as BaseResponse
+from webob import Response as BaseResponse, BaseRequest
 from webob.exc import (
     HTTPException, HTTPNotFound, HTTPMethodNotAllowed,
     HTTPUnprocessableEntity, HTTPOk, HTTPRedirection)
@@ -112,8 +112,10 @@ def excview_tween_factory(app, handler):
         try:
             response = handler(request)
         except Exception as exc:
-            # we must use an internal API here so as not to trigger
-            # fallback behavior
+            # we must use component_key_dict here because we
+            # do not want the request to feature in the lookup;
+            # we don't want its request method or name to influence
+            # exception lookup
             view = generic.view.component_key_dict(model=exc.__class__,
                                                    lookup=request.lookup)
             if view is None:
