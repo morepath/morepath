@@ -7,7 +7,7 @@ long_description = (
     io.open('CHANGES.txt', encoding='utf-8').read())
 
 setup(name='morepath',
-      version='0.14.dev0',
+      version='0.13.1.dev0',
       description="A micro web-framework with superpowers",
       long_description=long_description,
       author="Martijn Faassen",
@@ -25,7 +25,7 @@ setup(name='morepath',
         'Topic :: Internet :: WWW/HTTP :: WSGI',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.4',
-        'Development Status :: 4 - Beta'
+        'Development Status :: 5 - Production/Stable'
         ],
       keywords="web wsgi routing morepath",
       install_requires=[
