@@ -1,6 +1,5 @@
 import dectate
 from reg import CachingKeyLookup, Registry
-from dectate import ConfigError
 
 from .request import Request
 from . import compat
@@ -58,9 +57,7 @@ class App(dectate.App):
     logger_name = 'morepath.directive'
 
     def __init__(self):
-        if not self.is_committed():
-            raise ConfigError(
-                "App subclass cannot be instantiated as it was not committed.")
+        pass
 
     @reify
     def lookup(self):

@@ -1197,15 +1197,3 @@ def test_classmethod_bound_outside():
 
     response = c.get('/')
     assert response.body == b'Hello world'
-
-
-def test_cannot_run_if_uncommitted():
-    class App(morepath.App):
-        pass
-
-    @App.path('/')
-    class Hello(object):
-        pass
-
-    with pytest.raises(ConfigError):
-        App()
