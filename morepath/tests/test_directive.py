@@ -3,7 +3,7 @@ import dectate
 from .fixtures import (basic, nested, abbr, mapply_bug,
                        method, conflict, pkg, noconverter)
 from dectate import ConflictError, DirectiveReportError
-from morepath.error import LinkError, ConfigError
+from morepath.error import LinkError
 from morepath.view import render_html
 from morepath.converter import Converter
 import morepath
