@@ -129,7 +129,7 @@ class Request(BaseRequest):
         app.set_implicit()
         self.app = app
         self.lookup = app.lookup
-        result = view(obj, self)
+        result = view.func(obj, self)
         old_app.set_implicit()
         self.app = old_app
         self.lookup = old_lookup
