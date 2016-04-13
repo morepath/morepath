@@ -15,20 +15,17 @@ class View(object):
         self.permission = permission
         self.internal = internal
 
-    def __call__(self, request, model):
-        # the argument order is reversed here for the actual view function
-        # this still makes request weigh stronger in multiple dispatch,
-        # but lets view authors write 'self, request'.
-        return self.func(model, request)
+    def __call__(self, obj, request):
+        return self.func(obj, request)
 
-    def response(self, request, obj):
+    def response(self, obj, request):
         if self.internal:
             raise HTTPNotFound()
         if (self.permission is not None and
             not generic.permits(request.identity, obj, self.permission,
                                 lookup=request.lookup)):
             raise HTTPForbidden()
-        content = self(request, obj)
+        content = self(obj, request)
         if isinstance(content, BaseResponse):
             # the view took full control over the response
             response = content

@@ -4,8 +4,7 @@ CHANGES
 0.14 (unreleased)
 ===================
 
-- Nothing changed yet.
-
+- Refactor internals of publishing/view engine.
 
 0.13.2 (2016-04-13)
 ===================

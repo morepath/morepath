@@ -21,7 +21,7 @@ def deferred_link_app(mounted, obj):
 
 
 @reg.dispatch_external_predicates()
-def view(request, obj):
+def view(obj, request):
     """Get the view that represents the obj in the context of a request.
 
     This view is a representation of the obj that can be rendered to
