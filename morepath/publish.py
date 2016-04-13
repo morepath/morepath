@@ -9,13 +9,6 @@ from . import generic
 DEFAULT_NAME = u''
 
 
-class ResponseSentinel(object):
-    pass
-
-
-RESPONSE_SENTINEL = ResponseSentinel()
-
-
 def resolve_model(request):
     """Resolve path to a obj.
     """
