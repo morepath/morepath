@@ -1,16 +1,16 @@
 CHANGES
 *******
 
-0.14 (unreleased)
-=================
+0.13.1 (unreleased)
+===================
 
 - Enable queries by the Dectate query tool.
 
 - Document ``scan`` function in API docs.
 
-- Work around an issue in Python where ~ (tilde) is quoted by
-  urllib.quote & urllib.encode, even though it should not be according
-  to the RFC, as ~ is considered unreserved.
+- Work around an issue in Python where ``~`` (tilde) is quoted by
+  ``urllib.quote`` & ``urllib.encode``, even though it should not be
+  according to the RFC, as ``~`` is considered unreserved.
 
   https://www.ietf.org/rfc/rfc3986.txt
 
