@@ -112,6 +112,8 @@ def excview_tween_factory(app, handler):
         try:
             response = handler(request)
         except Exception as exc:
+            # we must use an internal API here so as not to trigger
+            # fallback behavior
             view = generic.view.component_key_dict(model=exc.__class__,
                                                    lookup=request.lookup)
             if view is None:
