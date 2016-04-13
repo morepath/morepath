@@ -1,4 +1,5 @@
 import reg
+from webob.exc import HTTPNotFound
 
 
 @reg.dispatch('obj')
@@ -29,7 +30,7 @@ def view(obj, request):
     returned, the string is converted to a Response with the string as
     the response body.
     """
-    raise NotImplementedError  # pragma: nocoverage
+    return HTTPNotFound()
 
 
 @reg.dispatch()

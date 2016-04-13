@@ -37,15 +37,7 @@ def resolve_model(request):
 
 def resolve_response(request, obj):
     request.view_name = get_view_name(request.unconsumed)
-    view = generic.view.component(obj, request, lookup=request.lookup)
-    if view is None:
-        # try to look up fallback and use it
-        fallback = generic.view.fallback(obj, request, lookup=request.lookup)
-        # the default fallback is not found
-        if fallback is None:
-            return HTTPNotFound()
-        return fallback(obj, request)
-    return view(obj, request)
+    return generic.view(obj, request, lookup=request.lookup)
 
 
 def get_view_name(stack):
