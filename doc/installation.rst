@@ -24,10 +24,25 @@ Morepath itself, including an example of ``quickstart.py``.
 
 .. _virtualenv: http://www.virtualenv.org/
 
-Creating a Morepath Project
----------------------------
+Creating a Morepath Project Using Cookiecutter
+----------------------------------------------
 
-When you develop a web application it's a good idae to use standard
+Morepath provides an official cookiecutter template. Cookiecutter is a tool
+that creates projects through project templates. Morepath's template comes
+with a very simple application, either in RESTful or traditional HTML flavor.
+
+Follow the instructions on Morepath's cookiecutter template repository to
+get started:
+
+`<https://github.com/morepath/morepath-cookiecutter>`_
+
+This is a great way to get started with Morepath as a beginner or to start
+a new project as a seasoned Morepath user.
+
+Creating a Morepath Project Manually
+------------------------------------
+
+When you develop a web application it's a good idea to use standard
 Python project organization practices. :doc:`organizing_your_project`
 has some recommendations on how to do this with Morepath. Relevant in
 particular is the contents of ``setup.py``, which depends on Morepath

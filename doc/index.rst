@@ -105,3 +105,10 @@ More documentation, please!
 
 If you have questions, please join the #morepath IRC channel on
 freenode. Hope to see you there!
+
+I just want to try it!
+----------------------
+
+* `Get started using the Morepath cookiecutter template <https://github.com/morepath/morepath-cookiecutter>`_
+
+You will have your own application to fiddle with in no time!

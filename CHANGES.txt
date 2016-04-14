@@ -6,6 +6,10 @@ CHANGES
 
 - Refactor internals of publishing/view engine.
 
+- Document Morepath's cookiecutter template. 
+
+  See https://github.com/morepath/morepath-cookiecutter
+
 0.13.2 (2016-04-13)
 ===================
 
