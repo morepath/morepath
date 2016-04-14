@@ -34,7 +34,7 @@ def test_view():
     app.config.view_registry.register_view(dict(model=Model), view)
 
     model = Model()
-    result = resolve_response(app().request(get_environ(path='')), model)
+    result = resolve_response(model, app().request(get_environ(path='')))
     assert result.body == b'View!'
 
 
@@ -59,10 +59,11 @@ def test_predicates():
 
     model = Model()
     assert resolve_response(
-        app().request(get_environ(path='')), model).body == b'all'
-    assert (resolve_response(app().
-                             request(get_environ(path='', method='POST')),
-                             model).body == b'post')
+        model, app().request(get_environ(path=''))).body == b'all'
+    assert (
+        resolve_response(
+            model, app().request(get_environ(path='', method='POST'))).body ==
+        b'post')
 
 
 def test_notfound():
@@ -92,7 +93,7 @@ def test_notfound_with_predicates():
     request = app().request(get_environ(''))
     request.unconsumed = ['foo']
     with pytest.raises(HTTPNotFound):
-        resolve_response(request, model)
+        resolve_response(model, request)
 
 
 def test_response_returned():
@@ -107,7 +108,7 @@ def test_response_returned():
     app.config.view_registry.register_view(dict(model=Model), view)
 
     model = Model()
-    response = resolve_response(app().request(get_environ(path='')), model)
+    response = resolve_response(model, app().request(get_environ(path='')))
     assert response.body == b'Hello world!'
 
 
@@ -127,7 +128,7 @@ def test_request_view():
     request = app().request(get_environ(path=''))
 
     model = Model()
-    response = resolve_response(request, model)
+    response = resolve_response(model, request)
     # when we get the response, the json will be rendered
     assert response.body == b'{"hey": "hey"}'
     assert response.content_type == 'application/json'
@@ -176,7 +177,7 @@ def test_render_html():
 
     request = app().request(get_environ(path=''))
     model = Model()
-    response = resolve_response(request, model)
+    response = resolve_response(model, request)
     assert response.body == b'<p>Hello world!</p>'
     assert response.content_type == 'text/html'
 
@@ -220,7 +221,7 @@ def test_view_after():
         view)
 
     model = Model()
-    result = resolve_response(app().request(get_environ(path='')), model)
+    result = resolve_response(model, app().request(get_environ(path='')))
     assert result.body == b'View!'
     assert result.headers.get('Foo') == 'FOO'
 
@@ -242,7 +243,7 @@ def test_view_after_redirect():
         view)
 
     model = Model()
-    result = resolve_response(app().request(get_environ(path='')), model)
+    result = resolve_response(model, app().request(get_environ(path='')))
     assert result.status_code == 302
     assert result.headers.get('Location') == 'http://example.org'
     assert result.headers.get('Foo') == 'FOO'
@@ -265,7 +266,7 @@ def test_conditional_view_after():
         dict(model=Model), view)
 
     model = Model()
-    result = resolve_response(app().request(get_environ(path='')), model)
+    result = resolve_response(model, app().request(get_environ(path='')))
     assert result.body == b'View!'
     assert result.headers.get('Foo') is None
 
@@ -286,7 +287,7 @@ def test_view_after_non_decorator():
     app.config.view_registry.register_view(dict(model=Model), view)
 
     model = Model()
-    result = resolve_response(app().request(get_environ(path='')), model)
+    result = resolve_response(model, app().request(get_environ(path='')))
     assert result.body == b'View!'
     assert result.headers.get('Foo') == 'FOO'
 

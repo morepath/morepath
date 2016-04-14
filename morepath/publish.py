@@ -9,8 +9,34 @@ from . import generic
 DEFAULT_NAME = u''
 
 
+def publish(request):
+    """Handle request and return response.
+
+    It uses :func:`resolve_model` to use the information in
+    ``request`` (path, request method, etc) to resolve to a model
+    instance. :func:`resolve_response` then creates a view for
+    the request and the object.
+
+    :param request: :class:`morepath.Request` instance.
+    :param return: :class:`morepath.Response` instance.
+
+    """
+    obj = resolve_model(request)
+    return resolve_response(obj, request)
+
+
 def resolve_model(request):
-    """Resolve path to a obj.
+    """Resolve request to an model instance.
+
+    This takes the path information as a stack of path segments in
+    :attr:`morepath.Request.unconsumed` and consumes it step by step using
+    :func:`consume` to find the model instance as declared by
+    :meth:`morepath.App.path` directive. It can traverse through
+    mounted applications as indicated by the
+    :meth:`morepath.App.mount` directive.
+
+    :param: :class:`morepath.Request` instance.
+    :return: model instance or ``None`` if not found.
     """
     app = request.app
     app.set_implicit()
@@ -31,11 +57,15 @@ def resolve_model(request):
     # if there is nothing (left), we consume toward a root obj
     if not request.unconsumed:
         return consume(request, app)
-    # cannot find obj or app
+    # cannot find obj
     return None
 
 
-def resolve_response(request, obj):
+def resolve_response(obj, request):
+    """Given a request and a model instance, create response.
+
+    :return: :class:`morepath.Response` instance
+    """
     request.view_name = get_view_name(request.unconsumed)
     return generic.view(obj, request, lookup=request.lookup)
 
@@ -50,11 +80,6 @@ def get_view_name(stack):
         return stack[0].lstrip('+')
     assert False, ("Unconsumed stack: %s" %
                    create_path(stack))  # pragma: nocoverage
-
-
-def publish(request):
-    model = resolve_model(request)
-    return resolve_response(request, model)
 
 
 def consume(request, app):

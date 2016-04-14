@@ -29,6 +29,7 @@ Table of Contents
    tweens
    more.static
    api
+   internals/publish
    compared
    design
    developing
