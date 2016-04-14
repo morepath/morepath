@@ -1,15 +1,17 @@
 """
-
 Infrastructure to help make Morepath work with both Python 2 and
 Python 3.
+
+It used throughout the code to make Morepath portable
+across Python versions.
 """
 
 # taken from pyramid.compat
 
 import sys
 
-# True if we are running on Python 3.
 PY3 = sys.version_info[0] == 3
+"""True if we are running on Python 3"""
 
 # text_type is the type used for non-bytes text
 if PY3:  # pragma: no cover

@@ -1,22 +1,40 @@
+"""
+This module contains default Morepath configuration shared by
+all Morepath applications.
+
+It uses Morepath directives to configure:
+
+* view predicates (for model, request method, etc), including
+  what HTTP errors should be returned when a view cannot be matched.
+
+* converters for common Python values (int, date, etc)
+
+* a tween that catches exceptions raised by application code
+  and looks up an exception view for it.
+
+* a default exception view for HTTP exceptions defined by
+  :mod:`webob.exc`, i.e. subclasses of :class:`webob.exc.HTTPException`.
+
+"""
+
 import dectate
 import importscan
-import morepath.directive
-from morepath import generic
-from .app import App
-from .view import View
-from .request import Request, Response
-from .converter import Converter, IDENTITY_CONVERTER
-from webob import Response as BaseResponse, BaseRequest
-from webob.exc import (
-    HTTPException, HTTPNotFound, HTTPMethodNotAllowed,
-    HTTPUnprocessableEntity, HTTPOk, HTTPRedirection)
-import morepath
+
 from reg import KeyIndex, ClassIndex
 from datetime import datetime, date
 from time import mktime, strptime
 
+from webob import Response as BaseResponse, BaseRequest
+from webob.exc import (
+    HTTPException, HTTPNotFound, HTTPMethodNotAllowed,
+    HTTPUnprocessableEntity, HTTPOk, HTTPRedirection)
 
-assert morepath.directive  # we need to make the function directive work
+from . import directive  # install directives with App
+from . import generic
+from .app import App
+from .view import View
+from .request import Request, Response
+from .converter import Converter, IDENTITY_CONVERTER
 
 
 @App.predicate(generic.view, name='model', default=None, index=ClassIndex)

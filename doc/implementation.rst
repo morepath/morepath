@@ -11,4 +11,6 @@ APIs.
    internals/directive
    internals/app
    internals/publish
+   internals/core
    internals/converter
+   internals/compat
