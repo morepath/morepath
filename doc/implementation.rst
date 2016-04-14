@@ -8,13 +8,15 @@ APIs.
 .. toctree::
    :maxdepth: 2
 
-   internals/directive
-   internals/autosetup
    internals/app
-   internals/publish
-   internals/core
-   internals/converter
+   internals/autosetup
    internals/compat
+   internals/converter
+   internals/core
+   internals/directive
+   internals/generic
+   internals/implicit
+   internals/publish
 
 :mod:`morepath.error` is documented in the public API.
 

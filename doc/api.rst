@@ -33,8 +33,12 @@ API
 
 .. autofunction:: render_json
 
-.. autoclass:: morepath.security.Identity
+.. autoclass:: morepath.Identity
   :members:
+
+.. autofunction:: morepath.remember_identity
+
+.. autofunction:: morepath.forget_identity
 
 .. autoclass:: morepath.security.IdentityPolicy
   :members:
@@ -42,10 +46,14 @@ API
 .. autoclass:: morepath.security.BasicAuthIdentityPolicy
   :members:
 
-.. autodata:: morepath.security.NO_IDENTITY
+.. autodata:: morepath.NO_IDENTITY
 
 .. autoclass:: morepath.Converter
   :members:
+
+.. autofunction:: morepath.enable_implicit
+
+.. autofunction:: morepath.disable_implicit
 
 .. autofunction:: morepath.pdbsupport.set_trace
 

@@ -13,6 +13,10 @@ CHANGES
   effectively for view lookup, order of some parameters is reversed
   for consistency with public APIs.
 
+- Document a few missing of the public API: ``enable_implicit``,
+  ``disable_implicit``, ``remember_identity``, ``forget_identity``,
+  ``Identity``, ``NO_IDENTITY``.
+
 - The framehack module was merged into ``autosetup``.
 
 - Documented the internals of Morepath, see implementation document.

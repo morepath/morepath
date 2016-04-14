@@ -10,9 +10,6 @@
   :members:
   :special-members:
 
-.. autoclass:: Converter
-  :members:
-
 .. autoclass:: ListConverter
   :members:
 

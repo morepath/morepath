@@ -6,6 +6,8 @@ passed into model factories that are configured using the
 :meth:`morepath.App.path` and :meth:`morepath.App.mount`
 directives. The inverse conversion back from Python value to string
 also needs to be provided to support link generation.
+
+:class:`morepath.Converter` is exported to the public API.
 """
 
 from reg import PredicateRegistry, match_class

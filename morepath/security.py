@@ -8,10 +8,18 @@ from .settings import SettingRegistry
 
 
 class NoIdentity(object):
+    """The user is not yet logged in.
+
+    The request is anonymous.
+    """
     userid = None
 
 
 NO_IDENTITY = NoIdentity()
+"""The identity if the request is anonymous.
+
+The user has not yet logged in.
+"""
 
 
 class IdentityPolicyRegistry(object):
