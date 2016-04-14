@@ -1,7 +1,7 @@
 import importscan
 import dectate
 from .fixtures import (basic, nested, abbr, mapply_bug,
-                       method, conflict, pkg, noconverter)
+                       method, conflict, noconverter)
 from dectate import ConflictError, DirectiveReportError
 from morepath.error import LinkError
 from morepath.view import render_html
@@ -108,11 +108,6 @@ def test_scanned_conflict():
     importscan.scan(conflict)
     with pytest.raises(ConflictError):
         dectate.commit(conflict.app)
-
-
-def test_scanned_some_error():
-    with pytest.raises(ZeroDivisionError):
-        importscan.scan(pkg)
 
 
 def test_basic_scenario():
@@ -1104,29 +1099,6 @@ def test_classgeneric_function_directive():
 
     assert mygeneric(object, lookup=a.lookup) == 'The object'
     assert mygeneric(Foo, lookup=a.lookup) == 'The foo object'
-
-
-def test_rescan():
-    importscan.scan(basic)
-    dectate.commit(basic.app)
-    importscan.scan(basic)
-
-    class Sub(basic.app):
-        pass
-
-    @Sub.view(model=basic.Model, name='extra')
-    def extra(self, request):
-        return "extra"
-
-    dectate.commit(Sub)
-
-    c = Client(Sub())
-
-    response = c.get('/1/extra')
-    assert response.body == b'extra'
-
-    response = c.get('/1')
-    assert response.body == b'The view for model: 1'
 
 
 def test_staticmethod():
