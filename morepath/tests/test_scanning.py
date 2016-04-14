@@ -1,7 +1,6 @@
 import importscan
 import dectate
 from .fixtures import basic, pkg
-import morepath
 
 import pytest
 from webtest import TestApp as Client
