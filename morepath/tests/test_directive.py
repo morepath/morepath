@@ -1,4 +1,3 @@
-import importscan
 import dectate
 from .fixtures import (basic, nested, abbr, mapply_bug,
                        method, conflict, noconverter)
@@ -18,7 +17,6 @@ def setup_module(module):
 
 
 def test_basic():
-    importscan.scan(basic)
     dectate.commit(basic.app)
 
     c = Client(basic.app())
@@ -32,7 +30,6 @@ def test_basic():
 
 
 def test_basic_json():
-    importscan.scan(basic)
     dectate.commit(basic.app)
 
     c = Client(basic.app())
@@ -43,7 +40,6 @@ def test_basic_json():
 
 
 def test_basic_root():
-    importscan.scan(basic)
     dectate.commit(basic.app)
 
     c = Client(basic.app())
@@ -59,7 +55,6 @@ def test_basic_root():
 
 
 def test_nested():
-    importscan.scan(nested)
     dectate.commit(nested.outer_app, nested.app)
 
     c = Client(nested.outer_app())
@@ -73,7 +68,6 @@ def test_nested():
 
 
 def test_abbr():
-    importscan.scan(abbr)
     dectate.commit(abbr.app)
 
     c = Client(abbr.app())
@@ -86,7 +80,6 @@ def test_abbr():
 
 
 def test_scanned_static_method():
-    importscan.scan(method)
     dectate.commit(method.app)
 
     c = Client(method.app())
@@ -99,13 +92,11 @@ def test_scanned_static_method():
 
 
 def test_scanned_no_converter():
-    importscan.scan(noconverter)
     with pytest.raises(DirectiveReportError):
         dectate.commit(noconverter.app)
 
 
 def test_scanned_conflict():
-    importscan.scan(conflict)
     with pytest.raises(ConflictError):
         dectate.commit(conflict.app)
 
@@ -903,7 +894,6 @@ def test_run_app_with_context_without_it():
 
 
 def test_mapply_bug():
-    importscan.scan(mapply_bug)
     dectate.commit(mapply_bug.app)
 
     c = Client(mapply_bug.app())

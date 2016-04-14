@@ -1,5 +1,4 @@
 import pytest
-import importscan
 import dectate
 import morepath
 from dectate import DirectiveReportError, ConflictError
@@ -55,7 +54,6 @@ def test_path_function_with_kwargs():
 
 
 def test_conflict_error_should_report_line_numbers():
-    importscan.scan(conflicterror)
     with pytest.raises(ConflictError) as e:
         dectate.commit(conflicterror.App)
     v = text_type(e.value)
