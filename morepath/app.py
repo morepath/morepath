@@ -44,7 +44,9 @@ class RegRegistry(Registry):
     def lookup(self):
         """Cached :class:`reg.Lookup`
 
-        Property is reified so cache is shared between instances.
+        Property is reified so cache is shared between
+        :class:`morepath.App` instances that use this
+        registry.
         """
         return CachingKeyLookup(
             self,
