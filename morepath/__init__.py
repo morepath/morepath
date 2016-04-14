@@ -13,7 +13,7 @@ from .view import redirect
 from dectate import commit, autocommit
 from morepath.autosetup import scan, autoscan, autosetup
 from morepath.security import Identity, NO_IDENTITY
-from .converter import Converter
+from .converter import Converter  # XXX is this really public API?
 from .reify import reify
 from .run import run
 from reg import implicit

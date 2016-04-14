@@ -1,5 +1,8 @@
 """
-**Internal API**
+Functionality to turn a :class:`morepath.Request` into a
+:class:`morepath.Response` using Morepath configuration. It looks up a
+model instance for the request path and parameters, then looks up a
+view for that model object to create the response.
 
 The publish module:
 
@@ -8,7 +11,10 @@ The publish module:
 * resolves the model object and the request into a view.
 
 * the view then generates a response.
+
+It all starts at :func:`publish`.
 """
+
 from webob.exc import HTTPNotFound
 from reg import mapply
 
@@ -44,6 +50,10 @@ def resolve_model(request):
     :meth:`morepath.App.path` directive. It can traverse through
     mounted applications as indicated by the
     :meth:`morepath.App.mount` directive.
+
+    The implicit Reg lookup used to look up generic dispatch functions
+    is set to the app and is updated to the mounted application when
+    traversing into it.
 
     :param: :class:`morepath.Request` instance.
     :return: model object or ``None`` if not found.

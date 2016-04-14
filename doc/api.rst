@@ -5,6 +5,7 @@ API
 
 .. autoclass:: App
   :members:
+  :special-members:
 
 .. autofunction:: scan
 
@@ -44,9 +45,6 @@ API
 .. autodata:: morepath.security.NO_IDENTITY
 
 .. autoclass:: morepath.Converter
-  :members:
-
-.. autoclass:: morepath.converter.ConverterRegistry
   :members:
 
 .. autofunction:: morepath.pdbsupport.set_trace

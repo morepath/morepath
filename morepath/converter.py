@@ -1,3 +1,13 @@
+"""Convert path variables and URL parameters to Python objects.
+
+This module contains functionality that can convert traject and URL
+parameters (``?foo=3``) into Python values (ints, date, etc) that are
+passed into model factories that are configured using the
+:meth:`morepath.App.path` and :meth:`morepath.App.mount`
+directives. The inverse conversion back from Python value to string
+also needs to be provided to support link generation.
+"""
+
 from reg import PredicateRegistry, match_class
 
 try:
@@ -10,7 +20,9 @@ from webob.exc import HTTPBadRequest
 
 
 class Converter(object):
-    """How to decode from strings to objects and back.
+    """Decode from strings to objects and back.
+
+    Used internally by the :meth:`morepath.App.converter` directive.
 
     Only used for decoding for a list with a single value, will
     error if more or less than one value is entered.
@@ -34,14 +46,28 @@ class Converter(object):
         self.single_encode = encode or fallback_encode
 
     def decode(self, strings):
+        """Decode list of strings into Python value.
+
+        String must have only a single entry.
+
+        :param strings: list of strings.
+        :return: Python value
+        """
         if len(strings) != 1:
             raise ValueError
         return self.single_decode(strings[0])
 
     def encode(self, value):
+        """Encode Python value into list of strings.
+
+        :param value: Python value
+        :return: List of strings with only a single entry
+        """
         return [self.single_encode(value)]
 
     def is_missing(self, value):
+        """True is a given value is the missing value.
+        """
         # a single value is missing if the list is empty
         return value == []
 
@@ -58,24 +84,39 @@ class Converter(object):
 class ListConverter(object):
     """How to decode from list of strings to list of objects and back.
 
-    Used for decoding/encoding URL parameters and path parameters.
+    Used :class:`morepath.converter.ConverterRegistry` to handle
+    lists of repeated names in parameters.
+
+    Used for decoding/encoding URL parameters and path variables.
     """
     def __init__(self, converter):
         """Create new converter.
 
-        :param converter: the converter to use for list entries.
+        :param converter: the converter to use for list entries
         """
         self.converter = converter
 
     def decode(self, strings):
+        """Decode list of strings into list of Python values.
+
+        :param strings: list of strings
+        :return: list of Python values
+        """
         decode = self.converter.single_decode
         return [decode(s) for s in strings]
 
     def encode(self, values):
+        """Encode list of Python values into list of strings
+
+        :param values: list of Python values.
+        :return: List of strings.
+        """
         encode = self.converter.single_encode
         return [encode(v) for v in values]
 
     def is_missing(self, value):
+        """True is a given value is the missing value.
+        """
         # a list value is never missing, even if the list is empty
         return False
 
@@ -89,6 +130,10 @@ class ListConverter(object):
 
 
 IDENTITY_CONVERTER = Converter(lambda s: s, lambda s: s)
+"""Converter that has no effect.
+
+String becomes string.
+"""
 
 
 class ConverterRegistry(object):
@@ -190,15 +235,15 @@ class ParameterFactory(object):
     """Convert URL parameters.
 
     Given expected URL parameters, converters for them and required
-    parameters, create a dictionary of converted URL parameters.
+    parameters, create a dictionary of converted URL parameters with
+    Python values.
+
+    :param parameters: dictionary of parameter names -> default values.
+    :param converters: dictionary of parameter names -> converters.
+    :param required: dictionary of parameter names -> required booleans.
+    :param extra: should extra unknown parameters be included?
     """
     def __init__(self, parameters, converters, required, extra=False):
-        """
-        :param parameters: dictionary of parameter names -> default values.
-        :param converters: dictionary of parameter names -> converters.
-        :param required: dictionary of parameter names -> required booleans.
-        :param extra: should extra unknown parameters be included?
-        """
         self.parameters = parameters
         self.converters = converters
         self.required = required

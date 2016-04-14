@@ -1,3 +1,21 @@
+"""Here we define the Morepath application class:
+:class:`morepath.App`. The application class makes available the
+directives to the developer. When instantiated it is a WSGI_
+application that can be hooked into WSGI servers.
+
+Because it is a :class:`dectate.App` subclass, the class object has
+two special class attributes: :attr:`dectate.App.dectate`, which
+contains Dectate internals, and :attr:`dectate.App.config` which
+contains the actual configurations.
+
+To actually serve requests it uses :func:`morepath.publish.publish`.
+
+We also define a Reg registry that is used for generic function
+configuration.
+
+.. _WSGI: https://www.python.org/dev/peps/pep-3333
+"""
+
 import dectate
 from reg import CachingKeyLookup, Registry
 
@@ -13,10 +31,21 @@ FALLBACK_CACHE_SIZE = 5000
 
 
 class RegRegistry(Registry):
-    """A reg registry with a cached lookup.
+    """A :class:`reg.Registry` with a cached lookup.
+
+    Morepath uses Reg to implement generic function lookups which
+    are used for various aspects of configuration, in particular
+    view lookup.
+
+    We cache the lookup using a :class:`reg.CachingKeyLookup` so that
+    generic function lookups are faster.
     """
     @reify
     def lookup(self):
+        """Cached :class:`reg.Lookup`
+
+        Property is reified so cache is shared between instances.
+        """
         return CachingKeyLookup(
             self,
             COMPONENT_CACHE_SIZE,
@@ -38,9 +67,11 @@ class App(dectate.App):
     rejected. An subclass app cannot conflict with the apps it is
     subclassing however; instead configuration is overridden.
 
-    You can turn your app class into a WSGI application by instantiating
+    You can turn your app class into a `WSGI`_ application by instantiating
     it. You can then call it with the ``environ`` and ``start_response``
     arguments.
+
+    .. _`WSGI`: https://www.python.org/dev/peps/pep-3333/
 
     Subclasses from :class:`dectate.App`, which provides the
     :meth:`dectate.App.directive` decorator that lets you register
@@ -52,9 +83,13 @@ class App(dectate.App):
     request_class = Request
     """The class of the Request to create. Must be a subclass of
     :class:`morepath.Request`.
+
+    By default the request class is :class:`morepath.Request`
     """
 
     logger_name = 'morepath.directive'
+    """Prefix used by dectate to log configuration actions.
+    """
 
     def __init__(self):
         pass
@@ -84,16 +119,41 @@ class App(dectate.App):
     def __call__(self, environ, start_response):
         """This app as a WSGI application.
 
+        See the WSGI_ spec for more information.
+
         Uses :meth:`App.request` to generate a
         :class:`morepath.Request` instance, then uses
         meth:`App.publish` get the :class:`morepath.Response`
         instance.
 
         :param environ: WSGI environment
+        :param start_response: WSGI start_response
+        :return: WSGI iterable.
         """
         request = self.request(environ)
         response = self.publish(request)
         return response(environ, start_response)
+
+    @reify
+    def publish(self):
+        """Publish functionality wrapped in tweens.
+
+        You can use middleware (:doc:`tweens`) that can hooks in
+        before a request is passed into the application and just after
+        the response comes out of the application. Here we use
+        :meth:`morepath.tween.TweenRegistry.wrap` to wrap the
+        :func:`morepath.publish.publish` function into the configured
+        tweens.
+
+        This property uses ``reify`` so that the tween wrapping
+        only happens once when the first request is handled and is
+        cached afterwards.
+
+        :return: a function that a :class:`morepath.Request` instance
+          and returns a :class:`morepath.Response` instance.
+
+        """
+        return self.config.tween_registry.wrap(self)
 
     def ancestors(self):
         """Return iterable of all ancestors of this app.
@@ -158,10 +218,6 @@ class App(dectate.App):
         if parent is None:
             return None
         return parent.child(app, **variables)
-
-    @reify
-    def publish(self):
-        return self.config.tween_registry.wrap(self)
 
     @property
     def settings(self):
