@@ -14,7 +14,7 @@ def publish(request):
 
     It uses :func:`resolve_model` to use the information in
     ``request`` (path, request method, etc) to resolve to a model
-    instance. :func:`resolve_response` then creates a view for
+    object. :func:`resolve_response` then creates a view for
     the request and the object.
 
     :param request: :class:`morepath.Request` instance.
@@ -26,17 +26,17 @@ def publish(request):
 
 
 def resolve_model(request):
-    """Resolve request to an model instance.
+    """Resolve request to a model object.
 
     This takes the path information as a stack of path segments in
     :attr:`morepath.Request.unconsumed` and consumes it step by step using
-    :func:`consume` to find the model instance as declared by
+    :func:`consume` to find the model object as declared by
     :meth:`morepath.App.path` directive. It can traverse through
     mounted applications as indicated by the
     :meth:`morepath.App.mount` directive.
 
     :param: :class:`morepath.Request` instance.
-    :return: model instance or ``None`` if not found.
+    :return: model object or ``None`` if not found.
     """
     app = request.app
     app.set_implicit()
@@ -62,24 +62,44 @@ def resolve_model(request):
 
 
 def resolve_response(obj, request):
-    """Given a request and a model instance, create response.
+    """Given model object and request, create response.
 
+    This uses :func:`get_view_name` to set up the view name on the
+    request object.
+
+    If no view name exist it raises :exc:`webob.exc.HTTPNotFound`.
+
+    It then uses :func:`morepath.generic.view` to resolve the view for
+    the model object and the request by doing dynamic dispatch.
+
+    :param obj: model object to get response for.
+    :param request: :class:`morepath.Request` instance.
     :return: :class:`morepath.Response` instance
+
     """
-    request.view_name = get_view_name(request.unconsumed)
+    view_name = request.view_name = get_view_name(request.unconsumed)
+    if view_name is None:
+        raise HTTPNotFound()
     return generic.view(obj, request, lookup=request.lookup)
 
 
 def get_view_name(stack):
+    """Determine view name from leftover stack of path segments
+
+    :param stack: a list of path segments left over after consuming
+      the path.
+    :return: view name string or ``None`` if no view name can be determined.
+    """
     unconsumed_amount = len(stack)
-    if unconsumed_amount > 1:
-        raise HTTPNotFound()
-    elif unconsumed_amount == 0:
+    if unconsumed_amount == 0:
+        # no special view segments means use default view name
         return DEFAULT_NAME
     elif unconsumed_amount == 1:
+        # last segment is view name, strip off any ``+`` view marker.
         return stack[0].lstrip('+')
-    assert False, ("Unconsumed stack: %s" %
-                   create_path(stack))  # pragma: nocoverage
+    else:
+        # more than one segments means we have a path that doesn't exist
+        return None
 
 
 def consume(request, app):
