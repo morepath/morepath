@@ -256,14 +256,14 @@ As an example, here is the ``variables`` function for the ``Document``
 case made explicit::
 
   @App.path(model=Document, path='documents/{name}',
-            variables=lambda model: dict(name=model.name))
+            variables=lambda obj: dict(name=obj.name))
   def get_document(name):
       return query_document_by_name(name)
 
 Or to spell it out without the use of ``lambda``::
 
-  def document_variables(model):
-      return dict(name=model.name)
+  def document_variables(obj):
+      return dict(name=obj.name)
 
   @App.path(model=Document, path='documents/{name}',
             variables=document_variables)
@@ -281,7 +281,7 @@ Our automatic ``variables`` won't cut it anymore, so we have to be explicit::
 attribute, we can do this::
 
   @App.path(model=DifferentDocument, path='documents/{name}',
-            variables=lambda model: dict(name=model.id))
+            variables=lambda obj: dict(name=obj.id))
   def get_document(name):
       return query_document_by_name(name)
 
@@ -294,8 +294,8 @@ takes multiple variables::
 
   @App.path(model=VersionedDocument,
             path='versioned_documents/{name}-{version}',
-            variables=lambda model: dict(name=model.name,
-                                         version=model.version))
+            variables=lambda obj: dict(name=obj.name,
+                                       version=obj.version))
   def get_versioned_document(name, version):
       return query_versioned_document(name, version)
 
@@ -306,8 +306,8 @@ the object in some other way::
 
   @App.path(model=SearchResults,
             path='search',
-            variables=lambda model: dict(text=model.search_text,
-                                         extra_parameters=model.get_extra()))
+            variables=lambda obj: dict(text=obj.search_text,
+                                       extra_parameters=obj.get_extra()))
   def get_search_results(text, extra_parameters):
       ...
 
@@ -333,7 +333,7 @@ Now we add back the same ``self_link`` view as we had before::
 Here's ``get_document`` with an explicit ``variables``::
 
   @App.path(model=Document, path='documents',
-            variables=lambda model: dict(name=model.name))
+            variables=lambda obj: dict(name=obj.name))
   def get_document(name):
       return query_document_by_name(name)
 
