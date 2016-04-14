@@ -40,7 +40,7 @@ def resolve_model(request):
     app = request.app
     app.set_implicit()
     while request.unconsumed:
-        next = consume(request, app)
+        next = consume(app, request)
         if next is None:
             # cannot find next obj or app
             break
@@ -55,7 +55,7 @@ def resolve_model(request):
         app = next
     # if there is nothing (left), we consume toward a root obj
     if not request.unconsumed:
-        return consume(request, app)
+        return consume(app, request)
     # cannot find obj
     return None
 
@@ -101,13 +101,26 @@ def get_view_name(stack):
         return None
 
 
-def consume(request, app):
-    """Consume request.unconsumed to new obj, starting with app.
+def consume(app, request):
+    """Consume path segments from request to find model obj.
 
-    Returns the new model instance, or None if no new instance could be found.
-    The model instance may be an app instance.
+    Removes the successfully consumed path segments from
+    :attr:`morepath.Request.unconsumed`.
 
-    Adjusts request.unconsumed with the remaining unconsumed stack.
+    Uses :meth:`morepath.traject.Traject.consume` to consume path
+    segments according to path configuration.
+
+    Extracts URL parameters from the path.
+
+    Gets a factory function and uses matched path variables and URL parameters
+    to construct the model instance (or :class:`morepath.App` instance).
+
+    :param app: the :class:`morepath.App` instance that contains the
+      path registry to use.
+    :param request: :class:`morepath.Request` instance that contains the
+      path segments to consume.
+    :return: The new model object, or a mounted :class:`morepath.App`
+      instance, or ``None`` if no new instance could be found.
     """
     value, stack, traject_variables = app.config.path_registry.consume(
         request.unconsumed)

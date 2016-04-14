@@ -20,7 +20,7 @@ def consume(mount, path, parameters=None):
     if parameters:
         path += '?' + urlencode(parameters, True)
     request = mount.request(webob.Request.blank(path).environ)
-    return traject_consume(request, mount), request
+    return traject_consume(mount, request), request
 
 
 class Root(object):

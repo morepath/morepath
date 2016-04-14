@@ -416,7 +416,7 @@ def test_parse_variables():
 
 def consume(app, path):
     request = app.request(webob.Request.blank(path).environ)
-    return traject_consume(request, app), request
+    return traject_consume(app, request), request
 
 paramfac = ParameterFactory({}, {}, [])
 
