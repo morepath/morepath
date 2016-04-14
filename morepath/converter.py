@@ -118,7 +118,7 @@ class ConverterRegistry(object):
         type it returns the converter registered for its base class.
 
         :param type: The type for which to look up the converter.
-        :returns: a :class:`morepath.Converter` instance.
+        :return: a :class:`morepath.Converter` instance.
         """
         result = self._registry.component(type)
         if result is None:
@@ -133,7 +133,7 @@ class ConverterRegistry(object):
         given value it returns the converter registered for its base class.
 
         :param value: The value for which to look up the converter.
-        :returns: a :class:`morepath.Converter` instance.
+        :return: a :class:`morepath.Converter` instance.
         """
         if v is None:
             return IDENTITY_CONVERTER
@@ -157,7 +157,7 @@ class ConverterRegistry(object):
         :param c: can either be a converter, or a type for which
           a converter can be looked up, or a list with a converter or a type
           in it.
-        :returns: a :class:`Converter` instance.
+        :return: a :class:`Converter` instance.
         """
         if isinstance(c, list):
             if len(c) == 0:

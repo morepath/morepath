@@ -1,3 +1,14 @@
+"""
+**Internal API**
+
+The publish module:
+
+* resolves the request into a model object.
+
+* resolves the model object and the request into a view.
+
+* the view then generates a response.
+"""
 from webob.exc import HTTPNotFound
 from reg import mapply
 
@@ -60,6 +71,43 @@ def resolve_model(request):
     return None
 
 
+def consume(app, request):
+    """Consume path segments from request to find model obj.
+
+    Removes the successfully consumed path segments from
+    :attr:`morepath.Request.unconsumed`.
+
+    Uses :meth:`morepath.traject.Traject.consume` to consume path
+    segments according to path configuration.
+
+    Extracts URL parameters from the path.
+
+    Gets a factory function and uses matched path variables and URL parameters
+    to construct the model instance (or :class:`morepath.App` instance).
+
+    :param app: the :class:`morepath.App` instance that contains the
+      path registry to use.
+    :param request: :class:`morepath.Request` instance that contains the
+      path segments to consume.
+    :return: The new model object, or a mounted :class:`morepath.App`
+      instance, or ``None`` if no new instance could be found.
+    """
+    value, stack, traject_variables = app.config.path_registry.consume(
+        request.unconsumed)
+    if value is None:
+        return None
+    get_obj, get_parameters = value
+    variables = get_parameters(request.GET)
+    variables['request'] = request
+    variables['app'] = app
+    variables.update(traject_variables)
+    next_obj = mapply(get_obj, **variables)
+    if next_obj is None:
+        return None
+    request.unconsumed = stack
+    return next_obj
+
+
 def resolve_response(obj, request):
     """Given model object and request, create response.
 
@@ -99,40 +147,3 @@ def get_view_name(stack):
     else:
         # more than one segments means we have a path that doesn't exist
         return None
-
-
-def consume(app, request):
-    """Consume path segments from request to find model obj.
-
-    Removes the successfully consumed path segments from
-    :attr:`morepath.Request.unconsumed`.
-
-    Uses :meth:`morepath.traject.Traject.consume` to consume path
-    segments according to path configuration.
-
-    Extracts URL parameters from the path.
-
-    Gets a factory function and uses matched path variables and URL parameters
-    to construct the model instance (or :class:`morepath.App` instance).
-
-    :param app: the :class:`morepath.App` instance that contains the
-      path registry to use.
-    :param request: :class:`morepath.Request` instance that contains the
-      path segments to consume.
-    :return: The new model object, or a mounted :class:`morepath.App`
-      instance, or ``None`` if no new instance could be found.
-    """
-    value, stack, traject_variables = app.config.path_registry.consume(
-        request.unconsumed)
-    if value is None:
-        return None
-    get_obj, get_parameters = value
-    variables = get_parameters(request.GET)
-    variables['request'] = request
-    variables['app'] = app
-    variables.update(traject_variables)
-    next_obj = mapply(get_obj, **variables)
-    if next_obj is None:
-        return None
-    request.unconsumed = stack
-    return next_obj

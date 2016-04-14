@@ -7,8 +7,8 @@
 
 .. autofunction:: morepath.publish.resolve_model
 
+.. autofunction:: morepath.publish.consume
+
 .. autofunction:: morepath.publish.resolve_response
 
 .. autofunction:: morepath.publish.get_view_name
-
-.. autofunction:: morepath.publish.consume

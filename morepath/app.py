@@ -63,7 +63,7 @@ class App(dectate.App):
     def lookup(self):
         """Get the :class:`reg.Lookup` for this application.
 
-        :returns: a :class:`reg.Lookup` instance.
+        :return: a :class:`reg.Lookup` instance.
         """
         # this in turn uses a cached lookup from the reg_registry
         # the caching happens on the reg_registry and not here to
@@ -77,12 +77,19 @@ class App(dectate.App):
         """Create a :class:`Request` given WSGI environment for this app.
 
         :param environ: WSGI environment
-        :returns: :class:`morepath.Request` instance
+        :return: :class:`morepath.Request` instance
         """
         return self.request_class(environ, self)
 
     def __call__(self, environ, start_response):
         """This app as a WSGI application.
+
+        Uses :meth:`App.request` to generate a
+        :class:`morepath.Request` instance, then uses
+        meth:`App.publish` get the :class:`morepath.Response`
+        instance.
+
+        :param environ: WSGI environment
         """
         request = self.request(environ)
         response = self.publish(request)

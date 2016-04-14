@@ -25,19 +25,28 @@ class Request(BaseRequest):
     Extends :class:`webob.request.BaseRequest`
     """
     app = None
-    """The :class:`App` object being handled by this request."""
 
     lookup = None
-    """The :class:`reg.Lookup` object handling generic function calls."""
 
     def __init__(self, environ, app, **kw):
 
         environ['PATH_INFO'] = normalize_path(environ['PATH_INFO'])
 
         super(Request, self).__init__(environ, **kw)
+
         self.app = app
+        """:class:`morepath.App` instance currently handling request.
+        """
+
         self.lookup = app.lookup
+        """The :class:`reg.Lookup` object handling generic function calls."""
+
         self.unconsumed = parse_path(self.path_info)
+        """Stack of path segments that have not yet been consumed.
+
+        See :mod:`morepath.publish`.
+        """
+
         self._after = []
         self._link_prefix_cache = {}
 
@@ -255,7 +264,7 @@ class Request(BaseRequest):
         :param app: If set, change the application in which the
           path is resolved. By default the path is resolved in the
           current application.
-        :returns: instance or ``None`` if no path could be resolved.
+        :return: instance or ``None`` if no path could be resolved.
         """
         if app is None:
             raise LinkError("Cannot path: app is None")
@@ -304,7 +313,7 @@ class Request(BaseRequest):
                   response.headers.add('blah', 'something')
 
         :param func: callable that is called with response
-        :returns: func argument, not wrapped
+        :return: func argument, not wrapped
         """
         self._after.append(func)
         return func

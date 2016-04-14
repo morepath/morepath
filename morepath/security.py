@@ -60,7 +60,7 @@ class Identity(object):
         This includes the userid and the extra keyword parameters used
         when the identity was created.
 
-        :returns: dict with identity info.
+        :return: dict with identity info.
         """
         result = {'userid': self.userid}
         for name in self._names:
@@ -80,7 +80,7 @@ class IdentityPolicy(object):
 
         :param request: Request to extract identity information from.
         :type request: :class:`morepath.Request`.
-        :returns: :class:`morepath.security.Identity` instance or
+        :return: :class:`morepath.security.Identity` instance or
           :attr:`morepath.security.NO_IDENTITY` if identity cannot
           be established.
         """
@@ -137,7 +137,7 @@ class BasicAuthIdentityPolicy(object):
 
         :param request: Request to extract identity information from.
         :type request: :class:`morepath.Request`.
-        :returns: :class:`morepath.security.Identity` instance.
+        :return: :class:`morepath.security.Identity` instance.
         """
         try:
             authorization = request.authorization
