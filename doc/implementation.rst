@@ -9,8 +9,12 @@ APIs.
    :maxdepth: 2
 
    internals/directive
+   internals/autosetup
    internals/app
    internals/publish
    internals/core
    internals/converter
    internals/compat
+
+:mod:`morepath.error` is documented in the public API.
+
