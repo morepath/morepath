@@ -2,7 +2,6 @@ from webob.exc import HTTPNotFound
 from reg import mapply
 
 from .app import App
-from .traject import create_path
 from . import generic
 
 
