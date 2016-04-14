@@ -13,6 +13,18 @@ third-party code you want to use.
 How it works
 ------------
 
+.. sidebar:: Avoid top-level
+
+  You should not do a commit (or autosetup) at the top-level of a
+  module, unless it's guarded by ``if __name__ == '__main__'``. Better
+  yet is to use a entry point as described in
+  :doc:`organizing_your_project`. Doing a commit at module top-level
+  can cause the commit to happen before you are done importing all
+  required modules that contain Morepath directives, which would leave
+  configuration in a half-baked state.
+
+  The same rule applies to starting the WSGI server.
+
 Morepath needs to be configured before it is run. That means that you
 need to run the necessary configuration steps before you pass a new
 instance of your application to your WSGI server::
