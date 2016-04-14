@@ -18,6 +18,18 @@ guidelines on how you may want to organize things in your own
 project. But remember: these are guidelines to break when you see the
 need.
 
+Sounds Like a Lot of Work
+-------------------------
+
+You're in luck. If you want to skip this chapter and just get started, you can
+use the Morepath cookiecutter template, which follows the guidelines layed out
+in this chapter:
+
+`<https://github.com/morepath/morepath-cookiecutter>`_
+
+If you want to find out more about the why and the how, you can always keep
+on reading of course.
+
 Python project
 --------------
 
