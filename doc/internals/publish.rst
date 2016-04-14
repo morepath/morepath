@@ -1,5 +1,5 @@
-:mod:`morepath.publish` -- Web publisher
-========================================
+``morepath.publish`` -- Web publisher
+=====================================
 
 .. automodule:: morepath.publish
 

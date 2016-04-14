@@ -1,3 +1,17 @@
+"""The exception classes used by Morepath.
+
+Morepath republishes some configuration related errors from
+Dectate:
+
+* :exc:`dectate.ConfigError`
+
+* :exc:`dectate.ConflictError`
+
+* :exc:`dectate.DirectiveReportError`
+
+* :exc:`dectate.DirectiveError`
+"""
+
 # -*- coding: utf-8 -*-
 import textwrap
 from dectate import (ConfigError, ConflictError,  # noqa
@@ -33,16 +47,6 @@ class AutoImportError(ConfigError):
         super(AutoImportError, self).__init__(msg)
 
 
-class ResolveError(Exception):
-    """Raised when path cannot be resolved
-    """
-
-
-class ViewError(ResolveError):
-    """Raised when a view cannot be resolved
-    """
-
-
 class TrajectError(Exception):
     """Raised when path supplied to traject is not allowed.
     """
@@ -54,4 +58,7 @@ class LinkError(Exception):
 
 
 class TopologicalSortError(Exception):
-    pass
+    """Raised if something cannot be sorted topologically.
+
+    This is due to circular dependencies.
+    """

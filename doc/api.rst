@@ -48,3 +48,19 @@ API
   :members:
 
 .. autofunction:: morepath.pdbsupport.set_trace
+
+``morepath.error`` -- exception classes
+---------------------------------------
+
+.. automodule:: morepath.error
+
+Morepath specific errors:
+
+.. autoexception:: morepath.error.AutoImportError
+
+.. autoexception:: morepath.error.TrajectError
+
+.. autoexception:: morepath.error.LinkError
+
+.. autoexception:: morepath.error.TopologicalSortError
+

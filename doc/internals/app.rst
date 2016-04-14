@@ -1,5 +1,5 @@
-:mod:`morepath.app` -- App class
-================================
+``morepath.app`` -- App class
+=============================
 
 .. automodule:: morepath.app
 

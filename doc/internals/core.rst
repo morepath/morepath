@@ -1,4 +1,4 @@
-:mod:`morepath.core` -- Default Morepath Configuration
-======================================================
+``morepath.core`` -- Default Morepath Configuration
+===================================================
 
 .. automodule:: morepath.core

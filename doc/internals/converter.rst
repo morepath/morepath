@@ -1,5 +1,5 @@
-:mod:`morepath.converter` -- Convert URL variables
-==================================================
+``morepath.converter`` -- Convert URL variables
+===============================================
 
 .. automodule:: morepath.converter
 

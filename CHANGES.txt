@@ -4,9 +4,16 @@ CHANGES
 0.14 (unreleased)
 ===================
 
+- **Breaking change**: Remove some exception classes that weren't
+  used: ``morepath.error.ViewError``, ``morepath.error.ResolveError``.
+  If you try to catch them in your code, just remove the whole
+  ``except`` statement as they were never raised.
+
 - Refactor internals of publishing/view engine.
 
-- Document Morepath's cookiecutter template. 
+- Documented the internals of Morepath, see implementation document.
+
+- Document Morepath's cookiecutter template.
 
   See https://github.com/morepath/morepath-cookiecutter
 

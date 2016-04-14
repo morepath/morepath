@@ -1,5 +1,5 @@
-:mod:`morepath.compat` -- Python 2/3 Compatibility
-==================================================
+``morepath.compat`` -- Python 2/3 Compatibility
+===============================================
 
 .. automodule:: morepath.compat
 
