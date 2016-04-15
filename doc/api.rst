@@ -1,6 +1,9 @@
 API
 ===
 
+``morepath``
+------------
+
 .. py:module:: morepath
 
 .. autoclass:: App
@@ -40,7 +43,7 @@ API
 
 .. autofunction:: morepath.forget_identity
 
-.. autoclass:: morepath.security.IdentityPolicy
+.. autoclass:: morepath.IdentityPolicy
   :members:
 
 .. autoclass:: morepath.security.BasicAuthIdentityPolicy
@@ -54,8 +57,6 @@ API
 .. autofunction:: morepath.enable_implicit
 
 .. autofunction:: morepath.disable_implicit
-
-.. autofunction:: morepath.pdbsupport.set_trace
 
 ``morepath.error`` -- exception classes
 ---------------------------------------
@@ -72,3 +73,9 @@ Morepath specific errors:
 
 .. autoexception:: morepath.error.TopologicalSortError
 
+``morepath.pdbsupport`` -- debugging support
+--------------------------------------------
+
+.. automodule:: morepath.pdbsupport
+
+.. autofunction:: morepath.pdbsupport.set_trace
