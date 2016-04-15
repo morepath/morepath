@@ -1,3 +1,9 @@
+"""Morepath request implementation.
+
+Mostly documented in :class:`morepath.Request` and
+:class:`morepath.Response` in the public API.
+"""
+
 from webob import BaseRequest, Response as BaseResponse
 
 from . import generic
@@ -41,7 +47,6 @@ class Request(BaseRequest):
 
         See :mod:`morepath.publish`.
         """
-
         self._after = []
         self._link_prefix_cache = {}
 
@@ -124,7 +129,7 @@ class Request(BaseRequest):
             return generic.view.component_key_dict(lookup=app.lookup,
                                                    **predicates)
 
-        view, app = _follow_defers(find, app, obj)
+        view, app = follow_defers(find, app, obj)
         if view is None:
             return default
 
@@ -177,7 +182,7 @@ class Request(BaseRequest):
         def find(app, obj):
             return link(obj, app)
 
-        info, app = _follow_defers(find, app, obj)
+        info, app = follow_defers(find, app, obj)
 
         if info is None:
             raise LinkError("Cannot link to: %r" % obj)
@@ -239,7 +244,11 @@ class Request(BaseRequest):
     def _encode_link(self, path, name, parameters):
         parts = []
         if path:
-            parts.append(fixed_quote(path.encode('utf-8')))
+            # explicitly define safe with ~ for a workaround
+            # of this Python bug:
+            # https://bugs.python.org/issue16285
+            # tilde should not be encoded according to RFC3986
+            parts.append(quote(path.encode('utf-8'), '/~'))
         if name:
             parts.append(name)
         result = self.link_prefix() + '/' + '/'.join(parts)
@@ -328,7 +337,22 @@ class Response(BaseResponse):
     """
 
 
-def _follow_defers(find, app, obj):
+def follow_defers(find, app, obj):
+    """Resolve to deferring app and find something.
+
+    For ``obj``, look up deferring app as defined by
+    :class:`morepath.App.defer_links` recursively. Use the
+    supplied ``find`` function to find something for ``obj`` in
+    that app. When something find, return what is found and
+    the app where it was found.
+
+    :param find: a function that takes an ``app`` and ``obj`` parameter and
+      should return something when it is found, or ``None`` when not.
+    :param app: the :class:`morepath.App` instance to start looking
+    :param obj: the model object to find things for.
+    :return: a tuple with the thing found (or ``None``) and the app in
+      which it was found.
+    """
     seen = set()
     while app is not None:
         if app in seen:
@@ -342,9 +366,14 @@ def _follow_defers(find, app, obj):
 
 
 def link(obj, app):
-    """Create a link (URL) to a model instance.
+    """Create a link (URL) to a model object.
 
     Take mounted applications into account.
+
+    :param obj: the model object to link to.
+    :param app: the application object to make the link in.
+    :return: a ``url_path``, ``url_parameters`` tuple, or ``None`` if
+      the link cannot be made.
     """
     path_info = generic.path(obj, lookup=app.lookup)
     if path_info is None:
@@ -357,6 +386,12 @@ def class_link(model, variables, app):
     """Create a link to a model class given variables.
 
     Take mounted applications into account.
+
+    :param model: the model class (not instance) to create the link for.
+    :param variables: dict with values for variables used in the path.
+    :param app: the application object to make the link in.
+    :return: a ``url_path``, ``url_parameters`` tuple, or ``None``
+      if the link cannot be made.
     """
     path_info = generic.class_path(model, variables=variables,
                                    lookup=app.lookup)
@@ -367,6 +402,17 @@ def class_link(model, variables, app):
 
 
 def mounted_link(path, parameters, app):
+    """Expand path within mount context.
+
+    Goes up mounted apps constructing a path for each mounted app and
+    combining them in a single path.
+
+    :param path: the path in ``app``.
+    :param parameters: the URl parameters in ``app``.
+    :param app: the app instance.
+    :return: a ``url_path``, ``url_parameters`` tuple, or ``None``
+      if a mounted application could not be linked to.
+    """
     result = [path]
     obj = app
     app = app.parent
@@ -383,20 +429,8 @@ def mounted_link(path, parameters, app):
     return '/'.join(result).strip('/'), parameters
 
 
-def fixed_quote(s, safe='/'):
-    """urllib.quote fixed for ~
-
-    Workaround for Python bug:
-
-    https://bugs.python.org/issue16285
-
-    tilde should not be encoded according to RFC3986
-    """
-    return quote(s, safe=safe + '~')
-
-
 def fixed_urlencode(s, doseq=0):
-    """urllib.urlencode fixed for ~
+    """``urllib.urlencode`` fixed for ``~``
 
     Workaround for Python bug:
 
