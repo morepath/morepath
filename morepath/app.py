@@ -44,9 +44,10 @@ class RegRegistry(Registry):
     def lookup(self):
         """Cached :class:`reg.Lookup`
 
-        Property is reified so cache is shared between
-        :class:`morepath.App` instances that use this
-        registry.
+        Property is reified with :func:`morepath.reify.reify` so cache
+        is shared between :class:`morepath.App` instances that use
+        this registry.
+
         """
         return CachingKeyLookup(
             self,
@@ -147,9 +148,9 @@ class App(dectate.App):
         :func:`morepath.publish.publish` function into the configured
         tweens.
 
-        This property uses ``reify`` so that the tween wrapping
-        only happens once when the first request is handled and is
-        cached afterwards.
+        This property uses :func:`morepath.reify.reify` so that the
+        tween wrapping only happens once when the first request is
+        handled and is cached afterwards.
 
         :return: a function that a :class:`morepath.Request` instance
           and returns a :class:`morepath.Response` instance.

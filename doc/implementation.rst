@@ -19,6 +19,7 @@ APIs.
    internals/path
    internals/predicate
    internals/publish
+   internals/reify
 
 See also :mod:`morepath` for the public API.
 
