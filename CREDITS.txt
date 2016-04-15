@@ -1,31 +1,40 @@
 CREDITS
 =======
 
-* Martijn Faassen (creator and main developer)
+Development
+-----------
 
-* Alec Munro (fudomunro on Github) - Python 3 compatibility
+* Martijn Faassen (creator & lead developer)
 
-* Michael Bernstein (feedback, logo design)
+* Denis Krienbühl
 
-* Denis Krienbühl (link_prefix, feedback, bug reports, automatic
-  restart docs)
+* Stefano Taschini
 
-* Ying Zhong (bug reports, test cases, feedback)
+* Henri Hulski
 
-* Magnus Lyckå (misc documentation fixes)
+With contributions by
+---------------------
 
-* Reinout van Rees (misc documentation fixes)
+* Michael Bernstein (logo, feedback)
 
-* Auke Willem Oosterhoff (installation doc improvements)
+* Alec Munro (Python 3 compatibility)
 
-* Bernd Meyer (bug reports)
+* Magnus Lyckå
 
-* Henri Hulski (``settings`` in identity policy, build issues)
+* Reinout van Rees
 
-* James Pharis (documentation improvements)
+* Auke Willem Oosterhoff
 
-* Stefano Taschini (documentation improvements)
+* James Pharis
 
-* Contributions by Souheil Chelfouh, Alex Garel, Wolfgang Schnerring
+* Ying Zhong
+
+* Bernd Meyer
+
+Special contributions
+---------------------
+
+* Souheil Chelfouh, Alex Garel, Wolfgang Schnerring for fruitful
+  discussions.
 
 * Special thanks to CONTACT software.

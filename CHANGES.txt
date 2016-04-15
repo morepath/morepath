@@ -26,6 +26,9 @@ CHANGES
 
   See https://github.com/morepath/morepath-cookiecutter
 
+- Test cleanup; scan in many tests turns out to be superfluous. Issue
+  #379
+
 0.13.2 (2016-04-13)
 ===================
 
