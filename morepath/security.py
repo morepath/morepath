@@ -1,3 +1,13 @@
+"""This module defines the authentication system of Morepath.
+
+Authentication is done by establishing an identity for a request using
+an identity policy registered by the :meth:`morepath.App.identity_policy`
+directive.
+
+:data:`morepath.NO_IDENTITY`, :class:`morepath.Identity`,
+:class:`morepath.IdentityPolicy` are part of the public API.
+"""
+
 import binascii
 import base64
 from reg import mapply
@@ -23,6 +33,14 @@ The user has not yet logged in.
 
 
 class IdentityPolicyRegistry(object):
+    """Register the current identity policy.
+
+    Used by the :class:`morepath.App.identity_policy` directive.
+
+    :param reg_registry: a :class:`reg.Registry` instance.
+    :param setting_registry: a :class:`morepath.settings.SettingRegistry`
+      instance.
+    """
     factory_arguments = {
         'reg_registry': RegRegistry,
         'setting_registry': SettingRegistry,
@@ -33,12 +51,24 @@ class IdentityPolicyRegistry(object):
         self.setting_registry = setting_registry
         self.identity_policy = None
 
-    def register_identity_policy_function(self, obj, dispatch, name):
+    def register_identity_policy_function(self, factory, dispatch, name):
+        """Register a method from the identity policy as a function.
+
+        The identity policy is registered as a class, but their methods
+        are really registered with dispatch functions that are then
+        exposed to the public API and are used in the framework.
+
+        :param factory: factory to create identity policy instance,
+          typically the identity policy class object.
+        :param dispatch: the dispatch function we want to register
+          a method on.
+        :param name: the name of the method to register.
+        """
         # make sure we only have a single identity policy
         identity_policy = self.identity_policy
         if identity_policy is None:
             self.identity_policy = identity_policy = mapply(
-                obj,
+                factory,
                 settings=self.setting_registry)
         self.reg_registry.register_function(
             dispatch,

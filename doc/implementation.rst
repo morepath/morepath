@@ -21,9 +21,11 @@ APIs.
    internals/publish
    internals/reify
    internals/request
+   internals/security
+   internals/settings
 
 See also :mod:`morepath` for the public API.
 
-:mod:`morepath.error` and :mod:`morepath.pdbsupport` are documented
-entirely in the public API.
+:mod:`morepath.error`, :mod:`morepath.pdbsupport` and
+:mod:`morepath.run` are documented entirely in the public API.
 

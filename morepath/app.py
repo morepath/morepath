@@ -228,9 +228,6 @@ class App(dectate.App):
 
         Works the same way as :func:`morepath.generic.settings`. Unlike calling
         ``morepath.settings`` however, this property does not rely on the
-        global lookup. It's simply a shortcut to
-        ``app.config.setting_registry``.
-
+        global lookup.
         """
-
         return self.config.setting_registry
