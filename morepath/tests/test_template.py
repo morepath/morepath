@@ -1,4 +1,3 @@
-import importscan
 import dectate
 import morepath
 from morepath.error import ConfigError
@@ -15,7 +14,6 @@ def setup_module(module):
 
 
 def test_template_fixture():
-    importscan.scan(template)
     dectate.commit(template.App)
 
     c = Client(template.App())
@@ -25,7 +23,6 @@ def test_template_fixture():
 
 
 def test_template_override_fixture():
-    importscan.scan(template_override)
     dectate.commit(template_override.App, template_override.SubApp)
     c = Client(template_override.App())
 
@@ -39,14 +36,12 @@ def test_template_override_fixture():
 
 
 def test_template_override_not_directed():
-    importscan.scan(template_override_under)
     with pytest.raises(ConfigError):
         dectate.commit(template_override_under.App,
                        template_override_under.SubApp)
 
 
 def test_template_override_implicit_fixture():
-    importscan.scan(template_override_implicit)
     dectate.commit(template_override_implicit.App,
                    template_override_implicit.SubApp)
     c = Client(template_override_implicit.App())
@@ -61,19 +56,16 @@ def test_template_override_implicit_fixture():
 
 
 def test_unknown_extension_no_loader():
-    importscan.scan(template_unknown_extension)
     with pytest.raises(ConfigError):
         dectate.commit(template_unknown_extension.App)
 
 
 def test_unknown_extension_no_render():
-    importscan.scan(template_unknown_extension_no_render)
     with pytest.raises(ConfigError):
         dectate.commit(template_unknown_extension_no_render.App)
 
 
 def test_no_template_directories():
-    importscan.scan(template_no_template_directories)
     # we accept no template directories, as it is possible
     # for a base frameworky app not to define any (ChameleonApp, Jinja2App)
     dectate.commit(template_no_template_directories.App)
