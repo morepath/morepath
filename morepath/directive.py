@@ -2,6 +2,12 @@
 directives are installed on :class:`morepath.App` using the
 :meth:`dectate.App.directive` decorator.
 
+We won't repeat the directive documentation here. If you are
+interested in creating a custom directive in a Morepath extension it
+pays off to look at the source code of this module. If your custom
+directive needs to interact with a core directive you can inherit from
+them, and/or refer to them with ``group_class``.
+
 When configuration is committed it is written into various
 configuration registries which are attached to the
 :attr:`dectate.App.config` class attribute:
