@@ -1,6 +1,6 @@
+"""This module defines a registry of settings.
 """
 
-"""
 
 class SettingRegistry(object):
     """Registry of settings.

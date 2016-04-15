@@ -23,6 +23,7 @@ APIs.
    internals/request
    internals/security
    internals/settings
+   internals/template
 
 See also :mod:`morepath` for the public API.
 
