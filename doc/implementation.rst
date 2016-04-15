@@ -16,6 +16,7 @@ APIs.
    internals/directive
    internals/generic
    internals/implicit
+   internals/path
    internals/publish
 
 :mod:`morepath.error` is documented in the public API.
