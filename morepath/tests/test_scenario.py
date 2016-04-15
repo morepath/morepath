@@ -1,5 +1,4 @@
 import importscan
-import dectate
 from .fixtures import scenario
 from .fixtures.scenario import app
 import morepath
@@ -13,7 +12,7 @@ def setup_module(module):
 
 def test_scenario():
     importscan.scan(scenario)
-    dectate.commit(app.Root, app.Generic, app.Document)
+    app.Root.commit()
 
     c = Client(app.Root())
 
