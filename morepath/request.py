@@ -14,8 +14,6 @@ except ImportError:
 import reg
 
 
-NO_DEFAULT = reg.Sentinel('NO_DEFAULT')
-
 SAME_APP = reg.Sentinel('SAME_APP')
 
 
@@ -24,10 +22,6 @@ class Request(BaseRequest):
 
     Extends :class:`webob.request.BaseRequest`
     """
-    app = None
-
-    lookup = None
-
     def __init__(self, environ, app, **kw):
 
         environ['PATH_INFO'] = normalize_path(environ['PATH_INFO'])
