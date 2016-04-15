@@ -1159,3 +1159,28 @@ def test_classmethod_bound_outside():
 
     response = c.get('/')
     assert response.body == b'Hello world'
+
+
+def test_instantiation_before_config():
+    class App(morepath.App):
+        pass
+
+    # Typically, instantiating App would be done later, after the
+    # decorators.  Since this use case has been found in the wild, we
+    # might as well make sure it works:
+    app = App()
+
+    @App.path(path='')
+    class Hello(object):
+        pass
+
+    @App.view(model=Hello)
+    def hello_view(self, request):
+        return 'hello'
+
+    dectate.commit(App)
+
+    c = Client(app)
+
+    response = c.get('/')
+    assert response.body == b'hello'
