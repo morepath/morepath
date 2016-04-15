@@ -196,14 +196,14 @@ class PredicateAction(dectate.Action):
         predicate_dispatch or dispatch function as its first argument
         and the predicate key to match on as its other arguments.
 
-        :param dispatch: the predicate_dispatch function this predicate
+        :param dispatch: the dispatch function this predicate
            is for.
         :param name: the name of the predicate. This is used when
           constructing a predicate key from a predicate dictionary.
         :param default: the default value for a predicate, in case the
           value is missing in the predicate dictionary.
-        :param index: the index to use. Typically morepath.KeyIndex or
-          morepath.ClassIndex.
+        :param index: the index to use. Typically :class:`reg.KeyIndex` or
+          :class:`reg.ClassIndex`.
         :param before: predicate function this function wants to have
            priority over.
         :param after: predicate function we want to have priority over
