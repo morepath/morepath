@@ -19,5 +19,8 @@ APIs.
    internals/path
    internals/publish
 
-:mod:`morepath.error` is documented entirely in the public API.
+See also :mod:`morepath` for the public API.
+
+:mod:`morepath.error` and :mod:`morepath.pdbsupport` are documented
+entirely in the public API.
 

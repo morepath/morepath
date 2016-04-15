@@ -1,6 +1,6 @@
-"""The directive implementation uses the Dectate_ library.  The
+"""Morepath uses the Dectate_ library to implement its directives. The
 directives are installed on :class:`morepath.App` using the
-:meth:`morepath.App.directive` decorator.
+:meth:`dectate.App.directive` decorator.
 
 When configuration is committed it is written into various
 configuration registries which are attached to the
@@ -23,6 +23,7 @@ configuration registries which are attached to the
 * :class:`morepath.app.RegRegistry`
 
 .. _Dectate: http://dectate.readthedocs.org
+
 """
 
 import os

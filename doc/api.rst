@@ -4,7 +4,7 @@ API
 ``morepath``
 ------------
 
-.. py:module:: morepath
+.. automodule:: morepath
 
 .. autoclass:: App
   :members:
