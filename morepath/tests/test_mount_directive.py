@@ -1150,3 +1150,67 @@ def test_mount_ancestors():
 
     c.get('/')
     c.get('/foo')
+
+
+def test_breadthfist_vs_inheritance_on_commit():
+    class Root(morepath.App):
+        pass
+
+    class App1(morepath.App):
+        pass
+
+    class ExtendedApp1(App1):
+        pass
+
+    class App2(morepath.App):
+        pass
+
+    class ExtendedApp2(App2):
+        pass
+
+    @App1.path(path='')
+    class Model1(object):
+        pass
+
+    @App2.path(path='')
+    class Model2(object):
+        pass
+
+    @App1.view(model=Model1)
+    def view1(self, request):
+        return type(request.app).__name__
+
+    @App2.view(model=Model2)
+    def view2(self, request):
+        return type(request.app).__name__
+
+    Root.mount(app=App1, path='a/')(App1)
+    App1.mount(app=App2, path='b/')(App2)
+
+    Root.mount(app=ExtendedApp2, path='x/')(ExtendedApp2)
+    ExtendedApp2.mount(app=ExtendedApp1, path='y/')(ExtendedApp1)
+
+    # NB: ExtendedApp2 is mounted higher app in the tree than App2,
+    # from which it inherits.  This means that ExtendedApp2 is
+    # discovered before App2.  The purpose of this test is to ensure
+    # that this potentially problematic situation is in fact harmless,
+    # i.e., that the breadth-first order in which apps are discovered,
+    # which is not in general a valid traversal of the inheritance
+    # graph, does not lead to partial commits and hence to
+    # misconfigurations.
+
+    Root.commit()
+
+    c = Client(Root())
+
+    response = c.get('/a')
+    assert response.body == b'App1'
+
+    response = c.get('/a/b')
+    assert response.body == b'App2'
+
+    response = c.get('/x')
+    assert response.body == b'ExtendedApp2'
+
+    response = c.get('/x/y')
+    assert response.body == b'ExtendedApp1'
