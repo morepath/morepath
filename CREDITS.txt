@@ -38,3 +38,9 @@ Special contributions
   discussions.
 
 * Special thanks to CONTACT software.
+
+Special inspiration
+-------------------
+
+* the Zope, Grok and Pyramid web frameworks. Thanks also to Pyramid
+  for some snippets of code.
