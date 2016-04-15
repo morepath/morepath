@@ -23,7 +23,8 @@ class Request(BaseRequest):
     Extends :class:`webob.request.BaseRequest`
     """
     def __init__(self, environ, app, **kw):
-
+        # make sure to normalize any dots in the request path away,
+        # in case the client didn't do the normalization
         environ['PATH_INFO'] = normalize_path(environ['PATH_INFO'])
 
         super(Request, self).__init__(environ, **kw)
