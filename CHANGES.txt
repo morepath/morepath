@@ -32,6 +32,9 @@ CHANGES
 - Test cleanup; scan in many tests turns out to be superfluous. Issue
   #379
 
+- Add a test that verifies we can instantiate an app before configuration
+  is done. See issue #378 for discussion.
+
 0.13.2 (2016-04-13)
 ===================
 
