@@ -158,7 +158,7 @@ Logging out
 ~~~~~~~~~~~
 
 Logging out is easy to implement and will work for any kind of
-authentication except for basic auth (see later). You simply call
+authentication except for basic auth. You simply call
 ``morepath.forget_identity`` somewhere in the logout view::
 
   @request.after
@@ -167,43 +167,6 @@ authentication except for basic auth (see later). You simply call
 
 This will cause the login information (in cookie-form) to be removed
 from the response.
-
-Basic authentication
-~~~~~~~~~~~~~~~~~~~~
-
-Basic authentication is special in a number of ways:
-
-* The HTTP response status that triggers basic auth is Unauthorized
-  (401), not the default Forbidden (403). This needs to be sent back
-  to the browser each time login fails, so that the browser asks the
-  user for a username and a password.
-
-* The username and password combination is sent to the server by the
-  browser automatically; there is no need to set some type of cookie
-  on the response. Therefore ``remember_identity`` does nothing.
-
-* With basic auth, there is no universal way for a web application to
-  trigger a log out. Therefore ``forget_identity`` does nothing
-  either.
-
-To trigger a ``401`` status when time Morepath raises a ``403`` status,
-we can use an exception view, something like this::
-
-  from webob.exc import HTTPForbidden
-
-  @App.view(model=HTTPForbidden)
-  def make_unauthorized(self, request):
-      @request.after
-      def set_status_code(response):
-          response.status_code = 401
-      return "Unauthorized"
-
-The core of the login code can remain the same as ``remember_identity`` is
-a no-op, but you could reduce it to this::
-
-    # check whether user has password, using password hash and database
-    if not user_has_password(username, password):
-        return "Sorry, login failed" # or something more fancy
 
 Permissions
 -----------
