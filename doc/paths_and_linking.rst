@@ -566,7 +566,7 @@ We expose it to the web::
 We also add a simple view that gives us comma-separated list of
 matching record ids::
 
-  @App.view(model=Records):
+  @App.view(model=Records)
   def records_view(self, request):
       return ', '.join([str(record.id) for record in self.query()])
 
