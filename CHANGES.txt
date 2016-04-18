@@ -4,6 +4,11 @@ CHANGES
 0.14 (unreleased)
 ===================
 
+- **Breaking change**: Move the basic auth policy to an extension
+  since basic auth is almost always what you don't want.
+  If you've used the basic auth policy before just install ``more.basicauth``
+  and import from it.
+
 - **Breaking change**: Remove some exception classes that weren't
   used: ``morepath.error.ViewError``, ``morepath.error.ResolveError``.
   If you try to catch them in your code, just remove the whole

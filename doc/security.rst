@@ -32,7 +32,21 @@ Before we can determine who is allowed to do what, we need to be able
 to identify who people are in the first place.
 
 The identity policy in Morepath takes a HTTP request and establishes a
-claimed identity for it. For basic authentication for instance it will
+claimed identity for it.
+There are 3 extensions available, which are providing a identity policy
+for Morepath:
+
+* `more.jwtauth`_:
+  Token based authentication system using JSON Web Token (JWT).
+* `more.itsdangerous`_:
+  Cookie based identity policy using isdangerous.
+* `more.basicauth`_:
+  Identity policy based on the HTTP Basic Authentication.
+
+Choose the one of your choice, install it and follow the
+instructions in the README.
+
+For basic authentication for instance it will
 extract the username and password. The claimed identity can be
 accessed by looking at the :attr:`morepath.Request.identity` attribute
 on the request object.
@@ -50,6 +64,10 @@ If you want to create your own identity policy, see the
 :class:`morepath.security.IdentityPolicy` API documentation to see
 what methods you need to implement.
 
+.. _more.jwtauth: https://github.com/morepath/more.jwtauth
+.. _more.itsdangerous: https://github.com/morepath/more.itsdangerous
+.. _more.basicauth: https://github.com/morepath/more.basicauth
+
 Verify identity
 ---------------
 
@@ -57,7 +75,8 @@ The identity policy only establishes who someone is *claimed* to
 be. It doesn't verify whether that person is actually who they say
 they are. For identity policies where the browser repeatedly sends the
 username/password combination to the server, such as with basic
-authentication and cookie-based authentication, we need to check each
+authentication, implemented by `more.basicauth`_ and cookie-based
+authentication like `more.itsdangerous`_, we need to check each
 time whether the claimed identity is actually a real identity.
 
 By default, Morepath will reject any claimed identities. To let your
@@ -76,13 +95,14 @@ policy you install.
 Note that ``user_has_password`` stands in for whatever method you use
 to check a user's password; it's not part of Morepath.
 
-Session or ticket identity verification
----------------------------------------
+
+Session or token based identity verification
+--------------------------------------------
 
 If you use an identity policy based on the session (which you've made
-secure otherwise), or on a cryptographic ticket based authentication
-system such as the one implemented by mod_auth_tkt_, the claimed identity
-is actually enough.
+secure otherwise), or on a cryptographic token based authentication
+system such as the one implemented by `more.jwtauth`_, the claimed
+identity is actually enough.
 
 We know that the claimed identity is actually the one given to the
 user earlier when they logged in. No database-based identity check is
@@ -93,13 +113,6 @@ therefore implement ``verify_identity`` like this::
   def verify_identity(identity):
       # trust the identity established by the identity policy
       return True
-
-.. _mod_auth_tkt: http://www.openfusion.com.au/labs/mod_auth_tkt/
-
-.. sidebar:: a ticket based identity policy implementation?
-
-  There is no implementation yet of a ticket based identity policy in
-  Morepath. Will you implement one? You could port it from Pyramid.
 
 Login and logout
 ----------------
@@ -137,7 +150,7 @@ the request (coming from a login form)::
         identity = morepath.Identity(username)
         morepath.remember_identity(response, request, identity)
 
-This is enough for session-based or cryptographic ticket-based
+This is enough for session-based or cryptographic token-based
 authentication.
 
 For cookie-based authentication where the password is sent as a cookie
@@ -150,15 +163,15 @@ it in the cookie so that it can be sent back to the server::
         identity = morepath.Identity(username, password=password)
         morepath.remember_identity(response, request, identity)
 
-When you construct the identity using :class:`morepath.security.Identity`, you
-can any data you want in the identity object by using keyword
+When you construct the identity using :class:`morepath.security.Identity`,
+you can any data you want in the identity object by using keyword
 parameters.
 
 Logging out
 ~~~~~~~~~~~
 
 Logging out is easy to implement and will work for any kind of
-authentication except for basic auth (see later). You simply call
+authentication except for basic auth. You simply call
 ``morepath.forget_identity`` somewhere in the logout view::
 
   @request.after
@@ -167,43 +180,6 @@ authentication except for basic auth (see later). You simply call
 
 This will cause the login information (in cookie-form) to be removed
 from the response.
-
-Basic authentication
-~~~~~~~~~~~~~~~~~~~~
-
-Basic authentication is special in a number of ways:
-
-* The HTTP response status that triggers basic auth is Unauthorized
-  (401), not the default Forbidden (403). This needs to be sent back
-  to the browser each time login fails, so that the browser asks the
-  user for a username and a password.
-
-* The username and password combination is sent to the server by the
-  browser automatically; there is no need to set some type of cookie
-  on the response. Therefore ``remember_identity`` does nothing.
-
-* With basic auth, there is no universal way for a web application to
-  trigger a log out. Therefore ``forget_identity`` does nothing
-  either.
-
-To trigger a ``401`` status when time Morepath raises a ``403`` status,
-we can use an exception view, something like this::
-
-  from webob.exc import HTTPForbidden
-
-  @App.view(model=HTTPForbidden)
-  def make_unauthorized(self, request):
-      @request.after
-      def set_status_code(response):
-          response.status_code = 401
-      return "Unauthorized"
-
-The core of the login code can remain the same as ``remember_identity`` is
-a no-op, but you could reduce it to this::
-
-    # check whether user has password, using password hash and database
-    if not user_has_password(username, password):
-        return "Sorry, login failed" # or something more fancy
 
 Permissions
 -----------

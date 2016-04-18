@@ -3,6 +3,7 @@ import dectate
 import morepath
 from morepath import core
 from morepath import compat
+from .fixtures import identity_policy
 
 
 def objects(actions):
@@ -694,7 +695,7 @@ def test_identity_policy():
 
     @App.identity_policy()
     def get_identity_policy():
-        return morepath.security.BasicAuthIdentityPolicy()
+        return identity_policy.IdentityPolicy()
 
     dectate.commit(App)
 
