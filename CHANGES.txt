@@ -28,8 +28,8 @@ CHANGES
   than ``autocommit`` and less verbose than using the lower-level
   ``dectate.commit``.
 
-- Introduce a deprecation warning for ``morepath.security`` and
-  document how to deal with deprecations.
+- Introduce a deprecation warnings (for ``morepath.security``) and
+  document how a user can deal with such warnings.
 
 - Adds host header validation to protect against header poisoning attacks.
 
@@ -43,6 +43,7 @@ CHANGES
   for consistency with public APIs.
 
 - Document the internals of Morepath, see implementation document.
+  This includes docstrings for all the internal APIs.
 
 - The framehack module was merged into ``autosetup``.
 
