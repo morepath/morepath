@@ -1,4 +1,3 @@
-import dectate
 import morepath
 from webob.exc import HTTPNotFound
 from webtest import TestApp as Client
@@ -16,8 +15,6 @@ def test_404_http_exception():
     @app.path(path='')
     class Root(object):
         pass
-
-    dectate.commit(app)
 
     c = Client(app())
     c.get('/', status=404)
@@ -38,8 +35,6 @@ def test_other_exception_not_handled():
     def root_default(self, request):
         raise MyException()
 
-    dectate.commit(app)
-
     c = Client(app())
 
     # the WSGI web server will handle any unhandled errors and turn
@@ -59,8 +54,6 @@ def test_http_exception_excview():
     @app.view(model=HTTPNotFound)
     def notfound_default(self, request):
         return "Not found!"
-
-    dectate.commit(app)
 
     c = Client(app())
     response = c.get('/')
@@ -86,8 +79,6 @@ def test_other_exception_excview():
     def myexception_default(self, request):
         return "My exception"
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/')
@@ -108,8 +99,6 @@ def test_http_exception_excview_retain_status():
             response.status_code = self.code
         request.after(set_status)
         return "Not found!!"
-
-    dectate.commit(app)
 
     c = Client(app())
     response = c.get('/', status=404)
@@ -135,8 +124,6 @@ def test_excview_named_view():
     @app.view(model=MyException)
     def myexception_default(self, request):
         return "My exception"
-
-    dectate.commit(app)
 
     c = Client(app())
     response = c.get('/view')

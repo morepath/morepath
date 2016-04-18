@@ -1,4 +1,3 @@
-import dectate
 import morepath
 from morepath.tween import TweenRegistry
 from morepath.error import TopologicalSortError
@@ -178,8 +177,6 @@ def test_tween_directive():
             response.headers['Tween-Header'] = 'FOO'
             return response
         return plusplustween
-
-    dectate.commit(app)
 
     c = Client(app())
 

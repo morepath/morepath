@@ -1,4 +1,3 @@
-import dectate
 import morepath
 from webtest import TestApp as Client
 
@@ -23,8 +22,6 @@ def test_json_obj_dump():
     @app.dump_json(model=Model)
     def dump_model_json(self, request):
         return {'x': self.x}
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -62,8 +59,6 @@ def test_json_obj_load():
     def load_json(json, request):
         return Item(json['x'])
 
-    dectate.commit(app)
-
     c = Client(app())
 
     c.post_json('/', {'x': 'foo'})
@@ -88,8 +83,6 @@ def test_json_obj_load_default():
     def default(self, request):
         assert request.body_obj == request.json
         return 'done'
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -134,8 +127,6 @@ def test_json_body_model():
         elif json['@type'] == 'Item2':
             return Item2(json['x'])
 
-    dectate.commit(app)
-
     c = Client(app())
 
     c.post_json('/', {'@type': 'Item1', 'x': 'foo'})
@@ -162,8 +153,6 @@ def test_json_obj_load_no_json_post():
     def default(self, request):
         assert request.body_obj is None
         return 'done'
-
-    dectate.commit(app)
 
     c = Client(app())
 
