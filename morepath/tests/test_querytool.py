@@ -680,7 +680,12 @@ def test_tween_factory():
     r = objects(dectate.query_app(
         App, 'tween_factory'))
 
-    assert r == [core.excview_tween_factory, tween_a_factory, tween_b_factory]
+    assert r == [
+        core.excview_tween_factory,
+        core.poisoned_host_header_protection_tween_factory,
+        tween_a_factory,
+        tween_b_factory
+    ]
 
     r = objects(dectate.query_app(
         App, 'tween_factory',

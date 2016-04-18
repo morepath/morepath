@@ -48,6 +48,10 @@ API
 
 .. autodata:: morepath.NO_IDENTITY
 
+.. autodata:: morepath.EXCVIEW
+
+.. autodata:: morepath.HOST_HEADER_PROTECTION
+
 .. autoclass:: morepath.Converter
   :members:
 

@@ -19,6 +19,7 @@ It uses Morepath directives to configure:
 
 import dectate
 import importscan
+import re
 
 from reg import KeyIndex, ClassIndex
 from datetime import datetime, date
@@ -27,7 +28,7 @@ from time import mktime, strptime
 from webob import Response as BaseResponse, BaseRequest
 from webob.exc import (
     HTTPException, HTTPNotFound, HTTPMethodNotAllowed,
-    HTTPUnprocessableEntity, HTTPOk, HTTPRedirection)
+    HTTPUnprocessableEntity, HTTPOk, HTTPRedirection, HTTPBadRequest)
 
 from . import directive  # install directives with App
 from . import generic
@@ -196,6 +197,32 @@ def excview_tween_factory(app, handler):
             return view(exc, request)
         return response
     return excview_tween
+
+
+@App.tween_factory(over=excview_tween_factory)
+def poisoned_host_header_protection_tween_factory(app, handler):
+    """ Protects Morepath applications against the most basic host header
+    poisoning attacts.
+
+    The regex approach has been copied from the Django project. To find more
+    about this particular kind of attack have a look at the following
+    references:
+
+    * http://skeletonscribe.net/2013/05/practical-http-host-header-attacks
+    * https://www.djangoproject.com/weblog/2012/dec/10/security/
+    * https://github.com/django/django/commit/77b06e41516d8136b56c040cba7e235b
+
+    """
+    valid_host_re = re.compile(
+        r"^([a-z0-9.-]+|\[[a-f0-9]*:[a-f0-9:]+\])(:\d+)?$")
+
+    def poisoned_host_header_protection_tween(request):
+        if not valid_host_re.match(request.host):
+            return HTTPBadRequest("Invalid HOST header")
+
+        return handler(request)
+
+    return poisoned_host_header_protection_tween
 
 
 @App.view(model=HTTPException)

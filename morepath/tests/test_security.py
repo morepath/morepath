@@ -356,3 +356,47 @@ def test_settings():
     headers = {'Authorization': 'Bearer secret'}
     response = c.get('/test', headers=headers)
     assert response.body == b'Testuser, your token is valid.'
+
+
+def test_prevent_poisoned_host_headers():
+
+    class App(morepath.App):
+        pass
+
+    @App.path(path='')
+    class Model(object):
+        pass
+
+    @App.view(model=Model)
+    def view_model(self, request):
+        return 'ok'
+
+    dectate.commit(App)
+
+    poisoned_hosts = (
+        'example.com@evil.tld',
+        'example.com:dr.frankenstein@evil.tld',
+        'example.com:dr.frankenstein@evil.tld:80',
+        'example.com:80/badpath',
+        'example.com: recovermypassword.com',
+    )
+
+    legit_hosts = (
+        'example.com',
+        'example.com:80',
+        '12.34.56.78',
+        '12.34.56.78:443',
+        '[2001:19f0:feee::dead:beef:cafe]',
+        '[2001:19f0:feee::dead:beef:cafe]:8080',
+        'xn--4ca9at.com',  # Punnycode for öäü.com
+    )
+
+    c = Client(App())
+
+    for host in legit_hosts:
+        response = c.get('/', headers={'Host': host})
+        assert response.status_code == 200
+
+    for host in poisoned_hosts:
+        response = c.get('/', headers={'Host': host}, expect_errors=True)
+        assert response.status_code == 400
