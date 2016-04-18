@@ -3,3 +3,4 @@
 
 .. automodule:: morepath.traject
   :members:
+  :special-members:
