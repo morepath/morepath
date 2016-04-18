@@ -28,6 +28,9 @@ CHANGES
   than ``autocommit`` and less verbose than using the lower-level
   ``dectate.commit``.
 
+- Automatic commit of the app is done during the first request if the
+  app wasn't committed previously. See issue #392.
+
 - Introduce a deprecation warnings (for ``morepath.security``) and
   document how a user can deal with such warnings.
 
@@ -58,9 +61,6 @@ CHANGES
 
 - Add a test that verifies we can instantiate an app before configuration
   is done. See issue #378 for discussion.
-
-- Automatic commit of the app is done during the first request if the
-  app wasn't committed previously. See issue #392.
 
 0.13.2 (2016-04-13)
 ===================
