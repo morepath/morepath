@@ -55,7 +55,9 @@ def test_autosetup(monkeypatch):
     import sys
     for k in 'base.m', 'entrypoint.app', 'under_score.m':
         monkeypatch.delitem(sys.modules, k, raising=False)
-    monkeypatch.setattr('dectate.app.auto_app_classes', [])
+    monkeypatch.setattr('dectate.app.auto_app_classes', [], raising=False)
+    monkeypatch.setattr('dectate.app.global_configurables', [], raising=False)
+
     autosetup()
 
     from entrypoint.app import App as EntrypointApp
