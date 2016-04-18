@@ -24,8 +24,6 @@ API
 
 .. autofunction:: settings
 
-.. autofunction:: redirect
-
 .. autoclass:: Request
   :members:
 
@@ -35,6 +33,8 @@ API
 .. autofunction:: render_html
 
 .. autofunction:: render_json
+
+.. autofunction:: redirect
 
 .. autoclass:: morepath.Identity
   :members:

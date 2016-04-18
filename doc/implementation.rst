@@ -3,7 +3,8 @@ Implementation Overview
 
 This document contains an overview of the internal modules of
 Morepath. For more information click on the module headings to see the
-internal APIs.
+internal APIs. See also :mod:`morepath` for the public API.
+
 
 .. toctree::
    :maxdepth: 2
@@ -27,8 +28,7 @@ internal APIs.
    internals/toposort
    internals/traject
    internals/tween
-
-See also :mod:`morepath` for the public API.
+   internals/view
 
 :mod:`morepath.error`, :mod:`morepath.pdbsupport` and
 :mod:`morepath.run` are documented entirely in the public API.
