@@ -3,7 +3,7 @@ import dectate
 import morepath
 from morepath.request import Response
 from morepath import generic
-from morepath.security import (Identity, NO_IDENTITY)
+from morepath.authentication import Identity, NO_IDENTITY
 from .fixtures import identity_policy
 import base64
 import json

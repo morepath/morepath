@@ -22,6 +22,7 @@ Table of Contents
    rest
    settings
    organizing_your_project
+   upgrading
    directive_tricks
    logging
    app_reuse

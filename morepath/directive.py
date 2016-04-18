@@ -36,7 +36,7 @@ import os
 import dectate
 
 from .app import App, RegRegistry
-from .security import Identity, NoIdentity, IdentityPolicyRegistry
+from .authentication import Identity, NoIdentity, IdentityPolicyRegistry
 from .view import render_view, render_json, render_html, ViewRegistry
 from .traject import Path
 from .converter import ConverterRegistry
@@ -470,7 +470,7 @@ class PermissionRuleAction(dectate.Action):
 
         The decorated function receives ``model``, `permission``
         (instance of any permission object) and ``identity``
-        (:class:`morepath.security.Identity`) parameters. The
+        (:class:`morepath.Identity`) parameters. The
         decorated function should return ``True`` only if the given
         identity exists and has that permission on the model.
 
@@ -478,7 +478,7 @@ class PermissionRuleAction(dectate.Action):
         :param permission: permission class
         :param identity: identity class to check permission for. If ``None``,
           the identity to check for is the special
-          :data:`morepath.security.NO_IDENTITY`.
+          :data:`morepath.NO_IDENTITY`.
         """
         self.model = model
         self.permission = permission
@@ -1036,7 +1036,7 @@ class IdentityPolicyAction(dectate.Composite):
         """Register identity policy.
 
         The decorated function should return an instance of
-        :class:`morepath.security.IdentityPolicy`. Either use an identity
+        :class:`morepath.IdentityPolicy`. Either use an identity
         policy provided by a library or implement your own.
 
         It gets one optional argument: the settings of the app for which this

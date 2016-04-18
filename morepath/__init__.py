@@ -25,7 +25,7 @@ from .view import render_json, render_html
 from .request import Request, Response
 from .view import redirect
 from .autosetup import scan, autoscan, autosetup
-from .security import Identity, IdentityPolicy, NO_IDENTITY
+from .authentication import Identity, IdentityPolicy, NO_IDENTITY
 from .converter import Converter
 from .reify import reify
 from .run import run

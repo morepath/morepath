@@ -215,6 +215,11 @@ This run function does two things:
 The run module is also a good place to do other general configuration
 for the application, such as setting up a database connection.
 
+Upgrading your project to a newer version of Morepath
+-----------------------------------------------------
+
+See :doc:`upgrading`.
+
 Debugging scanning problems
 ---------------------------
 

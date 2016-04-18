@@ -1,5 +1,5 @@
 """These generic functions are by Morepath's implementation (response
-generation, link generation, security, json load/restore).
+generation, link generation, authentication, json load/restore).
 
 The functions are made pluggable by the use of the
 :func:`reg.dispatch` and :func:`reg.dispatch_external_predicates`
@@ -138,7 +138,7 @@ def permits(identity, obj, permission):
     """Returns ``True`` if identity has permission for model object.
 
     identity can be the special :data:`morepath.NO_IDENTITY`
-    singleton; register for :class:`morepath.security.NoIdentity` to handle
+    singleton; register for :class:`morepath.NoIdentity` to handle
     this case separately.
 
     :param identity: :class:`morepath.Identity`

@@ -9,6 +9,7 @@ APIs.
    :maxdepth: 2
 
    internals/app
+   internals/authentication
    internals/autosetup
    internals/compat
    internals/converter
@@ -21,7 +22,6 @@ APIs.
    internals/publish
    internals/reify
    internals/request
-   internals/security
    internals/settings
    internals/template
 

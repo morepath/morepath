@@ -70,17 +70,17 @@ class Request(BaseRequest):
         """Self-proclaimed identity of the user.
 
         The identity is established using the identity policy. Normally
-        this would be an instance of :class:`morepath.security.Identity`.
+        this would be an instance of :class:`morepath.Identity`.
 
         If no identity is claimed or established, or if the identity
         is not verified by the application, the identity is the the
-        special value :attr:`morepath.security.NO_IDENTITY`.
+        special value :attr:`morepath.NO_IDENTITY`.
 
         The identity can be used for authentication/authorization of
         the user, using Morepath permission directives.
         """
         # XXX annoying circular dependency
-        from .security import NO_IDENTITY
+        from .authentication import NO_IDENTITY
         result = generic.identify(self, lookup=self.lookup)
         if result is None or result is NO_IDENTITY:
             return NO_IDENTITY

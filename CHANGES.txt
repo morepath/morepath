@@ -15,18 +15,22 @@ CHANGES
   If you try to catch them in your code, just remove the whole
   ``except`` statement as they were never raised.
 
+- **Deprecated** We moved a few things into the public API:
+  ``enable_implicit``, ``disable_implicit``, ``remember_identity``,
+  ``forget_identity``, ``Identity``, ``IdentityPolicy``,
+  ``NO_IDENTITY``. Some of these were already documented as importable
+  from ``morepath.security``.  Although importing from
+  ``morepath.security`` won't break yet, you should stop importing
+  from it and import directly from ``morepath`` instead.
+
+- Introduce a deprecation warning for ``morepath.security`` and
+  document how to deal with deprecations.
+
 - Refactor internals of publishing/view engine. Reg is used more
   effectively for view lookup, order of some parameters is reversed
   for consistency with public APIs.
 
 - Document the internals of Morepath, see implementation document.
-
-- Move a few things into the public API: ``enable_implicit``,
-  ``disable_implicit``, ``remember_identity``, ``forget_identity``,
-  ``Identity``, ``IdentityPolicy``, ``NO_IDENTITY``. Some of these
-  were already documented as importable from ``morepath.security``.
-  though importing from ``morepath.security`` won't break, you should
-  stop importing from it and import from ``morepath`` instead.
 
 - The framehack module was merged into ``autosetup``.
 
