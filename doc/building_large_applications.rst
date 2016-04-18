@@ -314,7 +314,8 @@ using an entry point in ``setup.py`` as we've seen in
 :doc:`organizing_your_project`.
 
 You can also mount applications this way in automated tests and then
-use WebTest_ or some other WSGI testing library.
+use WebTest_ or some other WSGI testing library, as explained in
+:doc:`testing`.
 
 .. _WebTest: http://webtest.readthedocs.org/
 
