@@ -31,6 +31,8 @@ With contributions by
 
 * Bernd Meyer
 
+* Blaise Laflamme
+
 Special contributions
 ---------------------
 
