@@ -1,5 +1,4 @@
 import reg
-import dectate
 from reg import ClassIndex, KeyIndex
 import morepath
 from morepath.error import ConfigError
@@ -34,8 +33,6 @@ def test_dispatch():
     @App.function(f, obj=Bar)
     def f_bar(obj):
         return "bar"
-
-    dectate.commit(App)
 
     a = App()
 
@@ -74,8 +71,6 @@ def test_dispatch_external_predicates():
     @App.function(f, model=Bar)
     def f_bar(obj):
         return "bar"
-
-    dectate.commit(App)
 
     a = App()
 
@@ -118,8 +113,6 @@ def test_dispatch_external_predicates_predicate_fallback():
     @App.function(f, model=Bar)
     def f_bar(obj):
         return "bar"
-
-    dectate.commit(App)
 
     a = App()
 
@@ -170,8 +163,6 @@ def test_dispatch_external_predicates_ordering_after():
     @App.function(f, model=Bar, name='edit')
     def f_bar_edit(obj, name):
         return "bar edit"
-
-    dectate.commit(App)
 
     a = App()
 
@@ -227,8 +218,6 @@ def test_dispatch_external_predicates_ordering_before():
     @App.function(f, model=Bar, name='edit')
     def f_bar_edit(obj, name):
         return "bar edit"
-
-    dectate.commit(App)
 
     a = App()
 
@@ -286,8 +275,6 @@ def test_dispatch_external_override_fallback():
     @App.function(f, model=Bar)
     def f_bar(obj):
         return "bar"
-
-    dectate.commit(App, Sub)
 
     s = Sub()
     lookup = s.lookup
@@ -353,8 +340,6 @@ def test_dispatch_external_override_predicate():
     def f_bar_sub(obj):
         return "bar sub"
 
-    dectate.commit(App, Sub)
-
     s = Sub()
 
     lookup = s.lookup
@@ -383,14 +368,14 @@ def test_wrong_predicate_arguments_single():
     class Foo(object):
         pass
 
-    def bar(object):
-        pass
-
+    # @App.function(f, obj=Foo)
     @App.function(f, wrong=Foo)
     def f_foo(obj):
         return "foo"
 
-    dectate.commit(App)
+    a = App()
+
+    assert f(Foo(), lookup=a.lookup) == 'fallback'
 
 
 def test_wrong_predicate_arguments_multi():
@@ -404,14 +389,14 @@ def test_wrong_predicate_arguments_multi():
     class Foo(object):
         pass
 
-    def bar(object):
-        pass
-
+    # @App.function(f, a=Foo, b=Foo)
     @App.function(f, wrong=Foo)
     def f_foo(a, b):
         return "foo"
 
-    dectate.commit(App)
+    a = App()
+
+    assert f(Foo(), Foo(), lookup=a.lookup) == 'fallback'
 
 
 def test_predicate_not_for_dispatch_external_predicates():
@@ -427,7 +412,7 @@ def test_predicate_not_for_dispatch_external_predicates():
         return a.__class__
 
     with pytest.raises(ConfigError):
-        dectate.commit(App)
+        App().lookup
 
 
 def test_dispatch_external_predicates_without_predicate_directives():
@@ -450,8 +435,6 @@ def test_dispatch_external_predicates_without_predicate_directives():
     @App.function(f)
     def f_foo(obj):
         return "foo"
-
-    dectate.commit(App)
 
     a = App()
 

@@ -17,8 +17,6 @@ def setup_module(module):
 
 
 def test_basic():
-    dectate.commit(basic.app)
-
     c = Client(basic.app())
 
     response = c.get('/foo')
@@ -30,8 +28,6 @@ def test_basic():
 
 
 def test_basic_json():
-    dectate.commit(basic.app)
-
     c = Client(basic.app())
 
     response = c.get('/foo/json')
@@ -40,8 +36,6 @@ def test_basic_json():
 
 
 def test_basic_root():
-    dectate.commit(basic.app)
-
     c = Client(basic.app())
 
     response = c.get('/')
@@ -55,8 +49,6 @@ def test_basic_root():
 
 
 def test_nested():
-    dectate.commit(nested.outer_app, nested.app)
-
     c = Client(nested.outer_app())
 
     response = c.get('/inner/foo')
@@ -68,8 +60,6 @@ def test_nested():
 
 
 def test_abbr():
-    dectate.commit(abbr.app)
-
     c = Client(abbr.app())
 
     response = c.get('/foo')
@@ -80,8 +70,6 @@ def test_abbr():
 
 
 def test_scanned_static_method():
-    dectate.commit(method.app)
-
     c = Client(method.app())
 
     response = c.get('/static')
@@ -93,12 +81,12 @@ def test_scanned_static_method():
 
 def test_scanned_no_converter():
     with pytest.raises(DirectiveReportError):
-        dectate.commit(noconverter.app)
+        noconverter.app.commit()
 
 
 def test_scanned_conflict():
     with pytest.raises(ConflictError):
-        dectate.commit(conflict.app)
+        conflict.app.commit()
 
 
 def test_basic_scenario():
@@ -137,8 +125,6 @@ def test_basic_scenario():
     @app.view(model=Root, name='link')
     def root_link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -186,8 +172,6 @@ def test_link_to_unknown_model():
         except LinkError:
             return "Link Error"
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/')
@@ -216,8 +200,6 @@ def test_link_to_none():
     @app.view(model=Root, name='default')
     def root_link_with_default(self, request):
         return request.link(None, default='unknown')
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -254,8 +236,6 @@ def test_link_with_parameters():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/foo')
@@ -289,8 +269,6 @@ def test_root_link_with_parameters():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/')
@@ -321,8 +299,6 @@ def test_link_with_prefix():
     @app.link_prefix()
     def link_prefix(request):
         return request.headers['TESTPREFIX']
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -356,8 +332,6 @@ def test_link_prefix_cache():
             request.callnumber += 1
         return str(request.callnumber)
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/link')
@@ -379,8 +353,6 @@ def test_link_with_invalid_prefix():
     @app.link_prefix()
     def link_prefix(request):
         return None
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -412,8 +384,6 @@ def test_implicit_variables():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/foo/link')
@@ -443,8 +413,6 @@ def test_implicit_parameters():
     @app.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -482,8 +450,6 @@ def test_implicit_parameters_default():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/foo')
@@ -513,8 +479,6 @@ def test_simple_root():
     def hello_view(self, request):
         return 'hello'
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/')
@@ -533,8 +497,6 @@ def test_json_directive():
     @app.json(model=Model)
     def json(self, request):
         return {'id': self.id}
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -555,8 +517,6 @@ def test_redirect():
     def default(self, request):
         return morepath.redirect('/')
 
-    dectate.commit(app)
-
     c = Client(app())
 
     c.get('/', status=302)
@@ -575,7 +535,7 @@ def test_root_conflict():
         pass
 
     with pytest.raises(ConflictError):
-        dectate.commit(app)
+        app.commit()
 
 
 def test_root_conflict2():
@@ -591,7 +551,7 @@ def test_root_conflict2():
         pass
 
     with pytest.raises(ConflictError):
-        dectate.commit(app)
+        app.commit()
 
 
 def test_root_no_conflict_different_apps():
@@ -628,7 +588,7 @@ def test_model_conflict():
         return A()
 
     with pytest.raises(ConflictError):
-        dectate.commit(app)
+        app.commit()
 
 
 def test_path_conflict():
@@ -650,7 +610,7 @@ def test_path_conflict():
         return B()
 
     with pytest.raises(ConflictError):
-        dectate.commit(app)
+        app.commit()
 
 
 def test_path_conflict_with_variable():
@@ -672,7 +632,7 @@ def test_path_conflict_with_variable():
         return B()
 
     with pytest.raises(ConflictError):
-        dectate.commit(app)
+        app.commit()
 
 
 def test_path_conflict_with_variable_different_converters():
@@ -694,7 +654,7 @@ def test_path_conflict_with_variable_different_converters():
         return B()
 
     with pytest.raises(ConflictError):
-        dectate.commit(app)
+        app.commit()
 
 
 def test_model_no_conflict_different_apps():
@@ -734,7 +694,7 @@ def test_view_conflict():
         pass
 
     with pytest.raises(ConflictError):
-        dectate.commit(app)
+        app.commit()
 
 
 def test_view_no_conflict_different_names():
@@ -752,7 +712,7 @@ def test_view_no_conflict_different_names():
     def b_view(self, request):
         pass
 
-    dectate.commit(app)
+    app.commit()
 
 
 def test_view_no_conflict_different_predicates():
@@ -770,7 +730,7 @@ def test_view_no_conflict_different_predicates():
     def b_view(self, request):
         pass
 
-    dectate.commit(app)
+    app.commit()
 
 
 def test_view_no_conflict_different_apps():
@@ -810,7 +770,7 @@ def test_view_conflict_with_json():
         pass
 
     with pytest.raises(ConflictError):
-        dectate.commit(app)
+        app.commit()
 
 
 def test_view_conflict_with_html():
@@ -829,7 +789,7 @@ def test_view_conflict_with_html():
         pass
 
     with pytest.raises(ConflictError):
-        dectate.commit(app)
+        app.commit()
 
 
 def test_function_conflict():
@@ -852,7 +812,7 @@ def test_function_conflict():
         pass
 
     with pytest.raises(ConflictError):
-        dectate.commit(app)
+        app.commit()
 
 
 def test_function_no_conflict_different_apps():
@@ -887,15 +847,11 @@ def test_run_app_with_context_without_it():
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
-    dectate.commit(app)
-
     with pytest.raises(TypeError):
         app()
 
 
 def test_mapply_bug():
-    dectate.commit(mapply_bug.app)
-
     c = Client(mapply_bug.app())
 
     response = c.get('/')
@@ -922,8 +878,6 @@ def test_abbr_imperative():
         @view(name='edit')
         def edit(self, request):
             return "Edit view"
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -959,8 +913,6 @@ def test_abbr_exception():
     except ZeroDivisionError:
         pass
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/')
@@ -989,8 +941,6 @@ def test_abbr_imperative2():
         @view(name='edit')
         def edit(self, request):
             return "Edit view"
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -1026,8 +976,6 @@ def test_abbr_nested():
             def post(self, request):
                 return "Post"
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/')
@@ -1059,8 +1007,6 @@ def test_function_directive():
     def mygeneric_for_foo(o):
         return "The foo object: %s" % o
 
-    dectate.commit(app)
-
     a = app()
 
     assert mygeneric('blah', lookup=a.lookup) == 'The object: blah'
@@ -1083,8 +1029,6 @@ def test_classgeneric_function_directive():
     def mygeneric_for_foo(o):
         return "The foo object"
 
-    dectate.commit(app)
-
     a = app()
 
     assert mygeneric(object, lookup=a.lookup) == 'The object'
@@ -1106,8 +1050,6 @@ def test_staticmethod():
             assert isinstance(self, Root)
             return "Hello world"
 
-    dectate.commit(App)
-
     c = Client(App())
 
     response = c.get('/')
@@ -1128,8 +1070,6 @@ def test_classmethod_equivalent_to_staticmethod():
         def root_default(self, request):
             assert isinstance(self, Root)
             return "Hello world"
-
-    dectate.commit(App)
 
     c = Client(App())
 
@@ -1153,8 +1093,6 @@ def test_classmethod_bound_outside():
 
     App.view(model=Root)(A.root_default)
 
-    dectate.commit(App)
-
     c = Client(App())
 
     response = c.get('/')
@@ -1177,8 +1115,6 @@ def test_instantiation_before_config():
     @App.view(model=Hello)
     def hello_view(self, request):
         return 'hello'
-
-    dectate.commit(App)
 
     c = Client(app)
 

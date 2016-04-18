@@ -1,6 +1,5 @@
 import morepath
 from morepath import generic
-import dectate
 from dectate import ConflictError
 from webtest import TestApp as Client
 from reg import ClassIndex, KeyIndex
@@ -24,8 +23,6 @@ def test_view_get_only():
     @App.view(model=Model)
     def default(self, request):
         return "View"
-
-    dectate.commit(App)
 
     c = Client(App())
 
@@ -53,7 +50,7 @@ def test_view_name_conflict_involving_default():
         return "View"
 
     with pytest.raises(ConflictError):
-        dectate.commit(App)
+        App.commit()
 
 
 def test_view_custom_predicate_conflict_involving_default_extends():
@@ -83,7 +80,7 @@ def test_view_custom_predicate_conflict_involving_default_extends():
         return "View"
 
     with pytest.raises(ConflictError):
-        dectate.commit(Core, App)
+        App.commit()
 
 
 def test_view_custom_predicate_without_fallback():
@@ -111,8 +108,6 @@ def test_view_custom_predicate_without_fallback():
     @App.view(model=Model, name='foo', extra='not match')
     def not_match(self, request):
         return "Not match"
-
-    dectate.commit(Core, App)
 
     c = Client(App())
 

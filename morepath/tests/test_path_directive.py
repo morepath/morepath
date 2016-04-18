@@ -34,8 +34,6 @@ def test_simple_path_one_step():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/simple')
@@ -64,8 +62,6 @@ def test_simple_path_two_steps():
     @app.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -96,8 +92,6 @@ def test_variable_path_one_step():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/foo')
@@ -126,8 +120,6 @@ def test_variable_path_two_steps():
     @app.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -159,8 +151,6 @@ def test_variable_path_two_variables():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/foo-one')
@@ -190,8 +180,6 @@ def test_variable_path_explicit_converter():
     @app.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -224,8 +212,6 @@ def test_variable_path_implicit_converter():
     @app.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -260,8 +246,6 @@ def test_variable_path_explicit_trumps_implicit():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/1')
@@ -294,8 +278,6 @@ def test_url_parameter_explicit_converter():
     @app.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -335,8 +317,6 @@ def test_url_parameter_explicit_converter_get_converters():
     @app.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -378,8 +358,6 @@ def test_url_parameter_get_converters_overrides_converters():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/?id=1')
@@ -415,8 +393,6 @@ def test_url_parameter_implicit_converter():
     @app.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -454,8 +430,6 @@ def test_url_parameter_explicit_trumps_implicit():
     @app.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -500,8 +474,6 @@ def test_decode_encode():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/?id=foo')
@@ -535,7 +507,7 @@ def test_unknown_converter():
         return request.link(self)
 
     with pytest.raises(DirectiveReportError):
-        dectate.commit(app)
+        app.commit()
 
 
 def test_unknown_explicit_converter():
@@ -562,7 +534,7 @@ def test_unknown_explicit_converter():
         return request.link(self)
 
     with pytest.raises(DirectiveReportError):
-        dectate.commit(app)
+        app.commit()
 
 
 def test_default_date_converter():
@@ -586,8 +558,6 @@ def test_default_date_converter():
     @app.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -627,8 +597,6 @@ def test_default_datetime_converter():
     @app.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -680,8 +648,6 @@ def test_custom_date_converter():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/?d=10-11-2012')
@@ -719,8 +685,6 @@ def test_variable_path_parameter_required_no_default():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/?id=a')
@@ -748,8 +712,6 @@ def test_variable_path_parameter_required_with_default():
     @app.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -781,8 +743,6 @@ def test_type_hints_and_converters():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/?d=20140120')
@@ -811,8 +771,6 @@ def test_link_for_none_means_no_parameter():
     @app.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -845,8 +803,6 @@ def test_path_and_url_parameter_converter():
     @app.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -881,8 +837,6 @@ def test_path_converter_fallback_on_view():
     def named(self, request):
         return "Named view on root"
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/1')
@@ -903,8 +857,6 @@ def test_root_named_link():
     def default(self, request):
         return request.link(self, 'foo')
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/')
@@ -923,7 +875,7 @@ def test_path_class_and_model_argument():
         pass
 
     with pytest.raises(ConfigError):
-        dectate.commit(app)
+        app.commit()
 
 
 def test_path_no_class_and_no_model_argument():
@@ -935,7 +887,7 @@ def test_path_no_class_and_no_model_argument():
         return None
 
     with pytest.raises(ConfigError):
-        dectate.commit(app)
+        app.commit()
 
 
 def test_url_parameter_list():
@@ -957,8 +909,6 @@ def test_url_parameter_list():
     @app.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -997,8 +947,6 @@ def test_url_parameter_list_empty():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/?item=a&item=b')
@@ -1034,8 +982,6 @@ def test_url_parameter_list_explicit_converter():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/?item=1&item=2')
@@ -1069,7 +1015,7 @@ def test_url_parameter_list_unknown_explicit_converter():
         return Model(item)
 
     with pytest.raises(DirectiveReportError):
-        dectate.commit(app)
+        app.commit()
 
 
 def test_url_parameter_list_but_only_one_allowed():
@@ -1091,8 +1037,6 @@ def test_url_parameter_list_but_only_one_allowed():
     @app.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -1120,8 +1064,6 @@ def test_extra_parameters():
     @app.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -1159,8 +1101,6 @@ def test_extra_parameters_with_get_converters():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/?a=1&b=B')
@@ -1192,8 +1132,6 @@ def test_script_name():
     @app.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -1236,8 +1174,6 @@ def test_sub_path_different_variable():
     def default_s(self, request):
         return "S: %s %s" % (self.id, self.m)
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/a')
@@ -1273,8 +1209,6 @@ def test_absorb_path():
     @app.view(model=Root)
     def default_root(self, request):
         return request.link(Model('a/b'))
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -1319,8 +1253,6 @@ def test_absorb_path_with_variables():
     @app.view(model=Root)
     def default_root(self, request):
         return request.link(Model('foo', 'a/b'))
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -1376,8 +1308,6 @@ def test_absorb_path_explicit_subpath_ignored():
     def default_root(self, request):
         return request.link(Another())
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/foo/a')
@@ -1406,8 +1336,6 @@ def test_absorb_path_root():
     @app.view(model=Model)
     def default(self, request):
         return "A:%s L:%s" % (self.absorb, request.link(self))
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -1438,8 +1366,6 @@ def test_error_when_path_variable_is_none():
     def default(self, request):
         return request.link(self)
 
-    dectate.commit(App)
-
     c = Client(App())
 
     with pytest.raises(LinkError):
@@ -1463,8 +1389,6 @@ def test_error_when_path_variable_is_missing():
     def default(self, request):
         return request.link(self)
 
-    dectate.commit(App)
-
     c = Client(App())
 
     with pytest.raises(KeyError):
@@ -1487,8 +1411,6 @@ def test_error_when_path_variables_isnt_dict():
     @App.view(model=Model)
     def default(self, request):
         return request.link(self)
-
-    dectate.commit(App)
 
     c = Client(App())
 
@@ -1519,8 +1441,6 @@ def test_resolve_path_method_on_request_same_app():
     @App.view(model=Model, name='appnone')
     def appnone(self, request):
         return request.resolve_path('simple', app=None)
-
-    dectate.commit(App)
 
     c = Client(App())
 
@@ -1563,8 +1483,6 @@ def test_resolve_path_method_on_request_different_app():
     def mount_sub():
         return Sub()
 
-    dectate.commit(App, Sub)
-
     c = Client(App())
 
     response = c.get('/simple')
@@ -1586,8 +1504,6 @@ def test_resolve_path_with_dots_in_url():
     @app.view(model=Root)
     def default(self, request):
         return "%s" % self.absorb
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -1627,8 +1543,6 @@ def test_quoting_link_generation():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(App)
-
     c = Client(App())
 
     response = c.get('/sim%3Fple')
@@ -1657,8 +1571,6 @@ def test_quoting_link_generation_umlaut():
     @App.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(App)
 
     c = Client(App())
 
@@ -1694,8 +1606,6 @@ def test_quoting_link_generation_tilde():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(App)
-
     c = Client(App())
 
     response = c.get('/sim~ple')
@@ -1724,8 +1634,6 @@ def test_parameter_quoting():
     @App.view(model=Model, name='link')
     def link(self, request):
         return request.link(self)
-
-    dectate.commit(App)
 
     c = Client(App())
 
@@ -1756,8 +1664,6 @@ def test_parameter_quoting_tilde():
     def link(self, request):
         return request.link(self)
 
-    dectate.commit(App)
-
     c = Client(App())
 
     response = c.get('/?s=sim~ple')
@@ -1782,8 +1688,6 @@ def test_class_link_without_variables():
     def link(self, request):
         return request.class_link(Model)
 
-    dectate.commit(App)
-
     c = Client(App())
 
     response = c.get('/foo')
@@ -1804,8 +1708,6 @@ def test_class_link_no_app():
     @App.view(model=Model)
     def link(self, request):
         return request.class_link(Model, app=None)
-
-    dectate.commit(App)
 
     c = Client(App())
 
@@ -1828,8 +1730,6 @@ def test_class_link_with_variables():
     def link(self, request):
         return request.class_link(Model, variables={'x': 'X'})
 
-    dectate.commit(App)
-
     c = Client(App())
 
     response = c.get('/foo/3')
@@ -1850,8 +1750,6 @@ def test_class_link_with_missing_variables():
     @App.view(model=Model)
     def link(self, request):
         return request.class_link(Model, variables={})
-
-    dectate.commit(App)
 
     c = Client(App())
 
@@ -1874,8 +1772,6 @@ def test_class_link_with_extra_variable():
     def link(self, request):
         return request.class_link(Model, variables={'x': 'X', 'y': 'Y'})
 
-    dectate.commit(App)
-
     c = Client(App())
 
     response = c.get('/foo/3')
@@ -1896,8 +1792,6 @@ def test_class_link_with_url_parameter_variable():
     @App.view(model=Model)
     def link(self, request):
         return request.class_link(Model, variables={'x': 'X', 'y': 'Y'})
-
-    dectate.commit(App)
 
     c = Client(App())
 
@@ -1922,8 +1816,6 @@ def test_class_link_with_subclass():
     @App.view(model=Model)
     def link(self, request):
         return request.class_link(Sub, variables={'x': 'X'})
-
-    dectate.commit(App)
 
     c = Client(App())
 
@@ -1957,8 +1849,6 @@ def test_absorb_class_path():
     @App.view(model=Root)
     def default_root(self, request):
         return request.class_link(Model, variables={'absorb': 'a/b'})
-
-    dectate.commit(App)
 
     c = Client(App())
 
@@ -1996,8 +1886,6 @@ def test_absorb_class_path_with_variables():
         return request.class_link(Model,
                                   variables=dict(id='foo', absorb='a/b'))
 
-    dectate.commit(App)
-
     c = Client(App())
 
     # link to a/b absorb
@@ -2027,8 +1915,6 @@ def test_class_link_extra_parameters():
             Model,
             variables={'extra_parameters': {'a': 'A', 'b': 'B'}})
 
-    dectate.commit(App)
-
     c = Client(App())
 
     response = c.get('/link?a=A&b=B')
@@ -2057,8 +1943,6 @@ def test_path_on_model_class():
     def login_view(self, request):
         return "Login"
 
-    dectate.commit(App)
-
     c = Client(App())
 
     response = c.get('/')
@@ -2076,7 +1960,7 @@ def test_path_without_model():
         pass
 
     with pytest.raises(dectate.DirectiveReportError):
-        dectate.commit(App)
+        App.commit()
 
 
 def test_two_path_on_same_model_should_conflict():
@@ -2089,7 +1973,7 @@ def test_two_path_on_same_model_should_conflict():
         pass
 
     with pytest.raises(dectate.ConflictError):
-        dectate.commit(App)
+        App.commit()
 
 
 def test_path_on_same_model_explicit_and_class_should_conflict():
@@ -2105,4 +1989,4 @@ def test_path_on_same_model_explicit_and_class_should_conflict():
         return Login()
 
     with pytest.raises(dectate.ConflictError):
-        dectate.commit(App)
+        App.commit()
