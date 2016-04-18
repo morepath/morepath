@@ -35,8 +35,8 @@ CHANGES
 
   See https://github.com/morepath/morepath/issues/271
 
-  You can use ``morepath.HOST_HEADER_PROTECTION`` in your own
-  tween factory to wrap before or under it.
+  You can use ``morepath.HOST_HEADER_PROTECTION`` in your own tween
+  factory to wrap before or under it.
 
 - Refactor internals of publishing/view engine. Reg is used more
   effectively for view lookup, order of some parameters is reversed
