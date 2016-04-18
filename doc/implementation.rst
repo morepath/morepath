@@ -26,6 +26,7 @@ internal APIs.
    internals/template
    internals/toposort
    internals/traject
+   internals/tween
 
 See also :mod:`morepath` for the public API.
 
