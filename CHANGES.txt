@@ -23,6 +23,11 @@ CHANGES
   ``morepath.security`` won't break yet, you should stop importing
   from it and import directly from ``morepath`` instead.
 
+- Introduce a new ``commit`` method on ``App`` that commits the App
+  and also recursively commits all mounted apps. This is more explicit
+  than ``autocommit`` and less verbose than using the lower-level
+  ``dectate.commit``.
+
 - Introduce a deprecation warning for ``morepath.security`` and
   document how to deal with deprecations.
 
