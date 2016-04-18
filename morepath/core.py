@@ -1,6 +1,6 @@
-"""
-This module contains default Morepath configuration shared by
-all Morepath applications.
+"""This module contains default Morepath configuration shared by
+all Morepath applications. It is the only part of the Morepath
+implementation that uses directives like user of Morepath does.
 
 It uses Morepath directives to configure:
 
@@ -15,6 +15,9 @@ It uses Morepath directives to configure:
 * a default exception view for HTTP exceptions defined by
   :mod:`webob.exc`, i.e. subclasses of :class:`webob.exc.HTTPException`.
 
+Should you wish to do so you could even override these directives in a
+subclass of :class:`morepath.App`. We do not guarantee we won't break
+your code with future version of Morepath if you do that, though.
 """
 
 import dectate
