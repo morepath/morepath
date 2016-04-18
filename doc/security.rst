@@ -32,19 +32,20 @@ Before we can determine who is allowed to do what, we need to be able
 to identify who people are in the first place.
 
 The identity policy in Morepath takes a HTTP request and establishes a
-claimed identity for it.
-There are 3 extensions available, which are providing a identity policy
-for Morepath:
+claimed identity for it. These are some extensions that provide
+an identity policy:
 
-* `more.jwtauth`_:
+`more.jwtauth`_
   Token based authentication system using JSON Web Token (JWT).
-* `more.itsdangerous`_:
+
+`more.itsdangerous`_
   Cookie based identity policy using isdangerous.
-* `more.basicauth`_:
+
+`more.basicauth`_
   Identity policy based on the HTTP Basic Authentication.
 
-Choose the one of your choice, install it and follow the
-instructions in the README.
+Choose the one of your choice, install it and follow the instructions
+in the README. You can also create your own identity policy.
 
 For basic authentication for instance it will
 extract the username and password. The claimed identity can be
@@ -54,18 +55,20 @@ on the request object.
 You use the :meth:`morepath.App.identity_policy` directive to install
 an identity policy into a Morepath app::
 
-  from morepath.security import BasicAuthIdentityPolicy
+  from more.basicauth import BasicAuthIdentityPolicy
 
   @App.identity_policy()
   def get_identity_policy():
       return BasicAuthIdentityPolicy()
 
 If you want to create your own identity policy, see the
-:class:`morepath.security.IdentityPolicy` API documentation to see
+:class:`morepath.IdentityPolicy` API documentation to see
 what methods you need to implement.
 
 .. _more.jwtauth: https://github.com/morepath/more.jwtauth
+
 .. _more.itsdangerous: https://github.com/morepath/more.itsdangerous
+
 .. _more.basicauth: https://github.com/morepath/more.basicauth
 
 Verify identity
@@ -94,7 +97,6 @@ policy you install.
 
 Note that ``user_has_password`` stands in for whatever method you use
 to check a user's password; it's not part of Morepath.
-
 
 Session or token based identity verification
 --------------------------------------------
@@ -154,7 +156,7 @@ This is enough for session-based or cryptographic token-based
 authentication.
 
 For cookie-based authentication where the password is sent as a cookie
-to the server for each request, we need to make sure include the
+to the server for each request, we need to make sure to include the
 password the user used to log in, so that ``remember`` can then place
 it in the cookie so that it can be sent back to the server::
 
@@ -163,9 +165,9 @@ it in the cookie so that it can be sent back to the server::
         identity = morepath.Identity(username, password=password)
         morepath.remember_identity(response, request, identity)
 
-When you construct the identity using :class:`morepath.security.Identity`,
-you can any data you want in the identity object by using keyword
-parameters.
+When you construct the identity using
+:class:`morepath.Identity`, you can include any data you want
+in the identity object by using keyword parameters.
 
 Logging out
 ~~~~~~~~~~~

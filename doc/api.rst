@@ -46,9 +46,6 @@ API
 .. autoclass:: morepath.IdentityPolicy
   :members:
 
-.. autoclass:: morepath.security.BasicAuthIdentityPolicy
-  :members:
-
 .. autodata:: morepath.NO_IDENTITY
 
 .. autoclass:: morepath.Converter
