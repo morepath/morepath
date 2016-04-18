@@ -2,5 +2,4 @@
 --------------------------------------
 
 .. automodule:: morepath.reify
-
-.. autofunction:: morepath.reify.reify
+  :members:

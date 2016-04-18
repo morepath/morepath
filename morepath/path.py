@@ -1,3 +1,9 @@
+"""Registration of routes.
+
+This builds on :mod:`morepath.traject`.
+"""
+
+
 from dectate import DirectiveError
 from reg import arginfo
 

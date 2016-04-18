@@ -2,9 +2,4 @@
 ============================================
 
 .. automodule:: morepath.predicate
-
-.. autoclass:: PredicateRegistry
-  :members:
-
-.. autoclass:: PredicateInfo
   :members:
