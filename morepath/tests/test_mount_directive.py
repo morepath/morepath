@@ -1,5 +1,4 @@
 import morepath
-import dectate
 from morepath.error import LinkError, ConflictError
 from webtest import TestApp as Client
 import pytest
@@ -28,7 +27,7 @@ def test_model_mount_conflict():
         return app2()
 
     with pytest.raises(ConflictError):
-        dectate.commit(app)
+        app.commit()
 
 
 def test_mount_basic():
@@ -55,7 +54,7 @@ def test_mount_basic():
     def get_mounted(id):
         return mounted(id=id)
 
-    dectate.commit(app, mounted)
+    app.commit()
 
     c = Client(app())
 
@@ -89,7 +88,7 @@ def test_mount_none_should_fail():
     def mount_mounted(id):
         return None
 
-    dectate.commit(app, mounted)
+    app.commit()
 
     c = Client(app())
 
@@ -118,7 +117,7 @@ def test_mount_context():
     def get_context(id):
         return mounted(mount_id=id)
 
-    dectate.commit(app, mounted)
+    app.commit()
 
     c = Client(app())
 
@@ -150,7 +149,7 @@ def test_mount_context_parameters():
     def get_context(mount_id=0):
         return mounted(mount_id=mount_id)
 
-    dectate.commit(app, mounted)
+    app.commit()
 
     c = Client(app())
 
@@ -183,7 +182,7 @@ def test_mount_context_parameters_override_default():
     def get_context(id):
         return mounted(mount_id=id)
 
-    dectate.commit(app, mounted)
+    app.commit()
 
     c = Client(app())
 
@@ -209,7 +208,7 @@ def test_mount_context_standalone():
     def root_default(self, request):
         return "The root for mount id: %s" % self.mount_id
 
-    dectate.commit(app)
+    app.commit()
 
     c = Client(app(mount_id='foo'))
 
@@ -243,7 +242,7 @@ def test_mount_parent_link():
     def get_context(id):
         return mounted(mount_id=id)
 
-    dectate.commit(app, mounted)
+    app.commit()
 
     c = Client(app())
 
@@ -283,7 +282,7 @@ def test_mount_child_link():
     def get_context(id):
         return mounted(mount_id=id)
 
-    dectate.commit(app, mounted)
+    app.commit()
 
     c = Client(app())
 
@@ -330,7 +329,7 @@ def test_mount_sibling_link():
     def get_context_second():
         return second()
 
-    dectate.commit(app, first, second)
+    app.commit()
 
     c = Client(app())
 
@@ -355,7 +354,7 @@ def test_mount_sibling_link_at_root_app():
         sibling = request.app.sibling('foo')
         return request.link(Item(3), app=sibling)
 
-    dectate.commit(app)
+    app.commit()
 
     c = Client(app())
 
@@ -396,7 +395,7 @@ def test_mount_child_link_unknown_child():
 
     # no mount directive so linking will fail
 
-    dectate.commit(app, mounted)
+    app.commit()
 
     c = Client(app())
 
@@ -425,7 +424,7 @@ def test_mount_child_link_unknown_parent():
             return 'link error'
         return request.link(Model('one'), app=parent)
 
-    dectate.commit(app)
+    app.commit()
 
     c = Client(app())
 
@@ -460,7 +459,7 @@ def test_mount_child_link_unknown_app():
 
     # no mounting, so mounted is unknown when making link
 
-    dectate.commit(app, mounted)
+    app.commit()
 
     c = Client(app())
 
@@ -510,7 +509,7 @@ def test_mount_link_prefix():
         parent = request.app.parent
         return request.view(AppRoot(), app=parent, name='get-root-link')
 
-    dectate.commit(App, Mounted)
+    App.commit()
 
     c = Client(App())
 
@@ -563,7 +562,7 @@ def test_request_view_in_mount():
     def get_context(id):
         return mounted(mount_id=id)
 
-    dectate.commit(app, mounted)
+    app.commit()
 
     c = Client(app())
 
@@ -625,7 +624,7 @@ def test_request_link_child_child():
         ancestor = request.app.parent.parent
         return request.view(Root(), name='info', app=ancestor)
 
-    dectate.commit(app, mounted, submounted)
+    app.commit()
 
     c = Client(app())
 
@@ -692,7 +691,7 @@ def test_request_view_in_mount_broken():
 
     # deliberately don't mount so using view is broken
 
-    dectate.commit(app, mounted)
+    app.commit()
 
     c = Client(app())
 
@@ -733,7 +732,7 @@ def test_mount_implicit_converters():
     def get_context(id=0):
         return mounted(id=id)
 
-    dectate.commit(app, mounted)
+    app.commit()
 
     c = Client(app())
 
@@ -766,7 +765,7 @@ def test_mount_explicit_converters():
     def get_context(id):
         return mounted(id=id)
 
-    dectate.commit(app, mounted)
+    app.commit()
 
     c = Client(app())
 
@@ -806,7 +805,7 @@ def test_mount_view_in_child_view():
     def mount_to_root():
         return fooapp()
 
-    dectate.commit(app, fooapp)
+    app.commit()
 
     c = Client(app())
 
@@ -854,7 +853,7 @@ def test_mount_view_in_child_view_then_parent_view():
     def mount_to_root():
         return fooapp()
 
-    dectate.commit(app, fooapp)
+    app.commit()
 
     c = Client(app())
 
@@ -889,7 +888,7 @@ def test_mount_directive_with_link_and_absorb():
     def get_mount():
         return app2()
 
-    dectate.commit(app1, app2)
+    app1.commit()
 
     c = Client(app1())
 
@@ -928,7 +927,7 @@ def test_mount_named_child_link_explicit_name():
     def get_context():
         return mounted()
 
-    dectate.commit(app, mounted)
+    app.commit()
 
     c = Client(app())
 
@@ -967,7 +966,7 @@ def test_mount_named_child_link_name_defaults_to_path():
     def get_context():
         return mounted()
 
-    dectate.commit(app, mounted)
+    app.commit()
 
     c = Client(app())
 
@@ -1017,7 +1016,7 @@ def test_named_mount_with_parameters():
         child = request.app.child('mounts/{mount_id}', mount_id=3)
         return request.link(Item(4), app=child)
 
-    dectate.commit(app, mounted)
+    app.commit()
 
     c = Client(app())
 
@@ -1064,7 +1063,7 @@ def test_named_mount_with_url_parameters():
         child = request.app.child('mounts', mount_id=3)
         return request.link(Item(4), app=child)
 
-    dectate.commit(app, mounted)
+    app.commit()
 
     c = Client(app())
 
@@ -1102,7 +1101,7 @@ def test_access_app_through_request():
     def mount_sub(mount_name):
         return sub(name=mount_name)
 
-    dectate.commit(root, sub)
+    root.commit()
 
     c = Client(root())
 
@@ -1145,9 +1144,73 @@ def test_mount_ancestors():
     def get_mounted(id):
         return mounted(id=id)
 
-    dectate.commit(app, mounted)
+    app.commit()
 
     c = Client(app())
 
     c.get('/')
     c.get('/foo')
+
+
+def test_breadthfist_vs_inheritance_on_commit():
+    class Root(morepath.App):
+        pass
+
+    class App1(morepath.App):
+        pass
+
+    class ExtendedApp1(App1):
+        pass
+
+    class App2(morepath.App):
+        pass
+
+    class ExtendedApp2(App2):
+        pass
+
+    @App1.path(path='')
+    class Model1(object):
+        pass
+
+    @App2.path(path='')
+    class Model2(object):
+        pass
+
+    @App1.view(model=Model1)
+    def view1(self, request):
+        return type(request.app).__name__
+
+    @App2.view(model=Model2)
+    def view2(self, request):
+        return type(request.app).__name__
+
+    Root.mount(app=App1, path='a/')(App1)
+    App1.mount(app=App2, path='b/')(App2)
+
+    Root.mount(app=ExtendedApp2, path='x/')(ExtendedApp2)
+    ExtendedApp2.mount(app=ExtendedApp1, path='y/')(ExtendedApp1)
+
+    # NB: ExtendedApp2 is mounted higher app in the tree than App2,
+    # from which it inherits.  This means that ExtendedApp2 is
+    # discovered before App2.  The purpose of this test is to ensure
+    # that this potentially problematic situation is in fact harmless,
+    # i.e., that the breadth-first order in which apps are discovered,
+    # which is not in general a valid traversal of the inheritance
+    # graph, does not lead to partial commits and hence to
+    # misconfigurations.
+
+    Root.commit()
+
+    c = Client(Root())
+
+    response = c.get('/a')
+    assert response.body == b'App1'
+
+    response = c.get('/a/b')
+    assert response.body == b'App2'
+
+    response = c.get('/x')
+    assert response.body == b'ExtendedApp2'
+
+    response = c.get('/x/y')
+    assert response.body == b'ExtendedApp1'

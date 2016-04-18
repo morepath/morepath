@@ -231,3 +231,22 @@ class App(dectate.App):
         global lookup.
         """
         return self.config.setting_registry
+
+    @classmethod
+    def commit(cls):
+        """Commit the app, and recursively, the apps mounted under it.
+
+        Mounted apps are discovered in breadth-first order.
+
+        :return: the set of discovered apps.
+        """
+
+        discovery = set()
+        found = {cls}
+        while found:
+            discovery.update(found)
+            dectate.commit(*found)
+            found = (
+                {c for a in found for c in a.config.path_registry.mounted} -
+                discovery)
+        return discovery
