@@ -106,6 +106,8 @@ class App(dectate.App):
         # this in turn uses a cached lookup from the reg_registry
         # the caching happens on the reg_registry and not here to
         # ensure that each instance of App uses the same cache.
+        if not self.is_committed():
+            self.commit()
         return self.config.reg_registry.lookup
 
     def set_implicit(self):
