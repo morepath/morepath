@@ -238,7 +238,7 @@ checking. ``is_valid_document`` could look this::
 Instead of checking the content for validity in the view, we can use
 :meth:`App.load_json`::
 
-  @App.load_json():
+  @App.load_json()
   def load_json(json, request):
      if is_valid_document_json(json):
         return Document(title=json['title'],
