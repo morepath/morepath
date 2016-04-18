@@ -1,5 +1,4 @@
 import morepath
-import dectate
 from webtest import TestApp as Client
 
 
@@ -26,8 +25,6 @@ def test_extends():
     @Extending.view(model=User, name='edit')
     def edit_user(self, request):
         return "Edit user: %s" % self.username
-
-    dectate.commit(App, Extending)
 
     cl = Client(App())
     response = cl.get('/users/foo')
@@ -61,8 +58,6 @@ def test_overrides_view():
     def render_user2(self, request):
         return "USER: %s" % self.username
 
-    dectate.commit(App, Overriding)
-
     cl = Client(App())
     response = cl.get('/users/foo')
     assert response.body == b'User: foo'
@@ -93,8 +88,6 @@ def test_overrides_model():
         if username != 'bar':
             return None
         return User(username)
-
-    dectate.commit(App, Overriding)
 
     cl = Client(App())
     response = cl.get('/users/foo')

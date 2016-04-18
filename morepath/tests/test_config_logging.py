@@ -1,9 +1,8 @@
-import dectate
 import logging
 import morepath
 
 from .fixtures import basic
-from morepath.compat import PY3
+from webtest import TestApp as Client
 
 
 class Handler(logging.Handler):
@@ -13,6 +12,9 @@ class Handler(logging.Handler):
 
     def emit(self, record):
         self.records.append(record)
+
+    def clear(self):
+        self.records[:] = []
 
 
 def test_intercept_logging():
@@ -30,7 +32,7 @@ def test_intercept_logging():
     assert test_handler.records[0].getMessage() == 'This is a log message'
 
 
-def test_simple_config_logging():
+def test_config_logging_implicit_commit():
     log = logging.getLogger('morepath.directive.path')
 
     test_handler = Handler()
@@ -45,23 +47,30 @@ def test_simple_config_logging():
     class Model(object):
         pass
 
-    dectate.commit(App)
+    @App.view(model=Model)
+    def default(self, request):
+        return "View"
+
+    c = Client(App())
+    response = c.get('/')
+    assert response.body == b'View'
 
     messages = [r.getMessage() for r in test_handler.records]
-    assert len(messages) == 1
-    if PY3:
-        expected = (
-            "@morepath.tests.test_config_logging.App.path(path='') on "
-            "<class 'morepath.tests.test_config_logging."
-            "test_simple_config_logging.<locals>.Model'>")
-    else:
-        expected = (
-            "@morepath.tests.test_config_logging.App.path(path='') on "
-            "<class 'morepath.tests.test_config_logging.Model'>")
-    assert messages[0] == expected
+    assert messages == [
+        "@morepath.tests.test_config_logging.App.path(path='') on {!r}"
+        .format(Model)]
+
+    # Instantiating and serving a second app does not trigger a new
+    # commit:
+    test_handler.clear()
+    c = Client(App())
+    response = c.get('/')
+    assert response.body == b'View'
+    messages = [r.getMessage() for r in test_handler.records]
+    assert messages == []
 
 
-def test_config_logging_fixture():
+def test_config_logging_explicit_commit():
     log = logging.getLogger('morepath.directive.path')
 
     test_handler = Handler()
@@ -69,7 +78,8 @@ def test_config_logging_fixture():
     log.addHandler(test_handler)
     log.setLevel(logging.DEBUG)
 
-    dectate.commit(basic.app)
+    # Manually commit the app:
+    assert basic.app.commit() == {basic.app}
 
     messages = [r.getMessage() for r in test_handler.records]
     messages.sort()
@@ -81,3 +91,11 @@ def test_config_logging_fixture():
         "@morepath.tests.fixtures.basic.app.path(path='/') on "
         "<class 'morepath.tests.fixtures.basic.Root'>"
     ]
+
+    # Instantiating and serving the app does not trigger a new commit:
+    test_handler.clear()
+    c = Client(basic.app())
+    response = c.get('/')
+    assert response.body == b'The root: ROOT'
+    messages = [r.getMessage() for r in test_handler.records]
+    assert messages == []

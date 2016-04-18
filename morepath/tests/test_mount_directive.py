@@ -54,8 +54,6 @@ def test_mount_basic():
     def get_mounted(id):
         return mounted(id=id)
 
-    app.commit()
-
     c = Client(app())
 
     response = c.get('/foo')
@@ -88,8 +86,6 @@ def test_mount_none_should_fail():
     def mount_mounted(id):
         return None
 
-    app.commit()
-
     c = Client(app())
 
     c.get('/foo', status=404)
@@ -116,8 +112,6 @@ def test_mount_context():
     @app.mount(path='{id}', app=mounted)
     def get_context(id):
         return mounted(mount_id=id)
-
-    app.commit()
 
     c = Client(app())
 
@@ -148,8 +142,6 @@ def test_mount_context_parameters():
     @app.mount(path='mounts', app=mounted)
     def get_context(mount_id=0):
         return mounted(mount_id=mount_id)
-
-    app.commit()
 
     c = Client(app())
 
@@ -182,8 +174,6 @@ def test_mount_context_parameters_override_default():
     def get_context(id):
         return mounted(mount_id=id)
 
-    app.commit()
-
     c = Client(app())
 
     response = c.get('/foo')
@@ -207,8 +197,6 @@ def test_mount_context_standalone():
     @app.view(model=Root)
     def root_default(self, request):
         return "The root for mount id: %s" % self.mount_id
-
-    app.commit()
 
     c = Client(app(mount_id='foo'))
 
@@ -241,8 +229,6 @@ def test_mount_parent_link():
     @app.mount(path='{id}', app=mounted)
     def get_context(id):
         return mounted(mount_id=id)
-
-    app.commit()
 
     c = Client(app())
 
@@ -281,8 +267,6 @@ def test_mount_child_link():
                variables=lambda a: {'id': a.mount_id})
     def get_context(id):
         return mounted(mount_id=id)
-
-    app.commit()
 
     c = Client(app())
 
@@ -329,8 +313,6 @@ def test_mount_sibling_link():
     def get_context_second():
         return second()
 
-    app.commit()
-
     c = Client(app())
 
     response = c.get('/first/models/1')
@@ -353,8 +335,6 @@ def test_mount_sibling_link_at_root_app():
     def root_default(self, request):
         sibling = request.app.sibling('foo')
         return request.link(Item(3), app=sibling)
-
-    app.commit()
 
     c = Client(app())
 
@@ -395,8 +375,6 @@ def test_mount_child_link_unknown_child():
 
     # no mount directive so linking will fail
 
-    app.commit()
-
     c = Client(app())
 
     response = c.get('/')
@@ -423,8 +401,6 @@ def test_mount_child_link_unknown_parent():
         if parent is None:
             return 'link error'
         return request.link(Model('one'), app=parent)
-
-    app.commit()
 
     c = Client(app())
 
@@ -458,8 +434,6 @@ def test_mount_child_link_unknown_app():
             return "link error"
 
     # no mounting, so mounted is unknown when making link
-
-    app.commit()
 
     c = Client(app())
 
@@ -508,8 +482,6 @@ def test_mount_link_prefix():
     def get_root_link_through_mount(self, request):
         parent = request.app.parent
         return request.view(AppRoot(), app=parent, name='get-root-link')
-
-    App.commit()
 
     c = Client(App())
 
@@ -561,8 +533,6 @@ def test_request_view_in_mount():
                variables=lambda a: dict(id=a.mount_id))
     def get_context(id):
         return mounted(mount_id=id)
-
-    app.commit()
 
     c = Client(app())
 
@@ -623,8 +593,6 @@ def test_request_link_child_child():
     def subroot_parentage(self, request):
         ancestor = request.app.parent.parent
         return request.view(Root(), name='info', app=ancestor)
-
-    app.commit()
 
     c = Client(app())
 
@@ -691,8 +659,6 @@ def test_request_view_in_mount_broken():
 
     # deliberately don't mount so using view is broken
 
-    app.commit()
-
     c = Client(app())
 
     response = c.get('/')
@@ -732,8 +698,6 @@ def test_mount_implicit_converters():
     def get_context(id=0):
         return mounted(id=id)
 
-    app.commit()
-
     c = Client(app())
 
     response = c.get('/1')
@@ -764,8 +728,6 @@ def test_mount_explicit_converters():
     @app.mount(path='{id}', app=mounted, converters=dict(id=int))
     def get_context(id):
         return mounted(id=id)
-
-    app.commit()
 
     c = Client(app())
 
@@ -804,8 +766,6 @@ def test_mount_view_in_child_view():
     @app.mount(path="foo", app=fooapp)
     def mount_to_root():
         return fooapp()
-
-    app.commit()
 
     c = Client(app())
 
@@ -853,8 +813,6 @@ def test_mount_view_in_child_view_then_parent_view():
     def mount_to_root():
         return fooapp()
 
-    app.commit()
-
     c = Client(app())
 
     response = c.get('/')
@@ -887,8 +845,6 @@ def test_mount_directive_with_link_and_absorb():
     @app1.mount(path="foo", app=app2)
     def get_mount():
         return app2()
-
-    app1.commit()
 
     c = Client(app1())
 
@@ -927,8 +883,6 @@ def test_mount_named_child_link_explicit_name():
     def get_context():
         return mounted()
 
-    app.commit()
-
     c = Client(app())
 
     response = c.get('/')
@@ -965,8 +919,6 @@ def test_mount_named_child_link_name_defaults_to_path():
     @app.mount(path='subapp', app=mounted)
     def get_context():
         return mounted()
-
-    app.commit()
 
     c = Client(app())
 
@@ -1016,8 +968,6 @@ def test_named_mount_with_parameters():
         child = request.app.child('mounts/{mount_id}', mount_id=3)
         return request.link(Item(4), app=child)
 
-    app.commit()
-
     c = Client(app())
 
     response = c.get('/')
@@ -1063,8 +1013,6 @@ def test_named_mount_with_url_parameters():
         child = request.app.child('mounts', mount_id=3)
         return request.link(Item(4), app=child)
 
-    app.commit()
-
     c = Client(app())
 
     response = c.get('/')
@@ -1100,8 +1048,6 @@ def test_access_app_through_request():
                 variables=lambda a: {'mount_name': a.name})
     def mount_sub(mount_name):
         return sub(name=mount_name)
-
-    root.commit()
 
     c = Client(root())
 
@@ -1143,8 +1089,6 @@ def test_mount_ancestors():
     @app.mount(path='{id}', app=mounted)
     def get_mounted(id):
         return mounted(id=id)
-
-    app.commit()
 
     c = Client(app())
 
@@ -1198,8 +1142,6 @@ def test_breadthfist_vs_inheritance_on_commit():
     # which is not in general a valid traversal of the inheritance
     # graph, does not lead to partial commits and hence to
     # misconfigurations.
-
-    Root.commit()
 
     c = Client(Root())
 

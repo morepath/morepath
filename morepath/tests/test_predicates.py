@@ -1,4 +1,3 @@
-import dectate
 from morepath.app import App
 
 from webtest import TestApp as Client
@@ -26,8 +25,6 @@ def test_view_predicates():
     @app.view(model=Root, name='foo', request_method='POST')
     def post(self, request):
         return 'POST'
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -58,8 +55,6 @@ def test_extra_predicates():
                    after=morepath.request_method_predicate)
     def id_predicate(obj):
         return obj.id
-
-    dectate.commit(app)
 
     c = Client(app())
 

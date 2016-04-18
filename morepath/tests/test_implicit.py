@@ -1,4 +1,3 @@
-import dectate
 import morepath
 import reg
 from webtest import TestApp as Client
@@ -40,8 +39,6 @@ def test_implicit_function():
     @app.view(model=Model)
     def default(self, request):
         return one()
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -100,8 +97,6 @@ def test_implicit_function_mounted():
     def default(self, request):
         return "View for %s, message: %s" % (self.id, one())
 
-    dectate.commit(alpha, beta)
-
     c = Client(alpha())
 
     response = c.get('/mounted/1')
@@ -132,8 +127,6 @@ def test_implicit_disabled():
             return one()
         except reg.NoImplicitLookupError:
             return "No implicit found"
-
-    dectate.commit(app)
 
     c = Client(app())
 

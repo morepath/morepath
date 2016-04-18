@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import dectate
 import morepath
 from morepath.request import Response
 from morepath import generic
@@ -37,8 +36,6 @@ def test_no_permission():
     @app.view(model=Model, permission=Permission)
     def default(self, request):
         return "Model: %s" % self.id
-
-    dectate.commit(app)
 
     c = Client(app())
 
@@ -87,8 +84,6 @@ def test_permission_directive_identity():
         def forget(self, response, request):
             pass
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/foo')
@@ -123,8 +118,6 @@ def test_permission_directive_no_identity():
     def default(self, request):
         return "Model: %s" % self.id
 
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/foo')
@@ -133,8 +126,6 @@ def test_permission_directive_no_identity():
 
 
 def test_policy_action():
-    dectate.commit(identity_policy.app)
-
     c = Client(identity_policy.app())
 
     response = c.get('/foo')
@@ -205,8 +196,6 @@ def test_cookie_identity_policy():
     def verify_identity(identity):
         return True
 
-    dectate.commit(app)
-
     c = Client(app(), cookiejar=CookieJar())
 
     response = c.get('/foo', status=403)
@@ -225,8 +214,6 @@ def test_default_verify_identity():
     class app(morepath.App):
         pass
 
-    dectate.commit(app)
-
     identity = morepath.Identity('foo')
 
     assert not generic.verify_identity(identity, lookup=app().lookup)
@@ -240,7 +227,6 @@ def test_verify_identity_directive():
     def verify_identity(identity):
         return identity.password == 'right'
 
-    dectate.commit(app)
     identity = morepath.Identity('foo', password='wrong')
     assert not generic.verify_identity(identity, lookup=app().lookup)
     identity = morepath.Identity('foo', password='right')
@@ -279,8 +265,6 @@ def test_false_verify_identity():
     @app.verify_identity()
     def verify_identity(identity):
         return False
-
-    dectate.commit(app)
 
     c = Client(app(), cookiejar=CookieJar())
 
@@ -349,8 +333,6 @@ def test_settings():
         def token_is_valid(self, token, encryption_key):
             return token == encryption_key  # fake validation
 
-    dectate.commit(App)
-
     c = Client(App())
 
     headers = {'Authorization': 'Bearer secret'}
@@ -370,8 +352,6 @@ def test_prevent_poisoned_host_headers():
     @App.view(model=Model)
     def view_model(self, request):
         return 'ok'
-
-    dectate.commit(App)
 
     poisoned_hosts = (
         'example.com@evil.tld',

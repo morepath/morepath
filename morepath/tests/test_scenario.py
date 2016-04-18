@@ -1,4 +1,3 @@
-import importscan
 from .fixtures import scenario
 from .fixtures.scenario import app
 import morepath
@@ -11,8 +10,7 @@ def setup_module(module):
 
 
 def test_scenario():
-    importscan.scan(scenario)
-    app.Root.commit()
+    morepath.scan(scenario)
 
     c = Client(app.Root())
 

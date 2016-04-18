@@ -1,4 +1,3 @@
-import dectate
 import morepath
 from webtest import TestApp as Client
 
@@ -22,8 +21,6 @@ def test_internal():
     @app.json(model=Root, name='internal', internal=True)
     def root_internal(self, request):
         return 'Internal!'
-
-    dectate.commit(app)
 
     c = Client(app())
 
