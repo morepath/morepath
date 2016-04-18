@@ -82,4 +82,3 @@ def _convert_before_after(l):
         return []
     else:
         return [l]
-
