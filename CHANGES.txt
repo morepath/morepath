@@ -45,7 +45,8 @@ CHANGES
 - Document the internals of Morepath, see implementation document.
   This includes docstrings for all the internal APIs.
 
-- The framehack module was merged into ``autosetup``.
+- The framehack module was merged into ``autosetup``. Increased
+  the coverage to this module to 100%.
 
 - New cookiecutter template for Morepath, and added references in the
   documentation for it.
