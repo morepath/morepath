@@ -39,54 +39,90 @@ from .converter import Converter, IDENTITY_CONVERTER
 
 @App.predicate(generic.view, name='model', default=None, index=ClassIndex)
 def model_predicate(obj):
+    """match model argument by class.
+
+    Predicate for :meth:`morepath.App.view`.
+    """
     return obj.__class__
 
 
 @App.predicate_fallback(generic.view, model_predicate)
 def model_not_found(self, request):
+    """if model not matched, HTTP 404.
+
+    Fallback for :meth:`morepath.App.view`.
+    """
     raise HTTPNotFound()
 
 
 @App.predicate(generic.view, name='name', default='', index=KeyIndex,
                after=model_predicate)
 def name_predicate(request):
+    """match name argument with request.view_name
+
+    Predicate for :meth:`morepath.App.view`.
+    """
     return request.view_name
 
 
 @App.predicate_fallback(generic.view, name_predicate)
 def name_not_found(self, request):
+    """if name not matched, HTTP 404
+
+    Fallback for :meth:`morepath.App.view`.
+    """
     raise HTTPNotFound()
 
 
 @App.predicate(generic.view, name='request_method', default='GET',
                index=KeyIndex, after=name_predicate)
 def request_method_predicate(request):
+    """match request method.
+
+    Predicate for :meth:`morepath.App.view`.
+    """
     return request.method
 
 
 @App.predicate_fallback(generic.view, request_method_predicate)
 def method_not_allowed(self, request):
+    """if request predicate not matched, method not allowed.
+
+    Fallback for :meth:`morepath.App.view`.
+    """
     raise HTTPMethodNotAllowed()
 
 
 @App.predicate(generic.view, name='body_model', default=object,
                index=ClassIndex, after=request_method_predicate)
 def body_model_predicate(request):
+    """match request.body_obj with body_model by class.
+
+    Predicate for :meth:`morepath.App.view`.
+    """
     return request.body_obj.__class__
 
 
 @App.predicate_fallback(generic.view, body_model_predicate)
 def body_model_unprocessable(self, request):
+    """if body_model not matched, 422.
+
+    Fallback for :meth:`morepath.App.view`.
+    """
     raise HTTPUnprocessableEntity()
 
 
 @App.converter(type=int)
 def int_converter():
+    """Converter for int.
+    """
     return Converter(int)
 
 
 @App.converter(type=type(u""))
 def unicode_converter():
+    """Converter for text.
+    """
     return IDENTITY_CONVERTER
 
 
@@ -94,6 +130,8 @@ def unicode_converter():
 if type(u"") != type(""): # flake8: noqa
     @App.converter(type=type(""))
     def str_converter():
+        """Converter for non-text str.
+        """
         # XXX do we want to decode/encode unicode?
         return IDENTITY_CONVERTER
 
@@ -108,6 +146,8 @@ def date_encode(d):
 
 @App.converter(type=date)
 def date_converter():
+    """Converter for date.
+    """
     return Converter(date_decode, date_encode)
 
 
@@ -121,11 +161,21 @@ def datetime_encode(d):
 
 @App.converter(type=datetime)
 def datetime_converter():
+    """Converter for datetime.
+    """
     return Converter(datetime_decode, datetime_encode)
 
 
 @App.tween_factory()
 def excview_tween_factory(app, handler):
+    """Exception views.
+
+    If an exception is raised by application code and a view is
+    declared for that exception class, use it.
+
+    If no view can be found, raise it all the way up -- this will be a
+    500 internal server error and an exception logged.
+    """
     def excview_tween(request):
         try:
             response = handler(request)
@@ -150,5 +200,9 @@ def excview_tween_factory(app, handler):
 
 @App.view(model=HTTPException)
 def standard_exception_view(self, model):
+    """We want the webob standard responses for any webob-based HTTP exception.
+
+    Applies to subclasses of :class:`webob.HTTPException`.
+    """
     # webob HTTPException is a response already
     return self
