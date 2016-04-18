@@ -37,4 +37,4 @@ def bytes_(s, encoding='latin-1', errors='strict'):
     """
     if isinstance(s, text_type):  # pragma: no cover
         return s.encode(encoding, errors)
-    return s
+    return s  # pragma: no cover
