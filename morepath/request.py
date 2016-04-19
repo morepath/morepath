@@ -232,7 +232,10 @@ class Request(BaseRequest):
         if app is SAME_APP:
             app = self.app
 
-        info = class_link(model, variables, app)
+        def find(app, model, variables):
+            return class_link(model, variables, app)
+
+        info, app = follow_class_defers(find, app, model, variables)
 
         if info is None:
             raise LinkError("Cannot link to class: %r" % model)
@@ -362,6 +365,36 @@ def follow_defers(find, app, obj):
             return result, app
         seen.add(app)
         app = generic.deferred_link_app(app, obj, lookup=app.lookup)
+    return None, app
+
+
+def follow_class_defers(find, app, model, variables):
+    """Resolve to deferring app for class and find something.
+
+    For ``model`` (a class), look up deferring app as defined by
+    :class:`morepath.App.defer_class_links` recursively. Use the
+    supplied ``find`` function to find something for ``obj`` in that
+    app. When something is found, return what is found and the app
+    where it was found.
+
+    :param find: a function that takes an ``app`` and ``model`` parameter and
+      should return something when it is found, or ``None`` when not.
+    :param app: the :class:`morepath.App` instance to start looking
+    :param model: the model class to find things for.
+    :param variables: dict with variables used to construct class link.
+    :return: a tuple with the thing found (or ``None``) and the app in
+      which it was found.
+    """
+    seen = set()
+    while app is not None:
+        if app in seen:
+            raise LinkError("Circular defer. Cannot class link to: %r" % model)
+        result = find(app, model, variables)
+        if result is not None:
+            return result, app
+        seen.add(app)
+        app = generic.deferred_class_link_app(app, model, variables,
+                                              lookup=app.lookup)
     return None, app
 
 

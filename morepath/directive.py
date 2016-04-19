@@ -923,7 +923,10 @@ class DeferLinksAction(dectate.Action):
         instances of ``model`` is to be handled by a returned mounted
         app if it cannot be handled by the given app
         itself. :meth:`Request.link` and :meth:`Request.view` are
-        affected by this directive.
+        affected by this directive. Note that
+        :meth:`Request.class_link` is **not** affected by this
+        directive, but you can use
+        :meth:`morepath.App.defer_class_links` instead.
 
         The decorated function gets an instance of the application and
         object to link to. It should return another application that
@@ -944,6 +947,48 @@ class DeferLinksAction(dectate.Action):
 
     def perform(self, obj, path_registry):
         path_registry.register_defer_links(self.model, obj)
+
+
+@App.directive('defer_class_links')
+class DeferClassLinksAction(dectate.Action):
+    group_class = PathAction
+    depends = [SettingAction, MountAction]
+
+    filter_convert = PathCompositeAction.filter_convert
+
+    filter_compare = {
+        'model': isbaseclass
+    }
+
+    def __init__(self, model):
+        """Defer class link generation for model class to mounted app.
+
+        With ``defer_class_links`` you can specify that link
+        generation for model classes is to be handled by a returned
+        mounted app if it cannot be handled by the given app
+        itself. :meth:`Request.class_link`, :meth:`Request.link` and
+        :meth:`Request.view` are affected by this directive.
+
+        The decorated function gets an instance of the application,
+        the model class and a variables dict. It should return another
+        application that it knows can create links for this class. The
+        function uses navigation methods on :class:`App` to do so like
+        :meth:`App.parent` and :meth:`App.child`.
+
+        :param model: the class for which we want to defer linking.
+        """
+        self.model = model
+
+    def identifier(self, path_registry):
+        # either implement defer_links for a model or implement
+        # defer_class_links but not both
+        return ('defer_links', self.model)
+
+    def discriminators(self, path_registry):
+        return [('model', self.model)]
+
+    def perform(self, obj, path_registry):
+        path_registry.register_defer_class_links(self.model, obj)
 
 
 tween_factory_id = 0

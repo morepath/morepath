@@ -393,7 +393,6 @@ class Inverse(object):
             absorbed_path = all_variables.pop('absorb')
         else:
             absorbed_path = None
-        assert isinstance(all_variables, dict)
 
         path_variables = self.path_variables(all_variables)
 

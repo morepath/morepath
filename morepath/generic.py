@@ -24,17 +24,41 @@ def path(obj):
     return None
 
 
-@reg.dispatch(reg.match_class('cls', lambda cls: cls))
-def class_path(cls, variables):
+@reg.dispatch(reg.match_class('model', lambda model: model))
+def class_path(model, variables):
     """Get the path for a model class.
 
-    :param cls: model class or :class:`morepath.App` subclass.
+    :param model: model class or :class:`morepath.App` subclass.
     :param variables: dictionary with variables to reconstruct
       the path and URL paramaters from path pattern.
     :return: a tuple with URL path and URL parameters, or ``None`` if
       path cannot be determined.
     """
     return None
+
+
+@reg.dispatch('obj')
+def path_variables(obj, lookup):
+    """Get variables to use in path generation.
+
+    :param obj: model object or :class:`morepath.App` instance.
+    :return: a dict with the variables to use for constructing the path.
+    """
+    return default_path_variables(obj, lookup=lookup)
+
+
+@reg.dispatch('obj')
+def default_path_variables(obj):
+    """Get default variables to use in path generation.
+
+    Invoked if no specific ``path_variables`` is registered.
+
+    :param obj: model object for ::class:`morepath.App` instance.
+    :return: a dict with the variables to use for constructing the path.
+    """
+    # should not reach this point, as defaults should be registered
+    # for each path registration
+    assert False, "This should not happen"
 
 
 @reg.dispatch('obj')
@@ -45,6 +69,20 @@ def deferred_link_app(mounted, obj):
     :param obj: model object to link to.
     :return: instance of :class:`morepath.App` subclass that handles
       link generation for this model, or ``None`` if no app exists
+      that can construct link.
+    """
+    return None
+
+
+@reg.dispatch(reg.match_class('model', lambda model: model))
+def deferred_class_link_app(mounted, model, variables):
+    """Get application used for link generation for a model class.
+
+    :param mounted: current :class:`morepath.App` instance.
+    :param model: model class
+    :param variables: dict of variables used to construct class link
+    :return: instance of :class:`morepath.App` subclass that handles
+      link generation for this model class, or ``None`` if no app exists
       that can construct link.
     """
     return None

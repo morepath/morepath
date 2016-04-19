@@ -742,3 +742,105 @@ def test_defer_link_scenario():
         'link': 'http://localhost/child',
         'view': {'app': 'App'}
     }
+
+
+def test_defer_class_links_without_variables():
+    class Root(morepath.App):
+        pass
+
+    class Sub(morepath.App):
+        pass
+
+    @Root.path(path='')
+    class RootModel(object):
+        pass
+
+    @Root.view(model=RootModel)
+    def root_model_default(self, request):
+        return request.class_link(SubModel)
+
+    @Sub.path(path='')
+    class SubModel(object):
+        pass
+
+    @Root.mount(app=Sub, path='sub')
+    def mount_sub():
+        return Sub()
+
+    @Root.defer_class_links(model=SubModel)
+    def defer_class_links_sub_model(app, model, variables):
+        return app.child(Sub())
+
+    c = Client(Root())
+
+    response = c.get('/')
+    assert response.body == b'http://localhost/sub'
+
+
+def test_defer_class_links_with_variables():
+    class Root(morepath.App):
+        pass
+
+    class Sub(morepath.App):
+        pass
+
+    @Root.path(path='')
+    class RootModel(object):
+        pass
+
+    @Root.view(model=RootModel)
+    def root_model_default(self, request):
+        return request.class_link(SubModel, variables=dict(name='foo'))
+
+    @Sub.path(path='{name}')
+    class SubModel(object):
+        def __init__(self, name):
+            self.name = name
+
+    @Root.mount(app=Sub, path='sub')
+    def mount_sub():
+        return Sub()
+
+    @Root.defer_class_links(model=SubModel)
+    def defer_class_links_sub_model(app, model, variables):
+        return app.child(Sub())
+
+    c = Client(Root())
+
+    response = c.get('/')
+    assert response.body == b'http://localhost/sub/foo'
+
+
+@pytest.mark.xfail
+def test_defer_links_falls_back_on_defer_class_links():
+    class Root(morepath.App):
+        pass
+
+    class Sub(morepath.App):
+        pass
+
+    @Root.path(path='')
+    class RootModel(object):
+        pass
+
+    @Root.view(model=RootModel)
+    def root_model_default(self, request):
+        return request.link(SubModel('foo'))
+
+    @Sub.path(path='{name}')
+    class SubModel(object):
+        def __init__(self, name):
+            self.name = name
+
+    @Root.mount(app=Sub, path='sub')
+    def mount_sub():
+        return Sub()
+
+    @Root.defer_class_links(model=SubModel)
+    def defer_class_links_sub_model(app, model, variables):
+        return app.child(Sub())
+
+    c = Client(Root())
+
+    response = c.get('/')
+    assert response.body == b'http://localhost/sub/foo'
