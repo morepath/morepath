@@ -485,7 +485,9 @@ namely ``20140115`` (and this what Morepath defaults to). But we could
 also use another representation, say ``15/01/2014``.
 
 Let's first see how a string with an ISO compact date can be decoded
-(deserialized, loaded) into a ``date`` object::
+(deserialized, loaded) into a ``date`` object:
+
+.. testcode::
 
   from datetime import date
   from time import mktime, strptime
@@ -493,29 +495,31 @@ Let's first see how a string with an ISO compact date can be decoded
   def date_decode(s):
       return date.fromtimestamp(mktime(strptime(s, '%Y%m%d')))
 
-We can try it out::
+We can try it out:
 
   >>> date_decode('20140115')
   datetime.date(2014, 1, 15)
 
 Note that this function raises a ``ValueError`` if we give it a string
-that cannot be converted into a date::
+that cannot be converted into a date:
 
-  >>> date_decode('blah')
+  >>> date_decode('blah')                # doctest: -IGNORE_EXCEPTION_DETAIL -ELLIPSIS
   Traceback (most recent call last):
      ...
-  ValueError: time data 'blah' does not match format '%Y-%m-%d'
+  ValueError: time data 'blah' does not match format '%Y%m%d'
 
 This is a general principle of decode: a decode function can fail and
 if it does it should raise a ``ValueError``.
 
 We also specify how to encode (serialize, dump) a ``date`` object back
-into a string::
+into a string:
+
+.. testcode::
 
   def date_encode(d):
       return d.strftime('%Y%m%d')
 
-We can try it out too::
+We can try it out too:
 
   >>> date_encode(date(2014, 1, 15))
   '20140115'
