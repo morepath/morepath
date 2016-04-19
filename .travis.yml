@@ -6,10 +6,11 @@ env:
     - TOXENV=py34
     - TOXENV=pypy
     - TOXENV=pep8
+    - TOXENV=coverage
 install:
     - pip install tox
-    - if [ "$TOXENV" = 'py27' ]; then pip install coveralls; fi
+    - if [ "$TOXENV" = 'coverage' ]; then pip install coveralls; fi
 script:
     - tox -e $TOXENV
 after_success:
-    - if [ "$TOXENV" = 'py27' ]; then coveralls; fi
+    - if [ "$TOXENV" = 'coverage' ]; then coveralls; fi
