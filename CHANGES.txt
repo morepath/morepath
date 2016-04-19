@@ -62,6 +62,8 @@ CHANGES
 - Add a test that verifies we can instantiate an app before configuration
   is done. See issue #378 for discussion.
 
+- Started doctesting some of the docs.
+
 0.13.2 (2016-04-13)
 ===================
 
