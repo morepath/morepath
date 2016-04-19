@@ -1,7 +1,6 @@
 from morepath.app import RegRegistry
 from morepath.converter import ConverterRegistry, Converter
 from morepath.link import LinkRegistry
-from morepath import generic
 
 
 def test_path_without_variables():
