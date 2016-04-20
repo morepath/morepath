@@ -46,6 +46,7 @@ from .predicate import PredicateRegistry
 from .path import PathRegistry
 from . import generic
 from .settings import SettingRegistry
+from .link import LinkRegistry
 
 
 def isbaseclass(a, b):
@@ -333,7 +334,7 @@ class ConverterAction(dectate.Action):
 @App.private_action_class
 class PathAction(dectate.Action):
     config = {
-        'path_registry': PathRegistry
+        'path_registry': PathRegistry,
     }
 
     depends = [SettingAction, ConverterAction]

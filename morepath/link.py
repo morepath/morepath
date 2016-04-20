@@ -13,6 +13,7 @@ class PathInfo(object):
 
 class Path(object):
     def __init__(self, path, factory_args, converters, absorb):
+        self.path = path
         traject_path = TrajectPath(path)
         self.interpolation_path = traject_path.interpolation_str()
         self.factory_args = factory_args
@@ -48,6 +49,8 @@ class Path(object):
         return path_variables, parameters
 
     def __call__(self, model, variables):
+        if not isinstance(variables, dict):
+            raise LinkError("Variables is not a dict: %r" % variables)
         extra_parameters = variables.pop('extra_parameters', None)
         if self.absorb:
             absorbed_path = variables.pop('absorb')
@@ -88,12 +91,12 @@ class LinkRegistry(object):
                       converters=None, absorb=False):
         converters = converters or {}
         get_path = Path(path, factory_args, converters, absorb)
+
         self.reg_registry.register_function(generic.class_path, get_path,
                                             model=model)
 
         def default_path_variables(obj):
             return {name: getattr(obj, name) for name in factory_args}
-
         self.reg_registry.register_function(generic.default_path_variables,
                                             default_path_variables,
                                             obj=model)

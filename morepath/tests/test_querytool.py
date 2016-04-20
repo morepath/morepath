@@ -218,7 +218,7 @@ class SubBar(Bar):
     pass
 
 
-def get_variables():
+def get_variables(obj):
     pass
 
 

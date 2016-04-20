@@ -9,7 +9,8 @@ from reg import arginfo
 
 from .app import RegRegistry
 from . import generic
-from .traject import Path, Inverse, TrajectRegistry
+from .link import LinkRegistry
+from .traject import Path, TrajectRegistry
 from .converter import ParameterFactory, ConverterRegistry
 
 
@@ -76,13 +77,15 @@ class PathRegistry(TrajectRegistry):
     """
     factory_arguments = {
         'reg_registry': RegRegistry,
-        'converter_registry': ConverterRegistry
+        'converter_registry': ConverterRegistry,
+        'link_registry': LinkRegistry,
     }
 
-    def __init__(self, reg_registry, converter_registry):
+    def __init__(self, reg_registry, converter_registry, link_registry):
         super(PathRegistry, self).__init__()
         self.reg_registry = reg_registry
         self.converter_registry = converter_registry
+        self.link_registry = link_registry
         self.mounted = {}
         self.named_mounted = {}
 
@@ -110,7 +113,6 @@ class PathRegistry(TrajectRegistry):
         arguments = get_arguments(model_factory, SPECIAL_ARGUMENTS)
         converters = self.converter_registry.argument_and_explicit_converters(
             arguments, converters)
-        path_variables = Path(path).variables()
 
         info = arginfo(model_factory)
         if info.varargs is not None:
@@ -121,6 +123,8 @@ class PathRegistry(TrajectRegistry):
             raise DirectiveError(
                 "Cannot use keywords in function signature: %s" %
                 info.keywords)
+
+        path_variables = Path(path).variables()
         for path_variable in path_variables:
             if path_variable not in arguments:
                 raise DirectiveError(
@@ -133,20 +137,24 @@ class PathRegistry(TrajectRegistry):
         required = set(required)
         parameter_factory = ParameterFactory(parameters, converters, required,
                                              'extra_parameters' in arguments)
-        if variables is None:
-            variables = get_variables_func(arguments, {})
 
         self.add_pattern(path, (model_factory, parameter_factory),
                          converters, absorb)
 
-        inverse = Inverse(path, variables, converters, parameters.keys(),
-                          absorb)
-        self.reg_registry.register_function(generic.path, inverse, obj=model)
+        if variables is not None:
+            self.link_registry.register_path_variables(model, variables)
 
-        def class_path(model, variables):
-            return inverse.with_variables(variables)
-        self.reg_registry.register_function(
-            generic.class_path, class_path, model=model)
+        self.link_registry.register_path(model, path, arguments, converters,
+                                         absorb)
+
+        # inverse = Inverse(path, variables, converters, parameters.keys(),
+        #                   absorb)
+        # self.reg_registry.register_function(generic.path, inverse, obj=model)
+
+        # def class_path(model, variables):
+        #     return inverse.with_variables(variables)
+        # self.reg_registry.register_function(
+        #     generic.class_path, class_path, model=model)
 
     def register_mount(self, app, path, variables, converters, required,
                        get_converters, mount_name, app_factory):

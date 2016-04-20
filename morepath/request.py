@@ -411,8 +411,7 @@ def link(obj, app):
     path_info = generic.path(obj, lookup=app.lookup)
     if path_info is None:
         return None
-    path, parameters = path_info
-    return mounted_link(path, parameters, app)
+    return mounted_link(path_info.path, path_info.parameters, app)
 
 
 def class_link(model, variables, app):
@@ -430,8 +429,7 @@ def class_link(model, variables, app):
                                    lookup=app.lookup)
     if path_info is None:
         return None
-    path, parameters = path_info
-    return mounted_link(path, parameters, app)
+    return mounted_link(path_info.path, path_info.parameters, app)
 
 
 def mounted_link(path, parameters, app):
@@ -453,9 +451,8 @@ def mounted_link(path, parameters, app):
         path_info = generic.path(obj, lookup=app.lookup)
         if path_info is None:
             return None
-        path, params = path_info
-        result.append(path)
-        parameters.update(params)
+        result.append(path_info.path)
+        parameters.update(path_info.parameters)
         obj = app
         app = app.parent
     result.reverse()

@@ -60,7 +60,11 @@ def test_register_path():
     assert obj.id == 'a'
     model = Model()
     model.id = 'b'
-    assert generic.path(model, lookup=app.lookup) == ('b', {})
+
+    info = generic.path(model, lookup=app.lookup)
+
+    assert info.path == 'b'
+    assert info.parameters == {}
 
 
 def test_register_path_with_parameters():
@@ -100,8 +104,11 @@ def test_register_path_with_parameters():
     model = Model()
     model.id = 'b'
     model.param = 'other'
-    assert generic.path(model, lookup=mount.lookup) == (
-        'b', {'param': ['other']})
+
+    info = generic.path(model, lookup=mount.lookup)
+
+    assert info.path == 'b'
+    assert info.parameters == {'param': ['other']}
 
 
 def test_traject_path_with_leading_slash():
