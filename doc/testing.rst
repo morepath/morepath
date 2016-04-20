@@ -6,11 +6,13 @@ Morepath app.  We assume you've already installed Morepath; if not,
 see the :doc:`installation` section.
 
 In order to carry out the test we'll use WebTest_, which you'll need
-to have installed:
+to have installed. You'll want to have a test automation tool like
+pytest_ too.  The :ref:`cookiecutter template <cookiecutter>` installs
+both for you, alternatively you can install both with pip:
 
 .. code-block:: sh
 
-  $ pip install webtest
+  $ pip install webtest pytest
 
 
 Testing a basic app
