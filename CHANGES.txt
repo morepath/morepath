@@ -94,6 +94,10 @@ CHANGES
   ``Request.link()``.  This is an alternative to ``defer_links``,
   which cannot support ``Request.class_link``.
 
+- Morepath now has extension API docs that are useful when you want to
+  create your own directive and build on one of Morepath's registries
+  or directives.
+
 0.13.2 (2016-04-13)
 ===================
 
