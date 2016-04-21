@@ -172,7 +172,7 @@ class Request(BaseRequest):
         if app is SAME_APP:
             app = self.app
 
-        info = app.get_deferred_mounted_path(obj)
+        info = app._get_deferred_mounted_path(obj)
 
         if info is None:
             raise LinkError("Cannot link to: %r" % obj)
@@ -221,7 +221,7 @@ class Request(BaseRequest):
         if app is SAME_APP:
             app = self.app
 
-        info = app.get_deferred_mounted_class_path(model, variables)
+        info = app._get_deferred_mounted_class_path(model, variables)
 
         if info is None:
             raise LinkError("Cannot link to class: %r" % model)

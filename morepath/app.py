@@ -225,7 +225,7 @@ class App(dectate.App):
                 discovery)
         return discovery
 
-    def get_class_path(self, model, variables):
+    def _get_class_path(self, model, variables):
         """Path for a model class and variables.
 
         :param model: model class
@@ -234,16 +234,16 @@ class App(dectate.App):
         """
         return generic.class_path(model, variables, lookup=self.lookup)
 
-    def get_path(self, obj):
+    def _get_path(self, obj):
         """Path for a model obj.
 
         :param obj: model object
         :return: a :class:`morepath.link.PathInfo` with path within this app.
         """
-        return self.get_class_path(
+        return self._get_class_path(
             obj.__class__, generic.path_variables(obj, lookup=self.lookup))
 
-    def get_mounted_path(self, obj):
+    def _get_mounted_path(self, obj):
         """Path for model obj including mounted path.
 
         :param obj: model object (or :class:`morepath.App` instance).
@@ -254,7 +254,7 @@ class App(dectate.App):
         parameters = {}
         app = self
         while app is not None:
-            info = app.get_path(obj)
+            info = app._get_path(obj)
             if info is None:
                 return None
             paths.append(info.path)
@@ -264,7 +264,7 @@ class App(dectate.App):
         paths.reverse()
         return PathInfo('/'.join(paths).strip('/'), parameters)
 
-    def get_mounted_class_path(self, model, variables):
+    def _get_mounted_class_path(self, model, variables):
         """Path for model class and variables including mounted path.
 
         :param model: model class
@@ -272,12 +272,12 @@ class App(dectate.App):
         :return: a :class:`morepath.link.PathInfo` with fully resolved
           path in mounts.
         """
-        info = self.get_class_path(model, variables)
+        info = self._get_class_path(model, variables)
         if info is None:
             return None
         if self.parent is None:
             return info
-        mount_info = self.parent.get_mounted_path(self)
+        mount_info = self.parent._get_mounted_path(self)
         path = mount_info.path
         if info.path:
             path += '/' + info.path
@@ -285,7 +285,7 @@ class App(dectate.App):
         parameters.update(mount_info.parameters)
         return PathInfo(path, parameters)
 
-    def get_deferred_mounted_path(self, obj):
+    def _get_deferred_mounted_path(self, obj):
         """Path for obj taking into account deferring apps.
 
         Like :meth:`morepath.App.get_mounted_path` but takes
@@ -294,11 +294,11 @@ class App(dectate.App):
         account.
         """
         def find(app, obj):
-            return app.get_mounted_path(obj)
+            return app._get_mounted_path(obj)
         info, app = follow_defers(find, self, obj)
         return info
 
-    def get_deferred_mounted_class_path(self, model, variables):
+    def _get_deferred_mounted_class_path(self, model, variables):
         """Path for model and variables taking into account deferring apps.
 
         Like :meth:`morepath.App.get_mounted_class_path` but takes
@@ -306,6 +306,6 @@ class App(dectate.App):
         account.
         """
         def find(app, model, variables):
-            return app.get_mounted_class_path(model, variables)
+            return app._get_mounted_class_path(model, variables)
         info, app = follow_class_defers(find, self, model, variables)
         return info

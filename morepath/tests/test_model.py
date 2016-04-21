@@ -60,7 +60,7 @@ def test_register_path():
     model = Model()
     model.id = 'b'
 
-    info = app.get_path(model)
+    info = app._get_path(model)
 
     assert info.path == 'b'
     assert info.parameters == {}
@@ -104,7 +104,7 @@ def test_register_path_with_parameters():
     model.id = 'b'
     model.param = 'other'
 
-    info = mount.get_path(model)
+    info = mount._get_path(model)
 
     assert info.path == 'b'
     assert info.parameters == {'param': ['other']}
