@@ -1,3 +1,9 @@
+"""Registration of links.
+
+This registers the appropriate generic functions so that
+the path generation code on :class:`morepath.App` can work.
+"""
+
 try:
     from urllib.parse import urlencode, quote
 except ImportError:
@@ -12,11 +18,24 @@ from .traject import Path as TrajectPath
 
 
 class PathInfo(object):
+    """Abstract representation of a path.
+
+    :param path: a str representing a path
+    :param parameters: a dict representing URL parameters.
+    """
     def __init__(self, path, parameters):
         self.path = path
         self.parameters = parameters
 
     def url(self, prefix, name):
+        """Turn a path into a URL.
+
+        :param prefix: the URL prefix to put in front of the path. This
+          should contain something like ``http://localhost``, so the URL
+          without the path or parameter information.
+        :param name: additional view name to postfix to the path.
+        :return: a URL with the prefix, the name and URL encoded parameters.
+        """
         parts = []
         if self.path:
             # explicitly define safe with ~ for a workaround
@@ -37,11 +56,20 @@ class PathInfo(object):
 
 
 class Path(object):
+    """Registered path for linking purposes.
+
+    :param path: the route.
+    :param factory_args: the arguments for the factory function used to
+      construct this path. This is used to determine the URL parameters
+      for the path.
+    :param converters: converters dictionary that is used to represent
+      variables in the path.
+    :param absorb: bool indicating this is an absorbing path.
+    """
     def __init__(self, path, factory_args, converters, absorb):
         self.path = path
         traject_path = TrajectPath(path)
         self.interpolation_path = traject_path.interpolation_str()
-        self.factory_args = factory_args
         path_variables = traject_path.variables()
         self.parameter_names = {name for name in factory_args if
                                 name not in path_variables}
@@ -49,6 +77,13 @@ class Path(object):
         self.absorb = absorb
 
     def get_variables_and_parameters(self, variables, extra_parameters):
+        """Get converted variables and parameters.
+
+        :param variables: dict of variables to use in the path.
+        :param extra_parameters: dict of additional parameters to use.
+        :return: ``variables, parameters`` tuple with dicts of converted
+          path variables and converted URL parameters.
+        """
         converters = self.converters
         parameter_names = self.parameter_names
         path_variables = {}
@@ -74,6 +109,15 @@ class Path(object):
         return path_variables, parameters
 
     def __call__(self, model, variables):
+        """Get path info given model and variables.
+
+        :param model: model class. Not actually used in the
+          implementation but used for dispatch in
+          :func:`generic.class_path`.
+        :param variables: dict with the variables used in the path. each
+          argument to the factory function should be represented.
+        :return: :class:`PathInfo` instance representing the path.
+        """
         if not isinstance(variables, dict):
             raise LinkError("Variables is not a dict: %r" % variables)
         extra_parameters = variables.pop('extra_parameters', None)
@@ -98,6 +142,8 @@ class Path(object):
 
 
 class LinkRegistry(object):
+    """Registry of links that can be generated.
+    """
     factory_arguments = {
         'reg_registry': RegRegistry,
         'converter_registry': ConverterRegistry
@@ -108,12 +154,27 @@ class LinkRegistry(object):
         self.converter_registry = converter_registry
 
     def register_path_variables(self, model, func):
+        """Register variables function for a model class.
+
+        :param model: model class
+        :param func: function that gets a model instance argument and
+          returns a variables dict.
+        """
         self.reg_registry.register_function(generic.path_variables,
                                             func,
                                             obj=model)
 
     def register_path(self, model, path, factory_args,
                       converters=None, absorb=False):
+        """Register variables function for a model class.
+
+        :param model: model class
+        :param path: the route
+        :param factory_args: a list of the arguments of the factory
+          function for this path.
+        :param converters: a converters dict.
+        :param absorb: bool, if true this is an absorbing path.
+        """
         converters = converters or {}
         get_path = Path(path, factory_args, converters, absorb)
 

@@ -226,13 +226,30 @@ class App(dectate.App):
         return discovery
 
     def get_class_path(self, model, variables):
+        """Path for a model class and variables.
+
+        :param model: model class
+        :param variables: dict with variables to use in the path
+        :return: a :class:`morepath.link.PathInfo` with path within this app.
+        """
         return generic.class_path(model, variables, lookup=self.lookup)
 
     def get_path(self, obj):
+        """Path for a model obj.
+
+        :param obj: model object
+        :return: a :class:`morepath.link.PathInfo` with path within this app.
+        """
         return self.get_class_path(
             obj.__class__, generic.path_variables(obj, lookup=self.lookup))
 
     def get_mounted_path(self, obj):
+        """Path for model obj including mounted path.
+
+        :param obj: model object (or :class:`morepath.App` instance).
+        :return: a :class:`morepath.link.PathInfo` with fully resolved
+          path in mounts.
+        """
         paths = []
         parameters = {}
         app = self
@@ -248,6 +265,13 @@ class App(dectate.App):
         return PathInfo('/'.join(paths).strip('/'), parameters)
 
     def get_mounted_class_path(self, model, variables):
+        """Path for model class and variables including mounted path.
+
+        :param model: model class
+        :param variables: dict with variables to use in the path
+        :return: a :class:`morepath.link.PathInfo` with fully resolved
+          path in mounts.
+        """
         info = self.get_class_path(model, variables)
         if info is None:
             return None
@@ -262,12 +286,25 @@ class App(dectate.App):
         return PathInfo(path, parameters)
 
     def get_deferred_mounted_path(self, obj):
+        """Path for obj taking into account deferring apps.
+
+        Like :meth:`morepath.App.get_mounted_path` but takes
+        :meth:`morepath.App.defer_links` and
+        :meth:`morepath.App.defer_class_links` directives into
+        account.
+        """
         def find(app, obj):
             return app.get_mounted_path(obj)
         info, app = follow_defers(find, self, obj)
         return info
 
     def get_deferred_mounted_class_path(self, model, variables):
+        """Path for model and variables taking into account deferring apps.
+
+        Like :meth:`morepath.App.get_mounted_class_path` but takes
+        :meth:`morepath.App.defer_class_links` directive into
+        account.
+        """
         def find(app, model, variables):
             return app.get_mounted_class_path(model, variables)
         info, app = follow_class_defers(find, self, model, variables)
