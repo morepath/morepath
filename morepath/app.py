@@ -23,7 +23,7 @@ from . import compat
 from .implicit import set_implicit
 from .reify import reify
 from . import generic
-from .link import PathInfo
+from .path import PathInfo
 from .error import LinkError
 
 

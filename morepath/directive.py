@@ -947,10 +947,7 @@ class DeferLinksAction(dectate.Action):
         return [('model', self.model)]
 
     def perform(self, obj, path_registry):
-        # bit ugly but argument has to be path_registry to be in the
-        # same group as the path directive, which it should be
-        # to support conflicts
-        path_registry.link_registry.register_defer_links(self.model, obj)
+        path_registry.register_defer_links(self.model, obj)
 
 
 @App.directive('defer_class_links')
@@ -1004,9 +1001,8 @@ class DeferClassLinksAction(dectate.Action):
         return [('model', self.model)]
 
     def perform(self, obj, path_registry):
-        path_registry.link_registry.register_defer_class_links(
-            self.model, self.variables,
-            obj)
+        path_registry.register_defer_class_links(
+            self.model, self.variables, obj)
 
 
 tween_factory_id = 0
