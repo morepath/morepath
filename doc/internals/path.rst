@@ -6,8 +6,16 @@
 .. autoclass:: PathRegistry
   :members:
 
+.. autoclass:: PathInfo
+  :members:
+
+.. autoclass:: Path
+  :members:
+  :special-members:
+  :exclude-members: __weakref__
+
 .. autofunction:: get_arguments
 
 .. autofunction:: filter_arguments
 
-.. autofunction:: get_variables_func
+.. autofunction:: fixed_urlencode

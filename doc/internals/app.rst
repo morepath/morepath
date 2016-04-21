@@ -3,5 +3,3 @@
 
 .. automodule:: morepath.app
 
-.. autoclass:: RegRegistry
-  :members:

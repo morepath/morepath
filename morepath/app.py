@@ -10,10 +10,9 @@ contains the actual configurations.
 
 To actually serve requests it uses :func:`morepath.publish.publish`.
 
-We also define a Reg registry that is used for generic function
-configuration.
-
 .. _WSGI: https://www.python.org/dev/peps/pep-3333
+
+Entirely documented in :class:`morepath.App` in the public API.
 """
 
 import dectate
@@ -231,7 +230,7 @@ class App(dectate.App):
 
         :param model: model class
         :param variables: dict with variables to use in the path
-        :return: a :class:`morepath.link.PathInfo` with path within this app.
+        :return: a :class:`morepath.path.PathInfo` with path within this app.
         """
         return generic.class_path(model, variables, lookup=self.lookup)
 
@@ -239,7 +238,7 @@ class App(dectate.App):
         """Path for a model obj.
 
         :param obj: model object
-        :return: a :class:`morepath.link.PathInfo` with path within this app.
+        :return: a :class:`morepath.path.PathInfo` with path within this app.
         """
         return self._get_class_path(
             obj.__class__, generic.path_variables(obj, lookup=self.lookup))
@@ -248,7 +247,7 @@ class App(dectate.App):
         """Path for model obj including mounted path.
 
         :param obj: model object (or :class:`morepath.App` instance).
-        :return: a :class:`morepath.link.PathInfo` with fully resolved
+        :return: a :class:`morepath.path.PathInfo` with fully resolved
           path in mounts.
         """
         paths = []
@@ -270,7 +269,7 @@ class App(dectate.App):
 
         :param model: model class
         :param variables: dict with variables to use in the path
-        :return: a :class:`morepath.link.PathInfo` with fully resolved
+        :return: a :class:`morepath.path.PathInfo` with fully resolved
           path in mounts.
         """
         info = self._get_class_path(model, variables)

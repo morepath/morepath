@@ -1,3 +1,8 @@
+"""
+We define a Reg registry that is used for generic function
+configuration that provides a special lookup that caches.
+"""
+
 from reg import CachingKeyLookup, Registry
 
 from .reify import reify

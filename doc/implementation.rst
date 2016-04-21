@@ -202,6 +202,7 @@ click on the module headings to see the internal APIs. See also
    internals/app
    internals/authentication
    internals/autosetup
+   internals/cachingreg
    internals/compat
    internals/converter
    internals/core
@@ -220,6 +221,6 @@ click on the module headings to see the internal APIs. See also
    internals/tween
    internals/view
 
-:mod:`morepath.error`, :mod:`morepath.pdbsupport` and
-:mod:`morepath.run` are documented entirely in the public API.
+:mod:`morepath.error` and `morepath.pdbsupport` are documented
+as part of the public API.
 

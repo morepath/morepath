@@ -1,6 +1,6 @@
 """Morepath request implementation.
 
-Mostly documented in :class:`morepath.Request` and
+Entirely documented in :class:`morepath.Request` and
 :class:`morepath.Response` in the public API.
 """
 
