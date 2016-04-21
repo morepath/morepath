@@ -130,7 +130,7 @@ def test_class_path_variables_with_converters(info):
         def __init__(self, value):
             self.value = value
     r.register_inverse_path(model=Foo,
-                        path='/foos/{value}',
+                            path='/foos/{value}',
                             factory_args=set(['value']),
                             converters={'value': Converter(int)})
     info = app._get_class_path(Foo, {'value': 1})
