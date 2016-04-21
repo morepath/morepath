@@ -23,6 +23,18 @@ CHANGES
   ``morepath.security`` won't break yet, you should stop importing
   from it and import directly from ``morepath`` instead.
 
+- **Breaking change** Extensions that imported ``RegRegistry`` directly
+  from ``morepath.app`` are going to be broken. This kind of import::
+
+    from morepath.app import RegRegistry
+
+  needs to become::
+
+    from morepath.cachingreg import RegRegistry
+
+  This change was made to avoid circular imports in Morepath, and
+  because ``App`` did not directly depend on ``RegRegistry`` anymore.
+
 - Introduce a new ``commit`` method on ``App`` that commits the App
   and also recursively commits all mounted apps. This is more explicit
   than ``autocommit`` and less verbose than using the lower-level
@@ -63,6 +75,16 @@ CHANGES
   is done. See issue #378 for discussion.
 
 - Started doctesting some of the docs.
+
+- Renamed ``RegRegistry.lookup`` to ``RegRegistry.caching_lookup`` as
+  the ``lookup`` property was shadowing a lookup property on
+  ``reg.Registry``.  This wasn't causing bugs but made debugging
+  harder.
+
+- Introduce a new ``defer_class_links`` directive that lets you defer
+  link generation using ``Request.class_link()`` in addition to
+  ``Request.link()``.  This is an alternative to ``defer_links``,
+  which cannot support ``Request.class_link``.
 
 0.13.2 (2016-04-13)
 ===================

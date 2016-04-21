@@ -10,7 +10,7 @@ directive.
 
 from reg import mapply
 
-from .app import RegRegistry
+from .cachingreg import RegRegistry
 from .settings import SettingRegistry
 
 

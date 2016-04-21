@@ -35,7 +35,8 @@ configuration registries which are attached to the
 import os
 import dectate
 
-from .app import App, RegRegistry
+from .app import App
+from .cachingreg import RegRegistry
 from .authentication import Identity, NoIdentity, IdentityPolicyRegistry
 from .view import render_view, render_json, render_html, ViewRegistry
 from .traject import Path
@@ -46,7 +47,6 @@ from .predicate import PredicateRegistry
 from .path import PathRegistry
 from . import generic
 from .settings import SettingRegistry
-from .link import LinkRegistry
 
 
 def isbaseclass(a, b):
@@ -947,7 +947,10 @@ class DeferLinksAction(dectate.Action):
         return [('model', self.model)]
 
     def perform(self, obj, path_registry):
-        path_registry.register_defer_links(self.model, obj)
+        # bit ugly but argument has to be path_registry to be in the
+        # same group as the path directive, which it should be
+        # to support conflicts
+        path_registry.link_registry.register_defer_links(self.model, obj)
 
 
 @App.directive('defer_class_links')
@@ -961,7 +964,7 @@ class DeferClassLinksAction(dectate.Action):
         'model': isbaseclass
     }
 
-    def __init__(self, model):
+    def __init__(self, model, variables):
         """Defer class link generation for model class to mounted app.
 
         With ``defer_class_links`` you can specify that link
@@ -976,9 +979,21 @@ class DeferClassLinksAction(dectate.Action):
         function uses navigation methods on :class:`App` to do so like
         :meth:`App.parent` and :meth:`App.child`.
 
+        You also have to supply a ``variables`` argument to describe
+        how to get the variables from an instance -- this should be
+        return the same variables as needed by the ``path`` directive
+        in the app you are deferring to. This allows
+        ``defer_class_links`` to function as ``defer_links`` for model
+        objects as well.
+
         :param model: the class for which we want to defer linking.
+        :param variables: a function that given a model object can
+          construct the variables used in the path (including any URL
+          parameters).
+
         """
         self.model = model
+        self.variables = variables
 
     def identifier(self, path_registry):
         # either implement defer_links for a model or implement
@@ -989,7 +1004,9 @@ class DeferClassLinksAction(dectate.Action):
         return [('model', self.model)]
 
     def perform(self, obj, path_registry):
-        path_registry.register_defer_class_links(self.model, obj)
+        path_registry.link_registry.register_defer_class_links(
+            self.model, self.variables,
+            obj)
 
 
 tween_factory_id = 0

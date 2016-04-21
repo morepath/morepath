@@ -7,7 +7,6 @@ except ImportError:
 from morepath.path import get_arguments
 from morepath.converter import Converter, IDENTITY_CONVERTER, ConverterRegistry
 import morepath
-from morepath import generic
 from morepath.publish import consume as traject_consume
 import webob
 
@@ -61,7 +60,7 @@ def test_register_path():
     model = Model()
     model.id = 'b'
 
-    info = generic.path(model, lookup=app.lookup)
+    info = app.get_path(model)
 
     assert info.path == 'b'
     assert info.parameters == {}
@@ -105,7 +104,7 @@ def test_register_path_with_parameters():
     model.id = 'b'
     model.param = 'other'
 
-    info = generic.path(model, lookup=mount.lookup)
+    info = mount.get_path(model)
 
     assert info.path == 'b'
     assert info.parameters == {'param': ['other']}

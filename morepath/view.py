@@ -16,7 +16,7 @@ from webob import Response as BaseResponse
 
 from . import generic
 from .request import Response
-from .app import RegRegistry
+from .cachingreg import RegRegistry
 from .template import TemplateEngineRegistry
 
 

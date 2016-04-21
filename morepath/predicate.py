@@ -9,7 +9,7 @@ predicates.
 """
 
 from reg import Predicate, KeyExtractor
-from .app import RegRegistry
+from .cachingreg import RegRegistry
 from .toposort import toposorted, Info
 
 

@@ -64,9 +64,9 @@ def test_predicate_fallback():
         core.body_model_unprocessable
     ]
 
-    # there aren't any predicates for path
+    # there aren't any predicates for class_path
     r = objects(dectate.query_app(App, 'predicate_fallback',
-                                  dispatch='morepath.generic.path'))
+                                  dispatch='morepath.generic.class_path'))
     assert r == []
 
     r = objects(dectate.query_app(App, 'predicate_fallback',
@@ -99,9 +99,9 @@ def test_predicate():
         core.body_model_predicate
     ]
 
-    # there aren't any predicates for path
+    # there aren't any predicates for class_path
     r = objects(dectate.query_app(App, 'predicate',
-                                  dispatch='morepath.generic.path'))
+                                  dispatch='morepath.generic.class_path'))
     assert r == []
 
     r = objects(dectate.query_app(App, 'predicate',

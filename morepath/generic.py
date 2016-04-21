@@ -12,21 +12,6 @@ implementations using :meth:`reg.Registry.register_function`.
 import reg
 from webob.exc import HTTPNotFound
 
-from .error import LinkError
-
-
-@reg.dispatch('obj')
-def path(obj, lookup):
-    """Get the path and parameters for a model object in its own application.
-
-    :param obj: model object or :class:`morepath.App` instance.
-    :return: a tuple with a URL path and URL parameters, or ``None`` if
-      path cannot be determined.
-    """
-    return class_path(obj.__class__,
-                      path_variables(obj, lookup=lookup),
-                      lookup=lookup)
-
 
 @reg.dispatch(reg.match_class('model', lambda model: model))
 def class_path(model, variables):
@@ -46,7 +31,8 @@ def path_variables(obj, lookup):
     """Get variables to use in path generation.
 
     :param obj: model object or :class:`morepath.App` instance.
-    :return: a dict with the variables to use for constructing the path.
+    :return: a dict with the variables to use for constructing the path,
+      or ``None`` if no such dict can be found.
     """
     return default_path_variables(obj, lookup=lookup)
 
@@ -58,9 +44,10 @@ def default_path_variables(obj):
     Invoked if no specific ``path_variables`` is registered.
 
     :param obj: model object for ::class:`morepath.App` instance.
-    :return: a dict with the variables to use for constructing the path.
+    :return: a dict with the variables to use for constructing the path, or
+      ``None`` if no such dict can be found.
     """
-    raise LinkError("Cannot determine default path variables for %r: " % obj)
+    return None
 
 
 @reg.dispatch('obj')

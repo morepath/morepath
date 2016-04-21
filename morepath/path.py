@@ -7,7 +7,7 @@ This builds on :mod:`morepath.traject`.
 from dectate import DirectiveError
 from reg import arginfo
 
-from .app import RegRegistry
+from .cachingreg import RegRegistry
 from . import generic
 from .link import LinkRegistry
 from .traject import Path, TrajectRegistry
@@ -147,15 +147,6 @@ class PathRegistry(TrajectRegistry):
         self.link_registry.register_path(model, path, arguments, converters,
                                          absorb)
 
-        # inverse = Inverse(path, variables, converters, parameters.keys(),
-        #                   absorb)
-        # self.reg_registry.register_function(generic.path, inverse, obj=model)
-
-        # def class_path(model, variables):
-        #     return inverse.with_variables(variables)
-        # self.reg_registry.register_function(
-        #     generic.class_path, class_path, model=model)
-
     def register_mount(self, app, path, variables, converters, required,
                        get_converters, mount_name, app_factory):
         """Register a mounted app.
@@ -180,31 +171,3 @@ class PathRegistry(TrajectRegistry):
         self.mounted[app] = app_factory
         mount_name = mount_name or path
         self.named_mounted[mount_name] = app_factory
-
-    def register_defer_links(self, model, app_factory):
-        """Register factory for app to defer links to.
-
-        See :meth:`morepath.App.defer_links` for more information.
-
-        :param model: model class to defer links for.
-        :param app_factory: function that takes app instance and model
-          object as arguments and should return another app instance that
-          does the link generation.
-        """
-        self.reg_registry.register_function(
-            generic.deferred_link_app, app_factory,
-            obj=model)
-
-    def register_defer_class_links(self, model, app_factory):
-        """Register factory for app to defer class links to.
-
-        See :meth:`morepath.App.defer_class_links` for more information.
-
-        :param model: model class to defer links for.
-        :param app_factory: function that model class, app instance
-          and variables dict as arguments and should return another
-          app instance that does the link generation.
-        """
-        self.reg_registry.register_function(
-            generic.deferred_class_link_app, app_factory,
-            model=model)

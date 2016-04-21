@@ -17,43 +17,13 @@ configuration.
 """
 
 import dectate
-from reg import CachingKeyLookup, Registry
 
 from .request import Request
 from . import compat
 from .implicit import set_implicit
 from .reify import reify
-
-
-COMPONENT_CACHE_SIZE = 5000
-ALL_CACHE_SIZE = 5000
-FALLBACK_CACHE_SIZE = 5000
-
-
-class RegRegistry(Registry):
-    """A :class:`reg.Registry` with a cached lookup.
-
-    Morepath uses Reg to implement generic function lookups which
-    are used for various aspects of configuration, in particular
-    view lookup.
-
-    We cache the lookup using a :class:`reg.CachingKeyLookup` so that
-    generic function lookups are faster.
-    """
-    @reify
-    def lookup(self):
-        """Cached :class:`reg.Lookup`
-
-        Property is reified with :func:`morepath.reify.reify` so cache
-        is shared between :class:`morepath.App` instances that use
-        this registry.
-
-        """
-        return CachingKeyLookup(
-            self,
-            COMPONENT_CACHE_SIZE,
-            ALL_CACHE_SIZE,
-            FALLBACK_CACHE_SIZE).lookup()
+from . import generic
+from .link import PathInfo, follow_defers, follow_class_defers
 
 
 class App(dectate.App):
@@ -108,7 +78,7 @@ class App(dectate.App):
         # ensure that each instance of App uses the same cache.
         if not self.is_committed():
             self.commit()
-        return self.config.reg_registry.lookup
+        return self.config.reg_registry.caching_lookup
 
     def set_implicit(self):
         set_implicit(self.lookup)
@@ -245,7 +215,6 @@ class App(dectate.App):
 
         :return: the set of discovered apps.
         """
-
         discovery = set()
         found = {cls}
         while found:
@@ -255,3 +224,51 @@ class App(dectate.App):
                 {c for a in found for c in a.config.path_registry.mounted} -
                 discovery)
         return discovery
+
+    def get_class_path(self, model, variables):
+        return generic.class_path(model, variables, lookup=self.lookup)
+
+    def get_path(self, obj):
+        return self.get_class_path(
+            obj.__class__, generic.path_variables(obj, lookup=self.lookup))
+
+    def get_mounted_path(self, obj):
+        paths = []
+        parameters = {}
+        app = self
+        while app is not None:
+            info = app.get_path(obj)
+            if info is None:
+                return None
+            paths.append(info.path)
+            parameters.update(info.parameters)
+            obj = app
+            app = app.parent
+        paths.reverse()
+        return PathInfo('/'.join(paths).strip('/'), parameters)
+
+    def get_mounted_class_path(self, model, variables):
+        info = self.get_class_path(model, variables)
+        if info is None:
+            return None
+        if self.parent is None:
+            return info
+        mount_info = self.parent.get_mounted_path(self)
+        path = mount_info.path
+        if info.path:
+            path += '/' + info.path
+        parameters = info.parameters.copy()
+        parameters.update(mount_info.parameters)
+        return PathInfo(path, parameters)
+
+    def get_deferred_mounted_path(self, obj):
+        def find(app, obj):
+            return app.get_mounted_path(obj)
+        info, app = follow_defers(find, self, obj)
+        return info
+
+    def get_deferred_mounted_class_path(self, model, variables):
+        def find(app, model, variables):
+            return app.get_mounted_class_path(model, variables)
+        info, app = follow_class_defers(find, self, model, variables)
+        return info

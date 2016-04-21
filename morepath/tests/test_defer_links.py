@@ -767,7 +767,7 @@ def test_defer_class_links_without_variables():
     def mount_sub():
         return Sub()
 
-    @Root.defer_class_links(model=SubModel)
+    @Root.defer_class_links(model=SubModel, variables=lambda obj: {})
     def defer_class_links_sub_model(app, model, variables):
         return app.child(Sub())
 
@@ -801,7 +801,8 @@ def test_defer_class_links_with_variables():
     def mount_sub():
         return Sub()
 
-    @Root.defer_class_links(model=SubModel)
+    @Root.defer_class_links(model=SubModel,
+                            variables=lambda obj: {'name': obj.name})
     def defer_class_links_sub_model(app, model, variables):
         return app.child(Sub())
 
@@ -811,7 +812,6 @@ def test_defer_class_links_with_variables():
     assert response.body == b'http://localhost/sub/foo'
 
 
-@pytest.mark.xfail
 def test_defer_links_falls_back_on_defer_class_links():
     class Root(morepath.App):
         pass
@@ -836,7 +836,8 @@ def test_defer_links_falls_back_on_defer_class_links():
     def mount_sub():
         return Sub()
 
-    @Root.defer_class_links(model=SubModel)
+    @Root.defer_class_links(model=SubModel,
+                            variables=lambda obj: {'name': obj.name})
     def defer_class_links_sub_model(app, model, variables):
         return app.child(Sub())
 

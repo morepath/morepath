@@ -1,10 +1,23 @@
-from morepath.app import RegRegistry
-from morepath.converter import ConverterRegistry, Converter
-from morepath.link import LinkRegistry
+import pytest
+
+from morepath.app import App
+from morepath.converter import Converter
 
 
-def test_path_without_variables():
-    r = LinkRegistry(RegRegistry(), ConverterRegistry())
+@pytest.fixture
+def info():
+    class MyApp(App):
+        pass
+
+    MyApp.commit()
+
+    app = MyApp()
+    r = app.config.link_registry
+    return app, r
+
+
+def test_path_without_variables(info):
+    app, r = info
 
     class Foo(object):
         pass
@@ -12,13 +25,13 @@ def test_path_without_variables():
     r.register_path(model=Foo,
                     path='/',
                     factory_args=set())
-    info = r.get_path(Foo())
+    info = app.get_path(Foo())
     assert info.path == ''
     assert info.parameters == {}
 
 
-def test_path_with_variables():
-    r = LinkRegistry(RegRegistry(), ConverterRegistry())
+def test_path_with_variables(info):
+    app, r = info
 
     class Foo(object):
         def __init__(self, name):
@@ -29,13 +42,13 @@ def test_path_with_variables():
     r.register_path(model=Foo,
                     path='/foos/{name}',
                     factory_args=set(['name']))
-    info = r.get_path(Foo('a'))
+    info = app.get_path(Foo('a'))
     assert info.path == 'foos/a'
     assert info.parameters == {}
 
 
-def test_path_with_default_variables():
-    r = LinkRegistry(RegRegistry(), ConverterRegistry())
+def test_path_with_default_variables(info):
+    app, r = info
 
     class Foo(object):
         def __init__(self, name):
@@ -44,13 +57,13 @@ def test_path_with_default_variables():
     r.register_path(model=Foo,
                     path='/foos/{name}',
                     factory_args=set(['name']))
-    info = r.get_path(Foo('a'))
+    info = app.get_path(Foo('a'))
     assert info.path == 'foos/a'
     assert info.parameters == {}
 
 
-def test_path_with_parameters():
-    r = LinkRegistry(RegRegistry(), ConverterRegistry())
+def test_path_with_parameters(info):
+    app, r = info
 
     class Foo(object):
         def __init__(self, name):
@@ -61,13 +74,13 @@ def test_path_with_parameters():
     r.register_path(model=Foo,
                     path='/foos',
                     factory_args=set(['name']))
-    info = r.get_path(Foo('a'))
+    info = app.get_path(Foo('a'))
     assert info.path == 'foos'
     assert info.parameters == {'name': ['a']}
 
 
-def test_class_path_without_variables():
-    r = LinkRegistry(RegRegistry(), ConverterRegistry())
+def test_class_path_without_variables(info):
+    app, r = info
 
     class Foo(object):
         pass
@@ -75,13 +88,13 @@ def test_class_path_without_variables():
     r.register_path(model=Foo,
                     path='/',
                     factory_args=set())
-    info = r.get_class_path(Foo, {})
+    info = app.get_class_path(Foo, {})
     assert info.path == ''
     assert info.parameters == {}
 
 
-def test_class_path_with_variables():
-    r = LinkRegistry(RegRegistry(), ConverterRegistry())
+def test_class_path_with_variables(info):
+    app, r = info
 
     class Foo(object):
         def __init__(self, name):
@@ -90,13 +103,13 @@ def test_class_path_with_variables():
     r.register_path(model=Foo,
                     path='/foos/{name}',
                     factory_args=set(['name']))
-    info = r.get_class_path(Foo, {'name': 'a'})
+    info = app.get_class_path(Foo, {'name': 'a'})
     assert info.path == 'foos/a'
     assert info.parameters == {}
 
 
-def test_class_path_with_parameters():
-    r = LinkRegistry(RegRegistry(), ConverterRegistry())
+def test_class_path_with_parameters(info):
+    app, r = info
 
     class Foo(object):
         def __init__(self, name):
@@ -105,13 +118,13 @@ def test_class_path_with_parameters():
     r.register_path(model=Foo,
                     path='/foos',
                     factory_args=set(['name']))
-    info = r.get_class_path(Foo, {'name': 'a'})
+    info = app.get_class_path(Foo, {'name': 'a'})
     assert info.path == 'foos'
     assert info.parameters == {'name': ['a']}
 
 
-def test_class_path_variables_with_converters():
-    r = LinkRegistry(RegRegistry(), ConverterRegistry())
+def test_class_path_variables_with_converters(info):
+    app, r = info
 
     class Foo(object):
         def __init__(self, value):
@@ -120,13 +133,13 @@ def test_class_path_variables_with_converters():
                     path='/foos/{value}',
                     factory_args=set(['value']),
                     converters={'value': Converter(int)})
-    info = r.get_class_path(Foo, {'value': 1})
+    info = app.get_class_path(Foo, {'value': 1})
     assert info.path == 'foos/1'
     assert info.parameters == {}
 
 
-def test_class_path_parameters_with_converters():
-    r = LinkRegistry(RegRegistry(), ConverterRegistry())
+def test_class_path_parameters_with_converters(info):
+    app, r = info
 
     class Foo(object):
         def __init__(self, value):
@@ -135,13 +148,13 @@ def test_class_path_parameters_with_converters():
                     path='/foos',
                     factory_args=set(['value']),
                     converters={'value': Converter(int)})
-    info = r.get_class_path(Foo, {'value': 1})
+    info = app.get_class_path(Foo, {'value': 1})
     assert info.path == 'foos'
     assert info.parameters == {'value': ['1']}
 
 
-def test_class_path_absorb():
-    r = LinkRegistry(RegRegistry(), ConverterRegistry())
+def test_class_path_absorb(info):
+    app, r = info
 
     class Foo(object):
         pass
@@ -150,13 +163,13 @@ def test_class_path_absorb():
                     path='/foos',
                     factory_args=set(),
                     absorb=True)
-    info = r.get_class_path(Foo, {'absorb': 'bar'})
+    info = app.get_class_path(Foo, {'absorb': 'bar'})
     assert info.path == 'foos/bar'
     assert info.parameters == {}
 
 
-def test_class_path_extra_parameters():
-    r = LinkRegistry(RegRegistry(), ConverterRegistry())
+def test_class_path_extra_parameters(info):
+    app, r = info
 
     class Foo(object):
         pass
@@ -164,14 +177,14 @@ def test_class_path_extra_parameters():
     r.register_path(model=Foo,
                     path='/foos',
                     factory_args=set())
-    info = r.get_class_path(Foo, {'extra_parameters': {'a': 'A',
-                                                       'b': 'B'}})
+    info = app.get_class_path(Foo, {'extra_parameters': {'a': 'A',
+                                                         'b': 'B'}})
     assert info.path == 'foos'
     assert info.parameters == {'a': ['A'], 'b': ['B']}
 
 
-def test_class_path_extra_parameters_convert():
-    r = LinkRegistry(RegRegistry(), ConverterRegistry())
+def test_class_path_extra_parameters_convert(info):
+    app, r = info
 
     class Foo(object):
         pass
@@ -180,8 +193,8 @@ def test_class_path_extra_parameters_convert():
                     path='/foos',
                     factory_args=set(),
                     converters={'a': Converter(int)})
-    info = r.get_class_path(Foo,
-                            {'extra_parameters': {'a': 1,
-                                                  'b': 'B'}})
+    info = app.get_class_path(Foo,
+                              {'extra_parameters': {'a': 1,
+                                                    'b': 'B'}})
     assert info.path == 'foos'
     assert info.parameters == {'a': ['1'], 'b': ['B']}
