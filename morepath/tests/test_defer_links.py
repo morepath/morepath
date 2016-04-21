@@ -1,6 +1,6 @@
 import morepath
 from webtest import TestApp as Client
-from morepath.error import LinkError
+from morepath.error import LinkError, ConflictError
 import pytest
 
 
@@ -812,7 +812,7 @@ def test_defer_class_links_with_variables():
     assert response.body == b'http://localhost/sub/foo'
 
 
-def test_defer_links_falls_back_on_defer_class_links():
+def test_link_uses_defer_class_links():
     class Root(morepath.App):
         pass
 
@@ -845,3 +845,40 @@ def test_defer_links_falls_back_on_defer_class_links():
 
     response = c.get('/')
     assert response.body == b'http://localhost/sub/foo'
+
+
+def test_defer_links_and_defer_links_conflict():
+    class Root(morepath.App):
+        pass
+
+    class Sub(morepath.App):
+        pass
+
+    @Root.path(path='')
+    class RootModel(object):
+        pass
+
+    @Root.view(model=RootModel)
+    def root_model_default(self, request):
+        return request.link(SubModel('foo'))
+
+    @Sub.path(path='{name}')
+    class SubModel(object):
+        def __init__(self, name):
+            self.name = name
+
+    @Root.mount(app=Sub, path='sub')
+    def mount_sub():
+        return Sub()
+
+    @Root.defer_links(model=SubModel)
+    def defer_links_sub_model(app, obj):
+        return app.chidl(Sub())
+
+    @Root.defer_class_links(model=SubModel,
+                            variables=lambda obj: {'name': obj.name})
+    def defer_class_links_sub_model(app, model, variables):
+        return app.child(Sub())
+
+    with pytest.raises(ConflictError):
+        Root.commit()
