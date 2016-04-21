@@ -271,7 +271,6 @@ class Path(object):
     """
     def __init__(self, path):
         self.path = path
-        self.stack = parse_path(path)
         self.steps = [Step(segment) for segment in reversed(parse_path(path))]
 
     def discriminator(self):
