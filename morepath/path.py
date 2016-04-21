@@ -8,7 +8,6 @@ from dectate import DirectiveError
 from reg import arginfo
 
 from .cachingreg import RegRegistry
-from . import generic
 from .link import LinkRegistry
 from .traject import Path, TrajectRegistry
 from .converter import ParameterFactory, ConverterRegistry
