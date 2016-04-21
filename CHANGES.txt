@@ -23,6 +23,14 @@ CHANGES
   ``morepath.security`` won't break yet, you should stop importing
   from it and import directly from ``morepath`` instead.
 
+- **New** We have a new chat channel available. You can join us by clicking
+  this link:
+
+  https://discord.gg/0xRQrJnOPiRsEANa
+
+  Please join and hang out! We are retiring the (empty) Freenode
+  #morepath channel.
+
 - Introduce a new ``commit`` method on ``App`` that commits the App
   and also recursively commits all mounted apps. This is more explicit
   than ``autocommit`` and less verbose than using the lower-level
