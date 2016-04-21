@@ -221,6 +221,6 @@ click on the module headings to see the internal APIs. See also
    internals/tween
    internals/view
 
-:mod:`morepath.error` and `morepath.pdbsupport` are documented
+:mod:`morepath.error` and :mod:`morepath.pdbsupport` are documented
 as part of the public API.
 

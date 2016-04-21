@@ -146,9 +146,14 @@ class Request(BaseRequest):
         :meth:`morepath.App.link_prefix` directive.
 
         If no link can be constructed for the model instance, a
-        :exc:``morepath.LinkError`` is raised. ``None`` is treated
+        :exc:`morepath.error.LinkError` is raised. ``None`` is treated
         specially: if ``None`` is passed in the default value is
         returned.
+
+        The :meth:`morepath.App.defer_links` or
+        :meth:`morepath.App.defer_class_links` directives can be used
+        to defer link generation for all instances of a particular
+        class (if this app doesn't handle them) to another app.
 
         :param obj: the model instance to link to, or ``None``.
         :param name: the name of the view to link to. If omitted, the
@@ -157,9 +162,7 @@ class Request(BaseRequest):
           returned. By default this is ``None``.
         :param app: If set, change the application to which the
           link is made. By default the link is made to an object
-          in the current application. The ``defer_links`` directive
-          can be used to change the default app for all instances of a
-          particular class (if this app doesn't handle them).
+          in the current application.
 
         """
         if obj is None:
@@ -190,14 +193,19 @@ class Request(BaseRequest):
         the model just to create a link. In this case `class_link` can be
         used as an optimization.
 
-        Note that the `defer_links` directive has no effect on `class_link`,
-        as it needs an instance of the model to work, which is not
-        available.
+        The :meth:`morepath.App.defer_class_links` directive can be
+        used to defer link generation for a particular class (if this
+        app doesn't handle them) to another app.
+
+        Note that the :meth:`morepath.App.defer_links` directive has
+        **no** effect on ``class_link``, as it needs an instance of the
+        model to work, which is not available.
 
         If no link can be constructed for the model class, a
-        :exc:``morepath.LinkError`` is raised. This error is also
-        raised if you don't supply enough variables. Additional variables
-        not used in the path are interpreted as URL parameters.
+        :exc:`morepath.error.LinkError` is raised. This error is
+        also raised if you don't supply enough variables. Additional
+        variables not used in the path are interpreted as URL
+        parameters.
 
         :param model: the model class to link to.
         :param variables: a dictionary with as keys the variable names,
@@ -208,8 +216,8 @@ class Request(BaseRequest):
           the default view is looked up.
         :param app: If set, change the application to which the
           link is made. By default the link is made to an object
-          in the current application. The ``defer_links`` directive has
-          no effect.
+          in the current application.
+
         """
         if variables is None:
             variables = {}
