@@ -270,7 +270,6 @@ class Path(object):
     :param path: the route.
     """
     def __init__(self, path):
-        self.path = path
         self.steps = [Step(segment) for segment in reversed(parse_path(path))]
 
     def discriminator(self):
