@@ -11,7 +11,6 @@ from . import generic
 from .reify import reify
 from .traject import normalize_path, parse_path
 from .error import LinkError
-from .link import follow_defers
 
 SAME_APP = reg.Sentinel('SAME_APP')
 
@@ -122,7 +121,7 @@ class Request(BaseRequest):
             return generic.view.component_key_dict(lookup=app.lookup,
                                                    **predicates)
 
-        view, app = follow_defers(find, app, obj)
+        view, app = app._follow_defers(find, obj)
         if view is None:
             return default
 

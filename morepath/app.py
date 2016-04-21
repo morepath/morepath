@@ -23,7 +23,8 @@ from . import compat
 from .implicit import set_implicit
 from .reify import reify
 from . import generic
-from .link import PathInfo, follow_defers, follow_class_defers
+from .link import PathInfo
+from .error import LinkError
 
 
 class App(dectate.App):
@@ -295,7 +296,7 @@ class App(dectate.App):
         """
         def find(app, obj):
             return app._get_mounted_path(obj)
-        info, app = follow_defers(find, self, obj)
+        info, app = self._follow_defers(find, obj)
         return info
 
     def _get_deferred_mounted_class_path(self, model, variables):
@@ -307,5 +308,69 @@ class App(dectate.App):
         """
         def find(app, model, variables):
             return app._get_mounted_class_path(model, variables)
-        info, app = follow_class_defers(find, self, model, variables)
+        info, app = self._follow_class_defers(find, model, variables)
         return info
+
+    def _follow_defers(self, find, obj):
+        """Resolve to deferring app and find something.
+
+        For ``obj``, look up deferring app as defined by
+        :class:`morepath.App.defer_links` recursively. Use the
+        supplied ``find`` function to find something for ``obj`` in
+        that app. When something found, return what is found and
+        the app where it was found.
+
+        :param find: a function that takes an ``app`` and ``obj`` parameter and
+          should return something when it is found, or ``None`` when not.
+        :param obj: the model object to find things for.
+        :return: a tuple with the thing found (or ``None``) and the app in
+          which it was found.
+        """
+        seen = set()
+        app = self
+        while app is not None:
+            if app in seen:
+                raise LinkError("Circular defer. Cannot link to: %r" % obj)
+            result = find(app, obj)
+            if result is not None:
+                return result, app
+            seen.add(app)
+            next_app = generic.deferred_link_app(app, obj, lookup=app.lookup)
+            if next_app is None:
+                # only if we can establish the variables of the app here
+                # fall back on using class link app
+                variables = generic.path_variables(obj, lookup=app.lookup)
+                if variables is not None:
+                    next_app = generic.deferred_class_link_app(
+                        app, obj.__class__, variables, lookup=app.lookup)
+            app = next_app
+        return None, app
+
+    def _follow_class_defers(self, find, model, variables):
+        """Resolve to deferring app and find something.
+
+        For ``model`` and ``variables``, look up deferring app as defined
+        by :class:`morepath.App.defer_class_links` recursively. Use the
+        supplied ``find`` function to find something for ``model`` and
+        ``variables`` in that app. When something found, return what is
+        found and the app where it was found.
+
+        :param find: a function that takes an ``app``, ``model`` and
+          ``variables`` arguments and should return something when it is
+          found, or ``None`` when not.
+        :param model: the model class to find things for.
+        :return: a tuple with the thing found (or ``None``) and the app in
+          which it was found.
+        """
+        seen = set()
+        app = self
+        while app is not None:
+            if app in seen:
+                raise LinkError("Circular defer. Cannot link to: %r" % model)
+            result = find(app, model, variables)
+            if result is not None:
+                return result, app
+            seen.add(app)
+            app = generic.deferred_class_link_app(app, model, variables,
+                                                  lookup=app.lookup)
+        return None, app
