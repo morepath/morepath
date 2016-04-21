@@ -27,7 +27,7 @@ import re
 from functools import total_ordering
 
 from .converter import IDENTITY_CONVERTER
-from .error import TrajectError, LinkError
+from .error import TrajectError
 
 
 IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
