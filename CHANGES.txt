@@ -30,10 +30,18 @@ CHANGES
 
   needs to become::
 
-    from morepath.cachingreg import RegRegistry
+    from morepath.directive import RegRegistry
 
   This change was made to avoid circular imports in Morepath, and
   because ``App`` did not directly depend on ``RegRegistry`` anymore.
+
+- **New** We have a new chat channel available. You can join us by clicking
+  this link:
+
+  https://discord.gg/0xRQrJnOPiRsEANa
+
+  Please join and hang out! We are retiring the (empty) Freenode
+  #morepath channel.
 
 - Introduce a new ``commit`` method on ``App`` that commits the App
   and also recursively commits all mounted apps. This is more explicit
