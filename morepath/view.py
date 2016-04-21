@@ -8,6 +8,8 @@ this structure can be converted to HTML using a template.
 
 :func:`morepath.render_json`, :func:`morepath.render_html` and
 :func:`morepath.redirect` are members of the public API.
+
+See also :class:`morepath.directive.ViewRegistry`
 """
 
 import json
@@ -95,9 +97,10 @@ def render_view(content, request):
 class ViewRegistry(object):
     """A registry of views.
 
-    :param reg_registry: a :class:`reg.Registry` to register the views in.
+    :param reg_registry: a :class:`morepath.directive.RegRegistry` to
+      register the views in.
     :param template_engine_registry: a
-      :class:`morepath.template.TemplateEngineRegistry` used to render
+      :class:`morepath.directive.TemplateEngineRegistry` used to render
       templated views.
     """
     factory_arguments = {

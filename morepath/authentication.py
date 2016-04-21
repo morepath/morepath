@@ -6,6 +6,8 @@ directive.
 
 :data:`morepath.NO_IDENTITY`, :class:`morepath.Identity`,
 :class:`morepath.IdentityPolicy` are part of the public API.
+
+See also :class:`morepath.directive.IdentityPolicyRegistry`
 """
 
 from reg import mapply
@@ -34,8 +36,8 @@ class IdentityPolicyRegistry(object):
 
     Used by the :class:`morepath.App.identity_policy` directive.
 
-    :param reg_registry: a :class:`reg.Registry` instance.
-    :param setting_registry: a :class:`morepath.settings.SettingRegistry`
+    :param reg_registry: a :class:`morepath.directive.RegRegistry` instance.
+    :param setting_registry: a :class:`morepath.directive.SettingRegistry`
       instance.
     """
     factory_arguments = {

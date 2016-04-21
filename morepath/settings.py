@@ -1,4 +1,6 @@
 """This module defines a registry of settings.
+
+See :class:`morepath.directive.SettingRegistry`
 """
 
 

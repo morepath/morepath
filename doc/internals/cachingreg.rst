@@ -2,5 +2,4 @@
 ===============================================
 
 .. automodule:: morepath.cachingreg
-  :members:
 

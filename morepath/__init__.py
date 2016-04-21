@@ -4,8 +4,8 @@
 Additional public APIs can be imported from the :mod:`morepath.error`
 and :mod:`morepath.pdbsupport` modules. For custom directive
 implementations that interact with core directives for grouping or
-subclassing purposes you may need to import from
-:mod:`morepath.directive`.
+subclassing purposes, or that need to use one of the Morepath
+registries, you may need to import from :mod:`morepath.directive`.
 
 The other submodules are considered private. If you find yourself
 needing to import from them in application or extension code, please

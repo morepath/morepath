@@ -1,3 +1,8 @@
+"""This module lets you register template engines.
+
+See :class:`morepath.directive.TemplateEngineRegistry`
+"""
+
 import os
 from .toposort import toposorted, Info
 from .error import ConfigError, TopologicalSortError
@@ -7,11 +12,11 @@ from .settings import SettingRegistry
 class TemplateEngineRegistry(object):
     """A registry of template engines.
 
-    Is used by the :meth:`morepath.App.view`, :meth:morepath.App.json`
-    and :meth:`morepath.App.html` directives for template-based
-    rendering.
+    Is used by the :meth:`morepath.App.view`,
+    :meth:`morepath.App.json` and :meth:`morepath.App.html` directives
+    for template-based rendering.
 
-    :param setting_registry: a :class:`morepath.settings.SettingRegistry`
+    :param setting_registry: a :class:`morepath.directive.SettingRegistry`
       instance.
 
     """

@@ -30,6 +30,7 @@ Table of Contents
    tweens
    more.static
    api
+   extension_api
    implementation
    compared
    design

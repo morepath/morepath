@@ -8,8 +8,5 @@
   :special-members:
   :exclude-members: __weakref__
 
-.. autoclass:: morepath.view.ViewRegistry
-  :members:
-
 .. autofunction:: morepath.view.render_view
 

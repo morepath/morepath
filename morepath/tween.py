@@ -6,6 +6,8 @@ a :class:`morepath.Response`. A tween factory is a function that given
 an application instance and tween constructs another tween that wraps it.
 
 Used by :meth:`morepath.App.tween_factory`.
+
+See also :class:`morepath.directive.TweenRegistry`
 """
 from .toposort import toposorted, Info
 from .publish import publish

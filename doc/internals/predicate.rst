@@ -2,4 +2,6 @@
 ============================================
 
 .. automodule:: morepath.predicate
+
+.. autoclass:: morepath.predicate.PredicateInfo
   :members:

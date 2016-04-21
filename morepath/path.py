@@ -1,6 +1,8 @@
 """Registration of routes.
 
 This builds on :mod:`morepath.traject`.
+
+See also :class:`morepath.directive.PathRegistry`
 """
 
 
@@ -29,12 +31,14 @@ class PathRegistry(TrajectRegistry):
     Subclasses :class:`morepath.traject.TrajectRegistry`.
 
     Used by :meth:`morepath.App.path` and :meth:`morepath.App.mount`
-    directives to register routes. Also used byt he
-    :meth:`morepath.App.defer_links` directive.
+    directives to register routes. Also used by the
+    :meth:`morepath.App.defer_links` and
+    :meth:`morepath.App.defer_class_links` directives.
 
-    :param reg_registry: a :class:`reg.Registry` instance.
+    :param reg_registry: a :class:`morepath.directive.RegRegistry` instance.
     :param converter_registry: a
-      :class:`morepath.converter.ConverterRegistry` instance
+      :class:`morepath.directive.ConverterRegistry` instance
+
     """
     factory_arguments = {
         'reg_registry': RegRegistry,

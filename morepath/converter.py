@@ -8,6 +8,8 @@ directives. The inverse conversion back from Python value to string
 also needs to be provided to support link generation.
 
 :class:`morepath.Converter` is exported to the public API.
+
+See also :class:`morepath.directive.ConverterRegistry`
 """
 
 from reg import PredicateRegistry, match_class

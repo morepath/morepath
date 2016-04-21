@@ -3,9 +3,6 @@
 
 .. automodule:: morepath.converter
 
-.. autoclass:: ConverterRegistry
-  :members:
-
 .. autoclass:: ParameterFactory
   :members:
   :special-members:

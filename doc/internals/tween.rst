@@ -2,4 +2,4 @@
 ============================
 
 .. automodule:: morepath.tween
-  :members:
+

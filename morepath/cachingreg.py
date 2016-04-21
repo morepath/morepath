@@ -1,6 +1,8 @@
 """
 We define a Reg registry that is used for generic function
 configuration that provides a special lookup that caches.
+
+See also :class:`morepath.directive.RegRegistry`.
 """
 
 from reg import CachingKeyLookup, Registry

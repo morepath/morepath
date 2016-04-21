@@ -6,6 +6,8 @@ also use it for your own functions.
 
 This implements the functionality that drives Reg to install these
 predicates.
+
+See also :class:`morepath.directive.PredicateRegistry`
 """
 
 from reg import Predicate, KeyExtractor
@@ -18,8 +20,8 @@ class PredicateRegistry(object):
 
     It also keeps track of how predicates are to be ordered.
 
-    :param reg_registry: the :class:`reg.Registry` in which the predicates
-      are installed.
+    :param reg_registry: the :class:`morepath.directive.RegRegistry`
+      in which the predicates are installed.
     """
     factory_arguments = {
         'reg_registry': RegRegistry

@@ -1,4 +1,14 @@
-"""Morepath uses the Dectate_ library to implement its directives. The
+"""This module contains the extension API for Morepath. It is useful
+when you want to define new directives in a Morepath extension.  An
+example an extension that does this is `more.static`_.
+
+.. _`more.static`: https://github.com/morepath/more.static
+
+If you just use Morepath you should not have to import from
+:mod:`morepath.directive` in your code. Instead you use the directives
+defined in here through :class:`morepath.App`.
+
+Morepath uses the Dectate_ library to implement its directives. The
 directives are installed on :class:`morepath.App` using the
 :meth:`dectate.App.directive` decorator.
 
@@ -10,23 +20,10 @@ them, and/or refer to them with ``group_class``.
 
 When configuration is committed it is written into various
 configuration registries which are attached to the
-:attr:`dectate.App.config` class attribute:
-
-* :class:`morepath.settings.SettingRegistry`
-
-* :class:`morepath.path.PathRegistry`
-
-* :class:`morepath.view.ViewRegistry`
-
-* :class:`morepath.converter.ConverterRegistry`
-
-* :class:`morepath.tween.TweenRegistry`
-
-* :class:`morepath.template.TemplateEngineRegistry`
-
-* :class:`morepath.predicate.PredicateRegistry`
-
-* :class:`morepath.app.RegRegistry`
+:attr:`dectate.App.config` class attribute. If you implement your own
+directive :class:`dectate.Action` that declares one of these
+registries in :attr:`dectate.Action.config` you can import their class
+from :mod:`morepath.directive`.
 
 .. _Dectate: http://dectate.readthedocs.org
 
@@ -65,7 +62,7 @@ class SettingAction(dectate.Action):
 
         An application setting is registered under the
         ``.config.settings_registry`` class attribute of
-        :class:`morepath.App`` subclasses. It will be executed early
+        :class:`morepath.App` subclasses. It will be executed early
         in configuration so other configuration directives can depend
         on the settings being there.
 
@@ -1227,7 +1224,7 @@ class LinkPrefixAction(dectate.Action):
         :meth:`webob.Request.application_url`.
 
         The decorated function gets the ``request`` (:class:`morepath.Request`)
-        as its only paremeter. The function should return a string.
+        as its only parameter. The function should return a string.
         '''
         pass
 

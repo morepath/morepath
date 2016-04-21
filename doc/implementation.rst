@@ -51,14 +51,14 @@ and resolves it. This involves:
 All this is implemented by Dectate_.
 
 Morepath specific directives are defined in
-:mod:`morepath.directives`. Each directly or indirectly cause
+:mod:`morepath.directive`. Each directly or indirectly cause
 :class:`dectate.Action` objects to be created. When the action is
 performed various configuration registry objects are affected. These
 registries are the end result of configuration.
 
-:class:`morepath.app.RegRegistry` is the most advanced of registries
-used in Morepath and is based on :class:`reg.Registry`. In this
-registry generic dispatch functions as defined in
+:class:`morepath.directive.RegRegistry` is the most advanced of
+registries used in Morepath and is based on :class:`reg.Registry`. In
+this registry generic dispatch functions as defined in
 :mod:`morepath.generic` get individual implementations registered for
 them. Reg dispatches to specific implementations based on the function
 arguments used to call the generic function. Much of the functionality
@@ -68,7 +68,7 @@ during runtime uses the API in :mod:`morepath.generic`.
 A special registry contains the settings; setting functions as
 declared by :meth:`morepath.App.setting` and
 :meth:`morepath.App.setting_section` are executed and stored in a
-:class:`morepath.settings.SettingRegistry` which is accessible through
+:class:`morepath.directive.SettingRegistry` which is accessible through
 :attr:`morepath.App.settings`.
 
 .. _Dectate: http://dectate.readthedocs.org
@@ -102,7 +102,7 @@ middleware functions. A standard Morepath tween implemented by
 :func:`morepath.core.excview_tween_factory`, renders exceptions
 raised by application code as views. The default Morepath tween
 factories are declared in :mod:`morepath.core` and tween factories get
-registered into :class:`morepath.tween.TweenRegistry`.
+registered into :class:`morepath.directive.TweenRegistry`.
 
 resolve the model
 ~~~~~~~~~~~~~~~~~
@@ -112,8 +112,9 @@ created by the factory functions the user declared with the
 :meth:`morepath.App.path` directive and the :meth:`morepath.App.mount`
 directives.
 
-:mod:`morepath.path` contains the :class:`morepath.path.PathRegistry`
-that has the API to register paths.
+:mod:`morepath.path` contains the
+:class:`morepath.directive.PathRegistry` that has the API to register
+paths.
 
 The route registration and resolution system is implemented by
 :mod:`morepath.traject`.
@@ -121,7 +122,7 @@ The route registration and resolution system is implemented by
 Default converters used during this step are declared in
 :mod:`morepath.core`. Converters are declared with the
 :meth:`morepath.App.converter` directive and are registered in the
-:class:`morepath.converter.ConverterRegistry`.
+:class:`morepath.directive.ConverterRegistry`.
 
 render the model object
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -132,17 +133,17 @@ the :meth:`morepath.App.view` directive (and :meth:`morepath.App.json`
 and :meth:`morepath.App.html`).
 
 This behavior is implemented using the
-:class:`morepath.view.ViewRegistry`. This builds on Reg_ and uses
+:class:`morepath.directive.ViewRegistry`. This builds on Reg_ and uses
 special predicates declared in :mod:`morepath.core` and registered
 into the Reg registry using
-:class:`morepath.predicate.PredicateRegistry`. The views are
+:class:`morepath.directive.PredicateRegistry`. The views are
 registered in the Reg registry too.
 
 Views can use templates as declared with the
 :class:`morepath.App.template_directory`,
 :class:`morepath.App.template_loader` and
 :class:`morepath.App.template_render` directives. These are registered
-into the :class:`morepath.template.TemplateEngineRegistry`.
+into the :class:`morepath.directive.TemplateEngineRegistry`.
 
 Before a view is rendered a permission check is done for a model
 object and an identity. This uses the rules defined by
@@ -160,10 +161,11 @@ creating links
 
 During the rendering of the model object to a response a link can be
 generated for a model object by user code that invokes
-:class:`morepath.Request.link`. :mod:`morepath.request` defines how
-links get generated in a mounted app. This uses inverse path
-information (:class:`morepath.traject.Inverse`) stored into the Reg
-registry using :meth:`morepath.path.PathRegistry.register_path`.
+:class:`morepath.Request.link`. :class:`morepath.App` has a bunch of
+private functions (``morepath.App._get_path`` etc) that implement
+constructing paths. This uses inverse path information
+(:class:`morepath.path.Path`) stored into the Reg registry using
+:meth:`morepath.directive.PathRegistry.register_inverse_path`.
 
 Dependencies
 ------------
@@ -194,7 +196,8 @@ Internal APIs
 
 These are the internal modules used by Morepath. For more information
 click on the module headings to see the internal APIs. See also
-:mod:`morepath` for the public API.
+:mod:`morepath` for the public API and :mod:`morepath.directive` for
+the extension API.
 
 .. toctree::
    :maxdepth: 2
@@ -206,7 +209,6 @@ click on the module headings to see the internal APIs. See also
    internals/compat
    internals/converter
    internals/core
-   internals/directive
    internals/generic
    internals/implicit
    internals/path
@@ -221,6 +223,6 @@ click on the module headings to see the internal APIs. See also
    internals/tween
    internals/view
 
-:mod:`morepath.error` and :mod:`morepath.pdbsupport` are documented
-as part of the public API.
+:mod:`morepath.error` and :mod:`morepath.pdbsupport` are documented as
+part of the public API.
 

@@ -3,9 +3,6 @@
 
 .. automodule:: morepath.path
 
-.. autoclass:: PathRegistry
-  :members:
-
 .. autoclass:: PathInfo
   :members:
 
