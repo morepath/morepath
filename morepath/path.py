@@ -23,51 +23,6 @@ from .error import LinkError
 SPECIAL_ARGUMENTS = ['request', 'app']
 
 
-def get_arguments(callable, exclude):
-    """Introspect callable to get callable arguments and their defaults.
-
-    :param callable: callable object such as a function.
-    :param exclude: a set of names not to extract.
-    :return: a dict with as keys the argument names and as values the
-       default values (or ``None`` if no default value was defined).
-    """
-    info = arginfo(callable)
-    defaults = info.defaults or []
-    defaults = [None] * (len(info.args) - len(defaults)) + list(defaults)
-    return {name: default for (name, default) in zip(info.args, defaults)
-            if name not in exclude}
-
-
-def filter_arguments(arguments, exclude):
-    """Filter arguments.
-
-    Given a dictionary with arguments and defaults, filter out
-    arguments in ``exclude``.
-
-    :param arguments: arguments dict
-    :param exclude: set of argument names to exclude.
-    :return: filtered arguments dict
-    """
-    return {name: default for (name, default) in arguments.items() if
-            name not in exclude}
-
-
-def get_variables_func(arguments, exclude):
-    """Create default variables function.
-
-    The :meth:`morepath.App.path` directive uses this if no ``variables``
-    function was defined by the user.
-
-    :param arguments: arguments dictionary
-    :param exclude: set of argument names to exclude.
-    :return: a function that given a model instance returns a variables
-       dict.
-    """
-    names = [name for name in arguments.keys() if name not in exclude]
-    return lambda obj: {name: getattr(obj, name) for
-                        name in names}
-
-
 class PathRegistry(TrajectRegistry):
     """A registry for routes.
 
@@ -364,6 +319,35 @@ class Path(object):
                 # the root and we don't want an additional /
                 path = absorbed_path
         return PathInfo(path, url_parameters)
+
+
+def get_arguments(callable, exclude):
+    """Introspect callable to get callable arguments and their defaults.
+
+    :param callable: callable object such as a function.
+    :param exclude: a set of names not to extract.
+    :return: a dict with as keys the argument names and as values the
+       default values (or ``None`` if no default value was defined).
+    """
+    info = arginfo(callable)
+    defaults = info.defaults or []
+    defaults = [None] * (len(info.args) - len(defaults)) + list(defaults)
+    return {name: default for (name, default) in zip(info.args, defaults)
+            if name not in exclude}
+
+
+def filter_arguments(arguments, exclude):
+    """Filter arguments.
+
+    Given a dictionary with arguments and defaults, filter out
+    arguments in ``exclude``.
+
+    :param arguments: arguments dict
+    :param exclude: set of argument names to exclude.
+    :return: filtered arguments dict
+    """
+    return {name: default for (name, default) in arguments.items() if
+            name not in exclude}
 
 
 def fixed_urlencode(s, doseq=0):
