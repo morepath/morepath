@@ -6,27 +6,14 @@ learn. This quickstart guide should help you get started. We assume
 you've already installed Morepath; if not, see the :doc:`installation`
 section.
 
+.. _helloworld:
+
 Hello world
 -----------
 
-Let's look at a minimal "Hello world!" application in Morepath::
+Let's look at a minimal "Hello world!" application in Morepath:
 
-  import morepath
-
-  class App(morepath.App):
-      pass
-
-  @App.path(path='')
-  class Root(object):
-      pass
-
-  @App.view(model=Root)
-  def hello_world(self, request):
-      return "Hello world!"
-
-  if __name__ == '__main__':
-      morepath.autocommit()
-      morepath.run(App())
+.. literalinclude:: code_examples/hello.py
 
 You can save this as ``hello.py`` and then run it with Python:
 
