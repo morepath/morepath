@@ -8,50 +8,59 @@ see the :doc:`installation` section.
 In order to carry out the test we'll use WebTest_, which you'll need
 to have installed. You'll want to have a test automation tool like
 pytest_ too.  The :ref:`cookiecutter template <cookiecutter>` installs
-both for you, alternatively you can install both with pip:
+both for you, alternatively you can install them with pip:
 
-.. code-block:: sh
+.. code-block:: console
 
   $ pip install webtest pytest
 
 
-Testing a basic app
--------------------
+Testing "Hello world!"
+----------------------
 
-Let’s look at a minimal test of a basic app in Morepath:
+Let’s look at a minimal test of the "Hello world!" application from
+the :doc:`quickstart`:
 
 .. testcode::
 
-  def test_basic():
-      from morepath.tests.fixtures import basic
+  def test_hello():
+      from hello import App
       from webtest import TestApp as Client
 
-      c = Client(basic.app())
+      c = Client(App())
 
-      response = c.get('/foo')
+      response = c.get('/')
 
-      assert response.body == b'The view for model: foo'
+      assert response.body == b'Hello world!'
 
-You can save this function into a file and use a test automation tool
-like pytest_ to run it, or you can also invoke it as a regular Python
-function --- in this case a silent completion signifies success:
+You can save this function into a file, say ``test_hello.py`` and use
+a test automation tool like pytest_ to run it:
 
-  >>> test_basic()
+.. code-block:: console
+
+   $ py.test -q test_hello.py
+   .
+   1 passed in 0.13 seconds
+
+If you invoke it as a regular Python function, a silent completion
+signifies success:
+
+  >>> test_hello()
 
 .. _pytest: https://pytest.org
 
 Let's now go through the test, line by line.
 
 1. We import the application that we want to test.  In this case we
-   are going to use one of the simple apps that are part of the test
-   suite distributed with Morepath:
+   assume that you have saved the "Hello world!" application from
+   the :doc:`quickstart` in ``hello.py``:
 
-   >>> from morepath.tests.fixtures import basic
+   >>> from hello import App
 
    You can additionally use :func:`morepath.scan` if you are not sure
    whether importing the app imports all the modules that are
    required. In this particular instance, we know that importing
-   ``basic`` is sufficient and :func:`morepath.scan` is not needed.
+   ``hello`` is sufficient and :func:`morepath.scan` is not needed.
 
 2. WebTest_ provides a class called :class:`webtest.app.TestApp`
    that emulates a client for WSGI apps.  Lest we confuse it with the
@@ -61,17 +70,17 @@ Let's now go through the test, line by line.
 
 3. We instantiate the app under test and the client:
 
-   >>> c = Client(basic.app())
+   >>> c = Client(App())
 
 4. At this point we can use the client to query the app:
 
-   >>> response = c.get('/foo')
+   >>> response = c.get('/')
 
    The returned response is an instance of
    :class:`webtest.response.TestResponse`:
 
-   >>> response                         # doctest: -ELLIPSIS
-   <200 OK text/plain body='The view ... foo'/23>
+   >>> response
+   <200 OK text/plain body='Hello world!'>
 
 5. We can now verify that the response satisfies our expectations. In
    this case we test the response body in its entirety::
