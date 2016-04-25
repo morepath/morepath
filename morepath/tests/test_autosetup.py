@@ -53,18 +53,12 @@ def test_caller_package():
 
 def test_autosetup(monkeypatch):
     import sys
+
     for k in 'base.m', 'entrypoint.app', 'under_score.m':
         monkeypatch.delitem(sys.modules, k, raising=False)
-    monkeypatch.setattr('dectate.app.auto_app_classes', [], raising=False)
-    monkeypatch.setattr('dectate.app.global_configurables', [], raising=False)
 
-    autosetup()
+    pytest.deprecated_call(autosetup)
 
-    from entrypoint.app import App as EntrypointApp
-    assert EntrypointApp.is_committed()
-
-    from under_score.m import UnderscoreApp
-    assert UnderscoreApp.is_committed()
-
-    from base.m import App as BaseApp
-    assert BaseApp.is_committed()
+    assert 'base.m' in sys.modules
+    assert 'entrypoint.app' in sys.modules
+    assert 'under_score.m' in sys.modules
