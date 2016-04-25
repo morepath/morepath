@@ -30,6 +30,7 @@ Table of Contents
    building_large_applications
    tweens
    more.static
+   config_query
    api
    extension_api
    implementation
