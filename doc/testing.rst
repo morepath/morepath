@@ -2,12 +2,12 @@ Automating the tests for your App
 =================================
 
 This an introductory guide to writing automated tests for your
-Morepath app.  We assume you've already installed Morepath; if not,
+Morepath app. We assume you've already installed Morepath; if not,
 see the :doc:`installation` section.
 
 In order to carry out the test we'll use WebTest_, which you'll need
-to have installed. You'll want to have a test automation tool like
-pytest_ too.  The :ref:`cookiecutter template <cookiecutter>` installs
+to have installed. You also need a test automation tool; we recommend
+pytest_. The :ref:`cookiecutter template <cookiecutter>` installs
 both for you, alternatively you can install them with pip:
 
 .. code-block:: console
@@ -23,10 +23,10 @@ the :doc:`quickstart`:
 
 .. testcode::
 
-  def test_hello():
-      from hello import App
-      from webtest import TestApp as Client
+  from hello import App
+  from webtest import TestApp as Client
 
+  def test_hello():
       c = Client(App())
 
       response = c.get('/')
@@ -51,9 +51,9 @@ signifies success:
 
 Let's now go through the test, line by line.
 
-1. We import the application that we want to test.  In this case we
-   assume that you have saved the "Hello world!" application from
-   the :doc:`quickstart` in ``hello.py``:
+1. We import the application that we want to test. In this case we
+   assume that you have saved the "Hello world!" application from the
+   :doc:`quickstart` in ``hello.py``:
 
    >>> from hello import App
 
@@ -62,9 +62,11 @@ Let's now go through the test, line by line.
    required. In this particular instance, we know that importing
    ``hello`` is sufficient and :func:`morepath.scan` is not needed.
 
-2. WebTest_ provides a class called :class:`webtest.app.TestApp`
-   that emulates a client for WSGI apps.  Lest we confuse it with the
-   app under test, we'll import it as ``Client``:
+2. WebTest_ provides a class called :class:`webtest.app.TestApp` that
+   emulates a client for WSGI apps. We don't want to confuse it with
+   the app under test, so we as a convention we import it as
+   ``Client``. This also stops pytest_ from scanning it for tests as
+   it has the ``Test`` prefix:
 
    >>> from webtest import TestApp as Client
 

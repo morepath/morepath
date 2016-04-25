@@ -101,6 +101,9 @@ CHANGES
 - A friendlier ``morepath.run`` that tells you how to quit it with
   ``ctrl-C``.
 
+- A new document describing how to write a test for Morepath-based
+  applications.
+
 0.13.2 (2016-04-13)
 ===================
 
