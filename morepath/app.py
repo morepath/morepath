@@ -228,6 +228,9 @@ class App(dectate.App):
     def _get_class_path(self, model, variables):
         """Path for a model class and variables.
 
+        Only includes path within the current app, does not take
+        mounting into account.
+
         :param model: model class
         :param variables: dict with variables to use in the path
         :return: a :class:`morepath.path.PathInfo` with path within this app.
@@ -237,6 +240,9 @@ class App(dectate.App):
     def _get_path(self, obj):
         """Path for a model obj.
 
+        Only includes path within the current app, does not take
+        mounting into account.
+
         :param obj: model object
         :return: a :class:`morepath.path.PathInfo` with path within this app.
         """
@@ -245,6 +251,8 @@ class App(dectate.App):
 
     def _get_mounted_path(self, obj):
         """Path for model obj including mounted path.
+
+        Includes path to this app itself, so takes mounting into account.
 
         :param obj: model object (or :class:`morepath.App` instance).
         :return: a :class:`morepath.path.PathInfo` with fully resolved
@@ -267,6 +275,8 @@ class App(dectate.App):
     def _get_mounted_class_path(self, model, variables):
         """Path for model class and variables including mounted path.
 
+        Includes path to this app itself, so takes mounting into account.
+
         :param model: model class
         :param variables: dict with variables to use in the path
         :return: a :class:`morepath.path.PathInfo` with fully resolved
@@ -288,7 +298,7 @@ class App(dectate.App):
     def _get_deferred_mounted_path(self, obj):
         """Path for obj taking into account deferring apps.
 
-        Like :meth:`morepath.App.get_mounted_path` but takes
+        Like :meth:`morepath.App._get_mounted_path` but takes
         :meth:`morepath.App.defer_links` and
         :meth:`morepath.App.defer_class_links` directives into
         account.
@@ -301,7 +311,7 @@ class App(dectate.App):
     def _get_deferred_mounted_class_path(self, model, variables):
         """Path for model and variables taking into account deferring apps.
 
-        Like :meth:`morepath.App.get_mounted_class_path` but takes
+        Like :meth:`morepath.App._get_mounted_class_path` but takes
         :meth:`morepath.App.defer_class_links` directive into
         account.
         """
