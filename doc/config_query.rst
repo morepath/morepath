@@ -1,6 +1,9 @@
 Querying configuration
 ======================
 
+Creating a tool
+---------------
+
 A Morepath-based application may over time grow big, have multiple
 authors and spread over many modules. In this case it is helpful to
 have a tool that helps you explore Morepath configuration and quickly
@@ -41,6 +44,11 @@ What just happened?
 * You hook it up so that a command-line script gets generated using
    setuptool's ``console_scripts`` mechanism.
 
+.. _Dectate: http://dectate.readthedocs.org
+
+Usage
+-----
+
 So now that you have a ``morepathq`` query tool, let's use it:
 
 .. code-block:: console
@@ -80,4 +88,3 @@ You can query any Morepath directive this way:
     File ".../path.py", line 8
     @App.path(model=Foo, path="/foo")
 
-.. _Dectate: http://dectate.readthedocs.org
