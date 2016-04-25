@@ -6,7 +6,7 @@ are part of the public API.
 """
 
 import sys
-import dectate
+import warnings
 import importscan
 import importlib
 import pkg_resources
@@ -150,9 +150,14 @@ def autosetup(ignore=None):
       during scanning. Optional. If ommitted, ignore ``.test`` and
       ``.tests`` packages by default. See :func:`importscan.scan` for
       more details.
+
+    **Deprecated**: use the function :func:`morepath.autoscan`,
+    instead.  ``autosetup`` is now completely equivalent to it.
+
     """
+    warnings.warn("DEPRECATED. Autosetup is deprecated. "
+                  "Use autoscan instead.", DeprecationWarning)
     autoscan(ignore)
-    dectate.autocommit()
 
 
 def morepath_packages():
