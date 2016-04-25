@@ -102,6 +102,28 @@ And to see the maintainability index::
 
 .. _`cyclomatic complexity`: https://en.wikipedia.org/wiki/Cyclomatic_complexity
 
+Running the documentation tests
+-------------------------------
+
+The documentation contains code. To check these code snippets, you
+can run this code using this command::
+
+  $ bin/sphinxpython bin/sphinx-build -b doctest doc doc/build/doctest
+
+If you have Make_ installed, buildout generates for you a Makefile in
+the directory ``doc/build`` that you can use::
+
+  $ (cd doc/build; make doctest)
+
+.. _Make: https://en.wikipedia.org/wiki/Make_(software)
+
+Building the HTML documentation
+-------------------------------
+
+To build the HTML documentation (output in ``doc/build/html``), run::
+
+  $ bin/sphinxbuilder
+
 Deprecation
 -----------
 

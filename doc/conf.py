@@ -17,7 +17,7 @@ import pkg_resources
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('code_examples'))
 
 # -- General configuration -----------------------------------------------------
 
@@ -33,12 +33,14 @@ autoclass_content = 'both'
 
 autodoc_member_order = 'groupwise'
 
+# See also: http://stackoverflow.com/a/30981554
 intersphinx_mapping = {
     'reg': ('http://reg.readthedocs.org/en/latest', None),
     'importscan': ('http://importscan.readthedocs.org/en/latest', None),
     'dectate': ('http://dectate.readthedocs.org/en/latest', None),
     'webob': ('http://docs.webob.org/en/latest', None),
     'bowerstatic': ('http://bowerstatic.readthedocs.org/en/latest', None),
+    'webtest': ('http://webtest.readthedocs.org/en/latest', None),
     }
 
 # Add any paths that contain templates here, relative to this directory.

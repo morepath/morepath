@@ -24,6 +24,8 @@ Morepath itself, including an example of ``quickstart.py``.
 
 .. _virtualenv: http://www.virtualenv.org/
 
+.. _cookiecutter:
+
 Creating a Morepath Project Using Cookiecutter
 ----------------------------------------------
 
