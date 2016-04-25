@@ -129,7 +129,7 @@ Deprecation
 
 In some cases we have to make changes that break compatibility and
 break user code. We mark these in ``CHANGES.txt`` (:doc:`changes`)
-using **breaking changes**, **deprecated** or **removed**.
+using **breaking change**, **deprecated** or **removed**.
 
 These entries should explain the change, and also tell the user what
 to do to upgrade their code. Do include an before/after code example
@@ -140,17 +140,28 @@ breaking changes. When we do make a breaking change it should be
 marked clearly in ``CHANGES.txt`` (:doc:`changes`) with a **Breaking
 change** marker.
 
-If it is not a great burden we use deprecations. These are marked with
-**Deprecated** in ``CHANGES.txt``. Morepath in this case retains the
-old APIs but issues a deprecation warning. See :doc:`upgrading` for
-the notes for end-users concerning this. When you make a deprecation
-put an issue labeled ``remove deprecation`` in the tracker for one
-release after the upcoming release that states we should remove the
-deprecation.
+If it is not a great burden we use deprecations. Morepath in this case
+retains the old APIs but issues a deprecation warning. See
+:doc:`upgrading` for the notes for end-users concerning this. Here is
+the deprecation procedure for developers:
 
-This way we don't maintain deprecations indefinitely -- one release
-later we remove the backwards compatibility code and deprecation
-warnings. We then repeat the information on what to do in a new
-**Removed** entry in ``CHANGES.txt``; treat it just like **Breaking
-change** and recycle the text written for the previous **Deprecated**
-entry for the stuff we're now removing.
+* Add a **Deprecated** entry in ``CHANGES.txt`` that describes what
+  to do, as in a **breaking change**.
+
+* Issue a deprecation warning in the code that is deprecated.
+
+* Put a ``**Deprecated**`` entry in the docstring of whatever got
+  deprecated with a brief comment on what to do.
+
+* Put an issue labeled ``remove deprecation`` in the tracker for one
+  release milestone after the upcoming release that states we should
+  remove the deprecation. Create the milestone if needed.
+
+  This way we don't maintain deprecated code and their warnings
+  indefinitely -- one release later we remove the backwards
+  compatibility code and deprecation warnings.
+
+* Once we go and remove code, we repeat the information on what to do
+  in a new *Removed** entry in ``CHANGES.txt``; treat it just like
+  **Breaking change** and recycle the text written for the previous
+  **Deprecated** entry for the stuff we're now removing.
