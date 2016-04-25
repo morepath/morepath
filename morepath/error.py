@@ -22,9 +22,7 @@ from dectate import (ConfigError, ConflictError, TopologicalSortError,  # noqa
 
 # XXX is ConfigError the right base class?
 class AutoImportError(ConfigError):
-    """Raised when Morepath fails to import a module during
-    autoconfig/autosetup.
-    """
+    """Raised when Morepath fails to import a module during autoscan."""
 
     def __init__(self, module_name):
 
@@ -33,14 +31,12 @@ class AutoImportError(ConfigError):
             no such module could be imported.
 
             Make sure your module name matches the setup.py name, or use
-            autoscan directly::
+            morepath.scan directly::
 
-                import autoscan
                 import yourmodule
                 import morepath
 
-                autoscan.scan(yourmodule)
-                morepath.autosetup()
+                morepath.scan(yourmodule)
 
             For more information have a look at the 'configuration' docs.
         """

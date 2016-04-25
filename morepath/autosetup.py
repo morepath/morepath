@@ -20,9 +20,7 @@ def scan(package=None, ignore=None, handle_error=None):
     It scans by recursively importing the package and any modules
     in it, including any sub-packages.
 
-    Register any found directives with their app classes. It also
-    makes a list of :class:`App` subclasses that can be commited using
-    :func:`autocommit`.
+    Register any found directives with their app classes.
 
     :param package: The Python module or package to scan. Optional; if left
       empty case the calling package is scanned.
