@@ -10,11 +10,13 @@ Dectate:
 * :exc:`dectate.DirectiveReportError`
 
 * :exc:`dectate.DirectiveError`
+
+* :exc:`dectate.TopologicalSortError`
 """
 
 # -*- coding: utf-8 -*-
 import textwrap
-from dectate import (ConfigError, ConflictError,  # noqa
+from dectate import (ConfigError, ConflictError, TopologicalSortError,  # noqa
                      DirectiveReportError, DirectiveError)  # noqa
 
 
@@ -54,11 +56,4 @@ class TrajectError(Exception):
 
 class LinkError(Exception):
     """Raised when a link cannot be made.
-    """
-
-
-class TopologicalSortError(Exception):
-    """Raised if something cannot be sorted topologically.
-
-    This is due to circular dependencies.
     """
