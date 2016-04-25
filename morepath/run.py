@@ -18,4 +18,8 @@ def run(wsgi, host=None, port=None):  # pragma: no cover
     server = make_server(host, port, wsgi)
     print("Running %s with wsgiref.simple_server on http://%s:%s" % (
         wsgi, host, port))
-    server.serve_forever()
+    print("Press Ctrl-C to stop.")
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\nReceived keyboard interrupt.")
