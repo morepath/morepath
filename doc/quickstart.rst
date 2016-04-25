@@ -95,32 +95,7 @@ Code Walkthrough
    application you instead use a setuptools entry point so that a
    startup script for your application is created automatically.
 
-6. :func:`morepath.autocommit` commits all directives for all
-   :class:`morepath.App` subclasses in the application, in this case
-   ``App``. Anything you imported, directly or indirectly, is committed.
-
-   This step ensures your configuration (model routes, views, etc) is
-   loaded exactly once in a way that's reusable and extensible.
-
-   If you have package dependencies you want to import recursively
-   automatically, you can use :func:`morepath.scan` before you call
-   ``autocommit``.  For instance, if you want to use the Morepath
-   extension ``more.static``, you ::
-
-      import more.static
-
-      ...
-      morepath.scan(more.static)
-      morepath.autocommit()
-
-   If your app is in a Python package and you've set up the right
-   ``install_requires`` in ``setup.py``, consider using
-   :func:`morepath.autoscan` or :func:`morepath.autosetup` so all
-   dependencies also get set up automatically. See
-   :doc:`configuration` for more detail. See
-   :doc:`organizing_your_project` for more information.
-
-8. We then instantiate the ``App`` class to create a ``WSGI`` app
+6. We then instantiate the ``App`` class to create a ``WSGI`` app
    using the default web server. Since you create a WSGI app you can
    also plug it into any other WSGI server.
 
