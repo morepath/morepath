@@ -104,6 +104,9 @@ CHANGES
 - A new document describing how to write a test for Morepath-based
   applications.
 
+- Document how to create a Dectate-based command-line query tool that
+  lets you query Morepath directives.
+
 0.13.2 (2016-04-13)
 ===================
 
