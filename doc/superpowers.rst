@@ -14,12 +14,12 @@ Since Morepath knows about your models, it can generate links to them. If
 you have a model instance (for example through a database query), you
 can get a link to it by calling :meth:`morepath.Request.link`::
 
-  request.link(my_model)
+  request.link(my_obj)
 
 Want a link to its edit view (or whatever named view you want)? Just
 do::
 
-  request.link(my_model, 'edit')
+  request.link(my_obj, 'edit')
 
 If you create links this way everywhere (and why shouldn't you?), you
 know your application's links will never break.

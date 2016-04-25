@@ -5,8 +5,8 @@ Introduction
 ------------
 
 Morepath views are looked up through the URL path, but not through the
-routing procedure. Routing stops at models. Then the last segment of
-the path is taken to identify the view by name.
+routing procedure. Routing stops at model objects. Then the last
+segment of the path is taken to identify the view by name.
 
 Named views
 -----------

@@ -7,8 +7,9 @@ Introduction
 Morepath lets you publish model classes on paths using Python
 functions. It also lets you create links to model instances. To be
 able do so Morepath needs to be told what variables there are in the
-path in order to find the model, and how to find these variables again
-in the model in order to construct a link to it.
+path in order to find the model object, and how to find these
+variables again in the model object in order to construct a link to
+it.
 
 Paths
 -----
@@ -195,8 +196,8 @@ Linking
 -------
 
 To create a link to a model, we can call :meth:`morepath.Request.link`
-in our view code. At that point the model is examined to retrieve the
-variables so that the path can be constructed.
+in our view code. At that point the model object is examined to
+retrieve the variables so that the path can be constructed.
 
 Here is a simple case involving ``Document`` again::
 
@@ -247,10 +248,10 @@ is used to construct the name. For those cases we can take over and
 supply a custom ``variables`` function that knows how to construct the
 variables needed to construct the link from the model.
 
-The variables function gets the model as a single argument and needs
-to return a dictionary. The keys should be the variable names used in
-the path or URL parameters, and the values should be the values as
-extracted from the model.
+The variables function gets the model object as a single argument and
+needs to return a dictionary. The keys should be the variable names
+used in the path or URL parameters, and the values should be the
+values as extracted from the model.
 
 As an example, here is the ``variables`` function for the ``Document``
 case made explicit::
