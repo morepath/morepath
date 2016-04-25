@@ -107,6 +107,9 @@ CHANGES
 - Document how to create a Dectate-based command-line query tool that
   lets you query Morepath directives.
 
+- Uses the topological sort implementation in Dectate. Sort out a mess
+  where there were too many ``TopologicalSortError`` classes.
+
 0.13.2 (2016-04-13)
 ===================
 
