@@ -98,6 +98,9 @@ CHANGES
   create your own directive and build on one of Morepath's registries
   or directives.
 
+- A friendlier ``morepath.run`` that tells you how to quit it with
+  ``ctrl-C``.
+
 0.13.2 (2016-04-13)
 ===================
 
