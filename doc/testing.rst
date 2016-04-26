@@ -1,8 +1,8 @@
-Automating the tests for your App
-=================================
+Writing automated tests
+=======================
 
 This an introductory guide to writing automated tests for your
-Morepath app. We assume you've already installed Morepath; if not,
+Morepath project. We assume you've already installed Morepath; if not,
 see the :doc:`installation` section.
 
 In order to carry out the test we'll use WebTest_, which you'll need
