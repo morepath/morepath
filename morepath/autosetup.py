@@ -153,8 +153,8 @@ def autosetup(ignore=None):
     instead.  ``autosetup`` is now completely equivalent to it.
 
     """
-    warnings.warn("DEPRECATED. Autosetup is deprecated. "
-                  "Use autoscan instead.", DeprecationWarning)
+    warnings.warn("DEPRECATED. morepath.autosetup is deprecated. "
+                  "Use morepath.autoscan instead.", DeprecationWarning)
     autoscan(ignore)
 
 
