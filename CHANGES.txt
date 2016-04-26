@@ -35,6 +35,11 @@ CHANGES
   This change was made to avoid circular imports in Morepath, and
   because ``App`` did not directly depend on ``RegRegistry`` anymore.
 
+- **Breaking change**: the ``variables`` function for the ``path``
+  directive *has* to be defined taking a first ``obj`` argument. In
+  the past it was possible to define a ``variables`` function that
+  took no arguments. This is now an error.
+
 - **New** We have a new chat channel available. You can join us by clicking
   this link:
 
