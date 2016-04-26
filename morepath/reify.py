@@ -11,7 +11,9 @@ class reify(object):
     variable.  It is, in Python parlance, a non-data descriptor. An
     example:
 
-    .. code-block:: python
+    .. testcode::
+
+       from morepath import reify
 
        class Foo(object):
            @reify
@@ -21,16 +23,15 @@ class reify(object):
 
     And usage of Foo:
 
-    .. code-block:: python
+      >>> f = Foo()
+      >>> v = f.jammy
+      jammy called
+      >>> print(v)
+      1
+      >>> print f.jammy
+      1
+      >>> # jammy func not called the second time; it replaced itself with 1
 
-      f = Foo()
-      v = f.jammy
-      'jammy called'
-      print(v)
-      1
-      print f.jammy
-      1
-      # jammy func not called the second time; it replaced itself with 1
     """
     def __init__(self, wrapped):
         self.wrapped = wrapped
