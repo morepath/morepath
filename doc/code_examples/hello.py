@@ -16,5 +16,4 @@ def hello_world(self, request):
 
 
 if __name__ == '__main__':
-    morepath.autocommit()
     morepath.run(App())

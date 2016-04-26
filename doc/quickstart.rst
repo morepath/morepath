@@ -17,10 +17,11 @@ Let's look at a minimal "Hello world!" application in Morepath:
 
 You can save this as ``hello.py`` and then run it with Python:
 
-.. code-block:: sh
+.. code-block:: console
 
   $ python hello.py
-  Running <morepath.App 'Hello'> with wsgiref.simple_server on http://127.0.0.1:5000
+  Running <__main__.App object at 0x10f8398d0> with wsgiref.simple_server on http://127.0.0.1:5000
+  Press Ctrl-C to stop.
 
 .. sidebar:: Making the server externally accessible
 
@@ -31,7 +32,7 @@ You can save this as ``hello.py`` and then run it with Python:
 
   But sometimes do want to make the development server accessible from
   the outside world. This can be done by passing an explicit ``host``
-  argument of ``0.0.0.0`` to the ``morepath.run()`` function.
+  argument of ``0.0.0.0`` to the ``morepath.run()`` function. ::
 
     morepath.run(App(), host='0.0.0.0')
 
@@ -95,32 +96,7 @@ Code Walkthrough
    application you instead use a setuptools entry point so that a
    startup script for your application is created automatically.
 
-6. :func:`morepath.autocommit` commits all directives for all
-   :class:`morepath.App` subclasses in the application, in this case
-   ``App``. Anything you imported, directly or indirectly, is committed.
-
-   This step ensures your configuration (model routes, views, etc) is
-   loaded exactly once in a way that's reusable and extensible.
-
-   If you have package dependencies you want to import recursively
-   automatically, you can use :func:`morepath.scan` before you call
-   ``autocommit``.  For instance, if you want to use the Morepath
-   extension ``more.static``, you ::
-
-      import more.static
-
-      ...
-      morepath.scan(more.static)
-      morepath.autocommit()
-
-   If your app is in a Python package and you've set up the right
-   ``install_requires`` in ``setup.py``, consider using
-   :func:`morepath.autoscan` or :func:`morepath.autosetup` so all
-   dependencies also get set up automatically. See
-   :doc:`configuration` for more detail. See
-   :doc:`organizing_your_project` for more information.
-
-8. We then instantiate the ``App`` class to create a ``WSGI`` app
+6. We then instantiate the ``App`` class to create a ``WSGI`` app
    using the default web server. Since you create a WSGI app you can
    also plug it into any other WSGI server.
 
@@ -172,16 +148,16 @@ rather boring. To make things more interesting, let's imagine we have
 an application to manage users. Here's our ``User`` class::
 
   class User(object):
-       def __init__(self, username, fullname, email):
-           self.username = username
-           self.fullname = fullname
-           self.email = email
+      def __init__(self, username, fullname, email):
+          self.username = username
+          self.fullname = fullname
+          self.email = email
 
 We also create a simple users database::
 
   users = {}
   def add_user(user):
-       users[user.username] = user
+      users[user.username] = user
 
   faassen = User('faassen', 'Martijn Faassen', 'faassen@startifact.com')
   bob = User('bob', 'Bob Bobsled', 'bob@example.com')
