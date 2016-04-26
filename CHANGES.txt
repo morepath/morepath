@@ -1,8 +1,8 @@
 CHANGES
 *******
 
-0.14 (unreleased)
-===================
+0.14 (2016-04-26)
+=================
 
 - **New** We have a new chat channel available. You can join us by clicking
   this link:
