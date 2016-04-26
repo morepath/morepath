@@ -4,8 +4,7 @@ CHANGES
 0.15 (unreleased)
 =================
 
-- Nothing changed yet.
-
+- Cleanups and testing of reify functionality.
 
 0.14 (2016-04-26)
 =================
