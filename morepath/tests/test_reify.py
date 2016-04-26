@@ -27,5 +27,13 @@ def test__doc__copied():
     assert decorator.__doc__ == 'My doc'
 
 
+def test_no_doc():
+    def wrapped(inst):
+        pass
+
+    decorator = reify(wrapped)
+    assert decorator.__doc__ is None
+
+
 class Dummy(object):
     pass
