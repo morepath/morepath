@@ -39,7 +39,7 @@ def test_caller_package_in_init():
     assert self_scan.get_this_package() == self_scan
 
 
-def test_self_sanning_package():
+def test_self_scanning_package():
     from .fixtures.self_scan.app import App
 
     # Importing the app as we did above imports the definition only,

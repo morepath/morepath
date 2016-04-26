@@ -6,7 +6,7 @@ are part of the public API.
 """
 
 import sys
-import dectate
+import warnings
 import importscan
 import importlib
 import pkg_resources
@@ -20,9 +20,7 @@ def scan(package=None, ignore=None, handle_error=None):
     It scans by recursively importing the package and any modules
     in it, including any sub-packages.
 
-    Register any found directives with their app classes. It also
-    makes a list of :class:`App` subclasses that can be commited using
-    :func:`autocommit`.
+    Register any found directives with their app classes.
 
     :param package: The Python module or package to scan. Optional; if left
       empty case the calling package is scanned.
@@ -150,9 +148,14 @@ def autosetup(ignore=None):
       during scanning. Optional. If ommitted, ignore ``.test`` and
       ``.tests`` packages by default. See :func:`importscan.scan` for
       more details.
+
+    **Deprecated**: use the function :func:`morepath.autoscan`,
+    instead.  ``autosetup`` is now completely equivalent to it.
+
     """
+    warnings.warn("DEPRECATED. Autosetup is deprecated. "
+                  "Use autoscan instead.", DeprecationWarning)
     autoscan(ignore)
-    dectate.autocommit()
 
 
 def morepath_packages():
