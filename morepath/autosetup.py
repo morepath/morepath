@@ -1,12 +1,11 @@
 """
 This module defines functionality to automatically configure Morepath.
 
-:func:`morepath.scan`, :func:`morepath.autoscan`, :func:`morepath.autosetup`
+:func:`morepath.scan`, :func:`morepath.autoscan`
 are part of the public API.
 """
 
 import sys
-import warnings
 import importscan
 import importlib
 import pkg_resources
@@ -114,48 +113,6 @@ def autoscan(ignore=None):
         ignore.extend(['.test', '.tests'])
     for package in morepath_packages():
         importscan.scan(package, ignore)
-
-
-def autosetup(ignore=None):
-    """Automatically scan and commit Morepath configuration.
-
-    As with :func:`morepath.autoscan`, but also commits
-    configuration. This can be your one-stop function to load all
-    Morepath configuration automatically.
-
-    Typically called immediately after startup just before the
-    application starts serving using WSGI.
-
-    ``autosetup`` always ignores ``.test`` and ``.tests``
-    sub-packages -- these are assumed never to contain useful Morepath
-    configuration and are not scanned.
-
-    ``autosetup`` can fail with an ``ImportError`` when it tries to
-    scan code that imports an optional dependency that is not
-    installed. This happens most commonly in test code, which often
-    rely on test-only dependencies such as ``pytest`` or ``nose``. If
-    those tests are in a ``.test`` or ``.tests`` sub-package they
-    are automatically ignored, however.
-
-    If you have a special package with such expected import errors,
-    you may be better off switching to :func:`morepath.autoscan`
-    with an ignore for this package, and then doing a manual
-    :func:`scan` for that package with the resulting config
-    object. There you can add a custom ``ignore`` argument that
-    excludes the modules that generate import errors.
-
-    :param ignore: ignore to ignore some modules
-      during scanning. Optional. If ommitted, ignore ``.test`` and
-      ``.tests`` packages by default. See :func:`importscan.scan` for
-      more details.
-
-    **Deprecated**: use the function :func:`morepath.autoscan`,
-    instead.  ``autosetup`` is now completely equivalent to it.
-
-    """
-    warnings.warn("DEPRECATED. morepath.autosetup is deprecated. "
-                  "Use morepath.autoscan instead.", DeprecationWarning)
-    autoscan(ignore)
 
 
 def morepath_packages():

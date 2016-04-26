@@ -24,7 +24,7 @@ from . import directive  # register directive methods
 from .generic import remember_identity, forget_identity, settings
 from .view import render_json, render_html, redirect
 from .request import Request, Response
-from .autosetup import scan, autoscan, autosetup
+from .autosetup import scan, autoscan
 from .authentication import Identity, IdentityPolicy, NO_IDENTITY
 from .converter import Converter
 from .reify import reify
