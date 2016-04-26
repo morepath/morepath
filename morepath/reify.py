@@ -1,7 +1,7 @@
-# taken from pyramid.decorator
+# Originally taken from pyramid.decorator
 
 
-class reify(object):  # flake8: noqa
+class reify(object):
     """Cache a property.
 
     Use as a method decorator.  It operates almost exactly like the
@@ -34,10 +34,7 @@ class reify(object):  # flake8: noqa
     """
     def __init__(self, wrapped):
         self.wrapped = wrapped
-        try:
-            self.__doc__ = wrapped.__doc__
-        except:  # pragma: no cover
-            pass
+        self.__doc__ = wrapped.__doc__
 
     def __get__(self, inst, objtype=None):
         if inst is None:
