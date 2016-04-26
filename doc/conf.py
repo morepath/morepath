@@ -57,7 +57,7 @@ master_doc = 'toc'
 
 # General information about the project.
 project = u'Morepath'
-copyright = u'2013-2014, Morepath developers'
+copyright = u'2013-2016, Morepath developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
