@@ -32,7 +32,7 @@ setup(name='morepath',
         'setuptools',
         'webob >= 1.3.1',
         'reg >= 0.9.2',
-        'dectate >= 0.10',
+        'dectate >= 0.10.1',
         'importscan',
       ],
       extras_require = dict(
