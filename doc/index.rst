@@ -93,7 +93,6 @@ Morepath Knows About Your Models
       return '<p>Hello document: %s!</p>' % self.id
 
   if __name__ == '__main__':
-      morepath.autocommit()
       morepath.run(App())
 
 Want to know what's going on? Check out the :doc:`Quickstart <quickstart>`!

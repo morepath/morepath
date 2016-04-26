@@ -89,7 +89,7 @@ The ``install_requires`` section declares the dependency on
 Morepath. Doing this makes everybody who installs your project
 automatically also pull in a release of Morepath and its own
 dependencies. In addition, it lets this package be found and
-configured when you use :func:`morepath.autosetup`.
+configured when you use :func:`morepath.autoscan`.
 
 Finally there is an ``entry_points`` section that declares a console
 script (something you can run on the command-prompt of your operating
@@ -199,13 +199,19 @@ in ``setup.py``::
   from .app import App
 
   def run():
-      morepath.autosetup()
+      morepath.autoscan()
+      App.commit()
       morepath.run(App())
 
-This run function does two things:
+This run function does the following:
 
-* Use :func:`morepath.autosetup()` to set up Morepath, including any
-  of your code.
+* Use :func:`morepath.autoscan()` to recursively import your own
+  package plus any dependencies that are installed.
+
+* Commit the ``App`` class so that its configuration is ready. You can
+  omit this step and in this case the configuration is committed when
+  Morepath processes the first request. But if you want to see configuration errors
+  at startup, use an explicit ``commit``.
 
 * start a WSGI server for the ``App`` instance on port localhost,
   port 5000. This uses the standard library wsgiref WSGI server. Note
@@ -230,7 +236,7 @@ configuration of your project. Here's a checklist:
 * Check whether your project has a ``setup.py`` with an
   ``install_requires`` that depends on ``morepath`` (possibly
   indirectly through another dependency). You need to declare your
-  code as a project so that ``autosetup`` can find it.
+  code as a project so that ``autoscan`` can find it.
 
 * Check whether your project is installed in a virtualenv using ``pip
   install -e .`` or in a buildout. Morepath needs to be able to find
@@ -245,17 +251,16 @@ configuration of your project. Here's a checklist:
     import mysterious_package
 
     morepath.scan(mysterious_package)
-    morepath.autosetup()
 
   If this fixes things, the package is somehow not being picked up for
   automatic scanning. Check the package's ``setup.py``.
 
 * Try manually importing the modules before doing a
-  :func:`morepath.autosetup` and see whether it works then::
+  :func:`morepath.autoscan` and see whether it works then::
 
     import mysterious_module
 
-    morepath.autosetup()
+    morepath.autoscan()
 
   If this fixes things, then your own package is not being picked up
   as a Morepath package for some reason.
@@ -281,7 +286,8 @@ your run module to look like this::
   from .app import App
 
   def run():
-      morepath.autosetup()
+      morepath.autoscan()
+      App.commit()
       run_simple('localhost', 8080, App(), use_reloader=True)
 
 Using this runner changes to Python code in your package trigger a
@@ -333,7 +339,8 @@ first create a factory function that returns the fully configured WSGI
 app::
 
   def wsgi_factory():
-     morepath.autosetup()
+     morepath.autoscan()
+     App.commit()
      return App()
 
   $ waitress-serve --call myproject.run:wsgi_factory

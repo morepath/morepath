@@ -15,50 +15,61 @@ How it works
 
 .. sidebar:: Avoid top-level
 
-  You should not do a commit (or autosetup) at the top-level of a
-  module, unless it's guarded by ``if __name__ == '__main__'``. Better
-  yet is to use a entry point as described in
-  :doc:`organizing_your_project`. Doing a commit at module top-level
-  can cause the commit to happen before you are done importing all
-  required modules that contain Morepath directives, which would leave
-  configuration in a half-baked state.
+  You should not do a commit at the top-level of a module, unless it's
+  guarded by ``if __name__ == '__main__'``. Better yet is to use a
+  entry point as described in :doc:`organizing_your_project`. Doing a
+  commit at module top-level can cause the commit to happen before you
+  are done importing all required modules that contain Morepath
+  directives, which would leave configuration in a half-baked state.
 
   The same rule applies to starting the WSGI server.
 
-Morepath needs to be configured before it is run. That means that you
-need to run the necessary configuration steps before you pass a new
-instance of your application to your WSGI server::
+Morepath needs to run the necessary configuration steps before it can
+serve WSGI requests. You can do this explicitly by running
+:meth:`morepath.App.commit`::
 
   if __name__ == '__main__':
-      morepath.autocommit()
+      App.commit()
 
       application = App()
       morepath.run(application)
 
-Morepath registers any directive you used in modules that you have
-imported, directly or indirectly, with the :class:`App` subclass you
-used it on. It also creates a list of your app classes (:class:`App`
-subclasses) you have imported.
+When you import modules, Morepath registers any directive you used in
+modules that you have imported, directly or indirectly, with the
+:class:`App` subclass you used it on.
 
-:func:`morepath.autocommit` then commits the configuration for all of
-your app classes. After this, the application can be run. The commit
-procedure makes sure there are no conflicting pieces of configuration
-and resolves any configuration overrides.
+Calling ``commit`` on the App class then commits that app class and
+any app classes it mounts. After this, the application can be run. The
+commit procedure makes sure there are no conflicting pieces of
+configuration and resolves any configuration overrides.
+
+You can actually omit ``App.commit()`` if you want to. In this case
+the first request served by Morepath also does the commit. This also
+means any configuration errors are reported during the first request.
+If you prefer seeing configuration errors immediately during startup,
+leave the explicit ``commit`` in place.
+
+Scanning a package
+------------------
 
 When you depend on a package that contains Morepath code it is
-convenient to be able to scan all of it at once. That way you can't
-accidentally forget to import a module and thus have its directives
-not be active. You can scan a whole package with
+convenient to be able to recursively import all of it at once. That
+way you can't accidentally forget to import a module and thus have its
+directives not be active. You can scan a whole package with
 :func:`morepath.scan`::
 
   import my_package
 
   if __name__ == '__main__':
       morepath.scan(my_package)
-      morepath.autocommit()
+
+      App.commit()
 
       application = App()
       morepath.run(application)
+
+All scanning does is recursively import all modules in a package
+(except for tests directories), nothing more.
 
 Since scanning the current package is common, we have a convenience
 shortcut that scan the package the code is in automatically. You use
@@ -66,13 +77,14 @@ it by calling :func:`morepath.scan` without arguments::
 
   if __name__ == '__main__':
       morepath.scan()
-      morepath.autocommit()
+
+      App.commit()
 
       application = App()
       morepath.run(application)
 
 You can also use :func:`scan` with packages that contain third-party
-Morepath code, but there is actually a better way.
+Morepath code, but there is an easier way to do that.
 
 Scanning dependencies
 ---------------------
@@ -102,7 +114,8 @@ This is what you do::
   if __name__ == '__main__':
       morepath.scan(more.jinja2) # scan Jinja2 package
       morepath.scan() # scan this package
-      morepath.autocommit()
+
+      App.commit()
 
       application = App()
       morepath.run(application)
@@ -138,7 +151,8 @@ modified example that uses ``autoscan``::
   if __name__ == '__main__':
       morepath.autoscan()
       morepath.scan()
-      morepath.autocommit()
+
+      App.commit()
 
       application = App()
       morepath.run(application)
@@ -147,20 +161,14 @@ As you can see, we also don't need to import or scan dependencies
 anymore. We still need to run :func:`scan` without parameters
 however, so our own package or module gets scanned.
 
-We can get rid of the :func:`scan` line if we move our own code into a
-proper Python project too.
-
-Autosetup
-~~~~~~~~~
-
-In the previous example we still needed to scan the startup module
-itself, so that is why we need :func:`scan`. We can get rid of that
-line by turning the code into a full Python project with its own
-``setup.py``. The ``setup.py`` looks like this::
+If you move your code into a proper Python project that depends on
+Morepath you can also get rid of the ``morepath.scan()`` line by
+itself. The ``setup.py`` of your project then looks like this::
 
   setup(name='myapp',
         packages=find_packages(),
         install_requires=[
+           'more.jinja2',
            'morepath'
         ])
 
@@ -171,14 +179,15 @@ See :doc:`organizing_your_project` for a lot more information on how
 to do this, including tips on how to best organize your Python code.
 
 Once you put your code in a Python project with a ``setup.py``, you can
-simplify the configuration scan to this::
+simplify the setup code to this::
 
   if __name__ == '__main__':
-      morepath.autosetup()
+      morepath.autoscan()
+      App.commit()
       morepath.run(App())
 
-:func:`morepath.autosetup()` makes sure to scan all packages with Morepath
-code, and commits the configuration.
+:func:`morepath.autoscan()` makes sure to scan all packages that
+depend on Morepath directly or indirectly.
 
 Writing scannable packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -281,9 +290,3 @@ A Morepath scannable Python package has to fulfill a few requirements.
 
      Note that you still need to have ``morepath`` in the
      ``install_requires`` list for this to work.
-
-More information
-----------------
-
-Even more information and nitty gritty details can be found in the API
-docs.  See :doc:`api`.

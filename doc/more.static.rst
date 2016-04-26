@@ -79,23 +79,24 @@ that when run serves the WSGI application to the web::
   from .app import App
 
   def run():
-     morepath.autosetup()
+     morepath.autoscan()
+     App.commit()
      wsgi = App()
      morepath.run(wsgi)
 
 Manual scan
 -----------
 
-We recommend you use ``morepath.autosetup`` to make sure that all code
+We recommend you use ``morepath.autoscan`` to make sure that all code
 that uses Morepath is automatically scanned. If you *do not* use
-``autosetup`` but use manual ``morepath.scan()`` instead, you need to
+``autoscan`` but use manual ``morepath.scan()`` instead, you need to
 scan ``more.static`` explicitly, like this::
 
   import more.static
 
   def run():
      morepath.scan(more.static)
-     morepath.autocommit()
+     App.commit()
      wsgi = App()
      morepath.run(wsgi)
 

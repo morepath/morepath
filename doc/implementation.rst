@@ -30,9 +30,8 @@ so that their directives are registered.
 commit
 ~~~~~~
 
-Configuration is then committed using :func:`morepath.autosetup`,
-:func:`morepath.autocommit`, :func:`morepath.commit` or
-:meth:`morepath.App.commit`.
+Configuration is then committed using :meth:`morepath.App.commit`, or
+the more low-level :func:`morepath.commit`.
 
 This causes :func:`dectate.commit` to be called for a particular App
 class. This takes all the configuration as recorded during import-time
