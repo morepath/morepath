@@ -4,6 +4,22 @@ CHANGES
 0.15 (unreleased)
 =================
 
+- **Removed**: ``morepath.autosetup`` and ``morepath.autocommit`` are
+  both removed from the Morepath API.
+
+  Use ``autoscan``. Also use new explicit ``App.commit`` method, or
+  rely on Morepath automatically committing during the first
+  request. So instead of::
+
+    morepath.autosetup()
+    morepath.run(App())
+
+  you do::
+
+    morepath.autoscan()
+    App.commit()  # optional
+    morepath.run(App())
+
 - Cleanups and testing of reify functionality.
 
 0.14 (2016-04-26)
@@ -38,8 +54,20 @@ CHANGES
   instead.
 
 - **Deprecated** ``morepath.autosetup`` and ``morepath.autocommit``
-  are both deprecated. Use the new explicit ``App.commit`` method, or
-  rely on Morepath automatically committing during the first request.
+  are both deprecated.
+
+  Use ``autoscan``. Also use new explicit ``App.commit`` method, or
+  rely on Morepath automatically committing during the first
+  request. So instead of::
+
+    morepath.autosetup()
+    morepath.run(App())
+
+  you do::
+
+    morepath.autoscan()
+    App.commit()  # optional
+    morepath.run(App())
 
 - **Breaking change** Extensions that imported ``RegRegistry`` directly
   from ``morepath.app`` are going to be broken. This kind of import::
