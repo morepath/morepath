@@ -1,7 +1,7 @@
-# taken from pyramid.decorator
+# Originally taken from pyramid.decorator
 
 
-class reify(object):  # flake8: noqa
+class reify(object):
     """Cache a property.
 
     Use as a method decorator.  It operates almost exactly like the
@@ -11,33 +11,31 @@ class reify(object):  # flake8: noqa
     variable.  It is, in Python parlance, a non-data descriptor. An
     example:
 
-    .. code-block:: python
+    .. testcode::
 
-       class Foo(object):
-           @reify
-           def jammy(self):
-               print('jammy called')
-               return 1
+      from morepath import reify
+
+      class Foo(object):
+          @reify
+          def jammy(self):
+              print('jammy called')
+              return 1
 
     And usage of Foo:
 
-    .. code-block:: python
+      >>> f = Foo()
+      >>> v = f.jammy
+      jammy called
+      >>> print(v)
+      1
+      >>> print f.jammy
+      1
+      >>> # jammy func not called the second time; it replaced itself with 1
 
-      f = Foo()
-      v = f.jammy
-      'jammy called'
-      print(v)
-      1
-      print f.jammy
-      1
-      # jammy func not called the second time; it replaced itself with 1
     """
     def __init__(self, wrapped):
         self.wrapped = wrapped
-        try:
-            self.__doc__ = wrapped.__doc__
-        except:  # pragma: no cover
-            pass
+        self.__doc__ = wrapped.__doc__
 
     def __get__(self, inst, objtype=None):
         if inst is None:
