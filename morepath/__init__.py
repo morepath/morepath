@@ -12,7 +12,7 @@ needing to import from them in application or extension code, please
 report an issue about it on the Morepath issue tracker.
 """
 
-from dectate import commit, autocommit
+from dectate import commit
 from .app import App
 from .implicit import enable_implicit, disable_implicit
 from .core import (excview_tween_factory as EXCVIEW,
@@ -24,7 +24,7 @@ from . import directive  # register directive methods
 from .generic import remember_identity, forget_identity, settings
 from .view import render_json, render_html, redirect
 from .request import Request, Response
-from .autosetup import scan, autoscan, autosetup
+from .autosetup import scan, autoscan
 from .authentication import Identity, IdentityPolicy, NO_IDENTITY
 from .converter import Converter
 from .reify import reify

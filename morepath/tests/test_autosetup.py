@@ -1,6 +1,6 @@
 from collections import namedtuple
 from morepath.autosetup import (
-    caller_module, caller_package, autosetup,
+    caller_module, caller_package, autoscan,
     morepath_packages, import_package)
 from base.m import App
 import morepath
@@ -51,13 +51,13 @@ def test_caller_package():
     assert invoke(caller_package) == sys.modules[__package__]
 
 
-def test_autosetup(monkeypatch):
+def test_autoscan(monkeypatch):
     import sys
 
     for k in 'base.m', 'entrypoint.app', 'under_score.m':
         monkeypatch.delitem(sys.modules, k, raising=False)
 
-    pytest.deprecated_call(autosetup)
+    autoscan()
 
     assert 'base.m' in sys.modules
     assert 'entrypoint.app' in sys.modules

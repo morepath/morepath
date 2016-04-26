@@ -14,11 +14,7 @@ API
 
 .. autofunction:: autoscan
 
-.. autofunction:: autosetup
-
 .. autofunction:: commit
-
-.. autofunction:: autocommit
 
 .. autofunction:: run
 
