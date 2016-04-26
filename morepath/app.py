@@ -210,9 +210,6 @@ class App(dectate.App):
 
         Mounted apps are discovered in breadth-first order.
 
-        This method supersedes the deprecated function
-        :func:`morepath.autocommit`.
-
         :return: the set of discovered apps.
         """
         discovery = set()
