@@ -34,6 +34,9 @@ CHANGES
 
 - More doctests in the narrative documentation.
 
+- Fix a bug where a double slash at the start of a path was not
+  normalized.
+
 - A few small performance tweaks.
 
 0.14 (2016-04-26)
