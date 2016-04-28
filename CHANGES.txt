@@ -20,6 +20,16 @@ CHANGES
     App.commit()  # optional
     morepath.run(App())
 
+- **Removed**: the ``morepath.security`` module is removed, and you cannot
+  import from it anymore. Change imports from it to the public API, so go
+  from::
+
+    from morepath.security import NO_IDENTITY
+
+  to::
+
+    from morepath import NO_IDENTITY
+
 - Cleanups and testing of ``reify`` functionality.
 
 - More doctests in the narrative documentation.
