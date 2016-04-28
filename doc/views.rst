@@ -187,7 +187,7 @@ object or a string that gets turned into a response. The
 want a view that sets the ``content-type`` to ``text/html``. You can
 do this by passing a ``render`` parameter to the ``@App.view`` decorator::
 
-  @App.view(class=Document, render=morepath.render_html)
+  @App.view(model=Document, render=morepath.render_html)
   def document_default(self, request):
       return "<p>Some html</p>"
 
@@ -213,7 +213,7 @@ Another render function is :func:`morepath.render_json`. Here it is::
 
 We'd use it like this::
 
-  @App.view(class=Document, render=morepath.render_json)
+  @App.view(model=Document, render=morepath.render_json)
   def document_default(self, request):
       return {'my': 'json'}
 
@@ -225,11 +225,11 @@ HTML views and JSON views are so common we have special shortcut decorators:
 
 Here's how you use them::
 
-  @App.html(class=Document)
+  @App.html(model=Document)
   def document_default(self, request):
       return "<p>Some html</p>"
 
-  @App.json(class=Document)
+  @App.json(model=Document)
   def document_default(self, request):
       return {'my': 'json'}
 
