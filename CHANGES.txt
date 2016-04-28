@@ -20,7 +20,9 @@ CHANGES
     App.commit()  # optional
     morepath.run(App())
 
-- Cleanups and testing of reify functionality.
+- Cleanups and testing of ``reify`` functionality.
+
+- More doctests in the narrative documentation.
 
 0.14 (2016-04-26)
 =================
