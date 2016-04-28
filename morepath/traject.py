@@ -40,10 +40,6 @@ PATH_VARIABLE = re.compile(r'\{([^}]*)\}')
 """regex to find curly-brace marked variables ``{foo}`` in routes.
 """
 
-PATH_SEPARATOR = re.compile(r'/+')
-"""regex for path separator, a ``/`` or ``/`` repeated.
-"""
-
 
 @total_ordering
 class Step(object):
@@ -270,7 +266,8 @@ class Path(object):
     :param path: the route.
     """
     def __init__(self, path):
-        self.steps = [Step(segment) for segment in reversed(parse_path(path))]
+        self.steps = [Step(segment) for segment in reversed(
+            parse_normalize_path(path))]
 
     def discriminator(self):
         """Creates a unique discriminator for the path.
@@ -311,7 +308,7 @@ class TrajectRegistry(object):
         """
         node = self._root
         known_variables = set()
-        for segment in reversed(parse_path(path)):
+        for segment in reversed(parse_normalize_path(path)):
             step = Step(segment, converters)
             node = node.add(step)
             variables = set(step.names)
@@ -356,22 +353,29 @@ class TrajectRegistry(object):
         return node.value, stack, variables
 
 
+def parse_normalize_path(path):
+    """Parse a path after normalizing it.
+
+    :param path: the path string. May contain ``..``, `.`, these
+      are normalized.
+    :return: a stack of stpes, first segment on top
+    """
+    return parse_path(normalize_path(path))
+
+
 def parse_path(path):
     """Parse a path /foo/bar/baz to a stack of steps.
 
     A step is a string, such as 'foo', 'bar' and 'baz'.
 
-    :param path: the path string
+    :param path: the path string. Should be normalized with normalize_path
+      first.
     :return: a stack of steps, first segment on top
     """
-
-    # make sure dots are normalized away (may leave a single dot -> '.')
-    path = posixpath.normpath(path).strip('/')
-
-    if not path or path == '.':
+    path = path.lstrip('/')
+    if not path:
         return []
-
-    result = PATH_SEPARATOR.split(path)
+    result = path.split('/')
     result.reverse()
     return result
 
