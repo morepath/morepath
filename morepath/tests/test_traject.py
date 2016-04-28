@@ -3,7 +3,7 @@ import morepath
 from morepath.traject import (TrajectRegistry,
                               Node, Step, TrajectError,
                               is_identifier, parse_variables,
-                              Path, parse_normalize_path, create_path,
+                              Path, create_path, parse_path,
                               normalize_path)
 from morepath.converter import ParameterFactory
 from morepath.publish import consume as traject_consume
@@ -354,36 +354,41 @@ def test_traject_no_type_conflict_middle_end():
 
 
 def test_parse_path():
-    assert parse_normalize_path(u'/a/b/c') == ['c', 'b', 'a']
+    assert parse_path(u'/a/b/c') == [u'a', u'b', u'c']
 
 
 def test_parse_path_empty():
-    assert parse_normalize_path(u'') == []
+    assert parse_path(u'') == []
 
 
 def test_parse_path_slash():
-    assert parse_normalize_path(u'/') == []
+    assert parse_path(u'/') == []
 
 
 def test_parse_path_no_slash():
-    assert parse_normalize_path('a/b/c') == ['c', 'b', 'a']
+    assert parse_path('a/b/c') == ['a', 'b', 'c']
 
 
 def test_parse_path_end_slash():
-    assert parse_normalize_path('a/b/c/') == ['c', 'b', 'a']
+    assert parse_path('a/b/c/') == ['a', 'b', 'c']
 
 
 def test_parse_path_multi_slash():
-    assert parse_normalize_path(u'/a/b/c') == parse_normalize_path(u'/a//b/c')
-    assert parse_normalize_path(u'/a/b/c') == parse_normalize_path(u'/a///b/c')
+    assert parse_path(u'/a/b/c') == parse_path(u'/a//b/c')
+    assert parse_path(u'/a/b/c') == parse_path(u'/a///b/c')
 
 
 def test_parse_path_dots():
-    assert parse_normalize_path(u'/a/b/../c') == parse_normalize_path(u'/a/c')
+    assert parse_path(u'/a/b/../c') == parse_path(u'/a/c')
+
+
+def test_parse_path_dots_start():
+    assert parse_path(u'/../a/b') == parse_path(u'/a/b')
 
 
 def test_create_path():
-    assert create_path(['c', 'b', 'a']) == '/a/b/c'
+    assert create_path(['a', 'b', 'c']) == '/a/b/c'
+    assert create_path([]) == '/'
 
 
 def test_normalize_path():
@@ -397,6 +402,9 @@ def test_normalize_path():
     assert normalize_path('../static//../app.py') == '/app.py'
     assert normalize_path('../a//b/') == '/a/b'
     assert normalize_path('/////a/////../b') == '/b'
+    assert normalize_path('//foo') == '/foo'
+    assert normalize_path('/a/b/c/../..') == '/a'
+    assert normalize_path('/a/b/c/../../d') == '/a/d'
 
 
 def test_identifier():

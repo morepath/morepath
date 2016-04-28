@@ -9,7 +9,7 @@ import reg
 
 from . import generic
 from .reify import reify
-from .traject import normalize_path, parse_path
+from .traject import create_path, parse_path
 from .error import LinkError
 
 SAME_APP = reg.Sentinel('SAME_APP')
@@ -21,13 +21,19 @@ class Request(BaseRequest):
     Extends :class:`webob.request.BaseRequest`
     """
     def __init__(self, environ, app, **kw):
-        # make sure to normalize any dots in the request path away,
-        # in case the client didn't do the normalization
-        # note that the parse_path call relies on the normalisation
-        # having happened here so it doesn't have to do it again
-        environ['PATH_INFO'] = normalize_path(environ['PATH_INFO'])
-
         super(Request, self).__init__(environ, **kw)
+        # parse path, normalizing dots away in
+        # in case the client didn't do the normalization
+        segments = parse_path(self.path_info)
+        # Webob updates the environ as well
+        self.path_info = create_path(segments)
+        # reverse to get unconsumed
+        segments.reverse()
+        self.unconsumed = segments
+        """Stack of path segments that have not yet been consumed.
+
+        See :mod:`morepath.publish`.
+        """
 
         self.app = app
         """:class:`morepath.App` instance currently handling request.
@@ -35,12 +41,6 @@ class Request(BaseRequest):
 
         self.lookup = app.lookup
         """The :class:`reg.Lookup` object handling generic function calls."""
-
-        self.unconsumed = parse_path(self.path_info)
-        """Stack of path segments that have not yet been consumed.
-
-        See :mod:`morepath.publish`.
-        """
         self._after = []
         self._link_prefix_cache = {}
 

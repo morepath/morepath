@@ -266,8 +266,7 @@ class Path(object):
     :param path: the route.
     """
     def __init__(self, path):
-        self.steps = [Step(segment) for segment in reversed(
-            parse_normalize_path(path))]
+        self.steps = [Step(segment) for segment in parse_path(path)]
 
     def discriminator(self):
         """Creates a unique discriminator for the path.
@@ -308,7 +307,7 @@ class TrajectRegistry(object):
         """
         node = self._root
         known_variables = set()
-        for segment in reversed(parse_normalize_path(path)):
+        for segment in parse_path(path):
             step = Step(segment, converters)
             node = node.add(step)
             variables = set(step.names)
@@ -353,44 +352,19 @@ class TrajectRegistry(object):
         return node.value, stack, variables
 
 
-def parse_normalize_path(path):
-    """Parse a path after normalizing it.
+def create_path(segments):
+    """Builds a path from a list of segments.
 
-    :param path: the path string. May contain ``..``, `.`, these
-      are normalized.
-    :return: a stack of stpes, first segment on top
+    :param stack: a list of segments
+    :return: a path
     """
-    return parse_path(normalize_path(path))
+    return '/' + '/'.join(segments)
 
 
 def parse_path(path):
-    """Parse a path /foo/bar/baz to a stack of steps.
+    """Parses path, creates normalized segment list.
 
-    A step is a string, such as 'foo', 'bar' and 'baz'.
-
-    :param path: the path string. Should be normalized with normalize_path
-      first.
-    :return: a stack of steps, first segment on top
-    """
-    path = path.lstrip('/')
-    if not path:
-        return []
-    result = path.split('/')
-    result.reverse()
-    return result
-
-
-def create_path(stack):
-    """Builds a path from a stack.
-
-    :param stack: stack of steps, first segment on top
-    :return: a path
-    """
-    return '/' + u'/'.join(reversed(stack))
-
-
-def normalize_path(path):
-    """Normalizes the path as follows:
+    Rules:
 
     * Collapses dots (``/../blog`` -> ``/blog``)
     * Ensures absolute paths (``./site`` -> ``/site``)
@@ -400,13 +374,39 @@ def normalize_path(path):
 
         ``../static//../app.py`` is turned into ``/app.py``
 
+    :param path: path string to parse
+    :return: normalized list of path segments.
     """
-    # the path is always absolute
-    path = path.lstrip('.')
+    segments = path.split('/')
+    result = []
+    for segment in segments:
+        if not segment or segment in './':
+            continue
+        if segment == '..':
+            if result:
+                result.pop()
+            continue
+        result.append(segment)
+    return result
 
-    # normpath returns '.' instead of '' if the path is empty, we want '/'
-    path = posixpath.normpath(path)
-    return path if path != '.' else '/'
+
+def normalize_path(path):
+    """Converts path into normalized path.
+
+    Rules:
+
+    * Collapses dots (``/../blog`` -> ``/blog``)
+    * Ensures absolute paths (``./site`` -> ``/site``)
+    * Removes double-slashes (``//index`` -> ``/index``)
+
+    For example:
+
+        ``../static//../app.py`` is turned into ``/app.py``
+
+    :param path: path string to parse
+    :return: normalized path.
+    """
+    return create_path(parse_path(path))
 
 
 def is_identifier(s):
