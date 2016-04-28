@@ -34,6 +34,8 @@ CHANGES
 
 - More doctests in the narrative documentation.
 
+- A few small performance tweaks.
+
 0.14 (2016-04-26)
 =================
 
