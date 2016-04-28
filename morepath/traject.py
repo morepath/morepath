@@ -22,7 +22,6 @@ When presented with a path, Traject traverses this internal tree.
 For a description of a similar algorithm also read: http://littledev.nl/?p=99
 """
 
-import posixpath
 import re
 from functools import total_ordering
 
