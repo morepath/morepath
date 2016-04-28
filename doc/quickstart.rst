@@ -145,7 +145,9 @@ requirements on models.
 
 Above we've exposed a ``Root`` model to the root route ``/``, which is
 rather boring. To make things more interesting, let's imagine we have
-an application to manage users. Here's our ``User`` class::
+an application to manage users. Here's our ``User`` class:
+
+.. testcode::
 
   class User(object):
       def __init__(self, username, fullname, email):
@@ -153,7 +155,9 @@ an application to manage users. Here's our ``User`` class::
           self.fullname = fullname
           self.email = email
 
-We also create a simple users database::
+We also create a simple users database:
+
+.. testcode::
 
   users = {}
   def add_user(user):
@@ -166,6 +170,13 @@ We also create a simple users database::
 
 Publishing models
 ~~~~~~~~~~~~~~~~~
+
+.. testcode::
+  :hide:
+
+  import morepath
+  class App(morepath.App):
+      pass
 
 .. sidebar:: Custom variables function
 
@@ -192,7 +203,9 @@ We want our application to have URLs that look like this::
 
   /users/bob
 
-Here's the code to expose our users database to such a URL::
+Here's the code to expose our users database to such a URL:
+
+.. testcode::
 
   @App.path(model=User, path='/users/{username}')
   def get_user(username):
@@ -243,7 +256,9 @@ Views
 ~~~~~
 
 In order to actually see a web page for a user model, we need to
-create a view for it::
+create a view for it:
+
+.. testcode::
 
   @App.view(model=User)
   def user_info(self, request):
@@ -261,7 +276,9 @@ Now the URLs listed above such as ``/users/faassen`` will work.
 
 What if we want to provide an alternative view for the user, such as
 an ``edit`` view which allows us to edit it? We need to give it a
-name::
+name:
+
+.. testcode::
 
   @App.view(model=User, name='edit')
   def edit_user(self, request):
@@ -275,21 +292,23 @@ For more on this, see :doc:`views`.
 Linking to models
 ~~~~~~~~~~~~~~~~~
 
+.. testcode::
+  :hide:
+
+  request = App().request({'PATH_INFO': '/', 'wsgi.url_scheme': 'http', 'HTTP_HOST': 'example.com'})
+
 Morepath is great at creating links to models: it can do it for you
 automatically. Previously we've defined an instance of ``User`` called
 ``bob``. What now if we want to link to the default view of ``bob``?
-We simply do this::
+We simply do this:
 
-  request.link(bob)
+  >>> request.link(bob)
+  'http://example.com/users/bob'
 
-which generates the path ``/users/bob`` for us.
+What if we want to see Bob's edit view? We do this:
 
-What if we want to see Bob's edit view? We do this::
-
-  request.link(bob, 'edit')
-
-And we get ``/users/bob/edit`` (with the hostname, for instance
-``http://example.com``, as a prefix).
+  >>> request.link(bob, 'edit')
+  'http://example.com/users/bob/edit'
 
 Using :meth:`morepath.Request.link` everywhere for link generation is
 easy. You only need models and remember which view names are
