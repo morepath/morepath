@@ -17,12 +17,15 @@ It all starts at :func:`publish`.
 
 from webob.exc import HTTPNotFound
 from reg import mapply
+import logging
 
 from .app import App
 from . import generic
 
 
 DEFAULT_NAME = u''
+
+logger = logging.getLogger(__name__)
 
 
 def publish(request):
@@ -58,6 +61,8 @@ def resolve_model(request):
     :param: :class:`morepath.Request` instance.
     :return: model object or ``None`` if not found.
     """
+    if __debug__:
+        logger.debug("Find model obj for path: %s", request.path_info)
     app = request.app
     app.set_implicit()
     while request.unconsumed:
@@ -67,7 +72,11 @@ def resolve_model(request):
             break
         # we found a non-app instance, return it
         if not isinstance(next, App):
+            if __debug__:
+                logger.debug("Found model obj: %r", next)
             return next
+        if __debug__:
+            logger.debug("Found app instance: %r", next)
         # we found an app, make it the current app
         next.set_implicit()
         next.parent = app
@@ -76,8 +85,15 @@ def resolve_model(request):
         app = next
     # if there is nothing (left), we consume toward a root obj
     if not request.unconsumed:
-        return consume(app, request)
+        result = consume(app, request)
+        if __debug__:
+            if result is not None:
+                logger.debug("Root obj found:", result)
+            else:
+                logger.debug("No root obj found")
+        return result
     # cannot find obj
+    logger.debug("No model obj found")
     return None
 
 
@@ -136,6 +152,11 @@ def resolve_response(obj, request):
     """
     view_name = request.view_name = get_view_name(request.unconsumed)
     if view_name is None:
+        if __debug__:
+            logger.debug(
+                "Not found: could not determine view name "
+                "unconsumed path segments: %r",
+                request.unconsumed)
         raise HTTPNotFound()
     return generic.view(obj, request, lookup=request.lookup)
 

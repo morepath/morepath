@@ -23,6 +23,7 @@ your code with future version of Morepath if you do that, though.
 import dectate
 import importscan
 import re
+import logging
 
 from reg import KeyIndex, ClassIndex
 from datetime import datetime, date
@@ -39,6 +40,9 @@ from .app import App
 from .view import View
 from .request import Request, Response
 from .converter import Converter, IDENTITY_CONVERTER
+
+
+logger = logging.getLogger(__name__)
 
 
 @App.predicate(generic.view, name='model', default=None, index=ClassIndex)
@@ -191,12 +195,16 @@ def excview_tween_factory(app, handler):
             view = generic.view.component_key_dict(model=exc.__class__,
                                                    lookup=request.lookup)
             if view is None:
+                if __debug__:
+                    logger.debug("No exception view for exception: %r", exc)
                 raise
 
             # we don't want to run any after already set in the exception view
             if not isinstance(exc, (HTTPOk, HTTPRedirection)):
                 request.clear_after()
 
+            if __debug__:
+                logger.debug("Exception view for exception: %r", exc)
             return view(exc, request)
         return response
     return excview_tween

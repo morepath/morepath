@@ -15,11 +15,15 @@ See also :class:`morepath.directive.ViewRegistry`
 import json
 from webob.exc import HTTPFound, HTTPNotFound, HTTPForbidden
 from webob import Response as BaseResponse
+import logging
 
 from . import generic
 from .request import Response
 from .cachingreg import RegRegistry
 from .template import TemplateEngineRegistry
+
+
+logger = logging.getLogger(__name__)
 
 
 class View(object):
@@ -62,16 +66,29 @@ class View(object):
         :return: A :class:`webob.response.Response` instance.
         """
         if self.internal:
+            if __debug__:
+                logger.debug("Not found: view is internal view")
             raise HTTPNotFound()
         if (self.permission is not None and
             not generic.permits(request.identity, obj, self.permission,
                                 lookup=request.lookup)):
+            if __debug__:
+                logger.debug(
+                    "Forbidden: %r does not have permission %r for view on %r",
+                    request.identity, self.permission, obj)
             raise HTTPForbidden()
+        if __debug__:
+            logger.debug("Calling view function %r for model obj %r",
+                         self.func, obj)
         content = self.func(obj, request)
         if isinstance(content, BaseResponse):
             # the view took full control over the response
+            if __debug__:
+                logger.debug("View returned response directly")
             response = content
         else:
+            if __debug__:
+                logger.debug("Rendering view for content")
             response = self.render(content, request)
 
         # run request after if it's a 2XX or 3XX response
