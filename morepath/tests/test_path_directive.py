@@ -3,7 +3,8 @@
 import dectate
 import morepath
 from morepath.converter import Converter
-from morepath.error import DirectiveReportError, ConfigError, LinkError
+from morepath.error import (
+    DirectiveReportError, ConfigError, LinkError, TrajectError)
 from morepath.compat import text_type
 
 from webtest import TestApp as Client
@@ -1144,43 +1145,47 @@ def test_script_name():
     assert response.body == b'http://localhost/prefix/simple'
 
 
-@pytest.mark.xfail
 def test_sub_path_different_variable():
-    class app(morepath.App):
+    # See discussion in https://github.com/morepath/morepath/issues/155
+
+    class App(morepath.App):
         pass
 
-    class M(object):
+    class Master(object):
         def __init__(self, id):
             self.id = id
 
-    class S(object):
-        def __init__(self, id, m):
+    class Slave(object):
+        def __init__(self, id, master):
             self.id = id
-            self.m = m
+            self.master = master
 
-    @app.path(model=M, path='{id}')
-    def get_m(id):
-        return M(id)
+    @App.path(model=Master, path='{id}')
+    def get_master(id):
+        return Master(id)
 
-    @app.path(model=S, path='{m}/{id}')
-    def get_s(m, id):
-        return S(id, m)
+    @App.path(model=Slave, path='{master_id}/{slave_id}')
+    def get_slave(master_id, slave_id):
+        return Slave(slave_id, Master(master_id))
 
-    @app.view(model=M)
-    def default_m(self, request):
+    @App.view(model=Master)
+    def default_master(self, request):
         return "M: %s" % self.id
 
-    @app.view(model=S)
-    def default_s(self, request):
-        return "S: %s %s" % (self.id, self.m)
+    @App.view(model=Slave)
+    def default_slave(self, request):
+        return "S: %s %s" % (self.id, self.master.id)
 
-    c = Client(app())
+    c = Client(App())
 
-    response = c.get('/a')
-    assert response.body == b'M: a'
+    with pytest.raises(TrajectError) as ex:
+        response = c.get('/a')
+        assert response.body == b'M: a'
 
-    response = c.get('/a/b')
-    assert response.body == b'http://localhost/S: b a'
+        response = c.get('/a/b')
+        assert response.body == b'S: b a'
+
+    assert str(ex.value) == 'step {id} and {master_id} are in conflict'
 
 
 def test_absorb_path():
