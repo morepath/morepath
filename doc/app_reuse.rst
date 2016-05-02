@@ -227,11 +227,11 @@ is only about wikis. So let's do it. Here's the wiki app by itself:
       def __init__(self, wiki_id):
           self.wiki_id = wiki_id
 
-  @wiki_app.path(path='{page_id}', model=WikiPage)
+  @WikiApp.path(path='{page_id}', model=WikiPage)
   def get_wiki(page_id, app):
       return get_wiki(app.wiki_id).get_page(page_id)
 
-  @App.view(model=WikiPage)
+  @WikiApp.view(model=WikiPage)
   def wiki_page_default(self, request):
       return "Wiki Page"
 
