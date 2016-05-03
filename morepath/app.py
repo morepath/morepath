@@ -205,22 +205,45 @@ class App(dectate.App):
         return self.config.setting_registry
 
     @classmethod
-    def commit(cls):
-        """Commit the app, and recursively, the apps mounted under it.
+    def mounted_app_classes(cls, callback=None):
+        """Returns a set of this app class and any mounted under it.
+
+        This assumes all app classes involved have already been
+        committed previously, for instance by
+        :meth:`morepath.App.commit`.
 
         Mounted apps are discovered in breadth-first order.
 
-        :return: the set of discovered apps.
+        The optional ``callback`` argument is used to implement
+        :meth:`morepath.App.commit`.
+
+        :param callback: a function that is called with app classes as
+          its arguments. This can be used to do something with the app
+          classes when they are first discovered, like commit
+          them. Optional.
+        :return: the set of app classes.
+
         """
         discovery = set()
         found = {cls}
         while found:
             discovery.update(found)
-            dectate.commit(*found)
+            if callback is not None:
+                callback(*found)
             found = (
                 {c for a in found for c in a.config.path_registry.mounted} -
                 discovery)
         return discovery
+
+    @classmethod
+    def commit(cls):
+        """Commit the app, and recursively, the apps mounted under it.
+
+        Mounted apps are discovered in breadth-first order.
+
+        :return: the set of discovered app clasess.
+        """
+        return cls.mounted_app_classes(dectate.commit)
 
     def _get_class_path(self, model, variables):
         """Path for a model class and variables.

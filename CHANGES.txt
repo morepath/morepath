@@ -39,6 +39,11 @@ CHANGES
 
 - A few small performance tweaks.
 
+- Factored out new ``App.mounted_app_classes()`` class method which
+  can be used to determine the mounted app classes after a
+  commit. This can used to get the argument to ``dectate.query_tool``
+  if the commit is known to have already been done earlier.
+
 0.14 (2016-04-26)
 =================
 

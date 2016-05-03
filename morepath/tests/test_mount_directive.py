@@ -63,6 +63,39 @@ def test_mount_basic():
     assert response.body == b'http://localhost/foo'
 
 
+def test_mounted_app_classes():
+    class App(morepath.App):
+        pass
+
+    class Mounted(morepath.App):
+        def __init__(self, id):
+            self.id = id
+
+    class Sub(morepath.App):
+        pass
+
+    @App.mount(path='{id}', app=Mounted)
+    def get_mounted(id):
+        return Mounted(id=id)
+
+    @Mounted.mount(path='sub', app=Sub)
+    def get_sub():
+        return Sub()
+
+    assert App.commit() == {App, Mounted, Sub}
+
+    assert App.mounted_app_classes() == {App, Mounted, Sub}
+
+
+def test_mounted_app_classes_nothing_mounted():
+    class App(morepath.App):
+        pass
+
+    assert App.commit() == {App}
+
+    assert App.mounted_app_classes() == {App}
+
+
 def test_mount_none_should_fail():
     class app(morepath.App):
         pass
