@@ -414,7 +414,7 @@ class PathCompositeAction(dectate.Composite):
           with the ``converters`` dictionary, if supplied. Optional.
         :param absorb: If set to ``True``, matches any subpath that
           matches this path as well. This is passed into the decorated
-          function as the ``remaining`` variable.
+          function as the ``absorb`` argument.
         """
         self.model = model
         self.path = path
