@@ -480,8 +480,8 @@ Exception views
 
   WebOb exceptions are also response objects, so you could return them
   directly from your view instead of raising them. But not that if you
-  do this exception views cannot be used for this response, however --
-  the default WebOb exception response view is used always.
+  do this exception views won't be used, however -- the default WebOb
+  exception response view is used always.
 
 Sometimes your application raises an exception. This can either be a
 HTTP exception, for instance when the user goes to a URL that does not
