@@ -12,7 +12,7 @@ setup(
     description="A micro web-framework with superpowers",
     long_description=long_description,
     author="Morepath developers",
-    author_email="='morepath@googlegroups.com",
+    author_email="morepath@googlegroups.com",
     url='http://morepath.readthedocs.io',
     license="BSD",
     packages=find_packages(),
