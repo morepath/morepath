@@ -20,8 +20,9 @@ You can save this as ``hello.py`` and then run it with Python:
 .. code-block:: console
 
   $ python hello.py
-  Running <__main__.App object at 0x10f8398d0> with wsgiref.simple_server on http://127.0.0.1:5000
-  Press Ctrl-C to stop.
+  Running <__main__.App object at 0x10f8398d0>
+  Listening on http://127.0.0.1:5000
+  Press Ctrl-C to stop...
 
 .. sidebar:: Making the server externally accessible
 
@@ -35,6 +36,12 @@ You can save this as ``hello.py`` and then run it with Python:
   argument of ``0.0.0.0`` to the ``morepath.run()`` function. ::
 
     morepath.run(App(), host='0.0.0.0')
+
+  Alternatively, you can specify ``0.0.0.0`` on the command line:
+
+  .. code-block:: console
+
+    $ python hello.py --host 0.0.0.0
 
   Note that the built-in web server is absolutely unsuitable for
   actual deployment. For those cases don't use ``morepath.run()`` at
@@ -50,6 +57,14 @@ You can save this as ``hello.py`` and then run it with Python:
 If you now go with a web browser to the URL given, you should see
 "Hello world!"  as expected. When you want to stop the server, just
 press control-C.
+
+Morepath uses port 5000 by default, and it might be the case that
+another service is already listening on that port.  If that happens
+you can specify a different port on the command line:
+
+.. code-block:: console
+
+  $ python hello.py --port 6000
 
 This application is a bit bigger than you might be used to in other
 web micro-frameworks. That's for a reason: Morepath is not geared to
