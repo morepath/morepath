@@ -40,6 +40,11 @@ def run(
         callback=None):
     """Uses wsgiref.simple_server to run an application for debugging purposes.
 
+    By default, this function looks at the command line for arguments
+    specified with the ``--host`` or ``--port`` options. These
+    override the actual arguments passed to this function.  Use
+    ``ignore_cli=True`` to disable this behavior.
+
     Under non-exceptional circumstances this function never returns.
 
     Don't use this in production; use an external WSGI server instead,
@@ -54,6 +59,34 @@ def run(
     :param callback: function invoked after the creation of the server.
     :type callback: function(server) or None
     :return: never.
+
+    .. note::
+
+      Unless ``ignore_cli`` is true, this function provides a
+      full-featured command-line parser. Its help message describes
+      how to use it:
+
+      .. testcode::
+        :hide:
+
+        from morepath.run import make_parser
+        make_parser('<script name>', '127.0.0.1', 5000).print_help()
+
+      .. testoutput::
+
+        usage: <script name> [-h] [-p PORT] [-H HOST]
+
+        optional arguments:
+          -h, --help            show this help message and exit
+          -p PORT, --port PORT  TCP port on which to listen (default: 5000)
+          -H HOST, --host HOST  hostname or IP address on which to listen \
+(default:
+                                127.0.0.1)
+
+      The default values for the ``--port`` and ``--host`` options are
+      takend from the value of the arguments passed to
+      :func:`morepath.run`.
+
     """
     import errno
     import socket
