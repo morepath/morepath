@@ -1,4 +1,5 @@
 import morepath
+import errno
 import re
 from .fixtures import basic
 import pytest
@@ -71,6 +72,57 @@ Listening on http://127.0.0.1:\\d+
 Press Ctrl-C to stop...
 
 Received keyboard interrupt.""", out)
+
+
+def test_run_hint_on_eaddrinuse(mockserver, capsys):
+    """Fail not only gracefully but also helpfully on EADDRINUSE.
+
+    In this case having a second server (mockserver) listening on the
+    same port as a first server triggers the socket error.
+
+    """
+
+    def with_existing(first_server):
+        used_port = first_server.server_port
+        # setup a second server on exactly the same port
+        mockserver.set_argv(['--port', str(used_port)])
+        assert mockserver.run(basic.app()) == errno.EADDRINUSE
+
+        out, err = capsys.readouterr()
+
+        # The wording of the error message is system-specific.
+        rex = """\
+script-name: .*: 127.0.0.1:{}
+
+  Use '--port PORT' to specify a different port.
+
+""".format(used_port)
+
+        assert re.match(rex, err)
+        assert out == ''
+
+        # If ignore_cli is True, we don't get the helpful hint
+        assert mockserver.run(
+            basic.app(),
+            port=used_port,
+            ignore_cli=True
+        ) == errno.EADDRINUSE
+
+        out, err = capsys.readouterr()
+
+        rex = 'script-name: .*: 127.0.0.1:{}\n'.format(used_port)
+        assert re.match(rex, err)
+        assert out == ''
+
+    # setup a first server
+    with pytest.raises(SystemExit) as ex:
+        morepath.run(
+            basic.app(),
+            port=0,
+            prog='first-server',
+            callback=with_existing,
+            ignore_cli=True)
+    assert ex.value.code == 0
 
 
 def test_run_actual(capsys):

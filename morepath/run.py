@@ -55,6 +55,7 @@ def run(
     :type callback: function(server) or None
     :return: never.
     """
+    import errno
     import socket
     from wsgiref.simple_server import make_server
 
@@ -64,8 +65,11 @@ def run(
     try:
         server = make_server(args.host, args.port, wsgi)
     except socket.error as ex:
+        hint = ""
+        if ex.errno == errno.EADDRINUSE and not ignore_cli:
+            hint = "\n  Use '--port PORT' to specify a different port.\n\n"
         parser.exit(ex.errno, '{}: {}: {}:{}\n'.format
-                    (parser.prog, ex, args.host, args.port))
+                    (parser.prog, ex, args.host, args.port) + hint)
 
     if callback is not None:
         callback(server)
