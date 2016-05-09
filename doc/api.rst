@@ -18,7 +18,7 @@ API
 
 .. autofunction:: run
 
-.. autofunction:: settings
+.. autofunction:: settings()
 
 .. autoclass:: Request
   :members:
@@ -35,9 +35,9 @@ API
 .. autoclass:: morepath.Identity
   :members:
 
-.. autofunction:: morepath.remember_identity
+.. autofunction:: morepath.remember_identity(response, request, identity)
 
-.. autofunction:: morepath.forget_identity
+.. autofunction:: morepath.forget_identity(response, request)
 
 .. autoclass:: morepath.IdentityPolicy
   :members:
