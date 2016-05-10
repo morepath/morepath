@@ -237,7 +237,7 @@ class Request(BaseRequest):
 
         return info.url(self.link_prefix(), name)
 
-    def uri_template(self, model, name='', app=SAME_APP):
+    def uri_template(self, model, variables=None, name='', app=SAME_APP):
         """Create a URI template for a class.
 
         Given a model class, create a URI template. These templates
@@ -267,13 +267,16 @@ class Request(BaseRequest):
           link is made. By default the link is made to an object
           in the current application.
         """
+        if variables is None:
+            variables = {}
+
         if app is None:
             raise LinkError("Cannot link: app is None")
 
         if app is SAME_APP:
             app = self.app
 
-        info = app._get_deferred_uri_template(model)
+        info = app._get_deferred_mounted_uri_template(model, variables)
 
         if info is None:
             raise LinkError("Cannot create URI template for class: %r" % model)

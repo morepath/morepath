@@ -269,7 +269,7 @@ class App(dectate.App):
         return self._get_class_path(
             obj.__class__, generic.path_variables(obj, lookup=self.lookup))
 
-    def _get_uri_template(self, model):
+    def _get_uri_template(self, model, variables):
         """URI template for model class.
 
         Only includes URI template in current app, does not take mounting
@@ -326,7 +326,7 @@ class App(dectate.App):
         parameters.update(mount_info.parameters)
         return PathInfo(path, parameters)
 
-    def _get_mounted_uri_template(self, model):
+    def _get_mounted_uri_template(self, model, variables):
         """URI template for model class.
 
         Includes URI template to this app itself, so takes mounting
@@ -336,7 +336,7 @@ class App(dectate.App):
         :return: a :class:`morepath.path.UriTemplateInfo` with fully resolved
           path in mounts.
         """
-        info = self._get_uri_tepmlate(model)
+        info = self._get_uri_template(model, variables)
         if info is None:
             return None
         if self.parent is None:
@@ -373,7 +373,7 @@ class App(dectate.App):
         info, app = self._follow_class_defers(find, model, variables)
         return info
 
-    def _get_deferred_mounted_uri_template(self, model):
+    def _get_deferred_mounted_uri_template(self, model, variables):
         """URI template for model taking into account deferring apps.
 
         Like :meth:`morepath.App._get_mounted_class_path` but takes
