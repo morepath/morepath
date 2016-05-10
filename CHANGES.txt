@@ -44,6 +44,9 @@ CHANGES
   commit. This can used to get the argument to ``dectate.query_tool``
   if the commit is known to have already been done earlier.
 
+- The ``morepath.run`` function now takes command-line arguments to
+  set the host and port, and is friendlier in general.
+
 0.14 (2016-04-26)
 =================
 
