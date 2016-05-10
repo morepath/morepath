@@ -237,6 +237,49 @@ class Request(BaseRequest):
 
         return info.url(self.link_prefix(), name)
 
+    def uri_template(self, model, name='', app=SAME_APP):
+        """Create a URI template for a class.
+
+        Given a model class, create a URI template. These templates
+        follow the `RFC 6570`_ spec.
+
+        .. _`RFC 6570`: https://tools.ietf.org/html/rfc6570
+
+        Variables in paths are not substituted but are included in the
+        URI template instead, for example
+        ``http://example.com/foo/{id}``.
+
+        The :meth:`morepath.App.defer_class_links` directive can be
+        used to defer URI template generation for a particular class
+        (if this app doesn't handle them) to another app.
+
+        Note that the :meth:`morepath.App.defer_links` directive has
+        **no** effect on ``uri_template``, as it needs an instance of the
+        model to work, which is not available.
+
+        If no URI template can be constructed for the model class, a
+        :exc:`morepath.error.LinkError` is raised.
+
+        :param model: the model class to link to.
+        :param name: the name of the view to link to. If omitted, the
+          the default view is used.
+        :param app: If set, change the application to which the
+          link is made. By default the link is made to an object
+          in the current application.
+        """
+        if app is None:
+            raise LinkError("Cannot link: app is None")
+
+        if app is SAME_APP:
+            app = self.app
+
+        info = app._get_deferred_uri_template(model)
+
+        if info is None:
+            raise LinkError("Cannot create URI template for class: %r" % model)
+
+        return info.uri_template(self.link_prefix(), name)
+
     def resolve_path(self, path, app=SAME_APP):
         """Resolve a path to a model instance.
 

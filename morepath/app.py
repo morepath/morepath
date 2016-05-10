@@ -22,7 +22,7 @@ from . import compat
 from .implicit import set_implicit
 from .reify import reify
 from . import generic
-from .path import PathInfo
+from .path import PathInfo, UriTemplateInfo
 from .error import LinkError
 
 
@@ -269,6 +269,17 @@ class App(dectate.App):
         return self._get_class_path(
             obj.__class__, generic.path_variables(obj, lookup=self.lookup))
 
+    def _get_uri_template(self, model):
+        """URI template for model class.
+
+        Only includes URI template in current app, does not take mounting
+        into account.
+
+        :param model: model class
+        :return: a :class:`morepath.path.PathInfo` within this app.
+        """
+        return generic.uri_template(model, lookup=self.lookup)
+
     def _get_mounted_path(self, obj):
         """Path for model obj including mounted path.
 
@@ -315,6 +326,28 @@ class App(dectate.App):
         parameters.update(mount_info.parameters)
         return PathInfo(path, parameters)
 
+    def _get_mounted_uri_template(self, model):
+        """URI template for model class.
+
+        Includes URI template to this app itself, so takes mounting
+        into account.
+
+        :param model: model class
+        :return: a :class:`morepath.path.UriTemplateInfo` with fully resolved
+          path in mounts.
+        """
+        info = self._get_uri_tepmlate(model)
+        if info is None:
+            return None
+        if self.parent is None:
+            return info
+        mount_info = self.parent._get_mounted_uri_template(self)
+        path = mount_info.path
+        if info.path:
+            path += '/' + info.path
+        return UriTemplateInfo(
+            path, mount_info.parameter_names + info.parameter_names)
+
     def _get_deferred_mounted_path(self, obj):
         """Path for obj taking into account deferring apps.
 
@@ -330,6 +363,18 @@ class App(dectate.App):
 
     def _get_deferred_mounted_class_path(self, model, variables):
         """Path for model and variables taking into account deferring apps.
+
+        Like :meth:`morepath.App._get_mounted_class_path` but takes
+        :meth:`morepath.App.defer_class_links` directive into
+        account.
+        """
+        def find(app, model, variables):
+            return app._get_mounted_class_path(model, variables)
+        info, app = self._follow_class_defers(find, model, variables)
+        return info
+
+    def _get_deferred_mounted_uri_template(self, model):
+        """URI template for model taking into account deferring apps.
 
         Like :meth:`morepath.App._get_mounted_class_path` but takes
         :meth:`morepath.App.defer_class_links` directive into

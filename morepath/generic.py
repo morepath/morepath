@@ -20,8 +20,19 @@ def class_path(model, variables):
     :param model: model class or :class:`morepath.App` subclass.
     :param variables: dictionary with variables to reconstruct
       the path and URL paramaters from path pattern.
-    :return: a tuple with URL path and URL parameters, or ``None`` if
+    :return: a PathInfo, or ``None`` if
       path cannot be determined.
+    """
+    return None
+
+
+@reg.dispatch(reg.match_class('model', lambda model: model))
+def uri_template(model):
+    """Get the URI template for a model class.
+
+    :param model: model class or :class:`morepath.App` subclass.
+    :return: a UriTemplateInfo, or ``None`` if
+      URI template cannot be determined.
     """
     return None
 

@@ -160,7 +160,13 @@ class PathRegistry(TrajectRegistry):
         converters = converters or {}
         get_path = Path(path, factory_args, converters, absorb)
 
+        def get_uri_template(model):
+            return UriTemplate(path, factory_args)
+
         self.reg_registry.register_function(generic.class_path, get_path,
+                                            model=model)
+        self.reg_registry.register_function(generic.uri_template,
+                                            get_uri_template,
                                             model=model)
 
         def default_path_variables(obj):
@@ -236,6 +242,37 @@ class PathInfo(object):
             parameters = dict((key, [v.encode('utf-8') for v in value])
                               for (key, value) in self.parameters.items())
             result += '?' + fixed_urlencode(parameters, True)
+        return result
+
+
+class UriTemplateInfo(object):
+    """Abstract representation of URI template.
+
+    :param path: a str representing a path
+    :param parameters: a dict representing URL parameters.
+    """
+    def __init__(self, path, parameter_names):
+        self.path = path
+        self.parameter_names = parameter_names
+
+    def url(self, prefix, name):
+        """Turn a path into a URI template.
+
+        :param prefix: the URL prefix to put in front of the path. This
+          should contain something like ``http://localhost``, so the URL
+          without the path or parameter information.
+        :param name: additional view name to postfix to the path.
+        :return: a URI template with the prefix and view name.
+        """
+        parts = [self.path]
+        if name:
+            parts.append(name)
+        # add prefix in the end. Even if result is empty we always get
+        # a / at least
+        result = prefix + '/' + '/'.join(parts)
+        if self.parameter_names:
+            parameters = '{?%s}' % ','.join(self.parameter_names)
+            result += parameters
         return result
 
 
@@ -323,6 +360,32 @@ class Path(object):
                 # the root and we don't want an additional /
                 path = absorbed_path
         return PathInfo(path, url_parameters)
+
+
+class UriTemplate(object):
+    """Registered URI template.
+
+    :param path: the route.
+    :param factory_args: the arguments for the factory function used to
+      construct this path. This is used to determine the URL parameters
+      for the path.
+    """
+    def __init__(self, path, factory_args):
+        self.path = path
+        traject_path = TrajectPath(path)
+        path_variables = traject_path.variables()
+        self.parameter_names = {name for name in factory_args if
+                                name not in path_variables}
+
+    def __call__(self, model):
+        """Get URI template given model.
+
+        :param model: model class. Not actually used in the
+          implementation but used for dispatch in
+          :func:`generic.uri_template`.
+        :return: :class:`UriTemplateInfo` instance representing the template.
+        """
+        return UriTemplateInfo(self.path, self.parameter_names)
 
 
 def get_arguments(callable, exclude):

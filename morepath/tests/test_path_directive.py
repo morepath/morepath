@@ -1995,3 +1995,105 @@ def test_path_on_same_model_explicit_and_class_should_conflict():
 
     with pytest.raises(dectate.ConflictError):
         App.commit()
+
+
+def test_uri_template_no_variables():
+    class App(morepath.App):
+        pass
+
+    class Model(object):
+        pass
+
+    @App.path(model=Model, path='/foo')
+    def get_model():
+        return Model()
+
+    @App.view(model=Model)
+    def link(self, request):
+        return request.uri_template(Model)
+
+    c = Client(App())
+
+    response = c.get('/foo')
+    assert response.body == b"http://localhost/foo"
+
+
+def test_uri_template_variables():
+    class App(morepath.App):
+        pass
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @App.path(model=Model, path='/foo/{id}')
+    def get_model(id):
+        return Model(id)
+
+    @App.view(model=Model)
+    def link(self, request):
+        return request.uri_template(Model)
+
+    c = Client(App())
+
+    response = c.get('/foo')
+    assert response.body == b"http://localhost/foo/{id}"
+
+
+def test_uri_template_mounted():
+    class App(morepath.App):
+        pass
+
+    class Mounted(morepath.App):
+        pass
+
+    @App.mount(path='mounted', app=Mounted)
+    def get_mounted():
+        return Mounted()
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @Mounted.path(model=Model, path='/foo/{id}')
+    def get_model(id):
+        return Model(id)
+
+    @Mounted.view(model=Model)
+    def link(self, request):
+        return request.uri_template(Model)
+
+    c = Client(App())
+
+    response = c.get('/foo')
+    assert response.body == b"http://localhost/mounted/foo/{id}"
+
+
+def test_uri_template_mounted_variables():
+    class App(morepath.App):
+        pass
+
+    class Mounted(morepath.App):
+        def __init__(self, mount_id):
+            self.mount_id = mount_id
+
+    @App.mount(path='mounted/{mount_id}', app=Mounted)
+    def get_mounted(mount_id):
+        return Mounted(mount_id)
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    @Mounted.path(model=Model, path='/foo/{id}')
+    def get_model(id):
+        return Model(id)
+
+    @Mounted.view(model=Model)
+    def link(self, request):
+        return request.uri_template(Model)
+
+    c = Client(App())
+
+    response = c.get('/foo')
+    assert response.body == b"http://localhost/mounted/{mount_id}/foo/{id}"
