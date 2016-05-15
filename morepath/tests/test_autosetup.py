@@ -19,9 +19,14 @@ def test_import():
     from ns import real2
     import under_score
 
-    assert sorted(list(morepath_packages()),
-                  key=lambda module: module.__name__) == [
-                      base, entrypoint, real, real2, sub, under_score]
+    # Pacakges to be ignored
+    import no_mp
+    from ns import nomp
+    import no_mp_sub
+
+    found = set(morepath_packages())
+    assert {base, entrypoint, real, real2, sub, under_score} <= found
+    assert {no_mp, nomp, no_mp_sub}.isdisjoint(found)
 
 
 def test_load_distribution():
