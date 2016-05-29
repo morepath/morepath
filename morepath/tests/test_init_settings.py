@@ -179,7 +179,7 @@ def test_loading_settings_from_file():
 
 def test_loading_settings_from_json():
 
-    config = file('morepath/tests/fixtures/config_files/settings.json', 'r')
+    config = open('morepath/tests/fixtures/config_files/settings.json')
     settings_dict = json.load(config)
 
     assert settings_dict == settings_file.settings
@@ -216,7 +216,7 @@ def test_loading_settings_from_json():
 )
 def test_loading_settings_from_yaml():
 
-    config = file('morepath/tests/fixtures/config_files/settings.yml', 'r')
+    config = open('morepath/tests/fixtures/config_files/settings.yml')
     settings_dict = yaml.load(config)
 
     assert settings_dict == settings_file.settings

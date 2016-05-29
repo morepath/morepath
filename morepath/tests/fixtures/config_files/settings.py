@@ -45,7 +45,7 @@ settings = {
 
 
 def create_json_config():
-        stream = file('settings.json', 'w')
+        stream = open('settings.json', 'w')
         json.dump(settings, stream, sort_keys=True, indent=4,
                   separators=(',', ': '))
         print(json.dumps(settings, sort_keys=True, indent=4,
@@ -54,7 +54,7 @@ def create_json_config():
 
 def create_yaml_config():
     if has_yaml:
-        stream = file('settings.yaml', 'w')
+        stream = open('settings.yaml', 'w')
         yaml.dump(settings, stream, default_flow_style=False, default_style='',
                   indent=4)
         print(yaml.dump(settings, default_flow_style=False, default_style='',
