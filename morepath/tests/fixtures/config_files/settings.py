@@ -1,17 +1,10 @@
 """Example settings python dictionary for Morepath.
 
-It contains also 2 helper functions to create JSON and YAML config files
+It contains also a helper function to create a JSON config file
 from this dictionary.
-Note: create_yaml_config() does not produce very pretty YAML code.
 """
 
 import json
-
-try:
-    import yaml  # noqa
-    has_yaml = True
-except ImportError:
-    has_yaml = False
 
 
 settings = {
@@ -50,14 +43,3 @@ def create_json_config():
                   separators=(',', ': '))
         print(json.dumps(settings, sort_keys=True, indent=4,
                          separators=(',', ': ')))
-
-
-def create_yaml_config():
-    if has_yaml:
-        stream = open('settings.yaml', 'w')
-        yaml.dump(settings, stream, default_flow_style=False, default_style='',
-                  indent=4)
-        print(yaml.dump(settings, default_flow_style=False, default_style='',
-                        indent=4))
-    else:
-        print("YAML could not be imported. Please install pyyaml first.")

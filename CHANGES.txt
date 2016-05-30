@@ -47,6 +47,9 @@ CHANGES
 - The ``morepath.run`` function now takes command-line arguments to
   set the host and port, and is friendlier in general.
 
+- Adding ``App.init_settings`` for pre-filling the settings registry with a
+  python dictionary. This can be used to load the settings from a config file.
+
 0.14 (2016-04-26)
 =================
 

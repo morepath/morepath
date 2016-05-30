@@ -73,3 +73,45 @@ You can do this using the :meth:`App.setting_section` directive::
 You can mix ``setting`` and ``setting_section`` freely, but you cannot
 define a setting multiple times in the same app, as this will result
 in a configuration conflict.
+
+Loading settings from a config file
+-----------------------------------
+
+For loading settings from a config file just load the file into a python
+dictionary and pre-fill the settings with :meth:`morepath.App.init_settings`
+before committing the app.
+
+A example config file with YAML syntax could look like:
+
+.. literalinclude:: code_examples/settings.yml
+
+You can load it with::
+
+  import yaml
+
+  config = open('code_examples/settings.yml')
+  settings_dict = yaml.load(config)
+
+Remember to install ``pyyaml`` before importing ``yaml``.
+For example with:
+
+.. code-block:: console
+
+  $ pip install pyyaml
+
+The same config file with JSON syntax would look like:
+
+.. literalinclude:: code_examples/settings.json
+
+To load it use::
+
+  import json
+
+  config = open('code_examples/settings.json')
+  settings_dict = json.load(config)
+
+Now register the settings dictionary in the App settings
+before starting the App::
+
+  App.init_settings(settings_dict)
+  morepath.commit(App)
