@@ -89,7 +89,7 @@ You can load it with::
 
   import yaml
 
-  config = open('code_examples/settings.yml')
+  config = open('settings.yml')
   settings_dict = yaml.load(config)
 
 Remember to install ``pyyaml`` before importing ``yaml``.
@@ -107,7 +107,7 @@ To load it use::
 
   import json
 
-  config = open('code_examples/settings.json')
+  config = open('settings.json')
   settings_dict = json.load(config)
 
 Now register the settings dictionary in the App settings
