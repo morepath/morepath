@@ -115,3 +115,6 @@ before starting the App::
 
   App.init_settings(settings_dict)
   morepath.commit(App)
+
+You can override and extend the settings by loading a config file in an
+extending app as usual.
