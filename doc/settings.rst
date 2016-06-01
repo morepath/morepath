@@ -84,9 +84,9 @@ Loading settings from a config file
 
   owd = os.getcwd()
   try:
-    os.chdir(os.path.abspath('code_examples'))
-  except OSError:
     os.chdir(os.path.abspath('../code_examples'))
+  except OSError:
+    os.chdir(os.path.abspath('code_examples'))
 
   class App(morepath.App):
       pass
