@@ -107,6 +107,16 @@ You can load it with:
 
   import yaml
 
+.. testcode:: yaml
+  :hide:
+
+  # Ensure that PyYAML always constructs unicode strings:
+  yaml.add_constructor(
+      u'tag:yaml.org,2002:str',
+      lambda loader, node: loader.construct_scalar(node))
+
+.. testcode:: yaml
+
   with open('settings.yml') as config:
        settings_dict = yaml.load(config)
 
