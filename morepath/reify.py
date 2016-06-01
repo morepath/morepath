@@ -28,7 +28,7 @@ class reify(object):
       jammy called
       >>> print(v)
       1
-      >>> print f.jammy
+      >>> print(f.jammy)
       1
       >>> # jammy func not called the second time; it replaced itself with 1
 
