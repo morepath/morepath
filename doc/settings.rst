@@ -77,6 +77,21 @@ in a configuration conflict.
 Loading settings from a config file
 -----------------------------------
 
+.. testsetup:: *
+
+  import os
+  import morepath
+
+  owd = os.getcwd()
+  os.chdir(os.path.abspath('../code_examples'))
+
+  class App(morepath.App):
+      pass
+
+.. testcleanup:: *
+
+    os.chdir(owd)
+
 For loading settings from a config file just load the file into a python
 dictionary and pre-fill the settings with :meth:`morepath.App.init_settings`
 before committing the app.
@@ -85,12 +100,14 @@ A example config file with YAML syntax could look like:
 
 .. literalinclude:: code_examples/settings.yml
 
-You can load it with::
+You can load it with:
+
+.. testcode:: yaml
 
   import yaml
 
-  config = open('settings.yml')
-  settings_dict = yaml.load(config)
+  with open('settings.yml') as config:
+       settings_dict = yaml.load(config)
 
 Remember to install ``pyyaml`` before importing ``yaml``.
 For example with:
@@ -107,14 +124,31 @@ To load it use::
 
   import json
 
-  config = open('settings.json')
-  settings_dict = json.load(config)
+  with open('settings.json') as config:
+       settings_dict = json.load(config)
 
 Now register the settings dictionary in the App settings
-before starting the App::
+before starting the App:
+
+.. testcode:: *
 
   App.init_settings(settings_dict)
   morepath.commit(App)
 
-You can override and extend the settings by loading a config file in an
+  app = App()
+
+You can access the settings as before:
+
+.. doctest:: *
+
+   >>> app.settings.jinja2.extensions
+   ['jinja2.ext.autoescape', 'jinja2.ext.i18n']
+
+   >>> app.settings.jwtauth.algorithm
+   'ES256'
+
+   >>> app.settings.sqlalchemy.url
+   'sqlite:///morepath.db'
+
+You can also override and extend the settings by loading a config file in an
 extending app as usual.
