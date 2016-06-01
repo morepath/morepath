@@ -121,7 +121,9 @@ The same config file with JSON syntax would look like:
 
 .. literalinclude:: code_examples/settings.json
 
-To load it use::
+To load it use:
+
+.. testcode:: json
 
   import json
 
@@ -143,13 +145,13 @@ You can access the settings as before:
 .. doctest:: *
 
    >>> app.settings.jinja2.extensions
-   ['jinja2.ext.autoescape', 'jinja2.ext.i18n']
+   [u'jinja2.ext.autoescape', u'jinja2.ext.i18n']
 
    >>> app.settings.jwtauth.algorithm
-   'ES256'
+   u'ES256'
 
    >>> app.settings.sqlalchemy.url
-   'sqlite:///morepath.db'
+   u'sqlite:///morepath.db'
 
 You can also override and extend the settings by loading a config file in an
 extending app as usual.
