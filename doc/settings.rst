@@ -80,13 +80,11 @@ Loading settings from a config file
 .. testsetup:: *
 
   import os
+  import hello
   import morepath
 
   owd = os.getcwd()
-  try:
-    os.chdir(os.path.abspath('../code_examples'))
-  except OSError:
-    os.chdir(os.path.abspath('../doc/code_examples'))
+  os.chdir(os.path.dirname(hello.__file__))
 
   class App(morepath.App):
       pass
