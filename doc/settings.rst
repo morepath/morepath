@@ -107,16 +107,6 @@ You can load it with:
 
   import yaml
 
-.. testcode:: yaml
-  :hide:
-
-  # Ensure that PyYAML always constructs unicode strings:
-  yaml.add_constructor(
-      u'tag:yaml.org,2002:str',
-      lambda loader, node: loader.construct_scalar(node))
-
-.. testcode:: yaml
-
   with open('settings.yml') as config:
        settings_dict = yaml.load(config)
 
@@ -131,9 +121,7 @@ The same config file with JSON syntax would look like:
 
 .. literalinclude:: code_examples/settings.json
 
-To load it use:
-
-.. testcode:: json
+To load it use::
 
   import json
 
@@ -155,13 +143,13 @@ You can access the settings as before:
 .. doctest:: *
 
    >>> app.settings.jinja2.extensions
-   [u'jinja2.ext.autoescape', u'jinja2.ext.i18n']
+   ['jinja2.ext.autoescape', 'jinja2.ext.i18n']
 
    >>> app.settings.jwtauth.algorithm
-   u'ES256'
+   'ES256'
 
    >>> app.settings.sqlalchemy.url
-   u'sqlite:///morepath.db'
+   'sqlite:///morepath.db'
 
 You can also override and extend the settings by loading a config file in an
 extending app as usual.
