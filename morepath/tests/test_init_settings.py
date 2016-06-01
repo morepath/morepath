@@ -171,34 +171,9 @@ def test_loading_settings_from_file():
     assert app.settings.transaction.attempts == 2
 
 
-def test_loading_settings_from_json():
+def test_loading_json():
 
     config = open('morepath/tests/fixtures/config_files/settings.json')
     settings_dict = json.load(config)
 
     assert settings_dict == settings_file.settings
-
-    class App(morepath.App):
-        pass
-
-    App.init_settings(settings_dict)
-    morepath.commit(App)
-
-    app = App()
-
-    assert app.settings.chameleon.debug is True
-    assert app.settings.jinja2.auto_reload is False
-    assert app.settings.jinja2.autoescape is True
-    assert app.settings.jinja2.extensions == [
-        'jinja2.ext.autoescape',
-        'jinja2.ext.i18n'
-    ]
-    assert app.settings.jwtauth.algorithm == 'ES256'
-    assert app.settings.jwtauth.leeway == 20
-    assert app.settings.jwtauth.public_key == \
-        'MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBWcJwPEAnS/k4kFgUhxNF7J0SQQhZG'\
-        '+nNgy+/mXwhQ5PZIUmId1a1TjkNXiKzv6DpttBqduHbz/V0EtH+QfWy0B4BhZ5MnT'\
-        'yDGjcz1DQqKdexebhzobbhSIZjpYd5aU48o9rXp/OnAnrajddpGsJ0bNf4rtMLBqF'\
-        'YJN6LOslAB7xTBRg='
-    assert app.settings.sqlalchemy.url == 'sqlite:///morepath.db'
-    assert app.settings.transaction.attempts == 2
