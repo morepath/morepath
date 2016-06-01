@@ -86,7 +86,7 @@ Loading settings from a config file
   try:
     os.chdir(os.path.abspath('../code_examples'))
   except OSError:
-    os.chdir(os.path.abspath('code_examples'))
+    os.chdir(os.path.abspath('../doc/code_examples'))
 
   class App(morepath.App):
       pass
