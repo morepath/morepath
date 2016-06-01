@@ -5,7 +5,8 @@ env:
     - TOXENV=py33
     - TOXENV=py34
     - TOXENV=pypy
-    - TOXENV=docs
+    - TOXENV=docs2
+    - TOXENV=docs3
     - TOXENV=pep8
     - TOXENV=coverage
 install:
