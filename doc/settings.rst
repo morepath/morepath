@@ -121,7 +121,9 @@ The same config file with JSON syntax would look like:
 
 .. literalinclude:: code_examples/settings.json
 
-To load it use::
+To load it use:
+
+.. testcode:: json
 
   import json
 
@@ -140,7 +142,7 @@ before starting the App:
 
 You can access the settings as before:
 
-.. doctest:: *
+.. doctest:: yaml
 
    >>> app.settings.jinja2.extensions
    ['jinja2.ext.autoescape', 'jinja2.ext.i18n']

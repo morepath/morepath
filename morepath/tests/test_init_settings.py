@@ -1,5 +1,3 @@
-import json
-
 import pytest
 
 import morepath
@@ -169,11 +167,3 @@ def test_loading_settings_from_file():
         'YJN6LOslAB7xTBRg='
     assert app.settings.sqlalchemy.url == 'sqlite:///morepath.db'
     assert app.settings.transaction.attempts == 2
-
-
-def test_loading_json():
-
-    config = open('morepath/tests/fixtures/config_files/settings.json')
-    settings_dict = json.load(config)
-
-    assert settings_dict == settings_file.settings
