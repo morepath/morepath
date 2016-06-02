@@ -139,7 +139,7 @@ def test_section_settings_conflict():
         morepath.commit(App)
 
 
-def test_loading_settings_from_file():
+def test_extentions_settings():
 
     settings_dict = settings_file.settings
 
