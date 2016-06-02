@@ -133,7 +133,7 @@ To load it use:
 Now register the settings dictionary in the App settings
 before starting the App:
 
-.. testcode:: *
+.. testcode:: yaml
 
   App.init_settings(settings_dict)
   morepath.commit(App)
