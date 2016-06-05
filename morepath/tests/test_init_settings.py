@@ -2,7 +2,7 @@ import pytest
 
 import morepath
 from morepath.error import ConflictError
-from morepath.tests.fixtures.config_files import settings as settings_file
+from morepath.tests.fixtures.config import settings as settings_file
 
 
 def setup_module(module):
