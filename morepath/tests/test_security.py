@@ -176,16 +176,14 @@ def test_cookie_identity_policy():
     @app.view(model=Model, name='log_in')
     def log_in(self, request):
         response = Response()
-        generic.remember_identity(response, request,
-                                  Identity(userid='user',
-                                           payload='Amazing'),
-                                  lookup=request.lookup)
+        request.app.remember_identity(
+            response, request, Identity(userid='user', payload='Amazing'))
         return response
 
     @app.view(model=Model, name='log_out')
     def log_out(self, request):
         response = Response()
-        generic.forget_identity(response, request, lookup=request.lookup)
+        request.app.forget_identity(response, request)
         return response
 
     @app.identity_policy()

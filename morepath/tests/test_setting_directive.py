@@ -156,7 +156,7 @@ def test_settings_function():
 
     @app.view(model=Model)
     def default(self, request):
-        return morepath.settings().section.name
+        return request.app.settings.section.name
 
     dectate.commit(app)
 

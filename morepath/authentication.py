@@ -126,7 +126,7 @@ class IdentityPolicy(object):
     def remember(self, response, request, identity):
         """Remember identity on response.
 
-        Implements ``morepath.remember_identity``, which is called
+        Implements ``morepath.App.remember_identity``, which is called
         from user login code.
 
         Given an identity object, store it on the response, for
@@ -147,7 +147,7 @@ class IdentityPolicy(object):
     def forget(self, response, request):
         """Forget identity on response.
 
-        Implements ``morepath.forget_identity``, which is called from
+        Implements ``morepath.App.forget_identity``, which is called from
         user logout code.
 
         Remove identifying information from the response. This could
