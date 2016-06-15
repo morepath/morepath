@@ -10,6 +10,9 @@ directive.
 See also :class:`morepath.directive.IdentityPolicyRegistry`
 """
 
+import warnings
+from functools import wraps
+
 from reg import mapply
 
 from .cachingreg import RegRegistry
@@ -69,8 +72,6 @@ class IdentityPolicyRegistry(object):
             self.identity_policy = identity_policy = mapply(
                 factory,
                 settings=self.setting_registry)
-        import warnings
-        from functools import wraps
         func = getattr(identity_policy, name)
         message = (
             "DEPRECATED. morepath.{0}_identity is deprecated. "

@@ -53,7 +53,7 @@ using the :attr:`morepath.App.settings` property::
   app.settings.logging.logfile
 
 Remember that the current application is also accessible from the
-reqest object::
+request object::
 
   request.app.settings.logging.logfile
 
