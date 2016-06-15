@@ -48,14 +48,15 @@ Accessing a setting
 -------------------
 
 During runtime, you can access the settings of the current application
-using the :func:`morepath.settings` function, like this::
+using the :attr:`morepath.App.settings` property::
 
-  settings().logging.logfile
+  app.settings.logging.logfile
 
-In a tween factory (see :doc:`tweens`) or a directive implementation,
-you can access a setting through the ``app`` object like this::
+Remember that the current application is also accessible from the
+reqest object::
 
-  app.registry.settings.logging.logfile
+  request.app.settings.logging.logfile
+
 
 Defining multiple settings
 --------------------------

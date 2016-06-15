@@ -150,7 +150,7 @@ the request (coming from a login form)::
     @request.after
     def remember(response):
         identity = morepath.Identity(username)
-        morepath.remember_identity(response, request, identity)
+        request.app.remember_identity(response, request, identity)
 
 This is enough for session-based or cryptographic token-based
 authentication.
@@ -163,7 +163,7 @@ it in the cookie so that it can be sent back to the server::
     @request.after
     def remember(response):
         identity = morepath.Identity(username, password=password)
-        morepath.remember_identity(response, request, identity)
+        request.app.remember_identity(response, request, identity)
 
 When you construct the identity using
 :class:`morepath.Identity`, you can include any data you want
@@ -174,11 +174,11 @@ Logging out
 
 Logging out is easy to implement and will work for any kind of
 authentication except for basic auth. You simply call
-``morepath.forget_identity`` somewhere in the logout view::
+:meth:`morepath.App.forget_identity` somewhere in the logout view::
 
   @request.after
   def forget(response):
-      morepath.forget_identity(response, request)
+      request.app.forget_identity(response, request)
 
 This will cause the login information (in cookie-form) to be removed
 from the response.
