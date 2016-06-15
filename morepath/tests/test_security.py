@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import pytest
+
 import morepath
 from morepath.request import Response
 from morepath import generic
@@ -250,10 +252,11 @@ def test_false_verify_identity():
     @app.view(model=Model, name='log_in')
     def log_in(self, request):
         response = Response()
-        generic.remember_identity(response, request,
-                                  Identity(userid='user',
-                                           payload='Amazing'),
-                                  lookup=request.lookup)
+        with pytest.deprecated_call():
+            generic.remember_identity(
+                response, request,
+                Identity(userid='user', payload='Amazing'),
+                lookup=request.lookup)
         return response
 
     @app.identity_policy()

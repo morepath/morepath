@@ -69,9 +69,29 @@ class IdentityPolicyRegistry(object):
             self.identity_policy = identity_policy = mapply(
                 factory,
                 settings=self.setting_registry)
-        self.reg_registry.register_function(
-            dispatch,
-            getattr(identity_policy, name))
+        import warnings
+        from functools import wraps
+        func = getattr(identity_policy, name)
+        message = (
+            "DEPRECATED. morepath.{0}_identity is deprecated. "
+            "Use the morepath.App.{0}_identity method instead.".format(name))
+        if name == 'remember':
+
+            @wraps(func)
+            def wrapper(response, request, identity):
+                warnings.warn(message, DeprecationWarning)
+                return func(response, request, identity)
+
+        elif name == 'forget':
+
+            @wraps(func)
+            def wrapper(response, request):
+                warnings.warn(message, DeprecationWarning)
+                return func(response, request)
+
+        else:
+            wrapper = func
+        self.reg_registry.register_function(dispatch, wrapper)
 
 
 class Identity(object):
