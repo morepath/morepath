@@ -81,6 +81,8 @@ CHANGES
 
 - Remove unused imports and fix pep8 in core.py.
 
+- Add support for Python 3.5 and make it the default Python environment.
+
 0.14 (2016-04-26)
 =================
 
