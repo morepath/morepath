@@ -74,3 +74,85 @@ You can do this using the :meth:`App.setting_section` directive::
 You can mix ``setting`` and ``setting_section`` freely, but you cannot
 define a setting multiple times in the same app, as this will result
 in a configuration conflict.
+
+Loading settings from a config file
+-----------------------------------
+
+.. testsetup:: *
+
+  import os
+  import morepath
+
+  owd = os.getcwd()
+  os.chdir(os.path.join(os.path.dirname(os.path.abspath(morepath.__file__)),
+                        '../doc/code_examples'))
+
+  class App(morepath.App):
+      pass
+
+.. testcleanup:: *
+
+    os.chdir(owd)
+
+For loading settings from a config file just load the file into a python
+dictionary and pre-fill the settings with :meth:`morepath.App.init_settings`
+before committing the app.
+
+A example config file with YAML syntax could look like:
+
+.. literalinclude:: code_examples/settings.yml
+
+You can load it with:
+
+.. testcode:: yaml
+
+  import yaml
+
+  with open('settings.yml') as config:
+       settings_dict = yaml.load(config)
+
+Remember to install ``pyyaml`` before importing ``yaml``.
+For example with:
+
+.. code-block:: console
+
+  $ pip install pyyaml
+
+The same config file with JSON syntax would look like:
+
+.. literalinclude:: code_examples/settings.json
+
+To load it use:
+
+.. testcode:: json
+
+  import json
+
+  with open('settings.json') as config:
+       settings_dict = json.load(config)
+
+Now register the settings dictionary in the App settings
+before starting the App:
+
+.. testcode:: yaml
+
+  App.init_settings(settings_dict)
+  morepath.commit(App)
+
+  app = App()
+
+You can access the settings as before:
+
+.. doctest:: yaml
+
+   >>> app.settings.jinja2.extensions
+   ['jinja2.ext.autoescape', 'jinja2.ext.i18n']
+
+   >>> app.settings.jwtauth.algorithm
+   'ES256'
+
+   >>> app.settings.sqlalchemy.url
+   'sqlite:///morepath.db'
+
+You can also override and extend the settings by loading a config file in an
+extending app as usual.

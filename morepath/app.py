@@ -245,6 +245,21 @@ class App(dectate.App):
         """
         return cls.mounted_app_classes(dectate.commit)
 
+    @classmethod
+    def init_settings(cls, settings):
+        """Pre-fill the settings before the app is started.
+
+        Add settings to App, which can act as normal, can be overridden, etc.
+
+        :param settings: a dictionary of setting sections which contain
+          dictionaries of settings.
+        """
+        def set_setting_section(section, section_settings):
+            cls.setting_section(section)(lambda: section_settings)
+
+        for section, section_settings in settings.items():
+            set_setting_section(section, section_settings)
+
     def _get_class_path(self, model, variables):
         """Path for a model class and variables.
 
