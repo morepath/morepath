@@ -10,7 +10,7 @@ from dectate import DirectiveError
 from reg import arginfo
 try:
     from urllib.parse import urlencode, quote
-except ImportError:
+except ImportError:  # pragma: no cover
     # Python 2
     from urllib import urlencode, quote
 

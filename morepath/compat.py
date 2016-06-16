@@ -14,17 +14,17 @@ PY3 = sys.version_info[0] == 3
 """True if we are running on Python 3"""
 
 # text_type is the type used for non-bytes text
-if PY3:  # pragma: no cover
-    text_type = str  # pragma: nocoverage
-else:
-    text_type = unicode
+if PY3:
+    text_type = str
+else:  # pragma: no cover
+    text_type = unicode  # noqa
 
 # string_types can be used in isinstance to determine
 # whether an object considered to be a string
 if PY3:
-    string_types = (str,)  # pragma: nocoverage
-else:
-    string_types = (basestring,)
+    string_types = (str,)
+else:  # pragma: no cover
+    string_types = (basestring,)  # noqa
 
 
 # XXX we don't want to use this in too many places, as the isinstance
