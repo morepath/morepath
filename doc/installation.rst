@@ -4,7 +4,7 @@ Installation
 Quick and Dirty Installation
 ----------------------------
 
-To get started with Morepath right away, first create a Python 2.7
+To get started with Morepath right away, first create a Python 3.5
 virtualenv_::
 
   $ virtualenv morepath_env

@@ -12,7 +12,7 @@ Install Morepath for development
 
 .. highlight:: sh
 
-First make sure you have virtualenv_ installed for Python 2.7.
+First make sure you have virtualenv_ installed for Python 3.5.
 
 .. _virtualenv: https://pypi.python.org/pypi/virtualenv
 
@@ -114,6 +114,10 @@ If you have Make_ installed, buildout generates for you a Makefile in
 the directory ``doc/build`` that you can use::
 
   $ (cd doc/build; make doctest)
+
+.. note::
+
+   Throughout this documentation, examples are using the Python 3.5 syntax.
 
 .. _Make: https://en.wikipedia.org/wiki/Make_(software)
 
