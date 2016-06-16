@@ -81,7 +81,7 @@ Let's now go through the test, line by line.
    The returned response is an instance of
    :class:`webtest.response.TestResponse`:
 
-   >>> response
+   >>> response  # doctest: +SKIP
    <200 OK text/plain body='Hello world!'>
 
 5. We can now verify that the response satisfies our expectations. In
