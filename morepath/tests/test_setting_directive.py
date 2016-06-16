@@ -156,11 +156,19 @@ def test_settings_function():
 
     @app.view(model=Model)
     def default(self, request):
-        return morepath.settings().section.name
+        return request.app.settings.section.name
+
+    @app.view(model=Model, name='generic')
+    def generic(self, request):
+        with pytest.deprecated_call():
+            return morepath.settings().section.name
 
     dectate.commit(app)
 
     c = Client(app())
 
     response = c.get('/')
+    assert response.body == b'LAH'
+
+    response = c.get('/generic')
     assert response.body == b'LAH'

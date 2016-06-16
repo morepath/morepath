@@ -10,6 +10,9 @@ directive.
 See also :class:`morepath.directive.IdentityPolicyRegistry`
 """
 
+import warnings
+from functools import wraps
+
 from reg import mapply
 
 from .cachingreg import RegRegistry
@@ -69,9 +72,27 @@ class IdentityPolicyRegistry(object):
             self.identity_policy = identity_policy = mapply(
                 factory,
                 settings=self.setting_registry)
-        self.reg_registry.register_function(
-            dispatch,
-            getattr(identity_policy, name))
+        func = getattr(identity_policy, name)
+        message = (
+            "DEPRECATED. morepath.{0}_identity is deprecated. "
+            "Use the morepath.App.{0}_identity method instead.".format(name))
+        if name == 'remember':
+
+            @wraps(func)
+            def wrapper(response, request, identity):
+                warnings.warn(message, DeprecationWarning)
+                return func(response, request, identity)
+
+        elif name == 'forget':
+
+            @wraps(func)
+            def wrapper(response, request):
+                warnings.warn(message, DeprecationWarning)
+                return func(response, request)
+
+        else:
+            wrapper = func
+        self.reg_registry.register_function(dispatch, wrapper)
 
 
 class Identity(object):
@@ -126,7 +147,7 @@ class IdentityPolicy(object):
     def remember(self, response, request, identity):
         """Remember identity on response.
 
-        Implements ``morepath.remember_identity``, which is called
+        Implements ``morepath.App.remember_identity``, which is called
         from user login code.
 
         Given an identity object, store it on the response, for
@@ -147,7 +168,7 @@ class IdentityPolicy(object):
     def forget(self, response, request):
         """Forget identity on response.
 
-        Implements ``morepath.forget_identity``, which is called from
+        Implements ``morepath.App.forget_identity``, which is called from
         user logout code.
 
         Remove identifying information from the response. This could

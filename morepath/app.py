@@ -403,3 +403,22 @@ class App(dectate.App):
             app = generic.deferred_class_link_app(app, model, variables,
                                                   lookup=app.lookup)
         return None, app
+
+    def remember_identity(self, response, request, identity):
+        """Modify response so that identity is remembered by client.
+
+        :param response: :class:`morepath.Response` to remember identity on.
+        :param request: :class:`morepath.Request`
+        :param identity: :class:`morepath.Identity`
+        """
+        return self.config.identity_policy_registry.identity_policy.remember(
+            response, request, identity)
+
+    def forget_identity(self, response, request):
+        """Modify response so that identity is forgotten by client.
+
+        :param response: :class:`morepath.Response` to forget identity on.
+        :param request: :class:`morepath.Request`
+        """
+        return self.config.identity_policy_registry.identity_policy.forget(
+            response, request)
