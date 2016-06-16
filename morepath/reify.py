@@ -28,11 +28,12 @@ class reify(object):
       jammy called
       >>> print(v)
       1
-      >>> print f.jammy
+      >>> print(f.jammy)
       1
       >>> # jammy func not called the second time; it replaced itself with 1
 
     """
+
     def __init__(self, wrapped):
         self.wrapped = wrapped
         self.__doc__ = wrapped.__doc__
