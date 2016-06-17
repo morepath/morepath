@@ -134,7 +134,7 @@ To load it use:
 Now register the settings dictionary in the App settings
 before starting the App:
 
-.. testcode:: yaml
+.. testcode:: *
 
   App.init_settings(settings_dict)
   morepath.commit(App)
@@ -143,7 +143,7 @@ before starting the App:
 
 You can access the settings as before:
 
-.. doctest:: yaml
+.. doctest:: *
 
    >>> app.settings.jinja2.extensions
    ['jinja2.ext.autoescape', 'jinja2.ext.i18n']
