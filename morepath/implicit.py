@@ -6,6 +6,7 @@ are exported to the public API.
 """
 
 from reg import implicit
+import warnings
 
 _implicit_enabled = True
 
@@ -28,6 +29,10 @@ def enable_implicit():
     determined from the application that is mounted.
     """
     global _implicit_enabled
+    warnings.warn(
+        "DEPRECATED. morepath.enable_implicit is deprecated. "
+        "Choosing implicit/explicit lookup is no longer relevant.",
+        DeprecationWarning)
     _implicit_enabled = True
 
 
@@ -43,4 +48,8 @@ def disable_implicit():
            morepath.disable_implicit()
     """
     global _implicit_enabled
+    warnings.warn(
+        "DEPRECATED. morepath.disable_implicit is deprecated. "
+        "Choosing implicit/explicit lookup is no longer relevant.",
+        DeprecationWarning)
     _implicit_enabled = False
