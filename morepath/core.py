@@ -29,9 +29,8 @@ from webob.exc import (
     HTTPException, HTTPNotFound, HTTPMethodNotAllowed,
     HTTPUnprocessableEntity, HTTPOk, HTTPRedirection, HTTPBadRequest)
 
-from . import directive  # install directives with App  # noqa
 from . import generic
-from .app import App
+from .directive import App  # install directives with App
 from .converter import Converter, IDENTITY_CONVERTER
 
 
