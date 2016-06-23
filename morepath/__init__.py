@@ -32,4 +32,3 @@ from .run import run
 from reg import implicit
 
 implicit.initialize(None)
-enable_implicit()
