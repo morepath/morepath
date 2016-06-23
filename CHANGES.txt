@@ -69,7 +69,7 @@ CHANGES
 - The ``morepath.run`` function now takes command-line arguments to
   set the host and port, and is friendlier in general.
 
-- Adding ``App.init_settings`` for pre-filling the settings registry with a
+- Add ``App.init_settings`` for pre-filling the settings registry with a
   python dictionary. This can be used to load the settings from a config file.
 
 - Remove unused imports and fix pep8 in core.py.
