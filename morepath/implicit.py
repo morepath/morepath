@@ -1,8 +1,9 @@
 """Track whether we want implicit lookup behavior.
 
 You can control this behavior from here.
-:func:`morepath.enable_implicit` and :func:`morepath.disable_implicit`
-are exported to the public API.
+:func:`morepath.enable_implicit` and :func:`morepath.disable_implicit`,
+currently exported to the public API, are now deprecated.
+
 """
 
 from reg import implicit
@@ -27,6 +28,11 @@ def enable_implicit():
     a ``lookup`` argument when you use generic functions such as
     :func:`morepath.settings`. This lookup argument is implicitly
     determined from the application that is mounted.
+
+    **Deprecated** You no longer need to choose between implicit or
+    explicit lookup for generic functions, as the generic functions
+    that are part of the API have all been deprecated.
+
     """
     global _implicit_enabled
     warnings.warn(
@@ -46,6 +52,11 @@ def disable_implicit():
 
        def setup_module(module):
            morepath.disable_implicit()
+
+    **Deprecated** You no longer need to choose between implicit or
+    explicit lookup for generic functions, as the generic functions
+    that are part of the API have all been deprecated.
+
     """
     global _implicit_enabled
     warnings.warn(
