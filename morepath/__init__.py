@@ -20,7 +20,6 @@ from .core import (excview_tween_factory as EXCVIEW,
     model_predicate, name_predicate, request_method_predicate,
     body_model_predicate)
 from .core import body_model_predicate as LAST_VIEW_PREDICATE
-from . import directive  # register directive methods
 from .generic import remember_identity, forget_identity, settings
 from .view import render_json, render_html, redirect
 from .request import Request, Response
