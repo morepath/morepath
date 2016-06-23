@@ -72,6 +72,8 @@ CHANGES
 - Adding ``App.init_settings`` for pre-filling the settings registry with a
   python dictionary. This can be used to load the settings from a config file.
 
+- Remove unused imports and fix pep8 in core.py.
+
 0.14 (2016-04-26)
 =================
 

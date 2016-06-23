@@ -20,24 +20,21 @@ subclass of :class:`morepath.App`. We do not guarantee we won't break
 your code with future version of Morepath if you do that, though.
 """
 
-import dectate
-import importscan
+import dectate  # noqa
+
 import re
 
 from reg import KeyIndex, ClassIndex
 from datetime import datetime, date
 from time import mktime, strptime
 
-from webob import Response as BaseResponse, BaseRequest
 from webob.exc import (
     HTTPException, HTTPNotFound, HTTPMethodNotAllowed,
     HTTPUnprocessableEntity, HTTPOk, HTTPRedirection, HTTPBadRequest)
 
-from . import directive  # install directives with App
+from . import directive  # install directives with App  # noqa
 from . import generic
 from .app import App
-from .view import View
-from .request import Request, Response
 from .converter import Converter, IDENTITY_CONVERTER
 
 
@@ -62,7 +59,7 @@ def model_not_found(self, request):
 @App.predicate(generic.view, name='name', default='', index=KeyIndex,
                after=model_predicate)
 def name_predicate(request):
-    """match name argument with request.view_name
+    """match name argument with request.view_name.
 
     Predicate for :meth:`morepath.App.view`.
     """
@@ -71,7 +68,7 @@ def name_predicate(request):
 
 @App.predicate_fallback(generic.view, name_predicate)
 def name_not_found(self, request):
-    """if name not matched, HTTP 404
+    """if name not matched, HTTP 404.
 
     Fallback for :meth:`morepath.App.view`.
     """
@@ -118,24 +115,21 @@ def body_model_unprocessable(self, request):
 
 @App.converter(type=int)
 def int_converter():
-    """Converter for int.
-    """
+    """Converter for int."""
     return Converter(int)
 
 
 @App.converter(type=type(u""))
 def unicode_converter():
-    """Converter for text.
-    """
+    """Converter for text."""
     return IDENTITY_CONVERTER
 
 
 # Python 2
-if type(u"") != type(""): # flake8: noqa
+if type(u"") != type(""):  # noqa
     @App.converter(type=type(""))
     def str_converter():
-        """Converter for non-text str.
-        """
+        """Converter for non-text str."""
         # XXX do we want to decode/encode unicode?
         return IDENTITY_CONVERTER
 
@@ -150,8 +144,7 @@ def date_encode(d):
 
 @App.converter(type=date)
 def date_converter():
-    """Converter for date.
-    """
+    """Converter for date."""
     return Converter(date_decode, date_encode)
 
 
@@ -165,8 +158,7 @@ def datetime_encode(d):
 
 @App.converter(type=datetime)
 def datetime_converter():
-    """Converter for datetime.
-    """
+    """Converter for datetime."""
     return Converter(datetime_decode, datetime_encode)
 
 
@@ -204,7 +196,7 @@ def excview_tween_factory(app, handler):
 
 @App.tween_factory(over=excview_tween_factory)
 def poisoned_host_header_protection_tween_factory(app, handler):
-    """ Protects Morepath applications against the most basic host header
+    """Protect Morepath applications against the most basic host header
     poisoning attacts.
 
     The regex approach has been copied from the Django project. To find more
