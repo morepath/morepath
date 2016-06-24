@@ -34,7 +34,7 @@ CHANGES
   ``morepath.forget_identity`` are both deprecated.
 
   Use the ``morepath.App.remember_identity`` and
-  ``morepath.App.forget_identity``, respectively.
+  ``morepath.App.forget_identity`` methods, respectively.
 
   Instead of ::
 
@@ -51,6 +51,13 @@ CHANGES
 - **Deprecated** ``morepath.settings`` is deprecated.
 
   Use the ``morepath.App.settings`` property instead.
+
+- **Deprecated** ``morepath.enable_implicit`` and
+  ``morepath.disable_implicit`` are both deprecated.
+
+  You no longer need to choose between implicit or explicit lookup for
+  generic functions, as the generic functions that are part of the API
+  have all been deprecated.
 
 - Cleanups and testing of ``reify`` functionality.
 

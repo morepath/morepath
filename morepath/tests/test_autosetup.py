@@ -8,7 +8,8 @@ import pytest
 
 
 def setup_module(module):
-    morepath.disable_implicit()
+    with pytest.deprecated_call():
+        morepath.disable_implicit()
 
 
 def test_import():
