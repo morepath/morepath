@@ -205,7 +205,8 @@ we can use::
 
   @App.json(model=DocumentCollection, request_method='POST')
   def document_collection_post(self, request):
-      if not is_valid_document_json(request.json):
+      json = request.json
+      if not is_valid_document_json(json):
           raise webob.exc.HTTPUnprocessableEntity()
       result = self.add(Document(title=json['title'],
                                  author=json['author'],
