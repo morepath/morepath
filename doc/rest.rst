@@ -191,7 +191,7 @@ the ``POST`` view again::
   @App.json(model=DocumentCollection, request_method='POST')
   def document_collection_post(self, request):
       json = request.json
-      result = self.add(Document(title=json['title],
+      result = self.add(Document(title=json['title'],
                                  author=json['author'],
                                  content=json['content']))
       return request.view(result)
