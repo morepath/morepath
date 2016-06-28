@@ -128,6 +128,7 @@ A collection resource could be modelled like this::
       def add(self, doc):
           doc.id = self.id_counter
           self.id_counter += 1
+          self.documents.append(doc)
           return doc
 
 We now want to expose this collection to a URL path ``/documents``. We
