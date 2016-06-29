@@ -76,7 +76,9 @@ view function as a :class:`morepath.Response`. If you use JSON, for
 convenience you can use :meth:`morepath.App.json` has a JSON
 render function baked in.
 
-We could for instance have a ``Document`` model in our application::
+We could for instance have a ``Document`` model in our application:
+
+.. testcode::
 
   class Document(object):
       def __init__(self, title, author, content):
@@ -84,7 +86,15 @@ We could for instance have a ``Document`` model in our application::
           self.author = author
           self.content = content
 
-We can expose it on a URL::
+We can expose it on a URL:
+
+.. testsetup::
+
+  import morepath
+  class App(morepath.App):
+      pass
+
+.. testcode::
 
   @App.path(model=Document, path='documents/{id}')
   def get_document(id=0):
@@ -97,7 +107,9 @@ instance is fine. We use ``id=0`` to tell Morepath that ids should be
 converted to integers, and to with a ``BadRequest`` if that is not
 possible.
 
-Now we need a view that exposes the resource to JSON::
+Now we need a view that exposes the resource to JSON:
+
+.. testcode::
 
   @App.json(model=Document)
   def document_default(self, request):
@@ -118,7 +130,9 @@ space and then expose them using :meth:`morepath.App.path`. Each model
 class can only be exposed on a single URL (per app), which gives them
 a canonical URL automatically.
 
-A collection resource could be modelled like this::
+A collection resource could be modelled like this:
+
+.. testcode::
 
   class DocumentCollection(object):
       def __init__(self):
@@ -140,7 +154,9 @@ want:
 * when you ``POST`` to ``/documents`` with a JSON body we want to add
   it to the collection.
 
-Here is how we can make ``documents`` available on a URL::
+Here is how we can make ``documents`` available on a URL:
+
+.. testcode::
 
   documents = DocumentCollection()
 
@@ -150,7 +166,9 @@ Here is how we can make ``documents`` available on a URL::
 
 When someone accesses ``/documents`` they should get a JSON structure
 which includes ids of all documents in the collection. Here's how to
-do that (for ``GET``, the default)::
+do that (for ``GET``, the default):
+
+.. testcode::
 
   @App.json(model=DocumentCollection)
   def document_collection_default(self, request):
@@ -160,12 +178,14 @@ do that (for ``GET``, the default)::
       }
 
 We also want to allow people to ``POST`` new documents (as a JSON POST
-body)::
+body):
+
+.. testcode::
 
   @App.json(model=DocumentCollection, request_method='POST')
   def document_collection_post(self, request):
       json = request.json
-      result = self.add(Document(title=json['title],
+      result = self.add(Document(title=json['title'],
                                  author=json['author'],
                                  content=json['content']))
       return request.view(result)
@@ -187,7 +207,9 @@ If you access a URL that does exist but with a request method that is
 not supported, a ``405 Method Not Allowed`` error is raised.
 
 What if the user sends the wrong information to a view? Let's consider
-the ``POST`` view again::
+the ``POST`` view again:
+
+.. testcode::
 
   @App.json(model=DocumentCollection, request_method='POST')
   def document_collection_post(self, request):
@@ -202,7 +224,9 @@ but contains some other information, or misses essential information?
 We should reject it if so. We can do this by raising a HTTP error
 ourselves. WebOb, the request/response library upon which Morepath is
 built, defines a set of HTTP exception classes :mod:`webob.exc` that
-we can use::
+we can use:
+
+.. testcode::
 
   @App.json(model=DocumentCollection, request_method='POST')
   def document_collection_post(self, request):
@@ -224,7 +248,9 @@ we can use::
 
 Now we raise ``422 Unprocessable Entity`` when the submitted JSON body
 is invalid, using a function ``is_valid_document_json`` that does the
-checking. ``is_valid_document`` could look this::
+checking. ``is_valid_document`` could look this:
+
+.. testcode::
 
   def is_valid_document_json(json):
      if json['type'] != 'document':
@@ -238,19 +264,23 @@ checking. ``is_valid_document`` could look this::
 --------------
 
 Instead of checking the content for validity in the view, we can use
-:meth:`App.load_json`::
+:meth:`App.load_json`:
+
+.. testcode::
 
   @App.load_json()
   def load_json(json, request):
      if is_valid_document_json(json):
         return Document(title=json['title'],
-                        author=json['author']
+                        author=json['author'],
                         content=json['content'])
      # fallback, just return plain JSON
      return json
 
 Now we get a ``Document`` instance in :attr:`Request.body_obj`, so
-we can simplify ``document_collection_post``::
+we can simplify ``document_collection_post``:
+
+.. testcode::
 
   @App.json(model=DocumentCollection, request_method='POST')
   def document_collection_post(self, request):
@@ -260,7 +290,9 @@ we can simplify ``document_collection_post``::
       return request.view(result)
 
 To only match if ``body_obj`` is an instance of ``Document`` we can
-use ``body_model`` on the view instead::
+use ``body_model`` on the view instead:
+
+.. testcode::
 
   @App.json(model=DocumentCollection, request_method='POST', body_model=Document)
   def document_collection_post(self, request):
@@ -307,7 +339,9 @@ hyperlinks. That ugly acronym HATEOAS_ thing.
   by clicking links.
 
 Morepath makes it easy to create hyperlinks, so we won't have to do
-much. Before we had this for the collection view::
+much. Before we had this for the collection view:
+
+.. testcode::
 
   @App.json(model=DocumentCollection)
   def document_collection_default(self, request):
@@ -317,7 +351,9 @@ much. Before we had this for the collection view::
       }
 
 We can change this so instead of ids, we return a list of document
-URLs instead::
+URLs instead:
+
+.. testcode::
 
   @App.json(model=DocumentCollection)
   def document_collection_default(self, request):
