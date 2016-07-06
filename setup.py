@@ -8,7 +8,7 @@ long_description = '\n'.join((
 
 backfills = []
 try:
-    from functools import singledispatch
+    from functools import singledispatch  # noqa
 except ImportError:
     backfills.append('singledispatch')
 

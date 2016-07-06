@@ -50,6 +50,7 @@ try:
 except ImportError:
     from singledispatch import singledispatch
 
+
 def isbaseclass(a, b):
     return issubclass(b, a)
 
