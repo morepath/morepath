@@ -10,6 +10,7 @@ Table of Contents
    index
    quickstart
    community
+   examples
    installation
    superpowers
    web
