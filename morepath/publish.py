@@ -59,7 +59,7 @@ def resolve_model(request):
     :return: model object or ``None`` if not found.
     """
     app = request.app
-    app.set_implicit()
+    request.visit_app(app)
     while request.unconsumed:
         next = consume(app, request)
         if next is None:
@@ -69,7 +69,7 @@ def resolve_model(request):
         if not isinstance(next, App):
             return next
         # we found an app, make it the current app
-        next.set_implicit()
+        request.visit_app(next)
         next.parent = app
         request.app = next
         request.lookup = next.lookup

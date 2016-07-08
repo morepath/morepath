@@ -11,6 +11,7 @@ from . import generic
 from .reify import reify
 from .traject import create_path, parse_path
 from .error import LinkError
+from .implicit import set_implicit
 
 SAME_APP = reg.Sentinel('SAME_APP')
 
@@ -129,11 +130,11 @@ class Request(BaseRequest):
 
         old_app = self.app
         old_lookup = self.lookup
-        app.set_implicit()
+        self.visit_app(app)
         self.app = app
         self.lookup = app.lookup
         result = view.func(obj, self)
-        old_app.set_implicit()
+        self.visit_app(old_app)
         self.app = old_app
         self.lookup = old_lookup
         return result
@@ -307,6 +308,9 @@ class Request(BaseRequest):
 
     def clear_after(self):
         self._after = []
+
+    def visit_app(self, app):
+        set_implicit(app.lookup)
 
 
 class Response(BaseResponse):
