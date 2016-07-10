@@ -310,6 +310,15 @@ class Request(BaseRequest):
         self._after = []
 
     def visit_app(self, app):
+        """Callback invoked when picking the application to handle a request.
+
+        Derived classes can redefine this method, typically ensuring
+        that its ``super`` is invoked.
+
+        :param app: the instance of :class:`morepath.App` selected to
+          handle a request.
+
+        """
         set_implicit(app.lookup)
 
 
