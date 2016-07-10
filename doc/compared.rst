@@ -210,12 +210,22 @@ each app has a separate reg registry. When you call a generic function
 Reg needs to know what registry to use to look it up. You can make
 this completely explicit by using a special ``lookup`` argument::
 
-  some_generic_function(doc, 3, lookup=app.lookup())
+  some_generic_function(doc, 3, lookup=app.lookup)
 
 That's all right in framework code, but doing that all the time is not
 very pretty in application code. For convenience, Morepath therefore
-sets up the current lookup implicitly as thread local state. Then you
-can simply write this::
+allows you to set up a :class:`morepath.Request` class that sets the
+current lookup implicitly as thread local state::
+
+  class ImplicitLookupRequest(morepath.Request):
+      def visit_app(self, app):
+          super(ImplicitLookupRequest, self).visit_app(app)
+          reg.implicit.lookup = app.lookup
+
+  class MyApp(morepath.App):
+      request_class = ImplicitLookupRequest
+
+Then you can simply write this::
 
   some_generic_function(doc, 3)
 
