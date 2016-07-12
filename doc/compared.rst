@@ -210,7 +210,7 @@ each app has a separate reg registry. When you call a generic function
 Reg needs to know what registry to use to look it up. You can make
 this completely explicit by using a special ``lookup`` argument::
 
-  some_generic_function(doc, 3, lookup=app.lookup())
+  some_generic_function(doc, 3, lookup=app.lookup)
 
 That's all right in framework code, but doing that all the time is not
 very pretty in application code. For convenience, Morepath therefore
