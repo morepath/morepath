@@ -19,7 +19,6 @@ import dectate
 
 from .request import Request
 from . import compat
-from .implicit import set_implicit
 from .reify import reify
 from . import generic
 from .path import PathInfo
@@ -79,9 +78,6 @@ class App(dectate.App):
         if not self.is_committed():
             self.commit()
         return self.config.reg_registry.caching_lookup
-
-    def set_implicit(self):
-        set_implicit(self.lookup)
 
     def request(self, environ):
         """Create a :class:`Request` given WSGI environment for this app.
