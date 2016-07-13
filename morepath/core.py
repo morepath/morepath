@@ -122,7 +122,7 @@ def unicode_converter():
 
 
 # Python 2
-if type(u"") != type(""):  # noqa
+if type(u"") != type(""):  # pragma: no cover  # noqa
     @App.converter(type=type(""))
     def str_converter():
         """Converter for non-text str."""
