@@ -9,10 +9,10 @@ See also :class:`morepath.directive.PathRegistry`
 from dectate import DirectiveError
 from reg import arginfo
 try:
-    from urllib.parse import urlencode, quote
-except ImportError:  # pragma: no cover
     # Python 2
     from urllib import urlencode, quote
+except ImportError:
+    from urllib.parse import urlencode, quote
 
 
 from .cachingreg import RegRegistry

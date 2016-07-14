@@ -16,7 +16,7 @@ from reg import PredicateRegistry, match_class
 
 try:
     from types import ClassType
-except ImportError:  # pragma: nocoverage
+except ImportError:
     # You're running Python 3!
     ClassType = None
 from dectate import DirectiveError
