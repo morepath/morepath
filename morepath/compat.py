@@ -6,7 +6,7 @@ It used throughout the code to make Morepath portable
 across Python versions.
 """
 
-# taken from pyramid.compat
+# originally taken from pyramid.compat
 
 import sys
 
@@ -14,17 +14,17 @@ PY3 = sys.version_info[0] == 3
 """True if we are running on Python 3"""
 
 # text_type is the type used for non-bytes text
-if PY3:
+try:
+    text_type = unicode
+except NameError:
     text_type = str
-else:  # pragma: no cover
-    text_type = unicode  # noqa
 
 # string_types can be used in isinstance to determine
 # whether an object considered to be a string
-if PY3:
+try:
+    string_types = (basestring,)
+except NameError:
     string_types = (str,)
-else:  # pragma: no cover
-    string_types = (basestring,)  # noqa
 
 
 # XXX we don't want to use this in too many places, as the isinstance
@@ -35,6 +35,6 @@ def bytes_(s, encoding='latin-1', errors='strict'):
     If ``s`` is an instance of ``text_type``, return
     ``s.encode(encoding, errors)``, otherwise return ``s``
     """
-    if isinstance(s, text_type):  # pragma: no cover
+    if isinstance(s, text_type):
         return s.encode(encoding, errors)
-    return s  # pragma: no cover
+    return s
