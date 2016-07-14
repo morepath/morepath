@@ -20,6 +20,11 @@ routing; in Morepath the value is a model instance factory.
 When presented with a path, Traject traverses this internal tree.
 
 For a description of a similar algorithm also read: http://littledev.nl/?p=99
+
+.. testsetup::
+
+  from morepath.traject import *
+
 """
 
 import re
@@ -363,15 +368,10 @@ def create_path(segments):
 def parse_path(path):
     """Parses path, creates normalized segment list.
 
-    Rules:
+    Dots are collapsed:
 
-    * Collapses dots (``/../blog`` -> ``/blog``)
-    * Ensures absolute paths (``./site`` -> ``/site``)
-    * Removes double-slashes (``//index`` -> ``/index``)
-
-    For example:
-
-        ``../static//../app.py`` is turned into ``/app.py``
+        >>> parse_path('../static//../app.py')
+        ['app.py']
 
     :param path: path string to parse
     :return: normalized list of path segments.
@@ -394,13 +394,25 @@ def normalize_path(path):
 
     Rules:
 
-    * Collapses dots (``/../blog`` -> ``/blog``)
-    * Ensures absolute paths (``./site`` -> ``/site``)
-    * Removes double-slashes (``//index`` -> ``/index``)
+    * Collapse dots:
+
+        >>> normalize_path('/../blog')
+        '/blog'
+
+    * Ensure absolute paths:
+
+        >>> normalize_path('./site')
+        '/site'
+
+    * Remove double-slashes:
+
+        >>> normalize_path('//index')
+        '/index'
 
     For example:
 
-        ``../static//../app.py`` is turned into ``/app.py``
+        >>> normalize_path('../static//../app.py')
+        '/app.py'
 
     :param path: path string to parse
     :return: normalized path.
