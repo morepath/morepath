@@ -382,6 +382,11 @@ def test_parse_path_dots():
     assert parse_path(u'/a/b/../c') == parse_path(u'/a/c')
 
 
+def test_parse_path_single_dots():
+    assert parse_path(u'/a/./b') == parse_path(u'/a/b')
+    assert parse_path(u'./a/b') == parse_path(u'/a/b')
+
+
 def test_parse_path_dots_start():
     assert parse_path(u'/../a/b') == parse_path(u'/a/b')
 
