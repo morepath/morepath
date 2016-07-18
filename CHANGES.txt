@@ -83,6 +83,11 @@ CHANGES
 
 - Add support for Python 3.5 and make it the default Python environment.
 
+- Add a ``reset`` method to the ``Request`` class that resets it to
+  the state it had when request processing started. This is used by
+  ``more.transaction`` to reset request processing when it retries a
+  transaction.
+
 0.14 (2016-04-26)
 =================
 

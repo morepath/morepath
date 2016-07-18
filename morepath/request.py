@@ -35,6 +35,8 @@ class Request(BaseRequest):
         See :mod:`morepath.publish`.
         """
 
+        self._root_app = app
+
         self.app = app
         """:class:`morepath.App` instance currently handling request.
         """
@@ -43,6 +45,21 @@ class Request(BaseRequest):
         """The :class:`reg.Lookup` object handling generic function calls."""
         self._after = []
         self._link_prefix_cache = {}
+
+    def reset(self):
+        """Reset request.
+
+        This resets the request back to the state it had when request
+        processing started. This is used by ``more.transaction`` when it
+        retries a transaction.
+        """
+        self.make_body_seekable()
+        segments = parse_path(self.path_info)
+        segments.reverse()
+        self.unconsumed = segments
+        self.app = self._root_app
+        self.lookup = self.app.lookup
+        self._after = []
 
     @reify
     def body_obj(self):
