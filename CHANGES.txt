@@ -4,6 +4,9 @@ CHANGES
 0.15 (unreleased)
 =================
 
+Removal & Deprecations
+----------------------
+
 - **Removed**: ``morepath.autosetup`` and ``morepath.autocommit`` are
   both removed from the Morepath API.
 
@@ -59,14 +62,8 @@ CHANGES
   generic functions, as the generic functions that are part of the API
   have all been deprecated.
 
-- Cleanups and testing of ``reify`` functionality.
-
-- More doctests in the narrative documentation.
-
-- Fix a bug where a double slash at the start of a path was not
-  normalized.
-
-- A few small performance tweaks.
+Features
+--------
 
 - Factored out new ``App.mounted_app_classes()`` class method which
   can be used to determine the mounted app classes after a
@@ -76,17 +73,37 @@ CHANGES
 - The ``morepath.run`` function now takes command-line arguments to
   set the host and port, and is friendlier in general.
 
-- Add ``App.init_settings`` for pre-filling the settings registry with a
-  python dictionary. This can be used to load the settings from a config file.
-
-- Remove unused imports and fix pep8 in core.py.
-
-- Add support for Python 3.5 and make it the default Python environment.
+- Add ``App.init_settings`` for pre-filling the settings registry with
+  a python dictionary. This can be used to load the settings from a
+  config file.
 
 - Add a ``reset`` method to the ``Request`` class that resets it to
   the state it had when request processing started. This is used by
   ``more.transaction`` to reset request processing when it retries a
   transaction.
+
+Bug fixes
+---------
+
+- Fix a bug where a double slash at the start of a path was not
+  normalized.
+
+Cleanups
+--------
+
+- Cleanups and testing of ``reify`` functionality.
+
+- More doctests in the narrative documentation.
+
+- A few small performance tweaks.
+
+- Remove unused imports and fix pep8 in core.py.
+
+Other
+-----
+
+- Add support for Python 3.5 and make it the default Python
+  environment.
 
 0.14 (2016-04-26)
 =================
