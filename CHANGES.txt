@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.15 (unreleased)
+0.15 (2016-07-18)
 =================
 
 Removal & Deprecations
