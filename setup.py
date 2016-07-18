@@ -35,8 +35,8 @@ setup(
     install_requires=[
         'setuptools',
         'webob >= 1.3.1',
-        'reg >= 0.9.2',
-        'dectate >= 0.10.1',
+        'reg >= 0.9.3',
+        'dectate >= 0.11',
         'importscan',
     ],
     extras_require=dict(
