@@ -92,7 +92,10 @@ class Request(BaseRequest):
         """
         # XXX annoying circular dependency
         from .authentication import NO_IDENTITY
-        result = generic.identify(self, lookup=self.lookup)
+        policy = self.app.config.identity_policy_registry.identity_policy
+        if policy is None:
+            return NO_IDENTITY
+        result = policy.identify(self)
         if result is None or result is NO_IDENTITY:
             return NO_IDENTITY
         if not generic.verify_identity(result, lookup=self.lookup):
