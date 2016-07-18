@@ -163,9 +163,9 @@ def render_json(content, request):
     :return: a :class:`morepath.Response` instance with a serialized
       JSON body.
     """
-    return Response(json.dumps(generic.dump_json(request, content,
-                                                 lookup=request.lookup)),
-                    content_type='application/json')
+    return Response(
+        json.dumps(request.app.config.proxy.dump_json(request, content)),
+        content_type='application/json')
 
 
 def render_html(content, request):

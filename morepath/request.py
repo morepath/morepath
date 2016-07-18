@@ -74,7 +74,7 @@ class Request(BaseRequest):
             return None
         if self.content_type != 'application/json':
             return None
-        return generic.load_json(self, self.json, lookup=self.lookup)
+        return self.app.config.proxy.load_json(self, self.json)
 
     @reify
     def identity(self):
@@ -106,7 +106,7 @@ class Request(BaseRequest):
             return cached
 
         prefix = self._link_prefix_cache[self.app.__class__]\
-               = generic.link_prefix(self, lookup=self.lookup)
+               = self.app.config.proxy.link_prefix(self)
 
         return prefix
 

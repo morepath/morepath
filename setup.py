@@ -6,6 +6,12 @@ long_description = '\n'.join((
     io.open('CHANGES.txt', encoding='utf-8').read()
 ))
 
+backfills = []
+try:
+    from functools import singledispatch  # noqa
+except ImportError:
+    backfills.append('singledispatch')
+
 setup(
     name='morepath',
     version='0.16.dev0',
@@ -38,7 +44,7 @@ setup(
         'reg >= 0.9.3',
         'dectate >= 0.11',
         'importscan',
-    ],
+    ] + backfills,
     extras_require=dict(
         test=[
             'pytest >= 2.9.0',
