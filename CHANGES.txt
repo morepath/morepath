@@ -47,6 +47,8 @@ Other
 - Use abstract base classes from the standard library for
   ``morepath.IdentityPolicy``.
 
+- Extended the test suite to cover ``morepath.Request.reset``.
+
 
 0.15 (2016-07-18)
 =================
