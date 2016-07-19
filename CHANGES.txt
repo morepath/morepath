@@ -4,7 +4,43 @@ CHANGES
 0.16 (unreleased)
 =================
 
-- Nothing changed yet.
+Removal & Deprecations
+----------------------
+
+- **Removed**: ``morepath.remember_identity`` is removed from the
+  Morepath API.
+
+  Use ::
+
+    request.app.remember_identity(response, request, identity)
+
+  Instead of ::
+
+    remember_identity(response, request, identity, lookup=request.lookup)
+
+- **Removed**: ``morepath.forget_identity`` is removed from the
+  Morepath API.
+
+  Use ::
+
+    request.app.forget_identity(response, request)
+
+  Instead of ::
+
+    morepath.forget_identity(response, request, lookup=request.lookup)
+
+- **Removed** ``morepath.settings`` is removed from the Morepath API.
+
+  Use the ``morepath.App.settings`` property instead.
+
+- **Removed** ``morepath.enable_implicit`` and
+  ``morepath.disable_implicit`` are both removed from the Morepath API.
+
+  You no longer need to choose between implicit or explicit lookup for
+  generic functions, as the generic functions that are part of the API
+  have all been removed.  Generic functions decorated by
+  ``morepath.App.function`` can use implicit lookup by default.
+
 
 
 0.15 (2016-07-18)
