@@ -26,7 +26,3 @@ from .authentication import Identity, IdentityPolicy, NO_IDENTITY
 from .converter import Converter
 from .reify import reify
 from .run import run
-
-from reg import implicit
-
-implicit.initialize(None)

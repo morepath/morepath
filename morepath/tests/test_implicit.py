@@ -1,11 +1,6 @@
 import morepath
-from morepath.implicit import enable_implicit, disable_implicit
 import reg
 from webtest import TestApp as Client
-
-
-def setup_module(module):
-    enable_implicit()
 
 
 def setup_function(f):
@@ -105,31 +100,3 @@ def test_implicit_function_mounted():
 
     response = c.get('/')
     assert response.body == b'Default one'
-
-
-def test_implicit_disabled():
-    disable_implicit()
-
-    class app(morepath.App):
-        pass
-
-    @app.path(path='')
-    class Model(object):
-        def __init__(self):
-            pass
-
-    @reg.dispatch()
-    def one():
-        return "default one"
-
-    @app.view(model=Model)
-    def default(self, request):
-        try:
-            return one()
-        except reg.NoImplicitLookupError:
-            return "No implicit found"
-
-    c = Client(app())
-
-    response = c.get('/')
-    assert response.body == b'No implicit found'
