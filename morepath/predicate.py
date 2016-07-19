@@ -1,6 +1,6 @@
 """
 The :meth:`morepath.App.predicate` directive lets you install predicates
-for function that use :func:`reg.dispatch_external_predicates`. This is
+for function that use :func:`reg.dispatch_method_external_predicates`. This is
 used by :mod:`morepath.core` to install the view predicates, and you can
 also use it for your own functions.
 

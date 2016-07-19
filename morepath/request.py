@@ -7,7 +7,6 @@ Entirely documented in :class:`morepath.Request` and
 from webob import BaseRequest, Response as BaseResponse
 import reg
 
-from . import generic
 from .reify import reify
 from .traject import create_path, parse_path
 from .error import LinkError
@@ -40,9 +39,6 @@ class Request(BaseRequest):
         self.app = app
         """:class:`morepath.App` instance currently handling request.
         """
-
-        self.lookup = app.lookup
-        """The :class:`reg.Lookup` object handling generic function calls."""
         self._after = []
         self._link_prefix_cache = {}
 
@@ -58,7 +54,6 @@ class Request(BaseRequest):
         segments.reverse()
         self.unconsumed = segments
         self.app = self._root_app
-        self.lookup = self.app.lookup
         self._after = []
 
     @reify
@@ -74,7 +69,7 @@ class Request(BaseRequest):
             return None
         if self.content_type != 'application/json':
             return None
-        return generic.load_json(self, self.json, lookup=self.lookup)
+        return self.app.load_json(self, self.json)
 
     @reify
     def identity(self):
@@ -92,10 +87,10 @@ class Request(BaseRequest):
         """
         # XXX annoying circular dependency
         from .authentication import NO_IDENTITY
-        result = generic.identify(self, lookup=self.lookup)
+        result = self.app.identify(self)
         if result is None or result is NO_IDENTITY:
             return NO_IDENTITY
-        if not generic.verify_identity(result, lookup=self.lookup):
+        if not self.app.verify_identity(result):
             return NO_IDENTITY
         return result
 
@@ -106,7 +101,7 @@ class Request(BaseRequest):
             return cached
 
         prefix = self._link_prefix_cache[self.app.__class__]\
-               = generic.link_prefix(self, lookup=self.lookup)
+               = self.app.link_prefix(self)
 
         return prefix
 
@@ -137,22 +132,16 @@ class Request(BaseRequest):
         predicates['model'] = obj.__class__
 
         def find(app, obj):
-            return generic.view.component_key_dict(lookup=app.lookup,
-                                                   **predicates)
+            return app._view.component_key_dict(**predicates)
 
         view, app = app._follow_defers(find, obj)
         if view is None:
             return default
 
         old_app = self.app
-        old_lookup = self.lookup
-        app.set_implicit()
         self.app = app
-        self.lookup = app.lookup
         result = view.func(obj, self)
-        old_app.set_implicit()
         self.app = old_app
-        self.lookup = old_lookup
         return result
 
     def link(self, obj, name='', default=None, app=SAME_APP):

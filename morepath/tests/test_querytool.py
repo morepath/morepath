@@ -56,7 +56,7 @@ def test_predicate_fallback():
     ]
 
     r = objects(dectate.query_app(App, 'predicate_fallback',
-                                  dispatch='morepath.generic.view'))
+                                  dispatch='morepath.App._view'))
     assert r == [
         core.model_not_found,
         core.name_not_found,
@@ -66,7 +66,7 @@ def test_predicate_fallback():
 
     # there aren't any predicates for class_path
     r = objects(dectate.query_app(App, 'predicate_fallback',
-                                  dispatch='morepath.generic.class_path'))
+                                  dispatch='morepath.App.class_path'))
     assert r == []
 
     r = objects(dectate.query_app(App, 'predicate_fallback',
@@ -132,17 +132,19 @@ def generic(v):
 
 def test_function():
     class App(morepath.App):
-        pass
+        @reg.dispatch_external_predicates()
+        def generic(v):
+            pass
 
-    @App.predicate(generic, name='v', default='', index=reg.KeyIndex)
+    @App.predicate(App.generic, name='v', default='', index=reg.KeyIndex)
     def get(v):
         return v
 
-    @App.function(generic, v='A')
+    @App.function(App.generic, v='A')
     def a(v):
         return v
 
-    @App.function(generic, v='B')
+    @App.function(App.generic, v='B')
     def b(v):
         return v
 
@@ -150,8 +152,8 @@ def test_function():
 
     app = App()
 
-    assert generic('A', lookup=app.lookup) == 'A'
-    assert generic('B', lookup=app.lookup) == 'B'
+    assert app.generic('A') == 'A'
+    assert app.generic('B') == 'B'
 
     r = objects(dectate.query_app(App, 'function'))
     assert r == [a, b]

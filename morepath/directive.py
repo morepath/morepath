@@ -42,7 +42,6 @@ from .tween import TweenRegistry
 from .template import TemplateEngineRegistry
 from .predicate import PredicateRegistry
 from .path import PathRegistry
-from . import generic
 from .settings import SettingRegistry
 
 
@@ -216,7 +215,7 @@ class PredicateAction(dectate.Action):
         if not self.dispatch.external_predicates:
             raise dectate.DirectiveError(
                 "@predicate decorator may only be used with "
-                "@reg.dispatch_external_predicates: %s" % self.dispatch)
+                "@reg.dispatch_method_external_predicates: %s" % self.dispatch)
 
         predicate_registry.register_predicate(
             obj, self.dispatch,
@@ -270,7 +269,7 @@ class FunctionAction(dectate.Action):
 
     def predicate_key(self, reg_registry, predicate_registry):
         # XXX either reg should keep track of dispatch and
-        # dispatch_external_predicates functions that have been used,
+        # dispatch_method_external_predicates functions that have been used,
         # or we should only allow their registration through a special
         # Morepath directive so that we can.
         if self.func.external_predicates:
@@ -484,7 +483,7 @@ class PermissionRuleAction(dectate.Action):
 
     def perform(self, obj, reg_registry):
         reg_registry.register_function(
-            generic.permits, obj,
+            App.permits, obj,
             identity=self.identity,
             obj=self.model,
             permission=self.permission)
@@ -1097,7 +1096,7 @@ class IdentityPolicyAction(dectate.Composite):
         pass
 
     def actions(self, obj):
-        yield IdentityPolicyFunctionAction(generic.identify,
+        yield IdentityPolicyFunctionAction(App.identify,
                                            'identify'), obj
 
 
@@ -1132,7 +1131,7 @@ class VerifyIdentityAction(dectate.Composite):
         self.identity = identity
 
     def actions(self, obj):
-        yield FunctionAction(generic.verify_identity,
+        yield FunctionAction(App.verify_identity,
                              identity=self.identity), obj
 
 
@@ -1173,7 +1172,7 @@ class DumpJsonAction(dectate.Action):
         # reverse parameters
         def dump(request, self):
             return obj(self, request)
-        reg_registry.register_function(generic.dump_json, dump, obj=self.model)
+        reg_registry.register_function(App.dump_json, dump, obj=self.model)
 
 
 @App.directive('load_json')
@@ -1198,7 +1197,7 @@ class LoadJsonAction(dectate.Action):
         # reverse parameters
         def load(request, json):
             return obj(json, request)
-        reg_registry.register_function(generic.load_json, load)
+        reg_registry.register_function(App.load_json, load)
 
 
 @App.directive('link_prefix')
@@ -1223,4 +1222,4 @@ class LinkPrefixAction(dectate.Action):
         return ()
 
     def perform(self, obj, reg_registry):
-        reg_registry.register_function(generic.link_prefix, obj)
+        reg_registry.register_function(App.link_prefix, obj)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import morepath
 from morepath.request import Response
-from morepath import generic
+#from morepath import generic
 from morepath.authentication import Identity, NO_IDENTITY
 from .fixtures import identity_policy
 import base64
@@ -210,7 +210,7 @@ def test_default_verify_identity():
 
     identity = morepath.Identity('foo')
 
-    assert not generic.verify_identity(identity, lookup=app().lookup)
+    assert not app().verify_identity(identity)
 
 
 def test_verify_identity_directive():
@@ -222,9 +222,9 @@ def test_verify_identity_directive():
         return identity.password == 'right'
 
     identity = morepath.Identity('foo', password='wrong')
-    assert not generic.verify_identity(identity, lookup=app().lookup)
+    assert not app().verify_identity(identity)
     identity = morepath.Identity('foo', password='right')
-    assert generic.verify_identity(identity, lookup=app().lookup)
+    assert app().verify_identity(identity)
 
 
 def test_false_verify_identity():

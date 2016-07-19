@@ -122,7 +122,9 @@ def test_basic_scenario():
     def root_link(self, request):
         return request.link(self)
 
-    c = Client(app())
+    a = app()
+    a.commit()
+    c = Client(a)
 
     response = c.get('/foo')
     assert response.body == b'The view for model: foo'

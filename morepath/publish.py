@@ -19,8 +19,6 @@ from webob.exc import HTTPNotFound
 from reg import mapply
 
 from .app import App
-from . import generic
-
 
 DEFAULT_NAME = u''
 
@@ -51,15 +49,10 @@ def resolve_model(request):
     mounted applications as indicated by the
     :meth:`morepath.App.mount` directive.
 
-    The implicit Reg lookup used to look up generic dispatch functions
-    is set to the app and is updated to the mounted application when
-    traversing into it.
-
     :param: :class:`morepath.Request` instance.
     :return: model object or ``None`` if not found.
     """
     app = request.app
-    app.set_implicit()
     while request.unconsumed:
         next = consume(app, request)
         if next is None:
@@ -69,10 +62,8 @@ def resolve_model(request):
         if not isinstance(next, App):
             return next
         # we found an app, make it the current app
-        next.set_implicit()
         next.parent = app
         request.app = next
-        request.lookup = next.lookup
         app = next
     # if there is nothing (left), we consume toward a root obj
     if not request.unconsumed:
@@ -126,7 +117,7 @@ def resolve_response(obj, request):
 
     If no view name exist it raises :exc:`webob.exc.HTTPNotFound`.
 
-    It then uses :func:`morepath.generic.view` to resolve the view for
+    It then uses :meth:`morepath.App._view` to resolve the view for
     the model object and the request by doing dynamic dispatch.
 
     :param obj: model object to get response for.
@@ -137,7 +128,7 @@ def resolve_response(obj, request):
     view_name = request.view_name = get_view_name(request.unconsumed)
     if view_name is None:
         raise HTTPNotFound()
-    return generic.view(obj, request, lookup=request.lookup)
+    return request.app._view(obj, request)
 
 
 def get_view_name(stack):
