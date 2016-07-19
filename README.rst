@@ -7,7 +7,7 @@ exposed to the web using *views*.
 
 Documentation_.
 
-.. _Documentation: http://morepath.readthedocs.org/
+.. _Documentation: http://morepath.readthedocs.io
 
 Build Status
 ------------
