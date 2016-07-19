@@ -6,9 +6,9 @@ The functions are made pluggable by the use of the
 decorators. Morepath's configuration function uses this to register
 implementations using :meth:`reg.Registry.register_function`.
 
-:func:`morepath.remember_identity`, :func:`morepath.forget_identity`
-and :func:`morepath.settings`, currently exported to the public API,
-are now deprecated.
+:func:`morepath.remember_identity`, and
+:func:`morepath.forget_identity`, currently exported to the public
+API, are now deprecated.
 
 """
 import reg
@@ -96,23 +96,6 @@ def view(obj, request):
       :class:`webob.exc.HTTPNotFound` if view cannot be found.
     """
     return HTTPNotFound()
-
-
-@reg.dispatch()
-def settings():
-    """Return current settings object.
-
-    In it are sections, and inside of the sections are the setting values.
-    If there is a ``logging`` section and a ``loglevel`` setting in it,
-    this is how you would access it::
-
-      settings().logging.loglevel
-
-    **Deprecated**: use the property :attr:`morepath.App.settings` instead.
-
-    :return: current settings object for this app.
-    """
-    raise NotImplementedError  # pragma: nocoverage
 
 
 @reg.dispatch()

@@ -81,19 +81,6 @@ class SettingAction(dectate.Action):
     def perform(self, obj, reg_registry, setting_registry):
         setting_registry.register_setting(self.section, self.name, obj)
 
-    @staticmethod
-    def after(reg_registry, setting_registry):
-        import warnings
-
-        def f():
-            warnings.warn(
-                "DEPRECATED. morepath.settings is deprecated. "
-                "Use the morepath.App.settings property instead.",
-                DeprecationWarning)
-            return setting_registry
-
-        reg_registry.register_function(generic.settings, f)
-
 
 class SettingValue(object):
     def __init__(self, value):

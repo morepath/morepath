@@ -18,8 +18,6 @@ API
 
 .. autofunction:: run
 
-.. autofunction:: settings()
-
 .. autoclass:: Request
   :members:
 

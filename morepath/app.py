@@ -196,12 +196,7 @@ class App(dectate.App):
 
     @property
     def settings(self):
-        """Returns the settings bound to this app.
-
-        Works the same way as :func:`morepath.generic.settings`. Unlike calling
-        ``morepath.settings`` however, this property does not rely on the
-        global lookup.
-        """
+        """Returns the settings bound to this app."""
         return self.config.setting_registry
 
     @classmethod

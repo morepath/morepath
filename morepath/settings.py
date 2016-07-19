@@ -14,8 +14,7 @@ class SettingRegistry(object):
     attributes.
 
     This settings registry is exposed through
-    :attr:`morepath.App.settings` as well as the
-    :func:`morepath.settings` function.
+    :attr:`morepath.App.settings`.
     """
     def register_setting(self, section_name, setting_name, func):
         """Register a setting.

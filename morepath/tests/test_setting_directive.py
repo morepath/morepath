@@ -139,9 +139,7 @@ def test_app_section_settings_conflict():
         dectate.commit(app)
 
 
-def test_settings_function():
-    morepath.enable_implicit()
-
+def test_settings_property_in_view():
     class app(morepath.App):
         pass
 
@@ -158,17 +156,7 @@ def test_settings_function():
     def default(self, request):
         return request.app.settings.section.name
 
-    @app.view(model=Model, name='generic')
-    def generic(self, request):
-        with pytest.deprecated_call():
-            return morepath.settings().section.name
-
-    dectate.commit(app)
-
     c = Client(app())
 
     response = c.get('/')
-    assert response.body == b'LAH'
-
-    response = c.get('/generic')
     assert response.body == b'LAH'

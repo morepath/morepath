@@ -20,7 +20,7 @@ from .core import (excview_tween_factory as EXCVIEW,
     model_predicate, name_predicate, request_method_predicate,
     body_model_predicate)
 from .core import body_model_predicate as LAST_VIEW_PREDICATE
-from .generic import remember_identity, forget_identity, settings
+from .generic import remember_identity, forget_identity
 from .view import render_json, render_html, redirect
 from .request import Request, Response
 from .autosetup import scan, autoscan
