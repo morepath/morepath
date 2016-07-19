@@ -6,10 +6,6 @@ The functions are made pluggable by the use of the
 decorators. Morepath's configuration function uses this to register
 implementations using :meth:`reg.Registry.register_function`.
 
-:func:`morepath.remember_identity`, and
-:func:`morepath.forget_identity`, currently exported to the public
-API, are now deprecated.
-
 """
 import reg
 from webob.exc import HTTPNotFound
@@ -122,34 +118,6 @@ def verify_identity(identity):
       can be verified so this returns ``False``.
     """
     return False
-
-
-@reg.dispatch()
-def remember_identity(response, request, identity):
-    """Modify response so that identity is remembered by client.
-
-    **Deprecated**: use the method
-    :meth:`morepath.App.remember_identity` instead.
-
-    :param response: :class:`morepath.Response` to remember identity on.
-    :param request: :class:`morepath.Request`
-    :param identity: :class:`morepath.Identity`
-
-    """
-    raise NotImplementedError  # pragma: nocoverage
-
-
-@reg.dispatch()
-def forget_identity(response, request):
-    """Modify response so that identity is forgotten by client.
-
-    **Deprecated**: use the method
-    :meth:`morepath.App.forget_identity` instead.
-
-    :param response: :class:`morepath.Response` to forget identity on.
-    :param request: :class:`morepath.Request`
-    """
-    raise NotImplementedError  # pragma: nocoverage
 
 
 @reg.dispatch('identity', 'obj',

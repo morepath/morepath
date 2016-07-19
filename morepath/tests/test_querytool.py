@@ -707,7 +707,7 @@ def test_identity_policy():
     r = objects(dectate.query_app(
         App, 'identity_policy'))
 
-    assert len(r) == 3
+    assert len(r) == 1
 
 
 def test_verify_identity():

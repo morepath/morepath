@@ -33,10 +33,6 @@ API
 .. autoclass:: morepath.Identity
   :members:
 
-.. autofunction:: morepath.remember_identity(response, request, identity)
-
-.. autofunction:: morepath.forget_identity(response, request)
-
 .. autoclass:: morepath.IdentityPolicy
   :members:
 
