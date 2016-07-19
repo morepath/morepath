@@ -20,3 +20,14 @@ def test_bytes_():
     code = compat.bytes_(text)
     assert isinstance(code, bytes)
     assert code == compat.bytes_(code)
+
+
+def test_withclass():
+    class Meta(type):
+        pass
+
+    class Class(compat.with_metaclass(Meta)):
+        pass
+
+    assert type(Class) == Meta
+    assert Class.__bases__ == (object,)

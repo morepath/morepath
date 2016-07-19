@@ -9,11 +9,12 @@ directive.
 
 See also :class:`morepath.directive.IdentityPolicyRegistry`
 """
-
+import abc
 from reg import mapply
 
 from .cachingreg import RegRegistry
 from .settings import SettingRegistry
+from .compat import with_metaclass
 
 
 class NoIdentity(object):
@@ -107,13 +108,14 @@ class Identity(object):
         return result
 
 
-class IdentityPolicy(object):
+class IdentityPolicy(with_metaclass(abc.ABCMeta)):
     """Identity policy API.
 
     Implement this API if you want to have a custom way to establish
     identities for users in your application.
     """
 
+    @abc.abstractmethod
     def identify(self, request):
         """Establish what identity this user claims to have from request.
 
@@ -123,8 +125,8 @@ class IdentityPolicy(object):
           :attr:`morepath.NO_IDENTITY` if identity cannot
           be established.
         """
-        raise NotImplementedError()  # pragma: nocoverage
 
+    @abc.abstractmethod
     def remember(self, response, request, identity):
         """Remember identity on response.
 
@@ -144,8 +146,8 @@ class IdentityPolicy(object):
         :type identity: :class:`morepath.Identity`
 
         """
-        raise NotImplementedError()  # pragma: nocoverage
 
+    @abc.abstractmethod
     def forget(self, response, request):
         """Forget identity on response.
 
@@ -161,4 +163,3 @@ class IdentityPolicy(object):
         :type request: :class:`morepath.Request`
 
         """
-        raise NotImplementedError()  # pragma: nocoverage

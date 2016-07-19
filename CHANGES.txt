@@ -41,6 +41,11 @@ Removal & Deprecations
   have all been removed.  Generic functions decorated by
   ``morepath.App.function`` can use implicit lookup by default.
 
+Other
+-----
+
+- Use abstract base classes from the standard library for
+  ``morepath.IdentityPolicy``.
 
 
 0.15 (2016-07-18)
