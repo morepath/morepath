@@ -85,7 +85,9 @@ class Identity(object):
         :param kw: Extra information to store in identity.
         """
         self.userid = userid
-        """The user ID of the identity."""
+        """The user ID of the identity.
+
+        May be ``None`` if no particular identity was established."""
         self._names = kw.keys()
         for key, value in kw.items():
             setattr(self, key, value)
