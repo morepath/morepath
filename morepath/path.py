@@ -18,7 +18,6 @@ except ImportError:
 from .cachingreg import RegRegistry
 from .traject import Path as TrajectPath, TrajectRegistry
 from .converter import ParameterFactory, ConverterRegistry, IDENTITY_CONVERTER
-from . import generic
 from .error import LinkError
 
 
@@ -142,7 +141,9 @@ class PathRegistry(TrajectRegistry):
         :param func: function that gets a model instance argument and
           returns a variables dict.
         """
-        self.reg_registry.register_function(generic.path_variables,
+        # XXX
+        from .app import App
+        self.reg_registry.register_function(App.path_variables,
                                             func,
                                             obj=model)
 
@@ -160,12 +161,14 @@ class PathRegistry(TrajectRegistry):
         converters = converters or {}
         get_path = Path(path, factory_args, converters, absorb)
 
-        self.reg_registry.register_function(generic.class_path, get_path,
+        # XXX
+        from .app import App
+        self.reg_registry.register_function(App.class_path, get_path,
                                             model=model)
 
         def default_path_variables(obj):
             return {name: getattr(obj, name) for name in factory_args}
-        self.reg_registry.register_function(generic.default_path_variables,
+        self.reg_registry.register_function(App.default_path_variables,
                                             default_path_variables,
                                             obj=model)
 
@@ -179,8 +182,9 @@ class PathRegistry(TrajectRegistry):
           object as arguments and should return another app instance that
           does the link generation.
         """
+        from .app import App
         self.reg_registry.register_function(
-            generic.deferred_link_app, app_factory,
+            App.deferred_link_app, app_factory,
             obj=model)
 
     def register_defer_class_links(self, model, get_variables, app_factory):
@@ -195,9 +199,10 @@ class PathRegistry(TrajectRegistry):
           app instance that does the link generation.
         """
         self.register_path_variables(model, get_variables)
-
+        # XXX
+        from .app import App
         self.reg_registry.register_function(
-            generic.deferred_class_link_app, app_factory,
+            App.deferred_class_link_app, app_factory,
             model=model)
 
 
@@ -297,7 +302,7 @@ class Path(object):
 
         :param model: model class. Not actually used in the
           implementation but used for dispatch in
-          :func:`generic.class_path`.
+          :meth:`App.class_path`.
         :param variables: dict with the variables used in the path. each
           argument to the factory function should be represented.
         :return: :class:`PathInfo` instance representing the path.
