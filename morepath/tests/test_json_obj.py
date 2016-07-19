@@ -2,10 +2,6 @@ import morepath
 from webtest import TestApp as Client
 
 
-def setup_module(module):
-    morepath.disable_implicit()
-
-
 def test_json_obj_dump():
     class app(morepath.App):
         pass

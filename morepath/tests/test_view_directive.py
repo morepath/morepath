@@ -7,10 +7,6 @@ import pytest
 from morepath.core import request_method_predicate
 
 
-def setup_module(module):
-    morepath.disable_implicit()
-
-
 def test_view_get_only():
     class App(morepath.App):
         pass

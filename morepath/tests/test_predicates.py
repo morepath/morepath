@@ -6,10 +6,6 @@ from morepath import generic
 from reg import KeyIndex
 
 
-def setup_module(module):
-    morepath.disable_implicit()
-
-
 def test_view_predicates():
     class app(App):
         pass

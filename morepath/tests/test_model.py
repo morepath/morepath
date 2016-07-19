@@ -11,10 +11,6 @@ from morepath.publish import consume as traject_consume
 import webob
 
 
-def setup_module(module):
-    morepath.disable_implicit()
-
-
 def consume(mount, path, parameters=None):
     if parameters:
         path += '?' + urlencode(parameters, True)

@@ -13,10 +13,6 @@ except ImportError:
     from http.cookiejar import CookieJar
 
 
-def setup_module(module):
-    morepath.disable_implicit()
-
-
 def test_no_permission():
     class app(morepath.App):
         pass

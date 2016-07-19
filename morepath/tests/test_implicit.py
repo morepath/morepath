@@ -1,10 +1,11 @@
 import morepath
+from morepath.implicit import enable_implicit, disable_implicit
 import reg
 from webtest import TestApp as Client
 
 
 def setup_module(module):
-    morepath.enable_implicit()
+    enable_implicit()
 
 
 def setup_function(f):
@@ -107,7 +108,7 @@ def test_implicit_function_mounted():
 
 
 def test_implicit_disabled():
-    morepath.disable_implicit()
+    disable_implicit()
 
     class app(morepath.App):
         pass

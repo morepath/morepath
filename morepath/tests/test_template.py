@@ -1,4 +1,3 @@
-import morepath
 from morepath.error import ConfigError
 from webtest import TestApp as Client
 import pytest
@@ -6,10 +5,6 @@ from .fixtures import (
     template, template_override, template_override_implicit,
     template_unknown_extension, template_unknown_extension_no_render,
     template_no_template_directories, template_override_under)
-
-
-def setup_module(module):
-    morepath.disable_implicit()
 
 
 def test_template_fixture():

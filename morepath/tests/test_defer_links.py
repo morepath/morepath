@@ -4,10 +4,6 @@ from morepath.error import LinkError, ConflictError
 import pytest
 
 
-def setup_module(module):
-    morepath.disable_implicit()
-
-
 def test_defer_links():
 
     class Root(morepath.App):

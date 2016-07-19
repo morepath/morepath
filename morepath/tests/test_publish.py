@@ -10,10 +10,6 @@ from webtest import TestApp as Client
 import pytest
 
 
-def setup_module(module):
-    morepath.disable_implicit()
-
-
 def get_environ(path, **kw):
     return webob.Request.blank(path, **kw).environ
 

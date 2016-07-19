@@ -4,10 +4,6 @@ from webtest import TestApp as Client
 import pytest
 
 
-def setup_module(module):
-    morepath.disable_implicit()
-
-
 def test_404_http_exception():
     class app(morepath.App):
         pass

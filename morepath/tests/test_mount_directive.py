@@ -4,10 +4,6 @@ from webtest import TestApp as Client
 import pytest
 
 
-def setup_module():
-    morepath.disable_implicit()
-
-
 def test_model_mount_conflict():
     class app(morepath.App):
         pass

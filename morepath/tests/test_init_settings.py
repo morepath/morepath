@@ -5,10 +5,6 @@ from morepath.error import ConflictError
 from morepath.tests.fixtures.config import settings as settings_file
 
 
-def setup_module(module):
-    morepath.disable_implicit()
-
-
 def test_init_settings():
 
     settings_dict = {

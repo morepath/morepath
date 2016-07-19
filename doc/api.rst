@@ -45,10 +45,6 @@ API
 .. autoclass:: morepath.Converter
   :members:
 
-.. autofunction:: morepath.enable_implicit
-
-.. autofunction:: morepath.disable_implicit
-
 ``morepath.error`` -- exception classes
 ---------------------------------------
 

@@ -12,10 +12,6 @@ import pytest
 from webtest import TestApp as Client
 
 
-def setup_module(module):
-    morepath.disable_implicit()
-
-
 def test_basic():
     c = Client(basic.app())
 

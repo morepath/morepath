@@ -7,11 +7,6 @@ import morepath
 import pytest
 
 
-def setup_module(module):
-    with pytest.deprecated_call():
-        morepath.disable_implicit()
-
-
 def test_import():
     import base
     import sub
