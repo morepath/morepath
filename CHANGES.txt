@@ -56,7 +56,12 @@ Other
 - Use abstract base classes from the standard library for
   ``morepath.IdentityPolicy``.
 
-- Extended the test suite to cover ``morepath.Request.reset``.
+- Extend the test suite to cover ``morepath.Request.reset``.
+
+- Reorganize the table of contents of the documentation into a
+  hierarchy (`#468`_).
+
+.. _#468: https://github.com/morepath/morepath/pull/468
 
 
 0.15 (2016-07-18)
