@@ -124,15 +124,9 @@ def test_predicate():
     ]
 
 
-# has to be here so it's importable
-@reg.dispatch_external_predicates()
-def generic(v):
-    pass
-
-
 def test_function():
     class App(morepath.App):
-        @reg.dispatch_external_predicates()
+        @reg.dispatch_method_external_predicates()
         def generic(v):
             pass
 

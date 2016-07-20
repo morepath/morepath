@@ -43,7 +43,7 @@ def model_predicate(obj):
 
 
 @App.predicate_fallback(App._view, model_predicate)
-def model_not_found(self, request):
+def model_not_found(self, obj, request):
     """if model not matched, HTTP 404.
 
     Fallback for :meth:`morepath.App.view`.
@@ -62,7 +62,7 @@ def name_predicate(request):
 
 
 @App.predicate_fallback(App._view, name_predicate)
-def name_not_found(self, request):
+def name_not_found(self, obj, request):
     """if name not matched, HTTP 404.
 
     Fallback for :meth:`morepath.App.view`.
@@ -81,7 +81,7 @@ def request_method_predicate(request):
 
 
 @App.predicate_fallback(App._view, request_method_predicate)
-def method_not_allowed(self, request):
+def method_not_allowed(self, obj, request):
     """if request predicate not matched, method not allowed.
 
     Fallback for :meth:`morepath.App.view`.
@@ -100,7 +100,7 @@ def body_model_predicate(request):
 
 
 @App.predicate_fallback(App._view, body_model_predicate)
-def body_model_unprocessable(self, request):
+def body_model_unprocessable(self, obj, request):
     """if body_model not matched, 422.
 
     Fallback for :meth:`morepath.App.view`.
@@ -183,7 +183,7 @@ def excview_tween_factory(app, handler):
             if not isinstance(exc, (HTTPOk, HTTPRedirection)):
                 request.clear_after()
 
-            return view(exc, request)
+            return view(app, exc, request)
         return response
     return excview_tween
 

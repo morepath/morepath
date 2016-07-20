@@ -1172,7 +1172,7 @@ class DumpJsonAction(dectate.Action):
         # reverse parameters
         def dump(request, self):
             return obj(self, request)
-        reg_registry.register_function(App.dump_json, dump, obj=self.model)
+        reg_registry.register_function(App._dump_json, dump, obj=self.model)
 
 
 @App.directive('load_json')
@@ -1197,7 +1197,7 @@ class LoadJsonAction(dectate.Action):
         # reverse parameters
         def load(request, json):
             return obj(json, request)
-        reg_registry.register_function(App.load_json, load)
+        reg_registry.register_function(App._load_json, load)
 
 
 @App.directive('link_prefix')
@@ -1222,4 +1222,4 @@ class LinkPrefixAction(dectate.Action):
         return ()
 
     def perform(self, obj, reg_registry):
-        reg_registry.register_function(App.link_prefix, obj)
+        reg_registry.register_function(App._link_prefix, obj)

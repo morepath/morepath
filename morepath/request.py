@@ -69,7 +69,7 @@ class Request(BaseRequest):
             return None
         if self.content_type != 'application/json':
             return None
-        return self.app.load_json(self, self.json)
+        return self.app._load_json(self, self.json)
 
     @reify
     def identity(self):
@@ -101,7 +101,7 @@ class Request(BaseRequest):
             return cached
 
         prefix = self._link_prefix_cache[self.app.__class__]\
-               = self.app.link_prefix(self)
+               = self.app._link_prefix(self)
 
         return prefix
 
@@ -140,7 +140,7 @@ class Request(BaseRequest):
 
         old_app = self.app
         self.app = app
-        result = view.func(obj, self)
+        result = view(app, obj, self)
         self.app = old_app
         return result
 
