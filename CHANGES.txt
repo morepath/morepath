@@ -41,6 +41,15 @@ Removal & Deprecations
   have all been removed.  Generic functions decorated by
   ``morepath.App.function`` can use implicit lookup by default.
 
+Bug fixes
+---------
+
+- Fix `#474`_: The ``morepath.Request.reset`` method does not reset the
+  value is of ``reg.implicit.lookup``/
+
+.. _#474: https://github.com/morepath/morepath/issues/474
+
+
 Other
 -----
 

@@ -59,6 +59,7 @@ class Request(BaseRequest):
         self.unconsumed = segments
         self.app = self._root_app
         self.lookup = self.app.lookup
+        self.app.set_implicit()
         self._after = []
 
     @reify
