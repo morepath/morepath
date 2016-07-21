@@ -64,8 +64,9 @@ class View(object):
         if self.internal:
             raise HTTPNotFound()
         if (self.permission is not None and
-            not generic.permits(request.identity, obj, self.permission,
-                                lookup=request.lookup)):
+            not generic.permits(
+                request.app, request.identity, obj, self.permission,
+                lookup=request.lookup)):
             raise HTTPForbidden()
         content = self.func(obj, request)
         if isinstance(content, BaseResponse):
