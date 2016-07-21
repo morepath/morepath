@@ -80,6 +80,8 @@ def test_permission_directive_identity():
         def forget(self, response, request):
             pass
 
+    app.commit()
+
     c = Client(app())
 
     response = c.get('/foo')
@@ -210,7 +212,7 @@ def test_default_verify_identity():
 
     identity = morepath.Identity('foo')
 
-    assert not app().verify_identity(identity)
+    assert not app()._verify_identity(identity)
 
 
 def test_verify_identity_directive():
@@ -222,9 +224,9 @@ def test_verify_identity_directive():
         return identity.password == 'right'
 
     identity = morepath.Identity('foo', password='wrong')
-    assert not app().verify_identity(identity)
+    assert not app()._verify_identity(identity)
     identity = morepath.Identity('foo', password='right')
-    assert app().verify_identity(identity)
+    assert app()._verify_identity(identity)
 
 
 def test_false_verify_identity():

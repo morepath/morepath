@@ -90,7 +90,7 @@ class Request(BaseRequest):
         result = self.app.identify(self)
         if result is None or result is NO_IDENTITY:
             return NO_IDENTITY
-        if not self.app.verify_identity(result):
+        if not self.app._verify_identity(result):
             return NO_IDENTITY
         return result
 
@@ -140,7 +140,7 @@ class Request(BaseRequest):
 
         old_app = self.app
         self.app = app
-        result = view(app, obj, self)
+        result = view.value.func(obj, self)
         self.app = old_app
         return result
 

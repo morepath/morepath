@@ -287,6 +287,14 @@ class FunctionAction(dectate.Action):
         reg_registry.register_function(self.func, obj, **self.key_dict)
 
 
+@App.directive('method')
+class MethodAction(FunctionAction):
+    group_class = FunctionAction
+
+    def perform(self, obj, reg_registry, predicate_registry):
+        reg_registry.register_method(self.func, obj, **self.key_dict)
+
+
 @App.directive('converter')
 class ConverterAction(dectate.Action):
     config = {
@@ -1098,6 +1106,10 @@ class IdentityPolicyAction(dectate.Composite):
     def actions(self, obj):
         yield IdentityPolicyFunctionAction(App.identify,
                                            'identify'), obj
+        yield IdentityPolicyFunctionAction(App.remember_identity,
+                                           'remember'), obj
+        yield IdentityPolicyFunctionAction(App.forget_identity,
+                                           'forget'), obj
 
 
 @App.directive('verify_identity')
@@ -1131,7 +1143,7 @@ class VerifyIdentityAction(dectate.Composite):
         self.identity = identity
 
     def actions(self, obj):
-        yield FunctionAction(App.verify_identity,
+        yield FunctionAction(App._verify_identity,
                              identity=self.identity), obj
 
 

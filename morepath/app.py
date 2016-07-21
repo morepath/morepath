@@ -525,7 +525,7 @@ class App(dectate.App):
         raise NotImplementedError  # pragma: nocoverage
 
     @reg.dispatch_method('identity')
-    def verify_identity(self, identity):
+    def _verify_identity(self, identity):
         """Returns True if the claimed identity can be verified.
 
         Look in the database to verify the identity, or in case of auth

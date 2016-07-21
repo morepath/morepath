@@ -3,38 +3,32 @@ import reg
 from webtest import TestApp as Client
 
 
-def setup_function(f):
-    reg.implicit.clear()
-
-
 def test_implicit_function():
     class app(morepath.App):
-        pass
+        @reg.dispatch_method()
+        def one(self):
+            return "Default one"
+
+        @reg.dispatch_method()
+        def two(self):
+            return "Default two"
 
     @app.path(path='')
     class Model(object):
         def __init__(self):
             pass
 
-    @reg.dispatch()
-    def one():
-        return "Default one"
+    @app.method(app.one)
+    def one_impl(self):
+        return self.two()
 
-    @reg.dispatch()
-    def two():
-        return "Default two"
-
-    @app.function(one)
-    def one_impl():
-        return two()
-
-    @app.function(two)
-    def two_impl():
+    @app.method(app.two)
+    def two_impl(self):
         return "The real two"
 
     @app.view(model=Model)
     def default(self, request):
-        return one()
+        return request.app.one()
 
     c = Client(app())
 
@@ -43,10 +37,19 @@ def test_implicit_function():
 
 
 def test_implicit_function_mounted():
-    class alpha(morepath.App):
+    class base(morepath.App):
+        @reg.dispatch_method()
+        def one(self):
+            return "Default one"
+
+        @reg.dispatch_method()
+        def two(self):
+            return "Default two"
+
+    class alpha(base):
         pass
 
-    class beta(morepath.App):
+    class beta(base):
         def __init__(self, id):
             self.id = id
 
@@ -69,29 +72,21 @@ def test_implicit_function_mounted():
     def get_root(app):
         return Root(app.id)
 
-    @reg.dispatch()
-    def one():
-        return "Default one"
+    @beta.method(base.one)
+    def one_impl(self):
+        return self.two()
 
-    @reg.dispatch()
-    def two():
-        return "Default two"
-
-    @beta.function(one)
-    def one_impl():
-        return two()
-
-    @beta.function(two)
-    def two_impl():
+    @beta.method(base.two)
+    def two_impl(self):
         return "The real two"
 
     @alpha.view(model=AlphaRoot)
     def alpha_default(self, request):
-        return one()
+        return request.app.one()
 
     @beta.view(model=Root)
     def default(self, request):
-        return "View for %s, message: %s" % (self.id, one())
+        return "View for %s, message: %s" % (self.id, request.app.one())
 
     c = Client(alpha())
 
