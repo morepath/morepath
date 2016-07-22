@@ -44,8 +44,8 @@ Removal & Deprecations
 Bug fixes
 ---------
 
-- Fix `#474`_: The ``morepath.Request.reset`` method does not reset the
-  value is of ``reg.implicit.lookup``/
+- Fix `#474`_: The ``morepath.Request.reset`` method does not reset
+  the value of ``reg.implicit.lookup``.
 
 .. _#474: https://github.com/morepath/morepath/issues/474
 
@@ -56,7 +56,8 @@ Other
 - Use abstract base classes from the standard library for
   ``morepath.IdentityPolicy``.
 
-- Extend the test suite to cover ``morepath.Request.reset``.
+- Extend the test suite to cover ``morepath.Request.reset`` and loop
+  detection for deferred class links.
 
 - Reorganize the table of contents of the documentation into a
   hierarchy (`#468`_).

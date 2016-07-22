@@ -670,8 +670,10 @@ def test_deferred_loop():
 
     c = Client(root())
 
-    with pytest.raises(LinkError):
+    with pytest.raises(LinkError) as ex:
         c.get('/')
+
+    assert 'Circular' in str(ex.value)
 
 
 # see issue #342
@@ -806,6 +808,46 @@ def test_defer_class_links_with_variables():
 
     response = c.get('/')
     assert response.body == b'http://localhost/sub/foo'
+
+
+def test_deferred_class_link_loop():
+    class Root(morepath.App):
+        pass
+
+    class Alpha(morepath.App):
+        pass
+
+    @Root.path(path='')
+    class RootModel(object):
+        pass
+
+    # not actually exposed with path anywhere!
+    class SubModel(object):
+        pass
+
+    @Root.view(model=RootModel)
+    def root_model_default(self, request):
+        return request.class_link(SubModel)
+
+    @Root.mount(app=Alpha, path='alpha')
+    def mount_alpha():
+        return Alpha()
+
+    # setup a loop: defer to parent and back to child!
+    @Alpha.defer_class_links(model=SubModel, variables=lambda obj: {})
+    def defer_class_links_parent(app, obj, variables):
+        return app.parent
+
+    @Root.defer_class_links(model=SubModel, variables=lambda obj: {})
+    def defer_class_links_alpha(app, obj, variables):
+        return app.child(Alpha())
+
+    c = Client(Root())
+
+    with pytest.raises(LinkError) as ex:
+        c.get('/')
+
+    assert 'Circular' in str(ex.value)
 
 
 def test_link_uses_defer_class_links():
