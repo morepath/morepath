@@ -75,7 +75,7 @@ class Request(BaseRequest):
             return None
         if self.content_type != 'application/json':
             return None
-        return generic.load_json(self, self.json, lookup=self.lookup)
+        return self.app.config.proxy.load_json(self.json, self)
 
     @reify
     def identity(self):

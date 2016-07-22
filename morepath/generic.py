@@ -138,19 +138,6 @@ def permits(identity, obj, permission):
     return False
 
 
-@reg.dispatch()
-def load_json(request, json):
-    """Load JSON as some object.
-
-    By default JSON is loaded as itself.
-
-    :param request: :class:`morepath.Request`
-    :param json: JSON (in Python form) to convert into object.
-    :return: Any Python object, including JSON.
-    """
-    return json
-
-
 @reg.dispatch('obj')
 def dump_json(request, obj):
     """Dump an object as JSON.

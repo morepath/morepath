@@ -67,6 +67,16 @@ class ProxyRegistry(object):
         """
         return request.application_url
 
+    @staticmethod
+    def load_json(json, request):
+        """Load JSON as some object.
+        By default JSON is loaded as itself.
+        :param json: JSON (in Python form) to convert into object.
+        :param request: :class:`morepath.Request`
+        :return: Any Python object, including JSON.
+        """
+        return json
+
 
 @App.directive('setting')
 class SettingAction(dectate.Action):
@@ -1197,7 +1207,7 @@ class DumpJsonAction(dectate.Action):
 @App.directive('load_json')
 class LoadJsonAction(dectate.Action):
     config = {
-        'reg_registry': RegRegistry
+        'proxy': ProxyRegistry,
     }
 
     def __init__(self):
@@ -1209,14 +1219,12 @@ class LoadJsonAction(dectate.Action):
         '''
         pass
 
-    def identifier(self, reg_registry):
+    def identifier(self, proxy):
         return ()
 
-    def perform(self, obj, reg_registry):
+    def perform(self, obj, proxy):
         # reverse parameters
-        def load(request, json):
-            return obj(json, request)
-        reg_registry.register_function(generic.load_json, load)
+        proxy.load_json = obj
 
 
 @App.directive('link_prefix')
