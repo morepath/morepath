@@ -34,7 +34,7 @@ import dectate
 
 from .app import App
 from .cachingreg import RegRegistry
-from .authentication import Identity, NoIdentity, IdentityPolicyRegistry
+from .authentication import Identity, NoIdentity
 from .view import render_view, render_json, render_html, ViewRegistry
 from .traject import Path
 from .converter import ConverterRegistry
@@ -54,9 +54,12 @@ class ProxyRegistry(object):
     """A simple registry for delegating functionality.
 
     Functions can be simply added to an instance of the
-    registry. Static methods provide default implementations.
+    registry. Static methods and class data members provide the defaults.
 
     """
+
+    identity_policy = None
+    """If set, an instance of :class:`morepath.IdentityPolicy`."""
 
     @staticmethod
     def link_prefix(request):
@@ -1082,34 +1085,14 @@ class TweenFactoryAction(dectate.Action):
             obj, over=self.over, under=self.under)
 
 
-@App.private_action_class
-class IdentityPolicyFunctionAction(dectate.Action):
-    """A special action that helps register the identity policy.
-
-    We need this as it needs to be sorted after SettingAction and
-    composite actions can't be sorted nor have access to the registry.
-    """
+@App.directive('identity_policy')
+class IdentityPolicyAction(dectate.Action):
     config = {
-        'identity_policy_registry': IdentityPolicyRegistry,
+        'proxy': ProxyRegistry,
+        'setting_registry': SettingRegistry,
     }
 
     depends = [SettingAction]
-
-    def __init__(self, dispatch, name):
-        self.dispatch = dispatch
-        self.name = name
-
-    def identifier(self, identity_policy_registry):
-        return (self.dispatch, self.name)
-
-    def perform(self, obj, identity_policy_registry):
-        identity_policy_registry.register_identity_policy_function(
-            obj, self.dispatch, self.name)
-
-
-@App.directive('identity_policy')
-class IdentityPolicyAction(dectate.Composite):
-    query_classes = [IdentityPolicyFunctionAction]
 
     def __init__(self):
         """Register identity policy.
@@ -1122,11 +1105,15 @@ class IdentityPolicyAction(dectate.Composite):
         identity policy is in use. So you can pass some settings directly to
         the IdentityPolicy class.
         """
-        pass
 
-    def actions(self, obj):
-        yield IdentityPolicyFunctionAction(generic.identify,
-                                           'identify'), obj
+    def identifier(self, proxy, setting_registry):
+        return ()
+
+    def perform(self, obj, proxy, setting_registry):
+        from reg import mapply
+        proxy.identity_policy = mapply(
+            obj,
+            settings=setting_registry)
 
 
 @App.directive('verify_identity')

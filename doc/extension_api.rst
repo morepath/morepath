@@ -9,9 +9,6 @@ Registry classes
 .. autoclass:: morepath.directive.ConverterRegistry
   :members:
 
-.. autoclass:: morepath.directive.IdentityPolicyRegistry
-  :members:
-
 .. autoclass:: morepath.directive.PathRegistry
   :members:
 

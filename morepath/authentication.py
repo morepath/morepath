@@ -10,10 +10,6 @@ directive.
 See also :class:`morepath.directive.IdentityPolicyRegistry`
 """
 import abc
-from reg import mapply
-
-from .cachingreg import RegRegistry
-from .settings import SettingRegistry
 from .compat import with_metaclass
 
 
@@ -30,48 +26,6 @@ NO_IDENTITY = NoIdentity()
 
 The user has not yet logged in.
 """
-
-
-class IdentityPolicyRegistry(object):
-    """Register the current identity policy.
-
-    Used by the :class:`morepath.App.identity_policy` directive.
-
-    :param reg_registry: a :class:`morepath.directive.RegRegistry` instance.
-    :param setting_registry: a :class:`morepath.directive.SettingRegistry`
-      instance.
-    """
-    factory_arguments = {
-        'reg_registry': RegRegistry,
-        'setting_registry': SettingRegistry,
-    }
-
-    def __init__(self, reg_registry, setting_registry):
-        self.reg_registry = reg_registry
-        self.setting_registry = setting_registry
-        self.identity_policy = None
-
-    def register_identity_policy_function(self, factory, dispatch, name):
-        """Register a method from the identity policy as a function.
-
-        The identity policy is registered as a class, but their methods
-        are really registered with dispatch functions that are then
-        exposed to the public API and are used in the framework.
-
-        :param factory: factory to create identity policy instance,
-          typically the identity policy class object.
-        :param dispatch: the dispatch function we want to register
-          a method on.
-        :param name: the name of the method to register.
-        """
-        # make sure we only have a single identity policy
-        identity_policy = self.identity_policy
-        if identity_policy is None:
-            self.identity_policy = identity_policy = mapply(
-                factory,
-                settings=self.setting_registry)
-        func = getattr(identity_policy, name)
-        self.reg_registry.register_function(dispatch, func)
 
 
 class Identity(object):
