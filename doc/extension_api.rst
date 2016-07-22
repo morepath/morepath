@@ -18,6 +18,9 @@ Registry classes
 .. autoclass:: morepath.directive.PredicateRegistry
   :members:
 
+.. autoclass:: morepath.directive.ProxyRegistry
+  :members:
+
 .. autoclass:: morepath.directive.RegRegistry
   :members:
 

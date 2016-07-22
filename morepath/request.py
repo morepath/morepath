@@ -107,7 +107,7 @@ class Request(BaseRequest):
             return cached
 
         prefix = self._link_prefix_cache[self.app.__class__]\
-               = generic.link_prefix(self, lookup=self.lookup)
+               = self.app.config.proxy.link_prefix(self)
 
         return prefix
 
