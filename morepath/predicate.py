@@ -70,11 +70,10 @@ class PredicateRegistry(object):
         predicates in the correct order.
         """
         for dispatch in self._predicate_infos.keys():
-            if not dispatch.external_predicates:
-                continue
-            self._reg_registry.register_external_predicates(
-                dispatch, self.get_predicates(dispatch))
-            self._reg_registry.register_dispatch(dispatch)
+            if dispatch.external_predicates:
+                self._reg_registry.register_external_predicates(
+                    dispatch, self.get_predicates(dispatch))
+                self._reg_registry.register_dispatch(dispatch)
 
     def get_predicates(self, dispatch):
         """Create Reg predicates.

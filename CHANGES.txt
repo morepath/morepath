@@ -56,8 +56,8 @@ Other
 - Use abstract base classes from the standard library for
   ``morepath.IdentityPolicy``.
 
-- Extend the test suite to cover ``morepath.Request.reset`` and loop
-  detection for deferred class links.
+- Expand the test suite to cover ``morepath.Request.reset`` and loop
+  detection for deferred class links. Coverage ratio is now 100%.
 
 - Reorganize the table of contents of the documentation into a
   hierarchy (`#468`_).
