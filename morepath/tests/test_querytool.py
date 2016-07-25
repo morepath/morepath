@@ -91,7 +91,7 @@ def test_predicate():
     ]
 
     r = objects(dectate.query_app(App, 'predicate',
-                                  dispatch='morepath.generic.view'))
+                                  dispatch='morepath.App._view'))
     assert r == [
         core.model_predicate,
         core.name_predicate,
@@ -101,7 +101,7 @@ def test_predicate():
 
     # there aren't any predicates for class_path
     r = objects(dectate.query_app(App, 'predicate',
-                                  dispatch='morepath.generic.class_path'))
+                                  dispatch='morepath.App.class_path'))
     assert r == []
 
     r = objects(dectate.query_app(App, 'predicate',
@@ -124,11 +124,13 @@ def test_predicate():
     ]
 
 
+class App(morepath.App):
+    @reg.dispatch_method_external_predicates()
+    def generic(self, v):
+        pass
+
+
 def test_function():
-    class App(morepath.App):
-        @reg.dispatch_method_external_predicates()
-        def generic(v):
-            pass
 
     @App.predicate(App.generic, name='v', default='', index=reg.KeyIndex)
     def get(v):
@@ -154,7 +156,7 @@ def test_function():
 
     r = objects(
         dectate.query_app(App, 'function',
-                          func='morepath.tests.test_querytool.generic'))
+                          func='morepath.tests.test_querytool.App.generic'))
     assert r == [a, b]
 
     r = objects(dectate.query_app(App, 'function', v='A'))
@@ -703,7 +705,11 @@ def test_identity_policy():
     r = objects(dectate.query_app(
         App, 'identity_policy'))
 
-    assert len(r) == 1
+    # XXX not entirely sure about this. In the past this generated
+    # 1 entry, but that may be because it resulted in the same function
+    # object while after a Reg refactoring it's different for each
+    # registration.
+    assert len(r) == 3
 
 
 def test_verify_identity():
