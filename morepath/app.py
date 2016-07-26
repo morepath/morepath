@@ -483,7 +483,7 @@ class App(dectate.App):
         return HTTPNotFound()
 
     @reg.dispatch_method()
-    def identify(self, request):
+    def _identify(self, request):
         """Determine identity for request.
 
         :param request: a :class:`morepath.Request` instance.

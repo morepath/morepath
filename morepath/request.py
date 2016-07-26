@@ -87,7 +87,7 @@ class Request(BaseRequest):
         """
         # XXX annoying circular dependency
         from .authentication import NO_IDENTITY
-        result = self.app.identify(self)
+        result = self.app._identify(self)
         if result is None or result is NO_IDENTITY:
             return NO_IDENTITY
         if not self.app._verify_identity(result):

@@ -1104,7 +1104,7 @@ class IdentityPolicyAction(dectate.Composite):
         pass
 
     def actions(self, obj):
-        yield IdentityPolicyFunctionAction(App.identify,
+        yield IdentityPolicyFunctionAction(App._identify,
                                            'identify'), obj
         yield IdentityPolicyFunctionAction(App.remember_identity,
                                            'remember'), obj
