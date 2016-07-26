@@ -269,7 +269,7 @@ class App(dectate.App):
         :return: a :class:`morepath.path.PathInfo` with path within this app.
         """
         return self._class_path(
-            obj.__class__, self.path_variables(obj))
+            obj.__class__, self._path_variables(obj))
 
     def _get_mounted_path(self, obj):
         """Path for model obj including mounted path.
@@ -370,7 +370,7 @@ class App(dectate.App):
             if next_app is None:
                 # only if we can establish the variables of the app here
                 # fall back on using class link app
-                variables = app.path_variables(obj)
+                variables = app._path_variables(obj)
                 if variables is not None:
                     next_app = app.deferred_class_link_app(
                         app, obj.__class__, variables)
@@ -418,7 +418,7 @@ class App(dectate.App):
         return None
 
     @reg.dispatch_method('obj')
-    def path_variables(self, obj):
+    def _path_variables(self, obj):
         """Get variables to use in path generation.
 
         :param obj: model object or :class:`morepath.App` instance.

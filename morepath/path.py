@@ -143,7 +143,7 @@ class PathRegistry(TrajectRegistry):
         """
         # XXX
         from .app import App
-        self.reg_registry.register_function(App.path_variables,
+        self.reg_registry.register_function(App._path_variables,
                                             func,
                                             obj=model)
 
