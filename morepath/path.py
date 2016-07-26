@@ -143,7 +143,7 @@ class PathRegistry(TrajectRegistry):
         """
         # XXX
         from .app import App
-        self.reg_registry.register_function(App.path_variables,
+        self.reg_registry.register_function(App._path_variables,
                                             func,
                                             obj=model)
 
@@ -168,7 +168,7 @@ class PathRegistry(TrajectRegistry):
 
         def default_path_variables(obj):
             return {name: getattr(obj, name) for name in factory_args}
-        self.reg_registry.register_function(App.default_path_variables,
+        self.reg_registry.register_function(App._default_path_variables,
                                             default_path_variables,
                                             obj=model)
 
@@ -184,7 +184,7 @@ class PathRegistry(TrajectRegistry):
         """
         from .app import App
         self.reg_registry.register_function(
-            App.deferred_link_app, app_factory,
+            App._deferred_link_app, app_factory,
             obj=model)
 
     def register_defer_class_links(self, model, get_variables, app_factory):
@@ -202,7 +202,7 @@ class PathRegistry(TrajectRegistry):
         # XXX
         from .app import App
         self.reg_registry.register_function(
-            App.deferred_class_link_app, app_factory,
+            App._deferred_class_link_app, app_factory,
             model=model)
 
 

@@ -491,7 +491,7 @@ class PermissionRuleAction(dectate.Action):
 
     def perform(self, obj, reg_registry):
         reg_registry.register_function(
-            App.permits, obj,
+            App._permits, obj,
             identity=self.identity,
             obj=self.model,
             permission=self.permission)
@@ -1104,7 +1104,7 @@ class IdentityPolicyAction(dectate.Composite):
         pass
 
     def actions(self, obj):
-        yield IdentityPolicyFunctionAction(App.identify,
+        yield IdentityPolicyFunctionAction(App._identify,
                                            'identify'), obj
         yield IdentityPolicyFunctionAction(App.remember_identity,
                                            'remember'), obj

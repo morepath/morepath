@@ -269,7 +269,7 @@ class App(dectate.App):
         :return: a :class:`morepath.path.PathInfo` with path within this app.
         """
         return self._class_path(
-            obj.__class__, self.path_variables(obj))
+            obj.__class__, self._path_variables(obj))
 
     def _get_mounted_path(self, obj):
         """Path for model obj including mounted path.
@@ -366,13 +366,13 @@ class App(dectate.App):
             if result is not None:
                 return result, app
             seen.add(app)
-            next_app = app.deferred_link_app(app, obj)
+            next_app = app._deferred_link_app(app, obj)
             if next_app is None:
                 # only if we can establish the variables of the app here
                 # fall back on using class link app
-                variables = app.path_variables(obj)
+                variables = app._path_variables(obj)
                 if variables is not None:
-                    next_app = app.deferred_class_link_app(
+                    next_app = app._deferred_class_link_app(
                         app, obj.__class__, variables)
             app = next_app
         return None, app
@@ -402,7 +402,7 @@ class App(dectate.App):
             if result is not None:
                 return result, app
             seen.add(app)
-            app = app.deferred_class_link_app(app, model, variables)
+            app = app._deferred_class_link_app(app, model, variables)
         return None, app
 
     @reg.dispatch_method(reg.match_class('model', lambda model: model))
@@ -418,17 +418,17 @@ class App(dectate.App):
         return None
 
     @reg.dispatch_method('obj')
-    def path_variables(self, obj):
+    def _path_variables(self, obj):
         """Get variables to use in path generation.
 
         :param obj: model object or :class:`morepath.App` instance.
         :return: a dict with the variables to use for constructing the path,
         or ``None`` if no such dict can be found.
         """
-        return self.default_path_variables(obj)
+        return self._default_path_variables(obj)
 
     @reg.dispatch_method('obj')
-    def default_path_variables(self, obj):
+    def _default_path_variables(self, obj):
         """Get default variables to use in path generation.
 
         Invoked if no specific ``path_variables`` is registered.
@@ -440,7 +440,7 @@ class App(dectate.App):
         return None
 
     @reg.dispatch_method('obj')
-    def deferred_link_app(self, mounted, obj):
+    def _deferred_link_app(self, mounted, obj):
         """Get application used for link generation.
 
         :param mounted: current :class:`morepath.App` instance.
@@ -452,7 +452,7 @@ class App(dectate.App):
         return None
 
     @reg.dispatch_method(reg.match_class('model', lambda model: model))
-    def deferred_class_link_app(self, mounted, model, variables):
+    def _deferred_class_link_app(self, mounted, model, variables):
         """Get application used for link generation for a model class.
 
         :param mounted: current :class:`morepath.App` instance.
@@ -483,7 +483,7 @@ class App(dectate.App):
         return HTTPNotFound()
 
     @reg.dispatch_method()
-    def identify(self, request):
+    def _identify(self, request):
         """Determine identity for request.
 
         :param request: a :class:`morepath.Request` instance.
@@ -528,7 +528,7 @@ class App(dectate.App):
     @reg.dispatch_method('identity', 'obj',
                          reg.match_class('permission',
                                          lambda permission: permission))
-    def permits(self, identity, obj, permission):
+    def _permits(self, identity, obj, permission):
         """Returns ``True`` if identity has permission for model object.
 
         identity can be the special :data:`morepath.NO_IDENTITY`
