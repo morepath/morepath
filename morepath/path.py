@@ -184,7 +184,7 @@ class PathRegistry(TrajectRegistry):
         """
         from .app import App
         self.reg_registry.register_function(
-            App.deferred_link_app, app_factory,
+            App._deferred_link_app, app_factory,
             obj=model)
 
     def register_defer_class_links(self, model, get_variables, app_factory):

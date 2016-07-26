@@ -366,7 +366,7 @@ class App(dectate.App):
             if result is not None:
                 return result, app
             seen.add(app)
-            next_app = app.deferred_link_app(app, obj)
+            next_app = app._deferred_link_app(app, obj)
             if next_app is None:
                 # only if we can establish the variables of the app here
                 # fall back on using class link app
@@ -440,7 +440,7 @@ class App(dectate.App):
         return None
 
     @reg.dispatch_method('obj')
-    def deferred_link_app(self, mounted, obj):
+    def _deferred_link_app(self, mounted, obj):
         """Get application used for link generation.
 
         :param mounted: current :class:`morepath.App` instance.
