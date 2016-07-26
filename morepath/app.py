@@ -372,7 +372,7 @@ class App(dectate.App):
                 # fall back on using class link app
                 variables = app._path_variables(obj)
                 if variables is not None:
-                    next_app = app.deferred_class_link_app(
+                    next_app = app._deferred_class_link_app(
                         app, obj.__class__, variables)
             app = next_app
         return None, app
@@ -402,7 +402,7 @@ class App(dectate.App):
             if result is not None:
                 return result, app
             seen.add(app)
-            app = app.deferred_class_link_app(app, model, variables)
+            app = app._deferred_class_link_app(app, model, variables)
         return None, app
 
     @reg.dispatch_method(reg.match_class('model', lambda model: model))
@@ -452,7 +452,7 @@ class App(dectate.App):
         return None
 
     @reg.dispatch_method(reg.match_class('model', lambda model: model))
-    def deferred_class_link_app(self, mounted, model, variables):
+    def _deferred_class_link_app(self, mounted, model, variables):
         """Get application used for link generation for a model class.
 
         :param mounted: current :class:`morepath.App` instance.

@@ -202,7 +202,7 @@ class PathRegistry(TrajectRegistry):
         # XXX
         from .app import App
         self.reg_registry.register_function(
-            App.deferred_class_link_app, app_factory,
+            App._deferred_class_link_app, app_factory,
             model=model)
 
 
