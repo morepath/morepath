@@ -47,6 +47,8 @@ Bug fixes
 - Fix `#474`_: The ``morepath.Request.reset`` method does not reset
   the value of ``reg.implicit.lookup``.
 
+- Fix code_examples path for local docs tox test.
+
 .. _#474: https://github.com/morepath/morepath/issues/474
 
 
