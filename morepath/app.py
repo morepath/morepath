@@ -528,7 +528,7 @@ class App(dectate.App):
     @reg.dispatch_method('identity', 'obj',
                          reg.match_class('permission',
                                          lambda permission: permission))
-    def permits(self, identity, obj, permission):
+    def _permits(self, identity, obj, permission):
         """Returns ``True`` if identity has permission for model object.
 
         identity can be the special :data:`morepath.NO_IDENTITY`

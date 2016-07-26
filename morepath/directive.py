@@ -491,7 +491,7 @@ class PermissionRuleAction(dectate.Action):
 
     def perform(self, obj, reg_registry):
         reg_registry.register_function(
-            App.permits, obj,
+            App._permits, obj,
             identity=self.identity,
             obj=self.model,
             permission=self.permission)
