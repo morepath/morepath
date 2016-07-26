@@ -81,11 +81,12 @@ Loading settings from a config file
 .. testsetup:: *
 
   import os
+  import inspect
   import morepath
 
   owd = os.getcwd()
-  os.chdir(os.path.join(os.path.dirname(os.path.abspath(morepath.__file__)),
-                        '../doc/code_examples'))
+  os.chdir(os.path.join(os.path.dirname(os.path.abspath(inspect.stack()[0][1])),
+                        'doc/code_examples'))
 
   class App(morepath.App):
       pass
