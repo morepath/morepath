@@ -19,6 +19,7 @@ from webob import Response as BaseResponse
 from .request import Response
 from .cachingreg import RegRegistry
 from .template import TemplateEngineRegistry
+from .app import App
 
 
 class View(object):
@@ -119,8 +120,6 @@ class ViewRegistry(object):
           for instance model, request_method, etc.
         :result: an immutable object representing the predicate.
         """
-        # XXX
-        from .app import App
         return self.reg_registry.key_dict_to_predicate_key(
             App._view.wrapped_func,
             key_dict)
@@ -148,8 +147,6 @@ class ViewRegistry(object):
             render = self.template_engine_registry.get_template_render(
                 template, render)
         v = View(view, render, permission, internal)
-        # XXX
-        from .app import App
         self.reg_registry.register_function(App._view, v, **key_dict)
 
 
