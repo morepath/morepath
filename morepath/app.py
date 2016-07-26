@@ -265,8 +265,8 @@ class App(dectate.App):
         :param obj: model object
         :return: a :class:`morepath.path.PathInfo` with path within this app.
         """
-        return self._class_path(
-            obj.__class__, self._path_variables(obj))
+        r = self.config.path_registry
+        return r._class_path(obj.__class__, r._path_variables(obj))
 
     def _get_mounted_path(self, obj):
         """Path for model obj including mounted path.
@@ -301,7 +301,7 @@ class App(dectate.App):
         :return: a :class:`morepath.path.PathInfo` with fully resolved
           path in mounts.
         """
-        info = self._class_path(model, variables)
+        info = self.config.path_registry._class_path(model, variables)
         if info is None:
             return None
         if self.parent is None:
@@ -336,7 +336,8 @@ class App(dectate.App):
         """
         def find(app, model, variables):
             return app._get_mounted_class_path(model, variables)
-        info, app = self._follow_class_defers(find, model, variables)
+        info, app = self._follow_class_defers(
+            find, model, variables)
         return info
 
     def _follow_defers(self, find, obj):
@@ -363,13 +364,13 @@ class App(dectate.App):
             if result is not None:
                 return result, app
             seen.add(app)
-            next_app = app._deferred_link_app(app, obj)
+            next_app = app.config.path_registry._deferred_link_app(app, obj)
             if next_app is None:
                 # only if we can establish the variables of the app here
                 # fall back on using class link app
-                variables = app._path_variables(obj)
+                variables = app.config.path_registry._path_variables(obj)
                 if variables is not None:
-                    next_app = app._deferred_class_link_app(
+                    next_app = app.config.path_registry._deferred_class_link_app(
                         app, obj.__class__, variables)
             app = next_app
         return None, app
@@ -399,67 +400,9 @@ class App(dectate.App):
             if result is not None:
                 return result, app
             seen.add(app)
-            app = app._deferred_class_link_app(app, model, variables)
+            app = app.config.path_registry._deferred_class_link_app(
+                app, model, variables)
         return None, app
-
-    @reg.dispatch_method(reg.match_class('model', lambda model: model))
-    def _class_path(self, model, variables):
-        """Get the path for a model class.
-
-        :param model: model class or :class:`morepath.App` subclass.
-        :param variables: dictionary with variables to reconstruct
-        the path and URL paramaters from path pattern.
-        :return: a :class:`morepath.path.PathInfo` with path within this app,
-          or ``None`` if the path couldn't be determined.
-        """
-        return None
-
-    @reg.dispatch_method('obj')
-    def _path_variables(self, obj):
-        """Get variables to use in path generation.
-
-        :param obj: model object or :class:`morepath.App` instance.
-        :return: a dict with the variables to use for constructing the path,
-        or ``None`` if no such dict can be found.
-        """
-        return self._default_path_variables(obj)
-
-    @reg.dispatch_method('obj')
-    def _default_path_variables(self, obj):
-        """Get default variables to use in path generation.
-
-        Invoked if no specific ``path_variables`` is registered.
-
-        :param obj: model object for ::class:`morepath.App` instance.
-        :return: a dict with the variables to use for constructing the
-        path, or ``None`` if no such dict can be found.
-        """
-        return None
-
-    @reg.dispatch_method('obj')
-    def _deferred_link_app(self, mounted, obj):
-        """Get application used for link generation.
-
-        :param mounted: current :class:`morepath.App` instance.
-        :param obj: model object to link to.
-        :return: instance of :class:`morepath.App` subclass that handles
-        link generation for this model, or ``None`` if no app exists
-        that can construct link.
-        """
-        return None
-
-    @reg.dispatch_method(reg.match_class('model', lambda model: model))
-    def _deferred_class_link_app(self, mounted, model, variables):
-        """Get application used for link generation for a model class.
-
-        :param mounted: current :class:`morepath.App` instance.
-        :param model: model class
-        :param variables: dict of variables used to construct class link
-        :return: instance of :class:`morepath.App` subclass that handles
-        link generation for this model class, or ``None`` if no app exists
-        that can construct link.
-        """
-        return None
 
     @reg.dispatch_method_external_predicates()
     def _view(self, obj, request):

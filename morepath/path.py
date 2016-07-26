@@ -7,6 +7,7 @@ See also :class:`morepath.directive.PathRegistry`
 
 
 from dectate import DirectiveError
+import reg
 from reg import arginfo
 try:
     # Python 2
@@ -15,6 +16,7 @@ except ImportError:
     from urllib.parse import urlencode, quote
 
 
+from .reify import reify
 from .cachingreg import RegRegistry
 from .traject import Path as TrajectPath, TrajectRegistry
 from .converter import ParameterFactory, ConverterRegistry, IDENTITY_CONVERTER
@@ -50,6 +52,73 @@ class PathRegistry(TrajectRegistry):
         self.converter_registry = converter_registry
         self.mounted = {}
         self.named_mounted = {}
+
+    @reify
+    def lookup(self):
+        """Get the :class:`reg.Lookup` for this application.
+
+        :return: a :class:`reg.Lookup` instance.
+        """
+        return self.reg_registry.caching_lookup
+
+    @reg.dispatch_method(reg.match_class('model', lambda model: model))
+    def _class_path(self, model, variables):
+        """Get the path for a model class.
+
+        :param model: model class or :class:`morepath.App` subclass.
+        :param variables: dictionary with variables to reconstruct
+        the path and URL paramaters from path pattern.
+        :return: a :class:`morepath.path.PathInfo` with path within this app,
+          or ``None`` if the path couldn't be determined.
+        """
+        return None
+
+    @reg.dispatch_method('obj')
+    def _path_variables(self, obj):
+        """Get variables to use in path generation.
+
+        :param obj: model object or :class:`morepath.App` instance.
+        :return: a dict with the variables to use for constructing the path,
+        or ``None`` if no such dict can be found.
+        """
+        return self._default_path_variables(obj)
+
+    @reg.dispatch_method('obj')
+    def _default_path_variables(self, obj):
+        """Get default variables to use in path generation.
+
+        Invoked if no specific ``path_variables`` is registered.
+
+        :param obj: model object for ::class:`morepath.App` instance.
+        :return: a dict with the variables to use for constructing the
+        path, or ``None`` if no such dict can be found.
+        """
+        return None
+
+    @reg.dispatch_method('obj')
+    def _deferred_link_app(self, mounted, obj):
+        """Get application used for link generation.
+
+        :param mounted: current :class:`morepath.App` instance.
+        :param obj: model object to link to.
+        :return: instance of :class:`morepath.App` subclass that handles
+        link generation for this model, or ``None`` if no app exists
+        that can construct link.
+        """
+        return None
+
+    @reg.dispatch_method(reg.match_class('model', lambda model: model))
+    def _deferred_class_link_app(self, mounted, model, variables):
+        """Get application used for link generation for a model class.
+
+        :param mounted: current :class:`morepath.App` instance.
+        :param model: model class
+        :param variables: dict of variables used to construct class link
+        :return: instance of :class:`morepath.App` subclass that handles
+        link generation for this model class, or ``None`` if no app exists
+        that can construct link.
+        """
+        return None
 
     def register_path(self, model, path,
                       variables, converters, required, get_converters,
@@ -141,9 +210,7 @@ class PathRegistry(TrajectRegistry):
         :param func: function that gets a model instance argument and
           returns a variables dict.
         """
-        # XXX
-        from .app import App
-        self.reg_registry.register_function(App._path_variables,
+        self.reg_registry.register_function(PathRegistry._path_variables,
                                             func,
                                             obj=model)
 
@@ -161,16 +228,15 @@ class PathRegistry(TrajectRegistry):
         converters = converters or {}
         get_path = Path(path, factory_args, converters, absorb)
 
-        # XXX
-        from .app import App
-        self.reg_registry.register_function(App._class_path, get_path,
+        self.reg_registry.register_function(PathRegistry._class_path, get_path,
                                             model=model)
 
         def default_path_variables(obj):
             return {name: getattr(obj, name) for name in factory_args}
-        self.reg_registry.register_function(App._default_path_variables,
-                                            default_path_variables,
-                                            obj=model)
+        self.reg_registry.register_function(
+            PathRegistry._default_path_variables,
+            default_path_variables,
+            obj=model)
 
     def register_defer_links(self, model, app_factory):
         """Register factory for app to defer links to.
@@ -182,9 +248,8 @@ class PathRegistry(TrajectRegistry):
           object as arguments and should return another app instance that
           does the link generation.
         """
-        from .app import App
         self.reg_registry.register_function(
-            App._deferred_link_app, app_factory,
+            PathRegistry._deferred_link_app, app_factory,
             obj=model)
 
     def register_defer_class_links(self, model, get_variables, app_factory):
@@ -199,10 +264,8 @@ class PathRegistry(TrajectRegistry):
           app instance that does the link generation.
         """
         self.register_path_variables(model, get_variables)
-        # XXX
-        from .app import App
         self.reg_registry.register_function(
-            App._deferred_class_link_app, app_factory,
+            PathRegistry._deferred_class_link_app, app_factory,
             model=model)
 
 
@@ -302,7 +365,7 @@ class Path(object):
 
         :param model: model class. Not actually used in the
           implementation but used for dispatch in
-          :meth:`App._class_path`.
+          :meth:`PathRegistry._class_path`.
         :param variables: dict with the variables used in the path. each
           argument to the factory function should be represented.
         :return: :class:`PathInfo` instance representing the path.
