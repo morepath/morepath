@@ -16,9 +16,8 @@ Entirely documented in :class:`morepath.App` in the public API.
 """
 
 import dectate
-import reg
-from webob.exc import HTTPNotFound
 
+from .generic import GenericApp
 from .request import Request
 from . import compat
 from .reify import reify
@@ -26,7 +25,7 @@ from .path import PathInfo
 from .error import LinkError
 
 
-class App(dectate.App):
+class App(GenericApp):
     """A Morepath-based application object.
 
     You subclass App to create a morepath application class. You can
@@ -256,6 +255,42 @@ class App(dectate.App):
         for section, section_settings in settings.items():
             set_setting_section(section, section_settings)
 
+    def _identify(self, request):
+        """Determine identity for request.
+
+        :param request: a :class:`morepath.Request` instance.
+        :return: a :class:`morepath.Identity` instance or ``None`` if
+        no identity can be found. Can also return :data:`morepath.NO_IDENTITY`,
+        but ``None`` is converted automatically to this.
+        """
+        ip = self.config.identity_policy_registry.identity_policy
+        if ip is None:
+            return None
+        return ip.identify(request)
+
+    def remember_identity(self, response, request, identity):
+        """Modify response so that identity is remembered by client.
+
+        :param response: :class:`morepath.Response` to remember identity on.
+        :param request: :class:`morepath.Request`
+        :param identity: :class:`morepath.Identity`
+        """
+        ip = self.config.identity_policy_registry.identity_policy
+        if ip is None:
+            return
+        return ip.remember(response, request, identity)
+
+    def forget_identity(self, response, request):
+        """Modify response so that identity is forgotten by client.
+
+        :param response: :class:`morepath.Response` to forget identity on.
+        :param request: :class:`morepath.Request`
+        """
+        ip = self.config.identity_policy_registry.identity_policy
+        if ip is None:
+            return
+        return ip.forget(response, request)
+
     def _get_path(self, obj):
         """Path for a model obj.
 
@@ -265,8 +300,7 @@ class App(dectate.App):
         :param obj: model object
         :return: a :class:`morepath.path.PathInfo` with path within this app.
         """
-        return self._class_path(
-            obj.__class__, self._path_variables(obj))
+        return self._class_path(obj.__class__, self._path_variables(obj))
 
     def _get_mounted_path(self, obj):
         """Path for model obj including mounted path.
@@ -336,7 +370,8 @@ class App(dectate.App):
         """
         def find(app, model, variables):
             return app._get_mounted_class_path(model, variables)
-        info, app = self._follow_class_defers(find, model, variables)
+        info, app = self._follow_class_defers(
+            find, model, variables)
         return info
 
     def _follow_defers(self, find, obj):
@@ -399,177 +434,6 @@ class App(dectate.App):
             if result is not None:
                 return result, app
             seen.add(app)
-            app = app._deferred_class_link_app(app, model, variables)
+            app = app._deferred_class_link_app(
+                app, model, variables)
         return None, app
-
-    @reg.dispatch_method(reg.match_class('model', lambda model: model))
-    def _class_path(self, model, variables):
-        """Get the path for a model class.
-
-        :param model: model class or :class:`morepath.App` subclass.
-        :param variables: dictionary with variables to reconstruct
-        the path and URL paramaters from path pattern.
-        :return: a :class:`morepath.path.PathInfo` with path within this app,
-          or ``None`` if the path couldn't be determined.
-        """
-        return None
-
-    @reg.dispatch_method('obj')
-    def _path_variables(self, obj):
-        """Get variables to use in path generation.
-
-        :param obj: model object or :class:`morepath.App` instance.
-        :return: a dict with the variables to use for constructing the path,
-        or ``None`` if no such dict can be found.
-        """
-        return self._default_path_variables(obj)
-
-    @reg.dispatch_method('obj')
-    def _default_path_variables(self, obj):
-        """Get default variables to use in path generation.
-
-        Invoked if no specific ``path_variables`` is registered.
-
-        :param obj: model object for ::class:`morepath.App` instance.
-        :return: a dict with the variables to use for constructing the
-        path, or ``None`` if no such dict can be found.
-        """
-        return None
-
-    @reg.dispatch_method('obj')
-    def _deferred_link_app(self, mounted, obj):
-        """Get application used for link generation.
-
-        :param mounted: current :class:`morepath.App` instance.
-        :param obj: model object to link to.
-        :return: instance of :class:`morepath.App` subclass that handles
-        link generation for this model, or ``None`` if no app exists
-        that can construct link.
-        """
-        return None
-
-    @reg.dispatch_method(reg.match_class('model', lambda model: model))
-    def _deferred_class_link_app(self, mounted, model, variables):
-        """Get application used for link generation for a model class.
-
-        :param mounted: current :class:`morepath.App` instance.
-        :param model: model class
-        :param variables: dict of variables used to construct class link
-        :return: instance of :class:`morepath.App` subclass that handles
-        link generation for this model class, or ``None`` if no app exists
-        that can construct link.
-        """
-        return None
-
-    @reg.dispatch_method_external_predicates()
-    def _view(self, obj, request):
-        """Get the view that represents the obj in the context of a request.
-
-        This view is a representation of the obj that can be rendered to a
-        response. It may also return a :class:`morepath.Response`
-        directly.
-
-        Predicates are installed in :mod:`morepath.core` that inspect both
-        ``obj`` and ``request`` to see whether a matching view can be found.
-
-        :param obj: model object to represent with view.
-        :param request: :class:`morepath.Request` instance.
-        :return: :class:`morepath.Response` object, or
-        :class:`webob.exc.HTTPNotFound` if view cannot be found.
-        """
-        return HTTPNotFound()
-
-    @reg.dispatch_method()
-    def _identify(self, request):
-        """Determine identity for request.
-
-        :param request: a :class:`morepath.Request` instance.
-        :return: a :class:`morepath.Identity` instance or ``None`` if
-        no identity can be found. Can also return :data:`morepath.NO_IDENTITY`,
-        but ``None`` is converted automatically to this.
-        """
-        return None
-
-    @reg.dispatch_method()
-    def remember_identity(self, response, request, identity):
-        """Modify response so that identity is remembered by client.
-
-        :param response: :class:`morepath.Response` to remember identity on.
-        :param request: :class:`morepath.Request`
-        :param identity: :class:`morepath.Identity`
-        """
-        raise NotImplementedError  # pragma: nocoverage
-
-    @reg.dispatch_method()
-    def forget_identity(self, response, request):
-        """Modify response so that identity is forgotten by client.
-
-        :param response: :class:`morepath.Response` to forget identity on.
-        :param request: :class:`morepath.Request`
-        """
-        raise NotImplementedError  # pragma: nocoverage
-
-    @reg.dispatch_method('identity')
-    def _verify_identity(self, identity):
-        """Returns True if the claimed identity can be verified.
-
-        Look in the database to verify the identity, or in case of auth
-        tokens, always consider known identities to be correct.
-
-        :param: :class:`morepath.Identity` instance.
-        :return: ``True`` if identity can be verified. By default no identity
-        can be verified so this returns ``False``.
-        """
-        return False
-
-    @reg.dispatch_method('identity', 'obj',
-                         reg.match_class('permission',
-                                         lambda permission: permission))
-    def _permits(self, identity, obj, permission):
-        """Returns ``True`` if identity has permission for model object.
-
-        identity can be the special :data:`morepath.NO_IDENTITY`
-        singleton; register for :class:`morepath.NoIdentity` to handle
-        this case separately.
-
-        :param identity: :class:`morepath.Identity`
-        :param obj: model object
-        :param permission: permission class.
-        :return: ``True`` if identity has permission for obj.
-        """
-        return False
-
-    @reg.dispatch_method()
-    def _load_json(self, request, json):
-        """Load JSON as some object.
-
-        By default JSON is loaded as itself.
-
-        :param request: :class:`morepath.Request`
-        :param json: JSON (in Python form) to convert into object.
-        :return: Any Python object, including JSON.
-        """
-        return json
-
-    @reg.dispatch_method('obj')
-    def _dump_json(self, request, obj):
-        """Dump an object as JSON.
-
-        ``obj`` is any Python object, try to interpret it as JSON.
-
-        :param request: :class:`morepath.Request`
-        :param obj: any Python object to convert to JSON.
-        :return: JSON representation (in Python form).
-        """
-        return obj
-
-    @reg.dispatch_method()
-    def _link_prefix(self, request):
-        """Returns a prefix that's added to every link generated by the request.
-
-        By default :attr:`webob.request.BaseRequest.application_url` is used.
-
-        :param request: :class:`morepath.Request`
-        :return: prefix string to add before links.
-        """
-        return request.application_url

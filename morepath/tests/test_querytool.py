@@ -65,8 +65,9 @@ def test_predicate_fallback():
     ]
 
     # there aren't any predicates for class_path
-    r = objects(dectate.query_app(App, 'predicate_fallback',
-                                  dispatch='morepath.App._class_path'))
+    r = objects(dectate.query_app(
+        App, 'predicate_fallback',
+        dispatch='morepath.App._class_path'))
     assert r == []
 
     r = objects(dectate.query_app(App, 'predicate_fallback',
@@ -100,8 +101,9 @@ def test_predicate():
     ]
 
     # there aren't any predicates for class_path
-    r = objects(dectate.query_app(App, 'predicate',
-                                  dispatch='morepath.App._class_path'))
+    r = objects(dectate.query_app(
+        App, 'predicate',
+        dispatch='morepath.App._class_path'))
     assert r == []
 
     r = objects(dectate.query_app(App, 'predicate',
@@ -705,11 +707,7 @@ def test_identity_policy():
     r = objects(dectate.query_app(
         App, 'identity_policy'))
 
-    # XXX not entirely sure about this. In the past this generated
-    # 1 entry, but that may be because it resulted in the same function
-    # object while after a Reg refactoring it's different for each
-    # registration.
-    assert len(r) == 3
+    assert len(r) == 1
 
 
 def test_verify_identity():
@@ -733,11 +731,11 @@ def test_dump_json():
         pass
 
     @App.dump_json(model=Foo)
-    def dump_foo():
+    def dump_foo(self, request):
         pass
 
     @App.dump_json(model=Bar)
-    def dump_bar():
+    def dump_bar(self, request):
         pass
 
     dectate.commit(App)
@@ -765,7 +763,7 @@ def test_load_json():
         pass
 
     @App.load_json()
-    def load():
+    def load(json, request):
         pass
 
     dectate.commit(App)

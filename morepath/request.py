@@ -69,7 +69,7 @@ class Request(BaseRequest):
             return None
         if self.content_type != 'application/json':
             return None
-        return self.app._load_json(self, self.json)
+        return self.app._load_json(self.json, self)
 
     @reify
     def identity(self):
