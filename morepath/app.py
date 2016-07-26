@@ -259,18 +259,6 @@ class App(dectate.App):
         for section, section_settings in settings.items():
             set_setting_section(section, section_settings)
 
-    def _get_class_path(self, model, variables):
-        """Path for a model class and variables.
-
-        Only includes path within the current app, does not take
-        mounting into account.
-
-        :param model: model class
-        :param variables: dict with variables to use in the path
-        :return: a :class:`morepath.path.PathInfo` with path within this app.
-        """
-        return self.class_path(model, variables)
-
     def _get_path(self, obj):
         """Path for a model obj.
 
@@ -280,7 +268,7 @@ class App(dectate.App):
         :param obj: model object
         :return: a :class:`morepath.path.PathInfo` with path within this app.
         """
-        return self._get_class_path(
+        return self._class_path(
             obj.__class__, self.path_variables(obj))
 
     def _get_mounted_path(self, obj):
@@ -316,7 +304,7 @@ class App(dectate.App):
         :return: a :class:`morepath.path.PathInfo` with fully resolved
           path in mounts.
         """
-        info = self._get_class_path(model, variables)
+        info = self._class_path(model, variables)
         if info is None:
             return None
         if self.parent is None:
@@ -418,14 +406,14 @@ class App(dectate.App):
         return None, app
 
     @reg.dispatch_method(reg.match_class('model', lambda model: model))
-    def class_path(self, model, variables):
+    def _class_path(self, model, variables):
         """Get the path for a model class.
 
         :param model: model class or :class:`morepath.App` subclass.
         :param variables: dictionary with variables to reconstruct
         the path and URL paramaters from path pattern.
-        :return: a tuple with URL path and URL parameters, or ``None`` if
-        path cannot be determined.
+        :return: a :class:`morepath.path.PathInfo` with path within this app,
+          or ``None`` if the path couldn't be determined.
         """
         return None
 

@@ -163,7 +163,7 @@ class PathRegistry(TrajectRegistry):
 
         # XXX
         from .app import App
-        self.reg_registry.register_function(App.class_path, get_path,
+        self.reg_registry.register_function(App._class_path, get_path,
                                             model=model)
 
         def default_path_variables(obj):
@@ -302,7 +302,7 @@ class Path(object):
 
         :param model: model class. Not actually used in the
           implementation but used for dispatch in
-          :meth:`App.class_path`.
+          :meth:`App._class_path`.
         :param variables: dict with the variables used in the path. each
           argument to the factory function should be represented.
         :return: :class:`PathInfo` instance representing the path.
