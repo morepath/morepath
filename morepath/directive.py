@@ -1203,10 +1203,7 @@ class LoadJsonAction(dectate.Action):
         return ()
 
     def perform(self, obj, reg_registry):
-        # reverse parameters
-        def load(request, json):
-            return obj(json, request)
-        reg_registry.register_function(App._load_json, load)
+        reg_registry.register_function(App._load_json, obj)
 
 
 @App.directive('link_prefix')

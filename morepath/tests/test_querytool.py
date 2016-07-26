@@ -767,7 +767,7 @@ def test_load_json():
         pass
 
     @App.load_json()
-    def load():
+    def load(json, request):
         pass
 
     dectate.commit(App)

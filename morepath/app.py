@@ -483,13 +483,13 @@ class App(dectate.App):
         return False
 
     @reg.dispatch_method()
-    def _load_json(self, request, json):
+    def _load_json(self, json, request):
         """Load JSON as some object.
 
         By default JSON is loaded as itself.
 
-        :param request: :class:`morepath.Request`
         :param json: JSON (in Python form) to convert into object.
+        :param request: :class:`morepath.Request`
         :return: Any Python object, including JSON.
         """
         return json
