@@ -1181,10 +1181,7 @@ class DumpJsonAction(dectate.Action):
         return self.model
 
     def perform(self, obj, reg_registry):
-        # reverse parameters
-        def dump(request, self):
-            return obj(self, request)
-        reg_registry.register_function(App._dump_json, dump, obj=self.model)
+        reg_registry.register_function(App._dump_json, obj, obj=self.model)
 
 
 @App.directive('load_json')

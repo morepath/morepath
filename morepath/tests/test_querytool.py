@@ -735,11 +735,11 @@ def test_dump_json():
         pass
 
     @App.dump_json(model=Foo)
-    def dump_foo():
+    def dump_foo(self, request):
         pass
 
     @App.dump_json(model=Bar)
-    def dump_bar():
+    def dump_bar(self, request):
         pass
 
     dectate.commit(App)

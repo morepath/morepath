@@ -495,13 +495,13 @@ class App(dectate.App):
         return json
 
     @reg.dispatch_method('obj')
-    def _dump_json(self, request, obj):
+    def _dump_json(self, obj, request):
         """Dump an object as JSON.
 
         ``obj`` is any Python object, try to interpret it as JSON.
 
-        :param request: :class:`morepath.Request`
         :param obj: any Python object to convert to JSON.
+        :param request: :class:`morepath.Request`
         :return: JSON representation (in Python form).
         """
         return obj
