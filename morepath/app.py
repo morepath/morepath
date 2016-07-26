@@ -425,10 +425,10 @@ class App(dectate.App):
         :return: a dict with the variables to use for constructing the path,
         or ``None`` if no such dict can be found.
         """
-        return self.default_path_variables(obj)
+        return self._default_path_variables(obj)
 
     @reg.dispatch_method('obj')
-    def default_path_variables(self, obj):
+    def _default_path_variables(self, obj):
         """Get default variables to use in path generation.
 
         Invoked if no specific ``path_variables`` is registered.
