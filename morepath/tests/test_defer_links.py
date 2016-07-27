@@ -676,6 +676,59 @@ def test_deferred_loop():
     assert 'Circular' in str(ex.value)
 
 
+@pytest.mark.skip(reason='Infinite loop (#479)', run=False)
+def test_deferred_loop_siblings():
+    # https://github.com/morepath/morepath/issues/479
+    class Root(morepath.App):
+        pass
+
+    class Alpha(morepath.App):
+        pass
+
+    class Beta(morepath.App):
+        pass
+
+    @Root.path(path='')
+    class RootModel(object):
+        pass
+
+    # not actually exposed with path anywhere!
+    class Model(object):
+        pass
+
+    @Root.json(model=RootModel)
+    def root_model_default(self, request):
+        return request.link(Model())
+
+    @Root.defer_links(model=Model)
+    def defer_links_alpha(app, obj):
+        return app.child(Alpha())
+
+    @Root.mount(app=Alpha, path='alpha')
+    def mount_alpha():
+        return Alpha()
+
+    @Root.mount(app=Beta, path='beta')
+    def mount_beta():
+        return Beta()
+
+    # setup a loop: defer to sibling and back
+    @Alpha.defer_links(model=Model)
+    def defer_links_to_beta(app, obj):
+        return app.sibling(Beta())
+
+    @Beta.defer_links(model=Model)
+    def defer_links_to_alpha(app, obj):
+        return app.sibling(Alpha())
+
+    c = Client(Root())
+
+    with pytest.raises(LinkError) as ex:
+        c.get('/')
+
+    assert 'Circular' in str(ex.value)
+
+
 # see issue #342
 def test_defer_link_scenario():
     class App(morepath.App):
