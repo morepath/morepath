@@ -22,36 +22,6 @@ class GenericApp(dectate.App):
         """
         return HTTPNotFound()
 
-    @reg.dispatch_method()
-    def _identify(self, request):
-        """Determine identity for request.
-
-        :param request: a :class:`morepath.Request` instance.
-        :return: a :class:`morepath.Identity` instance or ``None`` if
-        no identity can be found. Can also return :data:`morepath.NO_IDENTITY`,
-        but ``None`` is converted automatically to this.
-        """
-        return None
-
-    @reg.dispatch_method()
-    def remember_identity(self, response, request, identity):
-        """Modify response so that identity is remembered by client.
-
-        :param response: :class:`morepath.Response` to remember identity on.
-        :param request: :class:`morepath.Request`
-        :param identity: :class:`morepath.Identity`
-        """
-        raise NotImplementedError  # pragma: nocoverage
-
-    @reg.dispatch_method()
-    def forget_identity(self, response, request):
-        """Modify response so that identity is forgotten by client.
-
-        :param response: :class:`morepath.Response` to forget identity on.
-        :param request: :class:`morepath.Request`
-        """
-        raise NotImplementedError  # pragma: nocoverage
-
     @reg.dispatch_method('identity')
     def _verify_identity(self, identity):
         """Returns True if the claimed identity can be verified.

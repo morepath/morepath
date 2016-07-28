@@ -707,11 +707,7 @@ def test_identity_policy():
     r = objects(dectate.query_app(
         App, 'identity_policy'))
 
-    # XXX not entirely sure about this. In the past this generated
-    # 1 entry, but that may be because it resulted in the same function
-    # object while after a Reg refactoring it's different for each
-    # registration.
-    assert len(r) == 3
+    assert len(r) == 1
 
 
 def test_verify_identity():

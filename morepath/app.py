@@ -255,6 +255,42 @@ class App(GenericApp):
         for section, section_settings in settings.items():
             set_setting_section(section, section_settings)
 
+    def _identify(self, request):
+        """Determine identity for request.
+
+        :param request: a :class:`morepath.Request` instance.
+        :return: a :class:`morepath.Identity` instance or ``None`` if
+        no identity can be found. Can also return :data:`morepath.NO_IDENTITY`,
+        but ``None`` is converted automatically to this.
+        """
+        ip = self.config.identity_policy_registry.identity_policy
+        if ip is None:
+            return None
+        return ip.identify(request)
+
+    def remember_identity(self, response, request, identity):
+        """Modify response so that identity is remembered by client.
+
+        :param response: :class:`morepath.Response` to remember identity on.
+        :param request: :class:`morepath.Request`
+        :param identity: :class:`morepath.Identity`
+        """
+        ip = self.config.identity_policy_registry.identity_policy
+        if ip is None:
+            return
+        return ip.remember(response, request, identity)
+
+    def forget_identity(self, response, request):
+        """Modify response so that identity is forgotten by client.
+
+        :param response: :class:`morepath.Response` to forget identity on.
+        :param request: :class:`morepath.Request`
+        """
+        ip = self.config.identity_policy_registry.identity_policy
+        if ip is None:
+            return
+        return ip.forget(response, request)
+
     def _get_path(self, obj):
         """Path for a model obj.
 

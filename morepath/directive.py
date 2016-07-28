@@ -31,6 +31,7 @@ from :mod:`morepath.directive`.
 
 import os
 import dectate
+from reg import mapply
 
 from .app import App
 from .cachingreg import RegRegistry
@@ -1061,34 +1062,16 @@ class TweenFactoryAction(dectate.Action):
             obj, over=self.over, under=self.under)
 
 
-@App.private_action_class
-class IdentityPolicyFunctionAction(dectate.Action):
-    """A special action that helps register the identity policy.
-
-    We need this as it needs to be sorted after SettingAction and
-    composite actions can't be sorted nor have access to the registry.
-    """
-    config = {
-        'identity_policy_registry': IdentityPolicyRegistry,
-    }
+@App.directive('identity_policy')
+class IdentityPolicyAction(dectate.Action):
+    # query_classes = [IdentityPolicyFunctionAction]
 
     depends = [SettingAction]
 
-    def __init__(self, dispatch, name):
-        self.dispatch = dispatch
-        self.name = name
-
-    def identifier(self, identity_policy_registry):
-        return (self.dispatch, self.name)
-
-    def perform(self, obj, identity_policy_registry):
-        identity_policy_registry.register_identity_policy_function(
-            obj, self.dispatch, self.name)
-
-
-@App.directive('identity_policy')
-class IdentityPolicyAction(dectate.Composite):
-    query_classes = [IdentityPolicyFunctionAction]
+    config = {
+        'identity_policy_registry': IdentityPolicyRegistry,
+        'setting_registry': SettingRegistry,
+    }
 
     def __init__(self):
         """Register identity policy.
@@ -1103,13 +1086,12 @@ class IdentityPolicyAction(dectate.Composite):
         """
         pass
 
-    def actions(self, obj):
-        yield IdentityPolicyFunctionAction(App._identify,
-                                           'identify'), obj
-        yield IdentityPolicyFunctionAction(App.remember_identity,
-                                           'remember'), obj
-        yield IdentityPolicyFunctionAction(App.forget_identity,
-                                           'forget'), obj
+    def identifier(self, identity_policy_registry, setting_registry):
+        return ()
+
+    def perform(self, obj, identity_policy_registry, setting_registry):
+        identity_policy_registry.identity_policy = mapply(
+            obj, settings=setting_registry)
 
 
 @App.directive('verify_identity')
