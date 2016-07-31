@@ -268,6 +268,74 @@ def test_false_verify_identity():
     c.get('/foo', status=403)
 
 
+def test_dispatch_verify_identity():
+    # This app uses two Identity classes, morepath.Identity and
+    # Anonymous, which are verfied in two different ways (see the two
+    # functions a little further down that are decorated by
+    # @App.verify_identity).
+    class App(morepath.App):
+        pass
+
+    @App.path(path='{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    class Read(object):
+        """Read Permission"""
+
+    class Anonymous(Identity):
+        def __init__(self, **kw):
+            super(Anonymous, self).__init__(userid=None, **kw)
+
+    @App.permission_rule(model=Model, permission=Read)
+    def get_permission(identity, model, permission):
+        return True
+
+    @App.view(model=Model, permission=Read)
+    def default(self, request):
+        if request.identity.userid == self.id:
+            return "Read restricted: %s" % self.id
+        return "Read shared: %s" % self.id
+
+    @App.identity_policy()
+    class HeaderIdentityPolicy(object):
+        def identify(self, request):
+            user = request.headers.get('user', None)
+            if user is not None:
+                if user == '':
+                    return Anonymous()
+                return Identity(
+                    userid=user,
+                    password=request.headers['password'])
+
+        def remember(self, response, request, identity):
+            pass
+
+        def forget(self, response, request):
+            pass
+
+    @App.verify_identity(identity=Identity)
+    def verify_identity(identity):
+        return identity.password == 'secret'
+
+    @App.verify_identity(identity=Anonymous)
+    def verify_anonymous(identity):
+        return True
+
+    c = Client(App())
+
+    r = c.get('/foo', status=403)
+    r = c.get('/foo', status=403, headers=dict(user='foo', password='wrong'))
+    r = c.get('/foo', status=403, headers=dict(user='bar', password='wrong'))
+    r = c.get('/foo', status=200, headers={'user': ''})
+    assert r.text == 'Read shared: foo'
+    r = c.get('/foo', status=200, headers=dict(user='foo', password='secret'))
+    assert r.text == 'Read restricted: foo'
+    r = c.get('/foo', status=200, headers=dict(user='bar', password='secret'))
+    assert r.text == 'Read shared: foo'
+
+
 def test_settings():
     class App(morepath.App):
         pass
