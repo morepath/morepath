@@ -4,8 +4,8 @@ CHANGES
 0.16 (unreleased)
 =================
 
-Removal & Deprecations
-----------------------
+Removals & Deprecations
+-----------------------
 
 - **Removed**: ``morepath.remember_identity`` is removed from the
   Morepath API.
@@ -66,6 +66,9 @@ Other
 - Reorganize the table of contents of the documentation into a
   hierarchy (`#468`_).
 
+- Have the manifest file for source distribution include all files
+  under VCS.
+
 .. _#464: https://github.com/morepath/morepath/issues/464
 .. _#468: https://github.com/morepath/morepath/pull/468
 
@@ -73,8 +76,8 @@ Other
 0.15 (2016-07-18)
 =================
 
-Removal & Deprecations
-----------------------
+Removals & Deprecations
+-----------------------
 
 - **Removed**: ``morepath.autosetup`` and ``morepath.autocommit`` are
   both removed from the Morepath API.
