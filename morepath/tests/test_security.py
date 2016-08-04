@@ -441,3 +441,52 @@ def test_prevent_poisoned_host_headers():
     for host in poisoned_hosts:
         response = c.get('/', headers={'Host': host}, expect_errors=True)
         assert response.status_code == 400
+
+
+def test_settings_in_permission_rule():
+
+    class App(morepath.App):
+        pass
+
+    @App.path(path='{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    class Permission(object):
+        pass
+
+    @App.verify_identity()
+    def verify_identity(identity):
+        return True
+
+    @App.setting_section(section="permissions")
+    def get_roles_setting():
+        return {
+            'read': {'foo'},
+        }
+
+    @App.permission_rule(model=Model, permission=Permission)
+    def get_permission(app, identity, model, permission):
+        return model.id in app.settings.permissions.read
+
+    @App.view(model=Model, permission=Permission)
+    def default(self, request):
+        return "Model: %s" % self.id
+
+    @App.identity_policy()
+    class IdentityPolicy(object):
+        def identify(self, request):
+            return Identity('testidentity')
+
+        def remember(self, response, request, identity):
+            pass
+
+        def forget(self, response, request):
+            pass
+
+    c = Client(App())
+
+    response = c.get('/foo')
+    assert response.body == b'Model: foo'
+    response = c.get('/bar', status=403)
