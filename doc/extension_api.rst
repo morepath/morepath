@@ -9,13 +9,13 @@ Registry classes
 .. autoclass:: morepath.directive.ConverterRegistry
   :members:
 
-.. autoclass:: morepath.directive.IdentityPolicyRegistry
-  :members:
-
 .. autoclass:: morepath.directive.PathRegistry
   :members:
 
 .. autoclass:: morepath.directive.PredicateRegistry
+  :members:
+
+.. autoclass:: morepath.directive.ProxyRegistry
   :members:
 
 .. autoclass:: morepath.directive.RegRegistry

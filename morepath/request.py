@@ -75,7 +75,7 @@ class Request(BaseRequest):
             return None
         if self.content_type != 'application/json':
             return None
-        return generic.load_json(self, self.json, lookup=self.lookup)
+        return self.app.config.proxy.load_json(self.json, self)
 
     @reify
     def identity(self):
@@ -93,7 +93,10 @@ class Request(BaseRequest):
         """
         # XXX annoying circular dependency
         from .authentication import NO_IDENTITY
-        result = generic.identify(self, lookup=self.lookup)
+        policy = self.app.config.proxy.identity_policy
+        if policy is None:
+            return NO_IDENTITY
+        result = policy.identify(self)
         if result is None or result is NO_IDENTITY:
             return NO_IDENTITY
         if not generic.verify_identity(result, lookup=self.lookup):
@@ -107,7 +110,7 @@ class Request(BaseRequest):
             return cached
 
         prefix = self._link_prefix_cache[self.app.__class__]\
-               = generic.link_prefix(self, lookup=self.lookup)
+               = self.app.config.proxy.link_prefix(self)
 
         return prefix
 
