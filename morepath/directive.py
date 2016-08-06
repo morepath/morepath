@@ -55,7 +55,6 @@ def isbaseclass(a, b):
 @App.directive('setting')
 class SettingAction(dectate.Action):
     config = {
-        'reg_registry': RegRegistry,
         'setting_registry': SettingRegistry
     }
 
@@ -77,10 +76,10 @@ class SettingAction(dectate.Action):
         self.section = section
         self.name = name
 
-    def identifier(self, reg_registry, setting_registry):
+    def identifier(self, setting_registry):
         return self.section, self.name
 
-    def perform(self, obj, reg_registry, setting_registry):
+    def perform(self, obj, setting_registry):
         setting_registry.register_setting(self.section, self.name, obj)
 
 
