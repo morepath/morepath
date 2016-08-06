@@ -11,7 +11,7 @@ import reg
 from webob.exc import HTTPNotFound
 
 
-@reg.dispatch(reg.match_class('model', lambda model: model))
+@reg.dispatch(reg.match_class('model'))
 def class_path(model, variables):
     """Get the path for a model class.
 
@@ -61,7 +61,7 @@ def deferred_link_app(mounted, obj):
     return None
 
 
-@reg.dispatch(reg.match_class('model', lambda model: model))
+@reg.dispatch(reg.match_class('model'))
 def deferred_class_link_app(mounted, model, variables):
     """Get application used for link generation for a model class.
 
@@ -120,9 +120,7 @@ def verify_identity(identity):
     return False
 
 
-@reg.dispatch('identity', 'obj',
-              reg.match_class('permission',
-                              lambda permission: permission))
+@reg.dispatch('identity', 'obj', reg.match_class('permission'))
 def permits(identity, obj, permission):
     """Returns ``True`` if identity has permission for model object.
 

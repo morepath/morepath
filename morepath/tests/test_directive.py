@@ -1014,7 +1014,7 @@ def test_classgeneric_function_directive():
     class app(morepath.App):
         pass
 
-    @reg.dispatch(reg.match_class('o', lambda o: o))
+    @reg.dispatch(reg.match_class('o'))
     def mygeneric(o):
         return "The object"
 

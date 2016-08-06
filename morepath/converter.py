@@ -149,7 +149,7 @@ class ConverterRegistry(object):
     Is aware of inheritance.
     """
     def __init__(self):
-        self._registry = PredicateRegistry(match_class('cls', lambda cls: cls))
+        self._registry = PredicateRegistry(match_class('cls'))
 
     def register_converter(self, type, converter):
         """Register a converter for type.
