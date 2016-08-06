@@ -731,11 +731,11 @@ def test_dump_json():
         pass
 
     @App.dump_json(model=Foo)
-    def dump_foo():
+    def dump_foo(obj, request):
         pass
 
     @App.dump_json(model=Bar)
-    def dump_bar():
+    def dump_bar(obj, request):
         pass
 
     dectate.commit(App)
@@ -763,7 +763,7 @@ def test_load_json():
         pass
 
     @App.load_json()
-    def load():
+    def load(json, request):
         pass
 
     dectate.commit(App)
