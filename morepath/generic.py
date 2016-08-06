@@ -94,18 +94,6 @@ def view(obj, request):
     return HTTPNotFound()
 
 
-@reg.dispatch()
-def identify(request):
-    """Determine identity for request.
-
-    :param: a :class:`morepath.Request` instance.
-    :return: a :class:`morepath.Identity` instance or ``None`` if
-      no identity can be found. Can also return :data:`morepath.NO_IDENTITY`,
-      but ``None`` is converted automatically to this.
-    """
-    return None
-
-
 @reg.dispatch('identity')
 def verify_identity(identity):
     """Returns True if the claimed identity can be verified.
