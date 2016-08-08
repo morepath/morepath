@@ -63,8 +63,8 @@ class View(object):
         """
         if self.internal:
             raise HTTPNotFound()
-        if (self.permission is not None and
-            not request.app._permits(request.identity, obj, self.permission)):
+        if self.permission is not None and\
+           not request.app._permits(request.identity, obj, self.permission):
             raise HTTPForbidden()
         content = self.func(obj, request)
         if isinstance(content, BaseResponse):

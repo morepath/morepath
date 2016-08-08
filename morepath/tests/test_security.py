@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import morepath
 from morepath.request import Response
-#from morepath import generic
 from morepath.authentication import Identity, NO_IDENTITY
 from .fixtures import identity_policy
 import base64

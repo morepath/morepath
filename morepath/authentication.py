@@ -10,8 +10,6 @@ directive.
 See also :class:`morepath.directive.IdentityPolicyRegistry`
 """
 
-from reg import mapply
-
 from .cachingreg import RegRegistry
 from .settings import SettingRegistry
 
