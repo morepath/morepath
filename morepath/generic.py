@@ -121,7 +121,7 @@ def verify_identity(identity):
 
 
 @reg.dispatch('identity', 'obj', reg.match_class('permission'))
-def permits(identity, obj, permission):
+def permits(app, identity, obj, permission):
     """Returns ``True`` if identity has permission for model object.
 
     identity can be the special :data:`morepath.NO_IDENTITY`

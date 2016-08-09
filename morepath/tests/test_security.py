@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import pytest
 import morepath
 from morepath.request import Response
 from morepath import generic
@@ -444,7 +443,6 @@ def test_prevent_poisoned_host_headers():
         assert response.status_code == 400
 
 
-@pytest.mark.skip()
 def test_settings_in_permission_rule():
 
     class App(morepath.App):
