@@ -1,6 +1,6 @@
 """
 The :meth:`morepath.App.predicate` directive lets you install predicates
-for function that use :func:`reg.dispatch_method_external_predicates`. This is
+for function that use :func:`reg.dispatch_method`. This is
 used by :mod:`morepath.core` to install the view predicates, and you can
 also use it for your own functions.
 
@@ -11,7 +11,6 @@ See also :class:`morepath.directive.PredicateRegistry`
 """
 
 from reg import Predicate, KeyExtractor
-from .cachingreg import RegRegistry
 from .toposort import toposorted, Info
 
 
@@ -20,15 +19,11 @@ class PredicateRegistry(object):
 
     It also keeps track of how predicates are to be ordered.
 
-    :param reg_registry: the :class:`morepath.directive.RegRegistry`
-      in which the predicates are installed.
     """
-    factory_arguments = {
-        'reg_registry': RegRegistry
-    }
+    app_class_arg = True
 
-    def __init__(self, reg_registry):
-        self._reg_registry = reg_registry
+    def __init__(self, app_class):
+        self.app_class = app_class
         self._predicate_infos = {}
         self._predicate_fallbacks = {}
 
@@ -70,10 +65,9 @@ class PredicateRegistry(object):
         predicates in the correct order.
         """
         for dispatch in self._predicate_infos.keys():
-            if dispatch.external_predicates:
-                self._reg_registry.register_external_predicates(
-                    dispatch, self.get_predicates(dispatch))
-                self._reg_registry.register_dispatch(dispatch)
+            getattr(self.app_class,
+                    dispatch.wrapped_func.__name__).add_predicates(
+                self.get_predicates(dispatch))
 
     def get_predicates(self, dispatch):
         """Create Reg predicates.

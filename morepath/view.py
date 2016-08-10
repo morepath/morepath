@@ -17,9 +17,7 @@ from webob.exc import HTTPFound, HTTPNotFound, HTTPForbidden
 from webob import Response as BaseResponse
 
 from .request import Response
-from .cachingreg import RegRegistry
 from .template import TemplateEngineRegistry
-from .app import App
 
 
 class View(object):
@@ -96,20 +94,19 @@ def render_view(content, request):
 class ViewRegistry(object):
     """A registry of views.
 
-    :param reg_registry: a :class:`morepath.directive.RegRegistry` to
-      register the views in.
     :param template_engine_registry: a
       :class:`morepath.directive.TemplateEngineRegistry` used to render
       templated views.
     """
     factory_arguments = {
-        'reg_registry': RegRegistry,
         'template_engine_registry': TemplateEngineRegistry,
     }
 
-    def __init__(self, reg_registry, template_engine_registry):
-        self.reg_registry = reg_registry
+    app_class_arg = True
+
+    def __init__(self, template_engine_registry, app_class):
         self.template_engine_registry = template_engine_registry
+        self.app_class = app_class
 
     def predicate_key(self, key_dict):
         """Given a dictionary create a unique predicate key.
@@ -120,9 +117,7 @@ class ViewRegistry(object):
           for instance model, request_method, etc.
         :result: an immutable object representing the predicate.
         """
-        return self.reg_registry.key_dict_to_predicate_key(
-            App._view.wrapped_func,
-            key_dict)
+        return self.app_class._view.key_dict_to_predicate_key(key_dict)
 
     def register_view(self, key_dict, view,
                       render=render_view,
@@ -147,7 +142,7 @@ class ViewRegistry(object):
             render = self.template_engine_registry.get_template_render(
                 template, render)
         v = View(view, render, permission, internal)
-        self.reg_registry.register_function(App._view, v, **key_dict)
+        self.app_class._view.register_function(v, **key_dict)
 
 
 def render_json(content, request):

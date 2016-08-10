@@ -15,9 +15,6 @@ except ImportError:
     from urllib.parse import urlencode, quote
 
 
-from .generic import GenericApp
-from .reify import reify
-from .cachingreg import RegRegistry
 from .traject import Path as TrajectPath, TrajectRegistry
 from .converter import ParameterFactory, ConverterRegistry, IDENTITY_CONVERTER
 from .error import LinkError
@@ -36,30 +33,22 @@ class PathRegistry(TrajectRegistry):
     :meth:`morepath.App.defer_links` and
     :meth:`morepath.App.defer_class_links` directives.
 
-    :param reg_registry: a :class:`morepath.directive.RegRegistry` instance.
     :param converter_registry: a
       :class:`morepath.directive.ConverterRegistry` instance
 
     """
     factory_arguments = {
-        'reg_registry': RegRegistry,
         'converter_registry': ConverterRegistry
     }
 
-    def __init__(self, reg_registry, converter_registry):
+    app_class_arg = True
+
+    def __init__(self, app_class, converter_registry):
         super(PathRegistry, self).__init__()
-        self.reg_registry = reg_registry
+        self.app_class = app_class
         self.converter_registry = converter_registry
         self.mounted = {}
         self.named_mounted = {}
-
-    @reify
-    def lookup(self):
-        """Get the :class:`reg.Lookup` for this application.
-
-        :return: a :class:`reg.Lookup` instance.
-        """
-        return self.reg_registry.caching_lookup
 
     def register_path(self, model, path,
                       variables, converters, required, get_converters,
@@ -151,9 +140,7 @@ class PathRegistry(TrajectRegistry):
         :param func: function that gets a model instance argument and
           returns a variables dict.
         """
-        self.reg_registry.register_function(GenericApp._path_variables,
-                                            func,
-                                            obj=model)
+        self.app_class._path_variables.register_auto(func, obj=model)
 
     def register_inverse_path(self, model, path, factory_args,
                               converters=None, absorb=False):
@@ -169,13 +156,12 @@ class PathRegistry(TrajectRegistry):
         converters = converters or {}
         get_path = Path(path, factory_args, converters, absorb)
 
-        self.reg_registry.register_function(GenericApp._class_path, get_path,
-                                            model=model)
+        self.app_class._class_path.register_auto(get_path, model=model)
 
         def default_path_variables(obj):
             return {name: getattr(obj, name) for name in factory_args}
-        self.reg_registry.register_function(
-            GenericApp._default_path_variables,
+
+        self.app_class._default_path_variables.register_auto(
             default_path_variables,
             obj=model)
 
@@ -189,8 +175,8 @@ class PathRegistry(TrajectRegistry):
           object as arguments and should return another app instance that
           does the link generation.
         """
-        self.reg_registry.register_function(
-            GenericApp._deferred_link_app, app_factory,
+        self.app_class._deferred_link_app.register(
+            app_factory,
             obj=model)
 
     def register_defer_class_links(self, model, get_variables, app_factory):
@@ -205,8 +191,8 @@ class PathRegistry(TrajectRegistry):
           app instance that does the link generation.
         """
         self.register_path_variables(model, get_variables)
-        self.reg_registry.register_function(
-            GenericApp._deferred_class_link_app, app_factory,
+        self.app_class._deferred_class_link_app.register(
+            app_factory,
             model=model)
 
 

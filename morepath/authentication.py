@@ -11,7 +11,6 @@ See also :class:`morepath.directive.IdentityPolicyRegistry`
 """
 import abc
 
-from .cachingreg import RegRegistry
 from .settings import SettingRegistry
 from .compat import with_metaclass
 
@@ -29,26 +28,6 @@ NO_IDENTITY = NoIdentity()
 
 The user has not yet logged in.
 """
-
-
-class IdentityPolicyRegistry(object):
-    """Register the current identity policy.
-
-    Used by the :class:`morepath.App.identity_policy` directive.
-
-    :param reg_registry: a :class:`morepath.directive.RegRegistry` instance.
-    :param setting_registry: a :class:`morepath.directive.SettingRegistry`
-      instance.
-    """
-    factory_arguments = {
-        'reg_registry': RegRegistry,
-        'setting_registry': SettingRegistry,
-    }
-
-    def __init__(self, reg_registry, setting_registry):
-        self.reg_registry = reg_registry
-        self.setting_registry = setting_registry
-        self.identity_policy = None
 
 
 class Identity(object):

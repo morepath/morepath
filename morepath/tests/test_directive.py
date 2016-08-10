@@ -1002,6 +1002,8 @@ def test_function_directive():
     def mygeneric_for_foo(o):
         return "The foo object: %s" % o
 
+    app.commit()
+
     a = app()
 
     assert a.mygeneric('blah') == 'The object: blah'
@@ -1021,6 +1023,8 @@ def test_classgeneric_function_directive():
     @app.function(app.mygeneric, o=Foo)
     def mygeneric_for_foo(o):
         return "The foo object"
+
+    app.commit()
 
     a = app()
 

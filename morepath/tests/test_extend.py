@@ -1,5 +1,33 @@
 import morepath
+import reg
 from webtest import TestApp as Client
+
+
+def test_function_extends():
+    class App(morepath.App):
+        @reg.dispatch_method('obj')
+        def foo(self, obj):
+            return "default"
+
+    class Extending(App):
+        pass
+
+    class Alpha(object):
+        pass
+
+    @App.function(App.foo, obj=Alpha)
+    def app_foo(app, obj):
+        return "App"
+
+    @Extending.function(App.foo, obj=Alpha)
+    def extending_foo(app, obj):
+        return "Extending"
+
+    App.commit()
+    Extending.commit()
+
+    assert App().foo(Alpha()) == 'App'
+    assert Extending().foo(Alpha()) == 'Extending'
 
 
 def test_extends():

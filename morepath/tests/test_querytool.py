@@ -127,7 +127,7 @@ def test_predicate():
 
 
 class App(morepath.App):
-    @reg.dispatch_method_external_predicates()
+    @reg.dispatch_method()
     def generic(self, v):
         pass
 
