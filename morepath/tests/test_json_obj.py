@@ -25,6 +25,30 @@ def test_json_obj_dump():
     assert response.json == {'x': 'foo'}
 
 
+def test_json_obj_dump_app_arg():
+    class App(morepath.App):
+        pass
+
+    @App.path(path='/models/{x}')
+    class Model(object):
+        def __init__(self, x):
+            self.x = x
+
+    @App.json(model=Model)
+    def default(self, request):
+        return self
+
+    @App.dump_json(model=Model)
+    def dump_model_json(app, self, request):
+        assert isinstance(app, App)
+        return {'x': self.x}
+
+    c = Client(App())
+
+    response = c.get('/models/foo')
+    assert response.json == {'x': 'foo'}
+
+
 def test_json_obj_load():
     class app(morepath.App):
         pass
