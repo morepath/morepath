@@ -156,7 +156,7 @@ class PathRegistry(TrajectRegistry):
         converters = converters or {}
         get_path = Path(path, factory_args, converters, absorb)
 
-        self.app_class._class_path.register_auto(get_path, model=model)
+        self.app_class._class_path.register(get_path, model=model)
 
         def default_path_variables(obj):
             return {name: getattr(obj, name) for name in factory_args}
@@ -287,9 +287,11 @@ class Path(object):
                     name, IDENTITY_CONVERTER).encode(value)
         return path_variables, parameters
 
-    def __call__(self, model, variables):
+    def __call__(self, app, model, variables):
         """Get path info given model and variables.
 
+        :param app: the app instance. Not actually used in the
+          implementation but passed if this is registered as a method.
         :param model: model class. Not actually used in the
           implementation but used for dispatch in
           :meth:`GenericApp._class_path`.
