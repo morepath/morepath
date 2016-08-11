@@ -545,7 +545,9 @@ class TemplateDirectoryAction(dectate.Action):
         if not os.path.isabs(directory):
             directory = os.path.join(os.path.dirname(
                 self.code_info.path), directory)
-        # XXX hacky to have to get configurable and pass it in
+        # hacky to have to get configurable and pass it in.
+        # note that this cannot be app_class as we want the app of
+        # the directive that *defined* it so we sort things properly.
         template_engine_registry.register_template_directory_info(
             obj, directory, self._before, self._after,
             self.directive.configurable)
