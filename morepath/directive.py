@@ -1086,8 +1086,10 @@ class IdentityPolicyAction(dectate.Action):
 
 
 @App.directive('verify_identity')
-class VerifyIdentityAction(dectate.Composite):
-    query_classes = [FunctionAction]
+class VerifyIdentityAction(dectate.Action):
+    config = {
+        'reg_registry': RegRegistry,
+    }
 
     filter_convert = {
         'identity': dectate.convert_dotted_name,
@@ -1115,9 +1117,13 @@ class VerifyIdentityAction(dectate.Composite):
         '''
         self.identity = identity
 
-    def actions(self, obj):
-        yield FunctionAction(generic.verify_identity,
-                             identity=self.identity), obj
+    def identifier(self, reg_registry):
+        return self.identity
+
+    def perform(self, obj, reg_registry):
+        reg_registry.register_function(
+            generic.verify_identity,
+            fix_signature(obj), identity=self.identity)
 
 
 @App.directive('dump_json')
@@ -1154,7 +1160,8 @@ class DumpJsonAction(dectate.Action):
         return self.model
 
     def perform(self, obj, reg_registry):
-        reg_registry.register_function(generic.dump_json, obj, obj=self.model)
+        reg_registry.register_function(
+            generic.dump_json, fix_signature(obj), obj=self.model)
 
 
 @App.directive('load_json')
@@ -1176,7 +1183,7 @@ class LoadJsonAction(dectate.Action):
         return ()
 
     def perform(self, obj, reg_registry):
-        reg_registry.register_function(generic.load_json, obj)
+        reg_registry.register_function(generic.load_json, fix_signature(obj))
 
 
 @App.directive('link_prefix')
@@ -1201,4 +1208,4 @@ class LinkPrefixAction(dectate.Action):
         return ()
 
     def perform(self, obj, reg_registry):
-        reg_registry.register_function(generic.link_prefix, obj)
+        reg_registry.register_function(generic.link_prefix, fix_signature(obj))
