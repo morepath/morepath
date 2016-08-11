@@ -158,10 +158,10 @@ class PathRegistry(TrajectRegistry):
 
         self.app_class._class_path.register(get_path, model=model)
 
-        def default_path_variables(obj):
+        def default_path_variables(app, obj):
             return {name: getattr(obj, name) for name in factory_args}
 
-        self.app_class._default_path_variables.register_auto(
+        self.app_class._default_path_variables.register(
             default_path_variables,
             obj=model)
 
