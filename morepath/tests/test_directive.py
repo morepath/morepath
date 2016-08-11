@@ -309,6 +309,34 @@ def test_link_with_prefix():
     assert response.body == b'http://testhost/'
 
 
+def test_link_with_prefix_app_arg():
+    class App(morepath.App):
+        pass
+
+    @App.path(path='')
+    class Root(object):
+        pass
+
+    @App.view(model=Root, name='link')
+    def link(self, request):
+        return request.link(self)
+
+    @App.link_prefix()
+    def link_prefix(app, request):
+        assert isinstance(app, App)
+        return request.headers['TESTPREFIX']
+
+    c = Client(App())
+
+    # we don't do anything with the prefix, so a slash at the end of the prefix
+    # leads to a double prefix at the end
+    response = c.get('/link', headers={'TESTPREFIX': 'http://testhost/'})
+    assert response.body == b'http://testhost//'
+
+    response = c.get('/link', headers={'TESTPREFIX': 'http://testhost'})
+    assert response.body == b'http://testhost/'
+
+
 def test_link_prefix_cache():
     class app(morepath.App):
         pass
