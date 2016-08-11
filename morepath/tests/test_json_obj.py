@@ -88,6 +88,46 @@ def test_json_obj_load():
     assert collection.items[0].value == 'foo'
 
 
+def test_json_obj_load_app_arg():
+    class App(morepath.App):
+        pass
+
+    class Collection(object):
+        def __init__(self):
+            self.items = []
+
+        def add(self, item):
+            self.items.append(item)
+
+    collection = Collection()
+
+    @App.path(path='/', model=Collection)
+    def get_collection():
+        return collection
+
+    @App.json(model=Collection, request_method='POST')
+    def default(self, request):
+        self.add(request.body_obj)
+        return 'done'
+
+    class Item(object):
+        def __init__(self, value):
+            self.value = value
+
+    @App.load_json()
+    def load_json(app, json, request):
+        assert isinstance(app, App)
+        return Item(json['x'])
+
+    c = Client(App())
+
+    c.post_json('/', {'x': 'foo'})
+
+    assert len(collection.items) == 1
+    assert isinstance(collection.items[0], Item)
+    assert collection.items[0].value == 'foo'
+
+
 def test_json_obj_load_default():
     class app(morepath.App):
         pass
