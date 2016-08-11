@@ -818,6 +818,47 @@ def test_view_conflict_with_html():
         app.commit()
 
 
+def test_function():
+    class App(morepath.App):
+        @reg.dispatch_method('a')
+        def func(self, a):
+            return "default"
+
+    class A(object):
+        pass
+
+    @App.function(App.func, a=A)
+    def a_func(request):
+        return "A"
+
+    App.commit()
+
+    app = App()
+    assert app.func(A()) == "A"
+    assert app.func(None) == "default"
+
+
+def test_method():
+    class App(morepath.App):
+        @reg.dispatch_method('a')
+        def func(self, a):
+            return "default"
+
+    class A(object):
+        pass
+
+    @App.method(App.func, a=A)
+    def a_func(app, request):
+        assert isinstance(app, App)
+        return "A"
+
+    App.commit()
+
+    app = App()
+    assert app.func(A()) == "A"
+    assert app.func(None) == "default"
+
+
 def test_function_conflict():
     class app(morepath.App):
         @reg.dispatch_method('a')

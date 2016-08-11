@@ -265,7 +265,7 @@ class FunctionAction(dectate.Action):
                 self.func.key_dict_to_predicate_key(self.key_dict))
 
     def perform(self, obj, app_class):
-        getattr(app_class, self.func.wrapped_func.__name__).register_auto(
+        getattr(app_class, self.func.wrapped_func.__name__).register_function(
             obj, **self.key_dict)
 
 
@@ -1083,8 +1083,13 @@ class IdentityPolicyAction(dectate.Action):
 
 
 @App.directive('verify_identity')
-class VerifyIdentityAction(dectate.Composite):
-    query_classes = [FunctionAction]
+class VerifyIdentityAction(dectate.Action):
+    depends = [SettingAction]
+
+    config = {
+    }
+
+    app_class_arg = True
 
     filter_convert = {
         'identity': dectate.convert_dotted_name,
@@ -1112,9 +1117,11 @@ class VerifyIdentityAction(dectate.Composite):
         '''
         self.identity = identity
 
-    def actions(self, obj):
-        yield FunctionAction(App._verify_identity,
-                             identity=self.identity), obj
+    def identifier(self, app_class):
+        return ()
+
+    def perform(self, obj, app_class):
+        app_class._verify_identity.register_auto(obj, identity=self.identity)
 
 
 @App.directive('dump_json')

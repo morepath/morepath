@@ -16,11 +16,11 @@ def test_function_extends():
         pass
 
     @App.function(App.foo, obj=Alpha)
-    def app_foo(app, obj):
+    def app_foo(obj):
         return "App"
 
     @Extending.function(App.foo, obj=Alpha)
-    def extending_foo(app, obj):
+    def extending_foo(obj):
         return "Extending"
 
     App.commit()
