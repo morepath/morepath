@@ -63,10 +63,8 @@ class View(object):
         """
         if self.internal:
             raise HTTPNotFound()
-        if (self.permission is not None and
-            not generic.permits(
-                request.app, request.identity, obj, self.permission,
-                lookup=request.lookup)):
+        if self.permission is not None and not request.app.permits(
+                request.identity, obj, self.permission):
             raise HTTPForbidden()
         content = self.func(obj, request)
         if isinstance(content, BaseResponse):
@@ -164,8 +162,7 @@ def render_json(content, request):
     :return: a :class:`morepath.Response` instance with a serialized
       JSON body.
     """
-    return Response(json.dumps(generic.dump_json(content, request,
-                                                 lookup=request.lookup)),
+    return Response(json.dumps(request.app.do_dump_json(content, request)),
                     content_type='application/json')
 
 

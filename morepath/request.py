@@ -76,7 +76,7 @@ class Request(BaseRequest):
             return None
         if self.content_type != 'application/json':
             return None
-        return generic.load_json(self.json, self, lookup=self.lookup)
+        return self.app.do_load_json(self.json, self)
 
     @reify
     def identity(self):
@@ -98,7 +98,7 @@ class Request(BaseRequest):
         result = policy.identify(self)
         if result is None or result is NO_IDENTITY:
             return NO_IDENTITY
-        if not generic.verify_identity(result, lookup=self.lookup):
+        if not self.app.do_verify_identity(result):
             return NO_IDENTITY
         return result
 
@@ -109,7 +109,7 @@ class Request(BaseRequest):
             return cached
 
         prefix = self._link_prefix_cache[self.app.__class__]\
-               = generic.link_prefix(self, lookup=self.lookup)
+               = self.app._get_link_prefix(self)
 
         return prefix
 
