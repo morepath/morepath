@@ -108,22 +108,6 @@ def verify_identity(identity):
     return False
 
 
-@reg.dispatch('identity', 'obj', reg.match_class('permission'))
-def permits(app, identity, obj, permission):
-    """Returns ``True`` if identity has permission for model object.
-
-    identity can be the special :data:`morepath.NO_IDENTITY`
-    singleton; register for :class:`morepath.NoIdentity` to handle
-    this case separately.
-
-    :param identity: :class:`morepath.Identity`
-    :param obj: model object
-    :param permission: permission class.
-    :return: ``True`` if identity has permission for obj.
-    """
-    return False
-
-
 @reg.dispatch()
 def load_json(json, request):
     """Load JSON as some object.

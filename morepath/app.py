@@ -24,6 +24,7 @@ from .reify import reify
 from . import generic
 from .path import PathInfo
 from .error import LinkError
+from .dispatch import delegate, reg
 
 
 class App(dectate.App):
@@ -489,6 +490,7 @@ class App(dectate.App):
         """
         return generic.verify_identity(identity, lookup=self.lookup)
 
+    @delegate('identity', 'obj', reg.match_class('permission'))
     def permits(self, identity, obj, permission):
         """Returns ``True`` if identity has permission for model object.
 
@@ -501,8 +503,7 @@ class App(dectate.App):
         :param permission: permission class.
         :return: ``True`` if identity has permission for obj.
         """
-        return generic.permits(
-            self, identity, obj, permission, lookup=self.lookup)
+        return False
 
     def do_load_json(self, json, request):
         """Load JSON as some object.
