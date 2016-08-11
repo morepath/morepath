@@ -89,6 +89,60 @@ def test_permission_directive_identity():
     response = c.get('/bar', status=403)
 
 
+@pytest.mark.xfail
+def test_permission_directive_identity_app_arg():
+    class App(morepath.App):
+        pass
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    class Permission(object):
+        pass
+
+    @App.verify_identity()
+    def verify_identity(identity):
+        return True
+
+    @App.path(model=Model, path='{id}',
+              variables=lambda model: {'id': model.id})
+    def get_model(id):
+        return Model(id)
+
+    @App.permission_rule(model=Model, permission=Permission)
+    def get_permission(identity, model, permission):
+        if model.id == 'foo':
+            return True
+        else:
+            return False
+
+    @App.view(model=Model, permission=Permission)
+    def default(self, request):
+        return "Model: %s" % self.id
+
+    @App.identity_policy()
+    class IdentityPolicy(object):
+        def identify(self, app, request):
+            assert isinstance(app, App)
+            return Identity('testidentity')
+
+        def remember(self, app, response, request, identity):
+            pass
+
+        def forget(self, app, response, request):
+            pass
+
+    App.commit()
+
+    c = Client(App())
+
+    response = c.get('/foo')
+    assert response.body == b'Model: foo'
+    response = c.get('/bar', status=403)
+
+
+
 def test_permission_directive_with_app_arg():
     class App(morepath.App):
         pass
