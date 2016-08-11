@@ -11,7 +11,6 @@ See also :class:`morepath.directive.IdentityPolicyRegistry`
 """
 import abc
 
-from .settings import SettingRegistry
 from .compat import with_metaclass
 
 

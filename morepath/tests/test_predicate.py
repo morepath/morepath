@@ -1,8 +1,6 @@
 import reg
 from reg import ClassIndex, KeyIndex
 import morepath
-from morepath.error import ConfigError
-import pytest
 
 
 def test_dispatch_method_directive():
