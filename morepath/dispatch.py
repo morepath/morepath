@@ -25,3 +25,24 @@ class delegate(object):
                 self, lookup=self.lookup, *args, **kw)
 
         return delegator
+
+
+def fix_signature(func):
+    args = reg.arginfo(func)
+    if args.args and args.args[0] == 'app':
+        return func
+
+    signature = ', '.join(
+        args.args +
+        (['*' + args.varargs] if args.varargs else []) +
+        (['**' + args.keywords] if args.keywords else []))
+
+    code_template = """\
+def wrapper(app, {signature}):
+    return _func({signature})
+"""
+
+    code_source = code_template.format(signature=signature)
+    namespace = {'_func': func}
+    exec(code_source, namespace)
+    return namespace['wrapper']

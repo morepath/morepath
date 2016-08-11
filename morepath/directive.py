@@ -31,9 +31,7 @@ from :mod:`morepath.directive`.
 
 import os
 import dectate
-import reg
 
-from functools import wraps
 from .app import App
 from .cachingreg import RegRegistry
 from .authentication import Identity, NoIdentity, IdentityPolicyRegistry
@@ -44,6 +42,7 @@ from .tween import TweenRegistry
 from .template import TemplateEngineRegistry
 from .predicate import PredicateRegistry
 from .path import PathRegistry
+from .dispatch import fix_signature
 from . import generic
 from .settings import SettingRegistry
 
@@ -484,13 +483,8 @@ class PermissionRuleAction(dectate.Action):
         return (self.model, self.permission, self.identity)
 
     def perform(self, obj, reg_registry):
-        wrapper = obj
-        if len(reg.arginfo(obj).args) == 3:
-            @wraps(obj)
-            def wrapper(app, identity, model, permission):
-                return obj(identity, model, permission)
         reg_registry.register_function(
-            generic.permits, wrapper,
+            generic.permits, fix_signature(obj),
             identity=self.identity,
             obj=self.model,
             permission=self.permission)
