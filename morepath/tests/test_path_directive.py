@@ -1350,6 +1350,55 @@ def test_absorb_path_root():
     assert response.body == b'A:a/b L:http://localhost/a/b'
 
 
+def test_path_explicit_variables():
+    class App(morepath.App):
+        pass
+
+    class Model(object):
+        def __init__(self, id):
+            self.store_id = id
+
+    @App.path(model=Model, path='models/{id}',
+              variables=lambda m: {'id': m.store_id})
+    def get_model(id):
+        return Model(id)
+
+    @App.view(model=Model)
+    def default(self, request):
+        return request.link(self)
+
+    c = Client(App())
+
+    response = c.get('/models/1')
+    assert response.body == b'http://localhost/models/1'
+
+
+def test_path_explicit_variables_app_arg():
+    class App(morepath.App):
+        pass
+
+    class Model(object):
+        def __init__(self, id):
+            self.store_id = id
+
+    def my_variables(app, m):
+        assert isinstance(app, App)
+        return {'id': m.store_id}
+
+    @App.path(model=Model, path='models/{id}', variables=my_variables)
+    def get_model(id):
+        return Model(id)
+
+    @App.view(model=Model)
+    def default(self, request):
+        return request.link(self)
+
+    c = Client(App())
+
+    response = c.get('/models/1')
+    assert response.body == b'http://localhost/models/1'
+
+
 def test_error_when_path_variable_is_none():
     class App(morepath.App):
         pass
