@@ -67,7 +67,7 @@ class App(dectate.App):
     def __init__(self):
         pass
 
-    @reify
+    @property
     def lookup(self):
         """Get the :class:`reg.Lookup` for this application.
 
@@ -78,7 +78,9 @@ class App(dectate.App):
         # ensure that each instance of App uses the same cache.
         if not self.is_committed():
             self.commit()
-        return self.config.reg_registry.caching_lookup
+        lookup = self.config.reg_registry.caching_lookup
+        lookup.app = self
+        return lookup
 
     def set_implicit(self):
         set_implicit(self.lookup)
@@ -263,9 +265,52 @@ class App(dectate.App):
 
         :param model: model class
         :param variables: dict with variables to use in the path
-        :return: a :class:`morepath.path.PathInfo` with path within this app.
+        :return: a :class:`morepath.path.PathInfo` with path within
+          this app, or ``None`` if path cannot be determined.
         """
         return generic.class_path(model, variables, lookup=self.lookup)
+
+    def _get_path_variables(self, obj):
+        """Get variables to use in path generation.
+
+        :param obj: model object or :class:`morepath.App` instance.
+        :return: a dict with the variables to use for constructing the path,
+          or ``None`` if no such dict can be found.
+        """
+        return generic.path_variables(obj, lookup=self.lookup)
+
+    def _get_default_path_variables(self, obj):
+        """Get default variables to use in path generation.
+
+        Invoked if no specific ``path_variables`` is registered.
+
+        :param obj: model object for ::class:`morepath.App` instance.
+        :return: a dict with the variables to use for constructing the path, or
+          ``None`` if no such dict can be found.
+        """
+        return generic.default_path_variables(obj, lookup=self.lookup)
+
+    def _get_deferred_link_app(self, obj):
+        """Get application used for link generation.
+
+        :param obj: model object to link to.
+        :return: instance of :class:`morepath.App` subclass that handles
+          link generation for this model, or ``None`` if no app exists
+          that can construct link.
+        """
+        return generic.deferred_link_app(self, obj, lookup=self.lookup)
+
+    def _get_deferred_class_link_app(self, model, variables):
+        """Get application used for link generation for a model class.
+
+        :param model: model class
+        :param variables: dict of variables used to construct class link
+        :return: instance of :class:`morepath.App` subclass that handles
+          link generation for this model class, or ``None`` if no app exists
+          that can construct link.
+        """
+        return generic.deferred_class_link_app(
+            self, model, variables, lookup=self.lookup)
 
     def _get_path(self, obj):
         """Path for a model obj.
@@ -277,7 +322,7 @@ class App(dectate.App):
         :return: a :class:`morepath.path.PathInfo` with path within this app.
         """
         return self._get_class_path(
-            obj.__class__, generic.path_variables(obj, lookup=self.lookup))
+            obj.__class__, self._get_path_variables(obj))
 
     def _get_mounted_path(self, obj):
         """Path for model obj including mounted path.
@@ -374,14 +419,14 @@ class App(dectate.App):
             if result is not None:
                 return result, app
             seen.add(app)
-            next_app = generic.deferred_link_app(app, obj, lookup=app.lookup)
+            next_app = app._get_deferred_link_app(obj)
             if next_app is None:
                 # only if we can establish the variables of the app here
                 # fall back on using class link app
-                variables = generic.path_variables(obj, lookup=app.lookup)
+                variables = self._get_path_variables(obj)
                 if variables is not None:
-                    next_app = generic.deferred_class_link_app(
-                        app, obj.__class__, variables, lookup=app.lookup)
+                    next_app = app._get_deferred_class_link_app(
+                        obj.__class__, variables)
             app = next_app
         return None, app
 
@@ -410,8 +455,7 @@ class App(dectate.App):
             if result is not None:
                 return result, app
             seen.add(app)
-            app = generic.deferred_class_link_app(app, model, variables,
-                                                  lookup=app.lookup)
+            app = app._get_deferred_class_link_app(model, variables)
         return None, app
 
     def remember_identity(self, response, request, identity):

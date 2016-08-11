@@ -32,7 +32,7 @@ def path_variables(obj, lookup):
     :return: a dict with the variables to use for constructing the path,
       or ``None`` if no such dict can be found.
     """
-    return default_path_variables(obj, lookup=lookup)
+    return lookup.app._get_default_path_variables(obj)
 
 
 @reg.dispatch('obj')
