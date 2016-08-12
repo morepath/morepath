@@ -7,7 +7,6 @@ Entirely documented in :class:`morepath.Request` and
 from webob import BaseRequest, Response as BaseResponse
 import reg
 
-from . import generic
 from .reify import reify
 from .traject import create_path, parse_path
 from .error import LinkError
@@ -140,8 +139,7 @@ class Request(BaseRequest):
         predicates['model'] = obj.__class__
 
         def find(app, obj):
-            return generic.view.component_key_dict(lookup=app.lookup,
-                                                   **predicates)
+            return app.get_view.component_key_dict(**predicates)
 
         view, app = app._follow_defers(find, obj)
         if view is None:

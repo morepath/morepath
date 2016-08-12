@@ -1,21 +1,20 @@
 import reg
-from functools import wraps
+from functools import wraps, partial
 from . import generic
+from .cachingreg import RegRegistry
+from .reify import reify
+
+
+def patch(obj):
+    def dec(func):
+        setattr(obj, func.__name__, func)
+        return func
+    return dec
 
 
 class delegate(object):
 
     name_map = dict(
-        _get_class_path='class_path',
-        _get_path_variables='path_variables',
-        _get_default_path_variables='default_path_variables',
-        _get_deferred_link_app='deferred_link_app',
-        _get_deferred_class_link_app='deferred_class_link_app',
-        do_verify_identity='verify_identity',
-        permits='permits',
-        do_load_json='load_json',
-        do_dump_json='dump_json',
-        _get_link_prefix='link_prefix',
         get_view='view',
     )
 
@@ -23,17 +22,44 @@ class delegate(object):
         self.make_generic = reg.dispatch(*predicates)
 
     def __call__(self, func):
-        generic_name = self.name_map[func.__name__]
+        generic_name = func.__name__
+        scope = RegRegistry
 
-        if not hasattr(generic, generic_name):
-            generic_func = self.make_generic(func)
-            setattr(generic, generic_name, generic_func)
-            generic_func.needs_signature_fix = True
+        if not hasattr(scope, generic_name):
+            delegate = self.make_generic(func)
+            delegate.needs_signature_fix = True
 
+            if generic_name in self.name_map:
+                setattr(generic, self.name_map[generic_name], delegate)
+
+            @reify
+            def setup(reg):
+                @patch(delegate)
+                def register(impl, **kw):
+                    reg.register_function(delegate, impl, **kw)
+
+                @patch(delegate)
+                def key_dict_to_predicate_key(key_dict):
+                    return reg.key_dict_to_predicate_key(
+                        delegate.wrapped_func,
+                        key_dict)
+
+                return delegate
+
+            setattr(scope, generic_name, setup)
+
+        @reify
         @wraps(func)
         def delegator(self, *args, **kw):
-            return getattr(generic, generic_name)(
-                self, lookup=self.lookup, *args, **kw)
+            actual = getattr(self.config.reg_registry, generic_name)
+            result = partial(actual, self, lookup=self.lookup)
+
+            @patch(result)
+            def component_key_dict(**predicates):
+                return actual.component_key_dict(
+                    lookup=self.lookup, **predicates)
+
+            return result
 
         return delegator
 

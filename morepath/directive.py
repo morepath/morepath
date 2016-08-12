@@ -43,7 +43,6 @@ from .template import TemplateEngineRegistry
 from .predicate import PredicateRegistry
 from .path import PathRegistry
 from .dispatch import fix_signature
-from . import generic
 from .settings import SettingRegistry
 
 
@@ -483,8 +482,8 @@ class PermissionRuleAction(dectate.Action):
         return (self.model, self.permission, self.identity)
 
     def perform(self, obj, reg_registry):
-        reg_registry.register_function(
-            generic.permits, fix_signature(obj),
+        reg_registry.permits.register(
+            fix_signature(obj),
             identity=self.identity,
             obj=self.model,
             permission=self.permission)
@@ -1121,8 +1120,7 @@ class VerifyIdentityAction(dectate.Action):
         return self.identity
 
     def perform(self, obj, reg_registry):
-        reg_registry.register_function(
-            generic.verify_identity,
+        reg_registry.do_verify_identity.register(
             fix_signature(obj), identity=self.identity)
 
 
@@ -1160,8 +1158,7 @@ class DumpJsonAction(dectate.Action):
         return self.model
 
     def perform(self, obj, reg_registry):
-        reg_registry.register_function(
-            generic.dump_json, fix_signature(obj), obj=self.model)
+        reg_registry.do_dump_json.register(fix_signature(obj), obj=self.model)
 
 
 @App.directive('load_json')
@@ -1183,7 +1180,7 @@ class LoadJsonAction(dectate.Action):
         return ()
 
     def perform(self, obj, reg_registry):
-        reg_registry.register_function(generic.load_json, fix_signature(obj))
+        reg_registry.do_load_json.register(fix_signature(obj))
 
 
 @App.directive('link_prefix')
@@ -1208,4 +1205,4 @@ class LinkPrefixAction(dectate.Action):
         return ()
 
     def perform(self, obj, reg_registry):
-        reg_registry.register_function(generic.link_prefix, fix_signature(obj))
+        reg_registry._get_link_prefix.register(fix_signature(obj))
