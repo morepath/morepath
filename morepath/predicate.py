@@ -12,6 +12,7 @@ See also :class:`morepath.directive.PredicateRegistry`
 
 from reg import Predicate, KeyExtractor
 from .cachingreg import RegRegistry
+from .dispatch import fix_signature
 from .toposort import toposorted, Info
 
 
@@ -58,6 +59,8 @@ class PredicateRegistry(object):
         :param func: the predicate function to register fallback for.
         :param fallback_func: the fallback function.
         """
+        if getattr(dispatch, 'needs_signature_fix', False):
+            fallback_func = fix_signature(fallback_func)
         self._predicate_fallbacks.setdefault(
             dispatch, {})[func] = fallback_func
 

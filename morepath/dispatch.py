@@ -16,17 +16,19 @@ class delegate(object):
         do_load_json='load_json',
         do_dump_json='dump_json',
         _get_link_prefix='link_prefix',
+        get_view='view',
     )
 
     def __init__(self, *predicates):
-        self.predicates = predicates
+        self.make_generic = reg.dispatch(*predicates)
 
     def __call__(self, func):
         generic_name = self.name_map[func.__name__]
 
         if not hasattr(generic, generic_name):
-            setattr(generic, generic_name,
-                    reg.dispatch(*self.predicates)(func))
+            generic_func = self.make_generic(func)
+            setattr(generic, generic_name, generic_func)
+            generic_func.needs_signature_fix = True
 
         @wraps(func)
         def delegator(self, *args, **kw):
@@ -34,6 +36,12 @@ class delegate(object):
                 self, lookup=self.lookup, *args, **kw)
 
         return delegator
+
+    @classmethod
+    def on_external_predicates(cls):
+        instance = cls()
+        instance.make_generic = reg.dispatch_external_predicates()
+        return instance
 
 
 def fix_signature(func):

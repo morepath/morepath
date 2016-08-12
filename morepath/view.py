@@ -44,7 +44,7 @@ class View(object):
         self.permission = permission
         self.internal = internal
 
-    def __call__(self, obj, request):
+    def __call__(self, app, obj, request):
         """Render a model instance.
 
         If view is internal it cannot be rendered.
@@ -57,6 +57,7 @@ class View(object):
         are run against the response once it is created, if that
         response is not an error.
 
+        :param app: the application instance
         :param obj: the model instance
         :param request: the request
         :return: A :class:`webob.response.Response` instance.

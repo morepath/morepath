@@ -17,11 +17,11 @@ Entirely documented in :class:`morepath.App` in the public API.
 
 import dectate
 
+from webob.exc import HTTPNotFound
 from .request import Request
 from . import compat
 from .implicit import set_implicit
 from .reify import reify
-from . import generic
 from .path import PathInfo
 from .error import LinkError
 from .dispatch import delegate, reg
@@ -545,6 +545,7 @@ class App(dectate.App):
         """
         return request.application_url
 
+    @delegate.on_external_predicates()
     def get_view(self, obj, request):
         """Get the view that represents the obj in the context of a request.
 
@@ -560,4 +561,4 @@ class App(dectate.App):
         :return: :class:`morepath.Response` object, or
           :class:`webob.exc.HTTPNotFound` if view cannot be found.
         """
-        return generic.view(obj, request, lookup=self.lookup)
+        return HTTPNotFound()

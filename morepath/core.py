@@ -185,7 +185,7 @@ def excview_tween_factory(app, handler):
             if not isinstance(exc, (HTTPOk, HTTPRedirection)):
                 request.clear_after()
 
-            return view(exc, request)
+            return view(app, exc, request)
         return response
     return excview_tween
 
