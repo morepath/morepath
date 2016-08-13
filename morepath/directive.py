@@ -146,7 +146,7 @@ class PredicateFallbackAction(dectate.Action):
         self.func = func
 
     def identifier(self, predicate_registry):
-        return self.dispatch.wrapped_func, self.func
+        return self.dispatch, self.func
 
     def perform(self, obj, predicate_registry):
         predicate_registry.register_predicate_fallback(
@@ -209,7 +209,7 @@ class PredicateAction(dectate.Action):
         self._after = after
 
     def identifier(self, predicate_registry):
-        return self.dispatch.wrapped_func, self._before, self._after
+        return self.dispatch, self._before, self._after
 
     def perform(self, obj, predicate_registry):
         if not self.dispatch.external_predicates:

@@ -38,3 +38,6 @@ class RegRegistry(Registry):
             COMPONENT_CACHE_SIZE,
             ALL_CACHE_SIZE,
             FALLBACK_CACHE_SIZE).lookup()
+
+    def __getitem__(self, delegator):
+        return getattr(self, delegator.__name__, None)

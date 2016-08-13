@@ -1,6 +1,5 @@
 import reg
 from functools import wraps, partial
-from . import generic
 from .cachingreg import RegRegistry
 from .reify import reify
 
@@ -14,10 +13,6 @@ def patch(obj):
 
 class delegate(object):
 
-    name_map = dict(
-        get_view='view',
-    )
-
     def __init__(self, *predicates):
         self.make_generic = reg.dispatch(*predicates)
 
@@ -28,9 +23,6 @@ class delegate(object):
         if not hasattr(scope, generic_name):
             delegate = self.make_generic(func)
             delegate.needs_signature_fix = True
-
-            if generic_name in self.name_map:
-                setattr(generic, self.name_map[generic_name], delegate)
 
             @reify
             def setup(reg):
@@ -43,6 +35,11 @@ class delegate(object):
                     return reg.key_dict_to_predicate_key(
                         delegate.wrapped_func,
                         key_dict)
+
+                @patch(delegate)
+                def register_external_predicates(predicates):
+                    reg.register_external_predicates(delegate, predicates)
+                    reg.register_dispatch(delegate)
 
                 return delegate
 
@@ -61,6 +58,10 @@ class delegate(object):
 
             return result
 
+        delegator.external_predicates = property(
+            lambda: delegate.external_predicates)
+        delegator.needs_signature_fix = True
+        delegator.__name__ = func.__name__
         return delegator
 
     @classmethod

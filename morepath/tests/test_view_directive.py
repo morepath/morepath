@@ -1,5 +1,4 @@
 import morepath
-from morepath import generic
 from dectate import ConflictError
 from webtest import TestApp as Client
 from reg import ClassIndex, KeyIndex
@@ -56,7 +55,7 @@ def test_view_custom_predicate_conflict_involving_default_extends():
     class App(Core):
         pass
 
-    @Core.predicate(generic.view, name='extra', default='DEFAULT',
+    @Core.predicate(Core.get_view, name='extra', default='DEFAULT',
                     index=ClassIndex,
                     after=request_method_predicate)
     def dummy_predicate(request):
@@ -86,7 +85,7 @@ def test_view_custom_predicate_without_fallback():
     class App(Core):
         pass
 
-    @Core.predicate(generic.view, name='extra', default='DEFAULT',
+    @Core.predicate(Core.get_view, name='extra', default='DEFAULT',
                     index=KeyIndex,
                     after=request_method_predicate)
     def dummy_predicate(request):

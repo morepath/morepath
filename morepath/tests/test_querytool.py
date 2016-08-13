@@ -41,9 +41,11 @@ def test_setting():
     assert objects(dectate.query_app(App, 'setting_section')) == [f, g]
 
 
+class App(morepath.App):
+    pass
+
+
 def test_predicate_fallback():
-    class App(morepath.App):
-        pass
 
     dectate.commit(App)
 
@@ -56,7 +58,7 @@ def test_predicate_fallback():
     ]
 
     r = objects(dectate.query_app(App, 'predicate_fallback',
-                                  dispatch='morepath.generic.view'))
+                                  dispatch=__name__ + '.App.get_view'))
     assert r == [
         core.model_not_found,
         core.name_not_found,
@@ -78,8 +80,6 @@ def test_predicate_fallback():
 
 
 def test_predicate():
-    class App(morepath.App):
-        pass
 
     dectate.commit(App)
 
@@ -92,7 +92,7 @@ def test_predicate():
     ]
 
     r = objects(dectate.query_app(App, 'predicate',
-                                  dispatch='morepath.generic.view'))
+                                  dispatch=__name__ + '.App.get_view'))
     assert r == [
         core.model_predicate,
         core.name_predicate,
