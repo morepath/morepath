@@ -39,21 +39,18 @@ class delegate(object):
 
             setattr(reg, func.__name__, delegate)
 
-        @reify
         @wraps(func)
+        @reify
         def delegator(app):
             actual = getattr(app.config.reg_registry, func.__name__)
-            result = partial(actual, app, lookup=app.lookup)
-
-            @patch(result)
-            def component_key_dict(**predicates):
-                return actual.component_key_dict(
-                    lookup=app.lookup, **predicates)
+            lookup = app.config.reg_registry.caching_lookup
+            result = partial(actual, app, lookup=lookup)
+            result.component_key_dict = partial(
+                actual.component_key_dict, lookup=lookup)
 
             return result
 
         delegator.external_predicates = delegate.external_predicates
-        delegator.__name__ = func.__name__
         delegator.install_delegate = install
         return delegator
 

@@ -104,19 +104,6 @@ class App(with_metaclass(AppMeta, dectate.App)):
     def __init__(self):
         pass
 
-    @property
-    def lookup(self):
-        """Get the :class:`reg.Lookup` for this application.
-
-        :return: a :class:`reg.Lookup` instance.
-        """
-        # this in turn uses a cached lookup from the reg_registry
-        # the caching happens on the reg_registry and not here to
-        # ensure that each instance of App uses the same cache.
-        lookup = self.config.reg_registry.caching_lookup
-        lookup.app = self
-        return lookup
-
     def request(self, environ):
         """Create a :class:`Request` given WSGI environment for this app.
 
