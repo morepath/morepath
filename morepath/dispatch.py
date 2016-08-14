@@ -17,7 +17,6 @@ class delegate(object):
 
     def __call__(self, func):
         delegate = self.make_generic(func)
-        delegate.needs_signature_fix = True
 
         def install(reg):
             # It is currently assumed that reg is an instance of
@@ -53,9 +52,7 @@ class delegate(object):
 
             return result
 
-        delegator.external_predicates = property(
-            lambda: delegate.external_predicates)
-        delegator.needs_signature_fix = True
+        delegator.external_predicates = delegate.external_predicates
         delegator.__name__ = func.__name__
         delegator.install_delegate = install
         return delegator

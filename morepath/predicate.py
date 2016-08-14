@@ -59,10 +59,8 @@ class PredicateRegistry(object):
         :param func: the predicate function to register fallback for.
         :param fallback_func: the fallback function.
         """
-        if getattr(dispatch, 'needs_signature_fix', False):
-            fallback_func = fix_signature(fallback_func)
         self._predicate_fallbacks.setdefault(
-            dispatch, {})[func] = fallback_func
+            dispatch, {})[func] = fix_signature(fallback_func)
 
     def install_predicates(self):
         """Install the predicates with reg.
@@ -75,15 +73,9 @@ class PredicateRegistry(object):
 
         for dispatch in self._predicate_infos.keys():
             actual = self._reg_registry[dispatch]
-            if actual is None:
-                if dispatch.external_predicates:
-                    self._reg_registry.register_external_predicates(
-                        dispatch, self.get_predicates(dispatch))
-                    self._reg_registry.register_dispatch(dispatch)
-            else:
-                if actual.external_predicates:
-                    actual.register_external_predicates(
-                        self.get_predicates(dispatch))
+            if actual.external_predicates:
+                actual.register_external_predicates(
+                    self.get_predicates(dispatch))
 
     def get_predicates(self, dispatch):
         """Create Reg predicates.

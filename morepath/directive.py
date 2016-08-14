@@ -264,6 +264,10 @@ class FunctionAction(dectate.Action):
            register for.  Argument names are predicate names, values
            are the predicate values to match on.
         '''
+        if not hasattr(func, 'install_delegate'):
+            raise dectate.DirectiveError(
+                "@function decorator may only be used with functions "
+                "decorated by @delegate: %s" % func)
         self.func = func
         self.key_dict = kw
 
@@ -272,19 +276,19 @@ class FunctionAction(dectate.Action):
         # dispatch_external_predicates functions that have been used,
         # or we should only allow their registration through a special
         # Morepath directive so that we can.
-        if self.func.external_predicates:
+        actual = reg_registry[self.func]
+        if actual.external_predicates:
             if not predicate_registry.get_predicates(self.func):
-                reg_registry.register_external_predicates(self.func, [])
-        reg_registry.register_dispatch(self.func)
-        return reg_registry.key_dict_to_predicate_key(
-            self.func.wrapped_func, self.key_dict)
+                actual.register_external_predicates([])
+        reg_registry.register_dispatch(actual)
+        return actual.key_dict_to_predicate_key(self.key_dict)
 
     def identifier(self, reg_registry, predicate_registry):
-        return (self.func.wrapped_func, self.predicate_key(
+        return (self.func, self.predicate_key(
             reg_registry, predicate_registry))
 
     def perform(self, obj, reg_registry, predicate_registry):
-        reg_registry.register_function(self.func, obj, **self.key_dict)
+        reg_registry[self.func].register(fix_signature(obj), **self.key_dict)
 
 
 @App.directive('converter')

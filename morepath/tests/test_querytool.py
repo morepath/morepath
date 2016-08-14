@@ -5,6 +5,7 @@ import morepath
 from morepath import core
 from morepath import compat
 from .fixtures import identity_policy
+from ..dispatch import delegate
 
 
 def objects(actions):
@@ -129,25 +130,22 @@ def test_predicate():
     ]
 
 
-# has to be here so it's importable
-@reg.dispatch_external_predicates()
-def generic(v):
-    pass
-
-
 def test_function():
     class App(morepath.App):
-        pass
 
-    @App.predicate(generic, name='v', default='', index=reg.KeyIndex)
+        @delegate.on_external_predicates()
+        def generic(self, v):
+            pass
+
+    @App.predicate(App.generic, name='v', default='', index=reg.KeyIndex)
     def get(v):
         return v
 
-    @App.function(generic, v='A')
+    @App.function(App.generic, v='A')
     def a(v):
         return v
 
-    @App.function(generic, v='B')
+    @App.function(App.generic, v='B')
     def b(v):
         return v
 
@@ -155,15 +153,15 @@ def test_function():
 
     app = App()
 
-    assert generic('A', lookup=app.lookup) == 'A'
-    assert generic('B', lookup=app.lookup) == 'B'
+    assert app.generic('A') == 'A'
+    assert app.generic('B') == 'B'
 
     r = objects(dectate.query_app(App, 'function'))
     assert r == [a, b]
 
-    r = objects(
-        dectate.query_app(App, 'function',
-                          func='morepath.tests.test_querytool.generic'))
+    # r = objects(
+    #     dectate.query_app(App, 'function',
+    #                       func='morepath.tests.test_querytool.generic'))
     assert r == [a, b]
 
     r = objects(dectate.query_app(App, 'function', v='A'))
