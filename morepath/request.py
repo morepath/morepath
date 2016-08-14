@@ -41,8 +41,6 @@ class Request(BaseRequest):
         """:class:`morepath.App` instance currently handling request.
         """
 
-        self.lookup = app.lookup
-        """The :class:`reg.Lookup` object handling generic function calls."""
         self._after = []
         self._link_prefix_cache = {}
 
@@ -58,7 +56,6 @@ class Request(BaseRequest):
         segments.reverse()
         self.unconsumed = segments
         self.app = self._root_app
-        self.lookup = self.app.lookup
         self._after = []
 
     @reify
@@ -145,12 +142,9 @@ class Request(BaseRequest):
             return default
 
         old_app = self.app
-        old_lookup = self.lookup
         self.app = app
-        self.lookup = app.lookup
         result = view.func(obj, self)
         self.app = old_app
-        self.lookup = old_lookup
         return result
 
     def link(self, obj, name='', default=None, app=SAME_APP):

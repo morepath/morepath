@@ -113,8 +113,6 @@ class App(with_metaclass(AppMeta, dectate.App)):
         # this in turn uses a cached lookup from the reg_registry
         # the caching happens on the reg_registry and not here to
         # ensure that each instance of App uses the same cache.
-        if not self.is_committed():
-            self.commit()
         lookup = self.config.reg_registry.caching_lookup
         lookup.app = self
         return lookup
@@ -125,6 +123,8 @@ class App(with_metaclass(AppMeta, dectate.App)):
         :param environ: WSGI environment
         :return: :class:`morepath.Request` instance
         """
+        if not self.is_committed():
+            self.commit()
         return self.request_class(environ, self)
 
     def __call__(self, environ, start_response):

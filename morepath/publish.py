@@ -50,10 +50,6 @@ def resolve_model(request):
     mounted applications as indicated by the
     :meth:`morepath.App.mount` directive.
 
-    The implicit Reg lookup used to look up generic dispatch functions
-    is set to the app and is updated to the mounted application when
-    traversing into it.
-
     :param: :class:`morepath.Request` instance.
     :return: model object or ``None`` if not found.
     """
@@ -69,7 +65,6 @@ def resolve_model(request):
         # we found an app, make it the current app
         next.parent = app
         request.app = next
-        request.lookup = next.lookup
         app = next
     # if there is nothing (left), we consume toward a root obj
     if not request.unconsumed:

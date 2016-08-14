@@ -35,7 +35,6 @@ def test_request_reset():
                     request.reset()
                 response = render_json(
                     {'app': repr(type(request.app)),
-                     'lookup': id(request.lookup),
                      'unconsumed': request.unconsumed},
                     request)
                 response.status_code = 500
@@ -68,12 +67,10 @@ def test_request_reset():
     response = c.get('/mount/catalog/text', status=500)
     assert response.json == {
         'app': repr(MountedApp),
-        'unconsumed': ['text'],
-        'lookup': id(MountedApp.config.reg_registry.caching_lookup)}
+        'unconsumed': ['text']}
 
     reset_request = True
     response = c.get('/mount/catalog/text', status=500)
     assert response.json == {
         'app': repr(RootApp),
-        'unconsumed': ['text', 'catalog', 'mount'],
-        'lookup': id(RootApp.config.reg_registry.caching_lookup)}
+        'unconsumed': ['text', 'catalog', 'mount']}
