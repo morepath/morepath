@@ -1,6 +1,5 @@
 from morepath import App, render_json
 from webtest import TestApp as Client
-import reg
 
 
 def test_request_reset():
@@ -37,7 +36,6 @@ def test_request_reset():
                 response = render_json(
                     {'app': repr(type(request.app)),
                      'lookup': id(request.lookup),
-                     'implicit': id(reg.implicit.lookup),
                      'unconsumed': request.unconsumed},
                     request)
                 response.status_code = 500
@@ -71,7 +69,6 @@ def test_request_reset():
     assert response.json == {
         'app': repr(MountedApp),
         'unconsumed': ['text'],
-        'implicit': id(MountedApp.config.reg_registry.caching_lookup),
         'lookup': id(MountedApp.config.reg_registry.caching_lookup)}
 
     reset_request = True
@@ -79,5 +76,4 @@ def test_request_reset():
     assert response.json == {
         'app': repr(RootApp),
         'unconsumed': ['text', 'catalog', 'mount'],
-        'implicit': id(RootApp.config.reg_registry.caching_lookup),
         'lookup': id(RootApp.config.reg_registry.caching_lookup)}

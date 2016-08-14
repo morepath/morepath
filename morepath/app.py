@@ -20,7 +20,6 @@ import dectate
 from webob.exc import HTTPNotFound
 from .request import Request
 from . import compat
-from .implicit import set_implicit
 from .reify import reify
 from .path import PathInfo
 from .error import LinkError
@@ -119,9 +118,6 @@ class App(with_metaclass(AppMeta, dectate.App)):
         lookup = self.config.reg_registry.caching_lookup
         lookup.app = self
         return lookup
-
-    def set_implicit(self):
-        set_implicit(self.lookup)
 
     def request(self, environ):
         """Create a :class:`Request` given WSGI environment for this app.

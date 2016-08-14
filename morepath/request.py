@@ -59,7 +59,6 @@ class Request(BaseRequest):
         self.unconsumed = segments
         self.app = self._root_app
         self.lookup = self.app.lookup
-        self.app.set_implicit()
         self._after = []
 
     @reify
@@ -147,11 +146,9 @@ class Request(BaseRequest):
 
         old_app = self.app
         old_lookup = self.lookup
-        app.set_implicit()
         self.app = app
         self.lookup = app.lookup
         result = view.func(obj, self)
-        old_app.set_implicit()
         self.app = old_app
         self.lookup = old_lookup
         return result
