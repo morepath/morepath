@@ -1,6 +1,5 @@
 import reg
 from functools import wraps, partial
-from .cachingreg import RegRegistry
 from .reify import reify
 
 
@@ -17,44 +16,40 @@ class delegate(object):
         self.make_generic = reg.dispatch(*predicates)
 
     def __call__(self, func):
-        generic_name = func.__name__
-        scope = RegRegistry
+        delegate = self.make_generic(func)
+        delegate.needs_signature_fix = True
 
-        if not hasattr(scope, generic_name):
-            delegate = self.make_generic(func)
-            delegate.needs_signature_fix = True
+        def install(reg):
+            # It is currently assumed that reg is an instance of
+            # RegRegistry.
 
-            @reify
-            def setup(reg):
-                @patch(delegate)
-                def register(impl, **kw):
-                    reg.register_function(delegate, impl, **kw)
+            @patch(delegate)
+            def register(impl, **kw):
+                reg.register_function(delegate, impl, **kw)
 
-                @patch(delegate)
-                def key_dict_to_predicate_key(key_dict):
-                    return reg.key_dict_to_predicate_key(
-                        delegate.wrapped_func,
-                        key_dict)
+            @patch(delegate)
+            def key_dict_to_predicate_key(key_dict):
+                return reg.key_dict_to_predicate_key(
+                    delegate.wrapped_func,
+                    key_dict)
 
-                @patch(delegate)
-                def register_external_predicates(predicates):
-                    reg.register_external_predicates(delegate, predicates)
-                    reg.register_dispatch(delegate)
+            @patch(delegate)
+            def register_external_predicates(predicates):
+                reg.register_external_predicates(delegate, predicates)
+                reg.register_dispatch(delegate)
 
-                return delegate
-
-            setattr(scope, generic_name, setup)
+            setattr(reg, func.__name__, delegate)
 
         @reify
         @wraps(func)
-        def delegator(self, *args, **kw):
-            actual = getattr(self.config.reg_registry, generic_name)
-            result = partial(actual, self, lookup=self.lookup)
+        def delegator(app):
+            actual = getattr(app.config.reg_registry, func.__name__)
+            result = partial(actual, app, lookup=app.lookup)
 
             @patch(result)
             def component_key_dict(**predicates):
                 return actual.component_key_dict(
-                    lookup=self.lookup, **predicates)
+                    lookup=app.lookup, **predicates)
 
             return result
 
@@ -62,6 +57,7 @@ class delegate(object):
             lambda: delegate.external_predicates)
         delegator.needs_signature_fix = True
         delegator.__name__ = func.__name__
+        delegator.install_delegate = install
         return delegator
 
     @classmethod

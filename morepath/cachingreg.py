@@ -24,6 +24,16 @@ class RegRegistry(Registry):
     We cache the lookup using a :class:`reg.CachingKeyLookup` so that
     generic function lookups are faster.
     """
+
+    factory_arguments = {'installers': list}
+    # The installers pseudo-registry is a list with functions that
+    # install the implementation of delegated functions on a class.
+
+    def __init__(self, installers):
+        super(RegRegistry, self).__init__()
+        for func in installers:
+            func(self)
+
     @reify
     def caching_lookup(self):
         """Cached :class:`reg.Lookup`
