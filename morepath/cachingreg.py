@@ -1,53 +1,17 @@
-"""
-We define a Reg registry that is used for generic function
-configuration that provides a special lookup that caches.
 
-See also :class:`morepath.directive.RegRegistry`.
-"""
+class RegRegistry(object):
+    """A registry to group together the implementation of delegated
+    methods of one application.
 
-from reg import CachingKeyLookup, Registry
-
-from .reify import reify
-
-COMPONENT_CACHE_SIZE = 5000
-ALL_CACHE_SIZE = 5000
-FALLBACK_CACHE_SIZE = 5000
-
-
-class RegRegistry(Registry):
-    """A :class:`reg.Registry` with a cached lookup.
-
-    Morepath uses Reg to implement generic function lookups which
-    are used for various aspects of configuration, in particular
-    view lookup.
-
-    We cache the lookup using a :class:`reg.CachingKeyLookup` so that
-    generic function lookups are faster.
     """
 
     factory_arguments = {'installers': list}
     # The installers pseudo-registry is a list with functions that
-    # install the implementation of delegated functions on a class.
+    # install the implementation of delegated functions on an object.
 
     def __init__(self, installers):
-        super(RegRegistry, self).__init__()
         for func in installers:
             func(self)
-
-    @reify
-    def caching_lookup(self):
-        """Cached :class:`reg.Lookup`
-
-        Property is reified with :func:`morepath.reify.reify` so cache
-        is shared between :class:`morepath.App` instances that use
-        this registry.
-
-        """
-        return CachingKeyLookup(
-            self,
-            COMPONENT_CACHE_SIZE,
-            ALL_CACHE_SIZE,
-            FALLBACK_CACHE_SIZE).lookup()
 
     def __getitem__(self, delegator):
         return getattr(self, delegator.__name__)

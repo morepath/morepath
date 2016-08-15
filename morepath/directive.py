@@ -280,7 +280,7 @@ class FunctionAction(dectate.Action):
         if actual.external_predicates:
             if not predicate_registry.get_predicates(self.func):
                 actual.register_external_predicates([])
-        reg_registry.register_dispatch(actual)
+#        reg_registry.register_dispatch(actual)
         return actual.key_dict_to_predicate_key(self.key_dict)
 
     def identifier(self, reg_registry, predicate_registry):
