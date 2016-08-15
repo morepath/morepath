@@ -1,13 +1,12 @@
 from reg import ClassIndex, KeyIndex
 import morepath
 from morepath.error import ConfigError
-from morepath.dispatch import delegate
 import pytest
 
 
 def test_dispatch():
     class App(morepath.App):
-        @delegate('obj')
+        @morepath.delegate('obj')
         def f(self, obj):
             return "fallback"
 
@@ -40,7 +39,7 @@ def test_dispatch():
 def test_dispatch_external_predicates():
     class App(morepath.App):
 
-        @delegate.on_external_predicates()
+        @morepath.delegate.on_external_predicates()
         def f(self, obj):
             return "fallback"
 
@@ -75,7 +74,7 @@ def test_dispatch_external_predicates():
 
 def test_dispatch_external_predicates_predicate_fallback():
     class App(morepath.App):
-        @delegate.on_external_predicates()
+        @morepath.delegate.on_external_predicates()
         def f(self, obj):
             return "dispatch function"
 
@@ -114,7 +113,7 @@ def test_dispatch_external_predicates_predicate_fallback():
 
 def test_dispatch_external_predicates_ordering_after():
     class App(morepath.App):
-        @delegate.on_external_predicates()
+        @morepath.delegate.on_external_predicates()
         def f(self, obj, name):
             return "fallback"
 
@@ -166,7 +165,7 @@ def test_dispatch_external_predicates_ordering_after():
 
 def test_dispatch_external_predicates_ordering_before():
     class App(morepath.App):
-        @delegate.on_external_predicates()
+        @morepath.delegate.on_external_predicates()
         def f(self, obj, name):
             return "fallback"
 
@@ -218,7 +217,7 @@ def test_dispatch_external_predicates_ordering_before():
 
 def test_dispatch_external_override_fallback():
     class App(morepath.App):
-        @delegate.on_external_predicates()
+        @morepath.delegate.on_external_predicates()
         def f(self, obj):
             return "dispatch function"
 
@@ -276,7 +275,7 @@ def test_dispatch_external_override_fallback():
 
 def test_dispatch_external_override_predicate():
     class App(morepath.App):
-        @delegate.on_external_predicates()
+        @morepath.delegate.on_external_predicates()
         def f(self, obj):
             return "dispatch function"
 
@@ -338,7 +337,7 @@ def test_dispatch_external_override_predicate():
 def test_wrong_predicate_arguments_single():
     class App(morepath.App):
 
-        @delegate('obj')
+        @morepath.delegate('obj')
         def f(self, obj):
             return "fallback"
 
@@ -359,7 +358,7 @@ def test_wrong_predicate_arguments_single():
 def test_wrong_predicate_arguments_multi():
     class App(morepath.App):
 
-        @delegate('a', 'b')
+        @morepath.delegate('a', 'b')
         def f(self, a, b):
             return "fallback"
 
@@ -380,7 +379,7 @@ def test_wrong_predicate_arguments_multi():
 def test_predicate_not_for_dispatch_external_predicates():
     class App(morepath.App):
 
-        @delegate('a')
+        @morepath.delegate('a')
         def f(self, a):
             pass
 
@@ -394,7 +393,7 @@ def test_predicate_not_for_dispatch_external_predicates():
 
 def test_dispatch_external_predicates_without_predicate_directives():
     class App(morepath.App):
-        @delegate.on_external_predicates()
+        @morepath.delegate.on_external_predicates()
         def f(self, obj):
             return "fallback"
 

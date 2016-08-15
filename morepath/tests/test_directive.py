@@ -2,7 +2,6 @@ import dectate
 from .fixtures import (basic, nested, abbr, mapply_bug,
                        method, conflict, noconverter)
 from dectate import ConflictError, DirectiveError, DirectiveReportError
-from morepath.dispatch import delegate
 from morepath.error import LinkError
 from morepath.view import render_html
 from morepath.converter import Converter
@@ -792,7 +791,7 @@ def test_view_conflict_with_html():
 def test_function_conflict():
     class app(morepath.App):
 
-        @delegate('a')
+        @morepath.delegate('a')
         def func(self, a):
             pass
 
@@ -813,12 +812,12 @@ def test_function_conflict():
 
 def test_function_no_conflict_different_apps():
     class app_a(morepath.App):
-        @delegate('a')
+        @morepath.delegate('a')
         def func(self, a):
             pass
 
     class app_b(morepath.App):
-        @delegate('a')
+        @morepath.delegate('a')
         def func(self, a):
             pass
 
@@ -1002,7 +1001,7 @@ def test_abbr_nested():
 def test_function_directive():
     class app(morepath.App):
 
-        @delegate('o')
+        @morepath.delegate('o')
         def mygeneric(self, o):
             return "The object: %s" % o
 
@@ -1027,7 +1026,7 @@ def test_function_directive():
 
 def test_classgeneric_function_directive():
     class app(morepath.App):
-        @delegate(reg.match_class('o'))
+        @morepath.delegate(reg.match_class('o'))
         def mygeneric(self, o):
             return "The object"
 

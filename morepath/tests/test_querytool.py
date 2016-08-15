@@ -5,7 +5,6 @@ import morepath
 from morepath import core
 from morepath import compat
 from .fixtures import identity_policy
-from ..dispatch import delegate
 
 
 def objects(actions):
@@ -133,7 +132,7 @@ def test_predicate():
 def test_function():
     class App(morepath.App):
 
-        @delegate.on_external_predicates()
+        @morepath.delegate.on_external_predicates()
         def generic(self, v):
             pass
 

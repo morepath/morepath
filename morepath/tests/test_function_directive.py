@@ -1,16 +1,15 @@
 import morepath
 from webtest import TestApp as Client
-from morepath.dispatch import delegate
 
 
 def test_function_scope():
     class app(morepath.App):
 
-        @delegate()
+        @morepath.delegate()
         def one(self):
             return "Default one"
 
-        @delegate()
+        @morepath.delegate()
         def two(self):
             return "Default two"
 
@@ -40,11 +39,11 @@ def test_function_scope():
 def test_function_scope_on_mounted_apps():
     class alpha(morepath.App):
 
-        @delegate()
+        @morepath.delegate()
         def one(self):
             return "Default one"
 
-        @delegate()
+        @morepath.delegate()
         def two(self):
             return "Default two"
 
