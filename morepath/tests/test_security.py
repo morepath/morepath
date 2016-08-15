@@ -356,6 +356,31 @@ def test_verify_identity_directive_app_arg():
     assert App()._verify_identity(identity)
 
 
+def test_verify_identity_directive_identity_argument():
+    class app(morepath.App):
+        pass
+
+    class PlainIdentity(morepath.Identity):
+        pass
+
+    @app.verify_identity(identity=object)
+    def verify_identity(identity):
+        return False
+
+    @app.verify_identity(identity=PlainIdentity)
+    def verify_plain_identity(identity):
+        return identity.password == 'right'
+
+    app.commit()
+
+    identity = PlainIdentity('foo', password='wrong')
+    assert not app()._verify_identity(identity)
+    identity = morepath.Identity('foo', password='right')
+    assert not app()._verify_identity(identity)
+    identity = PlainIdentity('foo', password='right')
+    assert app()._verify_identity(identity)
+
+
 def test_false_verify_identity():
     class app(morepath.App):
         pass

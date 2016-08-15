@@ -1120,7 +1120,7 @@ class VerifyIdentityAction(dectate.Action):
         self.identity = identity
 
     def identifier(self, app_class):
-        return ()
+        return self.identity
 
     def perform(self, obj, app_class):
         app_class._verify_identity.register_auto(obj, identity=self.identity)
