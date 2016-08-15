@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import pytest
 import morepath
 from morepath.request import Response
 from morepath.authentication import Identity, NO_IDENTITY
