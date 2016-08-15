@@ -142,7 +142,6 @@ def test_permission_directive_identity_app_arg():
     response = c.get('/bar', status=403)
 
 
-
 def test_permission_directive_with_app_arg():
     class App(morepath.App):
         pass
