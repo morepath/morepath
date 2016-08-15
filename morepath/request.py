@@ -142,7 +142,7 @@ class Request(BaseRequest):
         self.app = app
         # need to use value as view is registered as a function, not
         # as a wrapped method
-        result = view.value.func(obj, self)
+        result = view.func(obj, self)
         self.app = old_app
         return result
 

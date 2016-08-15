@@ -42,7 +42,7 @@ class View(object):
         self.permission = permission
         self.internal = internal
 
-    def __call__(self, obj, request):
+    def __call__(self, app, obj, request):
         """Render a model instance.
 
         If view is internal it cannot be rendered.
@@ -142,7 +142,7 @@ class ViewRegistry(object):
             render = self.template_engine_registry.get_template_render(
                 template, render)
         v = View(view, render, permission, internal)
-        self.app_class._view.register_function(v, **key_dict)
+        self.app_class._view.register(v, **key_dict)
 
 
 def render_json(content, request):
