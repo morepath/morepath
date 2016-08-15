@@ -89,7 +89,6 @@ def test_permission_directive_identity():
     response = c.get('/bar', status=403)
 
 
-@pytest.mark.xfail
 def test_permission_directive_identity_app_arg():
     class App(morepath.App):
         pass
