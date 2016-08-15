@@ -279,8 +279,7 @@ class App(dectate.App):
         return False
 
     @reg.dispatch_method('identity', 'obj',
-                         reg.match_class('permission',
-                                         lambda permission: permission),
+                         reg.match_class('permission'),
                          get_key_lookup=cached_key_lookup)
     def _permits(self, identity, obj, permission):
         """Returns ``True`` if identity has permission for model object.
@@ -329,7 +328,7 @@ class App(dectate.App):
         """
         return request.application_url
 
-    @reg.dispatch_method(reg.match_class('model', lambda model: model),
+    @reg.dispatch_method(reg.match_class('model'),
                          get_key_lookup=cached_key_lookup)
     def _class_path(self, model, variables):
         """Get the path for a model class.
@@ -375,7 +374,7 @@ class App(dectate.App):
         """
         return None
 
-    @reg.dispatch_method(reg.match_class('model', lambda model: model),
+    @reg.dispatch_method(reg.match_class('model'),
                          get_key_lookup=cached_key_lookup)
     def _deferred_class_link_app(self, model, variables):
         """Get application used for link generation for a model class.
