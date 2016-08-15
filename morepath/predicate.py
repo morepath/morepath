@@ -11,8 +11,7 @@ See also :class:`morepath.directive.PredicateRegistry`
 """
 
 from reg import Predicate, KeyExtractor
-from .cachingreg import RegRegistry
-from .dispatch import fix_signature
+from .dispatch import fix_signature, RegRegistry
 from .toposort import toposorted, Info
 
 

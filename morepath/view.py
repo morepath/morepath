@@ -17,7 +17,7 @@ from webob.exc import HTTPFound, HTTPNotFound, HTTPForbidden
 from webob import Response as BaseResponse
 
 from .request import Response
-from .cachingreg import RegRegistry
+from .dispatch import RegRegistry
 from .template import TemplateEngineRegistry
 
 

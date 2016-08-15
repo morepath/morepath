@@ -33,7 +33,6 @@ import os
 import dectate
 
 from .app import App
-from .cachingreg import RegRegistry
 from .authentication import Identity, NoIdentity, IdentityPolicyRegistry
 from .view import render_view, render_json, render_html, ViewRegistry
 from .traject import Path
@@ -42,7 +41,7 @@ from .tween import TweenRegistry
 from .template import TemplateEngineRegistry
 from .predicate import PredicateRegistry
 from .path import PathRegistry
-from .dispatch import fix_signature
+from .dispatch import fix_signature, RegRegistry
 from .settings import SettingRegistry
 
 

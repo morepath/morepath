@@ -72,7 +72,7 @@ def test_predicate_fallback():
     # there aren't any predicates for class_path
     r = objects(dectate.query_app(
         App, 'predicate_fallback',
-        dispatch='morepath.cachingreg.RegRegistry._get_class_path'))
+        dispatch='morepath.dispatch.RegRegistry._get_class_path'))
     assert r == []
 
     r = objects(dectate.query_app(App, 'predicate_fallback',
@@ -107,7 +107,7 @@ def test_predicate():
     # there aren't any predicates for class_path
     r = objects(dectate.query_app(
         App, 'predicate',
-        dispatch='morepath.cachingreg.RegRegistry._get_class_path'))
+        dispatch='morepath.dispatch.RegRegistry._get_class_path'))
     assert r == []
 
     r = objects(dectate.query_app(App, 'predicate',

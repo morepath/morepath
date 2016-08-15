@@ -15,11 +15,10 @@ except ImportError:
     from urllib.parse import urlencode, quote
 
 
-from .cachingreg import RegRegistry
 from .traject import Path as TrajectPath, TrajectRegistry
 from .converter import ParameterFactory, ConverterRegistry, IDENTITY_CONVERTER
 from .error import LinkError
-from .dispatch import fix_signature
+from .dispatch import fix_signature, RegRegistry
 
 
 SPECIAL_ARGUMENTS = ['request', 'app']
