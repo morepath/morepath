@@ -4,6 +4,12 @@ from .reify import reify
 
 
 class delegate(object):
+    """Decorate a :class:`morepath.App` method that delegates its
+    implementation to functions decorated by some app directive.
+
+    The optional predicates specify that the method does multiple
+    dispatching, on what arguments, and how.
+    """
 
     def __init__(self, *predicates):
         self.make_generic = reg.dispatch(*predicates)
@@ -28,6 +34,8 @@ class delegate(object):
 
     @classmethod
     def on_external_predicates(cls):
+        """Specify that the method is to be implemented by a generic function
+        with external predicates."""
         instance = cls()
         instance.make_generic = reg.dispatch_external_predicates()
         instance.external_predicates = True
@@ -40,13 +48,13 @@ class RegRegistry(object):
 
     """
 
-    factory_arguments = {'installers': list}
-    # The installers pseudo-registry is a list with functions that
-    # install the implementation of delegated functions on an object.
+    app_class_arg = True
 
-    def __init__(self, installers):
-        for func in installers:
-            func(self)
+    def __init__(self, app_class):
+        for name in dir(app_class):
+            func = getattr(getattr(app_class, name), 'install_delegate', None)
+            if func is not None:
+                func(self)
 
     def __getitem__(self, delegator):
         return getattr(self, delegator.__name__)

@@ -24,46 +24,9 @@ from .reify import reify
 from .path import PathInfo
 from .error import LinkError
 from .dispatch import delegate, reg
-from .compat import with_metaclass
 
 
-class Config(object):
-    # Dectate does not easily allow back references to the app class
-    # to be passed to the factories used to create the registries.  So
-    # here we create a pseudo-registry for the functions that install
-    # the implementation of delegate functions on a separate registry.
-    # The content of this pseudo-registry is not determined by the
-    # commit process but is computed by inspecting the app class.
-
-    def __init__(self, app_class):
-        self.app_class = app_class
-
-    @property
-    def installers(self):
-        return self._installers
-
-    @installers.setter
-    def installers(self, value):
-        self._installers = value
-        installers = filter(None, (
-            getattr(getattr(self.app_class, n), 'install_delegate', None)
-            for n in dir(self.app_class)))
-        self._installers.extend(installers)
-
-    @installers.deleter
-    def installers(self):
-        del self._installers
-
-
-class AppMeta(type(dectate.App)):
-    # This metaclass is necessary to make Dectate use our custom Config class
-    def __new__(cls, name, bases, d):
-        result = super(AppMeta, cls).__new__(cls, name, bases, d)
-        result.dectate.config = result.config = Config(result)
-        return result
-
-
-class App(with_metaclass(AppMeta, dectate.App)):
+class App(dectate.App):
     """A Morepath-based application object.
 
     You subclass App to create a morepath application class. You can
