@@ -73,8 +73,6 @@ class App(dectate.App):
         :param environ: WSGI environment
         :return: :class:`morepath.Request` instance
         """
-        if not self.is_committed():
-            self.commit()
         return self.request_class(environ, self)
 
     def __call__(self, environ, start_response):
@@ -114,6 +112,8 @@ class App(dectate.App):
           and returns a :class:`morepath.Response` instance.
 
         """
+        if not self.is_committed():
+            self.commit()
         return self.config.tween_registry.wrap(self)
 
     def ancestors(self):

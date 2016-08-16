@@ -310,6 +310,7 @@ Linking to models
 .. testcode::
   :hide:
 
+  App.commit()
   request = App().request({'PATH_INFO': '/', 'wsgi.url_scheme': 'http', 'HTTP_HOST': 'example.com'})
 
 Morepath is great at creating links to models: it can do it for you
