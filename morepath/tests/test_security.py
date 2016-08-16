@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-import pytest
 import morepath
 from morepath.request import Response
-from morepath import generic
 from morepath.authentication import Identity, NO_IDENTITY
 from .fixtures import identity_policy
 import base64
@@ -210,8 +208,9 @@ def test_default_verify_identity():
         pass
 
     identity = morepath.Identity('foo')
+    app.commit()
 
-    assert not generic.verify_identity(identity, lookup=app().lookup)
+    assert not app().do_verify_identity(identity)
 
 
 def test_verify_identity_directive():
@@ -222,10 +221,11 @@ def test_verify_identity_directive():
     def verify_identity(identity):
         return identity.password == 'right'
 
+    app.commit()
     identity = morepath.Identity('foo', password='wrong')
-    assert not generic.verify_identity(identity, lookup=app().lookup)
+    assert not app().do_verify_identity(identity)
     identity = morepath.Identity('foo', password='right')
-    assert generic.verify_identity(identity, lookup=app().lookup)
+    assert app().do_verify_identity(identity)
 
 
 def test_false_verify_identity():
@@ -444,7 +444,6 @@ def test_prevent_poisoned_host_headers():
         assert response.status_code == 400
 
 
-@pytest.mark.skip()
 def test_settings_in_permission_rule():
 
     class App(morepath.App):

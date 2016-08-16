@@ -11,7 +11,7 @@ See also :class:`morepath.directive.PredicateRegistry`
 """
 
 from reg import Predicate, KeyExtractor
-from .cachingreg import RegRegistry
+from .dispatch import fix_signature, RegRegistry
 from .toposort import toposorted, Info
 
 
@@ -59,7 +59,7 @@ class PredicateRegistry(object):
         :param fallback_func: the fallback function.
         """
         self._predicate_fallbacks.setdefault(
-            dispatch, {})[func] = fallback_func
+            dispatch, {})[func] = fix_signature(fallback_func)
 
     def install_predicates(self):
         """Install the predicates with reg.
@@ -69,11 +69,12 @@ class PredicateRegistry(object):
         :meth:`PredicateRegistry.get_predicates` to get out the
         predicates in the correct order.
         """
+
         for dispatch in self._predicate_infos.keys():
-            if dispatch.external_predicates:
-                self._reg_registry.register_external_predicates(
-                    dispatch, self.get_predicates(dispatch))
-                self._reg_registry.register_dispatch(dispatch)
+            actual = self._reg_registry[dispatch]
+            if actual.external_predicates:
+                actual.register_external_predicates(
+                    self.get_predicates(dispatch))
 
     def get_predicates(self, dispatch):
         """Create Reg predicates.

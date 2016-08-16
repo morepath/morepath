@@ -2,7 +2,6 @@ from morepath.app import App
 
 from webtest import TestApp as Client
 import morepath
-from morepath import generic
 from reg import KeyIndex
 
 
@@ -47,7 +46,7 @@ def test_extra_predicates():
     def get_b(self, request):
         return 'b'
 
-    @app.predicate(generic.view, name='id', default='', index=KeyIndex,
+    @app.predicate(app.get_view, name='id', default='', index=KeyIndex,
                    after=morepath.request_method_predicate)
     def id_predicate(obj):
         return obj.id

@@ -15,11 +15,10 @@ except ImportError:
     from urllib.parse import urlencode, quote
 
 
-from .cachingreg import RegRegistry
 from .traject import Path as TrajectPath, TrajectRegistry
 from .converter import ParameterFactory, ConverterRegistry, IDENTITY_CONVERTER
-from . import generic
 from .error import LinkError
+from .dispatch import fix_signature, RegRegistry
 
 
 SPECIAL_ARGUMENTS = ['request', 'app']
@@ -142,9 +141,9 @@ class PathRegistry(TrajectRegistry):
         :param func: function that gets a model instance argument and
           returns a variables dict.
         """
-        self.reg_registry.register_function(generic.path_variables,
-                                            func,
-                                            obj=model)
+        self.reg_registry._get_path_variables.register(
+            fix_signature(func),
+            obj=model)
 
     def register_inverse_path(self, model, path, factory_args,
                               converters=None, absorb=False):
@@ -160,14 +159,14 @@ class PathRegistry(TrajectRegistry):
         converters = converters or {}
         get_path = Path(path, factory_args, converters, absorb)
 
-        self.reg_registry.register_function(generic.class_path, get_path,
-                                            model=model)
+        self.reg_registry._get_class_path.register(get_path, model=model)
 
-        def default_path_variables(obj):
+        def default_path_variables(app, obj):
             return {name: getattr(obj, name) for name in factory_args}
-        self.reg_registry.register_function(generic.default_path_variables,
-                                            default_path_variables,
-                                            obj=model)
+
+        self.reg_registry._get_default_path_variables.register(
+            default_path_variables,
+            obj=model)
 
     def register_defer_links(self, model, app_factory):
         """Register factory for app to defer links to.
@@ -179,9 +178,9 @@ class PathRegistry(TrajectRegistry):
           object as arguments and should return another app instance that
           does the link generation.
         """
-        self.reg_registry.register_function(
-            generic.deferred_link_app, app_factory,
-            obj=model)
+
+        self.reg_registry._get_deferred_link_app.register(
+            app_factory, obj=model)
 
     def register_defer_class_links(self, model, get_variables, app_factory):
         """Register factory for app to defer class links to.
@@ -196,9 +195,8 @@ class PathRegistry(TrajectRegistry):
         """
         self.register_path_variables(model, get_variables)
 
-        self.reg_registry.register_function(
-            generic.deferred_class_link_app, app_factory,
-            model=model)
+        self.reg_registry._get_deferred_class_link_app.register(
+            app_factory, model=model)
 
 
 class PathInfo(object):
@@ -292,12 +290,14 @@ class Path(object):
                     name, IDENTITY_CONVERTER).encode(value)
         return path_variables, parameters
 
-    def __call__(self, model, variables):
+    def __call__(self, app, model, variables):
         """Get path info given model and variables.
 
+        :param model: application object. Not actually used in the
+          implementation.
         :param model: model class. Not actually used in the
           implementation but used for dispatch in
-          :func:`generic.class_path`.
+          :method:`morepath.App._get_class_path`.
         :param variables: dict with the variables used in the path. each
           argument to the factory function should be represented.
         :return: :class:`PathInfo` instance representing the path.

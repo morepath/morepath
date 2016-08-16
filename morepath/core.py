@@ -29,12 +29,11 @@ from webob.exc import (
     HTTPException, HTTPNotFound, HTTPMethodNotAllowed,
     HTTPUnprocessableEntity, HTTPOk, HTTPRedirection, HTTPBadRequest)
 
-from . import generic
 from .directive import App  # install directives with App
 from .converter import Converter, IDENTITY_CONVERTER
 
 
-@App.predicate(generic.view, name='model', default=None, index=ClassIndex)
+@App.predicate(App.get_view, name='model', default=None, index=ClassIndex)
 def model_predicate(obj):
     """match model argument by class.
 
@@ -43,7 +42,7 @@ def model_predicate(obj):
     return obj.__class__
 
 
-@App.predicate_fallback(generic.view, model_predicate)
+@App.predicate_fallback(App.get_view, model_predicate)
 def model_not_found(self, request):
     """if model not matched, HTTP 404.
 
@@ -52,7 +51,7 @@ def model_not_found(self, request):
     raise HTTPNotFound()
 
 
-@App.predicate(generic.view, name='name', default='', index=KeyIndex,
+@App.predicate(App.get_view, name='name', default='', index=KeyIndex,
                after=model_predicate)
 def name_predicate(request):
     """match name argument with request.view_name.
@@ -62,7 +61,7 @@ def name_predicate(request):
     return request.view_name
 
 
-@App.predicate_fallback(generic.view, name_predicate)
+@App.predicate_fallback(App.get_view, name_predicate)
 def name_not_found(self, request):
     """if name not matched, HTTP 404.
 
@@ -71,7 +70,7 @@ def name_not_found(self, request):
     raise HTTPNotFound()
 
 
-@App.predicate(generic.view, name='request_method', default='GET',
+@App.predicate(App.get_view, name='request_method', default='GET',
                index=KeyIndex, after=name_predicate)
 def request_method_predicate(request):
     """match request method.
@@ -81,7 +80,7 @@ def request_method_predicate(request):
     return request.method
 
 
-@App.predicate_fallback(generic.view, request_method_predicate)
+@App.predicate_fallback(App.get_view, request_method_predicate)
 def method_not_allowed(self, request):
     """if request predicate not matched, method not allowed.
 
@@ -90,7 +89,7 @@ def method_not_allowed(self, request):
     raise HTTPMethodNotAllowed()
 
 
-@App.predicate(generic.view, name='body_model', default=object,
+@App.predicate(App.get_view, name='body_model', default=object,
                index=ClassIndex, after=request_method_predicate)
 def body_model_predicate(request):
     """match request.body_obj with body_model by class.
@@ -100,7 +99,7 @@ def body_model_predicate(request):
     return request.body_obj.__class__
 
 
-@App.predicate_fallback(generic.view, body_model_predicate)
+@App.predicate_fallback(App.get_view, body_model_predicate)
 def body_model_unprocessable(self, request):
     """if body_model not matched, 422.
 
@@ -176,8 +175,7 @@ def excview_tween_factory(app, handler):
             # do not want the request to feature in the lookup;
             # we don't want its request method or name to influence
             # exception lookup
-            view = generic.view.component_key_dict(model=exc.__class__,
-                                                   lookup=request.lookup)
+            view = app.get_view.component_key_dict(model=exc.__class__)
             if view is None:
                 raise
 
@@ -185,7 +183,7 @@ def excview_tween_factory(app, handler):
             if not isinstance(exc, (HTTPOk, HTTPRedirection)):
                 request.clear_after()
 
-            return view(exc, request)
+            return view(app, exc, request)
         return response
     return excview_tween
 

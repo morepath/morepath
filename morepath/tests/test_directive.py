@@ -1,7 +1,7 @@
 import dectate
 from .fixtures import (basic, nested, abbr, mapply_bug,
                        method, conflict, noconverter)
-from dectate import ConflictError, DirectiveReportError
+from dectate import ConflictError, DirectiveError, DirectiveReportError
 from morepath.error import LinkError
 from morepath.view import render_html
 from morepath.converter import Converter
@@ -790,20 +790,19 @@ def test_view_conflict_with_html():
 
 def test_function_conflict():
     class app(morepath.App):
-        pass
+
+        @morepath.delegate('a')
+        def func(self, a):
+            pass
 
     class A(object):
         pass
 
-    @reg.dispatch('a')
-    def func(a):
-        pass
-
-    @app.function(func, a=A)
+    @app.function(app.func, a=A)
     def a_func(self, request):
         pass
 
-    @app.function(func, a=A)
+    @app.function(app.func, a=A)
     def a1_func(self, request):
         pass
 
@@ -813,27 +812,42 @@ def test_function_conflict():
 
 def test_function_no_conflict_different_apps():
     class app_a(morepath.App):
-        pass
+        @morepath.delegate('a')
+        def func(self, a):
+            pass
 
     class app_b(morepath.App):
-        pass
-
-    @reg.dispatch('a')
-    def func(a):
-        pass
+        @morepath.delegate('a')
+        def func(self, a):
+            pass
 
     class A(object):
         pass
 
-    @app_a.function(func, a=A)
+    @app_a.function(app_a.func, a=A)
     def a_func(a):
         pass
 
-    @app_b.function(func, a=A)
+    @app_b.function(app_b.func, a=A)
     def a1_func(a):
         pass
 
     dectate.commit(app_a, app_b)
+
+
+def test_function_on_non_delegated_function():
+    class App(morepath.App):
+        pass
+
+    def func(a):
+        pass
+
+    @App.function(func)
+    def a_func(a):
+        pass
+
+    with pytest.raises(DirectiveError):
+        App.commit()
 
 
 def test_run_app_with_context_without_it():
@@ -986,11 +1000,10 @@ def test_abbr_nested():
 
 def test_function_directive():
     class app(morepath.App):
-        pass
 
-    @reg.dispatch('o')
-    def mygeneric(o):
-        return "The object: %s" % o
+        @morepath.delegate('o')
+        def mygeneric(self, o):
+            return "The object: %s" % o
 
     class Foo(object):
         def __init__(self, value):
@@ -999,36 +1012,36 @@ def test_function_directive():
         def __repr__(self):
             return "<Foo with value: %s>" % self.value
 
-    @app.function(mygeneric, o=Foo)
+    @app.function(app.mygeneric, o=Foo)
     def mygeneric_for_foo(o):
         return "The foo object: %s" % o
 
     a = app()
+    a.commit()
 
-    assert mygeneric('blah', lookup=a.lookup) == 'The object: blah'
-    assert mygeneric(Foo(1), lookup=a.lookup) == (
+    assert a.mygeneric('blah') == 'The object: blah'
+    assert a.mygeneric(Foo(1)) == (
         'The foo object: <Foo with value: 1>')
 
 
 def test_classgeneric_function_directive():
     class app(morepath.App):
-        pass
-
-    @reg.dispatch(reg.match_class('o'))
-    def mygeneric(o):
-        return "The object"
+        @morepath.delegate(reg.match_class('o'))
+        def mygeneric(self, o):
+            return "The object"
 
     class Foo(object):
         pass
 
-    @app.function(mygeneric, o=Foo)
+    @app.function(app.mygeneric, o=Foo)
     def mygeneric_for_foo(o):
         return "The foo object"
 
     a = app()
+    a.commit()
 
-    assert mygeneric(object, lookup=a.lookup) == 'The object'
-    assert mygeneric(Foo, lookup=a.lookup) == 'The foo object'
+    assert a.mygeneric(object) == 'The object'
+    assert a.mygeneric(Foo) == 'The foo object'
 
 
 def test_staticmethod():

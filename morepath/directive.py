@@ -32,9 +32,9 @@ from :mod:`morepath.directive`.
 import os
 import dectate
 
+from reg import mapply
 from .app import App
-from .cachingreg import RegRegistry
-from .authentication import Identity, NoIdentity, IdentityPolicyRegistry
+from .authentication import Identity, NoIdentity
 from .view import render_view, render_json, render_html, ViewRegistry
 from .traject import Path
 from .converter import ConverterRegistry
@@ -42,7 +42,7 @@ from .tween import TweenRegistry
 from .template import TemplateEngineRegistry
 from .predicate import PredicateRegistry
 from .path import PathRegistry
-from . import generic
+from .dispatch import fix_signature, RegRegistry
 from .settings import SettingRegistry
 
 
@@ -53,7 +53,6 @@ def isbaseclass(a, b):
 @App.directive('setting')
 class SettingAction(dectate.Action):
     config = {
-        'reg_registry': RegRegistry,
         'setting_registry': SettingRegistry
     }
 
@@ -75,10 +74,10 @@ class SettingAction(dectate.Action):
         self.section = section
         self.name = name
 
-    def identifier(self, reg_registry, setting_registry):
+    def identifier(self, setting_registry):
         return self.section, self.name
 
-    def perform(self, obj, reg_registry, setting_registry):
+    def perform(self, obj, setting_registry):
         setting_registry.register_setting(self.section, self.name, obj)
 
 
@@ -147,7 +146,7 @@ class PredicateFallbackAction(dectate.Action):
         self.func = func
 
     def identifier(self, predicate_registry):
-        return self.dispatch.wrapped_func, self.func
+        return self.dispatch, self.func
 
     def perform(self, obj, predicate_registry):
         predicate_registry.register_predicate_fallback(
@@ -210,7 +209,7 @@ class PredicateAction(dectate.Action):
         self._after = after
 
     def identifier(self, predicate_registry):
-        return self.dispatch.wrapped_func, self._before, self._after
+        return self.dispatch, self._before, self._after
 
     def perform(self, obj, predicate_registry):
         if not self.dispatch.external_predicates:
@@ -265,6 +264,10 @@ class FunctionAction(dectate.Action):
            register for.  Argument names are predicate names, values
            are the predicate values to match on.
         '''
+        if not hasattr(func, 'install_delegate'):
+            raise dectate.DirectiveError(
+                "@function decorator may only be used with functions "
+                "decorated by @delegate: %s" % func)
         self.func = func
         self.key_dict = kw
 
@@ -273,19 +276,19 @@ class FunctionAction(dectate.Action):
         # dispatch_external_predicates functions that have been used,
         # or we should only allow their registration through a special
         # Morepath directive so that we can.
-        if self.func.external_predicates:
+        actual = reg_registry[self.func]
+        if actual.external_predicates:
             if not predicate_registry.get_predicates(self.func):
-                reg_registry.register_external_predicates(self.func, [])
-        reg_registry.register_dispatch(self.func)
-        return reg_registry.key_dict_to_predicate_key(
-            self.func.wrapped_func, self.key_dict)
+                actual.register_external_predicates([])
+#        reg_registry.register_dispatch(actual)
+        return actual.key_dict_to_predicate_key(self.key_dict)
 
     def identifier(self, reg_registry, predicate_registry):
-        return (self.func.wrapped_func, self.predicate_key(
+        return (self.func, self.predicate_key(
             reg_registry, predicate_registry))
 
     def perform(self, obj, reg_registry, predicate_registry):
-        reg_registry.register_function(self.func, obj, **self.key_dict)
+        reg_registry[self.func].register(fix_signature(obj), **self.key_dict)
 
 
 @App.directive('converter')
@@ -483,8 +486,8 @@ class PermissionRuleAction(dectate.Action):
         return (self.model, self.permission, self.identity)
 
     def perform(self, obj, reg_registry):
-        reg_registry.register_function(
-            generic.permits, obj,
+        reg_registry.permits.register(
+            fix_signature(obj),
             identity=self.identity,
             obj=self.model,
             permission=self.permission)
@@ -1054,34 +1057,15 @@ class TweenFactoryAction(dectate.Action):
             obj, over=self.over, under=self.under)
 
 
-@App.private_action_class
-class IdentityPolicyFunctionAction(dectate.Action):
-    """A special action that helps register the identity policy.
-
-    We need this as it needs to be sorted after SettingAction and
-    composite actions can't be sorted nor have access to the registry.
-    """
+@App.directive('identity_policy')
+class IdentityPolicyAction(dectate.Action):
     config = {
-        'identity_policy_registry': IdentityPolicyRegistry,
+        'setting_registry': SettingRegistry,
     }
 
+    app_class_arg = True
+
     depends = [SettingAction]
-
-    def __init__(self, dispatch, name):
-        self.dispatch = dispatch
-        self.name = name
-
-    def identifier(self, identity_policy_registry):
-        return (self.dispatch, self.name)
-
-    def perform(self, obj, identity_policy_registry):
-        identity_policy_registry.register_identity_policy_function(
-            obj, self.dispatch, self.name)
-
-
-@App.directive('identity_policy')
-class IdentityPolicyAction(dectate.Composite):
-    query_classes = [IdentityPolicyFunctionAction]
 
     def __init__(self):
         """Register identity policy.
@@ -1094,16 +1078,22 @@ class IdentityPolicyAction(dectate.Composite):
         identity policy is in use. So you can pass some settings directly to
         the IdentityPolicy class.
         """
-        pass
 
-    def actions(self, obj):
-        yield IdentityPolicyFunctionAction(generic.identify,
-                                           'identify'), obj
+    def identifier(self, app_class, setting_registry):
+        return ()
+
+    def perform(self, obj, app_class, setting_registry):
+        policy = mapply(obj, settings=setting_registry)
+        app_class.remember_identity = staticmethod(policy.remember)
+        app_class.forget_identity = staticmethod(policy.forget)
+        app_class._get_identity = staticmethod(policy.identify)
 
 
 @App.directive('verify_identity')
-class VerifyIdentityAction(dectate.Composite):
-    query_classes = [FunctionAction]
+class VerifyIdentityAction(dectate.Action):
+    config = {
+        'reg_registry': RegRegistry,
+    }
 
     filter_convert = {
         'identity': dectate.convert_dotted_name,
@@ -1131,9 +1121,12 @@ class VerifyIdentityAction(dectate.Composite):
         '''
         self.identity = identity
 
-    def actions(self, obj):
-        yield FunctionAction(generic.verify_identity,
-                             identity=self.identity), obj
+    def identifier(self, reg_registry):
+        return self.identity
+
+    def perform(self, obj, reg_registry):
+        reg_registry.do_verify_identity.register(
+            fix_signature(obj), identity=self.identity)
 
 
 @App.directive('dump_json')
@@ -1170,10 +1163,7 @@ class DumpJsonAction(dectate.Action):
         return self.model
 
     def perform(self, obj, reg_registry):
-        # reverse parameters
-        def dump(request, self):
-            return obj(self, request)
-        reg_registry.register_function(generic.dump_json, dump, obj=self.model)
+        reg_registry.do_dump_json.register(fix_signature(obj), obj=self.model)
 
 
 @App.directive('load_json')
@@ -1195,10 +1185,7 @@ class LoadJsonAction(dectate.Action):
         return ()
 
     def perform(self, obj, reg_registry):
-        # reverse parameters
-        def load(request, json):
-            return obj(json, request)
-        reg_registry.register_function(generic.load_json, load)
+        reg_registry.do_load_json.register(fix_signature(obj))
 
 
 @App.directive('link_prefix')
@@ -1223,4 +1210,4 @@ class LinkPrefixAction(dectate.Action):
         return ()
 
     def perform(self, obj, reg_registry):
-        reg_registry.register_function(generic.link_prefix, obj)
+        reg_registry._get_link_prefix.register(fix_signature(obj))

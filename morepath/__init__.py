@@ -13,6 +13,7 @@ report an issue about it on the Morepath issue tracker.
 """
 
 from dectate import commit
+from .dispatch import delegate
 from .app import App
 from .core import (excview_tween_factory as EXCVIEW,
     poisoned_host_header_protection_tween_factory as HOST_HEADER_PROTECTION,
