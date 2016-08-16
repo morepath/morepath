@@ -272,15 +272,15 @@ def test_no_identity_policy():
     # if you protect things with permissions and you
     # install no identity policy, doing a log in has
     # no effect
-    response = c.get('/foo', status=403)
+    c.get('/foo', status=403)
 
-    response = c.get('/foo/log_in')
+    c.get('/foo/log_in')
 
-    response = c.get('/foo', status=403)
+    c.get('/foo', status=403)
 
-    response = c.get('/foo/log_out')
+    c.get('/foo/log_out')
 
-    response = c.get('/foo', status=403)
+    c.get('/foo', status=403)
 
 
 class DumbCookieIdentityPolicy(object):
