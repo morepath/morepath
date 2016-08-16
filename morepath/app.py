@@ -453,8 +453,6 @@ class App(dectate.App):
         :param request: :class:`morepath.Request`
         :param identity: :class:`morepath.Identity`
         """
-        return self.config.identity_policy_registry.identity_policy.remember(
-            response, request, identity)
 
     def forget_identity(self, response, request):
         """Modify response so that identity is forgotten by client.
@@ -462,8 +460,12 @@ class App(dectate.App):
         :param response: :class:`morepath.Response` to forget identity on.
         :param request: :class:`morepath.Request`
         """
-        return self.config.identity_policy_registry.identity_policy.forget(
-            response, request)
+
+    def _get_identity(self, request):
+        """Establish what identity this user claims to have from request.
+
+        :param request: :class:`morepath.Request`
+        """
 
     @delegate('identity')
     def do_verify_identity(self, identity):

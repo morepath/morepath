@@ -7,7 +7,6 @@ directive.
 :data:`morepath.NO_IDENTITY`, :class:`morepath.Identity`,
 :class:`morepath.IdentityPolicy` are part of the public API.
 
-See also :class:`morepath.directive.IdentityPolicyRegistry`
 """
 import abc
 from .compat import with_metaclass
@@ -26,16 +25,6 @@ NO_IDENTITY = NoIdentity()
 
 The user has not yet logged in.
 """
-
-
-class IdentityPolicyRegistry(object):
-    """Register the current identity policy.
-
-    Used by the :class:`morepath.App.identity_policy` directive.
-    """
-
-    identity_policy = None
-    """If set, an instance of :class:`morepath.IdentityPolicy`."""
 
 
 class Identity(object):

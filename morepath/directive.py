@@ -32,8 +32,9 @@ from :mod:`morepath.directive`.
 import os
 import dectate
 
+from reg import mapply
 from .app import App
-from .authentication import Identity, NoIdentity, IdentityPolicyRegistry
+from .authentication import Identity, NoIdentity
 from .view import render_view, render_json, render_html, ViewRegistry
 from .traject import Path
 from .converter import ConverterRegistry
@@ -1059,9 +1060,10 @@ class TweenFactoryAction(dectate.Action):
 @App.directive('identity_policy')
 class IdentityPolicyAction(dectate.Action):
     config = {
-        'identity_policy_registry': IdentityPolicyRegistry,
         'setting_registry': SettingRegistry,
     }
+
+    app_class_arg = True
 
     depends = [SettingAction]
 
@@ -1077,14 +1079,14 @@ class IdentityPolicyAction(dectate.Action):
         the IdentityPolicy class.
         """
 
-    def identifier(self, identity_policy_registry, setting_registry):
+    def identifier(self, app_class, setting_registry):
         return ()
 
-    def perform(self, obj, identity_policy_registry, setting_registry):
-        from reg import mapply
-        identity_policy_registry.identity_policy = mapply(
-            obj,
-            settings=setting_registry)
+    def perform(self, obj, app_class, setting_registry):
+        policy = mapply(obj, settings=setting_registry)
+        app_class.remember_identity = staticmethod(policy.remember)
+        app_class.forget_identity = staticmethod(policy.forget)
+        app_class._get_identity = staticmethod(policy.identify)
 
 
 @App.directive('verify_identity')

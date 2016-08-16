@@ -87,10 +87,7 @@ class Request(BaseRequest):
         The identity can be used for authentication/authorization of
         the user, using Morepath permission directives.
         """
-        policy = self.app.config.identity_policy_registry.identity_policy
-        if policy is None:
-            return NO_IDENTITY
-        result = policy.identify(self)
+        result = self.app._get_identity(self)
         if result is None or result is NO_IDENTITY:
             return NO_IDENTITY
         if not self.app.do_verify_identity(result):
