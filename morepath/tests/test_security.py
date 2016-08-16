@@ -234,6 +234,55 @@ def test_policy_action():
     response = c.get('/bar', status=403)
 
 
+def test_no_identity_policy():
+    class App(morepath.App):
+        pass
+
+    @App.path(path='{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    class Permission(object):
+        pass
+
+    @App.view(model=Model, permission=Permission)
+    def default(self, request):
+        return "Model: %s" % self.id
+
+    @App.view(model=Model, name='log_in')
+    def log_in(self, request):
+        response = Response()
+        request.app.remember_identity(
+            response, request, Identity(userid='user', payload='Amazing'))
+        return response
+
+    @App.view(model=Model, name='log_out')
+    def log_out(self, request):
+        response = Response()
+        request.app.forget_identity(response, request)
+        return response
+
+    @App.verify_identity()
+    def verify_identity(identity):
+        return True
+
+    c = Client(App())
+
+    # if you protect things with permissions and you
+    # install no identity policy, doing a log in has
+    # no effect
+    response = c.get('/foo', status=403)
+
+    response = c.get('/foo/log_in')
+
+    response = c.get('/foo', status=403)
+
+    response = c.get('/foo/log_out')
+
+    response = c.get('/foo', status=403)
+
+
 class DumbCookieIdentityPolicy(object):
     """A very insecure cookie-based policy.
 
