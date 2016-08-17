@@ -171,11 +171,11 @@ def excview_tween_factory(app, handler):
         try:
             response = handler(request)
         except Exception as exc:
-            # we must use component_key_dict here because we
+            # we must use component_by_keys here because we
             # do not want the request to feature in the lookup;
             # we don't want its request method or name to influence
             # exception lookup
-            view = app._view.component_key_dict(model=exc.__class__)
+            view = app._view.component_by_keys(model=exc.__class__)
             if view is None:
                 raise
 
