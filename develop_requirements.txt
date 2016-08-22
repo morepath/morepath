@@ -1,0 +1,32 @@
+# sources
+-e git+git@github.com:morepath/reg.git#egg=reg
+-e git+git@github.com:morepath/dectate.git#egg=dectate
+-e git+git@github.com:faassen/importscan.git#egg=importscan
+
+# development
+-e '.[test]'
+flake8
+radon
+pylint
+pep257
+pyroma
+dodgy
+
+# py.test
+-e ./fixture_packages/base
+-e ./fixture_packages/sub
+-e ./fixture_packages/no_mp
+-e ./fixture_packages/no_mp_sub
+-e ./fixture_packages/ns
+-e ./fixture_packages/no_mp_ns
+-e ./fixture_packages/ns2
+-e ./fixture_packages/entry-point
+-e ./fixture_packages/under_score
+snot
+
+# docs
+sphinx
+pyyaml
+
+# releaser
+zest.releaser[recommended]
