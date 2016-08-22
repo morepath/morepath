@@ -10,7 +10,7 @@ on how to get in touch!
 Install Morepath for development
 --------------------------------
 
-.. highlight:: sh
+.. highlight:: console
 
 Clone Morepath from github and go to the morepath directory::
 
@@ -32,7 +32,7 @@ Activate the virtualenv::
 Install the various dependencies and development tools from
 develop_requirements.txt::
 
-  $ pip install -r develop_requirements.txt
+  $ pip install -r develop_requirements.txt --src src
 
 .. note::
 
@@ -117,9 +117,9 @@ Adjusting reg, dectate or importscan
 ------------------------------------
 
 If you need to adjust the sources of reg, dectate or importscan and test them
-together with morepath, they're available under env/src.
+together with morepath, they're available in the src directory.
 There you can edit them and test the changes with morepath, which uses them as
-dependencies.
+dependencies when you install Morepath for developement as described above.
 
 Deprecation
 -----------
