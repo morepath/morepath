@@ -9,15 +9,7 @@ __pycache__/
 
 # Virtualenv
 /env/
-
-# Buildout
-/bin/
-/develop-eggs/
-/eggs/
 /src/
-/parts/
-/.installed.cfg
-/.mr.developer.cfg
 
 # Unit test / coverage reports
 .cache/
