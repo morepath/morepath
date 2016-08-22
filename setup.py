@@ -35,19 +35,26 @@ setup(
     install_requires=[
         'setuptools',
         'webob >= 1.3.1',
-        'reg >= 0.9.3',
+        'reg >= 0.9.4',
         'dectate >= 0.11',
         'importscan',
     ],
     extras_require=dict(
         test=[
             'pytest >= 2.9.0',
-            'pytest < 3.0.0',
-            'py >= 1.4.20',
-            'pytest-cov',
             'pytest-remove-stale-bytecode',
             'WebTest >= 2.0.14',
+        ],
+        pep8=[
+            'flake8',
+        ],
+        coverage=[
+            'pytest-cov',
+        ],
+        docs=[
+            'sphinx',
             'pyyaml',
+            'WebTest >= 2.0.14',
         ],
     ),
 )
