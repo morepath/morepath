@@ -17,22 +17,33 @@ Clone Morepath from github and go to the morepath directory::
   $ git clone git@github.com:morepath/morepath.git
   $ cd morepath
 
-Make sure you have virtualenv_ installed for Python 3.5.
+Make sure you have virtualenv_ installed.
 
 .. _virtualenv: https://pypi.python.org/pypi/virtualenv
 
-Create a new virtualenv inside the morepath directory::
+Create a new virtualenv for Python 3 inside the morepath directory::
 
-  $ virtualenv env
+  $ virtualenv -p $(which python3) env/py3
 
 Activate the virtualenv::
 
-  $ source env/bin/activate
+  $ source env/py3/bin/activate
 
 Install the various dependencies and development tools from
 develop_requirements.txt::
 
   $ pip install -r develop_requirements.txt --src src
+
+If you want to test Morepath also with Python 2.7 you can create a second
+virtualenv for it::
+
+  $ virtualenv -p $(which python2.7) env/py27
+
+After activating it with::
+
+  $ source env/py27/bin/activate
+
+you can install the develop requirements as described above.
 
 .. note::
 
