@@ -21,7 +21,6 @@ dodgy
 -e ./fixture_packages/ns2
 -e ./fixture_packages/entry-point
 -e ./fixture_packages/under_score
-snot
 
 # releaser
 zest.releaser[recommended]
