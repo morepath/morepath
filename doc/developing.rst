@@ -134,94 +134,37 @@ test them together with Morepath, they're available in the ``src``
 directory. You can edit them and test changes in the Morepath project
 directly.
 
-Installing tox locally with with different Python versions
-----------------------------------------------------------
+Tox
+---
 
 If you want to check if Morepath works works with the supported Python versions
-and check if it pathes all Travis Ci tests, you can install tox locally.
+and check if it passes all Travis Ci tests, you can install tox locally.
 
 Tox is also used by Travis Ci on GitHub.
 
-First you should install all Python versions, which you want to test. The
+First you should install all Python versions which you want to test. The
 versions which are not installed will be skipped. At least you should install
-Python 3.5, which is required by flake8, coverage and doctests, and Python 2.7
+Python 3.5 which is required by flake8, coverage and doctests and Python 2.7
 for testing Morepath with Python 2.
 
-You can install the Python versions, which are missing in your system with
-pyenv_, which can be installed with Homebrew_ on Mac OS X::
+One tool you can use to install multiple versions of Python is pyenv_.
 
-  $ brew update
-  $ brew install pyenv
+Create and activate a new virtualenv for tox::
 
-or the `pyenv-installer`_ e.g. on Linux::
+  $ virtualenv env/tox
+  $ source env/tox/bin/activate
 
-  $ curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
+Make sure you have recent setuptools and pip installed::
 
-Make sure your bash configuration was updated. If your system uses `~/.bashrc`
-instead of `~/.bash_profile` like Debian or Ubuntu, you have to add the
-following lines to `~/.bashrc` manually::
-
-  export PATH="~/.pyenv/bin:$PATH"
-  eval "$(pyenv init -)"
-  eval "$(pyenv virtualenv-init -)"
-
-Then you can install your missing Python versions e.g.::
-
-  $ pyenv install 3.5.2
-  $ pyenv install 3.3.6
-  $ pyenv install pypy-5.3.1
-
-And activate them globally, the first one will be the default
-Python environment::
-
-  $ pyenv global 3.5.2 3.3.6 pypy-5.3.1
-
-Make sure you have recent virtualenv, setuptools and pip installed
-systemwide::
-
-  $ sudo pip install -U virtualenv setuptools pip
+  $ pip install -U setuptools pip
 
 Now you can install tox::
 
   $ pip install -U tox
 
-.. _pyenv: https://github.com/yyuu/pyenv
+To find out which test environments are defined for Morepath in tox.ini run::
 
-.. _Homebrew: https://github.com/yyuu/pyenv#homebrew-on-mac-os-x
-
-.. _`pyenv-installer`: https://github.com/yyuu/pyenv-installer#pyenv-installer
-
-Tox test environments
----------------------
-
-The following tox test environments are defined for Morepath in tox.ini:
-
-py27
-  py.test with Python 2.7
-
-pypy
-  py.test with PyPy
-
-py33
-  py.test with Python 3.3
-
-py34
-  py.test with Python 3.4
-
-py35
-  py.test with Python 3.5
-
-pep8
-  Flake8 tests in Python 3.5 environment
-
-coverage
-  Coverage test for py.test in Python 3.5 environment
-
-docs
-  Doctests in Python 3.5 environment
-
-Running tox locally
--------------------
+  $ tox -l
 
 You can run all tox tests with::
 
@@ -232,6 +175,8 @@ You can also specify a test environment to run::
   $ tox -e py35
   $ tox -e pep8
   $ tox -e docs
+
+.. _pyenv: https://github.com/yyuu/pyenv
 
 Deprecation
 -----------
