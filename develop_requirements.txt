@@ -6,10 +6,6 @@
 # development
 -e '.[test,coverage,pep8,docs]'
 radon
-pylint
-pep257
-pyroma
-dodgy
 
 # py.test
 -e ./fixture_packages/base
