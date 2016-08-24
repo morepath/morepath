@@ -12,6 +12,7 @@ See also :class:`morepath.directive.PredicateRegistry`
 
 from reg import Predicate, KeyExtractor
 from .toposort import toposorted, Info
+from collections import defaultdict
 
 
 class PredicateRegistry(object):
@@ -24,8 +25,8 @@ class PredicateRegistry(object):
 
     def __init__(self, app_class):
         self.app_class = app_class
-        self._predicate_infos = {}
-        self._predicate_fallbacks = {}
+        self._predicate_infos = defaultdict(list)
+        self._predicate_fallbacks = defaultdict(dict)
 
     def register_predicate(self, func, dispatch, name, default, index,
                            before, after):
@@ -42,7 +43,7 @@ class PredicateRegistry(object):
         :param after: predicate function that has priority over this one.
         """
         info = PredicateInfo(func, name, default, index, before, after)
-        self._predicate_infos.setdefault(dispatch, []).append(info)
+        self._predicate_infos[dispatch].append(info)
 
     def register_predicate_fallback(self, dispatch, func, fallback_func):
         """Register a predicate fallback for installation into reg registry.
@@ -53,8 +54,7 @@ class PredicateRegistry(object):
         :param func: the predicate function to register fallback for.
         :param fallback_func: the fallback function.
         """
-        self._predicate_fallbacks.setdefault(
-            dispatch, {})[func] = fallback_func
+        self._predicate_fallbacks[dispatch][func] = fallback_func
 
     def install_predicates(self):
         """Install the predicates with reg.
@@ -86,8 +86,7 @@ class PredicateRegistry(object):
         infos = self.sorted_predicate_infos(dispatch)
         result = []
         for info in infos:
-            fallback = self._predicate_fallbacks.get(dispatch, {}).get(
-                info.func)
+            fallback = self._predicate_fallbacks[dispatch].get(info.func)
             predicate = Predicate(info.name, info.index,
                                   KeyExtractor(info.func),
                                   fallback=fallback,
@@ -101,10 +100,7 @@ class PredicateRegistry(object):
         :param dispatch: the dispatch function to sort for.
         :return: a list of sorted :class:`PredicateInfo` instances.
         """
-        predicate_infos = self._predicate_infos.get(dispatch)
-        if predicate_infos is None:
-            return []
-        return toposorted(predicate_infos)
+        return toposorted(self._predicate_infos[dispatch])
 
 
 class PredicateInfo(Info):
