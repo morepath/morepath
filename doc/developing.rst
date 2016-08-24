@@ -131,10 +131,20 @@ To build the HTML documentation (output in ``doc/build/html``), run::
 Developing Reg, Dectate or Importscan
 -------------------------------------
 
-If you need to adjust the sources of Reg, Dectate or importscan and
+If you need to adjust the sources of Reg, Dectate or Importscan and
 test them together with Morepath, they're available in the ``src``
 directory. You can edit them and test changes in the Morepath project
 directly.
+
+If you want to run the tests for Morepath, Reg, Dectate and Importscan
+alltogether, you can just use::
+
+  $ py.test
+
+If you want to run the tests for one of them, let's say Reg, do::
+
+  $ cd src/reg
+  $ py.test reg
 
 Tox
 ---
