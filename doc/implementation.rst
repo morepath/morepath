@@ -204,12 +204,9 @@ the extension API.
    internals/app
    internals/authentication
    internals/autosetup
-   internals/cachingreg
    internals/compat
    internals/converter
    internals/core
-   internals/generic
-   internals/implicit
    internals/path
    internals/predicate
    internals/publish

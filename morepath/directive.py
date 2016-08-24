@@ -31,10 +31,10 @@ from :mod:`morepath.directive`.
 
 import os
 import dectate
+from reg import mapply, methodify_auto
 
 from .app import App
-from .cachingreg import RegRegistry
-from .authentication import Identity, NoIdentity, IdentityPolicyRegistry
+from .authentication import Identity, NoIdentity
 from .view import render_view, render_json, render_html, ViewRegistry
 from .traject import Path
 from .converter import ConverterRegistry
@@ -42,7 +42,6 @@ from .tween import TweenRegistry
 from .template import TemplateEngineRegistry
 from .predicate import PredicateRegistry
 from .path import PathRegistry
-from . import generic
 from .settings import SettingRegistry
 
 
@@ -53,7 +52,6 @@ def isbaseclass(a, b):
 @App.directive('setting')
 class SettingAction(dectate.Action):
     config = {
-        'reg_registry': RegRegistry,
         'setting_registry': SettingRegistry
     }
 
@@ -75,10 +73,10 @@ class SettingAction(dectate.Action):
         self.section = section
         self.name = name
 
-    def identifier(self, reg_registry, setting_registry):
+    def identifier(self, setting_registry):
         return self.section, self.name
 
-    def perform(self, obj, reg_registry, setting_registry):
+    def perform(self, obj, setting_registry):
         setting_registry.register_setting(self.section, self.name, obj)
 
 
@@ -213,11 +211,6 @@ class PredicateAction(dectate.Action):
         return self.dispatch.wrapped_func, self._before, self._after
 
     def perform(self, obj, predicate_registry):
-        if not self.dispatch.external_predicates:
-            raise dectate.DirectiveError(
-                "@predicate decorator may only be used with "
-                "@reg.dispatch_external_predicates: %s" % self.dispatch)
-
         predicate_registry.register_predicate(
             obj, self.dispatch,
             self.name, self.default, self.index,
@@ -228,11 +221,9 @@ class PredicateAction(dectate.Action):
         predicate_registry.install_predicates()
 
 
-@App.directive('function')
-class FunctionAction(dectate.Action):
+@App.directive('method')
+class MethodAction(dectate.Action):
     config = {
-        'reg_registry': RegRegistry,
-        'predicate_registry': PredicateRegistry
     }
 
     depends = [SettingAction,
@@ -241,51 +232,48 @@ class FunctionAction(dectate.Action):
     def filter_get_value(self, name):
         return self.key_dict.get(name, dectate.NOT_FOUND)
 
+    app_class_arg = True
+
     # XXX we cannot search for non-string kw as we cannot define
     # the convert
     filter_convert = {
-        'func': dectate.convert_dotted_name
+        'dispatch_method': dectate.convert_dotted_name
     }
 
-    def __init__(self, func, **kw):
-        '''Register function as implementation of generic dispatch function
+    def __init__(self, dispatch_method, **kw):
+        '''Register function as implementation of dispatch method.
 
-        The decorated function is an implementation of the generic
-        function supplied to the decorator. This way you can override
-        parts of the Morepath framework, or create new hookable
-        functions of your own.
+        This way you can creat new hookable functions of your own,
+        or override parts of the Morepath framework itself.
 
-        The ``func`` argument is a generic dispatch function, so a
-        Python function marked with :func:`app.dispatch` or
-        :func:`app.predicate_dispatch`.
+        The ``dispatch_method`` argument is a dispatch method, so a
+        method on a :class:`morepath.App`` class marked with
+        :func:`reg.dispatch_method`, so for instance ``App.foo``. The
+        registered function gets the instance of this app class as its
+        first argument.
 
-        :param func: the generic function to register an implementation for.
-        :type func: dispatch function object
+        The reason to use this form of registration instead of
+        :meth:`reg.Dispatch.register` directly is so that they are
+        overridable just like any other Morepath directive.
+
+        :param dispatch_method: the dispatch method to register an
+          implementation for.
         :param kw: keyword parameters with the predicate keys to
            register for.  Argument names are predicate names, values
-           are the predicate values to match on.
+           are the predicate values to match on. These are like
+           the predicate arguments for :meth:`reg.Dispatch.register`.
         '''
-        self.func = func
+        self.dispatch_method = dispatch_method
         self.key_dict = kw
 
-    def predicate_key(self, reg_registry, predicate_registry):
-        # XXX either reg should keep track of dispatch and
-        # dispatch_external_predicates functions that have been used,
-        # or we should only allow their registration through a special
-        # Morepath directive so that we can.
-        if self.func.external_predicates:
-            if not predicate_registry.get_predicates(self.func):
-                reg_registry.register_external_predicates(self.func, [])
-        reg_registry.register_dispatch(self.func)
-        return reg_registry.key_dict_to_predicate_key(
-            self.func.wrapped_func, self.key_dict)
+    def identifier(self, app_class):
+        return (self.dispatch_method.wrapped_func,
+                self.dispatch_method.key_dict_to_predicate_key(self.key_dict))
 
-    def identifier(self, reg_registry, predicate_registry):
-        return (self.func.wrapped_func, self.predicate_key(
-            reg_registry, predicate_registry))
-
-    def perform(self, obj, reg_registry, predicate_registry):
-        reg_registry.register_function(self.func, obj, **self.key_dict)
+    def perform(self, obj, app_class):
+        getattr(app_class,
+                self.dispatch_method.wrapped_func.__name__).register(
+            obj, **self.key_dict)
 
 
 @App.directive('converter')
@@ -392,10 +380,12 @@ class PathCompositeAction(dectate.Composite):
         :param model: the class of the model that the decorated function
           should return. If the directive is used on a class instead of a
           function, the model should not be provided.
-        :param variables: a function that given a model object can construct
-          the variables used in the path (including any URL parameters).
-          If omitted, variables are retrieved from the model by using
-          the arguments of the decorated function.
+        :param variables: a function takes ``app`` and ``model
+          object`` arguments. The ``app`` argument is optional.  It
+          can construct the variables used in the path (including any
+          URL parameters). If ``variables`` is omitted, variables are
+          retrieved from the model by using the arguments of the
+          decorated function.
         :param converters: a dictionary containing converters for variables.
           The key is the variable name, the value is a
           :class:`morepath.Converter` instance.
@@ -410,6 +400,7 @@ class PathCompositeAction(dectate.Composite):
         :param absorb: If set to ``True``, matches any subpath that
           matches this path as well. This is passed into the decorated
           function as the ``absorb`` argument.
+
         """
         self.model = model
         self.path = path
@@ -441,7 +432,6 @@ class PathCompositeAction(dectate.Composite):
 @App.directive('permission_rule')
 class PermissionRuleAction(dectate.Action):
     config = {
-        'reg_registry': RegRegistry
     }
 
     filter_convert = {
@@ -456,22 +446,26 @@ class PermissionRuleAction(dectate.Action):
         'identity': issubclass
     }
 
+    app_class_arg = True
+
     depends = [SettingAction]
 
     def __init__(self, model, permission, identity=Identity):
         """Declare whether a model has a permission.
 
-        The decorated function receives ``model``, `permission``
-        (instance of any permission object) and ``identity``
-        (:class:`morepath.Identity`) parameters. The
-        decorated function should return ``True`` only if the given
-        identity exists and has that permission on the model.
+        The decorated function receives ``app``, ``model``,
+        `permission`` (instance of any permission object) and
+        ``identity`` (:class:`morepath.Identity`) parameters. The
+        ``app`` argument is optional. The decorated function should
+        return ``True`` only if the given identity exists and has that
+        permission on the model.
 
         :param model: the model class
         :param permission: permission class
         :param identity: identity class to check permission for. If ``None``,
           the identity to check for is the special
           :data:`morepath.NO_IDENTITY`.
+
         """
         self.model = model
         self.permission = permission
@@ -479,12 +473,12 @@ class PermissionRuleAction(dectate.Action):
             identity = NoIdentity
         self.identity = identity
 
-    def identifier(self, reg_registry):
+    def identifier(self, app_class):
         return (self.model, self.permission, self.identity)
 
-    def perform(self, obj, reg_registry):
-        reg_registry.register_function(
-            generic.permits, obj,
+    def perform(self, obj, app_class):
+        app_class._permits.register_auto(
+            obj,
             identity=self.identity,
             obj=self.model,
             permission=self.permission)
@@ -553,7 +547,9 @@ class TemplateDirectoryAction(dectate.Action):
         if not os.path.isabs(directory):
             directory = os.path.join(os.path.dirname(
                 self.code_info.path), directory)
-        # XXX hacky to have to get configurable and pass it in
+        # hacky to have to get configurable and pass it in.
+        # note that this cannot be app_class as we want the app of
+        # the directive that *defined* it so we sort things properly.
         template_engine_registry.register_template_directory_info(
             obj, directory, self._before, self._after,
             self.directive.configurable)
@@ -1054,34 +1050,15 @@ class TweenFactoryAction(dectate.Action):
             obj, over=self.over, under=self.under)
 
 
-@App.private_action_class
-class IdentityPolicyFunctionAction(dectate.Action):
-    """A special action that helps register the identity policy.
-
-    We need this as it needs to be sorted after SettingAction and
-    composite actions can't be sorted nor have access to the registry.
-    """
-    config = {
-        'identity_policy_registry': IdentityPolicyRegistry,
-    }
-
+@App.directive('identity_policy')
+class IdentityPolicyAction(dectate.Action):
     depends = [SettingAction]
 
-    def __init__(self, dispatch, name):
-        self.dispatch = dispatch
-        self.name = name
+    config = {
+        'setting_registry': SettingRegistry,
+    }
 
-    def identifier(self, identity_policy_registry):
-        return (self.dispatch, self.name)
-
-    def perform(self, obj, identity_policy_registry):
-        identity_policy_registry.register_identity_policy_function(
-            obj, self.dispatch, self.name)
-
-
-@App.directive('identity_policy')
-class IdentityPolicyAction(dectate.Composite):
-    query_classes = [IdentityPolicyFunctionAction]
+    app_class_arg = True
 
     def __init__(self):
         """Register identity policy.
@@ -1096,14 +1073,25 @@ class IdentityPolicyAction(dectate.Composite):
         """
         pass
 
-    def actions(self, obj):
-        yield IdentityPolicyFunctionAction(generic.identify,
-                                           'identify'), obj
+    def identifier(self, setting_registry, app_class):
+        return ()
+
+    def perform(self, obj, setting_registry, app_class):
+        identity_policy = mapply(
+            obj, settings=setting_registry)
+        app_class._identify = identity_policy.identify
+        app_class.remember_identity = identity_policy.remember
+        app_class.forget_identity = identity_policy.forget
 
 
 @App.directive('verify_identity')
-class VerifyIdentityAction(dectate.Composite):
-    query_classes = [FunctionAction]
+class VerifyIdentityAction(dectate.Action):
+    depends = [SettingAction]
+
+    config = {
+    }
+
+    app_class_arg = True
 
     filter_convert = {
         'identity': dectate.convert_dotted_name,
@@ -1112,9 +1100,10 @@ class VerifyIdentityAction(dectate.Composite):
     def __init__(self, identity=object):
         '''Verify claimed identity.
 
-        The decorated function gives a single ``identity`` argument which
-        contains the claimed identity. It should return ``True`` only if the
-        identity can be verified with the system.
+        The decorated function takes an ``app`` argument and an
+        ``identity`` argument which contains the claimed identity. The
+        ``app`` argument is optional. It should return ``True`` only
+        if the identity can be verified with the system.
 
         This is particularly useful with identity policies such as
         basic authentication and cookie-based authentication where the
@@ -1128,18 +1117,20 @@ class VerifyIdentityAction(dectate.Composite):
         The default behavior is to always return ``False``.
 
         :param identity: identity class to verify. Optional.
+
         '''
         self.identity = identity
 
-    def actions(self, obj):
-        yield FunctionAction(generic.verify_identity,
-                             identity=self.identity), obj
+    def identifier(self, app_class):
+        return self.identity
+
+    def perform(self, obj, app_class):
+        app_class._verify_identity.register_auto(obj, identity=self.identity)
 
 
 @App.directive('dump_json')
 class DumpJsonAction(dectate.Action):
     config = {
-        'reg_registry': RegRegistry
     }
 
     filter_convert = {
@@ -1150,14 +1141,16 @@ class DumpJsonAction(dectate.Action):
         'model': isbaseclass
     }
 
+    app_class_arg = True
+
     def __init__(self, model=object):
         '''Register a function that converts model to JSON.
 
-        The decorated function gets ``self`` (model instance) and
-        ``request`` (:class:`morepath.Request`) parameters. The
-        function should return an JSON object. That is, a Python
-        object that can be dumped to a JSON string using
-        ``json.dump``.
+        The decorated function gets ``app`` (app instance), ``obj``
+        (model instance) and ``request`` (:class:`morepath.Request`)
+        arguments. The ``app`` argument is optional. The function
+        should return an JSON object. That is, a Python object that
+        can be dumped to a JSON string using ``json.dump``.
 
         :param model: the class of the model for which this function is
           registered. The ``self`` passed into the function is an instance
@@ -1166,46 +1159,43 @@ class DumpJsonAction(dectate.Action):
         '''
         self.model = model
 
-    def identifier(self, reg_registry):
+    def identifier(self, app_class):
         return self.model
 
-    def perform(self, obj, reg_registry):
-        # reverse parameters
-        def dump(request, self):
-            return obj(self, request)
-        reg_registry.register_function(generic.dump_json, dump, obj=self.model)
+    def perform(self, obj, app_class):
+        app_class._dump_json.register_auto(obj, obj=self.model)
 
 
 @App.directive('load_json')
 class LoadJsonAction(dectate.Action):
     config = {
-        'reg_registry': RegRegistry
     }
+
+    app_class_arg = True
 
     def __init__(self):
         '''Register a function that converts JSON to an object.
 
-        The decorated function gets ``json`` and ``request``
-        (:class:`morepath.Request`) parameters. The function should
-        return a Python object based on the given JSON.
+        The decorated function gets ``app``, ``json`` and ``request``
+        (:class:`morepath.Request`) arguments. The ``app`` argument is
+        optional. The function should return a Python object based on
+        the given JSON.
         '''
         pass
 
-    def identifier(self, reg_registry):
+    def identifier(self, app_class):
         return ()
 
-    def perform(self, obj, reg_registry):
-        # reverse parameters
-        def load(request, json):
-            return obj(json, request)
-        reg_registry.register_function(generic.load_json, load)
+    def perform(self, obj, app_class):
+        app_class._load_json = methodify_auto(obj)
 
 
 @App.directive('link_prefix')
 class LinkPrefixAction(dectate.Action):
     config = {
-        'reg_registry': RegRegistry
     }
+
+    app_class_arg = True
 
     def __init__(self):
         '''Register a function that returns the prefix added to every link
@@ -1214,13 +1204,14 @@ class LinkPrefixAction(dectate.Action):
         By default the link generated is based on
         :meth:`webob.Request.application_url`.
 
-        The decorated function gets the ``request`` (:class:`morepath.Request`)
-        as its only parameter. The function should return a string.
+        The decorated function gets ``app`` and ``request``
+        (:class:`morepath.Request`) arguments. The ``app`` argument is
+        optional. The function should return a string.
         '''
         pass
 
-    def identifier(self, reg_registry):
+    def identifier(self, app_class):
         return ()
 
-    def perform(self, obj, reg_registry):
-        reg_registry.register_function(generic.link_prefix, obj)
+    def perform(self, obj, app_class):
+        app_class._link_prefix = methodify_auto(obj)

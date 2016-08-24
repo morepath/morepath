@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-import pytest
 import morepath
 from morepath.request import Response
-from morepath import generic
 from morepath.authentication import Identity, NO_IDENTITY
 from .fixtures import identity_policy
 import base64
@@ -81,7 +79,61 @@ def test_permission_directive_identity():
         def forget(self, response, request):
             pass
 
+    app.commit()
+
     c = Client(app())
+
+    response = c.get('/foo')
+    assert response.body == b'Model: foo'
+    response = c.get('/bar', status=403)
+
+
+def test_permission_directive_with_app_arg():
+    class App(morepath.App):
+        pass
+
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    class Permission(object):
+        pass
+
+    @App.verify_identity()
+    def verify_identity(identity):
+        return True
+
+    @App.path(model=Model, path='{id}',
+              variables=lambda model: {'id': model.id})
+    def get_model(id):
+        return Model(id)
+
+    @App.permission_rule(model=Model, permission=Permission)
+    def get_permission(app, identity, model, permission):
+        assert isinstance(app, App)
+        if model.id == 'foo':
+            return True
+        else:
+            return False
+
+    @App.view(model=Model, permission=Permission)
+    def default(self, request):
+        return "Model: %s" % self.id
+
+    @App.identity_policy()
+    class IdentityPolicy(object):
+        def identify(self, request):
+            return Identity('testidentity')
+
+        def remember(self, response, request, identity):
+            pass
+
+        def forget(self, response, request):
+            pass
+
+    App.commit()
+
+    c = Client(App())
 
     response = c.get('/foo')
     assert response.body == b'Model: foo'
@@ -128,6 +180,55 @@ def test_policy_action():
     response = c.get('/foo')
     assert response.body == b'Model: foo'
     response = c.get('/bar', status=403)
+
+
+def test_no_identity_policy():
+    class App(morepath.App):
+        pass
+
+    @App.path(path='{id}')
+    class Model(object):
+        def __init__(self, id):
+            self.id = id
+
+    class Permission(object):
+        pass
+
+    @App.view(model=Model, permission=Permission)
+    def default(self, request):
+        return "Model: %s" % self.id
+
+    @App.view(model=Model, name='log_in')
+    def log_in(self, request):
+        response = Response()
+        request.app.remember_identity(
+            response, request, Identity(userid='user', payload='Amazing'))
+        return response
+
+    @App.view(model=Model, name='log_out')
+    def log_out(self, request):
+        response = Response()
+        request.app.forget_identity(response, request)
+        return response
+
+    @App.verify_identity()
+    def verify_identity(identity):
+        return True
+
+    c = Client(App())
+
+    # if you protect things with permissions and you
+    # install no identity policy, doing a log in has
+    # no effect
+    c.get('/foo', status=403)
+
+    c.get('/foo/log_in')
+
+    c.get('/foo', status=403)
+
+    c.get('/foo/log_out')
+
+    c.get('/foo', status=403)
 
 
 class DumbCookieIdentityPolicy(object):
@@ -211,7 +312,9 @@ def test_default_verify_identity():
 
     identity = morepath.Identity('foo')
 
-    assert not generic.verify_identity(identity, lookup=app().lookup)
+    app.commit()
+
+    assert not app()._verify_identity(identity)
 
 
 def test_verify_identity_directive():
@@ -222,10 +325,56 @@ def test_verify_identity_directive():
     def verify_identity(identity):
         return identity.password == 'right'
 
+    app.commit()
+
     identity = morepath.Identity('foo', password='wrong')
-    assert not generic.verify_identity(identity, lookup=app().lookup)
+    assert not app()._verify_identity(identity)
     identity = morepath.Identity('foo', password='right')
-    assert generic.verify_identity(identity, lookup=app().lookup)
+
+    assert app()._verify_identity(identity)
+
+
+def test_verify_identity_directive_app_arg():
+    class App(morepath.App):
+        pass
+
+    @App.verify_identity()
+    def verify_identity(app, identity):
+        assert isinstance(app, App)
+        return identity.password == 'right'
+
+    App.commit()
+
+    identity = morepath.Identity('foo', password='wrong')
+    assert not App()._verify_identity(identity)
+    identity = morepath.Identity('foo', password='right')
+
+    assert App()._verify_identity(identity)
+
+
+def test_verify_identity_directive_identity_argument():
+    class app(morepath.App):
+        pass
+
+    class PlainIdentity(morepath.Identity):
+        pass
+
+    @app.verify_identity(identity=object)
+    def verify_identity(identity):
+        return False
+
+    @app.verify_identity(identity=PlainIdentity)
+    def verify_plain_identity(identity):
+        return identity.password == 'right'
+
+    app.commit()
+
+    identity = PlainIdentity('foo', password='wrong')
+    assert not app()._verify_identity(identity)
+    identity = morepath.Identity('foo', password='right')
+    assert not app()._verify_identity(identity)
+    identity = PlainIdentity('foo', password='right')
+    assert app()._verify_identity(identity)
 
 
 def test_false_verify_identity():
@@ -444,7 +593,6 @@ def test_prevent_poisoned_host_headers():
         assert response.status_code == 400
 
 
-@pytest.mark.skip()
 def test_settings_in_permission_rule():
 
     class App(morepath.App):

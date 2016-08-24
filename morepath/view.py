@@ -16,9 +16,7 @@ import json
 from webob.exc import HTTPFound, HTTPNotFound, HTTPForbidden
 from webob import Response as BaseResponse
 
-from . import generic
 from .request import Response
-from .cachingreg import RegRegistry
 from .template import TemplateEngineRegistry
 
 
@@ -44,7 +42,7 @@ class View(object):
         self.permission = permission
         self.internal = internal
 
-    def __call__(self, obj, request):
+    def __call__(self, app, obj, request):
         """Render a model instance.
 
         If view is internal it cannot be rendered.
@@ -63,9 +61,8 @@ class View(object):
         """
         if self.internal:
             raise HTTPNotFound()
-        if (self.permission is not None and
-            not generic.permits(request.identity, obj, self.permission,
-                                lookup=request.lookup)):
+        if self.permission is not None and\
+           not request.app._permits(request.identity, obj, self.permission):
             raise HTTPForbidden()
         content = self.func(obj, request)
         if isinstance(content, BaseResponse):
@@ -97,20 +94,19 @@ def render_view(content, request):
 class ViewRegistry(object):
     """A registry of views.
 
-    :param reg_registry: a :class:`morepath.directive.RegRegistry` to
-      register the views in.
     :param template_engine_registry: a
       :class:`morepath.directive.TemplateEngineRegistry` used to render
       templated views.
     """
     factory_arguments = {
-        'reg_registry': RegRegistry,
         'template_engine_registry': TemplateEngineRegistry,
     }
 
-    def __init__(self, reg_registry, template_engine_registry):
-        self.reg_registry = reg_registry
+    app_class_arg = True
+
+    def __init__(self, template_engine_registry, app_class):
         self.template_engine_registry = template_engine_registry
+        self.app_class = app_class
 
     def predicate_key(self, key_dict):
         """Given a dictionary create a unique predicate key.
@@ -121,9 +117,7 @@ class ViewRegistry(object):
           for instance model, request_method, etc.
         :result: an immutable object representing the predicate.
         """
-        return self.reg_registry.key_dict_to_predicate_key(
-            generic.view.wrapped_func,
-            key_dict)
+        return self.app_class.get_view.key_dict_to_predicate_key(key_dict)
 
     def register_view(self, key_dict, view,
                       render=render_view,
@@ -148,7 +142,7 @@ class ViewRegistry(object):
             render = self.template_engine_registry.get_template_render(
                 template, render)
         v = View(view, render, permission, internal)
-        self.reg_registry.register_function(generic.view, v, **key_dict)
+        self.app_class.get_view.register(v, **key_dict)
 
 
 def render_json(content, request):
@@ -163,8 +157,7 @@ def render_json(content, request):
     :return: a :class:`morepath.Response` instance with a serialized
       JSON body.
     """
-    return Response(json.dumps(generic.dump_json(request, content,
-                                                 lookup=request.lookup)),
+    return Response(json.dumps(request.app._dump_json(content, request)),
                     content_type='application/json')
 
 

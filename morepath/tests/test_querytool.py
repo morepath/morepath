@@ -56,7 +56,7 @@ def test_predicate_fallback():
     ]
 
     r = objects(dectate.query_app(App, 'predicate_fallback',
-                                  dispatch='morepath.generic.view'))
+                                  dispatch='morepath.App.get_view'))
     assert r == [
         core.model_not_found,
         core.name_not_found,
@@ -65,8 +65,9 @@ def test_predicate_fallback():
     ]
 
     # there aren't any predicates for class_path
-    r = objects(dectate.query_app(App, 'predicate_fallback',
-                                  dispatch='morepath.generic.class_path'))
+    r = objects(dectate.query_app(
+        App, 'predicate_fallback',
+        dispatch='morepath.App._class_path'))
     assert r == []
 
     r = objects(dectate.query_app(App, 'predicate_fallback',
@@ -91,7 +92,7 @@ def test_predicate():
     ]
 
     r = objects(dectate.query_app(App, 'predicate',
-                                  dispatch='morepath.generic.view'))
+                                  dispatch='morepath.App.get_view'))
     assert r == [
         core.model_predicate,
         core.name_predicate,
@@ -100,8 +101,9 @@ def test_predicate():
     ]
 
     # there aren't any predicates for class_path
-    r = objects(dectate.query_app(App, 'predicate',
-                                  dispatch='morepath.generic.class_path'))
+    r = objects(dectate.query_app(
+        App, 'predicate',
+        dispatch='morepath.App._class_path'))
     assert r == []
 
     r = objects(dectate.query_app(App, 'predicate',
@@ -124,44 +126,43 @@ def test_predicate():
     ]
 
 
-# has to be here so it's importable
-@reg.dispatch_external_predicates()
-def generic(v):
-    pass
-
-
-def test_function():
-    class App(morepath.App):
+class App(morepath.App):
+    @reg.dispatch_method()
+    def generic(self, v):
         pass
 
-    @App.predicate(generic, name='v', default='', index=reg.KeyIndex)
+
+def test_method():
+
+    @App.predicate(App.generic, name='v', default='', index=reg.KeyIndex)
     def get(v):
         return v
 
-    @App.function(generic, v='A')
-    def a(v):
+    @App.method(App.generic, v='A')
+    def a(app, v):
         return v
 
-    @App.function(generic, v='B')
-    def b(v):
+    @App.method(App.generic, v='B')
+    def b(app, v):
         return v
 
     dectate.commit(App)
 
     app = App()
 
-    assert generic('A', lookup=app.lookup) == 'A'
-    assert generic('B', lookup=app.lookup) == 'B'
+    assert app.generic('A') == 'A'
+    assert app.generic('B') == 'B'
 
-    r = objects(dectate.query_app(App, 'function'))
+    r = objects(dectate.query_app(App, 'method'))
     assert r == [a, b]
 
     r = objects(
-        dectate.query_app(App, 'function',
-                          func='morepath.tests.test_querytool.generic'))
+        dectate.query_app(
+            App, 'method',
+            dispatch_method='morepath.tests.test_querytool.App.generic'))
     assert r == [a, b]
 
-    r = objects(dectate.query_app(App, 'function', v='A'))
+    r = objects(dectate.query_app(App, 'method', v='A'))
     assert r == [a]
 
 
@@ -731,11 +732,11 @@ def test_dump_json():
         pass
 
     @App.dump_json(model=Foo)
-    def dump_foo():
+    def dump_foo(self, request):
         pass
 
     @App.dump_json(model=Bar)
-    def dump_bar():
+    def dump_bar(self, request):
         pass
 
     dectate.commit(App)
@@ -763,7 +764,7 @@ def test_load_json():
         pass
 
     @App.load_json()
-    def load():
+    def load(json, request):
         pass
 
     dectate.commit(App)

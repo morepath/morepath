@@ -122,7 +122,9 @@ def test_basic_scenario():
     def root_link(self, request):
         return request.link(self)
 
-    c = Client(app())
+    a = app()
+    a.commit()
+    c = Client(a)
 
     response = c.get('/foo')
     assert response.body == b'The view for model: foo'
@@ -297,6 +299,34 @@ def test_link_with_prefix():
         return request.headers['TESTPREFIX']
 
     c = Client(app())
+
+    # we don't do anything with the prefix, so a slash at the end of the prefix
+    # leads to a double prefix at the end
+    response = c.get('/link', headers={'TESTPREFIX': 'http://testhost/'})
+    assert response.body == b'http://testhost//'
+
+    response = c.get('/link', headers={'TESTPREFIX': 'http://testhost'})
+    assert response.body == b'http://testhost/'
+
+
+def test_link_with_prefix_app_arg():
+    class App(morepath.App):
+        pass
+
+    @App.path(path='')
+    class Root(object):
+        pass
+
+    @App.view(model=Root, name='link')
+    def link(self, request):
+        return request.link(self)
+
+    @App.link_prefix()
+    def link_prefix(app, request):
+        assert isinstance(app, App)
+        return request.headers['TESTPREFIX']
+
+    c = Client(App())
 
     # we don't do anything with the prefix, so a slash at the end of the prefix
     # leads to a double prefix at the end
@@ -788,23 +818,62 @@ def test_view_conflict_with_html():
         app.commit()
 
 
-def test_function_conflict():
-    class app(morepath.App):
-        pass
+def test_function():
+    class App(morepath.App):
+        @reg.dispatch_method('a')
+        def func(self, a):
+            return "default"
 
     class A(object):
         pass
 
-    @reg.dispatch('a')
-    def func(a):
+    @App.method(App.func, a=A)
+    def a_func(app, request):
+        return "A"
+
+    App.commit()
+
+    app = App()
+    assert app.func(A()) == "A"
+    assert app.func(None) == "default"
+
+
+def test_method():
+    class App(morepath.App):
+        @reg.dispatch_method('a')
+        def func(self, a):
+            return "default"
+
+    class A(object):
         pass
 
-    @app.function(func, a=A)
-    def a_func(self, request):
+    @App.method(App.func, a=A)
+    def a_func(app, request):
+        assert isinstance(app, App)
+        return "A"
+
+    App.commit()
+
+    app = App()
+    assert app.func(A()) == "A"
+    assert app.func(None) == "default"
+
+
+def test_function_conflict():
+    class app(morepath.App):
+        @reg.dispatch_method('a')
+        def func(self, a):
+            pass
+
+    class A(object):
         pass
 
-    @app.function(func, a=A)
-    def a1_func(self, request):
+    @app.method(app.func, a=A)
+    def a_func(app, a, request):
+        pass
+
+    @app.method(app.func, a=A)
+    def a1_func(app, a, request):
         pass
 
     with pytest.raises(ConflictError):
@@ -812,25 +881,26 @@ def test_function_conflict():
 
 
 def test_function_no_conflict_different_apps():
-    class app_a(morepath.App):
+    class base(morepath.App):
+        @reg.dispatch_method('a')
+        def func(self, a):
+            pass
+
+    class app_a(base):
         pass
 
-    class app_b(morepath.App):
-        pass
-
-    @reg.dispatch('a')
-    def func(a):
+    class app_b(base):
         pass
 
     class A(object):
         pass
 
-    @app_a.function(func, a=A)
-    def a_func(a):
+    @app_a.method(base.func, a=A)
+    def a_func(app, a):
         pass
 
-    @app_b.function(func, a=A)
-    def a1_func(a):
+    @app_b.method(base.func, a=A)
+    def a1_func(app, a):
         pass
 
     dectate.commit(app_a, app_b)
@@ -986,11 +1056,9 @@ def test_abbr_nested():
 
 def test_function_directive():
     class app(morepath.App):
-        pass
-
-    @reg.dispatch('o')
-    def mygeneric(o):
-        return "The object: %s" % o
+        @reg.dispatch_method('o')
+        def mygeneric(self, o):
+            return "The object: %s" % o
 
     class Foo(object):
         def __init__(self, value):
@@ -999,36 +1067,38 @@ def test_function_directive():
         def __repr__(self):
             return "<Foo with value: %s>" % self.value
 
-    @app.function(mygeneric, o=Foo)
-    def mygeneric_for_foo(o):
+    @app.method(app.mygeneric, o=Foo)
+    def mygeneric_for_foo(app, o):
         return "The foo object: %s" % o
+
+    app.commit()
 
     a = app()
 
-    assert mygeneric('blah', lookup=a.lookup) == 'The object: blah'
-    assert mygeneric(Foo(1), lookup=a.lookup) == (
+    assert a.mygeneric('blah') == 'The object: blah'
+    assert a.mygeneric(Foo(1)) == (
         'The foo object: <Foo with value: 1>')
 
 
 def test_classgeneric_function_directive():
     class app(morepath.App):
-        pass
-
-    @reg.dispatch(reg.match_class('o'))
-    def mygeneric(o):
-        return "The object"
+        @reg.dispatch_method(reg.match_class('o', lambda o: o))
+        def mygeneric(self, o):
+            return "The object"
 
     class Foo(object):
         pass
 
-    @app.function(mygeneric, o=Foo)
-    def mygeneric_for_foo(o):
+    @app.method(app.mygeneric, o=Foo)
+    def mygeneric_for_foo(app, o):
         return "The foo object"
+
+    app.commit()
 
     a = app()
 
-    assert mygeneric(object, lookup=a.lookup) == 'The object'
-    assert mygeneric(Foo, lookup=a.lookup) == 'The foo object'
+    assert a.mygeneric(object) == 'The object'
+    assert a.mygeneric(Foo) == 'The foo object'
 
 
 def test_staticmethod():
