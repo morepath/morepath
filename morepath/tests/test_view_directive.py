@@ -55,7 +55,7 @@ def test_view_custom_predicate_conflict_involving_default_extends():
     class App(Core):
         pass
 
-    @Core.predicate(morepath.App._view, name='extra', default='DEFAULT',
+    @Core.predicate(morepath.App.get_view, name='extra', default='DEFAULT',
                     index=ClassIndex,
                     after=request_method_predicate)
     def dummy_predicate(request):
@@ -85,7 +85,7 @@ def test_view_custom_predicate_without_fallback():
     class App(Core):
         pass
 
-    @Core.predicate(morepath.App._view, name='extra', default='DEFAULT',
+    @Core.predicate(morepath.App.get_view, name='extra', default='DEFAULT',
                     index=KeyIndex,
                     after=request_method_predicate)
     def dummy_predicate(request):

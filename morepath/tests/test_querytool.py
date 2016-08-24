@@ -56,7 +56,7 @@ def test_predicate_fallback():
     ]
 
     r = objects(dectate.query_app(App, 'predicate_fallback',
-                                  dispatch='morepath.App._view'))
+                                  dispatch='morepath.App.get_view'))
     assert r == [
         core.model_not_found,
         core.name_not_found,
@@ -92,7 +92,7 @@ def test_predicate():
     ]
 
     r = objects(dectate.query_app(App, 'predicate',
-                                  dispatch='morepath.App._view'))
+                                  dispatch='morepath.App.get_view'))
     assert r == [
         core.model_predicate,
         core.name_predicate,

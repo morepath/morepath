@@ -248,7 +248,7 @@ class App(dectate.App):
             set_setting_section(section, section_settings)
 
     @reg.dispatch_method(get_key_lookup=cached_key_lookup)
-    def _view(self, obj, request):
+    def get_view(self, obj, request):
         """Get the view that represents the obj in the context of a request.
 
         This view is a representation of the obj that can be rendered to a
@@ -257,6 +257,10 @@ class App(dectate.App):
 
         Predicates are installed in :mod:`morepath.core` that inspect both
         ``obj`` and ``request`` to see whether a matching view can be found.
+
+        You can also install additional predicates using the
+        :meth:`morepath.App.predicate` and
+        :meth:`morepath.App.precicate_fallback` directives.
 
         :param obj: model object to represent with view.
         :param request: :class:`morepath.Request` instance.

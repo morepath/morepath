@@ -117,7 +117,7 @@ class ViewRegistry(object):
           for instance model, request_method, etc.
         :result: an immutable object representing the predicate.
         """
-        return self.app_class._view.key_dict_to_predicate_key(key_dict)
+        return self.app_class.get_view.key_dict_to_predicate_key(key_dict)
 
     def register_view(self, key_dict, view,
                       render=render_view,
@@ -142,7 +142,7 @@ class ViewRegistry(object):
             render = self.template_engine_registry.get_template_render(
                 template, render)
         v = View(view, render, permission, internal)
-        self.app_class._view.register(v, **key_dict)
+        self.app_class.get_view.register(v, **key_dict)
 
 
 def render_json(content, request):

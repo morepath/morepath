@@ -117,7 +117,7 @@ def resolve_response(obj, request):
 
     If no view name exist it raises :exc:`webob.exc.HTTPNotFound`.
 
-    It then uses :meth:`morepath.App._view` to resolve the view for
+    It then uses :meth:`morepath.App.get_view` to resolve the view for
     the model object and the request by doing dynamic dispatch.
 
     :param obj: model object to get response for.
@@ -128,7 +128,7 @@ def resolve_response(obj, request):
     view_name = request.view_name = get_view_name(request.unconsumed)
     if view_name is None:
         raise HTTPNotFound()
-    return request.app._view(obj, request)
+    return request.app.get_view(obj, request)
 
 
 def get_view_name(stack):
