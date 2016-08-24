@@ -42,6 +42,7 @@ setup(
     extras_require=dict(
         test=[
             'pytest >= 2.9.0',
+            'pytest < 3.0.0',
             'py >= 1.4.20',
             'pytest-cov',
             'pytest-remove-stale-bytecode',
