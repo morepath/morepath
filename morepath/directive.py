@@ -221,8 +221,8 @@ class PredicateAction(dectate.Action):
         predicate_registry.install_predicates()
 
 
-@App.directive('function')
-class FunctionAction(dectate.Action):
+@App.directive('method')
+class MethodAction(dectate.Action):
     config = {
     }
 
@@ -237,45 +237,42 @@ class FunctionAction(dectate.Action):
     # XXX we cannot search for non-string kw as we cannot define
     # the convert
     filter_convert = {
-        'func': dectate.convert_dotted_name
+        'dispatch_method': dectate.convert_dotted_name
     }
 
-    def __init__(self, func, **kw):
-        '''Register function as implementation of generic dispatch function
+    def __init__(self, dispatch_method, **kw):
+        '''Register function as implementation of dispatch method.
 
-        The decorated function is an implementation of the generic
-        function supplied to the decorator. This way you can override
-        parts of the Morepath framework, or create new hookable
-        functions of your own.
+        This way you can creat new hookable functions of your own,
+        or override parts of the Morepath framework itself.
 
-        The ``func`` argument is a generic dispatch method, so a
-        Python function marked with :func:`app.dispatch_method`
+        The ``dispatch_method`` argument is a dispatch method, so a
+        method on a :class:`morepath.App`` class marked with
+        :func:`reg.dispatch_method`, so for instance ``App.foo``. The
+        registered function gets the instance of this app class as its
+        first argument.
 
-        :param func: the generic function to register an implementation for.
-        :type func: dispatch function object
+        The reason to use this form of registration instead of
+        :meth:`reg.Dispatch.register` directly is so that they are
+        overridable just like any other Morepath directive.
+
+        :param dispatch_method: the dispatch method to register an
+          implementation for.
         :param kw: keyword parameters with the predicate keys to
            register for.  Argument names are predicate names, values
-           are the predicate values to match on.
+           are the predicate values to match on. These are like
+           the predicate arguments for :meth:`reg.Dispatch.register`.
         '''
-        self.func = func
+        self.dispatch_method = dispatch_method
         self.key_dict = kw
 
     def identifier(self, app_class):
-        return (self.func.wrapped_func,
-                self.func.key_dict_to_predicate_key(self.key_dict))
+        return (self.dispatch_method.wrapped_func,
+                self.dispatch_method.key_dict_to_predicate_key(self.key_dict))
 
     def perform(self, obj, app_class):
-        getattr(app_class, self.func.wrapped_func.__name__).register_function(
-            obj, **self.key_dict)
-
-
-# XXX reverse inheritance as function directive is now more specific
-@App.directive('method')
-class MethodAction(FunctionAction):
-    group_class = FunctionAction
-
-    def perform(self, obj, app_class):
-        getattr(app_class, self.func.wrapped_func.__name__).register(
+        getattr(app_class,
+                self.dispatch_method.wrapped_func.__name__).register(
             obj, **self.key_dict)
 
 

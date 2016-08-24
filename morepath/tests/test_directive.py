@@ -827,8 +827,8 @@ def test_function():
     class A(object):
         pass
 
-    @App.function(App.func, a=A)
-    def a_func(request):
+    @App.method(App.func, a=A)
+    def a_func(app, request):
         return "A"
 
     App.commit()
@@ -868,12 +868,12 @@ def test_function_conflict():
     class A(object):
         pass
 
-    @app.function(app.func, a=A)
-    def a_func(self, request):
+    @app.method(app.func, a=A)
+    def a_func(app, a, request):
         pass
 
-    @app.function(app.func, a=A)
-    def a1_func(self, request):
+    @app.method(app.func, a=A)
+    def a1_func(app, a, request):
         pass
 
     with pytest.raises(ConflictError):
@@ -895,12 +895,12 @@ def test_function_no_conflict_different_apps():
     class A(object):
         pass
 
-    @app_a.function(base.func, a=A)
-    def a_func(a):
+    @app_a.method(base.func, a=A)
+    def a_func(app, a):
         pass
 
-    @app_b.function(base.func, a=A)
-    def a1_func(a):
+    @app_b.method(base.func, a=A)
+    def a1_func(app, a):
         pass
 
     dectate.commit(app_a, app_b)
@@ -1067,8 +1067,8 @@ def test_function_directive():
         def __repr__(self):
             return "<Foo with value: %s>" % self.value
 
-    @app.function(app.mygeneric, o=Foo)
-    def mygeneric_for_foo(o):
+    @app.method(app.mygeneric, o=Foo)
+    def mygeneric_for_foo(app, o):
         return "The foo object: %s" % o
 
     app.commit()
@@ -1089,8 +1089,8 @@ def test_classgeneric_function_directive():
     class Foo(object):
         pass
 
-    @app.function(app.mygeneric, o=Foo)
-    def mygeneric_for_foo(o):
+    @app.method(app.mygeneric, o=Foo)
+    def mygeneric_for_foo(app, o):
         return "The foo object"
 
     app.commit()

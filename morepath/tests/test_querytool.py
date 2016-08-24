@@ -132,18 +132,18 @@ class App(morepath.App):
         pass
 
 
-def test_function():
+def test_method():
 
     @App.predicate(App.generic, name='v', default='', index=reg.KeyIndex)
     def get(v):
         return v
 
-    @App.function(App.generic, v='A')
-    def a(v):
+    @App.method(App.generic, v='A')
+    def a(app, v):
         return v
 
-    @App.function(App.generic, v='B')
-    def b(v):
+    @App.method(App.generic, v='B')
+    def b(app, v):
         return v
 
     dectate.commit(App)
@@ -153,15 +153,16 @@ def test_function():
     assert app.generic('A') == 'A'
     assert app.generic('B') == 'B'
 
-    r = objects(dectate.query_app(App, 'function'))
+    r = objects(dectate.query_app(App, 'method'))
     assert r == [a, b]
 
     r = objects(
-        dectate.query_app(App, 'function',
-                          func='morepath.tests.test_querytool.App.generic'))
+        dectate.query_app(
+            App, 'method',
+            dispatch_method='morepath.tests.test_querytool.App.generic'))
     assert r == [a, b]
 
-    r = objects(dectate.query_app(App, 'function', v='A'))
+    r = objects(dectate.query_app(App, 'method', v='A'))
     assert r == [a]
 
 

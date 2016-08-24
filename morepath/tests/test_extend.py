@@ -15,12 +15,12 @@ def test_function_extends():
     class Alpha(object):
         pass
 
-    @App.function(App.foo, obj=Alpha)
-    def app_foo(obj):
+    @App.method(App.foo, obj=Alpha)
+    def app_foo(app, obj):
         return "App"
 
-    @Extending.function(App.foo, obj=Alpha)
-    def extending_foo(obj):
+    @Extending.method(App.foo, obj=Alpha)
+    def extending_foo(app, obj):
         return "Extending"
 
     App.commit()

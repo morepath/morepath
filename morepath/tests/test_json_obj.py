@@ -39,9 +39,9 @@ def test_json_obj_dump_app_arg():
         return self
 
     @App.dump_json(model=Model)
-    def dump_model_json(app, self, request):
+    def dump_model_json(app, obj, request):
         assert isinstance(app, App)
-        return {'x': self.x}
+        return {'x': obj.x}
 
     c = Client(App())
 

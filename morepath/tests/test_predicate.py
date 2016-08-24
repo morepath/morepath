@@ -50,12 +50,12 @@ def test_dispatch_function_directive():
     class Other(object):
         pass
 
-    @App.function(App.f, obj=Foo)
-    def f_foo(obj):
+    @App.method(App.f, obj=Foo)
+    def f_foo(app, obj):
         return "foo"
 
-    @App.function(App.f, obj=Bar)
-    def f_bar(obj):
+    @App.method(App.f, obj=Bar)
+    def f_bar(app, obj):
         return "bar"
 
     App.commit()
@@ -86,12 +86,12 @@ def test_dispatch_external_predicates():
     def f_obj(obj):
         return obj.__class__
 
-    @App.function(App.f, model=Foo)
-    def f_foo(obj):
+    @App.method(App.f, model=Foo)
+    def f_foo(app, obj):
         return "foo"
 
-    @App.function(App.f, model=Bar)
-    def f_bar(obj):
+    @App.method(App.f, model=Bar)
+    def f_bar(app, obj):
         return "bar"
 
     App.commit()
@@ -126,12 +126,12 @@ def test_dispatch_external_predicates_predicate_fallback():
     def f_obj_fallback(self, obj):
         return "f_obj_fallback"
 
-    @App.function(App.f, model=Foo)
-    def f_foo(obj):
+    @App.method(App.f, model=Foo)
+    def f_foo(app, obj):
         return "foo"
 
-    @App.function(App.f, model=Bar)
-    def f_bar(obj):
+    @App.method(App.f, model=Bar)
+    def f_bar(app, obj):
         return "bar"
 
     App.commit()
@@ -167,20 +167,20 @@ def test_dispatch_external_predicates_ordering_after():
     def pred_name(name):
         return name
 
-    @App.function(App.f, model=Foo, name='')
-    def f_foo_default(obj, name):
+    @App.method(App.f, model=Foo, name='')
+    def f_foo_default(app, obj, name):
         return "foo default"
 
-    @App.function(App.f, model=Foo, name='edit')
-    def f_foo_edit(obj, name):
+    @App.method(App.f, model=Foo, name='edit')
+    def f_foo_edit(app, obj, name):
         return "foo edit"
 
-    @App.function(App.f, model=Bar, name='')
-    def f_bar_default(obj, name):
+    @App.method(App.f, model=Bar, name='')
+    def f_bar_default(app, obj, name):
         return "bar default"
 
-    @App.function(App.f, model=Bar, name='edit')
-    def f_bar_edit(obj, name):
+    @App.method(App.f, model=Bar, name='edit')
+    def f_bar_edit(app, obj, name):
         return "bar edit"
 
     App.commit()
@@ -220,20 +220,20 @@ def test_dispatch_external_predicates_ordering_before():
     def pred_obj(obj):
         return obj.__class__
 
-    @App.function(App.f, model=Foo, name='')
-    def f_foo_default(obj, name):
+    @App.method(App.f, model=Foo, name='')
+    def f_foo_default(app, obj, name):
         return "foo default"
 
-    @App.function(App.f, model=Foo, name='edit')
-    def f_foo_edit(obj, name):
+    @App.method(App.f, model=Foo, name='edit')
+    def f_foo_edit(app, obj, name):
         return "foo edit"
 
-    @App.function(App.f, model=Bar, name='')
-    def f_bar_default(obj, name):
+    @App.method(App.f, model=Bar, name='')
+    def f_bar_default(app, obj, name):
         return "bar default"
 
-    @App.function(App.f, model=Bar, name='edit')
-    def f_bar_edit(obj, name):
+    @App.method(App.f, model=Bar, name='edit')
+    def f_bar_edit(app, obj, name):
         return "bar edit"
 
     App.commit()
@@ -279,16 +279,16 @@ def test_dispatch_external_override_fallback():
     def f_obj_fallback_sub(self, obj):
         return "f_obj_fallback sub"
 
-    @App.function(App.f, model=Foo)
-    def f_foo(obj):
+    @App.method(App.f, model=Foo)
+    def f_foo(app, obj):
         return "foo"
 
-    @Sub.function(App.f, model=Foo)
-    def f_foo_sub(obj):
+    @Sub.method(App.f, model=Foo)
+    def f_foo_sub(app, obj):
         return "foo sub"
 
-    @App.function(App.f, model=Bar)
-    def f_bar(obj):
+    @App.method(App.f, model=Bar)
+    def f_bar(app, obj):
         return "bar"
 
     App.commit()
@@ -338,20 +338,20 @@ def test_dispatch_external_override_predicate():
     def f_obj_fallback(self, obj):
         return "f_obj_fallback"
 
-    @App.function(App.f, model=Foo)
-    def f_foo(obj):
+    @App.method(App.f, model=Foo)
+    def f_foo(app, obj):
         return "foo"
 
-    @Sub.function(App.f, model=Foo)
-    def f_foo_sub(obj):
+    @Sub.method(App.f, model=Foo)
+    def f_foo_sub(app, obj):
         return "foo"
 
-    @App.function(App.f, model=Bar)
-    def f_bar(obj):
+    @App.method(App.f, model=Bar)
+    def f_bar(app, obj):
         return "bar"
 
-    @Sub.function(App.f, model=Bar)
-    def f_bar_sub(obj):
+    @Sub.method(App.f, model=Bar)
+    def f_bar_sub(app, obj):
         return "bar sub"
 
     App.commit()
@@ -379,8 +379,8 @@ def test_wrong_predicate_arguments_single():
     class Foo(object):
         pass
 
-    @App.function(App.f, wrong=Foo)
-    def f_foo(obj):
+    @App.method(App.f, wrong=Foo)
+    def f_foo(app, obj):
         return "foo"
 
     App.commit()
@@ -399,8 +399,8 @@ def test_wrong_predicate_arguments_multi():
     class Foo(object):
         pass
 
-    @App.function(App.f, wrong=Foo)
-    def f_foo(a, b):
+    @App.method(App.f, wrong=Foo)
+    def f_foo(app, a, b):
         return "foo"
 
     App.commit()
@@ -425,8 +425,8 @@ def test_dispatch_external_predicates_without_predicate_directives():
     class Other(object):
         pass
 
-    @App.function(App.f)
-    def f_foo(obj):
+    @App.method(App.f)
+    def f_foo(app, obj):
         return "foo"
 
     App.commit()
