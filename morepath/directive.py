@@ -31,7 +31,7 @@ from :mod:`morepath.directive`.
 
 import os
 import dectate
-from reg import mapply, install_auto_method
+from reg import mapply, methodify_auto
 
 from .app import App
 from .authentication import Identity, NoIdentity
@@ -1074,11 +1074,9 @@ class IdentityPolicyAction(dectate.Action):
     def perform(self, obj, setting_registry, app_class):
         identity_policy = mapply(
             obj, settings=setting_registry)
-        install_auto_method(app_class, '_identify', identity_policy.identify)
-        install_auto_method(app_class, 'remember_identity',
-                            identity_policy.remember)
-        install_auto_method(app_class, 'forget_identity',
-                            identity_policy.forget)
+        app_class._identify = identity_policy.identify
+        app_class.remember_identity = identity_policy.remember
+        app_class.forget_identity = identity_policy.forget
 
 
 @App.directive('verify_identity')
@@ -1181,7 +1179,7 @@ class LoadJsonAction(dectate.Action):
         return ()
 
     def perform(self, obj, app_class):
-        install_auto_method(app_class, '_load_json', obj)
+        app_class._load_json = methodify_auto(obj)
 
 
 @App.directive('link_prefix')
@@ -1207,4 +1205,4 @@ class LinkPrefixAction(dectate.Action):
         return ()
 
     def perform(self, obj, app_class):
-        install_auto_method(app_class, '_link_prefix', obj)
+        app_class._link_prefix = methodify_auto(obj)
