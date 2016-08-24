@@ -34,20 +34,24 @@ develop_requirements.txt::
 
   $ pip install -r develop_requirements.txt --src src
 
-If you want to test Morepath also with Python 2.7 you can create a second
-virtualenv for it::
+The ``--src src`` option makes sure that the dependent ``reg``,
+``dectate`` and ``importscan`` projects are checked out in the ``src``
+directory. You can make changes to them during development too.
+
+If you want to test Morepath with Python 2.7 as well you can create a
+second virtualenv for it::
 
   $ virtualenv -p $(which python2.7) env/py27
 
-After activating it with::
+You can then activate it::
 
   $ source env/py27/bin/activate
 
-you can install the develop requirements as described above.
+and install the develop requirements as described above.
 
 .. note::
 
-   The following commands work only, if you have the virtualenv activated.
+   The following commands work only if you have the virtualenv activated.
 
 Running the tests
 -----------------
@@ -69,8 +73,9 @@ information.
 flake8
 ------
 
-flake8_ is a tool that can do various checks for common Python mistakes
-using pyflakes_ and checks for PEP8_ style compliance.
+flake8_ is a tool that can do various checks for common Python
+mistakes using pyflakes_ and checks for PEP8_ style compliance. We
+want a codebase where there are no flake8 messages.
 
 To do pyflakes and pep8 checking do::
 
@@ -111,11 +116,8 @@ can run this code using this command::
 
   $ sphinx-build -b doctest doc doc/build/doctest
 
-.. note::
-
-   Throughout this documentation, examples are using the Python 3.5 syntax.
-
-.. _Make: https://en.wikipedia.org/wiki/Make_(software)
+Since the sample code in the documentation is maintained in Python 3
+syntax, we do not support running the doctests with Python 2.7.
 
 Building the HTML documentation
 -------------------------------
@@ -127,10 +129,10 @@ To build the HTML documentation (output in ``doc/build/html``), run::
 Developing Reg, Dectate or Importscan
 -------------------------------------
 
-If you need to adjust the sources of reg, dectate or importscan and test them
-together with morepath, they're available in the src directory.
-There you can edit them and test the changes with morepath, which uses them as
-dependencies when you install Morepath for developement as described above.
+If you need to adjust the sources of Reg, Dectate or importscan and
+test them together with Morepath, they're available in the ``src``
+directory. You can edit them and test changes in the Morepath project
+directly.
 
 Installing tox locally with with different Python versions
 ----------------------------------------------------------
