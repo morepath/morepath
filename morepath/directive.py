@@ -380,10 +380,12 @@ class PathCompositeAction(dectate.Composite):
         :param model: the class of the model that the decorated function
           should return. If the directive is used on a class instead of a
           function, the model should not be provided.
-        :param variables: a function that given a model object can construct
-          the variables used in the path (including any URL parameters).
-          If omitted, variables are retrieved from the model by using
-          the arguments of the decorated function.
+        :param variables: a function takes ``app`` and ``model
+          object`` arguments. The ``app`` argument is optional.  It
+          can construct the variables used in the path (including any
+          URL parameters). If ``variables`` is omitted, variables are
+          retrieved from the model by using the arguments of the
+          decorated function.
         :param converters: a dictionary containing converters for variables.
           The key is the variable name, the value is a
           :class:`morepath.Converter` instance.
@@ -398,6 +400,7 @@ class PathCompositeAction(dectate.Composite):
         :param absorb: If set to ``True``, matches any subpath that
           matches this path as well. This is passed into the decorated
           function as the ``absorb`` argument.
+
         """
         self.model = model
         self.path = path
@@ -450,17 +453,19 @@ class PermissionRuleAction(dectate.Action):
     def __init__(self, model, permission, identity=Identity):
         """Declare whether a model has a permission.
 
-        The decorated function receives ``model``, `permission``
-        (instance of any permission object) and ``identity``
-        (:class:`morepath.Identity`) parameters. The
-        decorated function should return ``True`` only if the given
-        identity exists and has that permission on the model.
+        The decorated function receives ``app``, ``model``,
+        `permission`` (instance of any permission object) and
+        ``identity`` (:class:`morepath.Identity`) parameters. The
+        ``app`` argument is optional. The decorated function should
+        return ``True`` only if the given identity exists and has that
+        permission on the model.
 
         :param model: the model class
         :param permission: permission class
         :param identity: identity class to check permission for. If ``None``,
           the identity to check for is the special
           :data:`morepath.NO_IDENTITY`.
+
         """
         self.model = model
         self.permission = permission
@@ -1095,9 +1100,10 @@ class VerifyIdentityAction(dectate.Action):
     def __init__(self, identity=object):
         '''Verify claimed identity.
 
-        The decorated function gives a single ``identity`` argument which
-        contains the claimed identity. It should return ``True`` only if the
-        identity can be verified with the system.
+        The decorated function takes an ``app`` argument and an
+        ``identity`` argument which contains the claimed identity. The
+        ``app`` argument is optional. It should return ``True`` only
+        if the identity can be verified with the system.
 
         This is particularly useful with identity policies such as
         basic authentication and cookie-based authentication where the
@@ -1111,6 +1117,7 @@ class VerifyIdentityAction(dectate.Action):
         The default behavior is to always return ``False``.
 
         :param identity: identity class to verify. Optional.
+
         '''
         self.identity = identity
 
@@ -1139,11 +1146,11 @@ class DumpJsonAction(dectate.Action):
     def __init__(self, model=object):
         '''Register a function that converts model to JSON.
 
-        The decorated function gets ``self`` (model instance) and
-        ``request`` (:class:`morepath.Request`) parameters. The
-        function should return an JSON object. That is, a Python
-        object that can be dumped to a JSON string using
-        ``json.dump``.
+        The decorated function gets ``app`` (app instance), ``obj``
+        (model instance) and ``request`` (:class:`morepath.Request`)
+        arguments. The ``app`` argument is optional. The function
+        should return an JSON object. That is, a Python object that
+        can be dumped to a JSON string using ``json.dump``.
 
         :param model: the class of the model for which this function is
           registered. The ``self`` passed into the function is an instance
@@ -1169,9 +1176,10 @@ class LoadJsonAction(dectate.Action):
     def __init__(self):
         '''Register a function that converts JSON to an object.
 
-        The decorated function gets ``json`` and ``request``
-        (:class:`morepath.Request`) parameters. The function should
-        return a Python object based on the given JSON.
+        The decorated function gets ``app``, ``json`` and ``request``
+        (:class:`morepath.Request`) arguments. The ``app`` argument is
+        optional. The function should return a Python object based on
+        the given JSON.
         '''
         pass
 
@@ -1196,8 +1204,9 @@ class LinkPrefixAction(dectate.Action):
         By default the link generated is based on
         :meth:`webob.Request.application_url`.
 
-        The decorated function gets the ``request`` (:class:`morepath.Request`)
-        as its only parameter. The function should return a string.
+        The decorated function gets ``app`` and ``request``
+        (:class:`morepath.Request`) arguments. The ``app`` argument is
+        optional. The function should return a string.
         '''
         pass
 
