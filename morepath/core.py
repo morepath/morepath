@@ -215,7 +215,7 @@ def poisoned_host_header_protection_tween_factory(app, handler):
 
 
 @App.view(model=HTTPException)
-def standard_exception_view(self, model):
+def standard_exception_view(self, request):
     """We want the webob standard responses for any webob-based HTTP exception.
 
     Applies to subclasses of :class:`webob.HTTPException`.
