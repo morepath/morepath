@@ -1082,7 +1082,7 @@ def test_function_directive():
 
 def test_classgeneric_function_directive():
     class app(morepath.App):
-        @reg.dispatch_method(reg.match_class('o', lambda o: o))
+        @reg.dispatch_method(reg.match_class('o'))
         def mygeneric(self, o):
             return "The object"
 
