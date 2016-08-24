@@ -32,11 +32,13 @@ Activate the virtualenv::
 Install the various dependencies and development tools from
 develop_requirements.txt::
 
-  $ pip install -r develop_requirements.txt --src src
+  $ pip install -Ur develop_requirements.txt --src src
 
 The ``--src src`` option makes sure that the dependent ``reg``,
 ``dectate`` and ``importscan`` projects are checked out in the ``src``
 directory. You can make changes to them during development too.
+
+For upgrading the sources and requirements just run the command again.
 
 If you want to test Morepath with Python 2.7 as well you can create a
 second virtualenv for it::
