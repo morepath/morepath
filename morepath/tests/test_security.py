@@ -79,8 +79,6 @@ def test_permission_directive_identity():
         def forget(self, response, request):
             pass
 
-    app.commit()
-
     c = Client(app())
 
     response = c.get('/foo')
@@ -130,8 +128,6 @@ def test_permission_directive_with_app_arg():
 
         def forget(self, response, request):
             pass
-
-    App.commit()
 
     c = Client(App())
 
