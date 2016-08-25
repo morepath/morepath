@@ -25,8 +25,6 @@ Then go to the morepath directory::
 
 Make sure you have virtualenv_ installed.
 
-.. _virtualenv: https://pypi.python.org/pypi/virtualenv
-
 Create a new virtualenv for Python 3 inside the morepath directory::
 
   $ virtualenv -p $(which python3) env/py3
@@ -64,6 +62,8 @@ and install the develop requirements as described above.
    The following commands work only if you have the virtualenv activated.
 
 .. _github: https://help.github.com/articles/generating-an-ssh-key
+
+.. _virtualenv: https://pypi.python.org/pypi/virtualenv
 
 Running the tests
 -----------------
@@ -127,6 +127,15 @@ The documentation contains code. To check these code snippets, you
 can run this code using this command::
 
   $ sphinx-build -b doctest doc doc/build/doctest
+
+Or alternatively if you have ``Make`` installed::
+
+  $ cd doc
+  $ make doctest
+
+Or from the Morepath project directory::
+
+  $ make -C doc doctest
 
 Since the sample code in the documentation is maintained in Python 3
 syntax, we do not support running the doctests with Python 2.7.
