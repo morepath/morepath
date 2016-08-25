@@ -16,9 +16,9 @@ It all starts at :func:`publish`.
 """
 
 from webob.exc import HTTPNotFound
-from reg import mapply
 
 from .app import App
+from .mapply import mapply
 
 DEFAULT_NAME = u''
 

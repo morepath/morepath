@@ -31,7 +31,7 @@ from :mod:`morepath.directive`.
 
 import os
 import dectate
-from reg import mapply, methodify_auto
+from reg import methodify_auto
 
 from .app import App
 from .authentication import Identity, NoIdentity
@@ -43,6 +43,7 @@ from .template import TemplateEngineRegistry
 from .predicate import PredicateRegistry
 from .path import PathRegistry
 from .settings import SettingRegistry
+from .mapply import mapply
 
 
 def isbaseclass(a, b):
