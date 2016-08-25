@@ -96,8 +96,13 @@ class PathRegistry(TrajectRegistry):
         if required is None:
             required = set()
         required = set(required)
-        parameter_factory = ParameterFactory(parameters, converters, required,
-                                             'extra_parameters' in arguments)
+
+        extra = 'extra_parameters' in arguments
+        if parameters or converters or required or extra:
+            parameter_factory = ParameterFactory(
+                parameters, converters, required, extra)
+        else:
+            parameter_factory = lambda request: {}
 
         self.add_pattern(path, (model_factory, parameter_factory),
                          converters, absorb)

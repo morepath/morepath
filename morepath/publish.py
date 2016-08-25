@@ -98,7 +98,7 @@ def consume(app, request):
     if value is None:
         return None
     get_obj, get_parameters = value
-    variables = get_parameters(request.GET)
+    variables = get_parameters(request)
     variables['request'] = request
     variables['app'] = app
     variables.update(traject_variables)

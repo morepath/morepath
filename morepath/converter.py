@@ -253,10 +253,11 @@ class ParameterFactory(object):
         self.required = required
         self.extra = extra
 
-    def __call__(self, url_parameters):
+    def __call__(self, request):
         """Convert URL parameters to Python dictionary with values.
         """
         result = {}
+        url_parameters = request.GET
         for name, default in self.parameters.items():
             value = url_parameters.getall(name)
             converter = self.converters.get(name, IDENTITY_CONVERTER)
