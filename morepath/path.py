@@ -102,7 +102,7 @@ class PathRegistry(TrajectRegistry):
             parameter_factory = ParameterFactory(
                 parameters, converters, required, extra)
         else:
-            parameter_factory = lambda request: {}
+            parameter_factory = _simple_parameter_factory
 
         self.add_pattern(path, (model_factory, parameter_factory),
                          converters, absorb)
@@ -366,3 +366,7 @@ def fixed_urlencode(s, doseq=0):
     tilde should not be encoded according to RFC3986
     """
     return urlencode(s, doseq).replace('%7E', '~')
+
+
+def _simple_parameter_factory(request):
+    return {}
