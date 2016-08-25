@@ -829,8 +829,6 @@ def test_function():
     def a_func(app, request):
         return "A"
 
-    App.commit()
-
     app = App()
     assert app.func(A()) == "A"
     assert app.func(None) == "default"
@@ -849,8 +847,6 @@ def test_method():
     def a_func(app, request):
         assert isinstance(app, App)
         return "A"
-
-    App.commit()
 
     app = App()
     assert app.func(A()) == "A"
@@ -1069,8 +1065,6 @@ def test_function_directive():
     def mygeneric_for_foo(app, o):
         return "The foo object: %s" % o
 
-    app.commit()
-
     a = app()
 
     assert a.mygeneric('blah') == 'The object: blah'
@@ -1090,8 +1084,6 @@ def test_classgeneric_function_directive():
     @app.method(app.mygeneric, o=Foo)
     def mygeneric_for_foo(app, o):
         return "The foo object"
-
-    app.commit()
 
     a = app()
 

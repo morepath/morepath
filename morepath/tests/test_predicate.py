@@ -25,8 +25,6 @@ def test_dispatch_method_directive():
     def f_bar(self, obj):
         return "bar"
 
-    App.commit()
-
     a = App()
 
     assert a.f(Foo()) == 'foo'
@@ -56,8 +54,6 @@ def test_dispatch_function_directive():
     @App.method(App.f, obj=Bar)
     def f_bar(app, obj):
         return "bar"
-
-    App.commit()
 
     a = App()
 
@@ -92,8 +88,6 @@ def test_dispatch_external_predicates():
     @App.method(App.f, model=Bar)
     def f_bar(app, obj):
         return "bar"
-
-    App.commit()
 
     a = App()
 
@@ -132,8 +126,6 @@ def test_dispatch_external_predicates_predicate_fallback():
     @App.method(App.f, model=Bar)
     def f_bar(app, obj):
         return "bar"
-
-    App.commit()
 
     a = App()
 
@@ -181,8 +173,6 @@ def test_dispatch_external_predicates_ordering_after():
     @App.method(App.f, model=Bar, name='edit')
     def f_bar_edit(app, obj, name):
         return "bar edit"
-
-    App.commit()
 
     a = App()
 
@@ -234,8 +224,6 @@ def test_dispatch_external_predicates_ordering_before():
     @App.method(App.f, model=Bar, name='edit')
     def f_bar_edit(app, obj, name):
         return "bar edit"
-
-    App.commit()
 
     a = App()
 
@@ -289,9 +277,6 @@ def test_dispatch_external_override_fallback():
     @App.method(App.f, model=Bar)
     def f_bar(app, obj):
         return "bar"
-
-    App.commit()
-    Sub.commit()
 
     s = Sub()
 
@@ -353,9 +338,6 @@ def test_dispatch_external_override_predicate():
     def f_bar_sub(app, obj):
         return "bar sub"
 
-    App.commit()
-    Sub.commit()
-
     s = Sub()
 
     assert s.f(Foo()) == 'bar sub'
@@ -382,8 +364,6 @@ def test_wrong_predicate_arguments_single():
     def f_foo(app, obj):
         return "foo"
 
-    App.commit()
-
     a = App()
 
     assert a.f(Foo()) == 'fallback'
@@ -401,8 +381,6 @@ def test_wrong_predicate_arguments_multi():
     @App.method(App.f, wrong=Foo)
     def f_foo(app, a, b):
         return "foo"
-
-    App.commit()
 
     a = App()
 
@@ -427,8 +405,6 @@ def test_dispatch_external_predicates_without_predicate_directives():
     @App.method(App.f)
     def f_foo(app, obj):
         return "foo"
-
-    App.commit()
 
     a = App()
 

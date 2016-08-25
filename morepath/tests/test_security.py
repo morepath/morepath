@@ -308,8 +308,6 @@ def test_default_verify_identity():
 
     identity = morepath.Identity('foo')
 
-    app.commit()
-
     assert not app()._verify_identity(identity)
 
 
@@ -320,8 +318,6 @@ def test_verify_identity_directive():
     @app.verify_identity()
     def verify_identity(identity):
         return identity.password == 'right'
-
-    app.commit()
 
     identity = morepath.Identity('foo', password='wrong')
     assert not app()._verify_identity(identity)
@@ -338,8 +334,6 @@ def test_verify_identity_directive_app_arg():
     def verify_identity(app, identity):
         assert isinstance(app, App)
         return identity.password == 'right'
-
-    App.commit()
 
     identity = morepath.Identity('foo', password='wrong')
     assert not App()._verify_identity(identity)
@@ -362,8 +356,6 @@ def test_verify_identity_directive_identity_argument():
     @app.verify_identity(identity=PlainIdentity)
     def verify_plain_identity(identity):
         return identity.password == 'right'
-
-    app.commit()
 
     identity = PlainIdentity('foo', password='wrong')
     assert not app()._verify_identity(identity)

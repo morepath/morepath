@@ -22,9 +22,6 @@ def test_function_extends():
     def extending_foo(app, obj):
         return "Extending"
 
-    App.commit()
-    Extending.commit()
-
     assert App().foo(Alpha()) == 'App'
     assert Extending().foo(Alpha()) == 'Extending'
 
