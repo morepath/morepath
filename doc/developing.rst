@@ -144,16 +144,16 @@ If you want to run the tests for one of them, let's say Reg, do::
 Tox
 ---
 
-If you want to check Morepath works with the supported Python versions
-you can install tox.
+Install tox to check Morepath works with the versions of Python it
+supports.
 
 We have Travis continuous integration installed on Morepath's github
 repository and it runs the same tox tests after each checkin.
 
-First you should install all Python versions which you want to test. The
-versions which are not installed will be skipped. At least you should install
-Python 3.5 which is required by flake8, coverage and doctests and Python 2.7
-for testing Morepath with Python 2.
+First you should install all Python versions which you want to
+test. The versions which are not installed will be skipped. You should
+at least install Python 3.5 which is required by flake8, coverage and
+doctests and Python 2.7 for testing Morepath with Python 2.
 
 One tool you can use to install multiple versions of Python is pyenv_.
 
