@@ -60,11 +60,11 @@ Running the tests
 
 You can run the tests using `py.test`_::
 
-  $ py.test morepath
+  $ py.test
 
 To generate test coverage information as HTML do::
 
-  $ py.test morepath --cov morepath --cov-report html
+  $ py.test --cov morepath --cov-report html
 
 You can then point your web browser to the ``htmlcov/index.html`` file
 in the project directory and click on modules to see detailed coverage
@@ -136,23 +136,19 @@ test them together with Morepath, they're available in the ``src``
 directory. You can edit them and test changes in the Morepath project
 directly.
 
-If you want to run the tests for Morepath, Reg, Dectate and Importscan
-alltogether, you can just use::
-
-  $ py.test
-
 If you want to run the tests for one of them, let's say Reg, do::
 
   $ cd src/reg
-  $ py.test reg
+  $ py.test
 
 Tox
 ---
 
-If you want to check if Morepath works works with the supported Python versions
-and check if it passes all Travis Ci tests, you can install tox locally.
+If you want to check Morepath works with the supported Python versions
+you can install tox.
 
-Tox is also used by Travis Ci on GitHub.
+We have Travis continuous integration installed on Morepath's github
+repository and it runs the same tox tests after each checkin.
 
 First you should install all Python versions which you want to test. The
 versions which are not installed will be skipped. At least you should install
