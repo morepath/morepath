@@ -1,17 +1,21 @@
-bin
-parts
-.installed.cfg
-develop-eggs
-src
-.mr.developer.cfg
-doc/build
-.coverage
-htmlcov
-.tox
-.cache
-build/
-dist/
-eggs/
-*.pyc
-*.pyo
-*.egg-info
+# Byte-compiled / optimized
+__pycache__/
+*.py[co]
+
+# Distribution / packaging
+*.egg-info/
+/build/
+/dist/
+
+# Virtualenv
+/env/
+/src/
+
+# Unit test / coverage reports
+.cache/
+/.coverage
+/htmlcov
+/.tox
+
+# Sphinx documentation
+/doc/build/

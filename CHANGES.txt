@@ -41,6 +41,10 @@ Removals & Deprecations
   have all been removed.  Generic functions decorated by
   ``morepath.App.function`` can use implicit lookup by default.
 
+- **Removed** buildout is removed as development setup use pip instead.
+
+  See below for details.
+
 Bug fixes
 ---------
 
@@ -69,8 +73,13 @@ Other
 - Have the manifest file for source distribution include all files
   under VCS.
 
+- Replacing the buildout based development setup by a pip based one.
+  See `#473`_ and `#484`_.
+
 .. _#464: https://github.com/morepath/morepath/issues/464
 .. _#468: https://github.com/morepath/morepath/pull/468
+.. _#473: https://github.com/morepath/morepath/issues/473
+.. _#484: https://github.com/morepath/morepath/pull/484
 
 
 0.15 (2016-07-18)

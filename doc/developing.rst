@@ -10,52 +10,61 @@ on how to get in touch!
 Install Morepath for development
 --------------------------------
 
-.. highlight:: sh
-
-First make sure you have virtualenv_ installed for Python 3.5.
-
-.. _virtualenv: https://pypi.python.org/pypi/virtualenv
-
-Now create a new virtualenv somewhere for Morepath development::
-
-  $ virtualenv /path/to/ve_morepath
-
-You should also be able to recycle an existing virtualenv, but this
-guarantees a clean one. Note that we skip activating the environment
-here, as this is just needed to initially bootstrap the Morepath
-buildout.
+.. highlight:: console
 
 Clone Morepath from github and go to the morepath directory::
 
   $ git clone git@github.com:morepath/morepath.git
   $ cd morepath
 
-Now we need to run bootstrap.py to set up buildout, using the Python from the
-virtualenv we've created before::
+Make sure you have virtualenv_ installed.
 
-  $ /path/to/ve_morepath/bin/python bootstrap.py
+.. _virtualenv: https://pypi.python.org/pypi/virtualenv
 
-This installs buildout, which can now set up the rest of the development
-environment::
+Create a new virtualenv for Python 3 inside the morepath directory::
 
-  $ bin/buildout
+  $ virtualenv -p $(which python3) env/py3
 
-This downloads and installs various dependencies and tools. The
-commands you run in ``bin`` are all restricted to the virtualenv you
-set up before. There is therefore no need to refer to the virtualenv
-once you have the development environment going.
+Activate the virtualenv::
+
+  $ source env/py3/bin/activate
+
+Install the various dependencies and development tools from
+develop_requirements.txt::
+
+  $ pip install -Ur develop_requirements.txt --src src
+
+The ``--src src`` option makes sure that the dependent ``reg``,
+``dectate`` and ``importscan`` projects are checked out in the ``src``
+directory. You can make changes to them during development too.
+
+For upgrading the sources and requirements just run the command again.
+
+If you want to test Morepath with Python 2.7 as well you can create a
+second virtualenv for it::
+
+  $ virtualenv -p $(which python2.7) env/py27
+
+You can then activate it::
+
+  $ source env/py27/bin/activate
+
+and install the develop requirements as described above.
+
+.. note::
+
+   The following commands work only if you have the virtualenv activated.
 
 Running the tests
 -----------------
 
-You can run the tests using `py.test`_. Buildout has installed it for
-you in the ``bin`` subdirectory of your project::
+You can run the tests using `py.test`_::
 
-  $ bin/py.test morepath
+  $ py.test
 
 To generate test coverage information as HTML do::
 
-  $ bin/py.test morepath --cov morepath --cov-report html
+  $ py.test --cov morepath --cov-report html
 
 You can then point your web browser to the ``htmlcov/index.html`` file
 in the project directory and click on modules to see detailed coverage
@@ -66,13 +75,13 @@ information.
 flake8
 ------
 
-The buildout also installs flake8_, which is a tool that
-can do various checks for common Python mistakes using pyflakes_ and
-checks for PEP8_ style compliance.
+flake8_ is a tool that can do various checks for common Python
+mistakes using pyflakes_ and checks for PEP8_ style compliance. We
+want a codebase where there are no flake8 messages.
 
 To do pyflakes and pep8 checking do::
 
-  $ bin/flake8 morepath
+  $ flake8 morepath
 
 .. _flake8: https://pypi.python.org/pypi/flake8
 
@@ -83,20 +92,19 @@ To do pyflakes and pep8 checking do::
 radon
 -----
 
-The buildout installs radon_. This is a tool that can check various
-measures of code complexity.
+radon_ is a tool that can check various measures of code complexity.
 
 To check for `cyclomatic complexity`_ (excluding the tests)::
 
-  $ bin/radon cc morepath -e "morepath/tests*"
+  $ radon cc morepath -e "morepath/tests*"
 
 To filter for anything not ranked ``A``::
 
-  $ bin/radon cc morepath --min B -e "morepath/tests*"
+  $ radon cc morepath --min B -e "morepath/tests*"
 
 And to see the maintainability index::
 
-  $ bin/radon mi morepath -e "morepath/tests*"
+  $ radon mi morepath -e "morepath/tests*"
 
 .. _radon: https://radon.readthedocs.org/en/latest/commandline.html
 
@@ -108,25 +116,75 @@ Running the documentation tests
 The documentation contains code. To check these code snippets, you
 can run this code using this command::
 
-  $ bin/sphinxpython bin/sphinx-build -b doctest doc doc/build/doctest
+  $ sphinx-build -b doctest doc doc/build/doctest
 
-If you have Make_ installed, buildout generates for you a Makefile in
-the directory ``doc/build`` that you can use::
-
-  $ (cd doc/build; make doctest)
-
-.. note::
-
-   Throughout this documentation, examples are using the Python 3.5 syntax.
-
-.. _Make: https://en.wikipedia.org/wiki/Make_(software)
+Since the sample code in the documentation is maintained in Python 3
+syntax, we do not support running the doctests with Python 2.7.
 
 Building the HTML documentation
 -------------------------------
 
 To build the HTML documentation (output in ``doc/build/html``), run::
 
-  $ bin/sphinxbuilder
+  $ sphinx-build doc doc/build/html
+
+Developing Reg, Dectate or Importscan
+-------------------------------------
+
+If you need to adjust the sources of Reg, Dectate or Importscan and
+test them together with Morepath, they're available in the ``src``
+directory. You can edit them and test changes in the Morepath project
+directly.
+
+If you want to run the tests for one of them, let's say Reg, do::
+
+  $ cd src/reg
+  $ py.test
+
+Tox
+---
+
+If you want to check Morepath works with the supported Python versions
+you can install tox.
+
+We have Travis continuous integration installed on Morepath's github
+repository and it runs the same tox tests after each checkin.
+
+First you should install all Python versions which you want to test. The
+versions which are not installed will be skipped. At least you should install
+Python 3.5 which is required by flake8, coverage and doctests and Python 2.7
+for testing Morepath with Python 2.
+
+One tool you can use to install multiple versions of Python is pyenv_.
+
+Create and activate a new virtualenv for tox::
+
+  $ virtualenv env/tox
+  $ source env/tox/bin/activate
+
+Make sure you have recent setuptools and pip installed::
+
+  $ pip install -U setuptools pip
+
+Now you can install tox::
+
+  $ pip install -U tox
+
+To find out which test environments are defined for Morepath in tox.ini run::
+
+  $ tox -l
+
+You can run all tox tests with::
+
+  $ tox
+
+You can also specify a test environment to run::
+
+  $ tox -e py35
+  $ tox -e pep8
+  $ tox -e docs
+
+.. _pyenv: https://github.com/yyuu/pyenv
 
 Deprecation
 -----------
