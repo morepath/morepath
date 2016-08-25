@@ -1,15 +1,14 @@
 import morepath
-import reg
 from webtest import TestApp as Client
 
 
 def test_implicit_function():
     class app(morepath.App):
-        @reg.dispatch_method()
+        @morepath.dispatch_method()
         def one(self):
             return "Default one"
 
-        @reg.dispatch_method()
+        @morepath.dispatch_method()
         def two(self):
             return "Default two"
 
@@ -38,11 +37,11 @@ def test_implicit_function():
 
 def test_implicit_function_mounted():
     class base(morepath.App):
-        @reg.dispatch_method()
+        @morepath.dispatch_method()
         def one(self):
             return "Default one"
 
-        @reg.dispatch_method()
+        @morepath.dispatch_method()
         def two(self):
             return "Default two"
 

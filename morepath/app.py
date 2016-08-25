@@ -24,10 +24,16 @@ from . import compat
 from .reify import reify
 from .path import PathInfo
 from .error import LinkError
+from functools import partial
 
 
 def cached_key_lookup(key_lookup):
     return reg.CachingKeyLookup(key_lookup, 1000, 1000, 1000)
+
+
+dispatch_method = partial(
+    reg.dispatch_method,
+    get_key_lookup=cached_key_lookup)
 
 
 class App(dectate.App):
@@ -247,7 +253,7 @@ class App(dectate.App):
         for section, section_settings in settings.items():
             set_setting_section(section, section_settings)
 
-    @reg.dispatch_method(get_key_lookup=cached_key_lookup)
+    @dispatch_method()
     def get_view(self, obj, request):
         """Get the view that represents the obj in the context of a request.
 
@@ -269,7 +275,7 @@ class App(dectate.App):
         """
         return HTTPNotFound()
 
-    @reg.dispatch_method('identity', get_key_lookup=cached_key_lookup)
+    @dispatch_method('identity')
     def _verify_identity(self, identity):
         """Returns True if the claimed identity can be verified.
 
@@ -282,9 +288,7 @@ class App(dectate.App):
         """
         return False
 
-    @reg.dispatch_method('identity', 'obj',
-                         reg.match_class('permission'),
-                         get_key_lookup=cached_key_lookup)
+    @dispatch_method('identity', 'obj', reg.match_class('permission'))
     def _permits(self, identity, obj, permission):
         """Returns ``True`` if identity has permission for model object.
 
@@ -310,7 +314,7 @@ class App(dectate.App):
         """
         return json
 
-    @reg.dispatch_method('obj', get_key_lookup=cached_key_lookup)
+    @dispatch_method('obj')
     def _dump_json(self, obj, request):
         """Dump an object as JSON.
 
@@ -332,8 +336,7 @@ class App(dectate.App):
         """
         return request.application_url
 
-    @reg.dispatch_method(reg.match_class('model'),
-                         get_key_lookup=cached_key_lookup)
+    @dispatch_method(reg.match_class('model'))
     def _class_path(self, model, variables):
         """Get the path for a model class.
 
@@ -345,7 +348,7 @@ class App(dectate.App):
         """
         return None
 
-    @reg.dispatch_method('obj', get_key_lookup=cached_key_lookup)
+    @dispatch_method('obj')
     def _path_variables(self, obj):
         """Get variables to use in path generation.
 
@@ -355,7 +358,7 @@ class App(dectate.App):
         """
         return self._default_path_variables(obj)
 
-    @reg.dispatch_method('obj', get_key_lookup=cached_key_lookup)
+    @dispatch_method('obj')
     def _default_path_variables(self, obj):
         """Get default variables to use in path generation.
 
@@ -367,7 +370,7 @@ class App(dectate.App):
         """
         return None
 
-    @reg.dispatch_method('obj', get_key_lookup=cached_key_lookup)
+    @dispatch_method('obj')
     def _deferred_link_app(self, obj):
         """Get application used for link generation.
 
@@ -378,8 +381,7 @@ class App(dectate.App):
         """
         return None
 
-    @reg.dispatch_method(reg.match_class('model'),
-                         get_key_lookup=cached_key_lookup)
+    @dispatch_method(reg.match_class('model'))
     def _deferred_class_link_app(self, model, variables):
         """Get application used for link generation for a model class.
 

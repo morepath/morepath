@@ -818,7 +818,7 @@ def test_view_conflict_with_html():
 
 def test_function():
     class App(morepath.App):
-        @reg.dispatch_method('a')
+        @morepath.dispatch_method('a')
         def func(self, a):
             return "default"
 
@@ -838,7 +838,7 @@ def test_function():
 
 def test_method():
     class App(morepath.App):
-        @reg.dispatch_method('a')
+        @morepath.dispatch_method('a')
         def func(self, a):
             return "default"
 
@@ -859,7 +859,7 @@ def test_method():
 
 def test_function_conflict():
     class app(morepath.App):
-        @reg.dispatch_method('a')
+        @morepath.dispatch_method('a')
         def func(self, a):
             pass
 
@@ -880,7 +880,7 @@ def test_function_conflict():
 
 def test_function_no_conflict_different_apps():
     class base(morepath.App):
-        @reg.dispatch_method('a')
+        @morepath.dispatch_method('a')
         def func(self, a):
             pass
 
@@ -1054,7 +1054,7 @@ def test_abbr_nested():
 
 def test_function_directive():
     class app(morepath.App):
-        @reg.dispatch_method('o')
+        @morepath.dispatch_method('o')
         def mygeneric(self, o):
             return "The object: %s" % o
 
@@ -1080,7 +1080,7 @@ def test_function_directive():
 
 def test_classgeneric_function_directive():
     class app(morepath.App):
-        @reg.dispatch_method(reg.match_class('o'))
+        @morepath.dispatch_method(reg.match_class('o'))
         def mygeneric(self, o):
             return "The object"
 

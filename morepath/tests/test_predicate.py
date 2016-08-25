@@ -1,11 +1,10 @@
-import reg
 from reg import ClassIndex, KeyIndex
 import morepath
 
 
 def test_dispatch_method_directive():
     class App(morepath.App):
-        @reg.dispatch_method('obj')
+        @morepath.dispatch_method('obj')
         def f(self, obj):
             return "fallback"
 
@@ -37,7 +36,7 @@ def test_dispatch_method_directive():
 
 def test_dispatch_function_directive():
     class App(morepath.App):
-        @reg.dispatch_method('obj')
+        @morepath.dispatch_method('obj')
         def f(self, obj):
             return "fallback"
 
@@ -69,7 +68,7 @@ def test_dispatch_function_directive():
 
 def test_dispatch_external_predicates():
     class App(morepath.App):
-        @reg.dispatch_method()
+        @morepath.dispatch_method()
         def f(self, obj):
             return "fallback"
 
@@ -105,7 +104,7 @@ def test_dispatch_external_predicates():
 
 def test_dispatch_external_predicates_predicate_fallback():
     class App(morepath.App):
-        @reg.dispatch_method()
+        @morepath.dispatch_method()
         def f(self, obj):
             return "dispatch function"
 
@@ -145,7 +144,7 @@ def test_dispatch_external_predicates_predicate_fallback():
 
 def test_dispatch_external_predicates_ordering_after():
     class App(morepath.App):
-        @reg.dispatch_method()
+        @morepath.dispatch_method()
         def f(self, obj, name):
             return "fallback"
 
@@ -198,7 +197,7 @@ def test_dispatch_external_predicates_ordering_after():
 
 def test_dispatch_external_predicates_ordering_before():
     class App(morepath.App):
-        @reg.dispatch_method()
+        @morepath.dispatch_method()
         def f(self, obj, name):
             return "fallback"
 
@@ -251,7 +250,7 @@ def test_dispatch_external_predicates_ordering_before():
 
 def test_dispatch_external_override_fallback():
     class App(morepath.App):
-        @reg.dispatch_method()
+        @morepath.dispatch_method()
         def f(self, obj):
             return "dispatch function"
 
@@ -310,7 +309,7 @@ def test_dispatch_external_override_fallback():
 
 def test_dispatch_external_override_predicate():
     class App(morepath.App):
-        @reg.dispatch_method()
+        @morepath.dispatch_method()
         def f(self, obj):
             return "dispatch function"
 
@@ -372,7 +371,7 @@ def test_dispatch_external_override_predicate():
 
 def test_wrong_predicate_arguments_single():
     class App(morepath.App):
-        @reg.dispatch_method('obj')
+        @morepath.dispatch_method('obj')
         def f(self, obj):
             return "fallback"
 
@@ -392,7 +391,7 @@ def test_wrong_predicate_arguments_single():
 
 def test_wrong_predicate_arguments_multi():
     class App(morepath.App):
-        @reg.dispatch_method('a', 'b')
+        @morepath.dispatch_method('a', 'b')
         def f(self, a, b):
             return "fallback"
 
@@ -412,7 +411,7 @@ def test_wrong_predicate_arguments_multi():
 
 def test_dispatch_external_predicates_without_predicate_directives():
     class App(morepath.App):
-        @reg.dispatch_method()
+        @morepath.dispatch_method()
         def f(self, obj):
             return "fallback"
 

@@ -1,11 +1,10 @@
 import morepath
-import reg
 from webtest import TestApp as Client
 
 
 def test_function_extends():
     class App(morepath.App):
-        @reg.dispatch_method('obj')
+        @morepath.dispatch_method('obj')
         def foo(self, obj):
             return "default"
 
