@@ -138,6 +138,15 @@ To build the HTML documentation (output in ``doc/build/html``), run::
 
   $ sphinx-build doc doc/build/html
 
+Or alternatively if you have ``Make`` installed::
+
+  $ cd doc
+  $ make html
+
+Or from the Morepath project directory::
+
+  $ make -C doc html
+
 Developing Reg, Dectate or Importscan
 -------------------------------------
 
