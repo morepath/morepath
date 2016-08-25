@@ -45,6 +45,8 @@ API
 .. autoclass:: morepath.Converter
   :members:
 
+.. autofunction:: morepath.dispatch_method
+
 ``morepath.error`` -- exception classes
 ---------------------------------------
 

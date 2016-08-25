@@ -24,16 +24,17 @@ from . import compat
 from .reify import reify
 from .path import PathInfo
 from .error import LinkError
-from functools import partial
+from functools import wraps
 
 
 def cached_key_lookup(key_lookup):
     return reg.CachingKeyLookup(key_lookup, 1000, 1000, 1000)
 
 
-dispatch_method = partial(
-    reg.dispatch_method,
-    get_key_lookup=cached_key_lookup)
+@wraps(reg.dispatch_method)
+def dispatch_method(*predicates, **kw):
+    kw.setdefault('get_key_lookup', cached_key_lookup)
+    return reg.dispatch_method(*predicates, **kw)
 
 
 class App(dectate.App):
