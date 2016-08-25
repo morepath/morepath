@@ -12,9 +12,15 @@ Install Morepath for development
 
 .. highlight:: console
 
-Clone Morepath from github and go to the morepath directory::
+Clone Morepath from github::
 
   $ git clone git@github.com:morepath/morepath.git
+
+If this doesn't work and you get an error 'Permission denied (publickey)',
+you need to upload your ssh public key to github_.
+
+Then go to the morepath directory::
+
   $ cd morepath
 
 Make sure you have virtualenv_ installed.
@@ -33,6 +39,8 @@ Install the various dependencies and development tools from
 develop_requirements.txt::
 
   $ pip install -Ur develop_requirements.txt --src src
+
+This needs your ssh key installed in github_ to work.
 
 The ``--src src`` option makes sure that the dependent ``reg``,
 ``dectate`` and ``importscan`` projects are checked out in the ``src``
@@ -54,6 +62,8 @@ and install the develop requirements as described above.
 .. note::
 
    The following commands work only if you have the virtualenv activated.
+
+.. _github: https://help.github.com/articles/generating-an-ssh-key
 
 Running the tests
 -----------------
