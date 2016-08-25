@@ -31,30 +31,118 @@ Removals & Deprecations
 
 - **Removed** ``morepath.settings`` is removed from the Morepath API.
 
-  Use the ``morepath.App.settings`` property instead.
+  Use the ``morepath.App.settings`` property instead. You can access
+  this through ``app.settings``. You can access this through
+  ``request.app.settings`` if you have the request. The following
+  directives now get an additional optional first argument called
+  ``app``: ``permission_rule``, ``verify_identity``, ``dump_json``,
+  ``load_json``, ``link_prefix`` and the ``variables`` function passed
+  to the path directive.
 
 - **Removed** ``morepath.enable_implicit`` and
   ``morepath.disable_implicit`` are both removed from the Morepath API.
 
-  You no longer need to choose between implicit or explicit lookup for
-  generic functions, as the generic functions that are part of the API
-  have all been removed.  Generic functions decorated by
-  ``morepath.App.function`` can use implicit lookup by default.
+  Morepath now uses generic *methods* on the application class. The
+  application class determines the context used.
 
-- **Removed** buildout is removed as development setup use pip instead.
+- **Removed** We previously used buildout to install a development
+  environment for Morepath. We now use pip. See below for details.
 
-  See below for details.
+Features
+--------
+
+- Previously Morepath used Reg's dispatch functions directly, with a
+  mechanism to pass in a ``lookup`` argument to a dispatch function to
+  control the application context. The lookup was maintained on
+  ``App.lookup``. Tests were to pass the lookup explicitly. Reg also
+  maintained this lookup in a thread-local variable, and any dispatch
+  call that did not have a explicit lookup argument passed in used this
+  implicit lookup directly.
+
+  Reg has undergone a major refactoring which affects Morepath. As a
+  result, Morepath is faster and dispatch code becomes more
+  Pythonic. The concept of lookup is gone: no more lookup argument,
+  ``app.lookup`` or implicit lookup. Instead, Morepath now makes use
+  of dispatch *methods* on the application. The application itself
+  provides the explicit dispatch context. See `#448`_ for the
+  discussion leading up to this change.
+
+  .. _`#448`: https://github.com/morepath/morepath/issues/448
+
+  Most Morepath application and library projects should continue to
+  work unchanged, but some changes are necessary if you used
+  some advanced features:
+
+  * If in your code you call a generic function from
+    ``morepath.generic`` directly it won't work anymore. Call the
+    equivalent method on the app instance instead.
+
+  * If you pass through the ``lookup`` argument explicitly, remove
+    this. Calling the dispatch method on the app instance is enough to
+    indicate context.
+
+  * If you defined a generic function in your code, you should move it
+    to a ``morepath.App`` subclass instead and use
+    ``morepath.dispatch_method`` instead of ``reg.dispatch``. Using
+    ``reg.dispatch_method`` directly is possible but not recommended:
+    ``morepath.dispatch_method`` includes caching behavior that speeds
+    up applications. For example::
+
+     class MyApp(morepath.App):
+         @morepath.dispatch_method('obj')
+         def my_dispatch(self, obj):
+             pass
+
+  * The ``function`` directive has been replaced by the ``method`` directive,
+    where you indicate the dispatch method on the first argument. For
+    example::
+
+      @App.method(MyApp.my_dispatch, obj=Foo)
+      def my_dispatch_impl(app, obj):
+          return "Implementation for Foo"
+
+  * The ``predicate`` directive can be used to install new predicates for
+    dispatch methods. The first argument should be a reference to the
+    dispatch method, for instance::
+
+      @App.predicate(App.get_view, name='model', default=None,
+                     index=ClassIndex)
+      def model_predicate(obj):
+        return obj.__class__
+
+    There is a new public method called ``App.get_view`` that you can
+    install view predicates on.
+
+  * The ``predicate_fallback`` directive gets a reference to the
+    method too. The decorated function needs to take the same
+    arguments as the dispatch method; previously it could be a subset.
+    So for example::
+
+      @App.predicate_fallback(App.get_view, model_predicate)
+      def model_not_found(self, obj, request):
+          raise HTTPNotFound()
+
+    Where ``self`` refers to the app instance.
 
 Bug fixes
 ---------
 
-- Fix `#474`_: The ``morepath.Request.reset`` method does not reset
-  the value of ``reg.implicit.lookup``.
+- Fix code_examples path for doctests with tox.
 
-- Fix code_examples path for local docs tox test.
+Build environment
+-----------------
 
-.. _#474: https://github.com/morepath/morepath/issues/474
+- We now use virtualenv and pip instead of buildout to set up the
+  development environment. The development documentation has been
+  updated accordingly. Also see issues `#473`_ and `#484`_.
 
+- Have the manifest file for source distribution include all files
+  under VCS.
+
+.. _#464: https://github.com/morepath/morepath/issues/464
+.. _#468: https://github.com/morepath/morepath/pull/468
+.. _#473: https://github.com/morepath/morepath/issues/473
+.. _#484: https://github.com/morepath/morepath/pull/484
 
 Other
 -----
@@ -62,25 +150,13 @@ Other
 - Use abstract base classes from the standard library for
   ``morepath.IdentityPolicy``.
 
+- Reorganize the table of contents of the documentation into a
+  hierarchy (`#468`_).
+
 - Expand the test suite to cover ``morepath.Request.reset``, loop
   detection for deferred class links, dispatching of
   ``@App.verify_identity``-decorated functions on the ``identity``
   argument (`#464`_). Coverage ratio is now 100%.
-
-- Reorganize the table of contents of the documentation into a
-  hierarchy (`#468`_).
-
-- Have the manifest file for source distribution include all files
-  under VCS.
-
-- Replacing the buildout based development setup by a pip based one.
-  See `#473`_ and `#484`_.
-
-.. _#464: https://github.com/morepath/morepath/issues/464
-.. _#468: https://github.com/morepath/morepath/pull/468
-.. _#473: https://github.com/morepath/morepath/issues/473
-.. _#484: https://github.com/morepath/morepath/pull/484
-
 
 0.15 (2016-07-18)
 =================
