@@ -27,7 +27,7 @@ Make sure you have virtualenv_ installed.
 
 Create a new virtualenv for Python 3 inside the morepath directory::
 
-  $ virtualenv -p $(which python3) env/py3
+  $ virtualenv -p python3 env/py3
 
 Activate the virtualenv::
 
@@ -49,7 +49,7 @@ For upgrading the sources and requirements just run the command again.
 If you want to test Morepath with Python 2.7 as well you can create a
 second virtualenv for it::
 
-  $ virtualenv -p $(which python2.7) env/py27
+  $ virtualenv -p python2.7 env/py27
 
 You can then activate it::
 
@@ -126,16 +126,16 @@ Running the documentation tests
 The documentation contains code. To check these code snippets, you
 can run this code using this command::
 
-  $ sphinx-build -b doctest doc doc/build/doctest
+  (py3) $ sphinx-build -b doctest doc doc/build/doctest
 
 Or alternatively if you have ``Make`` installed::
 
-  $ cd doc
-  $ make doctest
+  (py3) $ cd doc
+  (py3) $ make doctest
 
 Or from the Morepath project directory::
 
-  $ make -C doc doctest
+  (py3) $ make -C doc doctest
 
 Since the sample code in the documentation is maintained in Python 3
 syntax, we do not support running the doctests with Python 2.7.
@@ -192,25 +192,25 @@ Create and activate a new virtualenv for tox::
 
 Make sure you have recent setuptools and pip installed::
 
-  $ pip install -U setuptools pip
+  (tox) $ pip install -U setuptools pip
 
 Now you can install tox::
 
-  $ pip install -U tox
+  (tox) $ pip install -U tox
 
 To find out which test environments are defined for Morepath in tox.ini run::
 
-  $ tox -l
+  (tox) $ tox -l
 
 You can run all tox tests with::
 
-  $ tox
+  (tox) $ tox
 
 You can also specify a test environment to run::
 
-  $ tox -e py35
-  $ tox -e pep8
-  $ tox -e docs
+  (tox) $ tox -e py35
+  (tox) $ tox -e pep8
+  (tox) $ tox -e docs
 
 .. _pyenv: https://github.com/yyuu/pyenv
 
