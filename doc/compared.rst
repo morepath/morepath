@@ -6,7 +6,7 @@ We hear you ask:
   There are a *million* Python web frameworks out there. How does
   Morepath compare?
 
-.. sidebar:: Pyramid Design Chocies
+.. sidebar:: Pyramid Design Choices
 
   This document is a bit like the `Design Defense Document
   <http://docs.pylonsproject.org/projects/pyramid/en/latest/designdefense.html>`__
