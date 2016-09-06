@@ -145,7 +145,8 @@ class PathRegistry(TrajectRegistry):
         :param func: function that gets a model instance argument and
           returns a variables dict.
         """
-        self.app_class._path_variables.register(methodify(func), obj=model)
+        self.app_class._path_variables.register(
+            methodify(func, selfname='app'), obj=model)
 
     def register_inverse_path(self, model, path, factory_args,
                               converters=None, absorb=False):
