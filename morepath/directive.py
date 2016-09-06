@@ -31,7 +31,7 @@ from :mod:`morepath.directive`.
 
 import os
 import dectate
-from reg import methodify_auto
+from reg import methodify
 
 from .app import App
 from .authentication import Identity, NoIdentity
@@ -478,8 +478,8 @@ class PermissionRuleAction(dectate.Action):
         return (self.model, self.permission, self.identity)
 
     def perform(self, obj, app_class):
-        app_class._permits.register_auto(
-            obj,
+        app_class._permits.register(
+            methodify(obj),
             identity=self.identity,
             obj=self.model,
             permission=self.permission)
@@ -1126,7 +1126,8 @@ class VerifyIdentityAction(dectate.Action):
         return self.identity
 
     def perform(self, obj, app_class):
-        app_class._verify_identity.register_auto(obj, identity=self.identity)
+        app_class._verify_identity.register(methodify(obj),
+                                            identity=self.identity)
 
 
 @App.directive('dump_json')
@@ -1164,7 +1165,7 @@ class DumpJsonAction(dectate.Action):
         return self.model
 
     def perform(self, obj, app_class):
-        app_class._dump_json.register_auto(obj, obj=self.model)
+        app_class._dump_json.register(methodify(obj), obj=self.model)
 
 
 @App.directive('load_json')
@@ -1188,7 +1189,7 @@ class LoadJsonAction(dectate.Action):
         return ()
 
     def perform(self, obj, app_class):
-        app_class._load_json = methodify_auto(obj)
+        app_class._load_json = methodify(obj)
 
 
 @App.directive('link_prefix')
@@ -1215,4 +1216,4 @@ class LinkPrefixAction(dectate.Action):
         return ()
 
     def perform(self, obj, app_class):
-        app_class._link_prefix = methodify_auto(obj)
+        app_class._link_prefix = methodify(obj)

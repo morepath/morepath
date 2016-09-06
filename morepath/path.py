@@ -7,7 +7,7 @@ See also :class:`morepath.directive.PathRegistry`
 
 
 from dectate import DirectiveError
-from reg import arginfo
+from reg import arginfo, methodify
 try:
     # Python 2
     from urllib import urlencode, quote
@@ -145,7 +145,7 @@ class PathRegistry(TrajectRegistry):
         :param func: function that gets a model instance argument and
           returns a variables dict.
         """
-        self.app_class._path_variables.register_auto(func, obj=model)
+        self.app_class._path_variables.register(methodify(func), obj=model)
 
     def register_inverse_path(self, model, path, factory_args,
                               converters=None, absorb=False):
