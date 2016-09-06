@@ -277,7 +277,7 @@ class App(dectate.App):
         :param obj: model object to represent with view.
         :param request: :class:`morepath.Request` instance.
         :return: :class:`morepath.Response` object, or
-        :class:`webob.exc.HTTPNotFound` if view cannot be found.
+          :class:`webob.exc.HTTPNotFound` if view cannot be found.
         """
         return HTTPNotFound()
 
