@@ -139,8 +139,10 @@ Build environment
 - Have the manifest file for source distribution include all files
   under VCS.
 
-.. _#464: https://github.com/morepath/morepath/issues/464
-.. _#468: https://github.com/morepath/morepath/pull/468
+- As we reached 100% code coverage for pytest, coveralls integration
+  was replaced by the ``--fail-under=100`` argument of ``coverage
+  report`` in the tox coverage test.
+
 .. _#473: https://github.com/morepath/morepath/issues/473
 .. _#484: https://github.com/morepath/morepath/pull/484
 
@@ -157,6 +159,9 @@ Other
   detection for deferred class links, dispatching of
   ``@App.verify_identity``-decorated functions on the ``identity``
   argument (`#464`_). Coverage ratio is now 100%.
+
+.. _#464: https://github.com/morepath/morepath/issues/464
+.. _#468: https://github.com/morepath/morepath/pull/468
 
 0.15 (2016-07-18)
 =================
