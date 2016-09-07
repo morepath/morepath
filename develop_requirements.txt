@@ -5,6 +5,7 @@
 
 # development
 -e '.[test,coverage,pep8,docs]'
+tox
 radon
 
 # py.test

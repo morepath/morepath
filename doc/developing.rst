@@ -177,8 +177,7 @@ If you want to run the tests for one of them, let's say Reg, do::
 Tox
 ---
 
-Install tox to check Morepath works with the versions of Python it
-supports.
+With tox you can test Morepath under different Python environments.
 
 We have Travis continuous integration installed on Morepath's github
 repository and it runs the same tox tests after each checkin.
@@ -190,32 +189,19 @@ doctests and Python 2.7 for testing Morepath with Python 2.
 
 One tool you can use to install multiple versions of Python is pyenv_.
 
-Create and activate a new virtualenv for tox::
-
-  $ virtualenv env/tox
-  $ source env/tox/bin/activate
-
-Make sure you have recent setuptools and pip installed::
-
-  (tox) $ pip install -U setuptools pip
-
-Now you can install tox::
-
-  (tox) $ pip install -U tox
-
 To find out which test environments are defined for Morepath in tox.ini run::
 
-  (tox) $ tox -l
+  $ tox -l
 
 You can run all tox tests with::
 
-  (tox) $ tox
+  $ tox
 
-You can also specify a test environment to run::
+You can also specify a test environment to run e.g.::
 
-  (tox) $ tox -e py35
-  (tox) $ tox -e pep8
-  (tox) $ tox -e docs
+  $ tox -e py35
+  $ tox -e pep8
+  $ tox -e docs
 
 .. _pyenv: https://github.com/yyuu/pyenv
 
