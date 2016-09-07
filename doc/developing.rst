@@ -33,6 +33,10 @@ Activate the virtualenv::
 
   $ source env/py3/bin/activate
 
+Make sure you have recent setuptools and pip installed::
+
+  $ pip install -U setuptools pip
+
 Install the various dependencies and development tools from
 develop_requirements.txt::
 
@@ -55,7 +59,8 @@ You can then activate it::
 
   $ source env/py27/bin/activate
 
-and install the develop requirements as described above.
+Then uprade setuptools and pip and install the develop requirements as
+described above.
 
 .. note::
 
