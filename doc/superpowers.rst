@@ -109,7 +109,7 @@ can write this::
 
   @App.json(model=DocumentContainer)
   def document_container_json(self, request):
-      return [document_json(request, doc) for doc in self.entries()]
+      return [document_json(doc, request) for doc in self.entries()]
 
 Here we've used ``document_json`` ourselves. But what now if the
 container does not only contain ``Document`` instances? What if one of
