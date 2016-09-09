@@ -245,17 +245,21 @@ Pluggable template languages
 Some micro-frameworks like Flask and Bottle and web.py have template
 languages built-in, some, like CherryPy and the Werkzeug toolkit,
 don't. Pyramid doesn't have built-in support either, but has standard
-plugins for the Chameleon and Jinja2 template languages.
+plugins for the Chameleon, Jijna2 and Mako template languages.
 
 Morepath allows you to plug in server templates. You can plug in
-Jinja2_ through `more.jinja2`_ and plug in Chameleon_ through
-`more.chameleon`_.
+Jinja2_ through `more.jinja2`_, Chameleon_ through
+`more.chameleon`_ and Mako_ through `more.mako`_.
 
 .. _Jinja2: http://jinja.pocoo.org/
+
+.. _Mako: http://www.makotemplates.org
 
 .. _Chameleon: https://chameleon.readthedocs.org
 
 .. _`more.jinja2`: https://pypi.python.org/pypi/more.jinja2
+
+.. _`more.mako`: https://pypi.python.org/pypi/more.mako
 
 .. _`more.chameleon`: https://pypi.python.org/pypi/more.chameleon
 
