@@ -27,7 +27,7 @@ from .error import LinkError
 
 
 def cached_key_lookup(key_lookup):
-    return reg.CachingKeyLookup(key_lookup, 1000, 1000, 1000)
+    return reg.DictCachingKeyLookup(key_lookup)
 
 
 def commit_if_needed(app):
