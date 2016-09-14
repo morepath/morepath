@@ -1,6 +1,6 @@
 # sources
 -e git+git@github.com:morepath/reg.git#egg=reg
--e git+git@github.com:morepath/dectate.git#egg=dectate
+-e git+git@github.com:morepath/dectate.git@no-more-directive-directive#egg=dectate
 -e git+git@github.com:faassen/importscan.git#egg=importscan
 
 # development
