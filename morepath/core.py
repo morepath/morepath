@@ -29,7 +29,7 @@ from webob.exc import (
     HTTPException, HTTPNotFound, HTTPMethodNotAllowed,
     HTTPUnprocessableEntity, HTTPOk, HTTPRedirection, HTTPBadRequest)
 
-from .directive import App  # install directives with App
+from .app import App
 from .converter import Converter, IDENTITY_CONVERTER
 
 
