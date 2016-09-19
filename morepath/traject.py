@@ -379,13 +379,15 @@ def parse_path(path):
     segments = path.split('/')
     result = []
     for segment in segments:
-        if not segment or segment in './':
+        if not segment or segment == '.':
             continue
         if segment == '..':
-            if result:
+            try:
                 result.pop()
-            continue
-        result.append(segment)
+            except IndexError:
+                pass
+        else:
+            result.append(segment)
     return result
 
 
