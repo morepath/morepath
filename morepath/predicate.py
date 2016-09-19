@@ -10,7 +10,7 @@ predicates.
 See also :class:`morepath.directive.PredicateRegistry`
 """
 
-from reg import Predicate, KeyExtractor
+from reg import Predicate, arginfo
 from .toposort import toposorted, Info
 from collections import defaultdict
 
@@ -88,7 +88,7 @@ class PredicateRegistry(object):
         for info in infos:
             fallback = self._predicate_fallbacks[dispatch].get(info.func)
             predicate = Predicate(info.name, info.index,
-                                  KeyExtractor(info.func),
+                                  adapt(info.func),
                                   fallback=fallback,
                                   default=info.default)
             result.append(predicate)
@@ -101,6 +101,14 @@ class PredicateRegistry(object):
         :return: a list of sorted :class:`PredicateInfo` instances.
         """
         return toposorted(self._predicate_infos[dispatch])
+
+
+def adapt(func):
+    names = arginfo(func).args
+
+    def wrapper(d):
+        return func(**{n: d[n] for n in names})
+    return wrapper
 
 
 class PredicateInfo(Info):
