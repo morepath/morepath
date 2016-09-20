@@ -165,6 +165,24 @@ def test_one_app():
     assert infos == [{'path': '/foo', 'directive': 'path'}]
 
 
+def test_app_variables():
+    class App(morepath.App):
+        pass
+
+    class A(object):
+        pass
+
+    @App.path(path='/users/{id}', model=A)
+    def get_a(id):
+        return A()
+
+    App.commit()
+
+    infos = get_path_and_view_info(App)
+    infos = restrict(infos, ['path', 'directive'])
+    assert infos == [{'path': '/users/{id}', 'directive': 'path'}]
+
+
 def test_mounted_app_paths_only():
     class App(morepath.App):
         pass
