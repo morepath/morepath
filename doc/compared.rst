@@ -16,7 +16,7 @@ We hear you ask:
 
 If you're already familiar with another web framework, it's useful to
 learn how Morepath is the same and how it is different, as that helps
-you understand it more quickly. So we go into some of this here.
+you understand it more quickly. So we try to do this a little here.
 
 Our ability to compare Morepath to other web frameworks is limited by
 our familiarity with them, and also by their aforementioned large
@@ -28,16 +28,16 @@ You may also want to read the :doc:`design` document.
 Overview
 --------
 
-Morepath aims to be foundational. All web applications are
-different. Some are simple. Some, like CMSes, are like frameworks
-themselves. It's likely that some of you will need to build your own
-frameworky things on top of Morepath. Morepath offers various
-facilities to help you there: you can define reusable base
-applications and it even allows you to extend Morepath with new
-directives. Morepath isn't there to be hidden away under another
-framework though - these extensions still look like Morepath. The
-orientation towards being foundational makes Morepath more like
-Pyramid, or perhaps Flask, than like Django.
+Morepath aims to be foundational and flexible and is by itself
+relatively low-level. All web applications are different. Some are
+simple. Some, like CMSes, are like frameworks themselves. Morepath
+makes it easy to build other frameworky things on top of Morepath.
+
+Morepath isn't there to be hidden away under another framework --
+Morepath extensions still look like Morepath, which makes them
+consistent and easier to approach. This orientation towards being
+foundational makes Morepath more like Pyramid, or perhaps Flask, than
+like Django.
 
 Morepath aims to have a small core. It isn't full stack; it's a
 microframework. It should be easy to pick up. This makes it similar to
@@ -49,11 +49,13 @@ way to do configuration. This makes it like a lot of web frameworks,
 but unlike Pyramid, which takes more of a toolkit approach where a lot
 of choices are made available.
 
-Morepath is a routing framework, but it's model-centric. Models have
-URLs. This makes it like a URL traversal framework like Zope or Grok,
-and also like Pyramid when traversal is in use. It makes it unlike
-other routing frameworks like Django or Flask, which have less
-awareness of models.
+Morepath is a routing framework, but it's model-centric. Models, that
+is, any Python objects, have URLs. This makes it like a URL traversal
+framework like Zope or Grok, and also like Pyramid when traversal is
+in use. Awareness of models allows Morepath automate linking, generate
+correct HTTP status codes automatically and lets it have its powerful
+permission-based security. It makes it unlike other routing frameworks
+like Django or Flask, which have less awareness of models.
 
 Paradoxically enough one thing Morepath is opinionated about is
 *flexibility*, as that's part of its mission to be a good foundation.
@@ -89,9 +91,20 @@ regular expressions. Morepath works at a higher level than that
 deliberately, as that makes it possible to disambiguate similar
 routes.
 
-This separation of model and view lookup helps in code organisation,
-as it allows you to separate the code that organises the URL space
-from the code that implements your actual views.
+This separation of model and view lookup helps in the following ways:
+
+* Automated HTTP status codes in case things go wrong -- no more easy
+  to forget custom error message generation code in all the views.
+
+* Model-based security checks -- you can define rules that say exactly
+  what kind of objects get which permissions, and then protect views
+  with those permissions.
+
+* better code organization in application code, as it allows you to
+  separate the code that organizes the URL space from the code that
+  implements your actual views.
+
+* Automated linking.
 
 Linking
 -------
@@ -112,6 +125,21 @@ traversal mode. Uniquely among them Morepath *does* route, not
 traverse.
 
 For more: :doc:`paths_and_linking`.
+
+Permissions
+-----------
+
+Morepath has a permission framework built-in: it knows about
+authentication and lets you plug in authenticators, you can protect
+views with permissions and plug in code that tells Morepath what
+permissions someone has for which models. It's small but powerful in
+what it lets you do.
+
+This is unlike most other micro-frameworks like Flask, Bottle,
+CherryPy or web.py. It's like Zope, Grok and Pyramid, and has learned
+from them, though Morepath's system is more streamlined.
+
+For more you can check out :doc:`security`.
 
 View lookup
 -----------
@@ -144,35 +172,13 @@ For more: :doc:`views`.
 WSGI
 ----
 
-Morepath is a WSGI_-based framework, like Flask or Pyramid. It's
-natively WSGI, unlike Django, which while WSGI is supported also has
-its own way of doing middleware.
+Morepath is a WSGI_-based framework, like Flask or Pyramid, and these
+days Django as well.
 
 .. _WSGI: http://wsgi.readthedocs.org/en/latest/
 
 A Morepath app is a standard WSGI app. You can plug it into a WSGI
-compliant web server like Apache or Nginx or gunicorn. You can also
-combine Morepath with WSGI components, such as for instance the
-Fanstatic_ static resource framework.
-
-.. _Fanstatic: http://www.fanstatic.org
-
-Permissions
------------
-
-Morepath has a permission framework built-in: it knows about
-authentication and lets you plug in authenticators, you can protect
-views with permissions and plug in code that tells Morepath what
-permissions someone has for which models. It's small but powerful in
-what it lets you do.
-
-This is unlike most other micro-frameworks like Flask, Bottle,
-CherryPy or web.py. It's like Zope, Grok and Pyramid, and has learned
-from them, though Morepath's system is more streamlined.
-
-For more you can check out `this blog entry
-<http://blog.startifact.com/posts/morepath-security.html>`__. (It will
-be integrated in this documentation later).
+compliant web server like Apache or Nginx or gunicorn.
 
 Explicit request
 ----------------
@@ -197,35 +203,21 @@ global at the same time. Web frameworks avoid this by using *thread
 locals*. Confusingly enough these locals are *globals*, but they're
 isolated from other threads.
 
-Morepath the framework does not require any global state. Of course
-Morepath's app *are* module globals, but they're not *used* that way
-once Morepath's configuration is loaded and Morepath starts to handle
+Morepath does not require any global state. Of course Morepath's app
+*are* module globals, but they're not *used* that way once Morepath's
+configuration is loaded and Morepath starts to handle
 requests. Morepath's framework code passes the app along as a variable
 (or attribute of a variable, such as the request) just like everything
 else.
 
-Morepath is built on the Reg generic function library. Implementations
-of generic functions can be plugged in separately per Morepath app:
-each app has a separate reg registry. When you call a generic function
-Reg needs to know what registry to use to look it up. You can make
-this completely explicit by using a special ``lookup`` argument::
-
-  some_generic_function(doc, 3, lookup=app.lookup)
-
-That's all right in framework code, but doing that all the time is not
-very pretty in application code. For convenience, Morepath therefore
-sets up the current lookup implicitly as thread local state. Then you
-can simply write this::
-
-  some_generic_function(doc, 3)
+Morepath is built on the Reg generic function library. Previously Reg
+had some optional implicit global state, but as of release 0.10 this
+has been eliminated -- state is entirely explicit here as well.
 
 Flask is quite happy to use global state (with thread locals) to have
 a request that you can import. Pyramid is generally careful to avoid
 global state, but does allow using thread local state to get access to
 the current registry in some cases.
-
-Summary: Morepath does not require any global state, but allows the
-current lookup to be set up as such for convenience.
 
 No default database
 -------------------
@@ -236,8 +228,9 @@ about the database baked in (ZODB and Django ORM respectively).
 
 You can plug in your own database, or even have no database at
 all. You could use SQLAlchemy, or the ZODB. Morepath lets you treat
-anything as models. We're not against writing examples or extensions
-that help you do this, though we haven't done so yet. Contribute!
+anything as models. We have examples and extensions that help you
+integrate specific databases. Here's `morepath_sqlalchemy
+<https://github.com/morepath/morepath_sqlalchemy>`_
 
 Pluggable template languages
 -----------------------------
@@ -280,10 +273,10 @@ extension and overrides, such as "here is an additional route", "use
 this function to handle this route instead of what the core said".
 
 If a web framework doesn't deal with code configuration explicitly, an
-implicit code configuration tends to grow. There is one way to set up
-routes, another way to declare models, another way to do generic
-views, yet another way to configure the permission system, and so
-on. Each system works differently and uses a different API. Config
+implicit code configuration system tends to grow. There is one way to
+set up routes, another way to declare models, another way to do
+generic views, yet another way to configure the permission system, and
+so on. Each system works differently and uses a different API. Config
 files, metaclasses and import-time side effects may all be involved.
 
 On top of this, if the framework wants to allow reuse, extension and
@@ -291,7 +284,7 @@ overrides the APIs tends to grow even more distinct with specialised
 use cases, or yet more new APIs are grown.
 
 Django is an example where configuration gained lots of knobs and
-buttons; another example is the original Zope.
+buttons; another example is Zope 2.
 
 Microframeworks aim for simplicity so don't suffer from this so much,
 though probably at the cost of some flexibility. You can still observe
@@ -350,7 +343,7 @@ reimagined, streamlined implementation of the idea of the ZCA.
 .. _Reg: http://reg.readthedocs.org
 
 The underlying registration APIs of the ZCA is rather involved, with
-quite a few special cases. Reg has a simpler, more general
+quite a few special cases. Reg has a much simpler, more general
 registration API that is flexible enough to fulfill a range of use
 cases.
 
@@ -372,3 +365,7 @@ it uses generic functions. The simple function-based APIs *are* what
 is pluggable; there is no need to deal with interfaces anymore, but
 the system retains the power. Morepath is simple functions all the way
 down.
+
+A fancy term you could use for this approach is `post object-oriented
+design
+<https://moshez.wordpress.com/2016/09/15/post-object-oriented-design>`_.
