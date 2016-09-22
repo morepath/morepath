@@ -34,7 +34,6 @@ from webob.exc import HTTPBadRequest
 
 from .converter import IDENTITY_CONVERTER
 from .error import TrajectError
-from .mapply import mapply
 
 
 IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
@@ -333,10 +332,13 @@ class TrajectRegistry(object):
             if known_variables.intersection(variables):
                 raise TrajectError("Duplicate variables")
             known_variables.update(variables)
+        node.set_factories(model_factory, parameter_factory)
         node.model_factory = model_factory
         info = arginfo(model_factory)
         node.model_args = set(info.args)
         node.model_keywords = info.keywords
+        node.wants_request = 'request' in info.args or info.keywords
+        node.wants_app = 'app' in info.args or info.keywords
         node.parameter_factory = self.get_parameter_factory(
             parameters, converters, required, extra)
         if absorb:
@@ -384,8 +386,10 @@ class TrajectRegistry(object):
         if node.model_factory is None:
             return None
         variables = node.parameter_factory(request)
-        variables['request'] = request
-        variables['app'] = request.app
+        if node.wants_request:
+            variables['request'] = request
+        if node.wants_app:
+            variables['app'] = request.app
         variables.update(traject_variables)
         # the goal is to put in variables only what's required for
         # model_factory. for request and app this amounts to simple
@@ -393,7 +397,7 @@ class TrajectRegistry(object):
         # for traject variables and parameters we can only include
         # those variables that the model_factory declares during
         # construction time
-        result = mapply(node.model_factory, **variables)
+        result = node.model_factory(**variables)
         if result is None:
             return None
         return result
