@@ -191,29 +191,31 @@ class Node(object):
     def __init__(self):
         self._name_nodes = {}
         self._variable_nodes = []
-        self.model_factory = None
         self.absorb = False
+        self.create = lambda variables, request: None
+        self.model_args = set()
+        self.model_keywords = False
 
-    def set(self, model_factory, parameter_factory, absorb):
-        self.model_factory = model_factory
-        self.parameter_factory = parameter_factory
-        info = arginfo(model_factory)
-        self.model_args = set(info.args)
-        self.model_keywords = info.keywords
-        self.wants_request = 'request' in info.args or info.keywords
-        self.wants_app = 'app' in info.args or info.keywords
-        self.absorb = absorb
+    # def set(self, model_factory, parameter_factory, absorb):
+    #     self.model_factory = model_factory
+    #     self.parameter_factory = parameter_factory
+    #     info = arginfo(model_factory)
+    #     self.model_args = set(info.args)
+    #     self.model_keywords = info.keywords
+    #     self.wants_request = 'request' in info.args or info.keywords
+    #     self.wants_app = 'app' in info.args or info.keywords
+    #     self.absorb = absorb
 
-    def create(self, path_variables, request):
-        if self.model_factory is None:
-            return None
-        variables = self.parameter_factory(request)
-        if self.wants_request:
-            variables['request'] = request
-        if self.wants_app:
-            variables['app'] = request.app
-        variables.update(path_variables)
-        return self.model_factory(**variables)
+    # def create(self, path_variables, request):
+    #     if self.model_factory is None:
+    #         return None
+    #     variables = self.parameter_factory(request)
+    #     if self.wants_request:
+    #         variables['request'] = request
+    #     if self.wants_app:
+    #         variables['app'] = request.app
+    #     variables.update(path_variables)
+    #     return self.model_factory(**variables)
 
     def add(self, step):
         """Add a step into the tree as a child node of this node.
@@ -354,7 +356,24 @@ class TrajectRegistry(object):
                 parameters, converters, required, extra)
         else:
             parameter_factory = _simple_parameter_factory
-        node.set(model_factory, parameter_factory, absorb)
+
+        info = arginfo(model_factory)
+        wants_request = 'request' in info.args or info.keywords
+        wants_app = 'app' in info.args or info.keywords
+
+        def create(path_variables, request):
+            variables = parameter_factory(request)
+            if wants_request:
+                variables['request'] = request
+            if wants_app:
+                variables['app'] = request.app
+            variables.update(path_variables)
+            return model_factory(**variables)
+
+        node.create = create
+        node.absorb = absorb
+        node.model_args = set(info.args)
+        node.model_keywords = info.keywords
 
     def consume(self, request):
         """Consume a stack given route, returning object.
