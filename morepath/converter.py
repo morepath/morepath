@@ -20,7 +20,6 @@ except ImportError:
     # You're running Python 3!
     ClassType = None
 from dectate import DirectiveError
-from webob.exc import HTTPBadRequest
 
 
 class Converter(object):
@@ -232,63 +231,4 @@ class ConverterRegistry(object):
         for name, value in arguments.items():
             if name not in result:
                 result[name] = self.converter_for_value(value)
-        return result
-
-
-class ParameterFactory(object):
-    """Convert URL parameters.
-
-    Given expected URL parameters, converters for them and required
-    parameters, create a dictionary of converted URL parameters with
-    Python values.
-
-    :param parameters: dictionary of parameter names -> default values.
-    :param converters: dictionary of parameter names -> converters.
-    :param required: dictionary of parameter names -> required booleans.
-    :param extra: should extra unknown parameters be included?
-    """
-    def __init__(self, parameters, converters, required, extra=False):
-        self.parameters = parameters
-        self.converters = converters
-        self.required = required
-        self.extra = extra
-
-    def __call__(self, request):
-        """Convert URL parameters to Python dictionary with values.
-        """
-        result = {}
-        url_parameters = request.GET
-        for name, default in self.parameters.items():
-            value = url_parameters.getall(name)
-            converter = self.converters.get(name, IDENTITY_CONVERTER)
-            if converter.is_missing(value):
-                if name in self.required:
-                    raise HTTPBadRequest(
-                        "Required URL parameter missing: %s" %
-                        name)
-                result[name] = default
-                continue
-            try:
-                result[name] = converter.decode(value)
-            except ValueError:
-                raise HTTPBadRequest(
-                    "Cannot decode URL parameter %s: %s" % (
-                        name, value))
-
-        if not self.extra:
-            return result
-
-        remaining = set(url_parameters.keys()).difference(
-            set(result.keys()))
-        extra = {}
-        for name in remaining:
-            value = url_parameters.getall(name)
-            converter = self.converters.get(name, IDENTITY_CONVERTER)
-            try:
-                extra[name] = converter.decode(value)
-            except ValueError:
-                raise HTTPBadRequest(
-                    "Cannot decode URL parameter %s: %s" % (
-                        name, value))
-        result['extra_parameters'] = extra
         return result
