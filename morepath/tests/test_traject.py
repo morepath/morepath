@@ -4,8 +4,8 @@ from morepath.traject import (TrajectRegistry,
                               Node, Step, TrajectError,
                               is_identifier, parse_variables,
                               Path, create_path, parse_path,
-                              normalize_path)
-from morepath.converter import ParameterFactory
+                              normalize_path,
+                              ParameterFactory)
 from morepath.publish import consume as traject_consume
 from morepath.converter import Converter, IDENTITY_CONVERTER
 import pytest
