@@ -120,9 +120,13 @@ class Step(object):
 
         :param s: path segment to match with
         :param variables: variables dictionary to update with new converted
-          variables that are found in this segment.
-        :return: bool.The bool indicates whether
-          ``s`` matched with the step or not.
+          variables that are found in this segment. Only variables expected
+          by the model factory are included.
+        :param model_args: expected arguments by the model factory.
+        :param model_keywords: True if the model factory expects keyword
+          arguments.
+        :return: bool. The bool indicates whether ``s`` matched with
+          the step or not.
         """
         matched = self._variables_re.match(s)
         if matched is None:
