@@ -93,20 +93,22 @@ def consume(app, request):
     :return: The new model object, or a mounted :class:`morepath.App`
       instance, or ``None`` if no new instance could be found.
     """
-    value, stack, traject_variables = app.config.path_registry.consume(
-        request.unconsumed)
-    if value is None:
-        return None
-    get_obj, get_parameters = value
-    variables = get_parameters(request)
-    variables['request'] = request
-    variables['app'] = app
-    variables.update(traject_variables)
-    next_obj = mapply(get_obj, **variables)
-    if next_obj is None:
-        return None
-    request.unconsumed = stack
-    return next_obj
+    return app.config.path_registry.consume(request)
+
+    # value, stack, traject_variables = app.config.path_registry.consume(
+    #     request.unconsumed)
+    # if value is None:
+    #     return None
+    # get_obj, get_parameters = value
+    # variables = get_parameters(request)
+    # variables['request'] = request
+    # variables['app'] = app
+    # variables.update(traject_variables)
+    # next_obj = mapply(get_obj, **variables)
+    # if next_obj is None:
+    #     return None
+    # request.unconsumed = stack
+    # return next_obj
 
 
 def resolve_response(obj, request):
