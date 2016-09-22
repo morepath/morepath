@@ -246,8 +246,7 @@ class Node(object):
 
         :segment: a path segment
         :variables: variables dictionary to update.
-        :return: a (bool, variables) tuple. Bool is ``True`` if
-          matched, ``variables`` is a dictionary with matched variables.
+        :return: matched node, or ``None`` if node didn't match.
         """
         node = self._name_nodes.get(segment)
         if node is not None:
@@ -339,15 +338,12 @@ class TrajectRegistry(object):
             if known_variables.intersection(variables):
                 raise TrajectError("Duplicate variables")
             known_variables.update(variables)
-        parameter_factory = self.get_parameter_factory(
-            parameters, converters, required, extra)
-        node.set(model_factory, parameter_factory, absorb)
-
-    def get_parameter_factory(self, parameters, converters, required, extra):
         if parameters or converters or required or extra:
-            return ParameterFactory(parameters, converters, required, extra)
+            parameter_factory = ParameterFactory(
+                parameters, converters, required, extra)
         else:
-            return _simple_parameter_factory
+            parameter_factory = _simple_parameter_factory
+        node.set(model_factory, parameter_factory, absorb)
 
     def consume(self, request):
         """Consume a stack given route, returning object.
@@ -375,7 +371,6 @@ class TrajectRegistry(object):
                 stack.append(segment)
                 return self.create(node, variables, request)
             node = new_node
-
         if node.absorb:
             variables['absorb'] = ''
         return self.create(node, variables, request)
