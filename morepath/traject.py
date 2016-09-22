@@ -115,7 +115,7 @@ class Step(object):
         """
         return bool(self.names)
 
-    def match(self, s, variables, model_args, model_keywords):
+    def match(self, s, variables, model_args):
         """Match this step with actual path segment.
 
         :param s: path segment to match with
@@ -123,8 +123,6 @@ class Step(object):
           variables that are found in this segment. Only variables expected
           by the model factory are included.
         :param model_args: expected arguments by the model factory.
-        :param model_keywords: True if the model factory expects keyword
-          arguments.
         :return: bool. The bool indicates whether ``s`` matched with
           the step or not.
         """
@@ -132,7 +130,7 @@ class Step(object):
         if matched is None:
             return False
         for name, value in zip(self.names, matched.groups()):
-            if name not in model_args and not model_keywords:
+            if name not in model_args:
                 continue
             converter = self.get_converter(name)
             try:
@@ -198,7 +196,6 @@ class Node(object):
         self.absorb = False
         self.create = lambda variables, request: None
         self.model_args = set()
-        self.model_keywords = False
 
     def add(self, step):
         """Add a step into the tree as a child node of this node.
@@ -266,8 +263,7 @@ class StepNode(Node):
     def match(self, segment, variables):
         """Match a segment with the step.
         """
-        return self.step.match(segment, variables,
-                               self.model_args, self.model_keywords)
+        return self.step.match(segment, variables, self.model_args)
 
 
 class Path(object):
@@ -341,8 +337,8 @@ class TrajectRegistry(object):
             parameter_factory = _simple_parameter_factory
 
         info = arginfo(model_factory)
-        wants_request = 'request' in info.args or info.keywords
-        wants_app = 'app' in info.args or info.keywords
+        wants_request = 'request' in info.args
+        wants_app = 'app' in info.args
 
         def create(path_variables, request):
             variables = parameter_factory(request)
@@ -356,7 +352,6 @@ class TrajectRegistry(object):
         node.create = create
         node.absorb = absorb
         node.model_args = set(info.args)
-        node.model_keywords = info.keywords
 
     def consume(self, request):
         """Consume a stack given route, returning object.
