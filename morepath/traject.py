@@ -204,6 +204,17 @@ class Node(object):
         self.wants_app = 'app' in info.args or info.keywords
         self.absorb = absorb
 
+    def create(self, path_variables, request):
+        if self.model_factory is None:
+            return None
+        variables = self.parameter_factory(request)
+        if self.wants_request:
+            variables['request'] = request
+        if self.wants_app:
+            variables['app'] = request.app
+        variables.update(path_variables)
+        return self.model_factory(**variables)
+
     def add(self, step):
         """Add a step into the tree as a child node of this node.
         """
@@ -360,31 +371,20 @@ class TrajectRegistry(object):
             if node.absorb:
                 variables['absorb'] = '/'.join(reversed(stack))
                 request.unconsumed = []
-                return self.create(node, variables, request)
+                return node.create(variables, request)
             segment = stack.pop()
             # special view prefix
             if segment.startswith('+'):
                 stack.append(segment)
-                return self.create(node, variables, request)
+                return node.create(variables, request)
             new_node = node.get(segment, variables)
             if new_node is None:
                 stack.append(segment)
-                return self.create(node, variables, request)
+                return node.create(variables, request)
             node = new_node
         if node.absorb:
             variables['absorb'] = ''
-        return self.create(node, variables, request)
-
-    def create(self, node, path_variables, request):
-        if node.model_factory is None:
-            return None
-        variables = node.parameter_factory(request)
-        if node.wants_request:
-            variables['request'] = request
-        if node.wants_app:
-            variables['app'] = request.app
-        variables.update(path_variables)
-        return node.model_factory(**variables)
+        return node.create(variables, request)
 
 
 class ParameterFactory(object):
