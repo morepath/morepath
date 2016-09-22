@@ -93,6 +93,7 @@ class PathRegistry(TrajectRegistry):
                     % path_variable)
 
         parameters = filter_arguments(arguments, path_variables)
+
         if required is None:
             required = set()
         required = set(required)
