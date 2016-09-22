@@ -10,7 +10,7 @@ predicates.
 See also :class:`morepath.directive.PredicateRegistry`
 """
 
-from reg import Predicate, arginfo
+from reg import Predicate
 from .toposort import toposorted, Info
 from collections import defaultdict
 
@@ -104,10 +104,8 @@ class PredicateRegistry(object):
 
 
 def adapt(func):
-    names = arginfo(func).args
-
     def wrapper(d):
-        return func(**{n: d[n] for n in names})
+        return func(**d)
     return wrapper
 
 

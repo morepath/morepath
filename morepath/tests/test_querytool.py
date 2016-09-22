@@ -135,7 +135,7 @@ class App(morepath.App):
 def test_method():
 
     @App.predicate(App.generic, name='v', default='', index=reg.KeyIndex)
-    def get(v):
+    def get(self, v):
         return v
 
     @App.method(App.generic, v='A')

@@ -88,7 +88,7 @@ def test_view_custom_predicate_without_fallback():
     @Core.predicate(morepath.App.get_view, name='extra', default='DEFAULT',
                     index=KeyIndex,
                     after=request_method_predicate)
-    def dummy_predicate(request):
+    def dummy_predicate(self, obj, request):
         return 'match'
 
     @App.path(path='')

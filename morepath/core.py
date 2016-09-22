@@ -34,7 +34,7 @@ from .converter import Converter, IDENTITY_CONVERTER
 
 
 @App.predicate(App.get_view, name='model', default=None, index=ClassIndex)
-def model_predicate(obj):
+def model_predicate(self, obj, request):
     """match model argument by class.
 
     Predicate for :meth:`morepath.App.view`.
@@ -53,7 +53,7 @@ def model_not_found(self, obj, request):
 
 @App.predicate(App.get_view, name='name', default='', index=KeyIndex,
                after=model_predicate)
-def name_predicate(request):
+def name_predicate(self, obj, request):
     """match name argument with request.view_name.
 
     Predicate for :meth:`morepath.App.view`.
@@ -72,7 +72,7 @@ def name_not_found(self, obj, request):
 
 @App.predicate(App.get_view, name='request_method', default='GET',
                index=KeyIndex, after=name_predicate)
-def request_method_predicate(request):
+def request_method_predicate(self, obj, request):
     """match request method.
 
     Predicate for :meth:`morepath.App.view`.
@@ -91,7 +91,7 @@ def method_not_allowed(self, obj, request):
 
 @App.predicate(App.get_view, name='body_model', default=object,
                index=ClassIndex, after=request_method_predicate)
-def body_model_predicate(request):
+def body_model_predicate(self, obj, request):
     """match request.body_obj with body_model by class.
 
     Predicate for :meth:`morepath.App.view`.

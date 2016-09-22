@@ -48,7 +48,7 @@ def test_extra_predicates():
 
     @app.predicate(morepath.App.get_view, name='id', default='',
                    index=KeyIndex, after=morepath.request_method_predicate)
-    def id_predicate(obj):
+    def id_predicate(self, obj, request):
         return obj.id
 
     c = Client(app())
