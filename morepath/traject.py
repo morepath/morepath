@@ -350,13 +350,12 @@ class TrajectRegistry(object):
             return _simple_parameter_factory
 
     def consume(self, request):
-        """Consume a stack given routes.
+        """Consume a stack given route, returning object.
 
-        :param stack: the stack of segments on a path, reversed so that
-          the first segment of the path is on top.
-        :return: ``obj, stack`` tuple. ``obj`` is an instance of the
-          object created by the path factory, ``stack`` is the remaining
-          segment stack.
+        :param request: the request to consume segments from and to
+          retrieve URL parameters from.
+        :return: the model instance that can be found, or ``None`` if
+          no model instance exists for this sequence of segments.
         """
         stack = request.unconsumed
         node = self._root
@@ -381,7 +380,7 @@ class TrajectRegistry(object):
             variables['absorb'] = ''
         return self.create(node, variables, request)
 
-    def create(self, node, traject_variables, request):
+    def create(self, node, path_variables, request):
         if node.model_factory is None:
             return None
         variables = node.parameter_factory(request)
@@ -389,7 +388,7 @@ class TrajectRegistry(object):
             variables['request'] = request
         if node.wants_app:
             variables['app'] = request.app
-        variables.update(traject_variables)
+        variables.update(path_variables)
         return node.model_factory(**variables)
 
 
