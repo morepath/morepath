@@ -114,25 +114,25 @@ class Step(object):
         """
         return bool(self.names)
 
-    def match(self, s):
+    def match(self, s, variables):
         """Match this step with actual path segment.
 
         :param s: path segment to match with
-        :return: (bool, variables) tuple. The bool indicates whether
-          ``s`` with the step or not. ``variables`` is a dictionary that
-          contains converted variables that matched in this segment.
+        :param variables: variables dictionary to update with new converted
+          variables that are found in this segment.
+        :return: bool.The bool indicates whether
+          ``s`` matched with the step or not.
         """
-        result = {}
         matched = self._variables_re.match(s)
         if matched is None:
-            return False, result
+            return False
         for name, value in zip(self.names, matched.groups()):
             converter = self.get_converter(name)
             try:
-                result[name] = converter.decode([value])
+                variables[name] = converter.decode([value])
             except ValueError:
-                return False, {}
-        return True, result
+                return False
+        return True
 
     def get_converter(self, name):
         """Get converter for a variable name.
@@ -227,23 +227,24 @@ class Node(object):
         self._variable_nodes.append(result)
         return result
 
-    def get(self, segment):
+    def get(self, segment, variables):
         """Match a path segment, traversing this node.
 
         Matches non-variable nodes before nodes with variables in them.
 
         :segment: a path segment
+        :variables: variables dictionary to update.
         :return: a (bool, variables) tuple. Bool is ``True`` if
           matched, ``variables`` is a dictionary with matched variables.
         """
         node = self._name_nodes.get(segment)
         if node is not None:
-            return node, {}
+            return node
         for node in self._variable_nodes:
-            matched, variables = node.match(segment)
+            matched = node.match(segment, variables)
             if matched:
-                return node, variables
-        return None, {}
+                return node
+        return None
 
 
 class StepNode(Node):
@@ -255,10 +256,10 @@ class StepNode(Node):
         super(StepNode, self).__init__()
         self.step = step
 
-    def match(self, segment):
+    def match(self, segment, variables):
         """Match a segment with the step.
         """
-        return self.step.match(segment)
+        return self.step.match(segment, variables)
 
 
 class Path(object):
@@ -359,12 +360,12 @@ class TrajectRegistry(object):
             if segment.startswith('+'):
                 stack.append(segment)
                 return self.create(node, variables, request)
-            new_node, new_variables = node.get(segment)
+            new_node = node.get(segment, variables)
             if new_node is None:
                 stack.append(segment)
                 return self.create(node, variables, request)
             node = new_node
-            variables.update(new_variables)
+
         if node.absorb:
             variables['absorb'] = ''
         return self.create(node, variables, request)
@@ -376,6 +377,12 @@ class TrajectRegistry(object):
         variables['request'] = request
         variables['app'] = request.app
         variables.update(traject_variables)
+        # the goal is to put in variables only what's required for
+        # model_factory. for request and app this amounts to simple
+        # introspection ala mapply, though it can be done ahead of time.
+        # for traject variables and parameters we can only include
+        # those variables that the model_factory declares during
+        # construction time
         result = mapply(node.model_factory, **variables)
         if result is None:
             return None
