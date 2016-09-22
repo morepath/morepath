@@ -7,7 +7,6 @@ except ImportError:
 from morepath.path import get_arguments
 from morepath.converter import Converter, IDENTITY_CONVERTER, ConverterRegistry
 import morepath
-from morepath.publish import consume as traject_consume
 import webob
 
 
@@ -15,7 +14,7 @@ def consume(mount, path, parameters=None):
     if parameters:
         path += '?' + urlencode(parameters, True)
     request = mount.request(webob.Request.blank(path).environ)
-    return traject_consume(mount, request), request
+    return mount.config.path_registry.consume(request), request
 
 
 class Root(object):

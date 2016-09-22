@@ -18,7 +18,7 @@ It all starts at :func:`publish`.
 from webob.exc import HTTPNotFound
 
 from .app import App
-from .mapply import mapply
+
 
 DEFAULT_NAME = u''
 
@@ -54,7 +54,7 @@ def resolve_model(request):
     """
     app = request.app
     while request.unconsumed:
-        next = consume(app, request)
+        next = app.config.path_registry.consume(request)
         if next is None:
             # cannot find next obj or app
             break
@@ -67,48 +67,9 @@ def resolve_model(request):
         app = next
     # if there is nothing (left), we consume toward a root obj
     if not request.unconsumed:
-        return consume(app, request)
+        return app.config.path_registry.consume(request)
     # cannot find obj
     return None
-
-
-def consume(app, request):
-    """Consume path segments from request to find model obj.
-
-    Removes the successfully consumed path segments from
-    :attr:`morepath.Request.unconsumed`.
-
-    Uses :meth:`morepath.traject.Traject.consume` to consume path
-    segments according to path configuration.
-
-    Extracts URL parameters from the path.
-
-    Gets a factory function and uses matched path variables and URL parameters
-    to construct the model instance (or :class:`morepath.App` instance).
-
-    :param app: the :class:`morepath.App` instance that contains the
-      path registry to use.
-    :param request: :class:`morepath.Request` instance that contains the
-      path segments to consume.
-    :return: The new model object, or a mounted :class:`morepath.App`
-      instance, or ``None`` if no new instance could be found.
-    """
-    return app.config.path_registry.consume(request)
-
-    # value, stack, traject_variables = app.config.path_registry.consume(
-    #     request.unconsumed)
-    # if value is None:
-    #     return None
-    # get_obj, get_parameters = value
-    # variables = get_parameters(request)
-    # variables['request'] = request
-    # variables['app'] = app
-    # variables.update(traject_variables)
-    # next_obj = mapply(get_obj, **variables)
-    # if next_obj is None:
-    #     return None
-    # request.unconsumed = stack
-    # return next_obj
 
 
 def resolve_response(obj, request):

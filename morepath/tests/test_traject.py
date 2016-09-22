@@ -6,11 +6,14 @@ from morepath.traject import (TrajectRegistry,
                               Path, create_path, parse_path,
                               normalize_path,
                               ParameterFactory)
-from morepath.publish import consume as traject_consume
 from morepath.converter import Converter, IDENTITY_CONVERTER
 import pytest
 from webob.exc import HTTPBadRequest
 import webob
+
+
+def traject_consume():
+    pass
 
 
 class Root(object):
