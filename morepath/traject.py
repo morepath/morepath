@@ -29,6 +29,7 @@ For a description of a similar algorithm also read: http://littledev.nl/?p=99
 
 import re
 from functools import total_ordering
+from reg import arginfo
 
 from .converter import IDENTITY_CONVERTER, ParameterFactory
 from .error import TrajectError
@@ -114,7 +115,7 @@ class Step(object):
         """
         return bool(self.names)
 
-    def match(self, s, variables):
+    def match(self, s, variables, model_args, model_keywords):
         """Match this step with actual path segment.
 
         :param s: path segment to match with
@@ -127,6 +128,8 @@ class Step(object):
         if matched is None:
             return False
         for name, value in zip(self.names, matched.groups()):
+            if name not in model_args and not model_keywords:
+                continue
             converter = self.get_converter(name)
             try:
                 variables[name] = converter.decode([value])
@@ -189,6 +192,8 @@ class Node(object):
         self._name_nodes = {}
         self._variable_nodes = []
         self.model_factory = None
+        self.model_args = set()
+        self.model_keywords = False
         self.parameter_factory = None
         self.absorb = False
 
@@ -259,7 +264,8 @@ class StepNode(Node):
     def match(self, segment, variables):
         """Match a segment with the step.
         """
-        return self.step.match(segment, variables)
+        return self.step.match(segment, variables,
+                               self.model_args, self.model_keywords)
 
 
 class Path(object):
@@ -327,6 +333,9 @@ class TrajectRegistry(object):
                 raise TrajectError("Duplicate variables")
             known_variables.update(variables)
         node.model_factory = model_factory
+        info = arginfo(model_factory)
+        node.model_args = set(info.args)
+        node.model_keywords = info.keywords
         node.parameter_factory = self.get_parameter_factory(
             parameters, converters, required, extra)
         if absorb:
