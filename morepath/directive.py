@@ -178,15 +178,16 @@ class PredicateAction(dectate.Action):
         """Register custom predicate for a predicate_dispatch function.
 
         The function registered should have arguments that are the
-        same or a subset of the arguments of the predicate_dispatch
+        same as the arguments of the :reg:`reg.predicate_dispatch`
         function. From these arguments it should determine a predicate
-        value and return it. The predicates for a predicate_dispatch
+        value and return it. The predicates for a ``predicate_dispatch``
         function are ordered by their before and after arguments.
 
         You can then register a function to dispatch to using the
-        :meth:`App.function` directive. This takes the
-        predicate_dispatch or dispatch function as its first argument
-        and the predicate key to match on as its other arguments.
+        :meth:`App.method` directive. This takes the
+        ``predicate_dispatch`` or ``dispatch`` function as its first
+        argument and the predicate key to match on as its other
+        arguments.
 
         :param dispatch: the dispatch function this predicate
            is for.
@@ -244,14 +245,15 @@ class MethodAction(dectate.Action):
     def __init__(self, dispatch_method, **kw):
         '''Register function as implementation of dispatch method.
 
-        This way you can creat new hookable functions of your own,
-        or override parts of the Morepath framework itself.
+        This way you can create new hookable functions of your own, or
+        override parts of the Morepath framework itself.
 
         The ``dispatch_method`` argument is a dispatch method, so a
         method on a :class:`morepath.App`` class marked with
         :func:`reg.dispatch_method`, so for instance ``App.foo``. The
         registered function gets the instance of this app class as its
-        first argument.
+        first argument. The registered function must have the same arguments
+        as the arguments of the dispatch function.
 
         The reason to use this form of registration instead of
         :meth:`reg.Dispatch.register` directly is so that they are
