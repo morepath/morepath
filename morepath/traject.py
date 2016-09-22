@@ -30,8 +30,9 @@ For a description of a similar algorithm also read: http://littledev.nl/?p=99
 import re
 from functools import total_ordering
 
-from .converter import IDENTITY_CONVERTER
+from .converter import IDENTITY_CONVERTER, ParameterFactory
 from .error import TrajectError
+from .mapply import mapply
 
 
 IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
@@ -187,7 +188,8 @@ class Node(object):
     def __init__(self):
         self._name_nodes = {}
         self._variable_nodes = []
-        self.value = None
+        self.model_factory = None
+        self.parameter_factory = None
         self.absorb = False
 
     def add(self, step):
@@ -301,13 +303,18 @@ class TrajectRegistry(object):
     def __init__(self):
         self._root = Node()
 
-    def add_pattern(self, path, value, converters=None, absorb=False):
+    def add_pattern(self, path, model_factory, parameters=None,
+                    converters=None, absorb=False, required=None,
+                    extra=None):
         """Add a route to the tree.
 
         :path: route to add.
-        :value: the value to store for the end step of the route.
+        :model_factory: the factory used to construct the model instance
+        :parameters: mapping of URL parameters to default value for parameter
         :converters: converters to store with the end step of the route
         :absorb: does this path absorb all segments
+        :required: list or set of required URL parameters
+        :extra: bool indicating whether extra parameters are expected
         """
         node = self._root
         known_variables = set()
@@ -318,42 +325,65 @@ class TrajectRegistry(object):
             if known_variables.intersection(variables):
                 raise TrajectError("Duplicate variables")
             known_variables.update(variables)
-        node.value = value
+        node.model_factory = model_factory
+        node.parameter_factory = self.get_parameter_factory(
+            parameters, converters, required, extra)
         if absorb:
             node.absorb = True
 
-    def consume(self, stack):
+    def get_parameter_factory(self, parameters, converters, required, extra):
+        if parameters or converters or required or extra:
+            return ParameterFactory(parameters, converters, required, extra)
+        else:
+            return _simple_parameter_factory
+
+    def consume(self, request):
         """Consume a stack given routes.
 
         :param stack: the stack of segments on a path, reversed so that
           the first segment of the path is on top.
-        :return: ``value, stack, variables`` tuple: ``value`` is the
-          value registered with the deepest node that matched, ``stack``
-          is the remaining segment stack and ``variables`` are the variables
-          matched with the segments.
+        :return: ``obj, stack`` tuple. ``obj`` is an instance of the
+          object created by the path factory, ``stack`` is the remaining
+          segment stack.
         """
-        stack = stack[:]
+        stack = request.unconsumed
         node = self._root
         variables = {}
         while stack:
             if node.absorb:
                 variables['absorb'] = '/'.join(reversed(stack))
-                return node.value, [], variables
+                request.unconsumed = []
+                return self.create(node, variables, request)
             segment = stack.pop()
             # special view prefix
             if segment.startswith('+'):
                 stack.append(segment)
-                return node.value, stack, variables
+                return self.create(node, variables, request)
             new_node, new_variables = node.get(segment)
             if new_node is None:
                 stack.append(segment)
-                return node.value, stack, variables
+                return self.create(node, variables, request)
             node = new_node
             variables.update(new_variables)
         if node.absorb:
             variables['absorb'] = ''
-            return node.value, stack, variables
-        return node.value, stack, variables
+        return self.create(node, variables, request)
+
+    def create(self, node, traject_variables, request):
+        if node.model_factory is None:
+            return None
+        variables = node.parameter_factory(request)
+        variables['request'] = request
+        variables['app'] = request.app
+        variables.update(traject_variables)
+        result = mapply(node.model_factory, **variables)
+        if result is None:
+            return None
+        return result
+
+
+def _simple_parameter_factory(request):
+    return {}
 
 
 def create_path(segments):
