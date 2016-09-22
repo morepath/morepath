@@ -332,7 +332,7 @@ class TrajectRegistry(object):
             if known_variables.intersection(variables):
                 raise TrajectError("Duplicate variables")
             known_variables.update(variables)
-        node.set_factories(model_factory, parameter_factory)
+        #node.set_factories(model_factory, parameter_factory)
         node.model_factory = model_factory
         info = arginfo(model_factory)
         node.model_args = set(info.args)
