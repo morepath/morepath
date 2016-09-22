@@ -192,10 +192,17 @@ class Node(object):
         self._name_nodes = {}
         self._variable_nodes = []
         self.model_factory = None
-        self.model_args = set()
-        self.model_keywords = False
-        self.parameter_factory = None
         self.absorb = False
+
+    def set(self, model_factory, parameter_factory, absorb):
+        self.model_factory = model_factory
+        self.parameter_factory = parameter_factory
+        info = arginfo(model_factory)
+        self.model_args = set(info.args)
+        self.model_keywords = info.keywords
+        self.wants_request = 'request' in info.args or info.keywords
+        self.wants_app = 'app' in info.args or info.keywords
+        self.absorb = absorb
 
     def add(self, step):
         """Add a step into the tree as a child node of this node.
@@ -332,17 +339,9 @@ class TrajectRegistry(object):
             if known_variables.intersection(variables):
                 raise TrajectError("Duplicate variables")
             known_variables.update(variables)
-        #node.set_factories(model_factory, parameter_factory)
-        node.model_factory = model_factory
-        info = arginfo(model_factory)
-        node.model_args = set(info.args)
-        node.model_keywords = info.keywords
-        node.wants_request = 'request' in info.args or info.keywords
-        node.wants_app = 'app' in info.args or info.keywords
-        node.parameter_factory = self.get_parameter_factory(
+        parameter_factory = self.get_parameter_factory(
             parameters, converters, required, extra)
-        if absorb:
-            node.absorb = True
+        node.set(model_factory, parameter_factory, absorb)
 
     def get_parameter_factory(self, parameters, converters, required, extra):
         if parameters or converters or required or extra:
