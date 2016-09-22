@@ -390,16 +390,7 @@ class TrajectRegistry(object):
         if node.wants_app:
             variables['app'] = request.app
         variables.update(traject_variables)
-        # the goal is to put in variables only what's required for
-        # model_factory. for request and app this amounts to simple
-        # introspection ala mapply, though it can be done ahead of time.
-        # for traject variables and parameters we can only include
-        # those variables that the model_factory declares during
-        # construction time
-        result = node.model_factory(**variables)
-        if result is None:
-            return None
-        return result
+        return node.model_factory(**variables)
 
 
 class ParameterFactory(object):
