@@ -146,7 +146,7 @@ class PredicateFallbackAction(dectate.Action):
         self.func = func
 
     def identifier(self, predicate_registry):
-        return self.dispatch.wrapped_func, self.func
+        return self.dispatch, self.func
 
     def perform(self, obj, predicate_registry):
         predicate_registry.register_predicate_fallback(
@@ -210,7 +210,7 @@ class PredicateAction(dectate.Action):
         self._after = after
 
     def identifier(self, predicate_registry):
-        return self.dispatch.wrapped_func, self._before, self._after
+        return self.dispatch, self._before, self._after
 
     def perform(self, obj, predicate_registry):
         predicate_registry.register_predicate(
@@ -270,12 +270,11 @@ class MethodAction(dectate.Action):
         self.key_dict = kw
 
     def identifier(self, app_class):
-        return (self.dispatch_method.wrapped_func,
+        return (self.dispatch_method,
                 self.dispatch_method.key_dict_to_predicate_key(self.key_dict))
 
     def perform(self, obj, app_class):
-        getattr(app_class,
-                self.dispatch_method.wrapped_func.__name__).register(
+        getattr(app_class, self.dispatch_method.__name__).register(
             obj, **self.key_dict)
 
 

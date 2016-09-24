@@ -65,8 +65,7 @@ class PredicateRegistry(object):
         predicates in the correct order.
         """
         for dispatch in self._predicate_infos.keys():
-            getattr(self.app_class,
-                    dispatch.wrapped_func.__name__).add_predicates(
+            getattr(self.app_class, dispatch.__name__).add_predicates(
                 self.get_predicates(dispatch))
 
     def get_predicates(self, dispatch):
