@@ -115,14 +115,12 @@ class Step(object):
         """
         return bool(self.names)
 
-    def match(self, s, variables, model_args):
+    def match(self, s, variables):
         """Match this step with actual path segment.
 
         :param s: path segment to match with
         :param variables: variables dictionary to update with new converted
-          variables that are found in this segment. Only variables expected
-          by the model factory are included.
-        :param model_args: expected arguments by the model factory.
+          variables that are found in this segment.
         :return: bool. The bool indicates whether ``s`` matched with
           the step or not.
         """
@@ -130,8 +128,6 @@ class Step(object):
         if matched is None:
             return False
         for name, value in zip(self.names, matched.groups()):
-            if name not in model_args:
-                continue
             converter = self.get_converter(name)
             try:
                 variables[name] = converter.decode([value])
@@ -195,7 +191,6 @@ class Node(object):
         self._variable_nodes = []
         self.absorb = False
         self.create = lambda variables, request: None
-        self.model_args = set()
 
     def add(self, step):
         """Add a step into the tree as a child node of this node.
@@ -265,7 +260,7 @@ class StepNode(Node):
     def match(self, segment, variables):
         """Match a segment with the step.
         """
-        return self.step.match(segment, variables, self.model_args)
+        return self.step.match(segment, variables)
 
 
 class Path(object):
@@ -310,14 +305,14 @@ class TrajectRegistry(object):
     def __init__(self):
         self._root = Node()
 
-    def add_pattern(self, path, model_factory, parameters=None,
+    def add_pattern(self, path, model_factory, defaults=None,
                     converters=None, absorb=False, required=None,
                     extra=None):
         """Add a route to the tree.
 
         :path: route to add.
         :model_factory: the factory used to construct the model instance
-        :parameters: mapping of URL parameters to default value for parameter
+        :defaults: mapping of URL parameters to default value for parameter
         :converters: converters to store with the end step of the route
         :absorb: does this path absorb all segments
         :required: list or set of required URL parameters
@@ -332,15 +327,15 @@ class TrajectRegistry(object):
             if known_variables.intersection(variables):
                 raise TrajectError("Duplicate variables")
             known_variables.update(variables)
-        if parameters or converters or required or extra:
+        if defaults or converters or required or extra:
             parameter_factory = ParameterFactory(
-                parameters, converters, required, extra)
+                defaults, converters, required, extra)
         else:
             parameter_factory = _simple_parameter_factory
 
-        info = arginfo(model_factory)
-        wants_request = 'request' in info.args
-        wants_app = 'app' in info.args
+        model_args = set(arginfo(model_factory).args)
+        wants_request = 'request' in model_args
+        wants_app = 'app' in model_args
 
         def create(path_variables, request):
             variables = parameter_factory(request)
@@ -349,11 +344,12 @@ class TrajectRegistry(object):
             if wants_app:
                 variables['app'] = request.app
             variables.update(path_variables)
+            variables = {name: value for (name, value) in variables.items()
+                         if name in model_args}
             return model_factory(**variables)
 
         node.create = create
         node.absorb = absorb
-        node.model_args = set(info.args)
 
     def consume(self, request):
         """Consume a stack given route, returning object.
@@ -416,6 +412,10 @@ class ParameterFactory(object):
         """Convert URL parameters to Python dictionary with values.
         """
         result = {}
+        # it's possible we are not actually interested in parameters
+        # but this parameter factory is used as we defined converters
+        if not self.parameters:
+            return result
         url_parameters = request.GET
         for name, default in self.parameters.items():
             value = url_parameters.getall(name)
