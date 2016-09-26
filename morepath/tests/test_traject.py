@@ -35,10 +35,14 @@ def test_name_step():
     assert step.parts == ('foo',)
     assert step.names == []
     assert step.converters == {}
-    assert not step.has_variables()
-    assert step.match('foo') == (True, {})
-    assert step.match('bar') == (False, {})
     assert step.discriminator_info() == 'foo'
+
+    assert not step.has_variables()
+    variables = {}
+    assert step.match('foo', variables, set())
+    assert variables == {}
+    assert not step.match('bar', variables, set())
+    assert variables == {}
 
 
 def test_variable_step():
@@ -49,8 +53,15 @@ def test_variable_step():
     assert step.names == ['foo']
     assert step.converters == {}
     assert step.has_variables()
-    assert step.match('bar') == (True, {'foo': 'bar'})
     assert step.discriminator_info() == '{}'
+
+    variables = {}
+    assert step.match('bar', variables, set(['foo']))
+    assert variables == {'foo': 'bar'}
+    # if we don't include it in the set we won't extract it
+    variables = {}
+    assert step.match('bar', variables, set())
+    assert variables == {}
 
 
 def test_mixed_step():
@@ -61,12 +72,29 @@ def test_mixed_step():
     assert step.names == ['foo']
     assert step.converters == {}
     assert step.has_variables()
-    assert step.match('abarb') == (True, {'foo': 'bar'})
-    assert step.match('ab') == (False, {})
-    assert step.match('xbary') == (False, {})
-    assert step.match('yabarbx') == (False, {})
-    assert step.match('afoo') == (False, {})
     assert step.discriminator_info() == 'a{}b'
+
+    names = set(['foo'])
+
+    variables = {}
+    assert step.match('abarb', variables, names)
+    assert variables == {'foo': 'bar'}
+
+    variables = {}
+    assert not step.match('ab', variables, names)
+    assert not variables
+
+    variables = {}
+    assert not step.match('xbary', variables, names)
+    assert not variables
+
+    variables = {}
+    assert not step.match('yabarbx', variables, names)
+    assert not variables
+
+    variables = {}
+    assert not step.match('afoo', variables, names)
+    assert not variables
 
 
 def test_multi_mixed_step():
@@ -82,9 +110,17 @@ def test_multi_mixed_step():
 
 def test_converter():
     step = Step('{foo}', converters=dict(foo=Converter(int)))
-    assert step.match('1') == (True, {'foo': 1})
-    assert step.match('x') == (False, {})
     assert step.discriminator_info() == '{}'
+
+    names = set(['foo'])
+
+    variables = {}
+    assert step.match('1', variables, names)
+    assert variables == {'foo': 1}
+
+    variables = {}
+    assert not step.match('x', variables, names)
+    assert not variables
 
 
 def sorted_steps(l):
@@ -206,57 +242,131 @@ def test_unknown_converter():
 def test_name_node():
     node = Node()
     step_node = node.add(Step('foo'))
-    assert node.get('foo') == (step_node, {})
-    assert node.get('bar') == (None, {})
+    variables = {}
+    assert node.resolve('foo', variables) is step_node
+    assert not variables
+
+    assert node.resolve('bar', variables) is None
+    assert not variables
 
 
 def test_variable_node():
     node = Node()
+
     step_node = node.add(Step('{x}'))
-    assert node.get('foo') == (step_node, {'x': 'foo'})
-    assert node.get('bar') == (step_node, {'x': 'bar'})
+    step_node.model_args = set(['x'])
+    variables = {}
+    assert node.resolve('foo', variables) is step_node
+    assert variables == {'x': 'foo'}
+
+    variables = {}
+    assert node.resolve('bar', variables) is step_node
+    assert variables == {'x': 'bar'}
 
 
 def test_mixed_node():
     node = Node()
     step_node = node.add(Step('prefix{x}postfix'))
-    assert node.get('prefixfoopostfix') == (step_node, {'x': 'foo'})
-    assert node.get('prefixbarpostfix') == (step_node, {'x': 'bar'})
-    assert node.get('prefixwhat') == (None, {})
+    step_node.model_args = set(['x'])
+
+    variables = {}
+    assert node.resolve('prefixfoopostfix', variables) is step_node
+    assert variables == {'x': 'foo'}
+
+    variables = {}
+    assert node.resolve('prefixbarpostfix', variables) is step_node
+    assert variables == {'x': 'bar'}
+
+    variables = {}
+    assert node.resolve('prefixwhat', variables) is None
+    assert variables == {}
 
 
 def test_variable_node_specific_first():
     node = Node()
     x_node = node.add(Step('{x}'))
+    x_node.model_args = set(['x'])
+
     prefix_node = node.add(Step('prefix{x}'))
-    assert node.get('what') == (x_node, {'x': 'what'})
-    assert node.get('prefixwhat') == (prefix_node, {'x': 'what'})
+    prefix_node.model_args = set(['x'])
+
+    variables = {}
+    assert node.resolve('what', variables) is x_node
+    assert variables == {'x': 'what'}
+
+    variables = {}
+    assert node.resolve('prefixwhat', variables) is prefix_node
+    assert variables == {'x': 'what'}
 
 
 def test_variable_node_more_specific_first():
     node = Node()
     xy_node = node.add(Step('x{x}y'))
+    xy_node.model_args = set(['x'])
     xay_node = node.add(Step('xa{x}y'))
+    xay_node.model_args = set(['x'])
     ay_node = node.add(Step('a{x}y'))
-    assert node.get('xwhaty') == (xy_node, {'x': 'what'})
-    assert node.get('xawhaty') == (xay_node, {'x': 'what'})
-    assert node.get('awhaty') == (ay_node, {'x': 'what'})
+    ay_node.model_args = set(['x'])
+
+    variables = {}
+    assert node.resolve('xwhaty', variables) is xy_node
+    assert variables == {'x': 'what'}
+
+    variables = {}
+    assert node.resolve('xawhaty', variables) is xay_node
+    assert variables == {'x': 'what'}
+
+    variables = {}
+    assert node.resolve('awhaty', variables) is ay_node
+    assert variables == {'x': 'what'}
 
 
 def test_variable_node_optional_colon():
     node = Node()
     x_node = node.add(Step('{x}'))
+    x_node.model_args = set(['x'])
     xy_node = node.add(Step('{x}:{y}'))
-    assert node.get('a') == (x_node, {'x': 'a'})
-    assert node.get('a:b') == (xy_node, {'x': 'a', 'y': 'b'})
+    xy_node.model_args = set(['x', 'y'])
+
+    variables = {}
+    assert node.resolve('a', variables) is x_node
+    assert variables == {'x': 'a'}
+
+    variables = {}
+    assert node.resolve('a:b', variables) is xy_node
+    assert variables == {'x': 'a', 'y': 'b'}
+
+
+def req(path):
+    return morepath.Request({'PATH_INFO': path}, morepath.App())
 
 
 def test_traject_simple():
     traject = TrajectRegistry()
-    traject.add_pattern('a/b/c', 'abc')
-    traject.add_pattern('a/b/d', 'abd')
-    traject.add_pattern('x/y', 'xy')
-    traject.add_pattern('x/z', 'xz')
+    class abc(object):
+        pass
+    class abd(object):
+        pass
+    class xy():
+        pass
+    class xz():
+        pass
+    traject.add_pattern('a/b/c', abc)
+    traject.add_pattern('a/b/d', abd)
+    traject.add_pattern('x/y', xy)
+    traject.add_pattern('x/z', xz)
+
+    assert isinstance(traject.consume(req('a/b/c')), abc)
+    assert isinstance(traject.consume(req('a/b/d')), abd)
+    assert isinstance(traject.consume(req('x/y')), xy)
+    assert isinstance(traject.consume(req('x/z')), xz)
+    r = req('a/b/c/d')
+    assert isinstance(traject.consume(r, abc))
+    assert req.unconsumed == ['d']
+
+    r = req('a/b/d/d')
+    assert isinstance(traject.consume(r, abd))
+    assert req.unconsumed == ['d']
 
     assert traject.consume(['c', 'b', 'a']) == ('abc', [], {})
     assert traject.consume(['d', 'b', 'a']) == ('abd', [], {})

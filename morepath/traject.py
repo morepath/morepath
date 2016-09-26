@@ -232,10 +232,12 @@ class Node(object):
         self._variable_nodes.append(result)
         return result
 
-    def get(self, segment, variables):
+    def resolve(self, segment, variables):
         """Match a path segment, traversing this node.
 
         Matches non-variable nodes before nodes with variables in them.
+
+        Updates the ``variables`` argument.
 
         :segment: a path segment
         :variables: variables dictionary to update.
@@ -382,7 +384,7 @@ class TrajectRegistry(object):
             if segment.startswith('+'):
                 stack.append(segment)
                 return node.create(variables, request)
-            new_node = node.get(segment, variables)
+            new_node = node.resolve(segment, variables)
             if new_node is None:
                 stack.append(segment)
                 return node.create(variables, request)
