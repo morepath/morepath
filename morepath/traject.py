@@ -62,7 +62,9 @@ class Step(object):
         self.parts = tuple(self.generalized.split('{}'))
         self._variables_re = create_variables_re(s)
         self.names = parse_variables(s)
-        self.cmp_converters = [self.get_converter(name) for name in self.names]
+        self.cmp_converters = [
+            self.converters.get(name, IDENTITY_CONVERTER)
+            for name in self.names]
         self.validate()
         self.named_interpolation_str = interpolation_str(s) % tuple(
             [('%(' + name + ')s') for name in self.names])
@@ -127,20 +129,14 @@ class Step(object):
         matched = self._variables_re.match(s)
         if matched is None:
             return False
+        get_converter = self.converters.get
         for name, value in zip(self.names, matched.groups()):
-            converter = self.get_converter(name)
+            converter = get_converter(name, IDENTITY_CONVERTER)
             try:
                 variables[name] = converter.decode([value])
             except ValueError:
                 return False
         return True
-
-    def get_converter(self, name):
-        """Get converter for a variable name.
-
-        If no converter is listed explicitly, do no conversion.
-        """
-        return self.converters.get(name, IDENTITY_CONVERTER)
 
     def __eq__(self, other):
         """True if this step is the same as another.
