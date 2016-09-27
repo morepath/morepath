@@ -43,10 +43,10 @@ def resolve_model(request):
     """Resolve request to a model object.
 
     This takes the path information as a stack of path segments in
-    :attr:`morepath.Request.unconsumed` and consumes it step by step using
-    :func:`consume` to find the model object as declared by
-    :meth:`morepath.App.path` directive. It can traverse through
-    mounted applications as indicated by the
+    :attr:`morepath.Request.unconsumed` and consumes it step by step
+    using :func:`morepath.TrajectRegistry.consume` to find the model
+    object as declared by :meth:`morepath.App.path` directive. It can
+    traverse through mounted applications as indicated by the
     :meth:`morepath.App.mount` directive.
 
     :param: :class:`morepath.Request` instance.
