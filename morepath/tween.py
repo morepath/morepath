@@ -10,7 +10,6 @@ Used by :meth:`morepath.App.tween_factory`.
 See also :class:`morepath.directive.TweenRegistry`
 """
 from .toposort import toposorted, Info
-from .publish import publish
 
 
 class TweenRegistry(object):
@@ -49,7 +48,8 @@ class TweenRegistry(object):
         :return: the application wrapped with tweens. This is a function
           that takes request and returns a a response.
         """
-        result = publish
+        # to avoid circular import import publish here
+        from .publish import publish as result
         for tween_factory in reversed(self.sorted_tween_factories()):
             result = tween_factory(app, result)
         return result

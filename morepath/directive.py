@@ -33,7 +33,6 @@ import os
 import dectate
 from reg import methodify
 
-from .app import App
 from .authentication import Identity, NoIdentity
 from .view import render_view, render_json, render_html, ViewRegistry
 from .traject import Path
@@ -50,7 +49,6 @@ def isbaseclass(a, b):
     return issubclass(b, a)
 
 
-@App.directive('setting')
 class SettingAction(dectate.Action):
     config = {
         'setting_registry': SettingRegistry
@@ -89,7 +87,6 @@ class SettingValue(object):
         return self.value
 
 
-@App.directive('setting_section')
 class SettingSectionAction(dectate.Composite):
     query_classes = [SettingAction]
 
@@ -119,7 +116,6 @@ class SettingSectionAction(dectate.Composite):
 # XXX this allows predicate_fallback directives to be installed without
 # predicate directives, which has no meaning. Not sure how to detect
 # this.
-@App.directive('predicate_fallback')
 class PredicateFallbackAction(dectate.Action):
     config = {
         'predicate_registry': PredicateRegistry
@@ -153,7 +149,6 @@ class PredicateFallbackAction(dectate.Action):
             self.dispatch, self.func, obj)
 
 
-@App.directive('predicate')
 class PredicateAction(dectate.Action):
     config = {
         'predicate_registry': PredicateRegistry
@@ -223,7 +218,6 @@ class PredicateAction(dectate.Action):
         predicate_registry.install_predicates()
 
 
-@App.directive('method')
 class MethodAction(dectate.Action):
     config = {
     }
@@ -278,7 +272,6 @@ class MethodAction(dectate.Action):
             obj, **self.key_dict)
 
 
-@App.directive('converter')
 class ConverterAction(dectate.Action):
     config = {
         'converter_registry': ConverterRegistry
@@ -313,7 +306,6 @@ class ConverterAction(dectate.Action):
         converter_registry.register_converter(self.type, obj())
 
 
-@App.private_action_class
 class PathAction(dectate.Action):
     config = {
         'path_registry': PathRegistry,
@@ -351,7 +343,6 @@ class PathAction(dectate.Action):
             obj)
 
 
-@App.directive('path')
 class PathCompositeAction(dectate.Composite):
     filter_convert = {
         'model': dectate.convert_dotted_name,
@@ -431,7 +422,6 @@ class PathCompositeAction(dectate.Composite):
                          self.required, self.get_converters, self.absorb), obj
 
 
-@App.directive('permission_rule')
 class PermissionRuleAction(dectate.Action):
     config = {
     }
@@ -489,7 +479,6 @@ class PermissionRuleAction(dectate.Action):
 template_directory_id = 0
 
 
-@App.directive('template_directory')
 class TemplateDirectoryAction(dectate.Action):
     config = {
         'template_engine_registry': TemplateEngineRegistry
@@ -557,7 +546,6 @@ class TemplateDirectoryAction(dectate.Action):
             self.directive.configurable)
 
 
-@App.directive('template_loader')
 class TemplateLoaderAction(dectate.Action):
     config = {
         'template_engine_registry': TemplateEngineRegistry
@@ -586,7 +574,6 @@ class TemplateLoaderAction(dectate.Action):
             self.extension, obj)
 
 
-@App.directive('template_render')
 class TemplateRenderAction(dectate.Action):
     config = {
         'template_engine_registry': TemplateEngineRegistry
@@ -630,7 +617,6 @@ def isbaseclass_notfound(a, b):
     return isbaseclass(a, b)
 
 
-@App.directive('view')
 class ViewAction(dectate.Action):
     config = {
         'view_registry': ViewRegistry,
@@ -731,7 +717,6 @@ class ViewAction(dectate.Action):
             self.permission, self.internal)
 
 
-@App.directive('json')
 class JsonAction(ViewAction):
     group_class = ViewAction
 
@@ -782,7 +767,6 @@ class JsonAction(ViewAction):
                                          permission, internal, **predicates)
 
 
-@App.directive('html')
 class HtmlAction(ViewAction):
     group_class = ViewAction
 
@@ -837,7 +821,6 @@ class DummyModel(object):
     pass
 
 
-@App.directive('mount')
 class MountAction(PathAction):
     group_class = PathAction
     depends = [SettingAction, ConverterAction]
@@ -896,7 +879,6 @@ class MountAction(PathAction):
             self.get_converters, self.name, obj)
 
 
-@App.directive('defer_links')
 class DeferLinksAction(dectate.Action):
     group_class = PathAction
     depends = [SettingAction, MountAction]
@@ -940,7 +922,6 @@ class DeferLinksAction(dectate.Action):
         path_registry.register_defer_links(self.model, obj)
 
 
-@App.directive('defer_class_links')
 class DeferClassLinksAction(dectate.Action):
     group_class = PathAction
     depends = [SettingAction, MountAction]
@@ -998,7 +979,6 @@ class DeferClassLinksAction(dectate.Action):
 tween_factory_id = 0
 
 
-@App.directive('tween_factory')
 class TweenFactoryAction(dectate.Action):
     config = {
         'tween_registry': TweenRegistry
@@ -1052,7 +1032,6 @@ class TweenFactoryAction(dectate.Action):
             obj, over=self.over, under=self.under)
 
 
-@App.directive('identity_policy')
 class IdentityPolicyAction(dectate.Action):
     depends = [SettingAction]
 
@@ -1086,7 +1065,6 @@ class IdentityPolicyAction(dectate.Action):
         app_class.forget_identity = identity_policy.forget
 
 
-@App.directive('verify_identity')
 class VerifyIdentityAction(dectate.Action):
     depends = [SettingAction]
 
@@ -1132,7 +1110,6 @@ class VerifyIdentityAction(dectate.Action):
             identity=self.identity)
 
 
-@App.directive('dump_json')
 class DumpJsonAction(dectate.Action):
     config = {
     }
@@ -1172,7 +1149,6 @@ class DumpJsonAction(dectate.Action):
             obj=self.model)
 
 
-@App.directive('load_json')
 class LoadJsonAction(dectate.Action):
     config = {
     }
@@ -1196,7 +1172,6 @@ class LoadJsonAction(dectate.Action):
         app_class._load_json = methodify(obj, selfname='app')
 
 
-@App.directive('link_prefix')
 class LinkPrefixAction(dectate.Action):
     config = {
     }

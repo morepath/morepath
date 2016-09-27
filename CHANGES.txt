@@ -48,16 +48,30 @@ Removals & Deprecations
 - **Removed** We previously used buildout to install a development
   environment for Morepath. We now use pip. See below for details.
 
+- **Breaking change** Dectate used to support the ``directive``
+  pseudo-directive to let you define directives. But this could lead
+  to import problems if you forgot to import the module where the
+  pseudo-directives are defined before using them. In this release we
+  define the directives directly on the ``App`` class using the new
+  ``dectate.directive`` mechanism, avoiding this problem.
+
+  If you have code that defines new directives, you have to adjust
+  your code accordingly; see the `Dectate changelog`_ for more
+  details.
+
+  .. _`Dectate changelog`: http://dectate.readthedocs.io/en/latest/changes.html
+
 Features
 --------
 
-- Previously Morepath used Reg's dispatch functions directly, with a
-  mechanism to pass in a ``lookup`` argument to a dispatch function to
-  control the application context. The lookup was maintained on
-  ``App.lookup``. Tests were to pass the lookup explicitly. Reg also
-  maintained this lookup in a thread-local variable, and any dispatch
-  call that did not have a explicit lookup argument passed in used this
-  implicit lookup directly.
+- **Breaking change** Previously Morepath used Reg's dispatch
+  functions directly, with a mechanism to pass in a ``lookup``
+  argument to a dispatch function to control the application
+  context. The lookup was maintained on ``App.lookup``. Tests were to
+  pass the lookup explicitly. Reg also maintained this lookup in a
+  thread-local variable, and any dispatch call that did not have a
+  explicit lookup argument passed in used this implicit lookup
+  directly.
 
   Reg has undergone a major refactoring which affects Morepath. As a
   result, Morepath is faster and dispatch code becomes more
