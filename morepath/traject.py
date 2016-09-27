@@ -344,8 +344,6 @@ class TrajectRegistry(object):
             if wants_app:
                 variables['app'] = request.app
             variables.update(path_variables)
-            variables = {name: value for (name, value) in variables.items()
-                         if name in model_args}
             return model_factory(**variables)
 
         node.create = create

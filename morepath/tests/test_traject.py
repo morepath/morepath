@@ -834,6 +834,29 @@ def test_traject_consume_combination():
     assert r.unconsumed == []
 
 
+def test_traject_consume_extra_path_variable():
+
+    class App(morepath.App):
+        pass
+
+    App.commit()
+
+    traject = App.config.path_registry
+
+    def get_model(foo):
+        result = Model()
+        result.foo = foo
+        return result
+
+    traject.add_pattern('{bar}/{foo}', get_model)
+
+    r = req('bar/foo')
+    # we get a TypeError. ``register_path`` actually checks for
+    # this case and prevents it from happening
+    with pytest.raises(TypeError):
+        traject.consume(r)
+
+
 def test_traject_nested():
     class App(morepath.App):
         pass
