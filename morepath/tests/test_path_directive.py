@@ -507,6 +507,27 @@ def test_unknown_converter():
         app.commit()
 
 
+def test_not_all_path_variables_arguments_of_model_factory():
+    class App(morepath.App):
+        pass
+
+    class Model(object):
+        def __init__(self, foo):
+            self.foo = foo
+
+    class Unknown(object):
+        pass
+
+    @App.path(model=Model, path='/{foo}/{bar}')
+    def get_model(foo):
+        return Model(foo)
+
+    with pytest.raises(DirectiveReportError) as e:
+        App.commit()
+    assert str(e.value).startswith('Variable in path not found in function '
+                                   'signature: bar')
+
+
 def test_unknown_explicit_converter():
     class app(morepath.App):
         pass
