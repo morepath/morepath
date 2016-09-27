@@ -16,6 +16,7 @@ Entirely documented in :class:`morepath.App` in the public API.
 """
 
 import dectate
+from dectate import directive
 import reg
 from webob.exc import HTTPNotFound
 
@@ -24,6 +25,7 @@ from . import compat
 from .reify import reify
 from .path import PathInfo
 from .error import LinkError
+from . import directive as action
 
 
 def cached_key_lookup(key_lookup):
@@ -79,6 +81,31 @@ class App(dectate.App):
     logger_name = 'morepath.directive'
     """Prefix used by dectate to log configuration actions.
     """
+
+    setting = directive(action.SettingAction)
+    setting_section = directive(action.SettingSectionAction)
+    predicate_fallback = directive(action.PredicateFallbackAction)
+    predicate = directive(action.PredicateAction)
+    method = directive(action.MethodAction)
+    converter = directive(action.ConverterAction)
+    _path = directive(action.PathAction)
+    path = directive(action.PathCompositeAction)
+    permission_rule = directive(action.PermissionRuleAction)
+    template_directory = directive(action.TemplateDirectoryAction)
+    template_loader = directive(action.TemplateLoaderAction)
+    template_render = directive(action.TemplateRenderAction)
+    view = directive(action.ViewAction)
+    json = directive(action.JsonAction)
+    html = directive(action.HtmlAction)
+    mount = directive(action.MountAction)
+    defer_links = directive(action.DeferLinksAction)
+    defer_class_links = directive(action.DeferClassLinksAction)
+    tween_factory = directive(action.TweenFactoryAction)
+    identity_policy = directive(action.IdentityPolicyAction)
+    verify_identity = directive(action.VerifyIdentityAction)
+    dump_json = directive(action.DumpJsonAction)
+    load_json = directive(action.LoadJsonAction)
+    link_prefix = directive(action.LinkPrefixAction)
 
     def __init__(self):
         pass
