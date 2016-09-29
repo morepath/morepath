@@ -24,9 +24,14 @@ class Request(BaseRequest):
         super(Request, self).__init__(environ, **kw)
         # parse path, normalizing dots away in
         # in case the client didn't do the normalization
-        segments = parse_path(self.path_info)
-        # Webob updates the environ as well
-        self.path_info = create_path(segments)
+        path_info = self.path_info
+        segments = parse_path(path_info)
+        # optimization: only if the normalized path is different from the
+        # original path do we set it to the webob request, as this is
+        # relatively expensive. Webob updates the environ as well
+        new_path_info = create_path(segments)
+        if new_path_info != path_info:
+            self.path_info = new_path_info
         # reverse to get unconsumed
         segments.reverse()
         self.unconsumed = segments

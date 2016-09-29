@@ -96,6 +96,10 @@ def body_model_predicate(self, obj, request):
 
     Predicate for :meth:`morepath.App.view`.
     """
+    # optimization: if we have a GET request, a common case,
+    # then there is no point in accessing the body.
+    if request.method == 'GET':
+        return None.__class__
     return request.body_obj.__class__
 
 

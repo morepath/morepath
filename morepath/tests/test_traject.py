@@ -1,16 +1,17 @@
-import dectate
 import morepath
 from morepath.traject import (TrajectRegistry,
                               Node, Step, TrajectError,
                               is_identifier, parse_variables,
                               Path, create_path, parse_path,
-                              normalize_path)
-from morepath.converter import ParameterFactory
-from morepath.publish import consume as traject_consume
+                              normalize_path,
+                              ParameterFactory)
 from morepath.converter import Converter, IDENTITY_CONVERTER
 import pytest
 from webob.exc import HTTPBadRequest
-import webob
+
+
+def traject_consume():
+    pass
 
 
 class Root(object):
@@ -32,10 +33,14 @@ def test_name_step():
     assert step.parts == ('foo',)
     assert step.names == []
     assert step.converters == {}
-    assert not step.has_variables()
-    assert step.match('foo') == (True, {})
-    assert step.match('bar') == (False, {})
     assert step.discriminator_info() == 'foo'
+
+    assert not step.has_variables()
+    variables = {}
+    assert step.match('foo', variables)
+    assert variables == {}
+    assert not step.match('bar', variables)
+    assert variables == {}
 
 
 def test_variable_step():
@@ -46,8 +51,11 @@ def test_variable_step():
     assert step.names == ['foo']
     assert step.converters == {}
     assert step.has_variables()
-    assert step.match('bar') == (True, {'foo': 'bar'})
     assert step.discriminator_info() == '{}'
+
+    variables = {}
+    assert step.match('bar', variables)
+    assert variables == {'foo': 'bar'}
 
 
 def test_mixed_step():
@@ -58,12 +66,27 @@ def test_mixed_step():
     assert step.names == ['foo']
     assert step.converters == {}
     assert step.has_variables()
-    assert step.match('abarb') == (True, {'foo': 'bar'})
-    assert step.match('ab') == (False, {})
-    assert step.match('xbary') == (False, {})
-    assert step.match('yabarbx') == (False, {})
-    assert step.match('afoo') == (False, {})
     assert step.discriminator_info() == 'a{}b'
+
+    variables = {}
+    assert step.match('abarb', variables)
+    assert variables == {'foo': 'bar'}
+
+    variables = {}
+    assert not step.match('ab', variables)
+    assert not variables
+
+    variables = {}
+    assert not step.match('xbary', variables)
+    assert not variables
+
+    variables = {}
+    assert not step.match('yabarbx', variables)
+    assert not variables
+
+    variables = {}
+    assert not step.match('afoo', variables)
+    assert not variables
 
 
 def test_multi_mixed_step():
@@ -79,9 +102,15 @@ def test_multi_mixed_step():
 
 def test_converter():
     step = Step('{foo}', converters=dict(foo=Converter(int)))
-    assert step.match('1') == (True, {'foo': 1})
-    assert step.match('x') == (False, {})
     assert step.discriminator_info() == '{}'
+
+    variables = {}
+    assert step.match('1', variables)
+    assert variables == {'foo': 1}
+
+    variables = {}
+    assert not step.match('x', variables)
+    assert not variables
 
 
 def sorted_steps(l):
@@ -203,31 +232,57 @@ def test_unknown_converter():
 def test_name_node():
     node = Node()
     step_node = node.add(Step('foo'))
-    assert node.get('foo') == (step_node, {})
-    assert node.get('bar') == (None, {})
+    variables = {}
+    assert node.resolve('foo', variables) is step_node
+    assert not variables
+
+    assert node.resolve('bar', variables) is None
+    assert not variables
 
 
 def test_variable_node():
     node = Node()
+
     step_node = node.add(Step('{x}'))
-    assert node.get('foo') == (step_node, {'x': 'foo'})
-    assert node.get('bar') == (step_node, {'x': 'bar'})
+    variables = {}
+    assert node.resolve('foo', variables) is step_node
+    assert variables == {'x': 'foo'}
+
+    variables = {}
+    assert node.resolve('bar', variables) is step_node
+    assert variables == {'x': 'bar'}
 
 
 def test_mixed_node():
     node = Node()
     step_node = node.add(Step('prefix{x}postfix'))
-    assert node.get('prefixfoopostfix') == (step_node, {'x': 'foo'})
-    assert node.get('prefixbarpostfix') == (step_node, {'x': 'bar'})
-    assert node.get('prefixwhat') == (None, {})
+
+    variables = {}
+    assert node.resolve('prefixfoopostfix', variables) is step_node
+    assert variables == {'x': 'foo'}
+
+    variables = {}
+    assert node.resolve('prefixbarpostfix', variables) is step_node
+    assert variables == {'x': 'bar'}
+
+    variables = {}
+    assert node.resolve('prefixwhat', variables) is None
+    assert variables == {}
 
 
 def test_variable_node_specific_first():
     node = Node()
     x_node = node.add(Step('{x}'))
+
     prefix_node = node.add(Step('prefix{x}'))
-    assert node.get('what') == (x_node, {'x': 'what'})
-    assert node.get('prefixwhat') == (prefix_node, {'x': 'what'})
+
+    variables = {}
+    assert node.resolve('what', variables) is x_node
+    assert variables == {'x': 'what'}
+
+    variables = {}
+    assert node.resolve('prefixwhat', variables) is prefix_node
+    assert variables == {'x': 'what'}
 
 
 def test_variable_node_more_specific_first():
@@ -235,117 +290,277 @@ def test_variable_node_more_specific_first():
     xy_node = node.add(Step('x{x}y'))
     xay_node = node.add(Step('xa{x}y'))
     ay_node = node.add(Step('a{x}y'))
-    assert node.get('xwhaty') == (xy_node, {'x': 'what'})
-    assert node.get('xawhaty') == (xay_node, {'x': 'what'})
-    assert node.get('awhaty') == (ay_node, {'x': 'what'})
+
+    variables = {}
+    assert node.resolve('xwhaty', variables) is xy_node
+    assert variables == {'x': 'what'}
+
+    variables = {}
+    assert node.resolve('xawhaty', variables) is xay_node
+    assert variables == {'x': 'what'}
+
+    variables = {}
+    assert node.resolve('awhaty', variables) is ay_node
+    assert variables == {'x': 'what'}
 
 
 def test_variable_node_optional_colon():
     node = Node()
     x_node = node.add(Step('{x}'))
     xy_node = node.add(Step('{x}:{y}'))
-    assert node.get('a') == (x_node, {'x': 'a'})
-    assert node.get('a:b') == (xy_node, {'x': 'a', 'y': 'b'})
+
+    variables = {}
+    assert node.resolve('a', variables) is x_node
+    assert variables == {'x': 'a'}
+
+    variables = {}
+    assert node.resolve('a:b', variables) is xy_node
+    assert variables == {'x': 'a', 'y': 'b'}
+
+
+def req(path):
+    return morepath.Request.blank(path, app=morepath.App())
 
 
 def test_traject_simple():
     traject = TrajectRegistry()
-    traject.add_pattern('a/b/c', 'abc')
-    traject.add_pattern('a/b/d', 'abd')
-    traject.add_pattern('x/y', 'xy')
-    traject.add_pattern('x/z', 'xz')
 
-    assert traject.consume(['c', 'b', 'a']) == ('abc', [], {})
-    assert traject.consume(['d', 'b', 'a']) == ('abd', [], {})
-    assert traject.consume(['y', 'x']) == ('xy', [], {})
-    assert traject.consume(['z', 'x']) == ('xz', [], {})
-    assert traject.consume(['d', 'c', 'b', 'a']) == ('abc', ['d'], {})
-    assert traject.consume(['d', 'd', 'b', 'a']) == ('abd', ['d'], {})
-    assert traject.consume(['3', '2', '1', 'y', 'x']) == (
-        'xy', ['3', '2', '1'], {})
-    assert traject.consume(['3', '2', '1']) == (None, ['3', '2', '1'], {})
-    assert traject.consume(['b', 'a']) == (None, [], {})
+    class abc(object):
+        pass
+
+    class abd(object):
+        pass
+
+    class xy():
+        pass
+
+    class xz():
+        pass
+
+    traject.add_pattern('a/b/c', abc)
+    traject.add_pattern('a/b/d', abd)
+    traject.add_pattern('x/y', xy)
+    traject.add_pattern('x/z', xz)
+
+    r = req('a/b/c')
+    assert isinstance(traject.consume(r), abc)
+    assert r.unconsumed == []
+
+    assert isinstance(traject.consume(req('a/b/d')), abd)
+    assert isinstance(traject.consume(req('x/y')), xy)
+    assert isinstance(traject.consume(req('x/z')), xz)
+
+    r = req('a/b/c/d')
+    assert isinstance(traject.consume(r), abc)
+    assert r.unconsumed == ['d']
+
+    r = req('a/b/d/d')
+    assert isinstance(traject.consume(r), abd)
+    assert r.unconsumed == ['d']
+
+    r = req('x/y/1/2/3')
+    assert isinstance(traject.consume(r), xy)
+    assert r.unconsumed == ['3', '2', '1']
+
+    r = req('1/2/3')
+    assert traject.consume(r) is None
+    assert r.unconsumed == ['3', '2', '1']
+
+    r = req('a/b')
+    assert traject.consume(r) is None
+    assert r.unconsumed == []
 
 
 def test_traject_variable_specific_first():
     traject = TrajectRegistry()
-    traject.add_pattern('a/{x}/b', 'axb')
-    traject.add_pattern('a/prefix{x}/b', 'aprefixxb')
-    assert traject.consume(['b', 'lah', 'a']) == ('axb', [], {'x': 'lah'})
-    assert traject.consume(['b', 'prefixlah', 'a']) == (
-        'aprefixxb', [], {'x': 'lah'})
+
+    class axb(object):
+        def __init__(self, x):
+            self.x = x
+
+    class aprefixxb(object):
+        def __init__(self, x):
+            self.x = x
+
+    traject.add_pattern('a/{x}/b', axb)
+    traject.add_pattern('a/prefix{x}/b', aprefixxb)
+
+    obj = traject.consume(req('a/lah/b'))
+    assert isinstance(obj, axb)
+    assert obj.x == 'lah'
+
+    obj = traject.consume(req('a/prefixlah/b'))
+    assert isinstance(obj, aprefixxb)
+    assert obj.x == 'lah'
 
 
 def test_traject_multiple_steps_with_variables():
     traject = TrajectRegistry()
-    traject.add_pattern('{x}/{y}', 'xy')
-    assert traject.consume(['y', 'x']) == ('xy', [], {'x': 'x', 'y': 'y'})
+
+    class xy(object):
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+
+    traject.add_pattern('{x}/{y}', xy)
+    obj = traject.consume(req('x/y'))
+    assert obj.x == 'x'
+    assert obj.y == 'y'
 
 
 def test_traject_with_converter():
     traject = TrajectRegistry()
-    traject.add_pattern('{x}', 'found', dict(x=Converter(int)))
-    assert traject.consume(['1']) == ('found', [], {'x': 1})
-    assert traject.consume(['foo']) == (None, ['foo'], {})
+
+    class found(object):
+        def __init__(self, x):
+            self.x = x
+
+    traject.add_pattern('{x}', found, converters=dict(x=Converter(int)))
+
+    obj = traject.consume(req('1'))
+    assert obj.x == 1
+
+    assert traject.consume(req('foo')) is None
 
 
 def test_traject_type_conflict():
     traject = TrajectRegistry()
-    traject.add_pattern('{x}', 'found_int', dict(x=Converter(int)))
+
+    class found_int(object):
+        def __init__(self, x):
+            self.x = x
+
+    class found_str(object):
+        def __init__(self, x):
+            self.x = x
+
+    traject.add_pattern('{x}', found_int,
+                        converters=dict(x=Converter(int)))
     with pytest.raises(TrajectError):
-        traject.add_pattern('{x}', 'found_str', dict(x=Converter(str)))
+        traject.add_pattern('{x}', found_str,
+                            converters=dict(x=Converter(str)))
 
 
 def test_traject_type_conflict_default_type():
     traject = TrajectRegistry()
-    traject.add_pattern('{x}', 'found_str')
+
+    class found_str(object):
+        def __init__(self, x):
+            self.x = x
+
+    class found_int(object):
+        def __init__(self, x):
+            self.x = x
+
+    traject.add_pattern('{x}', found_str)
     with pytest.raises(TrajectError):
-        traject.add_pattern('{x}', 'found_int', dict(x=Converter(int)))
+        traject.add_pattern('{x}', found_int,
+                            converters=dict(x=Converter(int)))
 
 
 def test_traject_type_conflict_explicit_default():
     traject = TrajectRegistry()
-    traject.add_pattern('{x}', 'found_explicit', dict(x=IDENTITY_CONVERTER))
-    traject.add_pattern('{x}', 'found_implicit')
+
+    class found_explicit(object):
+        def __init__(self, x):
+            self.x = x
+
+    class found_implicit(object):
+        def __init__(self, x):
+            self.x = x
+
+    traject.add_pattern('{x}', found_explicit,
+                        converters=dict(x=IDENTITY_CONVERTER))
+    traject.add_pattern('{x}', found_implicit)
     # these add_pattern calls are equivalent so will not result in an error
     assert True
 
 
 def test_traject_type_conflict_middle():
     traject = TrajectRegistry()
-    traject.add_pattern('a/{x}/y', 'int', dict(x=Converter(int)))
+
+    class int_f(object):
+        def __init__(self, x):
+            self.x = x
+
+    class str_f(object):
+        def __init__(self, x):
+            self.x = x
+
+    traject.add_pattern('a/{x}/y', int_f, converters=dict(x=Converter(int)))
     with pytest.raises(TrajectError):
-        traject.add_pattern('a/{x}/z', 'str')
+        traject.add_pattern('a/{x}/z', str_f)
 
 
 def test_traject_no_type_conflict_middle():
     traject = TrajectRegistry()
-    traject.add_pattern('a/{x}/y', 'int', dict(x=Converter(int)))
-    traject.add_pattern('a/{x}/z', 'int2', dict(x=Converter(int)))
+
+    class int_f(object):
+        def __init__(self, x):
+            self.x = x
+
+    class int_f2(object):
+        def __init__(self, x):
+            self.x = x
+
+    traject.add_pattern('a/{x}/y', int_f, converters=dict(x=Converter(int)))
+    traject.add_pattern('a/{x}/z', int_f2, converters=dict(x=Converter(int)))
 
 
 def test_traject_greedy_middle_prefix():
     traject = TrajectRegistry()
-    traject.add_pattern('a/prefix{x}/y', 'prefix')
-    traject.add_pattern('a/{x}/z', 'no_prefix')
 
-    assert traject.consume(['y', 'prefixX', 'a']) == ('prefix', [], {'x': 'X'})
-    assert traject.consume(['z', 'prefixX', 'a']) == (None, ['z'], {'x': 'X'})
-    assert traject.consume(['z', 'blah', 'a']) == (
-        'no_prefix', [], {'x': 'blah'})
+    class prefix(object):
+        def __init__(self, x):
+            self.x = x
+
+    class no_prefix(object):
+        def __init__(self, x):
+            self.x = x
+
+    traject.add_pattern('a/prefix{x}/y', prefix)
+    traject.add_pattern('a/{x}/z', no_prefix)
+
+    obj = traject.consume(req('a/prefixX/y'))
+    assert obj.x == 'X'
+    assert isinstance(obj, prefix)
+
+    assert traject.consume(req('a/prefixX/z')) is None
+
+    obj = traject.consume(req('a/blah/z'))
+    assert obj.x == 'blah'
+    assert isinstance(obj, no_prefix)
 
 
 def test_traject_type_conflict_middle_end():
     traject = TrajectRegistry()
-    traject.add_pattern('a/{x}/y', 'int', dict(x=Converter(int)))
+
+    class int_f(object):
+        def __init__(self, x):
+            self.x = x
+
+    class str_f(object):
+        def __init__(self, x):
+            self.x = x
+
+    traject.add_pattern('a/{x}/y', int_f, converters=dict(x=Converter(int)))
     with pytest.raises(TrajectError):
-        traject.add_pattern('a/{x}', 'str')
+        traject.add_pattern('a/{x}', str_f)
 
 
 def test_traject_no_type_conflict_middle_end():
     traject = TrajectRegistry()
-    traject.add_pattern('a/{x}/y', 'int', dict(x=Converter(int)))
-    traject.add_pattern('a/{x}', 'int2', dict(x=Converter(int)))
+
+    class int_f(object):
+        def __init__(self, x):
+            self.x = x
+
+    class int_f2(object):
+        def __init__(self, x):
+            self.x = x
+
+    traject.add_pattern('a/{x}/y', int_f, converters=dict(x=Converter(int)))
+    traject.add_pattern('a/{x}', int_f2, converters=dict(x=Converter(int)))
     assert True
 
 
@@ -428,63 +643,59 @@ def test_parse_variables():
         parse_variables('{1illegal}')
 
 
-def consume(app, path):
-    request = app.request(webob.Request.blank(path).environ)
-    return traject_consume(app, request), request
-
-paramfac = ParameterFactory({}, {}, [])
-
-
 def test_traject_consume():
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    dectate.commit(app)
+    App.commit()
 
-    traject = app.config.path_registry
-    traject.add_pattern('sub', (Model, paramfac))
+    traject = App.config.path_registry
+    traject.add_pattern('sub', Model)
 
-    mount = app()
+    r = req('sub')
+    obj = traject.consume(r)
 
-    found, request = consume(mount, 'sub')
-    assert isinstance(found, Model)
-    assert request.unconsumed == []
+    assert isinstance(obj, Model)
+    assert r.unconsumed == []
 
 
 def test_traject_consume_parameter():
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    dectate.commit(app)
+    App.commit()
 
-    traject = app.config.path_registry
+    traject = App.config.path_registry
 
     class Model(object):
         def __init__(self, a):
             self.a = a
 
-    get_param = ParameterFactory({'a': 0}, {'a': Converter(int)}, [])
-    traject.add_pattern('sub', (Model, get_param))
+    traject.add_pattern('sub', Model,
+                        defaults={'a': 0},
+                        converters={'a': Converter(int)},
+                        required=[])
 
-    mount = app()
+    r = req('sub?a=1')
+    obj = traject.consume(r)
+    assert isinstance(obj, Model)
+    assert obj.a == 1
+    assert r.unconsumed == []
 
-    found, request = consume(mount, 'sub?a=1')
-    assert isinstance(found, Model)
-    assert found.a == 1
-    assert request.unconsumed == []
-    found, request = consume(mount, 'sub')
-    assert isinstance(found, Model)
-    assert found.a == 0
-    assert request.unconsumed == []
+    r = req('sub')
+    obj = traject.consume(r)
+    assert isinstance(obj, Model)
+    assert obj.a == 0
+    assert r.unconsumed == []
 
 
 def test_traject_consume_model_factory_gets_request():
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    dectate.commit(app)
+    App.commit()
 
-    traject = app.config.path_registry
+    traject = App.config.path_registry
 
     class Model(object):
         def __init__(self, info):
@@ -493,178 +704,207 @@ def test_traject_consume_model_factory_gets_request():
     def get_model(request):
         return Model(request.method)
 
-    traject.add_pattern('sub', (get_model, paramfac))
+    traject.add_pattern('sub', get_model)
 
-    mount = app()
-
-    found, request = consume(mount, 'sub')
-    assert isinstance(found, Model)
-    assert request.unconsumed == []
-    assert found.info == 'GET'
+    r = req('sub')
+    obj = traject.consume(r)
+    assert r.unconsumed == []
+    assert obj.info == 'GET'
 
 
 def test_traject_consume_not_found():
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    dectate.commit(app)
+    App.commit()
 
-    found, request = consume(app(), 'sub')
-    assert found is None
-    assert request.unconsumed == ['sub']
+    traject = App.config.path_registry
+
+    r = req('sub')
+    assert traject.consume(r) is None
+    assert r.unconsumed == ['sub']
 
 
 def test_traject_consume_factory_returns_none():
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    dectate.commit(app)
+    App.commit()
 
-    traject = app.config.path_registry
+    traject = App.config.path_registry
 
     def get_model():
         return None
 
-    traject.add_pattern('sub', (get_model, paramfac))
+    traject.add_pattern('sub', get_model)
 
-    found, request = consume(app(), 'sub')
-
-    assert found is None
-    assert request.unconsumed == ['sub']
+    r = req('sub')
+    assert traject.consume(r) is None
+    assert r.unconsumed == []
 
 
 def test_traject_consume_variable():
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    dectate.commit(app)
+    App.commit()
 
-    traject = app.config.path_registry
+    traject = App.config.path_registry
 
     def get_model(foo):
         result = Model()
         result.foo = foo
         return result
 
-    traject.add_pattern('{foo}', (get_model, paramfac))
+    traject.add_pattern('{foo}', get_model)
 
-    found, request = consume(app(), 'something')
-    assert isinstance(found, Model)
-    assert found.foo == 'something'
-    assert request.unconsumed == []
+    r = req('something')
+
+    obj = traject.consume(r)
+    assert isinstance(obj, Model)
+    assert obj.foo == 'something'
+    assert r.unconsumed == []
 
 
 def test_traject_consume_view():
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    dectate.commit(app)
+    App.commit()
 
-    traject = app.config.path_registry
+    traject = App.config.path_registry
 
     def get_model(foo):
         result = Model()
         result.foo = foo
         return result
 
-    traject.add_pattern('', (Root, paramfac))
-    traject.add_pattern('{foo}', (get_model, paramfac))
+    traject.add_pattern('', Root)
+    traject.add_pattern('{foo}', get_model)
 
-    found, request = consume(app(), '+something')
-    assert isinstance(found, Root)
-    assert request.unconsumed == ['+something']
+    r = req('+something')
+
+    obj = traject.consume(r)
+    assert isinstance(obj, Root)
+    assert r.unconsumed == ['+something']
 
 
 def test_traject_root():
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    dectate.commit(app)
+    App.commit()
 
-    traject = app.config.path_registry
+    traject = App.config.path_registry
 
-    traject.add_pattern('', (Root, paramfac))
+    traject.add_pattern('', Root)
 
-    found, request = consume(app(), '')
-    assert isinstance(found, Root)
-    assert request.unconsumed == []
+    r = req('')
+    obj = traject.consume(r)
+    assert isinstance(obj, Root)
+    assert r.unconsumed == []
 
 
 def test_traject_consume_combination():
 
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    dectate.commit(app)
+    App.commit()
 
-    traject = app.config.path_registry
+    traject = App.config.path_registry
 
     def get_model(foo):
         result = Model()
         result.foo = foo
         return result
 
-    traject.add_pattern('special', (Special, paramfac))
-    traject.add_pattern('{foo}', (get_model, paramfac))
+    traject.add_pattern('special', Special)
+    traject.add_pattern('{foo}', get_model)
 
-    mount = app()
+    r = req('something')
+    obj = traject.consume(r)
+    assert isinstance(obj, Model)
+    assert r.unconsumed == []
+    assert obj.foo == 'something'
 
-    found, request = consume(mount, 'something')
-    assert isinstance(found, Model)
-    assert request.unconsumed == []
-    assert found.foo == 'something'
+    r = req('special')
+    obj = traject.consume(r)
+    assert isinstance(obj, Special)
+    assert r.unconsumed == []
 
-    found, request = consume(mount, 'special')
-    assert isinstance(found, Special)
-    assert request.unconsumed == []
+
+def test_traject_consume_extra_path_variable():
+
+    class App(morepath.App):
+        pass
+
+    App.commit()
+
+    traject = App.config.path_registry
+
+    def get_model(foo):
+        result = Model()
+        result.foo = foo
+        return result
+
+    traject.add_pattern('{bar}/{foo}', get_model)
+
+    r = req('bar/foo')
+    # we get a TypeError. ``register_path`` actually checks for
+    # this case and prevents it from happening
+    with pytest.raises(TypeError):
+        traject.consume(r)
 
 
 def test_traject_nested():
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    dectate.commit(app)
+    App.commit()
 
-    traject = app.config.path_registry
-    traject.add_pattern('a', (Model, paramfac))
-    traject.add_pattern('a/b', (Special, paramfac))
+    traject = App.config.path_registry
+    traject.add_pattern('a', Model)
+    traject.add_pattern('a/b', Special)
 
-    mount = app()
+    r = req('a')
+    obj = traject.consume(r)
+    assert isinstance(obj, Model)
+    assert r.unconsumed == []
 
-    found, request = consume(mount, 'a')
-    assert isinstance(found, Model)
-    assert request.unconsumed == []
-    found, request = consume(mount, 'a/b')
-    assert isinstance(found, Special)
-    assert request.unconsumed == []
+    r = req('a/b')
+    obj = traject.consume(r)
+    assert isinstance(obj, Special)
+    assert r.unconsumed == []
 
 
 def test_traject_nested_not_resolved_entirely_by_consumer():
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    dectate.commit(app)
+    App.commit()
 
-    traject = app.config.path_registry
-    traject.add_pattern('a', (Model, paramfac))
+    traject = App.config.path_registry
+    traject.add_pattern('a', Model)
 
-    mount = app()
+    r = req('a')
+    obj = traject.consume(r)
+    assert isinstance(obj, Model)
+    assert r.unconsumed == []
 
-    found, request = consume(mount, 'a')
-    assert isinstance(found, Model)
-    assert request.unconsumed == []
-    found, request = consume(mount, 'a/b')
-    assert isinstance(found, Model)
-    assert request.unconsumed == ['b']
+    r = req('a/b')
+    obj = traject.consume(r)
+    assert isinstance(obj, Model)
+    assert r.unconsumed == ['b']
 
 
 def test_traject_nested_with_variable():
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    dectate.commit(app)
+    App.commit()
 
-    traject = app.config.path_registry
+    traject = App.config.path_registry
 
     def get_model(id):
         result = Model()
@@ -676,29 +916,32 @@ def test_traject_nested_with_variable():
         result.id = id
         return result
 
-    traject.add_pattern('{id}', (get_model, paramfac))
-    traject.add_pattern('{id}/sub', (get_special, paramfac))
+    traject.add_pattern('{id}', get_model)
+    traject.add_pattern('{id}/sub', get_special)
 
-    mount = app()
+    r = req('a')
+    obj = traject.consume(r)
+    assert isinstance(obj, Model)
+    assert r.unconsumed == []
 
-    found, request = consume(mount, 'a')
-    assert isinstance(found, Model)
-    assert request.unconsumed == []
-    found, request = consume(mount, 'b')
-    assert isinstance(found, Model)
-    assert request.unconsumed == []
-    found, request = consume(mount, 'a/sub')
-    assert isinstance(found, Special)
-    assert request.unconsumed == []
+    r = req('b')
+    obj = traject.consume(r)
+    assert isinstance(obj, Model)
+    assert r.unconsumed == []
+
+    r = req('a/sub')
+    obj = traject.consume(r)
+    assert isinstance(obj, Special)
+    assert r.unconsumed == []
 
 
 def test_traject_with_multiple_variables():
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    dectate.commit(app)
+    App.commit()
 
-    traject = app.config.path_registry
+    traject = App.config.path_registry
 
     def get_model(first_id):
         result = Model()
@@ -710,38 +953,45 @@ def test_traject_with_multiple_variables():
         result.first_id = first_id
         result.second_id = second_id
         return result
-    traject.add_pattern('{first_id}', (get_model, paramfac))
-    traject.add_pattern('{first_id}/{second_id}', (get_special, paramfac))
 
-    mount = app()
+    traject.add_pattern('{first_id}', get_model)
+    traject.add_pattern('{first_id}/{second_id}', get_special)
 
-    found, request = consume(mount, 'a')
-    assert isinstance(found, Model)
-    assert found.first_id == 'a'
-    assert not hasattr(found, 'second_id')
-    assert request.unconsumed == []
+    r = req('a')
+    obj = traject.consume(r)
+    assert isinstance(obj, Model)
+    assert obj.first_id == 'a'
+    assert not hasattr(obj, 'second_id')
+    assert r.unconsumed == []
 
-    found, request = consume(mount, 'a/b')
-    assert isinstance(found, Special)
-    assert found.first_id == 'a'
-    assert found.second_id == 'b'
-    assert request.unconsumed == []
+    r = req('a/b')
+    obj = traject.consume(r)
+    assert isinstance(obj, Special)
+    assert obj.first_id == 'a'
+    assert obj.second_id == 'b'
+    assert r.unconsumed == []
 
 
 def test_traject_no_concecutive_variables():
     traject = TrajectRegistry()
 
+    def f():
+        pass
+
     with pytest.raises(TrajectError):
-        traject.add_pattern('{foo}{bar}', 'value')
+        traject.add_pattern('{foo}{bar}', f)
 
 
 def test_traject_no_duplicate_variables():
     traject = TrajectRegistry()
 
+    def f():
+        pass
+
     with pytest.raises(TrajectError):
-        traject.add_pattern('{foo}-{foo}', 'value')
+        traject.add_pattern('{foo}-{foo}', f)
     with pytest.raises(TrajectError):
-        traject.add_pattern('{foo}/{foo}', 'value')
+        traject.add_pattern('{foo}/{foo}', f)
 
 
 def test_interpolation_str():
@@ -753,60 +1003,56 @@ def test_path_discriminator():
     assert p.discriminator() == 'foo/{}/bar/{}'
 
 
-def fake_request(path):
-    return webob.Request.blank(path)
-
-
 def test_empty_parameter_factory():
     get_parameters = ParameterFactory({}, {}, [])
-    assert get_parameters(fake_request('')) == {}
+    assert get_parameters(req('')) == {}
     # unexpected parameter is ignored
-    assert get_parameters(fake_request('?a=A')) == {}
+    assert get_parameters(req('?a=A')) == {}
 
 
 def test_single_parameter():
     get_parameters = ParameterFactory({'a': None}, {'a': Converter(str)}, [])
-    assert get_parameters(fake_request('?a=A')) == {'a': 'A'}
-    assert get_parameters(fake_request('')) == {'a': None}
+    assert get_parameters(req('?a=A')) == {'a': 'A'}
+    assert get_parameters(req('')) == {'a': None}
 
 
 def test_single_parameter_int():
     get_parameters = ParameterFactory({'a': None}, {'a': Converter(int)}, [])
-    assert get_parameters(fake_request('?a=1')) == {'a': 1}
-    assert get_parameters(fake_request('')) == {'a': None}
+    assert get_parameters(req('?a=1')) == {'a': 1}
+    assert get_parameters(req('')) == {'a': None}
     with pytest.raises(HTTPBadRequest):
-        get_parameters(fake_request('?a=A'))
+        get_parameters(req('?a=A'))
 
 
 def test_single_parameter_default():
     get_parameters = ParameterFactory({'a': 'default'}, {}, [])
-    assert get_parameters(fake_request('?a=A')) == {'a': 'A'}
-    assert get_parameters(fake_request('')) == {'a': 'default'}
+    assert get_parameters(req('?a=A')) == {'a': 'A'}
+    assert get_parameters(req('')) == {'a': 'default'}
 
 
 def test_single_parameter_int_default():
     get_parameters = ParameterFactory({'a': 0}, {'a': Converter(int)}, [])
-    assert get_parameters(fake_request('?a=1')) == {'a': 1}
-    assert get_parameters(fake_request('')) == {'a': 0}
+    assert get_parameters(req('?a=1')) == {'a': 1}
+    assert get_parameters(req('')) == {'a': 0}
     with pytest.raises(HTTPBadRequest):
-        get_parameters(fake_request('?a=A'))
+        get_parameters(req('?a=A'))
 
 
 def test_parameter_required():
     get_parameters = ParameterFactory({'a': None}, {}, ['a'])
-    assert get_parameters(fake_request('?a=foo')) == {'a': 'foo'}
+    assert get_parameters(req('?a=foo')) == {'a': 'foo'}
     with pytest.raises(HTTPBadRequest):
-        get_parameters(fake_request(''))
+        get_parameters(req(''))
 
 
 def test_extra_parameters():
     get_parameters = ParameterFactory({'a': None}, {}, [], True)
-    assert get_parameters(fake_request('?a=foo')) == {
+    assert get_parameters(req('?a=foo')) == {
         'a': 'foo',
         'extra_parameters': {}}
-    assert get_parameters(fake_request('?b=foo')) == {
+    assert get_parameters(req('?b=foo')) == {
         'a': None,
         'extra_parameters': {'b': 'foo'}}
-    assert get_parameters(fake_request('?a=foo&b=bar')) == {
+    assert get_parameters(req('?a=foo&b=bar')) == {
         'a': 'foo',
         'extra_parameters': {'b': 'bar'}}

@@ -29,6 +29,8 @@ For a description of a similar algorithm also read: http://littledev.nl/?p=99
 
 import re
 from functools import total_ordering
+from reg import arginfo
+from webob.exc import HTTPBadRequest
 
 from .converter import IDENTITY_CONVERTER
 from .error import TrajectError
@@ -58,14 +60,16 @@ class Step(object):
         self.converters = converters or {}
         self.generalized = generalize_variables(s)
         self.parts = tuple(self.generalized.split('{}'))
-        self._variables_re = create_variables_re(s)
         self.names = parse_variables(s)
-        self.cmp_converters = [self.get_converter(name) for name in self.names]
+        if len(set(self.names)) != len(self.names):
+            raise TrajectError("Duplicate variable")
+        self._variables_re = create_variables_re(s)
+        self.cmp_converters = [
+            self.converters.get(name, IDENTITY_CONVERTER)
+            for name in self.names]
         self.validate()
         self.named_interpolation_str = interpolation_str(s) % tuple(
             [('%(' + name + ')s') for name in self.names])
-        if len(set(self.names)) != len(self.names):
-            raise TrajectError("Duplicate variable")
 
     def validate(self):
         """Validate whether step makes sense.
@@ -113,32 +117,26 @@ class Step(object):
         """
         return bool(self.names)
 
-    def match(self, s):
+    def match(self, s, variables):
         """Match this step with actual path segment.
 
         :param s: path segment to match with
-        :return: (bool, variables) tuple. The bool indicates whether
-          ``s`` with the step or not. ``variables`` is a dictionary that
-          contains converted variables that matched in this segment.
+        :param variables: variables dictionary to update with new converted
+          variables that are found in this segment.
+        :return: bool. The bool indicates whether ``s`` matched with
+          the step or not.
         """
-        result = {}
         matched = self._variables_re.match(s)
         if matched is None:
-            return False, result
-        for name, value in zip(self.names, matched.groups()):
-            converter = self.get_converter(name)
+            return False
+        get_converter = self.converters.get
+        for name, value in matched.groupdict().items():
+            converter = get_converter(name, IDENTITY_CONVERTER)
             try:
-                result[name] = converter.decode([value])
+                variables[name] = converter.decode([value])
             except ValueError:
-                return False, {}
-        return True, result
-
-    def get_converter(self, name):
-        """Get converter for a variable name.
-
-        If no converter is listed explicitly, do no conversion.
-        """
-        return self.converters.get(name, IDENTITY_CONVERTER)
+                return False
+        return True
 
     def __eq__(self, other):
         """True if this step is the same as another.
@@ -187,8 +185,8 @@ class Node(object):
     def __init__(self):
         self._name_nodes = {}
         self._variable_nodes = []
-        self.value = None
         self.absorb = False
+        self.create = lambda variables, request: None
 
     def add(self, step):
         """Add a step into the tree as a child node of this node.
@@ -225,23 +223,25 @@ class Node(object):
         self._variable_nodes.append(result)
         return result
 
-    def get(self, segment):
+    def resolve(self, segment, variables):
         """Match a path segment, traversing this node.
 
         Matches non-variable nodes before nodes with variables in them.
 
+        Updates the ``variables`` argument.
+
         :segment: a path segment
-        :return: a (bool, variables) tuple. Bool is ``True`` if
-          matched, ``variables`` is a dictionary with matched variables.
+        :variables: variables dictionary to update.
+        :return: matched node, or ``None`` if node didn't match.
         """
         node = self._name_nodes.get(segment)
         if node is not None:
-            return node, {}
+            return node
         for node in self._variable_nodes:
-            matched, variables = node.match(segment)
+            matched = node.match(segment, variables)
             if matched:
-                return node, variables
-        return None, {}
+                return node
+        return None
 
 
 class StepNode(Node):
@@ -253,10 +253,10 @@ class StepNode(Node):
         super(StepNode, self).__init__()
         self.step = step
 
-    def match(self, segment):
+    def match(self, segment, variables):
         """Match a segment with the step.
         """
-        return self.step.match(segment)
+        return self.step.match(segment, variables)
 
 
 class Path(object):
@@ -301,13 +301,18 @@ class TrajectRegistry(object):
     def __init__(self):
         self._root = Node()
 
-    def add_pattern(self, path, value, converters=None, absorb=False):
+    def add_pattern(self, path, model_factory, defaults=None,
+                    converters=None, absorb=False, required=None,
+                    extra=None):
         """Add a route to the tree.
 
         :path: route to add.
-        :value: the value to store for the end step of the route.
+        :model_factory: the factory used to construct the model instance
+        :defaults: mapping of URL parameters to default value for parameter
         :converters: converters to store with the end step of the route
         :absorb: does this path absorb all segments
+        :required: list or set of required URL parameters
+        :extra: bool indicating whether extra parameters are expected
         """
         node = self._root
         known_variables = set()
@@ -318,42 +323,134 @@ class TrajectRegistry(object):
             if known_variables.intersection(variables):
                 raise TrajectError("Duplicate variables")
             known_variables.update(variables)
-        node.value = value
-        if absorb:
-            node.absorb = True
+        if defaults or converters or required or extra:
+            parameter_factory = ParameterFactory(
+                defaults, converters, required, extra)
+        else:
+            parameter_factory = _simple_parameter_factory
 
-    def consume(self, stack):
-        """Consume a stack given routes.
+        model_args = set(arginfo(model_factory).args)
+        wants_request = 'request' in model_args
+        wants_app = 'app' in model_args
 
-        :param stack: the stack of segments on a path, reversed so that
-          the first segment of the path is on top.
-        :return: ``value, stack, variables`` tuple: ``value`` is the
-          value registered with the deepest node that matched, ``stack``
-          is the remaining segment stack and ``variables`` are the variables
-          matched with the segments.
+        def create(path_variables, request):
+            variables = parameter_factory(request)
+            if wants_request:
+                variables['request'] = request
+            if wants_app:
+                variables['app'] = request.app
+            variables.update(path_variables)
+            return model_factory(**variables)
+
+        node.create = create
+        node.absorb = absorb
+
+    def consume(self, request):
+        """Consume a stack given route, returning object.
+
+        Removes the successfully consumed path segments from
+        :attr:`morepath.Request.unconsumed`.
+
+        Extracts variables from the path and URL parameters from the request.
+
+        Then constructs the model instance given this information.
+        (or :class:`morepath.App` instance in case of mounted apps).
+
+        :param request: the request to consume segments from and to
+          retrieve URL parameters from.
+        :return: the model instance that can be found, or ``None`` if
+          no model instance exists for this sequence of segments.
         """
-        stack = stack[:]
+        stack = request.unconsumed
         node = self._root
         variables = {}
         while stack:
             if node.absorb:
                 variables['absorb'] = '/'.join(reversed(stack))
-                return node.value, [], variables
+                request.unconsumed = []
+                return node.create(variables, request)
             segment = stack.pop()
             # special view prefix
             if segment.startswith('+'):
                 stack.append(segment)
-                return node.value, stack, variables
-            new_node, new_variables = node.get(segment)
+                return node.create(variables, request)
+            new_node = node.resolve(segment, variables)
+            # could still be a view without prefix,
+            # or going into a mounted app
             if new_node is None:
                 stack.append(segment)
-                return node.value, stack, variables
+                return node.create(variables, request)
             node = new_node
-            variables.update(new_variables)
         if node.absorb:
             variables['absorb'] = ''
-            return node.value, stack, variables
-        return node.value, stack, variables
+        return node.create(variables, request)
+
+
+class ParameterFactory(object):
+    """Convert URL parameters.
+
+    Given expected URL parameters, converters for them and required
+    parameters, create a dictionary of converted URL parameters with
+    Python values.
+
+    :param parameters: dictionary of parameter names -> default values.
+    :param converters: dictionary of parameter names -> converters.
+    :param required: dictionary of parameter names -> required booleans.
+    :param extra: should extra unknown parameters be included?
+    """
+    def __init__(self, parameters, converters, required, extra=False):
+        self.parameters = parameters
+        self.converters = converters
+        self.required = required
+        self.extra = extra
+
+    def __call__(self, request):
+        """Convert URL parameters to Python dictionary with values.
+        """
+        result = {}
+        # it's possible we are not actually interested in parameters
+        # but this parameter factory is used as we defined converters
+        if not self.parameters:
+            return result
+        url_parameters = request.GET
+        for name, default in self.parameters.items():
+            value = url_parameters.getall(name)
+            converter = self.converters.get(name, IDENTITY_CONVERTER)
+            if converter.is_missing(value):
+                if name in self.required:
+                    raise HTTPBadRequest(
+                        "Required URL parameter missing: %s" %
+                        name)
+                result[name] = default
+                continue
+            try:
+                result[name] = converter.decode(value)
+            except ValueError:
+                raise HTTPBadRequest(
+                    "Cannot decode URL parameter %s: %s" % (
+                        name, value))
+
+        if not self.extra:
+            return result
+
+        remaining = set(url_parameters.keys()).difference(
+            set(result.keys()))
+        extra = {}
+        for name in remaining:
+            value = url_parameters.getall(name)
+            converter = self.converters.get(name, IDENTITY_CONVERTER)
+            try:
+                extra[name] = converter.decode(value)
+            except ValueError:
+                raise HTTPBadRequest(
+                    "Cannot decode URL parameter %s: %s" % (
+                        name, value))
+        result['extra_parameters'] = extra
+        return result
+
+
+def _simple_parameter_factory(request):
+    return {}
 
 
 def create_path(segments):
@@ -454,7 +551,9 @@ def create_variables_re(s):
     :param s: a route segment with variables in it.
     :return: a regular expression that matches with variables for the route.
     """
-    return re.compile('^' + PATH_VARIABLE.sub(r'(.+)', s) + '$')
+    def _repl(m):
+        return '(?P<%s>.+)' % m.group(0)[1:-1]
+    return re.compile('^' + PATH_VARIABLE.sub(_repl, s) + '$')
 
 
 def generalize_variables(s):

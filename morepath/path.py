@@ -16,7 +16,7 @@ except ImportError:
 
 
 from .traject import Path as TrajectPath, TrajectRegistry
-from .converter import ParameterFactory, ConverterRegistry, IDENTITY_CONVERTER
+from .converter import ConverterRegistry, IDENTITY_CONVERTER
 from .error import LinkError
 
 
@@ -93,19 +93,15 @@ class PathRegistry(TrajectRegistry):
                     % path_variable)
 
         parameters = filter_arguments(arguments, path_variables)
+
         if required is None:
             required = set()
         required = set(required)
 
         extra = 'extra_parameters' in arguments
-        if parameters or converters or required or extra:
-            parameter_factory = ParameterFactory(
-                parameters, converters, required, extra)
-        else:
-            parameter_factory = _simple_parameter_factory
 
-        self.add_pattern(path, (model_factory, parameter_factory),
-                         converters, absorb)
+        self.add_pattern(path, model_factory, parameters,
+                         converters, absorb, required, extra)
 
         if variables is not None:
             self.register_path_variables(model, variables)
@@ -367,7 +363,3 @@ def fixed_urlencode(s, doseq=0):
     tilde should not be encoded according to RFC3986
     """
     return urlencode(s, doseq).replace('%7E', '~')
-
-
-def _simple_parameter_factory(request):
-    return {}

@@ -507,6 +507,27 @@ def test_unknown_converter():
         app.commit()
 
 
+def test_not_all_path_variables_arguments_of_model_factory():
+    class App(morepath.App):
+        pass
+
+    class Model(object):
+        def __init__(self, foo):
+            self.foo = foo
+
+    class Unknown(object):
+        pass
+
+    @App.path(model=Model, path='/{foo}/{bar}')
+    def get_model(foo):
+        return Model(foo)
+
+    with pytest.raises(DirectiveReportError) as e:
+        App.commit()
+    assert str(e.value).startswith('Variable in path not found in function '
+                                   'signature: bar')
+
+
 def test_unknown_explicit_converter():
     class app(morepath.App):
         pass
@@ -1147,30 +1168,30 @@ def test_sub_path_different_variable():
     class App(morepath.App):
         pass
 
-    class Master(object):
+    class Foo(object):
         def __init__(self, id):
             self.id = id
 
-    class Slave(object):
-        def __init__(self, id, master):
+    class Bar(object):
+        def __init__(self, id, foo):
             self.id = id
-            self.master = master
+            self.foo = foo
 
-    @App.path(model=Master, path='{id}')
-    def get_master(id):
-        return Master(id)
+    @App.path(model=Foo, path='{id}')
+    def get_foo(id):
+        return Foo(id)
 
-    @App.path(model=Slave, path='{master_id}/{slave_id}')
-    def get_slave(master_id, slave_id):
-        return Slave(slave_id, Master(master_id))
+    @App.path(model=Bar, path='{foo_id}/{bar_id}')
+    def get_client(foo_id, bar_id):
+        return Bar(bar_id, Foo(foo_id))
 
-    @App.view(model=Master)
-    def default_master(self, request):
+    @App.view(model=Foo)
+    def default_sbar(self, request):
         return "M: %s" % self.id
 
-    @App.view(model=Slave)
-    def default_slave(self, request):
-        return "S: %s %s" % (self.id, self.master.id)
+    @App.view(model=Bar)
+    def default_bar(self, request):
+        return "S: %s %s" % (self.id, self.foo.id)
 
     c = Client(App())
 
@@ -1181,7 +1202,7 @@ def test_sub_path_different_variable():
         response = c.get('/a/b')
         assert response.body == b'S: b a'
 
-    assert str(ex.value) == 'step {id} and {master_id} are in conflict'
+    assert str(ex.value) == 'step {id} and {foo_id} are in conflict'
 
 
 def test_absorb_path():
@@ -2040,3 +2061,24 @@ def test_path_on_same_model_explicit_and_class_should_conflict():
 
     with pytest.raises(dectate.ConflictError):
         App.commit()
+
+
+def test_nonexisting_path_too_long_unconsumed():
+    class App(morepath.App):
+        pass
+
+    class Model(object):
+        def __init__(self):
+            pass
+
+    @App.path(model=Model, path='simple')
+    def get_model():
+        return Model()
+
+    @App.view(model=Model)
+    def default(self, request):
+        return "View"
+
+    c = Client(App())
+
+    c.get('/foo/bar/baz', status=404)
