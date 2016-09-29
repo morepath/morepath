@@ -2061,3 +2061,24 @@ def test_path_on_same_model_explicit_and_class_should_conflict():
 
     with pytest.raises(dectate.ConflictError):
         App.commit()
+
+
+def test_nonexisting_path_too_long_unconsumed():
+    class App(morepath.App):
+        pass
+
+    class Model(object):
+        def __init__(self):
+            pass
+
+    @App.path(model=Model, path='simple')
+    def get_model():
+        return Model()
+
+    @App.view(model=Model)
+    def default(self, request):
+        return "View"
+
+    c = Client(App())
+
+    c.get('/foo/bar/baz', status=404)
