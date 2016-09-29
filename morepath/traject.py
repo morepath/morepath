@@ -60,16 +60,16 @@ class Step(object):
         self.converters = converters or {}
         self.generalized = generalize_variables(s)
         self.parts = tuple(self.generalized.split('{}'))
-        self._variables_re = create_variables_re(s)
         self.names = parse_variables(s)
+        if len(set(self.names)) != len(self.names):
+            raise TrajectError("Duplicate variable")
+        self._variables_re = create_variables_re(s)
         self.cmp_converters = [
             self.converters.get(name, IDENTITY_CONVERTER)
             for name in self.names]
         self.validate()
         self.named_interpolation_str = interpolation_str(s) % tuple(
             [('%(' + name + ')s') for name in self.names])
-        if len(set(self.names)) != len(self.names):
-            raise TrajectError("Duplicate variable")
 
     def validate(self):
         """Validate whether step makes sense.
@@ -130,7 +130,7 @@ class Step(object):
         if matched is None:
             return False
         get_converter = self.converters.get
-        for name, value in zip(self.names, matched.groups()):
+        for name, value in matched.groupdict().items():
             converter = get_converter(name, IDENTITY_CONVERTER)
             try:
                 variables[name] = converter.decode([value])
@@ -551,7 +551,9 @@ def create_variables_re(s):
     :param s: a route segment with variables in it.
     :return: a regular expression that matches with variables for the route.
     """
-    return re.compile('^' + PATH_VARIABLE.sub(r'(.+)', s) + '$')
+    def _repl(m):
+        return '(?P<%s>.+)' % m.group(0)[1:-1]
+    return re.compile('^' + PATH_VARIABLE.sub(_repl, s) + '$')
 
 
 def generalize_variables(s):
