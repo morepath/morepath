@@ -313,7 +313,15 @@ class Request(BaseRequest):
         self._after.append(func)
         return func
 
-    def run_after(self, response):
+    def _run_after(self, response):
+        """Run callbacks registered with :meth:`morepath.Request.after`.
+        """
+        # if we don't have anything to run, don't even check status
+        if not self._after:
+            return
+        # run after only if it's not a 2XX or 3XX response
+        if response.status[0] not in ('2', '3'):
+            return
         for after in self._after:
             after(response)
 
