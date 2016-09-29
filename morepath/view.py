@@ -72,8 +72,7 @@ class View(object):
             response = self.render(content, request)
 
         # run request after if it's a 2XX or 3XX response
-        status = response.status
-        if status[0] in ('2', '3'):
+        if response.status[0] in ('2', '3'):
             request.run_after(response)
 
         return response
