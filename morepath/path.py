@@ -363,7 +363,3 @@ def fixed_urlencode(s, doseq=0):
     tilde should not be encoded according to RFC3986
     """
     return urlencode(s, doseq).replace('%7E', '~')
-
-
-def _simple_parameter_factory(request):
-    return {}
