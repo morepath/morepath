@@ -375,6 +375,8 @@ class TrajectRegistry(object):
                 stack.append(segment)
                 return node.create(variables, request)
             new_node = node.resolve(segment, variables)
+            # could still be a view without prefix,
+            # or going into a mounted app
             if new_node is None:
                 stack.append(segment)
                 return node.create(variables, request)
