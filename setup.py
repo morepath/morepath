@@ -49,7 +49,7 @@ setup(
             'flake8',
         ],
         coverage=[
-            'pytest-cov',
+            'coverage',
         ],
         docs=[
             'sphinx',
