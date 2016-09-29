@@ -288,7 +288,7 @@ def test_view_after_non_decorator():
     assert result.headers.get('Foo') == 'FOO'
 
 
-def test_view_after_doesnt_apply_to_exception():
+def test_view_after_doesnt_apply_to_raised_404_exception():
     class App(morepath.App):
         pass
 
@@ -305,6 +305,32 @@ def test_view_after_doesnt_apply_to_exception():
         def set_header(response):
             response.headers.add('Foo', 'FOO')
         raise HTTPNotFound()
+
+    dectate.commit(App)
+
+    c = Client(App())
+
+    response = c.get('/', status=404)
+    assert response.headers.get('Foo') is None
+
+
+def test_view_after_doesnt_apply_to_returned_404_exception():
+    class App(morepath.App):
+        pass
+
+    class Root(object):
+        pass
+
+    @App.path(model=Root, path='')
+    def get_root():
+        return Root()
+
+    @App.view(model=Root)
+    def view(self, request):
+        @request.after
+        def set_header(response):
+            response.headers.add('Foo', 'FOO')
+        return HTTPNotFound()
 
     dectate.commit(App)
 
