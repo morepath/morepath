@@ -12,6 +12,7 @@ env:
     - TOXENV=pep8
     - TOXENV=coverage
 install:
+    - pip install --upgrade pip setuptools
     - pip install tox
 script:
-    - tox -e $TOXENV
+    - tox -c .travis-tox.ini -e $TOXENV
