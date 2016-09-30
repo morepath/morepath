@@ -38,9 +38,9 @@ Make sure you have recent setuptools and pip installed::
   $ pip install -U setuptools pip
 
 Install the various dependencies and development tools from
-develop_requirements.txt::
+requirements/develop.txt::
 
-  $ pip install -Ur develop_requirements.txt --src src
+  $ pip install -Ur requirements/develop.txt --src src
 
 This needs your ssh key installed in github_ to work.
 
