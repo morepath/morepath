@@ -1,0 +1,4 @@
+# libraries from local src directory
+-e ./src/reg
+-e ./src/dectate
+-e ./src/importscan
