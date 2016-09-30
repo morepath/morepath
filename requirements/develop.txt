@@ -1,7 +1,7 @@
 # sources
--e git+git@github.com:morepath/reg.git#egg=reg
--e git+git@github.com:morepath/dectate.git#egg=dectate
--e git+git@github.com:faassen/importscan.git#egg=importscan
+-e git+git@github.com:morepath/reg.git@master#egg=reg
+-e git+git@github.com:morepath/dectate.git@master#egg=dectate
+-e git+git@github.com:faassen/importscan.git@master#egg=importscan
 
 # development
 -e '.[test,coverage,pep8,docs]'
