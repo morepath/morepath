@@ -1,6 +1,0 @@
-# sources
--e git+https://github.com/morepath/reg.git#egg=reg
--e git+https://github.com/morepath/dectate.git#egg=dectate
-
-# tox
-tox
