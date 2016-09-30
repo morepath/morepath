@@ -4,12 +4,12 @@
 -e git+git@github.com:faassen/importscan.git#egg=importscan
 
 # development
--e '..[test,coverage,pep8,docs]'
+-e '.[test,coverage,pep8,docs]'
 tox
 radon
 
 # py.test
--r ./fixtures.txt
+-r fixtures.txt
 
 # releaser
 zest.releaser[recommended]

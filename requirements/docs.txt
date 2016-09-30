@@ -1,2 +1,2 @@
 # install docs requirements too
--e '..[docs]'
+-e '.[docs]'
