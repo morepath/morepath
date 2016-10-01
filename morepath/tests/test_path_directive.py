@@ -2082,3 +2082,45 @@ def test_nonexisting_path_too_long_unconsumed():
     c = Client(App())
 
     c.get('/foo/bar/baz', status=404)
+
+
+@pytest.mark.xfail
+def test_collection_and_item():
+    class App(morepath.App):
+        pass
+
+    class Collection(object):
+        def __init__(self):
+            self.items = {}
+
+    class Item(object):
+        def __init__(self, id):
+            self.id = id
+
+    collection = Collection()
+    collection.items['a'] = Item('a')
+    collection.items['b'] = Item('b')
+
+    @App.path(model=Collection, path='/')
+    def get_collection():
+        return collection
+
+    @App.path(model=Item, path='/{id}')
+    def get_item(id):
+        return collection.items.get(id)
+
+    @App.view(model=Collection)
+    def default_collection(self, request):
+        return "Collection"
+
+    @App.view(model=Item)
+    def default(self, request):
+        return "View: %s" % self.id
+
+    c = Client(App())
+
+    r = c.get('/c', status=404)
+    assert r.body != 'Collection'
+
+    r = c.get('/a')
+    assert r.body == b'View: a'
