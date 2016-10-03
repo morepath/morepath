@@ -4,6 +4,24 @@ CHANGES
 0.16 (unreleased)
 =================
 
+Release highlights
+------------------
+
+* A new, cleaner and faster implementation of Reg underlies this
+  version of Morepath. It turns generic functions into methods on the
+  ``App`` class, and removes implicit behavior entirely.
+
+  This has some impact if you used the low-level ``function``
+  directive or if you defined your own predicates with the
+  ``predicate`` and ``predicate_fallback`` directives, see details
+  below.
+
+* A new build environment based around virtualenv and pip. We've
+  removed the old buildout-based build environment. ``doc/developing.rst``
+  has much more.
+
+* Performance work boosts performance of Morepath significantly.
+
 Removals & Deprecations
 -----------------------
 
@@ -46,7 +64,11 @@ Removals & Deprecations
   application class determines the context used.
 
 - **Removed** We previously used buildout to install a development
-  environment for Morepath. We now use pip. See below for details.
+  environment for Morepath. We now use pip. See ``doc/developing.rst``
+  for details, and also below.
+
+Features
+--------
 
 - **Breaking change** Dectate used to support the ``directive``
   pseudo-directive to let you define directives. But this could lead
@@ -60,9 +82,6 @@ Removals & Deprecations
   details.
 
   .. _`Dectate changelog`: http://dectate.readthedocs.io/en/latest/changes.html
-
-Features
---------
 
 - **Breaking change** Previously Morepath used Reg's dispatch
   functions directly, with a mechanism to pass in a ``lookup``
@@ -162,6 +181,8 @@ Build environment
 
 Other
 -----
+
+- Refactored traject routing code with an eye on performance.
 
 - Use abstract base classes from the standard library for
   ``morepath.IdentityPolicy``.
