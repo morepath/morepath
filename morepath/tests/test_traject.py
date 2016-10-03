@@ -368,7 +368,9 @@ def test_traject_simple():
 
     r = req('a/b')
     assert traject.consume(r) is None
-    assert r.unconsumed == []
+    # a bit odd, but we haven't processed segment b as creating a node
+    # returned ``None``.
+    assert r.unconsumed == ['b']
 
 
 def test_traject_variable_specific_first():
@@ -740,7 +742,7 @@ def test_traject_consume_factory_returns_none():
 
     r = req('sub')
     assert traject.consume(r) is None
-    assert r.unconsumed == []
+    assert r.unconsumed == ['sub']
 
 
 def test_traject_consume_variable():

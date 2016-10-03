@@ -364,6 +364,7 @@ class TrajectRegistry(object):
         stack = request.unconsumed
         node = self._root
         variables = {}
+        segment = None
         while stack:
             if node.absorb:
                 variables['absorb'] = '/'.join(reversed(stack))
@@ -385,7 +386,7 @@ class TrajectRegistry(object):
             variables['absorb'] = ''
         result = node.create(variables, request)
         # if we created nothing, we haven't processed this path segment
-        if result is None:
+        if result is None and segment is not None:
             stack.append(segment)
         return result
 
