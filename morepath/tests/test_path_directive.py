@@ -2084,7 +2084,6 @@ def test_nonexisting_path_too_long_unconsumed():
     c.get('/foo/bar/baz', status=404)
 
 
-@pytest.mark.xfail
 def test_collection_and_item():
     class App(morepath.App):
         pass
@@ -2124,3 +2123,28 @@ def test_collection_and_item():
 
     r = c.get('/a')
     assert r.body == b'View: a'
+
+
+def test_view_for_missing():
+    class App(morepath.App):
+        pass
+
+    class Item(object):
+        def __init__(self, id):
+            self.id = id
+
+    @App.path(model=Item, path='/{id}')
+    def get_item(id):
+        if id == 'found':
+            return Item(id)
+        return None
+
+    @App.view(model=Item, name='edit')
+    def default(self, request):
+        return "View: %s" % self.id
+
+    c = Client(App())
+
+    c.get('/notfound/+edit', status=404)
+
+    c.get('/notfound/edit', status=404)
