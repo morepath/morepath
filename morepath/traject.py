@@ -383,7 +383,11 @@ class TrajectRegistry(object):
             node = new_node
         if node.absorb:
             variables['absorb'] = ''
-        return node.create(variables, request)
+        result = node.create(variables, request)
+        # if we created nothing, we haven't processed this path segment
+        if result is None:
+            stack.append(segment)
+        return result
 
 
 class ParameterFactory(object):
