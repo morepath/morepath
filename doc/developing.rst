@@ -203,6 +203,11 @@ You can also specify a test environment to run e.g.::
   $ tox -e pep8
   $ tox -e docs
 
+To find out which dependencies and which versions
+tox installs in the testenv, you can use::
+
+  $ tox -e freeze
+
 .. _pyenv: https://github.com/yyuu/pyenv
 
 Deprecation
