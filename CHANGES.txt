@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.16 (unreleased)
+0.16 (2016-10-04)
 =================
 
 Release highlights
