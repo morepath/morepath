@@ -1,0 +1,15 @@
+# sources
+-e git+git@github.com:morepath/reg.git@master#egg=reg
+-e git+git@github.com:morepath/dectate.git@master#egg=dectate
+-e git+git@github.com:faassen/importscan.git@master#egg=importscan
+
+# development
+-e '.[test,coverage,pep8,docs]'
+tox
+radon
+
+# py.test
+-r fixtures.txt
+
+# releaser
+zest.releaser[recommended]

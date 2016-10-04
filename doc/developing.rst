@@ -38,9 +38,9 @@ Make sure you have recent setuptools and pip installed::
   $ pip install -U setuptools pip
 
 Install the various dependencies and development tools from
-develop_requirements.txt::
+requirements/develop.txt::
 
-  $ pip install -Ur develop_requirements.txt --src src
+  $ pip install -Ur requirements/develop.txt --src src
 
 This needs your ssh key installed in github_ to work.
 
@@ -202,6 +202,11 @@ You can also specify a test environment to run e.g.::
   $ tox -e py35
   $ tox -e pep8
   $ tox -e docs
+
+To find out which dependencies and which versions
+tox installs in the testenv, you can use::
+
+  $ tox -e freeze
 
 .. _pyenv: https://github.com/yyuu/pyenv
 

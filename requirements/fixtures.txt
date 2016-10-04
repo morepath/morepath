@@ -1,0 +1,10 @@
+# fixture packages
+-e ./fixture_packages/base
+-e ./fixture_packages/sub
+-e ./fixture_packages/no_mp
+-e ./fixture_packages/no_mp_sub
+-e ./fixture_packages/ns
+-e ./fixture_packages/no_mp_ns
+-e ./fixture_packages/ns2
+-e ./fixture_packages/entry-point
+-e ./fixture_packages/under_score
