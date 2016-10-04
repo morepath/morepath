@@ -1,6 +1,0 @@
-[run]
-omit = morepath/tests/*
-source = morepath
-
-[report]
-show_missing = True

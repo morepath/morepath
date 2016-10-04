@@ -79,7 +79,7 @@ You can run the tests using `py.test`_::
 
 To generate test coverage information as HTML do::
 
-  $ py.test --cov morepath --cov-report html
+  $ py.test --cov --cov-report html
 
 You can then point your web browser to the ``htmlcov/index.html`` file
 in the project directory and click on modules to see detailed coverage
