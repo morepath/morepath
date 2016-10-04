@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.16.1 (unreleased)
+0.16.1 (2016-10-04)
 ===================
 
 * Adjust ``setup.py`` to require Reg 0.10 and Dectate 0.12, otherwise
