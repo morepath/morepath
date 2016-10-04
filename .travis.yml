@@ -15,4 +15,4 @@ install:
     - pip install --upgrade pip setuptools
     - pip install tox
 script:
-    - tox -c .travis-tox.ini -e $TOXENV
+    - tox -c .travis_tox.ini -e $TOXENV
