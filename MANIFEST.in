@@ -4,3 +4,4 @@ recursive-include morepath *.py *.format
 recursive-include tests *.py
 recursive-include doc *.rst Makefile *.py *.bat *.json *.yml
 recursive-include fixture_packages *.py
+recursive-include requirements *.txt
