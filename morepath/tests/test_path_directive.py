@@ -2148,3 +2148,65 @@ def test_view_for_missing():
     c.get('/notfound/+edit', status=404)
 
     c.get('/notfound/edit', status=404)
+
+
+def test_absorb_error():
+    class App(morepath.App):
+        pass
+
+    @App.path('/')
+    class Root(object):
+        pass
+
+    @App.view(model=Root)
+    def view_root(self, request):
+        return "root"
+
+    class File(object):
+        def __init__(self, absorb):
+            self.absorb = absorb
+
+    @App.path('/files', model=File, absorb=True)
+    def get_file(absorb):
+        if absorb == 'foo':
+            return File('foo')
+        return None
+
+    @App.view(model=File)
+    def view_file(self, request):
+        return request.path
+
+    App.commit()
+
+    client = Client(App())
+    assert client.get('/').text == 'root'
+    assert client.get('/files/foo').text == '/files/foo'
+    client.get('/files/bar', status=404)
+
+
+def test_named_view_on_root():
+    class App(morepath.App):
+        pass
+
+    @App.path(path='/')
+    class Root(object):
+        pass
+
+    @App.view(model=Root, name='named')
+    def named(self, request):
+        return "Named view on root"
+
+    @App.view(model=Root)
+    def default(self, request):
+        return "Default view on root"
+
+    c = Client(App())
+
+    response = c.get('/named')
+    assert response.body == b'Named view on root'
+
+    response = c.get('/+named')
+    assert response.body == b'Named view on root'
+
+    response = c.get('/')
+    assert response.body == b'Default view on root'

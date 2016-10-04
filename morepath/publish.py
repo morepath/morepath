@@ -56,8 +56,10 @@ def resolve_model(request):
     while request.unconsumed:
         next = app.config.path_registry.consume(request)
         if next is None:
-            # cannot find next obj or app
-            break
+            # we cannot find the next object
+            # this may be cause there was no matching route
+            # or because the model factory returned None
+            return next
         # we found a non-app instance, return it
         if not isinstance(next, App):
             return next
@@ -65,11 +67,9 @@ def resolve_model(request):
         next.parent = app
         request.app = next
         app = next
-    # if there is nothing (left), we consume toward a root obj
-    if not request.unconsumed:
-        return app.config.path_registry.consume(request)
-    # cannot find obj
-    return None
+    # we have an app and we don't have anything to consume,
+    # so consume to root
+    return app.config.path_registry.consume(request)
 
 
 def resolve_response(obj, request):
