@@ -1,11 +1,11 @@
 CHANGES
 *******
 
-0.17 (unreleased)
-=================
+0.16.1 (unreleased)
+===================
 
-- Nothing changed yet.
-
+* Adjust ``setup.py`` to require Reg 0.10 and Dectate 0.12, otherwise
+  Morepath won't work properly.
 
 0.16 (2016-10-04)
 =================
