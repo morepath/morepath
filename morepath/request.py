@@ -5,14 +5,14 @@ Entirely documented in :class:`morepath.Request` and
 """
 
 from webob import BaseRequest, Response as BaseResponse
-import reg
+from dectate import Sentinel
 
 from .reify import reify
 from .traject import create_path, parse_path
 from .error import LinkError
 from .authentication import NO_IDENTITY
 
-SAME_APP = reg.Sentinel('SAME_APP')
+SAME_APP = Sentinel('SAME_APP')
 
 
 class Request(BaseRequest):
