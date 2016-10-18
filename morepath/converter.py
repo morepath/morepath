@@ -12,7 +12,7 @@ also needs to be provided to support link generation.
 See also :class:`morepath.directive.ConverterRegistry`
 """
 
-from reg import PredicateRegistry, match_class
+import reg
 
 try:
     from types import ClassType
@@ -139,6 +139,16 @@ String becomes string.
 """
 
 
+def get_converter(type):
+    """Get the converter for a given type.
+
+    :param type: a class or type.
+    :return: a :class:`morepath.Converter` instance.
+    """
+    raise DirectiveError(
+        "Cannot find converter for type: %r" % type)
+
+
 class ConverterRegistry(object):
     """A registry for converters.
 
@@ -148,7 +158,10 @@ class ConverterRegistry(object):
     Is aware of inheritance.
     """
     def __init__(self):
-        self._registry = PredicateRegistry(match_class('cls'))
+        self.get_converter = reg.dispatch(
+            reg.match_class('type'),
+            get_key_lookup=reg.DictCachingKeyLookup)(get_converter)
+        self.register_converter(type(None), IDENTITY_CONVERTER)
 
     def register_converter(self, type, converter):
         """Register a converter for type.
@@ -157,7 +170,7 @@ class ConverterRegistry(object):
           the converter.
         :param converter: a :class:`morepath.Converter` instance.
         """
-        self._registry.register(type, converter)
+        self.get_converter.register(type=type)(lambda type: converter)
 
     def converter_for_type(self, type):
         """Get converter for type.
@@ -168,11 +181,7 @@ class ConverterRegistry(object):
         :param type: The type for which to look up the converter.
         :return: a :class:`morepath.Converter` instance.
         """
-        result = self._registry.component(type)
-        if result is None:
-            raise DirectiveError(
-                "Cannot find converter for type: %r" % type)
-        return result
+        return self.get_converter(type)
 
     def converter_for_value(self, v):
         """Get converter for value.
@@ -183,8 +192,6 @@ class ConverterRegistry(object):
         :param value: The value for which to look up the converter.
         :return: a :class:`morepath.Converter` instance.
         """
-        if v is None:
-            return IDENTITY_CONVERTER
         try:
             return self.converter_for_type(type(v))
         except DirectiveError:
