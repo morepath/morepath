@@ -141,7 +141,7 @@ start, but there are some problems with it:
 
 * The URL patterns in the path are repetitive; for each sub-model
   under the repository we keep having to repeat
-  '{user_name}/{repository_name}`.
+  ``{user_name}/{repository_name}``.
 
 * We may want to be able to test the wiki or issue tracker during
   development without having to worry about setting up the whole outer

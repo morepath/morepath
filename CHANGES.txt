@@ -594,7 +594,7 @@ Other
 
   If you had a low-level reference to ``app.registry`` in your code it
   will break; the registry has been split up and is now under
-  `app.config``. If you want access to ``lookup`` you can use
+  ``app.config``. If you want access to ``lookup`` you can use
   ``app.lookup``.
 
   If you created custom directives, the way to create directives

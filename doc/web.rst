@@ -231,7 +231,7 @@ The HTTP request contains a *URL path*, a *request method*, possibly a
 
 A HTTP request in Morepath is made accessible programmatically as a
 Python request object using the WebOb_ library. It is a
-`class:`morepath.Request`, which is a subclass of
+:class:`morepath.Request`, which is a subclass of
 :class:`webob.request.BaseRequest`.
 
 .. _WebOb: http://webob.org/

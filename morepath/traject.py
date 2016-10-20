@@ -532,7 +532,7 @@ def is_identifier(s):
 def parse_variables(s):
     """Parse variables out of a segment.
 
-    Raised a :class:`morepath.error.TrajectError`` if a variable
+    Raised a :class:`morepath.error.TrajectError` if a variable
     is not a valid identifier.
 
     :param s: a path segment

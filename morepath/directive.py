@@ -173,7 +173,7 @@ class PredicateAction(dectate.Action):
         """Register custom predicate for a predicate_dispatch function.
 
         The function registered should have arguments that are the
-        same as the arguments of the :reg:`reg.predicate_dispatch`
+        same as the arguments of the :func:`reg.predicate_dispatch`
         function. From these arguments it should determine a predicate
         value and return it. The predicates for a ``predicate_dispatch``
         function are ordered by their before and after arguments.
@@ -243,7 +243,7 @@ class MethodAction(dectate.Action):
         override parts of the Morepath framework itself.
 
         The ``dispatch_method`` argument is a dispatch method, so a
-        method on a :class:`morepath.App`` class marked with
+        method on a :class:`morepath.App` class marked with
         :func:`reg.dispatch_method`, so for instance ``App.foo``. The
         registered function gets the instance of this app class as its
         first argument. The registered function must have the same arguments
@@ -446,7 +446,7 @@ class PermissionRuleAction(dectate.Action):
         """Declare whether a model has a permission.
 
         The decorated function receives ``app``, ``model``,
-        `permission`` (instance of any permission object) and
+        ``permission`` (instance of any permission object) and
         ``identity`` (:class:`morepath.Identity`) parameters. The
         ``app`` argument is optional. The decorated function should
         return ``True`` only if the given identity exists and has that
