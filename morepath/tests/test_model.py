@@ -153,42 +153,23 @@ def test_get_arguments_exclude():
 
 
 def test_argument_and_explicit_converters_none_defaults():
-    class MyConverterRegistry(ConverterRegistry):
-        def converter_for_type(self, t):
-            return IDENTITY_CONVERTER
-
-        def converter_for_value(self, v):
-            return IDENTITY_CONVERTER
-
-    reg = MyConverterRegistry()
+    reg = ConverterRegistry()
 
     assert reg.argument_and_explicit_converters({'a': None}, {}) == {
         'a': IDENTITY_CONVERTER}
 
 
 def test_argument_and_explicit_converters_explicit():
-    class MyConverterRegistry(ConverterRegistry):
-        def converter_for_type(self, t):
-            return IDENTITY_CONVERTER
-
-        def converter_for_value(self, v):
-            return IDENTITY_CONVERTER
-
-    reg = MyConverterRegistry()
+    reg = ConverterRegistry()
 
     assert reg.argument_and_explicit_converters(
         {'a': None}, {'a': Converter(int)}) == {'a': Converter(int)}
 
 
 def test_argument_and_explicit_converters_from_type():
-    class MyConverterRegistry(ConverterRegistry):
-        def converter_for_type(self, t):
-            return Converter(int)
 
-        def converter_for_value(self, v):
-            return IDENTITY_CONVERTER
-
-    reg = MyConverterRegistry()
+    reg = ConverterRegistry()
+    reg.register_converter(int, Converter(int))
 
     assert reg.argument_and_explicit_converters({'a': None}, {'a': int}) == {
         'a': Converter(int)}

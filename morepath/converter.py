@@ -13,13 +13,14 @@ See also :class:`morepath.directive.ConverterRegistry`
 """
 
 import reg
+from dectate import DirectiveError
 
 try:
     from types import ClassType
 except ImportError:
     # You're running Python 3!
-    ClassType = None
-from dectate import DirectiveError
+    ClassType = type
+class_types = tuple({type, ClassType})
 
 
 class Converter(object):
@@ -172,70 +173,29 @@ class ConverterRegistry(object):
         """
         self.get_converter.register(type=type)(lambda type: converter)
 
-    def converter_for_type(self, type):
-        """Get converter for type.
+    def actual_converter(self, spec):
+        """Return an actual converter for a given spec.
 
-        Is aware of inheritance; if nothing is registered for given
-        type it returns the converter registered for its base class.
-
-        :param type: The type for which to look up the converter.
+        :param spec: if a type, return the registered converter for
+          that; if a list use its first element as a spec for a
+          converter; else, assume it is a converter and return it.
         :return: a :class:`morepath.Converter` instance.
         """
-        return self.get_converter(type)
-
-    def converter_for_value(self, v):
-        """Get converter for value.
-
-        Is aware of inheritance; if nothing is registered for type of
-        given value it returns the converter registered for its base class.
-
-        :param value: The value for which to look up the converter.
-        :return: a :class:`morepath.Converter` instance.
-        """
-        try:
-            return self.converter_for_type(type(v))
-        except DirectiveError:
-            raise DirectiveError(
-                "Cannot find converter for default value: %r (%s)" %
-                (v, type(v)))
-
-    def converter_for_explicit_or_type(self, c):
-        """Given a converter or a type, turn it into an explicit one.
-        """
-        if type(c) in [type, ClassType]:
-            return self.converter_for_type(c)
-        return c
-
-    def converter_for_explicit_or_type_or_list(self, c):
-        """Given a converter or type or list, turn it into an explicit one.
-
-        :param c: can either be a converter, or a type for which
-          a converter can be looked up, or a list with a converter or a type
-          in it.
-        :return: a :class:`Converter` instance.
-        """
-        if isinstance(c, list):
-            if len(c) == 0:
-                c = IDENTITY_CONVERTER
+        if isinstance(spec, list):
+            if len(spec) == 0:
+                spec = IDENTITY_CONVERTER
             else:
-                c = self.converter_for_explicit_or_type(c[0])
-            return ListConverter(c)
-        return self.converter_for_explicit_or_type(c)
-
-    def explicit_converters(self, converters):
-        """Given converter dictionary, make everything in it explicit.
-
-        This means types have converters looked up for them, and
-        lists are turned into :class:`ListConverter`.
-        """
-        return {name: self.converter_for_explicit_or_type_or_list(value) for
-                name, value in converters.items()}
+                spec = self.actual_converter(spec[0])
+            return ListConverter(spec)
+        if isinstance(spec, class_types):
+            return self.get_converter(spec)
+        return spec
 
     def argument_and_explicit_converters(self, arguments, converters):
         """Use explict converters unless none supplied, then use default args.
         """
-        result = self.explicit_converters(converters)
-        for name, value in arguments.items():
-            if name not in result:
-                result[name] = self.converter_for_value(value)
+        result = {name: self.get_converter(type(value))
+                  for name, value in arguments.items()}
+        for name, conv in converters.items():
+            result[name] = self.actual_converter(conv)
         return result

@@ -1,6 +1,5 @@
-from morepath.converter import (ConverterRegistry, Converter,
-                                ListConverter,
-                                IDENTITY_CONVERTER)
+from ..converter import (
+    ConverterRegistry, Converter, ListConverter, IDENTITY_CONVERTER)
 from dectate import DirectiveError
 import pytest
 
@@ -10,11 +9,11 @@ def test_converter_registry():
 
     c = Converter(int, type(u""))
     r.register_converter(int, c)
-    assert r.converter_for_type(int) is c
-    assert r.converter_for_value(1) is c
-    assert r.converter_for_value(None) is IDENTITY_CONVERTER
+    assert r.get_converter(int) is c
+    assert r.get_converter(type(1)) is c
+    assert r.get_converter(type(None)) is IDENTITY_CONVERTER
     with pytest.raises(DirectiveError):
-        r.converter_for_value('s')
+        r.get_converter(type('s'))
 
 
 def test_converter_registry_inheritance():
@@ -46,15 +45,15 @@ def test_converter_registry_inheritance():
 
     c = Converter(lifeform_decode, lifeform_encode)
     r.register_converter(Lifeform, c)
-    assert r.converter_for_type(Lifeform) is c
-    assert r.converter_for_type(Animal) is c
-    assert r.converter_for_value(Lifeform('seaweed')) is c
-    assert r.converter_for_value(Animal('elephant')) is c
-    assert r.converter_for_value(None) is IDENTITY_CONVERTER
+    assert r.get_converter(Lifeform) is c
+    assert r.get_converter(Animal) is c
+    assert r.get_converter(type(Lifeform('seaweed'))) is c
+    assert r.get_converter(type(Animal('elephant'))) is c
+    assert r.get_converter(type(None)) is IDENTITY_CONVERTER
     with pytest.raises(DirectiveError):
-        assert r.converter_for_value('s') is None
-    assert r.converter_for_type(Lifeform).decode(['elephant']) is elephant
-    assert r.converter_for_type(Lifeform).encode(seaweed) == ['seaweed']
+        assert r.get_converter(type('s')) is None
+    assert r.get_converter(Lifeform).decode(['elephant']) is elephant
+    assert r.get_converter(Lifeform).encode(seaweed) == ['seaweed']
 
 
 def test_converter_equality():
