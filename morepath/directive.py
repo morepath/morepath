@@ -170,32 +170,30 @@ class PredicateAction(dectate.Action):
 
     def __init__(self, dispatch, name, default, index,
                  before=None, after=None):
-        """Register custom predicate for a predicate_dispatch function.
+        """Register a custom predicate for a dispatch method.
 
-        The function registered should have arguments that are the
-        same as the arguments of the :func:`reg.predicate_dispatch`
-        function. From these arguments it should determine a predicate
-        value and return it. The predicates for a ``predicate_dispatch``
-        function are ordered by their before and after arguments.
+        The function to be registered should have the same arguments
+        as the dispatch method and return a value that is used when
+        registering an implementation for the dispatch method.
 
-        You can then register a function to dispatch to using the
-        :meth:`App.method` directive. This takes the
-        ``predicate_dispatch`` or ``dispatch`` function as its first
-        argument and the predicate key to match on as its other
+        The predicates are ordered by their before and after
         arguments.
 
-        :param dispatch: the dispatch function this predicate
-           is for.
-        :param name: the name of the predicate. This is used when
-          constructing a predicate key from a predicate dictionary.
-        :param default: the default value for a predicate, in case the
-          value is missing in the predicate dictionary.
-        :param index: the index to use. Typically :class:`reg.KeyIndex` or
-          :class:`reg.ClassIndex`.
+        :param dispatch: the dispatch method this predicate is for.
+          You can use the :meth:`App.method` directive to add a
+          dispatch method to an app.
+        :param name: the name used to identify the predicate when
+          registering the implementation of the dispatch method.
+        :param default: the expected value of the predicate, to be used
+          when registering an implementation if the expected value for
+          the predicate is not given explicitly.
+        :param index: the index to use. Typically
+          :class:`reg.KeyIndex` or :class:`reg.ClassIndex`.
         :param before: predicate function this function wants to have
-           priority over.
+          priority over.
         :param after: predicate function we want to have priority over
-           this one.
+          this one.
+
         """
         self.dispatch = dispatch
         self.name = name
