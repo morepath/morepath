@@ -124,3 +124,34 @@ def test_excview_named_view():
     c = Client(app())
     response = c.get('/view')
     assert response.body == b'My exception'
+
+
+def test_excview_in_mounted_app():
+    class App(morepath.App):
+        pass
+
+    class Sub(morepath.App):
+        pass
+
+    @App.mount(app=Sub, path='sub')
+    def mount_sub():
+        return Sub()
+
+    class Error(Exception):
+        pass
+
+    @Sub.view(model=Error)
+    def error_default(self, request):
+        return "Default error"
+
+    @Sub.path(path='/')
+    class SubRoot(object):
+        pass
+
+    @Sub.view(model=SubRoot)
+    def subroot_default(self, request):
+        raise Error()
+
+    c = Client(App())
+    response = c.get('/sub')
+    assert response.body == b'Default error'

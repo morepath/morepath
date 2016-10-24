@@ -1,6 +1,12 @@
 CHANGES
 *******
 
+0.16.2 (unreleased)
+===================
+
+* Bugfix: exception views are now properly looked up for mounted apps
+  again.
+
 0.16.1 (2016-10-04)
 ===================
 
