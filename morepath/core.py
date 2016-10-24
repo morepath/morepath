@@ -179,7 +179,7 @@ def excview_tween_factory(app, handler):
             # do not want the request to feature in the lookup;
             # we don't want its request method or name to influence
             # exception lookup
-            view = app.get_view.component_by_keys(model=exc.__class__)
+            view = request.app.get_view.component_by_keys(model=exc.__class__)
             if view is None:
                 raise
 

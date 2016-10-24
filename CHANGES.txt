@@ -8,6 +8,9 @@ CHANGES
 
 * Refactored and simplified implementation of ``ConverterRegistry``.
 
+* Bugfix: exception views in mounted apps weren't looked up correctly
+  anymore.
+
 0.16.1 (2016-10-04)
 ===================
 
