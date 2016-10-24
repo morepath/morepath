@@ -4,8 +4,9 @@ CHANGES
 0.17 (unreleased)
 =================
 
-- Upload universal wheels to pypi during release.
+* Upload universal wheels to pypi during release.
 
+* Refactored and simplified implementation of ``ConverterRegistry``.
 
 0.16.1 (2016-10-04)
 ===================
