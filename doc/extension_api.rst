@@ -24,9 +24,6 @@ Registry classes
 .. autoclass:: morepath.directive.TweenRegistry
   :members:
 
-.. autoclass:: morepath.directive.ViewRegistry
-  :members:
-
 Action classes
 --------------
 

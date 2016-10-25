@@ -34,7 +34,7 @@ import dectate
 from reg import methodify
 
 from .authentication import Identity, NoIdentity
-from .view import render_view, render_json, render_html, ViewRegistry
+from .view import render_view, render_json, render_html, View
 from .traject import Path
 from .converter import ConverterRegistry
 from .tween import TweenRegistry
@@ -617,7 +617,7 @@ def isbaseclass_notfound(a, b):
 
 class ViewAction(dectate.Action):
     config = {
-        'view_registry': ViewRegistry,
+        'template_engine_registry': TemplateEngineRegistry,
     }
 
     depends = [SettingAction, PredicateAction,
@@ -639,6 +639,8 @@ class ViewAction(dectate.Action):
         'permission': issubclass_or_none,
         'body_model': isbaseclass_notfound,
     }
+
+    app_class_arg = True
 
     def __init__(self, model, render=None, template=None,
                  permission=None,
@@ -701,18 +703,22 @@ class ViewAction(dectate.Action):
         self.predicates = predicates
 
     def key_dict(self):
+        """Return a dict containing view registration info,
+        for instance model, request_method, etc."""
         result = self.predicates.copy()
         result['model'] = self.model
         return result
 
-    def identifier(self, view_registry):
-        return view_registry.predicate_key(self.key_dict())
+    def identifier(self, template_engine_registry, app_class):
+        return app_class.get_view.key_dict_to_predicate_key(self.key_dict())
 
-    def perform(self, obj, view_registry):
-        view_registry.register_view(
-            self.key_dict(), obj,
-            self.render, self.template,
-            self.permission, self.internal)
+    def perform(self, obj, template_engine_registry, app_class):
+        render = self.render
+        if self.template is not None:
+            render = template_engine_registry.get_template_render(
+                self.template, render)
+        v = View(obj, render, self.permission, self.internal)
+        app_class.get_view.register(v, **self.key_dict())
 
 
 class JsonAction(ViewAction):

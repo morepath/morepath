@@ -4,6 +4,8 @@ CHANGES
 0.17 (unreleased)
 =================
 
+* **Removed**: The class ``morepath.ViewRegistry`` is gone.
+
 * Upload universal wheels to pypi during release.
 
 * Refactored and simplified implementation of ``ConverterRegistry``.
