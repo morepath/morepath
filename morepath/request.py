@@ -136,7 +136,7 @@ class Request(BaseRequest):
         predicates['model'] = obj.__class__
 
         def find(app, obj):
-            return app.get_view.component_by_keys(**predicates)
+            return app.get_view.by_predicates(**predicates).component
 
         view, app = app._follow_defers(find, obj)
         if view is None:
