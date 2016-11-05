@@ -263,7 +263,7 @@ class MethodAction(dectate.Action):
 
     def identifier(self, app_class):
         return (self.dispatch_method,
-                self.dispatch_method.key_dict_to_predicate_key(self.key_dict))
+                self.dispatch_method.by_predicates(**self.key_dict).key)
 
     def perform(self, obj, app_class):
         getattr(app_class, self.dispatch_method.__name__).register(
@@ -710,7 +710,7 @@ class ViewAction(dectate.Action):
         return result
 
     def identifier(self, template_engine_registry, app_class):
-        return app_class.get_view.key_dict_to_predicate_key(self.key_dict())
+        return app_class.get_view.by_predicates(**self.key_dict()).key
 
     def perform(self, obj, template_engine_registry, app_class):
         render = self.render
