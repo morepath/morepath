@@ -120,7 +120,7 @@ def test_request_view():
     model = Model()
     response = resolve_response(model, request)
     # when we get the response, the json will be rendered
-    assert response.body == b'{"hey": "hey"}'
+    assert response.body == b'{"hey":"hey"}'
     assert response.content_type == 'application/json'
     # but we get the original json out when we access the view
     assert request.view(model) == {'hey': 'hey'}

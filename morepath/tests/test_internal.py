@@ -22,6 +22,6 @@ def test_internal():
 
     response = c.get('/')
 
-    assert response.body == b'{"internal": "Internal!"}'
+    assert response.body == b'{"internal":"Internal!"}'
 
     c.get('/internal', status=404)

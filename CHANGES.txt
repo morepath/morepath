@@ -15,6 +15,9 @@ CHANGES
 
 * Adds compatibility with WebOb 1.7.
 
+* Removed extra spaces after the colon in json.
+  For example: {"foo": "bar"} is now {"foo":"bar"}.
+
 0.16.1 (2016-10-04)
 ===================
 

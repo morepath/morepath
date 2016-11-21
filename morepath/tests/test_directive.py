@@ -28,7 +28,7 @@ def test_basic_json():
 
     response = c.get('/foo/json')
 
-    assert response.body == b'{"id": "foo"}'
+    assert response.body == b'{"id":"foo"}'
 
 
 def test_basic_root():
@@ -131,7 +131,7 @@ def test_basic_scenario():
     assert response.body == b'http://localhost/foo'
 
     response = c.get('/foo/json')
-    assert response.body == b'{"id": "foo"}'
+    assert response.body == b'{"id":"foo"}'
 
     response = c.get('/')
     assert response.body == b'The root: ROOT'
@@ -525,7 +525,7 @@ def test_json_directive():
     c = Client(app())
 
     response = c.get('/foo')
-    assert response.body == b'{"id": "foo"}'
+    assert response.body == b'{"id":"foo"}'
 
 
 def test_redirect():

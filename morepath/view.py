@@ -11,7 +11,6 @@ this structure can be converted to HTML using a template.
 
 """
 
-import json
 from webob.exc import HTTPFound, HTTPNotFound, HTTPForbidden
 from webob import Response as BaseResponse
 
@@ -99,9 +98,8 @@ def render_json(content, request):
     :return: a :class:`morepath.Response` instance with a serialized
       JSON body.
     """
-    return Response(json.dumps(request.app._dump_json(content, request)),
-                    content_type='application/json',
-                    charset='UTF-8')
+    return Response(json_body=request.app._dump_json(content, request),
+                    content_type='application/json')
 
 
 def render_html(content, request):
