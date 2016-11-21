@@ -41,6 +41,8 @@ def dispatch_method(*predicates, **kw):
     kw.setdefault('get_key_lookup', cached_key_lookup)
     kw.setdefault('first_invocation_hook', commit_if_needed)
     return reg.dispatch_method(*predicates, **kw)
+
+
 dispatch_method.__doc__ = reg.dispatch_method.__doc__
 
 
