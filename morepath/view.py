@@ -100,7 +100,8 @@ def render_json(content, request):
       JSON body.
     """
     return Response(json.dumps(request.app._dump_json(content, request)),
-                    content_type='application/json')
+                    content_type='application/json',
+                    charset='UTF-8')
 
 
 def render_html(content, request):
