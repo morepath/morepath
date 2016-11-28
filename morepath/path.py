@@ -52,7 +52,7 @@ class PathRegistry(TrajectRegistry):
 
     def register_path(self, model, path,
                       variables, converters, required, get_converters,
-                      absorb, model_factory):
+                      absorb, code_info, model_factory):
         """Register a route.
 
         See :meth:`morepath.App.path` for more information.
@@ -65,6 +65,8 @@ class PathRegistry(TrajectRegistry):
         :param required: required URL parameters
         :param get_converters: get a converter dynamically.
         :param absorb: absorb path
+        :param code_info: the :class:`dectate.CodeInfo` object describing
+          the line of code used to register the path.
         :param model_factory: function that constructs model object given
           variables extracted from path and URL parameters.
         """
@@ -101,7 +103,7 @@ class PathRegistry(TrajectRegistry):
         extra = 'extra_parameters' in arguments
 
         self.add_pattern(path, model_factory, parameters,
-                         converters, absorb, required, extra)
+                         converters, absorb, required, extra, code_info)
 
         if variables is not None:
             self.register_path_variables(model, variables)
@@ -110,7 +112,7 @@ class PathRegistry(TrajectRegistry):
                                    absorb)
 
     def register_mount(self, app, path, variables, converters, required,
-                       get_converters, mount_name, app_factory):
+                       get_converters, mount_name, code_info, app_factory):
         """Register a mounted app.
 
         See :meth:`morepath.App.mount` for more information.
@@ -123,12 +125,14 @@ class PathRegistry(TrajectRegistry):
         :param required: required URL parameters
         :param get_converters: get a converter dynamically.
         :param mount_name: explicit name of this mount
+        :param code_info: a :class:`dectate.CodeInfo` instance used to
+          register this directive.
         :param app_factory: function that constructs app instance given
           variables extracted from path and URL parameters.
         """
         self.register_path(app, path, variables,
                            converters, required, get_converters, False,
-                           app_factory)
+                           code_info, app_factory)
 
         self.mounted[app] = app_factory
         mount_name = mount_name or path

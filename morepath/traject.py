@@ -303,16 +303,18 @@ class TrajectRegistry(object):
 
     def add_pattern(self, path, model_factory, defaults=None,
                     converters=None, absorb=False, required=None,
-                    extra=None):
+                    extra=None, code_info=None):
         """Add a route to the tree.
 
-        :path: route to add.
-        :model_factory: the factory used to construct the model instance
-        :defaults: mapping of URL parameters to default value for parameter
-        :converters: converters to store with the end step of the route
-        :absorb: does this path absorb all segments
-        :required: list or set of required URL parameters
-        :extra: bool indicating whether extra parameters are expected
+        :param path: route to add.
+        :param model_factory: the factory used to construct the model instance
+        :param defaults: mapping of URL parameters to default value for parameter
+        :param converters: converters to store with the end step of the route
+        :param absorb: does this path absorb all segments
+        :param required: list or set of required URL parameters
+        :param extra: bool indicating whether extra parameters are expected
+        :param code_info: :class:`dectate.CodeInfo` instance describing
+          the code line that registered this path.
         """
         node = self._root
         known_variables = set()
@@ -339,6 +341,7 @@ class TrajectRegistry(object):
                 variables['request'] = request
             if wants_app:
                 variables['app'] = request.app
+            request.path_code_info = code_info
             variables.update(path_variables)
             return model_factory(**variables)
 

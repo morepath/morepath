@@ -182,7 +182,7 @@ def test_view_raises_http_error():
     path_registry = app.config.path_registry
 
     path_registry.register_path(
-        Model, 'foo', None, None, None, None, False, Model)
+        Model, 'foo', None, None, None, None, False, None, Model)
 
     app.get_view.register(View(view), model=Model)
 

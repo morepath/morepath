@@ -20,6 +20,9 @@ class Request(BaseRequest):
 
     Extends :class:`webob.request.BaseRequest`
     """
+    path_code_info = None
+    view_code_info = None
+
     def __init__(self, environ, app, **kw):
         super(Request, self).__init__(environ, **kw)
         # parse path, normalizing dots away in

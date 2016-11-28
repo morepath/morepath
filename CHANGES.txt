@@ -18,6 +18,12 @@ CHANGES
 * Removed extra spaces after the colon in json.
   For example: {"foo": "bar"} is now {"foo":"bar"}.
 
+* Morepath now keeps track of what code was used to resolve a path and
+  a view. You use `more.whytool`_ to get a command line tool that
+  provides insight in what code was used for a request.
+
+.. _`more.whytool`: https://pypi.python.org/pypi/morepath
+
 0.16.1 (2016-10-04)
 ===================
 

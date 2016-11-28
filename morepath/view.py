@@ -33,11 +33,13 @@ class View(object):
       :meth:`morepath.Request.view` but it doesn't have a URL
       and will be 404 Not Found.
     """
-    def __init__(self, func, render=None, permission=None, internal=False):
+    def __init__(self, func, render=None, permission=None,
+                 internal=False, code_info=None):
         self.func = func
         self.render = render or render_view
         self.permission = permission
         self.internal = internal
+        self.code_info = code_info
 
     def __call__(self, app, obj, request):
         """Render a model instance.
@@ -56,6 +58,7 @@ class View(object):
         :param request: the request
         :return: A :class:`webob.response.Response` instance.
         """
+        request.view_code_info = self.code_info
         if self.internal:
             raise HTTPNotFound()
         if self.permission is not None and\

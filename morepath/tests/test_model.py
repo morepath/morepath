@@ -42,11 +42,11 @@ def test_register_path():
 
     path_registry.register_path(
         Root, '', lambda m: {},
-        None, None, None, False,
+        None, None, None, False, None,
         lambda: root)
     path_registry.register_path(
         Model, '{id}', lambda model: {'id': model.id},
-        None, None, None, False, get_model)
+        None, None, None, False, None, get_model)
 
     app = App()
 
@@ -78,12 +78,12 @@ def test_register_path_with_parameters():
     path_registry = App.config.path_registry
 
     path_registry.register_path(
-        Root, '', lambda m: {}, None, None, None, False,
+        Root, '', lambda m: {}, None, None, None, False, None,
         lambda: root)
     path_registry.register_path(
         Model, '{id}',
         lambda model: {'id': model.id, 'param': model.param},
-        None, None, None, False, get_model)
+        None, None, None, False, None, get_model)
 
     mount = App()
 
@@ -121,11 +121,11 @@ def test_traject_path_with_leading_slash():
     path_registry = App.config.path_registry
 
     path_registry.register_path(
-        Root, '', lambda m: {}, None, None, None, False,
+        Root, '', lambda m: {}, None, None, None, False, None,
         lambda: root)
     path_registry.register_path(
         Model, '/foo/{id}', lambda model: {'id': model.id},
-        None, None, None, False, get_model)
+        None, None, None, False, None, get_model)
 
     mount = App()
     obj, request = consume(mount, 'foo/a')

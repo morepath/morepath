@@ -337,7 +337,7 @@ class PathAction(dectate.Action):
         path_registry.register_path(
             self.model, self.path,
             self.variables, self.converters, self.required,
-            self.get_converters, self.absorb,
+            self.get_converters, self.absorb, self.code_info,
             obj)
 
 
@@ -717,7 +717,7 @@ class ViewAction(dectate.Action):
         if self.template is not None:
             render = template_engine_registry.get_template_render(
                 self.template, render)
-        v = View(obj, render, self.permission, self.internal)
+        v = View(obj, render, self.permission, self.internal, self.code_info)
         app_class.get_view.register(v, **self.key_dict())
 
 
@@ -880,7 +880,7 @@ class MountAction(PathAction):
         path_registry.register_mount(
             self.app, self.path, self.variables,
             self.converters, self.required,
-            self.get_converters, self.name, obj)
+            self.get_converters, self.name, self.code_info, obj)
 
 
 class DeferLinksAction(dectate.Action):
