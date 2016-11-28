@@ -1,6 +1,4 @@
 import morepath
-from webtest import TestApp as Client
-import webob
 
 
 def test_code_info():
@@ -20,7 +18,7 @@ def test_code_info():
     app = App()
 
     r = morepath.Request.blank('/', method='GET', app=app)
-    response = app.publish(r)
+    app.publish(r)
     assert r.path_code_info is not None
     assert r.path_code_info.sourceline == "@App.path(path='')"
     assert r.view_code_info is not None
@@ -35,6 +33,6 @@ def test_code_info_no_path():
     app = App()
 
     r = morepath.Request.blank('/', method='GET', app=app)
-    response = app.publish(r)
+    app.publish(r)
     assert r.path_code_info is None
     assert r.view_code_info is not None

@@ -308,13 +308,15 @@ class TrajectRegistry(object):
 
         :param path: route to add.
         :param model_factory: the factory used to construct the model instance
-        :param defaults: mapping of URL parameters to default value for parameter
+        :param defaults: mapping of URL parameters to default value
+          for parameter
         :param converters: converters to store with the end step of the route
         :param absorb: does this path absorb all segments
         :param required: list or set of required URL parameters
         :param extra: bool indicating whether extra parameters are expected
         :param code_info: :class:`dectate.CodeInfo` instance describing
           the code line that registered this path.
+
         """
         node = self._root
         known_variables = set()
