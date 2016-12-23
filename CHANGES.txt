@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.17 (unreleased)
+0.17 (2016-12-23)
 =================
 
 * **Removed**: The class ``morepath.ViewRegistry`` is gone.

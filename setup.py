@@ -8,7 +8,7 @@ long_description = '\n'.join((
 
 setup(
     name='morepath',
-    version='0.17.dev0',
+    version='0.17',
     description="A micro web-framework with superpowers",
     long_description=long_description,
     author="Morepath developers",
