@@ -34,9 +34,9 @@ setup(
     keywords="web wsgi routing morepath",
     install_requires=[
         'setuptools',
-        'webob >= 1.3.1',
-        'reg >= 0.10',
-        'dectate >= 0.12',
+        'webob >= 1.7.0',
+        'reg >= 0.11',
+        'dectate >= 0.13',
         'importscan',
     ],
     extras_require=dict(
