@@ -74,7 +74,7 @@ class Request(BaseRequest):
         conversion takes place, and ``body_obj`` is identical to
         the ``json`` attribute.
         """
-        if not self.body:
+        if not self.is_body_readable:
             return None
         if self.content_type != 'application/json':
             return None

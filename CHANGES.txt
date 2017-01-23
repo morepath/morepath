@@ -4,8 +4,12 @@ CHANGES
 0.18 (unreleased)
 =================
 
-- Nothing changed yet.
+* Uploading huge files lead to excessive memory consumption as the whole body
+  was consumed for no good reason. This is now fixed.
 
+  See `#504`_
+
+  .. _#504: https://github.com/morepath/morepath/issues/504
 
 0.17 (2016-12-23)
 =================
