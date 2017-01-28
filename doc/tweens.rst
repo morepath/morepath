@@ -45,7 +45,7 @@ We say that *my_tween* is *over* the ``handler`` argument, and
 conversely that ``handler`` is *under* ``my_tween``.
 
 The application constructs a chain of tween over tween, ultimately
-reaching the request handler. Request come in in the outermost tween
+reaching the request handler. Requests arrive in the outermost tween
 and descend down the chain into the underlying tweens, and finally
 into the Morepath `publish` handler itself.
 
