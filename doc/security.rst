@@ -134,8 +134,8 @@ For this, we need two things:
 
 How this works in detail is up to your application. What's common to
 login systems is the action we take when the user logs in, and the
-action we take when the user logs in. When the user logs in we need to
-*remember* their identity on the response, and when the user logs in
+action we take when the user logs out. When the user logs in we need to
+*remember* their identity on the response, and when the user logs out
 we need to *forget* their identity again.
 
 Here is a sketch of how logging in works. Imagine we're in a Morepath
