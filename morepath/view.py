@@ -68,7 +68,7 @@ class View(object):
             not request.app._permits(request.identity, obj, self.permission)):
             raise HTTPForbidden()
         if self.load is not None:
-            body_obj = self.load(request)
+            request.body_obj = body_obj = self.load(request)
             content = self.func(obj, request, body_obj)
         else:
             content = self.func(obj, request)

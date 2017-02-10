@@ -260,10 +260,36 @@ checking. ``is_valid_document`` could look this:
            return False
      return True
 
+load
+----
+
+The code that checks the validity of the POST or PUT body in the view
+can be moved out into a ``load`` function that you can use in multiple
+views:
+
+.. testcode::
+
+  def load(request):
+     if not is_valid_document_json(json):
+         raise webob.exc.HTTPUnprocessableEntity()
+     return request.json
+
+  @App.json(model=DocumentCollection, request_method='POST', load=load)
+  def document_collection_post(self, request, json):
+      result = self.add(Document(title=json['title'],
+                                 author=json['author'],
+                                 content=json['content']))
+      return request.view(result)
+
+The return value of the ``load`` function is passed in as a third argument into
+the view function. This means that you can also do conversion of input in the
+``load`` function and reuse it between views. And if the load fails to work you
+get a 422 status code.
+
 ``body_model``
 --------------
 
-Instead of checking the content for validity in the view, we can use
+To define JSON body conversion code generally for an application we can use
 :meth:`App.load_json`:
 
 .. testcode::
