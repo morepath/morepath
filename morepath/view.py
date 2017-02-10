@@ -25,6 +25,8 @@ class View(object):
       be turned into a response or a response.
     :param render: a function used to render view function return value
       as a response.
+    :param load: a function used to load the body data into a third
+      argument to the view.
     :param permission: permission class that the identity must have
       according to permission rules. If the view doesn't have the
       permission access is forbidden.
@@ -33,10 +35,11 @@ class View(object):
       :meth:`morepath.Request.view` but it doesn't have a URL
       and will be 404 Not Found.
     """
-    def __init__(self, func, render=None, permission=None,
+    def __init__(self, func, render=None, load=None, permission=None,
                  internal=False, code_info=None):
         self.func = func
         self.render = render or render_view
+        self.load = load
         self.permission = permission
         self.internal = internal
         self.code_info = code_info
@@ -61,10 +64,14 @@ class View(object):
         request.view_code_info = self.code_info
         if self.internal:
             raise HTTPNotFound()
-        if self.permission is not None and\
-           not request.app._permits(request.identity, obj, self.permission):
+        if (self.permission is not None and
+            not request.app._permits(request.identity, obj, self.permission)):
             raise HTTPForbidden()
-        content = self.func(obj, request)
+        if self.load is not None:
+            body_obj = self.load(request)
+            content = self.func(obj, request, body_obj)
+        else:
+            content = self.func(obj, request)
         if isinstance(content, BaseResponse):
             # the view took full control over the response
             response = content

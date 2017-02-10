@@ -626,6 +626,7 @@ class ViewAction(dectate.Action):
     filter_convert = {
         'model': dectate.convert_dotted_name,
         'render': dectate.convert_dotted_name,
+        'load': dectate.convert_dotted_name,
         'permission': dectate.convert_dotted_name,
         'internal': dectate.convert_bool,
         'body_model': dectate.convert_dotted_name,
@@ -642,7 +643,7 @@ class ViewAction(dectate.Action):
 
     app_class_arg = True
 
-    def __init__(self, model, render=None, template=None,
+    def __init__(self, model, render=None, template=None, load=None,
                  permission=None,
                  internal=False, **predicates):
         '''Register a view for a model.
@@ -677,6 +678,9 @@ class ViewAction(dectate.Action):
            Use the :meth:`morepath.App.template_loader` and
            :meth:`morepath.App.template_render` directives to define
            support for new template engines.
+        :param load: a load function that turns the request into an object.
+           If load is in use, this object will be the third argument to the
+           view function.
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
@@ -697,6 +701,7 @@ class ViewAction(dectate.Action):
         '''
         self.model = model
         self.render = render or render_view
+        self.load = load
         self.template = template
         self.permission = permission
         self.internal = internal
@@ -717,15 +722,16 @@ class ViewAction(dectate.Action):
         if self.template is not None:
             render = template_engine_registry.get_template_render(
                 self.template, render)
-        v = View(obj, render, self.permission, self.internal, self.code_info)
+        v = View(obj, render, self.load, self.permission, self.internal,
+                 self.code_info)
         app_class.get_view.register(v, **self.key_dict())
 
 
 class JsonAction(ViewAction):
     group_class = ViewAction
 
-    def __init__(self, model, render=None, template=None, permission=None,
-                 internal=False, **predicates):
+    def __init__(self, model, render=None, template=None, load=None,
+                 permission=None, internal=False, **predicates):
         """Register JSON view.
 
         This is like :meth:`morepath.App.view`, but with
@@ -744,11 +750,14 @@ class JsonAction(ViewAction):
           default. This function takes ``self`` and
           ``request`` parameters as input.
         :param template: a path to a template file. The path is relative
-           to the directory this module is in. The template is applied to
-           the content returned from the decorated view function.
+          to the directory this module is in. The template is applied to
+          the content returned from the decorated view function.
 
-           Use the :meth:`morepath.App.template_engine` directive to
-           define support for new template engines.
+          Use the :meth:`morepath.App.template_engine` directive to
+          define support for new template engines.
+        :param load: a load function that turns the request into an object.
+          If load is in use, this object will be the third argument to the
+          view function.
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
@@ -767,15 +776,15 @@ class JsonAction(ViewAction):
           documentation of :meth:`App.view` for more information.
         """
         render = render or render_json
-        super(JsonAction, self).__init__(model, render, template,
+        super(JsonAction, self).__init__(model, render, template, load,
                                          permission, internal, **predicates)
 
 
 class HtmlAction(ViewAction):
     group_class = ViewAction
 
-    def __init__(self, model, render=None, template=None, permission=None,
-                 internal=False, **predicates):
+    def __init__(self, model, render=None, template=None, load=None,
+                 permission=None, internal=False, **predicates):
         """Register HTML view.
 
         This is like :meth:`morepath.App.view`, but with
@@ -798,6 +807,9 @@ class HtmlAction(ViewAction):
 
            Use the :meth:`morepath.App.template_engine` directive to
            define support for new template engines.
+        :param load: a load function that turns the request into an object.
+          If load is in use, this object will be the third argument to the
+          view function
         :param permission: a permission class. The model should have this
           permission, otherwise access to this view is forbidden. If omitted,
           the view function is public.
@@ -816,7 +828,7 @@ class HtmlAction(ViewAction):
           documentation of :meth:`App.view` for more information.
         """
         render = render or render_html
-        super(HtmlAction, self).__init__(model, render, template,
+        super(HtmlAction, self).__init__(model, render, template, load,
                                          permission, internal, **predicates)
 
 
