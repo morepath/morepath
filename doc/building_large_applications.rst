@@ -39,7 +39,7 @@ take on framework-like properties. Morepath recognizes that there is a
 large gray area between application and framework, and offers support
 to build framework-like applications and application-like frameworks.
 
-The document doc:`app_reuse` describes the basic facilities Morepath
+The document :doc:`app_reuse` describes the basic facilities Morepath
 offers for application reuse. The document
 :doc:`organizing_your_project` describes how a single application
 project can be organized, and we will follow its guidelines in this
