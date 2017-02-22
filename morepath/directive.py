@@ -629,7 +629,6 @@ class ViewAction(dectate.Action):
         'load': dectate.convert_dotted_name,
         'permission': dectate.convert_dotted_name,
         'internal': dectate.convert_bool,
-        'body_model': dectate.convert_dotted_name,
     }
 
     def filter_get_value(self, name):
@@ -638,7 +637,6 @@ class ViewAction(dectate.Action):
     filter_compare = {
         'model': isbaseclass,
         'permission': issubclass_or_none,
-        'body_model': isbaseclass_notfound,
     }
 
     app_class_arg = True
@@ -1163,29 +1161,6 @@ class DumpJsonAction(dectate.Action):
         app_class._dump_json.register(
             methodify(obj, selfname='app'),
             obj=self.model)
-
-
-class LoadJsonAction(dectate.Action):
-    config = {
-    }
-
-    app_class_arg = True
-
-    def __init__(self):
-        '''Register a function that converts JSON to an object.
-
-        The decorated function gets ``app``, ``json`` and ``request``
-        (:class:`morepath.Request`) arguments. The ``app`` argument is
-        optional. The function should return a Python object based on
-        the given JSON.
-        '''
-        pass
-
-    def identifier(self, app_class):
-        return ()
-
-    def perform(self, obj, app_class):
-        app_class._load_json = methodify(obj, selfname='app')
 
 
 class LinkPrefixAction(dectate.Action):

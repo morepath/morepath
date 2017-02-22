@@ -51,8 +51,7 @@ def test_predicate_fallback():
     assert r == [
         core.model_not_found,
         core.name_not_found,
-        core.method_not_allowed,
-        core.body_model_unprocessable
+        core.method_not_allowed
     ]
 
     r = objects(dectate.query_app(App, 'predicate_fallback',
@@ -60,8 +59,7 @@ def test_predicate_fallback():
     assert r == [
         core.model_not_found,
         core.name_not_found,
-        core.method_not_allowed,
-        core.body_model_unprocessable
+        core.method_not_allowed
     ]
 
     # there aren't any predicates for class_path
@@ -87,8 +85,7 @@ def test_predicate():
     assert r == [
         core.model_predicate,
         core.name_predicate,
-        core.request_method_predicate,
-        core.body_model_predicate
+        core.request_method_predicate
     ]
 
     r = objects(dectate.query_app(App, 'predicate',
@@ -96,8 +93,7 @@ def test_predicate():
     assert r == [
         core.model_predicate,
         core.name_predicate,
-        core.request_method_predicate,
-        core.body_model_predicate
+        core.request_method_predicate
     ]
 
     # there aren't any predicates for class_path
@@ -115,8 +111,7 @@ def test_predicate():
     r = objects(dectate.query_app(App, 'predicate',
                                   index='reg.ClassIndex'))
     assert r == [
-        core.model_predicate,
-        core.body_model_predicate
+        core.model_predicate
     ]
 
     r = objects(dectate.query_app(App, 'predicate',
@@ -557,34 +552,6 @@ def test_view_permission():
     assert r == [foo_n]
 
 
-def test_view_body_model():
-    class App(morepath.App):
-        pass
-
-    @App.view(model=Foo, request_method='POST', body_model=Base)
-    def foo_base(self, request):
-        pass
-
-    @App.view(model=Foo, request_method='POST', body_model=Foo)
-    def foo_foo(self, request):
-        pass
-
-    dectate.commit(App)
-
-    r = objects(dectate.query_app(
-        App, 'view',
-        model='morepath.tests.test_querytool.Foo',
-        body_model='morepath.tests.test_querytool.Base'))
-
-    assert r == [foo_base]
-
-    r = objects(dectate.query_app(
-        App, 'view',
-        model='morepath.tests.test_querytool.Foo',
-        body_model='morepath.tests.test_querytool.Foo'))
-    assert r == [foo_base, foo_foo]
-
-
 class Mounted(morepath.App):
     pass
 
@@ -757,22 +724,6 @@ def test_dump_json():
         model='morepath.tests.test_querytool.SubFoo'))
 
     assert r == [dump_foo]
-
-
-def test_load_json():
-    class App(morepath.App):
-        pass
-
-    @App.load_json()
-    def load(json, request):
-        pass
-
-    dectate.commit(App)
-
-    r = objects(dectate.query_app(
-        App, 'load_json'))
-
-    assert r == [load]
 
 
 def test_link_prefix():

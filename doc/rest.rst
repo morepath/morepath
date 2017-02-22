@@ -286,50 +286,6 @@ the view function. This means that you can also do conversion of input in the
 ``load`` function and reuse it between views. And if the load fails to work you
 get a 422 status code.
 
-``body_model``
---------------
-
-To define JSON body conversion code generally for an application we can use
-:meth:`App.load_json`:
-
-.. testcode::
-
-  @App.load_json()
-  def load_json(json, request):
-     if is_valid_document_json(json):
-        return Document(title=json['title'],
-                        author=json['author'],
-                        content=json['content'])
-     # fallback, just return plain JSON
-     return json
-
-Now we get a ``Document`` instance in :attr:`Request.body_obj`, so
-we can simplify ``document_collection_post``:
-
-.. testcode::
-
-  @App.json(model=DocumentCollection, request_method='POST')
-  def document_collection_post(self, request):
-      if not isinstance(request.body_obj, Document):
-         raise webob.exc.HTTPUnprocessableEntity()
-      result = self.add(request.body_obj)
-      return request.view(result)
-
-To only match if ``body_obj`` is an instance of ``Document`` we can
-use ``body_model`` on the view instead:
-
-.. testcode::
-
-  @App.json(model=DocumentCollection, request_method='POST', body_model=Document)
-  def document_collection_post(self, request):
-      result = self.add(request.body_obj)
-      return request.view(result)
-
-Now you get the ``422`` error for free if no matching ``body_model``
-can be found. You can also create additional ``POST`` views for
-``DocumentCollection`` that handle other types of JSON content this
-way.
-
 Linking: HATEOAS
 ----------------
 

@@ -27,7 +27,7 @@ from time import mktime, strptime
 
 from webob.exc import (
     HTTPException, HTTPNotFound, HTTPMethodNotAllowed,
-    HTTPUnprocessableEntity, HTTPOk, HTTPRedirection, HTTPBadRequest)
+    HTTPOk, HTTPRedirection, HTTPBadRequest)
 
 from .app import App
 from .converter import Converter, IDENTITY_CONVERTER
@@ -87,29 +87,6 @@ def method_not_allowed(self, obj, request):
     Fallback for :meth:`morepath.App.view`.
     """
     raise HTTPMethodNotAllowed()
-
-
-@App.predicate(App.get_view, name='body_model', default=object,
-               index=ClassIndex, after=request_method_predicate)
-def body_model_predicate(self, obj, request):
-    """match request.body_obj with body_model by class.
-
-    Predicate for :meth:`morepath.App.view`.
-    """
-    # optimization: if we have a GET request, a common case,
-    # then there is no point in accessing the body.
-    if request.method == 'GET':
-        return None.__class__
-    return request.body_obj.__class__
-
-
-@App.predicate_fallback(App.get_view, body_model_predicate)
-def body_model_unprocessable(self, obj, request):
-    """if body_model not matched, 422.
-
-    Fallback for :meth:`morepath.App.view`.
-    """
-    raise HTTPUnprocessableEntity()
 
 
 @App.converter(type=int)

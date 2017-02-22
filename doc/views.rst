@@ -361,8 +361,8 @@ indentation.
 Predicates
 ----------
 
-The ``model``, ``name``, ``request_method`` and ``body_model``
-arguments on the ``@App.view`` decorator are examples of *view
+The ``model``, ``name``, and ``request_method`` arguments
+on the ``@App.view`` decorator are examples of *view
 predicates*. You can add new ones by using the
 :meth:`morepath.App.predicate` decorator.
 

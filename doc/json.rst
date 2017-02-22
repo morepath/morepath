@@ -76,35 +76,3 @@ This can be a webob exception (we suggest
 :class:`webob.exc.HTTPUnprocessableEntity`), but you could also define your own
 custom exception and provide a view for it that sets the status to 422. This way
 conversion and validation errors are reported to the end user.
-
-load_json
----------
-
-The :meth:`App.load_json` directive lets you define a function that turns
-incoming JSON into a Python object. This behavior is shared by all views in the
-application. We detect JSON with the type field ``Item`` and interpret it as an
-``Item`` instance, and pass through everything else::
-
-  @App.load_json()
-  def load_json(json, request):
-      if json.get('type') != 'Item':
-          return json
-      return Item(json['x'])
-
-When you write a ``json`` view you automatically get the ``Item``
-instance as the ``body_obj`` attribute of the ``request``::
-
-  @App.json(model=Collection, request_method='POST')
-  def collection_post(self, request):
-      collection.add(request.body_obj)
-      return "success!"
-
-You can write views that match on the class of ``body_obj`` by specifying
-``body_model``::
-
-  @App.json(model=Collection, request_method='POST', body_model=Item)
-  def collection_post_item(self, request):
-      collection.add(request.body_obj)
-      return "success!"
-
-For a worked out example that uses ``load_json`` see :doc:`rest`.

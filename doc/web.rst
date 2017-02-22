@@ -478,8 +478,8 @@ the request body.
 
 While you can create any kind of content type with Morepath, it has
 special support for generating HTML and JSON responses (using
-:meth:`morepath.App.html` and :meth:`morepath.App.json`), and for
-processing a JSON request body (see ``load_json`` in :doc:`json`).
+:meth:`morepath.App.html` and :meth:`morepath.App.json`), and for processing
+a JSON request body (see ``load function for views`` in :doc:`json`).
 
 .. _review-view:
 
@@ -597,8 +597,6 @@ for you in many cases:
 422 Unprocessable Entity:
   When the request body supplied with a ``POST`` or ``PUT`` request
   can be parsed (as JSON, for instance), but is not the correct type.
-
-  More specifically, the ``body_model`` view predicate does not match.
 
 500 Internal Server Error:
   There is a bug in the server that causes an exception to be

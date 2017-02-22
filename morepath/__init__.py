@@ -16,9 +16,8 @@ from dectate import commit
 from .app import App, dispatch_method
 from .core import (excview_tween_factory as EXCVIEW,
     poisoned_host_header_protection_tween_factory as HOST_HEADER_PROTECTION,
-    model_predicate, name_predicate, request_method_predicate,
-    body_model_predicate)
-from .core import body_model_predicate as LAST_VIEW_PREDICATE
+    model_predicate, name_predicate, request_method_predicate)
+from .core import request_method_predicate as LAST_VIEW_PREDICATE
 from .view import render_json, render_html, redirect
 from .request import Request, Response
 from .autosetup import scan, autoscan

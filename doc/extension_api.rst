@@ -124,10 +124,6 @@ helpful when you want to implement your own actions. See
 
   :meth:`morepath.App.dump_json`
 
-.. py:class:: LoadJsonAction
-
-  :meth:`morepath.App.load_json`
-
 .. py:class:: LinkPrefixAction
 
   :meth:`morepath.App.link_prefix`

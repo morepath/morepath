@@ -106,7 +106,6 @@ class App(dectate.App):
     identity_policy = directive(action.IdentityPolicyAction)
     verify_identity = directive(action.VerifyIdentityAction)
     dump_json = directive(action.DumpJsonAction)
-    load_json = directive(action.LoadJsonAction)
     link_prefix = directive(action.LinkPrefixAction)
 
     def __init__(self):
@@ -337,17 +336,6 @@ class App(dectate.App):
         :return: ``True`` if identity has permission for obj.
         """
         return False
-
-    def _load_json(self, json, request):
-        """Load JSON as some object.
-
-        By default JSON is loaded as itself.
-
-        :param json: JSON (in Python form) to convert into object.
-        :param request: :class:`morepath.Request`
-        :return: Any Python object, including JSON.
-        """
-        return json
 
     @dispatch_method('obj')
     def _dump_json(self, obj, request):
