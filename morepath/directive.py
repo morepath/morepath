@@ -608,13 +608,6 @@ def issubclass_or_none(a, b):
     return issubclass(a, b)
 
 
-def isbaseclass_notfound(a, b):
-    # NOT_FOUND can happen in case of a fallback
-    if a is dectate.NOT_FOUND:
-        a = object
-    return isbaseclass(a, b)
-
-
 class ViewAction(dectate.Action):
     config = {
         'template_engine_registry': TemplateEngineRegistry,
