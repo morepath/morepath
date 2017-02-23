@@ -101,14 +101,22 @@ class Request(BaseRequest):
             return NO_IDENTITY
         return result
 
-    def link_prefix(self):
-        """Prefix to all links created by this request."""
-        cached = self._link_prefix_cache.get(self.app.__class__)
+    def link_prefix(self, app=None):
+        """Prefix to all links created by this request.
+
+        :param app: Optionally use the given app to create the link. This
+        leads to use of the link prefix configured for the given app. This
+        parameter is mainly used internally for link creation.
+
+        """
+        app = app or self.app
+
+        cached = self._link_prefix_cache.get(app.__class__)
         if cached is not None:
             return cached
 
-        prefix = self._link_prefix_cache[self.app.__class__]\
-               = self.app._link_prefix(self)
+        prefix = self._link_prefix_cache[app.__class__]\
+               = app._link_prefix(self)
 
         return prefix
 
@@ -191,12 +199,12 @@ class Request(BaseRequest):
         if app is SAME_APP:
             app = self.app
 
-        info = app._get_deferred_mounted_path(obj)
+        info, app = app._get_deferred_mounted_path(obj)
 
         if info is None:
             raise LinkError("Cannot link to: %r" % obj)
 
-        return info.url(self.link_prefix(), name)
+        return info.url(self.link_prefix(app), name)
 
     def class_link(self, model, variables=None, name='', app=SAME_APP):
         """Create a link (URL) to a view on a class.
