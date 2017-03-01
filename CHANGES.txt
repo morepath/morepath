@@ -7,9 +7,9 @@ CHANGES
 * **Removed**: ``morepath.body_model_predicate`` is removed from the
   Morepath API together with the ``morepath.App.load_json`` directive
   and the ``morepath.request.body_obj`` property.
-  The ``load_json`` infrastructure has been moved to the `more.body_model`_
-  package. So you can use that package if you need this functionality.
-  
+  If you use the ``load_json`` directive, this functionality has been moved
+  to a separate `more.body_model`_ package. Use this package instead by
+  subclassing your App from `more.body_model.BodyModelApp`.
 
 * Uploading huge files lead to excessive memory consumption as the whole body
   was consumed for no good reason. This is now fixed.
