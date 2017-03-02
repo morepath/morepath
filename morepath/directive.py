@@ -87,6 +87,13 @@ class SettingValue(object):
         return self.value
 
 
+class SettingHandlerAction(SettingAction):
+    def perform(self, obj, setting_registry):
+        setting_registry.register_setting(
+            self.section, self.name, SettingValue(obj)
+        )
+
+
 class SettingSectionAction(dectate.Composite):
     query_classes = [SettingAction]
 

@@ -85,6 +85,7 @@ class App(dectate.App):
     """
 
     setting = directive(action.SettingAction)
+    setting_handler = directive(action.SettingHandlerAction)
     setting_section = directive(action.SettingSectionAction)
     predicate_fallback = directive(action.PredicateFallbackAction)
     predicate = directive(action.PredicateAction)

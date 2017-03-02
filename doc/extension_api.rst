@@ -36,6 +36,10 @@ helpful when you want to implement your own actions. See
 
   :meth:`morepath.App.setting`
 
+.. py:class:: SettingHandlerAction
+
+  :meth:`morepath.App.setting_handler`
+
 .. py:class:: SettingSectionAction
 
   :meth:`morepath.App.setting_section`
