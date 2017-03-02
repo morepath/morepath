@@ -17,6 +17,22 @@ def test_settings_property():
     app = App()
 
     assert app.settings is app.config.setting_registry
+    assert app.settings.foo.bar == 'bar'
+
+
+def test_setting_handler():
+    class App(morepath.App):
+        pass
+
+    @App.setting_handler('foo', 'input_handler')
+    def input_handler(input):
+        return '__' + input + '__'
+
+    dectate.commit(App)
+    app = App()
+
+    handler = app.settings.foo.input_handler
+    assert handler('test') == '__test__'
 
 
 def test_app_extends_settings():

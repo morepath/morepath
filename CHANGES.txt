@@ -4,6 +4,9 @@ CHANGES
 0.18 (unreleased)
 =================
 
+* **New**: Added a ``setting_handler`` directive to register call-back
+  functions in the settings.
+
 * **Removed**: ``morepath.body_model_predicate`` is removed from the
   Morepath API together with the ``morepath.App.load_json`` directive
   and the ``morepath.request.body_obj`` property.

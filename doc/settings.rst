@@ -22,6 +22,7 @@ app that extends another app to override settings. This lets an app
 that defines a framework can also define default settings that can be
 overridden by the extending application if needed.
 
+
 Defining a setting
 ------------------
 
@@ -43,6 +44,19 @@ You can also use this directive to override a setting in another app::
 Settings are grouped logically: a setting is in a *section* and has a
 *name*. This way you can organize all settings that deal with logging
 under the ``logging`` section.
+
+
+Defining a callback function as a setting
+-----------------------------------------
+
+For handlers and call-back functions it can be useful to register the function
+itself as a setting.
+In this case you can use the :meth:`@App.setting_handler` directive instead::
+
+  @App.setting_handler(section="jwtauth", name="refresh_nonce_handler")
+  def refresh_nonce_handler(userid):
+      return User.get(email=userid).nonce
+
 
 Accessing a setting
 -------------------
@@ -74,6 +88,7 @@ You can do this using the :meth:`App.setting_section` directive::
 You can mix ``setting`` and ``setting_section`` freely, but you cannot
 define a setting multiple times in the same app, as this will result
 in a configuration conflict.
+
 
 Loading settings from a config file
 -----------------------------------
