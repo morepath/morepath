@@ -4,6 +4,12 @@ CHANGES
 0.18 (unreleased)
 =================
 
+* **New**: Introduces the new ``load`` API, which allows you to define how
+  incoming JSON (through a POST or PULL rquest) will be converted to a Python
+  object and how it will be validated.
+  This feature lets you plug in external serialization and validation
+  libraries, such as Marshmallow, Colander, Cerberus, Jsonschema or Voluptuous.
+
 * **Removed**: ``morepath.body_model_predicate`` is removed from the
   Morepath API together with the ``morepath.App.load_json`` directive
   and the ``morepath.request.body_obj`` property.
