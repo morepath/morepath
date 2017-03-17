@@ -17,13 +17,14 @@ CHANGES
   to a separate `more.body_model`_ package. Use this package instead by
   subclassing your App from `more.body_model.BodyModelApp`.
 
+  .. _more.body_model: https://github.com/morepath/more.body_model
+
 * Uploading huge files lead to excessive memory consumption as the whole body
   was consumed for no good reason. This is now fixed.
 
   See `#504`_
 
   .. _#504: https://github.com/morepath/morepath/issues/504
-  .. _more.body_model: https://github.com/morepath/more.body_model
 
 * Fixes link prefix not applying to mounted applications.
 
