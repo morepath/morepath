@@ -25,6 +25,12 @@ CHANGES
   .. _#504: https://github.com/morepath/morepath/issues/504
   .. _more.body_model: https://github.com/morepath/more.body_model
 
+* Fixes link prefix not applying to mounted applications.
+
+  See '#516'
+
+  .. _#516: https://github.com/morepath/morepath/issues/516
+
 0.17 (2016-12-23)
 =================
 

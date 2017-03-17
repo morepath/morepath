@@ -514,8 +514,8 @@ class App(dectate.App):
         """
         def find(app, obj):
             return app._get_mounted_path(obj)
-        info, app = self._follow_defers(find, obj)
-        return info
+
+        return self._follow_defers(find, obj)
 
     def _get_deferred_mounted_class_path(self, model, variables):
         """Path for model and variables taking into account deferring apps.

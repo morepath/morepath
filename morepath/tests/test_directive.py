@@ -384,6 +384,52 @@ def test_link_with_invalid_prefix():
         c.get('/link')
 
 
+def test_external_link_prefix():
+
+    class App(morepath.App):
+        pass
+
+    class ExternalApp(morepath.App):
+        pass
+
+    class InternalDoc(object):
+        pass
+
+    class ExternalDoc(object):
+        pass
+
+    @App.path(model=InternalDoc, path='')
+    def internal_path(request):
+        return InternalDoc()
+
+    @ExternalApp.path(model=ExternalDoc, path='external')
+    def external_path(request):
+        return ExternalDoc()
+
+    @App.defer_links(model=ExternalDoc)
+    def defer_external_links(app, obj):
+        return ExternalApp()
+
+    @ExternalApp.link_prefix()
+    def prefix_external_link(request):
+        return 'example.org'
+
+    @App.json(model=InternalDoc)
+    def main_view(self, request):
+        return {
+            'internal_link': request.link(InternalDoc()),
+            'external_link_def': request.link(ExternalDoc()),
+            'external_link_expl': request.link(
+                ExternalDoc(), app=ExternalApp())
+        }
+
+    assert Client(App()).get('/').json == {
+        'external_link_expl': 'example.org/external',
+        'external_link_def': 'example.org/external',
+        'internal_link': 'http://localhost/'
+    }
+
+
 def test_implicit_variables():
     class app(morepath.App):
         pass
