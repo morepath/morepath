@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.18 (unreleased)
+0.18 (2017-03-17)
 =================
 
 * **New**: The `load`` API, which allows you to define how incoming JSON
