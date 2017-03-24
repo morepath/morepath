@@ -4,8 +4,9 @@ CHANGES
 0.19 (unreleased)
 =================
 
-- Nothing changed yet.
-
+* Link generation was unstable when supplied with multiple URL parameters.
+  Sort URL parameters so that link generation is stable. This is convenient
+  in tests.
 
 0.18 (2017-03-17)
 =================

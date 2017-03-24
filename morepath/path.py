@@ -234,8 +234,8 @@ class PathInfo(object):
         # a / at least
         result = prefix + '/' + '/'.join(parts)
         if self.parameters:
-            parameters = dict((key, [v.encode('utf-8') for v in value])
-                              for (key, value) in self.parameters.items())
+            parameters = sorted((key, [v.encode('utf-8') for v in value])
+                                for (key, value) in self.parameters.items())
             result += '?' + fixed_urlencode(parameters, True)
         return result
 

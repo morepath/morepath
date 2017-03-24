@@ -407,6 +407,29 @@ def test_url_parameter_implicit_converter():
         (b"View: 0 (<type 'int'>)", b"View: 0 (<class 'int'>)")
 
 
+def test_multiple_url_parameters_stable_order():
+    class App(morepath.App):
+        pass
+
+    class Model(object):
+        def __init__(self, a, b):
+            self.a = a
+            self.b = b
+
+    @App.path(model=Model, path='/')
+    def get_model(a, b):
+        return Model(a, b)
+
+    @App.view(model=Model, name='link')
+    def link(self, request):
+        return request.link(self)
+
+    c = Client(App())
+
+    response = c.get('/link?a=A&b=B')
+    assert response.body == b'http://localhost/?a=A&b=B'
+
+
 def test_url_parameter_explicit_trumps_implicit():
     class app(morepath.App):
         pass
