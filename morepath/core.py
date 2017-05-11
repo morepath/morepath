@@ -188,7 +188,7 @@ def poisoned_host_header_protection_tween_factory(app, handler):
         r"^([a-z0-9.-]+|\[[a-f0-9]*:[a-f0-9:]+\])(:\d+)?$")
 
     def poisoned_host_header_protection_tween(request):
-        if not valid_host_re.match(request.host):
+        if not valid_host_re.match(request.host.lower()):
             return HTTPBadRequest("Invalid HOST header")
 
         return handler(request)
