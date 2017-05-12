@@ -33,6 +33,8 @@ With contributions by
 
 * Blaise Laflamme
 
+* Patryk Szalanski
+
 Special contributions
 ---------------------
 

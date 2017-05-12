@@ -11,6 +11,8 @@ CHANGES
   This could potentially break tests which weren't stable in the past. Fixing
   the tests to use the alphabetical sort order should fix the issue.
 
+* The poisoned host header protection is no longer case-sensitive.
+
 0.18 (2017-03-17)
 =================
 
