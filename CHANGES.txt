@@ -13,6 +13,9 @@ CHANGES
 
 * The poisoned host header protection is no longer case-sensitive.
 
+* Underscores are now allowed in host headers. Though they are not valid in
+  domain names, they are valid in host names and offer no attack surface.
+
 0.18 (2017-03-17)
 =================
 

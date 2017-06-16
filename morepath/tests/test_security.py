@@ -568,6 +568,7 @@ def test_prevent_poisoned_host_headers():
         '[2001:19f0:feee::dead:beef:cafe]',
         '[2001:19f0:feee::dead:beef:cafe]:8080',
         'xn--4ca9at.com',  # Punnycode for öäü.com
+        'under_scored.host.com',
     )
 
     c = Client(App())
