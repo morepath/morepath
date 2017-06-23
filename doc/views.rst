@@ -183,7 +183,7 @@ render
 
 By default ``@App.view`` returns either a :class:`morepath.Response`
 object or a string that gets turned into a response. The
-``content-type`` of the response is not set. For a HTML response you
+``content-type`` of the response is set to ``text/plain``. For a HTML response you
 want a view that sets the ``content-type`` to ``text/html``. You can
 do this by passing a ``render`` parameter to the ``@App.view`` decorator::
 
