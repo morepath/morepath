@@ -39,13 +39,13 @@ an identity policy:
   Token based authentication system using JSON Web Token (JWT).
 
 `more.itsdangerous`_
-  Cookie based identity policy using isdangerous.
+  Cookie based identity policy using itsdangerous.
 
 `more.basicauth`_
   Identity policy based on the HTTP Basic Authentication.
 
-Choose the one of your choice, install it and follow the instructions
-in the README. You can also create your own identity policy.
+Install your preferred option, and follow the instructions
+in the README. Alternatively, You can create your own identity policy.
 
 For basic authentication for instance it will
 extract the username and password. The claimed identity can be
