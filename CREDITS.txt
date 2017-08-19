@@ -35,6 +35,8 @@ With contributions by
 
 * Patryk Szalanski
 
+* Duncan Betts
+
 Special contributions
 ---------------------
 
