@@ -248,7 +248,7 @@ want to be able to mount these under the right URLs under
 ``CoreApp``. We do this using the mount directive::
 
   def variables(app):
-      repository = get_repository_for_wiki_id(app.wiki_id)
+      repository = get_repository_for_issues_id(app.issues_id)
       return dict(
             repository_name=repository.name,
             user_name=repository.user.name)
@@ -275,9 +275,9 @@ Let's look at what this does:
   by looking it up in some kind of database.
 
 * The ``variables`` function needs to do the inverse: given a
-  ``WikiApp`` instance it needs to translate this back into a
+  ``IssuesApp`` instance it needs to translate this back into a
   ``repository_name`` and ``user_name``. This allows Morepath to link
-  to a mounted ``WikiApp``.
+  to a mounted ``IssuesApp``.
 
 Mounting the wiki is very similar::
 
