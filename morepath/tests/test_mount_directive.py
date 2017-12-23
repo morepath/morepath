@@ -1098,9 +1098,9 @@ def test_mount_ancestors():
 
     @app.view(model=AppRoot)
     def app_root_default(self, request):
-        l = list(request.app.ancestors())
-        assert len(l) == 1
-        assert l[0] is request.app
+        ancestors = list(request.app.ancestors())
+        assert len(ancestors) == 1
+        assert ancestors[0] is request.app
         assert request.app.root is request.app
 
     @mounted.path(path='')
@@ -1109,10 +1109,10 @@ def test_mount_ancestors():
 
     @mounted.view(model=MountedRoot)
     def mounted_root_default(self, request):
-        l = list(request.app.ancestors())
-        assert len(l) == 2
-        assert l[0] is request.app
-        assert l[1] is request.app.parent
+        ancestors = list(request.app.ancestors())
+        assert len(ancestors) == 2
+        assert ancestors[0] is request.app
+        assert ancestors[1] is request.app.parent
         assert request.app.root is request.app.parent
 
     @app.mount(path='{id}', app=mounted)
