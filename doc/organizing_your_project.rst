@@ -168,7 +168,7 @@ Inside is the normal package called ``core``.
 
 See also the `namespace packages documentation`_.
 
-.. _`namespace packages documentation`: http://pythonhosted.org/setuptools/setuptools.html#namespace-packages
+.. _`namespace packages documentation`: https://setuptools.readthedocs.io/en/latest/setuptools.html#namespace-packages
 
 App Module
 -----------
