@@ -1,8 +1,8 @@
 CHANGES
 *******
 
-0.19 (unreleased)
-=================
+0.18.2 (2019-01-22)
+===================
 
 * Fixes an infinite recursion error during morepath.autoscan.
 
