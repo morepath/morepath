@@ -4,8 +4,17 @@ CHANGES
 0.19 (unreleased)
 =================
 
-* Added support for Python 3.6 and dropped support for Python 3.3
+* Fixes an infinite recursion error during morepath.autoscan.
 
+  The error that occured when morepath.autoscan was run in an environment where
+  two packages depended on each other, as well as depending on morepath
+  through an intermediary.
+
+  See `#536`
+
+  .. _#536: https://github.com/morepath/morepath/issues/536
+
+* Added support for Python 3.6 and dropped support for Python 3.3
 
 0.18.1 (2017-06-30)
 ===================

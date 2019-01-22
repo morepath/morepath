@@ -154,18 +154,16 @@ class DependencyMap(object):
     """
     def __init__(self):
         self._d = {}
-        self._dists = {}
 
     def load(self):
         """Fill the registry with dependency information.
         """
         for dist in pkg_resources.working_set:
-            self._dists[dist.project_name] = dist
             for r in dist.requires():
                 self._d.setdefault(
                     dist.project_name, set()).add(r.project_name)
 
-    def depends(self, project_name, on_project_name):
+    def depends(self, project_name, on_project_name, visited=None):
         """Check whether project transitively depends on another.
 
         A project depends on another project if it directly or
@@ -178,8 +176,16 @@ class DependencyMap(object):
         dependent_project_names = self._d.get(project_name, set())
         if on_project_name in dependent_project_names:
             return True
+
+        visited = visited or set()
+
         for n in dependent_project_names:
-            if self.depends(n, on_project_name):
+            if n in visited:
+                continue
+
+            visited.add(n)
+
+            if self.depends(n, on_project_name, visited):
                 return True
         return False
 

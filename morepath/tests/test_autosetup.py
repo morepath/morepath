@@ -1,7 +1,7 @@
 from collections import namedtuple
 from morepath.autosetup import (
     caller_module, caller_package, autoscan,
-    morepath_packages, import_package)
+    morepath_packages, import_package, DependencyMap)
 from base.m import App
 import morepath
 import pytest
@@ -63,3 +63,27 @@ def test_autoscan(monkeypatch):
     assert 'base.m' in sys.modules
     assert 'entrypoint.app' in sys.modules
     assert 'under_score.m' in sys.modules
+
+
+def test_circular_dependency():
+    m = DependencyMap()
+    m._d = {
+        'parent': {
+            'grandparent'
+        },
+        'child-a': {
+            'child-b',
+            'parent',
+        },
+        'child-b': {
+            'child-a',
+            'parent',
+        },
+        'grandchild': {
+            'child-a',
+            'child-b',
+        },
+    }
+
+    for node in ('grandchild', 'child-a', 'child-b', 'parent'):
+        assert m.depends(node, 'grandparent')
