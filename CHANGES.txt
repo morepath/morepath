@@ -16,7 +16,7 @@ CHANGES
   two packages depended on each other, as well as depending on morepath
   through an intermediary.
 
-  See `#536`
+  See `#536`_
 
   .. _#536: https://github.com/morepath/morepath/issues/536
 
@@ -64,7 +64,7 @@ CHANGES
 
 * Fixes link prefix not applying to mounted applications.
 
-  See '#516'
+  See `#516`_
 
   .. _#516: https://github.com/morepath/morepath/issues/516
 
