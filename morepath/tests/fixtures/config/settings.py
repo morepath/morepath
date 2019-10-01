@@ -38,8 +38,8 @@ settings = {
 
 
 def create_json_config():
-        stream = open('settings.json', 'w')
-        json.dump(settings, stream, sort_keys=True, indent=4,
-                  separators=(',', ': '))
-        print(json.dumps(settings, sort_keys=True, indent=4,
-                         separators=(',', ': ')))
+    stream = open('settings.json', 'w')
+    json.dump(settings, stream, sort_keys=True, indent=4,
+              separators=(',', ': '))
+    print(json.dumps(settings, sort_keys=True, indent=4,
+                     separators=(',', ': ')))
