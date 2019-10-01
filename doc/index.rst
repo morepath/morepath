@@ -37,9 +37,10 @@ EuroPython 2014:
 
 .. raw:: html
 
-  <iframe id="ytplayer" type="text/html" width="640" height="390"
-    src="http://www.youtube.com/embed/gyDKMAWPyuY?autoplay=0&origin=http://morepath.readthedocs.org"
-    frameborder="0"></iframe>
+  <iframe width="560" height="315" 
+    src="https://www.youtube.com/embed/gyDKMAWPyuY" frameborder="0"
+    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen></iframe>
 
 Morepath Super Powers
 ---------------------
