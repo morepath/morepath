@@ -109,7 +109,7 @@ You can load it with:
   import yaml
 
   with open('settings.yml') as config:
-       settings_dict = yaml.load(config)
+       settings_dict = yaml.full_load(config)
 
 Remember to install ``pyyaml`` before importing ``yaml``.
 For example with:
