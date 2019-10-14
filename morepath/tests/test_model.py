@@ -1,9 +1,5 @@
 import dectate
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    # Python 2
-    from urllib import urlencode
+from urllib.parse import urlencode
 from morepath.path import get_arguments
 from morepath.converter import Converter, IDENTITY_CONVERTER, ConverterRegistry
 import morepath

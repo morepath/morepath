@@ -50,18 +50,6 @@ directory. You can make changes to them during development too.
 
 For upgrading the sources and requirements just run the command again.
 
-If you want to test Morepath with Python 2.7 as well you can create a
-second virtualenv for it::
-
-  $ virtualenv -p python2.7 env/py27
-
-You can then activate it::
-
-  $ source env/py27/bin/activate
-
-Then uprade setuptools and pip and install the develop requirements as
-described above.
-
 .. note::
 
    The following commands work only if you have the virtualenv activated.
@@ -142,9 +130,6 @@ Or from the Morepath project directory::
 
   (py3) $ make -C doc doctest
 
-Since the sample code in the documentation is maintained in Python 3
-syntax, we do not support running the doctests with Python 2.7.
-
 Building the HTML documentation
 -------------------------------
 
@@ -184,8 +169,8 @@ repository and it runs the same tox tests after each checkin.
 
 First you should install all Python versions which you want to
 test. The versions which are not installed will be skipped. You should
-at least install Python 3.5 which is required by flake8, coverage and
-doctests and Python 2.7 for testing Morepath with Python 2.
+at least install Python 3.7 which is required by flake8, coverage and
+doctests.
 
 One tool you can use to install multiple versions of Python is pyenv_.
 
@@ -199,7 +184,7 @@ You can run all tox tests with::
 
 You can also specify a test environment to run e.g.::
 
-  $ tox -e py35
+  $ tox -e py37
   $ tox -e pep8
   $ tox -e docs
 

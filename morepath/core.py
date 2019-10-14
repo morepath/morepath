@@ -101,15 +101,6 @@ def unicode_converter():
     return IDENTITY_CONVERTER
 
 
-# Python 2
-if type(u"") != type(""):  # pragma: no cover  # noqa
-    @App.converter(type=type(""))
-    def str_converter():
-        """Converter for non-text str."""
-        # XXX do we want to decode/encode unicode?
-        return IDENTITY_CONVERTER
-
-
 def date_decode(s):
     return date.fromtimestamp(mktime(strptime(s, '%Y%m%d')))
 

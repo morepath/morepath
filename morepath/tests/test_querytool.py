@@ -2,7 +2,6 @@ import reg
 import dectate
 import morepath
 from morepath import core
-from morepath import compat
 from .fixtures import identity_policy
 
 
@@ -11,13 +10,6 @@ def objects(actions):
     for action, obj in actions:
         result.append(obj)
     return result
-
-
-def builtin_ref(s):
-    if compat.PY3:
-        return 'builtins.%s' % s
-    else:
-        return '__builtin__.%s' % s
 
 
 def test_setting():
@@ -173,8 +165,6 @@ def test_converter():
         core.int_converter,
         core.unicode_converter
     ]
-    if not compat.PY3:
-        expected.append(core.str_converter)
 
     expected.extend([
         core.date_converter,
@@ -183,7 +173,7 @@ def test_converter():
 
     assert r == expected
 
-    r = objects(dectate.query_app(App, 'converter', type=builtin_ref('int')))
+    r = objects(dectate.query_app(App, 'converter', type='builtins.int'))
 
     assert r == [
         core.int_converter
@@ -547,7 +537,7 @@ def test_view_permission():
 
     r = objects(dectate.query_app(App, 'view',
                                   model='morepath.tests.test_querytool.Foo',
-                                  permission=builtin_ref('None')))
+                                  permission='builtins.None'))
 
     assert r == [foo_n]
 
