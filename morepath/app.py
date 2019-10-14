@@ -21,7 +21,6 @@ import reg
 from webob.exc import HTTPNotFound
 
 from .request import Request
-from . import compat
 from .reify import reify
 from .path import PathInfo
 from .error import LinkError
@@ -199,7 +198,7 @@ class App(dectate.App):
             if app.__class__ not in self.config.path_registry.mounted:
                 return None
         else:
-            if isinstance(app, compat.string_types):
+            if isinstance(app, str):
                 factory = self.config.path_registry.named_mounted.get(app)
             else:
                 factory = self.config.path_registry.mounted.get(app)

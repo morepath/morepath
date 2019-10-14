@@ -4,7 +4,13 @@ CHANGES
 0.19 (unreleased)
 =================
 
-- Nothing changed yet.
+* **Removed**: Removed support for Python 2.
+  
+  You have to upgrade to Python 3 if you want to use this version.
+
+* Added support for Pypy 3.6.
+
+* Make Python 3.7 the default.
 
 
 0.18.2 (2019-01-22)
@@ -12,7 +18,7 @@ CHANGES
 
 * Fixes an infinite recursion error during morepath.autoscan.
 
-  The error that occured when morepath.autoscan was run in an environment where
+  The error that occurred when morepath.autoscan was run in an environment where
   two packages depended on each other, as well as depending on morepath
   through an intermediary.
 
@@ -20,7 +26,7 @@ CHANGES
 
   .. _#536: https://github.com/morepath/morepath/issues/536
 
-* Added support for Python 3.6 and dropped support for Python 3.3
+* Added support for Python 3.6 and 3.7 and dropped support for Python 3.3
 
 0.18.1 (2017-06-30)
 ===================

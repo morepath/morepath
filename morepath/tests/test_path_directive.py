@@ -5,7 +5,6 @@ import morepath
 from morepath.converter import Converter
 from morepath.error import (
     DirectiveReportError, ConfigError, LinkError, TrajectError)
-from morepath.compat import text_type
 
 from webtest import TestApp as Client
 import pytest
@@ -1526,11 +1525,11 @@ def test_resolve_path_method_on_request_same_app():
 
     @App.view(model=Model)
     def default(self, request):
-        return text_type(isinstance(request.resolve_path('simple'), Model))
+        return str(isinstance(request.resolve_path('simple'), Model))
 
     @App.view(model=Model, name='extra')
     def extra(self, request):
-        return text_type(request.resolve_path('nonexistent') is None)
+        return str(request.resolve_path('nonexistent') is None)
 
     @App.view(model=Model, name='appnone')
     def appnone(self, request):
@@ -1561,7 +1560,7 @@ def test_resolve_path_method_on_request_different_app():
     @App.view(model=Model)
     def default(self, request):
         obj = request.resolve_path('p', app=request.app.child('sub'))
-        return text_type(isinstance(obj, SubModel))
+        return str(isinstance(obj, SubModel))
 
     class Sub(morepath.App):
         pass

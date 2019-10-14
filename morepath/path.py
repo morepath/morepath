@@ -8,11 +8,7 @@ See also :class:`morepath.directive.PathRegistry`
 
 from dectate import DirectiveError
 from reg import arginfo, methodify
-try:
-    # Python 2
-    from urllib import urlencode, quote
-except ImportError:
-    from urllib.parse import urlencode, quote
+from urllib.parse import urlencode, quote
 
 
 from .traject import Path as TrajectPath, TrajectRegistry

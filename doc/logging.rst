@@ -9,7 +9,7 @@ helpful when debugging why your Morepath application does not do what
 was expected. Morepath's directive logging makes use of Python's
 logging_ module, which is very flexible.
 
-.. _logging: https://docs.python.org/2/library/logging.html
+.. _logging: https://docs.python.org/3/library/logging.html
 
 To get the complete log of directive executions, you can set up the
 following code in your project::

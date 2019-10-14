@@ -204,7 +204,6 @@ the extension API.
    internals/app
    internals/authentication
    internals/autosetup
-   internals/compat
    internals/converter
    internals/core
    internals/path

@@ -15,13 +15,6 @@ See also :class:`morepath.directive.ConverterRegistry`
 import reg
 from dectate import DirectiveError
 
-try:
-    from types import ClassType
-except ImportError:
-    # You're running Python 3!
-    ClassType = type
-class_types = tuple({type, ClassType})
-
 
 class Converter(object):
     """Decode from strings to objects and back.
@@ -187,7 +180,7 @@ class ConverterRegistry(object):
             else:
                 spec = self.actual_converter(spec[0])
             return ListConverter(spec)
-        if isinstance(spec, class_types):
+        if isinstance(spec, type):
             return self.get_converter(spec)
         return spec
 

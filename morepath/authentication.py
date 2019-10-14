@@ -11,8 +11,6 @@ See also :class:`morepath.directive.IdentityPolicyRegistry`
 """
 import abc
 
-from .compat import with_metaclass
-
 
 class NoIdentity(object):
     """The user is not yet logged in.
@@ -63,7 +61,7 @@ class Identity(object):
         return result
 
 
-class IdentityPolicy(with_metaclass(abc.ABCMeta)):
+class IdentityPolicy(metaclass=abc.ABCMeta):
     """Identity policy API.
 
     Implement this API if you want to have a custom way to establish
