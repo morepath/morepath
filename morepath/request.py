@@ -89,9 +89,9 @@ class Request(BaseRequest):
     def link_prefix(self, app=None):
         """Prefix to all links created by this request.
 
-        :param app: Optionally use the given app to create the link. This
-        leads to use of the link prefix configured for the given app. This
-        parameter is mainly used internally for link creation.
+        :param app: Optionally use the given app to create the link.
+            This leads to use of the link prefix configured for the given app.
+            This parameter is mainly used internally for link creation.
 
         """
         app = app or self.app
