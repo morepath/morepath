@@ -12,6 +12,9 @@ CHANGES
 
 * Make Python 3.7 the default.
 
+* Update to new signature of reg.arginfo, which returns now a FullArgSpec
+  tuple instead of an ArgSpec tuple.
+
 
 0.18.2 (2019-01-22)
 ===================

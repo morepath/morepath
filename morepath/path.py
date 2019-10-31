@@ -78,10 +78,10 @@ class PathRegistry(TrajectRegistry):
             raise DirectiveError(
                 "Cannot use varargs in function signature: %s" %
                 info.varargs)
-        if info.keywords is not None:
+        if info.varkw is not None:
             raise DirectiveError(
-                "Cannot use keywords in function signature: %s" %
-                info.keywords)
+                "Cannot use varkw in function signature: %s" %
+                info.varkw)
 
         path_variables = TrajectPath(path).variables()
         for path_variable in path_variables:
