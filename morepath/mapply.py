@@ -1,4 +1,4 @@
-from reg.arginfo import arginfo
+from reg import arginfo
 
 
 def mapply(func, *args, **kw):
@@ -16,7 +16,7 @@ def mapply(func, *args, **kw):
     function/method that we've borrowed.
     """
     info = arginfo(func)
-    if info.keywords:
+    if info.varkw:
         return func(*args, **kw)
     # XXX we don't support nested arguments
     new_kw = dict((name, kw[name]) for name in info.args if name in kw)
