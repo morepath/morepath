@@ -8,7 +8,7 @@ CHANGES
   
   You have to upgrade to Python 3 if you want to use this version.
 
-* Added support for Python 3.8 and Pypy 3.6.
+* Added support for Python 3.8 and PyPy 3.6.
 
 * Make Python 3.7 the default.
 
