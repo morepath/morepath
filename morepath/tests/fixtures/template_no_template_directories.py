@@ -6,26 +6,27 @@ class App(morepath.App):
     pass
 
 
-@App.path(path='{name}')
+@App.path(path="{name}")
 class Person(object):
     def __init__(self, name):
         self.name = name
 
 
-@App.template_loader(extension='.format')
+@App.template_loader(extension=".format")
 def get_template_loader(template_directories, settings):
     return FormatLoader(template_directories)
 
 
-@App.template_render(extension='.format')
+@App.template_render(extension=".format")
 def get_format_render(loader, name, original_render):
     template = loader.get(name)
 
     def render(content, request):
         return original_render(template.render(**content), request)
+
     return render
 
 
-@App.html(model=Person, template='person.format')
+@App.html(model=Person, template="person.format")
 def person_default(self, request):
-    return {'name': self.name}
+    return {"name": self.name}

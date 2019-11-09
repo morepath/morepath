@@ -17,6 +17,7 @@ class CaptureLog(logging.Handler):
     :param level: the loglevel to capture at, only log entries equal or
       higher than this level are captured.
     """
+
     def __init__(self, logger_name, level=logging.WARNING):
         super(CaptureLog, self).__init__(level)
         self.logger_name = logger_name

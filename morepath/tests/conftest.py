@@ -16,14 +16,13 @@ def mockserver(monkeypatch):
     def mock_serve_forever(self):
         raise KeyboardInterrupt
 
-    monkeypatch.setattr(WSGIServer, 'serve_forever', mock_serve_forever)
-    argv = ['script-name']
-    monkeypatch.setattr(sys, 'argv', argv)
+    monkeypatch.setattr(WSGIServer, "serve_forever", mock_serve_forever)
+    argv = ["script-name"]
+    monkeypatch.setattr(sys, "argv", argv)
     return MockServer(argv)
 
 
 class MockServer(object):
-
     def __init__(self, argv):
         self.argv = argv
 

@@ -5,12 +5,13 @@ from morepath import reify
 
 def test__get__with_inst():
     def wrapped(inst):
-        return 'a'
+        return "a"
+
     decorator = reify(wrapped)
     inst = Dummy()
     result = decorator.__get__(inst)
-    assert result == 'a'
-    assert inst.__dict__['wrapped'] == 'a'
+    assert result == "a"
+    assert inst.__dict__["wrapped"] == "a"
 
 
 def test__get__noinst():
@@ -24,7 +25,7 @@ def test__doc__copied():
         """My doc"""
 
     decorator = reify(wrapped)
-    assert decorator.__doc__ == 'My doc'
+    assert decorator.__doc__ == "My doc"
 
 
 def test_no_doc():

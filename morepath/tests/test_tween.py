@@ -158,7 +158,7 @@ def test_tween_directive():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         pass
 
@@ -170,12 +170,13 @@ def test_tween_directive():
     def get_modify_response_tween(app, handler):
         def plusplustween(request):
             response = handler(request)
-            response.headers['Tween-Header'] = 'FOO'
+            response.headers["Tween-Header"] = "FOO"
             return response
+
         return plusplustween
 
     c = Client(app())
 
-    response = c.get('/')
-    assert response.body == b'View'
-    assert response.headers['Tween-Header'] == 'FOO'
+    response = c.get("/")
+    assert response.body == b"View"
+    assert response.headers["Tween-Header"] == "FOO"

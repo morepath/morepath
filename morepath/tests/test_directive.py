@@ -1,6 +1,13 @@
 import dectate
-from .fixtures import (basic, nested, abbr, mapply_bug,
-                       method, conflict, noconverter)
+from .fixtures import (
+    basic,
+    nested,
+    abbr,
+    mapply_bug,
+    method,
+    conflict,
+    noconverter,
+)
 from dectate import ConflictError, DirectiveReportError
 from morepath.error import LinkError
 from morepath.view import render_html
@@ -15,18 +22,18 @@ from webtest import TestApp as Client
 def test_basic():
     c = Client(basic.app())
 
-    response = c.get('/foo')
+    response = c.get("/foo")
 
-    assert response.body == b'The view for model: foo'
+    assert response.body == b"The view for model: foo"
 
-    response = c.get('/foo/link')
-    assert response.body == b'http://localhost/foo'
+    response = c.get("/foo/link")
+    assert response.body == b"http://localhost/foo"
 
 
 def test_basic_json():
     c = Client(basic.app())
 
-    response = c.get('/foo/json')
+    response = c.get("/foo/json")
 
     assert response.body == b'{"id":"foo"}'
 
@@ -34,42 +41,42 @@ def test_basic_json():
 def test_basic_root():
     c = Client(basic.app())
 
-    response = c.get('/')
+    response = c.get("/")
 
-    assert response.body == b'The root: ROOT'
+    assert response.body == b"The root: ROOT"
 
     # + is to make sure we get the view, not the sub-model as
     # the model is greedy
-    response = c.get('/+link')
-    assert response.body == b'http://localhost/'
+    response = c.get("/+link")
+    assert response.body == b"http://localhost/"
 
 
 def test_nested():
     c = Client(nested.outer_app())
 
-    response = c.get('/inner/foo')
+    response = c.get("/inner/foo")
 
-    assert response.body == b'The view for model: foo'
+    assert response.body == b"The view for model: foo"
 
-    response = c.get('/inner/foo/link')
-    assert response.body == b'http://localhost/inner/foo'
+    response = c.get("/inner/foo/link")
+    assert response.body == b"http://localhost/inner/foo"
 
 
 def test_abbr():
     c = Client(abbr.app())
 
-    response = c.get('/foo')
-    assert response.body == b'Default view: foo'
+    response = c.get("/foo")
+    assert response.body == b"Default view: foo"
 
-    response = c.get('/foo/edit')
-    assert response.body == b'Edit view: foo'
+    response = c.get("/foo/edit")
+    assert response.body == b"Edit view: foo"
 
 
 def test_scanned_static_method():
     c = Client(method.app())
 
-    response = c.get('/static')
-    assert response.body == b'Static Method'
+    response = c.get("/static")
+    assert response.body == b"Static Method"
 
     root = method.Root()
     assert isinstance(root.static_method(), method.StaticMethod)
@@ -89,16 +96,16 @@ def test_basic_scenario():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         def __init__(self):
-            self.value = 'ROOT'
+            self.value = "ROOT"
 
     class Model(object):
         def __init__(self, id):
             self.id = id
 
-    @app.path(model=Model, path='{id}')
+    @app.path(model=Model, path="{id}")
     def get_model(id):
         return Model(id)
 
@@ -106,49 +113,49 @@ def test_basic_scenario():
     def default(self, request):
         return "The view for model: %s" % self.id
 
-    @app.view(model=Model, name='link')
+    @app.view(model=Model, name="link")
     def link(self, request):
         return request.link(self)
 
-    @app.view(model=Model, name='json', render=morepath.render_json)
+    @app.view(model=Model, name="json", render=morepath.render_json)
     def json(self, request):
-        return {'id': self.id}
+        return {"id": self.id}
 
     @app.view(model=Root)
     def root_default(self, request):
         return "The root: %s" % self.value
 
-    @app.view(model=Root, name='link')
+    @app.view(model=Root, name="link")
     def root_link(self, request):
         return request.link(self)
 
     c = Client(app())
 
-    response = c.get('/foo')
-    assert response.body == b'The view for model: foo'
+    response = c.get("/foo")
+    assert response.body == b"The view for model: foo"
 
-    response = c.get('/foo/link')
-    assert response.body == b'http://localhost/foo'
+    response = c.get("/foo/link")
+    assert response.body == b"http://localhost/foo"
 
-    response = c.get('/foo/json')
+    response = c.get("/foo/json")
     assert response.body == b'{"id":"foo"}'
 
-    response = c.get('/')
-    assert response.body == b'The root: ROOT'
+    response = c.get("/")
+    assert response.body == b"The root: ROOT"
 
     # + is to make sure we get the view, not the sub-model
-    response = c.get('/+link')
-    assert response.body == b'http://localhost/'
+    response = c.get("/+link")
+    assert response.body == b"http://localhost/"
 
 
 def test_link_to_unknown_model():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         def __init__(self):
-            self.value = 'ROOT'
+            self.value = "ROOT"
 
     class Model(object):
         def __init__(self, id):
@@ -157,33 +164,33 @@ def test_link_to_unknown_model():
     @app.view(model=Root)
     def root_link(self, request):
         try:
-            return request.link(Model('foo'))
+            return request.link(Model("foo"))
         except LinkError:
             return "Link error"
 
-    @app.view(model=Root, name='default')
+    @app.view(model=Root, name="default")
     def root_link_with_default(self, request):
         try:
-            return request.link(Model('foo'), default='hey')
+            return request.link(Model("foo"), default="hey")
         except LinkError:
             return "Link Error"
 
     c = Client(app())
 
-    response = c.get('/')
-    assert response.body == b'Link error'
-    response = c.get('/default')
-    assert response.body == b'Link Error'
+    response = c.get("/")
+    assert response.body == b"Link error"
+    response = c.get("/default")
+    assert response.body == b"Link Error"
 
 
 def test_link_to_none():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         def __init__(self):
-            self.value = 'ROOT'
+            self.value = "ROOT"
 
     class Model(object):
         def __init__(self, id):
@@ -193,33 +200,33 @@ def test_link_to_none():
     def root_link(self, request):
         return str(request.link(None) is None)
 
-    @app.view(model=Root, name='default')
+    @app.view(model=Root, name="default")
     def root_link_with_default(self, request):
-        return request.link(None, default='unknown')
+        return request.link(None, default="unknown")
 
     c = Client(app())
 
-    response = c.get('/')
-    assert response.body == b'True'
-    response = c.get('/default')
-    assert response.body == b'unknown'
+    response = c.get("/")
+    assert response.body == b"True"
+    response = c.get("/default")
+    assert response.body == b"unknown"
 
 
 def test_link_with_parameters():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         def __init__(self):
-            self.value = 'ROOT'
+            self.value = "ROOT"
 
     class Model(object):
         def __init__(self, id, param):
             self.id = id
             self.param = param
 
-    @app.path(model=Model, path='{id}')
+    @app.path(model=Model, path="{id}")
     def get_model(id, param=0):
         assert isinstance(param, int)
         return Model(id, param)
@@ -228,30 +235,30 @@ def test_link_with_parameters():
     def default(self, request):
         return "The view for model: %s %s" % (self.id, self.param)
 
-    @app.view(model=Model, name='link')
+    @app.view(model=Model, name="link")
     def link(self, request):
         return request.link(self)
 
     c = Client(app())
 
-    response = c.get('/foo')
-    assert response.body == b'The view for model: foo 0'
+    response = c.get("/foo")
+    assert response.body == b"The view for model: foo 0"
 
-    response = c.get('/foo/link')
-    assert response.body == b'http://localhost/foo?param=0'
+    response = c.get("/foo/link")
+    assert response.body == b"http://localhost/foo?param=0"
 
-    response = c.get('/foo?param=1')
-    assert response.body == b'The view for model: foo 1'
+    response = c.get("/foo?param=1")
+    assert response.body == b"The view for model: foo 1"
 
-    response = c.get('/foo/link?param=1')
-    assert response.body == b'http://localhost/foo?param=1'
+    response = c.get("/foo/link?param=1")
+    assert response.body == b"http://localhost/foo?param=1"
 
 
 def test_root_link_with_parameters():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         def __init__(self, param=0):
             assert isinstance(param, int)
@@ -261,96 +268,96 @@ def test_root_link_with_parameters():
     def default(self, request):
         return "The view for root: %s" % self.param
 
-    @app.view(model=Root, name='link')
+    @app.view(model=Root, name="link")
     def link(self, request):
         return request.link(self)
 
     c = Client(app())
 
-    response = c.get('/')
-    assert response.body == b'The view for root: 0'
+    response = c.get("/")
+    assert response.body == b"The view for root: 0"
 
-    response = c.get('/link')
-    assert response.body == b'http://localhost/?param=0'
+    response = c.get("/link")
+    assert response.body == b"http://localhost/?param=0"
 
-    response = c.get('/?param=1')
-    assert response.body == b'The view for root: 1'
+    response = c.get("/?param=1")
+    assert response.body == b"The view for root: 1"
 
-    response = c.get('/link?param=1')
-    assert response.body == b'http://localhost/?param=1'
+    response = c.get("/link?param=1")
+    assert response.body == b"http://localhost/?param=1"
 
 
 def test_link_with_prefix():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         pass
 
-    @app.view(model=Root, name='link')
+    @app.view(model=Root, name="link")
     def link(self, request):
         return request.link(self)
 
     @app.link_prefix()
     def link_prefix(request):
-        return request.headers['TESTPREFIX']
+        return request.headers["TESTPREFIX"]
 
     c = Client(app())
 
     # we don't do anything with the prefix, so a slash at the end of the prefix
     # leads to a double prefix at the end
-    response = c.get('/link', headers={'TESTPREFIX': 'http://testhost/'})
-    assert response.body == b'http://testhost//'
+    response = c.get("/link", headers={"TESTPREFIX": "http://testhost/"})
+    assert response.body == b"http://testhost//"
 
-    response = c.get('/link', headers={'TESTPREFIX': 'http://testhost'})
-    assert response.body == b'http://testhost/'
+    response = c.get("/link", headers={"TESTPREFIX": "http://testhost"})
+    assert response.body == b"http://testhost/"
 
 
 def test_link_with_prefix_app_arg():
     class App(morepath.App):
         pass
 
-    @App.path(path='')
+    @App.path(path="")
     class Root(object):
         pass
 
-    @App.view(model=Root, name='link')
+    @App.view(model=Root, name="link")
     def link(self, request):
         return request.link(self)
 
     @App.link_prefix()
     def link_prefix(app, request):
         assert isinstance(app, App)
-        return request.headers['TESTPREFIX']
+        return request.headers["TESTPREFIX"]
 
     c = Client(App())
 
     # we don't do anything with the prefix, so a slash at the end of the prefix
     # leads to a double prefix at the end
-    response = c.get('/link', headers={'TESTPREFIX': 'http://testhost/'})
-    assert response.body == b'http://testhost//'
+    response = c.get("/link", headers={"TESTPREFIX": "http://testhost/"})
+    assert response.body == b"http://testhost//"
 
-    response = c.get('/link', headers={'TESTPREFIX': 'http://testhost'})
-    assert response.body == b'http://testhost/'
+    response = c.get("/link", headers={"TESTPREFIX": "http://testhost"})
+    assert response.body == b"http://testhost/"
 
 
 def test_link_prefix_cache():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         pass
 
-    @app.view(model=Root, name='link')
+    @app.view(model=Root, name="link")
     def link(self, request):
         request.link(self)  # make an extra call before returning
         return request.link(self)
 
     @app.link_prefix()
     def link_prefix(request):
-        if not hasattr(request, 'callnumber'):
+        if not hasattr(request, "callnumber"):
             request.callnumber = 1
         else:
             request.callnumber += 1
@@ -358,19 +365,19 @@ def test_link_prefix_cache():
 
     c = Client(app())
 
-    response = c.get('/link')
-    assert response.body == b'1/'
+    response = c.get("/link")
+    assert response.body == b"1/"
 
 
 def test_link_with_invalid_prefix():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         pass
 
-    @app.view(model=Root, name='link')
+    @app.view(model=Root, name="link")
     def link(self, request):
         return request.link(self)
 
@@ -381,11 +388,10 @@ def test_link_with_invalid_prefix():
     c = Client(app())
 
     with pytest.raises(TypeError):
-        c.get('/link')
+        c.get("/link")
 
 
 def test_external_link_prefix():
-
     class App(morepath.App):
         pass
 
@@ -398,11 +404,11 @@ def test_external_link_prefix():
     class ExternalDoc(object):
         pass
 
-    @App.path(model=InternalDoc, path='')
+    @App.path(model=InternalDoc, path="")
     def internal_path(request):
         return InternalDoc()
 
-    @ExternalApp.path(model=ExternalDoc, path='external')
+    @ExternalApp.path(model=ExternalDoc, path="external")
     def external_path(request):
         return ExternalDoc()
 
@@ -412,21 +418,22 @@ def test_external_link_prefix():
 
     @ExternalApp.link_prefix()
     def prefix_external_link(request):
-        return 'example.org'
+        return "example.org"
 
     @App.json(model=InternalDoc)
     def main_view(self, request):
         return {
-            'internal_link': request.link(InternalDoc()),
-            'external_link_def': request.link(ExternalDoc()),
-            'external_link_expl': request.link(
-                ExternalDoc(), app=ExternalApp())
+            "internal_link": request.link(InternalDoc()),
+            "external_link_def": request.link(ExternalDoc()),
+            "external_link_expl": request.link(
+                ExternalDoc(), app=ExternalApp()
+            ),
         }
 
-    assert Client(App()).get('/').json == {
-        'external_link_expl': 'example.org/external',
-        'external_link_def': 'example.org/external',
-        'internal_link': 'http://localhost/'
+    assert Client(App()).get("/").json == {
+        "external_link_expl": "example.org/external",
+        "external_link_def": "example.org/external",
+        "internal_link": "http://localhost/",
     }
 
 
@@ -434,7 +441,7 @@ def test_implicit_variables():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         pass
 
@@ -442,7 +449,7 @@ def test_implicit_variables():
         def __init__(self, id):
             self.id = id
 
-    @app.path(model=Model, path='{id}')
+    @app.path(model=Model, path="{id}")
     def get_model(id):
         return Model(id)
 
@@ -450,21 +457,21 @@ def test_implicit_variables():
     def default(self, request):
         return "The view for model: %s" % self.id
 
-    @app.view(model=Model, name='link')
+    @app.view(model=Model, name="link")
     def link(self, request):
         return request.link(self)
 
     c = Client(app())
 
-    response = c.get('/foo/link')
-    assert response.body == b'http://localhost/foo'
+    response = c.get("/foo/link")
+    assert response.body == b"http://localhost/foo"
 
 
 def test_implicit_parameters():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         pass
 
@@ -472,7 +479,7 @@ def test_implicit_parameters():
         def __init__(self, id):
             self.id = id
 
-    @app.path(model=Model, path='foo')
+    @app.path(model=Model, path="foo")
     def get_model(id):
         return Model(id)
 
@@ -480,27 +487,27 @@ def test_implicit_parameters():
     def default(self, request):
         return "The view for model: %s" % self.id
 
-    @app.view(model=Model, name='link')
+    @app.view(model=Model, name="link")
     def link(self, request):
         return request.link(self)
 
     c = Client(app())
 
-    response = c.get('/foo')
-    assert response.body == b'The view for model: None'
-    response = c.get('/foo?id=bar')
-    assert response.body == b'The view for model: bar'
-    response = c.get('/foo/link')
-    assert response.body == b'http://localhost/foo'
-    response = c.get('/foo/link?id=bar')
-    assert response.body == b'http://localhost/foo?id=bar'
+    response = c.get("/foo")
+    assert response.body == b"The view for model: None"
+    response = c.get("/foo?id=bar")
+    assert response.body == b"The view for model: bar"
+    response = c.get("/foo/link")
+    assert response.body == b"http://localhost/foo"
+    response = c.get("/foo/link?id=bar")
+    assert response.body == b"http://localhost/foo?id=bar"
 
 
 def test_implicit_parameters_default():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         pass
 
@@ -508,28 +515,28 @@ def test_implicit_parameters_default():
         def __init__(self, id):
             self.id = id
 
-    @app.path(model=Model, path='foo')
-    def get_model(id='default'):
+    @app.path(model=Model, path="foo")
+    def get_model(id="default"):
         return Model(id)
 
     @app.view(model=Model)
     def default(self, request):
         return "The view for model: %s" % self.id
 
-    @app.view(model=Model, name='link')
+    @app.view(model=Model, name="link")
     def link(self, request):
         return request.link(self)
 
     c = Client(app())
 
-    response = c.get('/foo')
-    assert response.body == b'The view for model: default'
-    response = c.get('/foo?id=bar')
-    assert response.body == b'The view for model: bar'
-    response = c.get('/foo/link')
-    assert response.body == b'http://localhost/foo?id=default'
-    response = c.get('/foo/link?id=bar')
-    assert response.body == b'http://localhost/foo?id=bar'
+    response = c.get("/foo")
+    assert response.body == b"The view for model: default"
+    response = c.get("/foo?id=bar")
+    assert response.body == b"The view for model: bar"
+    response = c.get("/foo/link")
+    assert response.body == b"http://localhost/foo?id=default"
+    response = c.get("/foo/link?id=bar")
+    assert response.body == b"http://localhost/foo?id=bar"
 
 
 def test_simple_root():
@@ -541,36 +548,36 @@ def test_simple_root():
 
     hello = Hello()
 
-    @app.path(model=Hello, path='')
+    @app.path(model=Hello, path="")
     def hello_model():
         return hello
 
     @app.view(model=Hello)
     def hello_view(self, request):
-        return 'hello'
+        return "hello"
 
     c = Client(app())
 
-    response = c.get('/')
-    assert response.body == b'hello'
+    response = c.get("/")
+    assert response.body == b"hello"
 
 
 def test_json_directive():
     class app(morepath.App):
         pass
 
-    @app.path(path='{id}')
+    @app.path(path="{id}")
     class Model(object):
         def __init__(self, id):
             self.id = id
 
     @app.json(model=Model)
     def json(self, request):
-        return {'id': self.id}
+        return {"id": self.id}
 
     c = Client(app())
 
-    response = c.get('/foo')
+    response = c.get("/foo")
     assert response.body == b'{"id":"foo"}'
 
 
@@ -578,29 +585,29 @@ def test_redirect():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         def __init__(self):
             pass
 
     @app.view(model=Root, render=render_html)
     def default(self, request):
-        return morepath.redirect('/')
+        return morepath.redirect("/")
 
     c = Client(app())
 
-    c.get('/', status=302)
+    c.get("/", status=302)
 
 
 def test_root_conflict():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Something(object):
         pass
 
@@ -612,11 +619,11 @@ def test_root_conflict2():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         pass
 
-    @app.path(path='/')
+    @app.path(path="/")
     class Something(object):
         pass
 
@@ -631,11 +638,11 @@ def test_root_no_conflict_different_apps():
     class app_b(morepath.App):
         pass
 
-    @app_a.path(path='')
+    @app_a.path(path="")
     class Root(object):
         pass
 
-    @app_b.path(path='')
+    @app_b.path(path="")
     class Something(object):
         pass
 
@@ -649,11 +656,11 @@ def test_model_conflict():
     class A(object):
         pass
 
-    @app.path(model=A, path='a')
+    @app.path(model=A, path="a")
     def get_a():
         return A()
 
-    @app.path(model=A, path='a')
+    @app.path(model=A, path="a")
     def get_a_again():
         return A()
 
@@ -671,11 +678,11 @@ def test_path_conflict():
     class B(object):
         pass
 
-    @app.path(model=A, path='a')
+    @app.path(model=A, path="a")
     def get_a():
         return A()
 
-    @app.path(model=B, path='a')
+    @app.path(model=B, path="a")
     def get_b():
         return B()
 
@@ -693,11 +700,11 @@ def test_path_conflict_with_variable():
     class B(object):
         pass
 
-    @app.path(model=A, path='a/{id}')
+    @app.path(model=A, path="a/{id}")
     def get_a(id):
         return A()
 
-    @app.path(model=B, path='a/{id2}')
+    @app.path(model=B, path="a/{id2}")
     def get_b(id):
         return B()
 
@@ -715,11 +722,11 @@ def test_path_conflict_with_variable_different_converters():
     class B(object):
         pass
 
-    @app.path(model=A, path='a/{id}', converters=Converter(decode=int))
+    @app.path(model=A, path="a/{id}", converters=Converter(decode=int))
     def get_a(id):
         return A()
 
-    @app.path(model=B, path='a/{id}')
+    @app.path(model=B, path="a/{id}")
     def get_b(id):
         return B()
 
@@ -737,11 +744,11 @@ def test_model_no_conflict_different_apps():
     class A(object):
         pass
 
-    @app_a.path(model=A, path='a')
+    @app_a.path(model=A, path="a")
     def get_a():
         return A()
 
-    @app_b.path(model=A, path='a')
+    @app_b.path(model=A, path="a")
     def get_a_again():
         return A()
 
@@ -755,11 +762,11 @@ def test_view_conflict():
     class Model(object):
         pass
 
-    @app.view(model=Model, name='a')
+    @app.view(model=Model, name="a")
     def a_view(self, request):
         pass
 
-    @app.view(model=Model, name='a')
+    @app.view(model=Model, name="a")
     def a1_view(self, request):
         pass
 
@@ -774,11 +781,11 @@ def test_view_no_conflict_different_names():
     class Model(object):
         pass
 
-    @app.view(model=Model, name='a')
+    @app.view(model=Model, name="a")
     def a_view(self, request):
         pass
 
-    @app.view(model=Model, name='b')
+    @app.view(model=Model, name="b")
     def b_view(self, request):
         pass
 
@@ -792,11 +799,11 @@ def test_view_no_conflict_different_predicates():
     class Model(object):
         pass
 
-    @app.view(model=Model, name='a', request_method='GET')
+    @app.view(model=Model, name="a", request_method="GET")
     def a_view(self, request):
         pass
 
-    @app.view(model=Model, name='a', request_method='POST')
+    @app.view(model=Model, name="a", request_method="POST")
     def b_view(self, request):
         pass
 
@@ -813,11 +820,11 @@ def test_view_no_conflict_different_apps():
     class Model(object):
         pass
 
-    @app_a.view(model=Model, name='a')
+    @app_a.view(model=Model, name="a")
     def a_view(self, request):
         pass
 
-    @app_b.view(model=Model, name='a')
+    @app_b.view(model=Model, name="a")
     def a1_view(self, request):
         pass
 
@@ -831,11 +838,11 @@ def test_view_conflict_with_json():
     class Model(object):
         pass
 
-    @app.view(model=Model, name='a')
+    @app.view(model=Model, name="a")
     def a_view(self, request):
         pass
 
-    @app.json(model=Model, name='a')
+    @app.json(model=Model, name="a")
     def a1_view(self, request):
         pass
 
@@ -850,11 +857,11 @@ def test_view_conflict_with_html():
     class Model(object):
         pass
 
-    @app.view(model=Model, name='a')
+    @app.view(model=Model, name="a")
     def a_view(self, request):
         pass
 
-    @app.html(model=Model, name='a')
+    @app.html(model=Model, name="a")
     def a1_view(self, request):
         pass
 
@@ -864,7 +871,7 @@ def test_view_conflict_with_html():
 
 def test_function():
     class App(morepath.App):
-        @morepath.dispatch_method('a')
+        @morepath.dispatch_method("a")
         def func(self, a):
             return "default"
 
@@ -882,7 +889,7 @@ def test_function():
 
 def test_method():
     class App(morepath.App):
-        @morepath.dispatch_method('a')
+        @morepath.dispatch_method("a")
         def func(self, a):
             return "default"
 
@@ -901,7 +908,7 @@ def test_method():
 
 def test_function_conflict():
     class app(morepath.App):
-        @morepath.dispatch_method('a')
+        @morepath.dispatch_method("a")
         def func(self, a):
             pass
 
@@ -922,7 +929,7 @@ def test_function_conflict():
 
 def test_function_no_conflict_different_apps():
     class base(morepath.App):
-        @morepath.dispatch_method('a')
+        @morepath.dispatch_method("a")
         def func(self, a):
             pass
 
@@ -960,9 +967,9 @@ def test_run_app_with_context_without_it():
 def test_mapply_bug():
     c = Client(mapply_bug.app())
 
-    response = c.get('/')
+    response = c.get("/")
 
-    assert response.body == b'the root'
+    assert response.body == b"the root"
 
 
 def test_abbr_imperative():
@@ -972,26 +979,27 @@ def test_abbr_imperative():
     class Model(object):
         pass
 
-    @app.path(path='/', model=Model)
+    @app.path(path="/", model=Model)
     def get_model():
         return Model()
 
     with app.view(model=Model) as view:
+
         @view()
         def default(self, request):
             return "Default view"
 
-        @view(name='edit')
+        @view(name="edit")
         def edit(self, request):
             return "Edit view"
 
     c = Client(app())
 
-    response = c.get('/')
-    assert response.body == b'Default view'
+    response = c.get("/")
+    assert response.body == b"Default view"
 
-    response = c.get('/edit')
-    assert response.body == b'Edit view'
+    response = c.get("/edit")
+    assert response.body == b"Edit view"
 
 
 def test_abbr_exception():
@@ -1001,18 +1009,20 @@ def test_abbr_exception():
     class Model(object):
         pass
 
-    @app.path(path='/', model=Model)
+    @app.path(path="/", model=Model)
     def get_model():
         return Model()
 
     try:
         with app.view(model=Model) as view:
+
             @view()
             def default(self, request):
                 return "Default view"
+
             1 / 0
 
-            @view(name='edit')
+            @view(name="edit")
             def edit(self, request):
                 return "Edit view"
 
@@ -1021,11 +1031,11 @@ def test_abbr_exception():
 
     c = Client(app())
 
-    response = c.get('/')
-    assert response.body == b'Default view'
+    response = c.get("/")
+    assert response.body == b"Default view"
 
     # an exception happened halfway, so this one is never registered
-    c.get('/edit', status=404)
+    c.get("/edit", status=404)
 
 
 def test_abbr_imperative2():
@@ -1035,26 +1045,27 @@ def test_abbr_imperative2():
     class Model(object):
         pass
 
-    @app.path(path='/', model=Model)
+    @app.path(path="/", model=Model)
     def get_model():
         return Model()
 
     with app.view(model=Model) as view:
+
         @view()
         def default(self, request):
             return "Default view"
 
-        @view(name='edit')
+        @view(name="edit")
         def edit(self, request):
             return "Edit view"
 
     c = Client(app())
 
-    response = c.get('/')
-    assert response.body == b'Default view'
+    response = c.get("/")
+    assert response.body == b"Default view"
 
-    response = c.get('/edit')
-    assert response.body == b'Edit view'
+    response = c.get("/edit")
+    assert response.body == b"Edit view"
 
 
 def test_abbr_nested():
@@ -1064,39 +1075,41 @@ def test_abbr_nested():
     class Model(object):
         pass
 
-    @app.path(path='/', model=Model)
+    @app.path(path="/", model=Model)
     def get_model():
         return Model()
 
     with app.view(model=Model) as view:
+
         @view()
         def default(self, request):
             return "Default"
 
-        with view(name='extra') as view:
+        with view(name="extra") as view:
+
             @view()
             def get(self, request):
                 return "Get"
 
-            @view(request_method='POST')
+            @view(request_method="POST")
             def post(self, request):
                 return "Post"
 
     c = Client(app())
 
-    response = c.get('/')
-    assert response.body == b'Default'
+    response = c.get("/")
+    assert response.body == b"Default"
 
-    response = c.get('/extra')
-    assert response.body == b'Get'
+    response = c.get("/extra")
+    assert response.body == b"Get"
 
-    response = c.post('/extra')
-    assert response.body == b'Post'
+    response = c.post("/extra")
+    assert response.body == b"Post"
 
 
 def test_function_directive():
     class app(morepath.App):
-        @morepath.dispatch_method('o')
+        @morepath.dispatch_method("o")
         def mygeneric(self, o):
             return "The object: %s" % o
 
@@ -1113,14 +1126,13 @@ def test_function_directive():
 
     a = app()
 
-    assert a.mygeneric('blah') == 'The object: blah'
-    assert a.mygeneric(Foo(1)) == (
-        'The foo object: <Foo with value: 1>')
+    assert a.mygeneric("blah") == "The object: blah"
+    assert a.mygeneric(Foo(1)) == ("The foo object: <Foo with value: 1>")
 
 
 def test_classgeneric_function_directive():
     class app(morepath.App):
-        @morepath.dispatch_method(reg.match_class('o'))
+        @morepath.dispatch_method(reg.match_class("o"))
         def mygeneric(self, o):
             return "The object"
 
@@ -1133,15 +1145,15 @@ def test_classgeneric_function_directive():
 
     a = app()
 
-    assert a.mygeneric(object) == 'The object'
-    assert a.mygeneric(Foo) == 'The foo object'
+    assert a.mygeneric(object) == "The object"
+    assert a.mygeneric(Foo) == "The foo object"
 
 
 def test_staticmethod():
     class App(morepath.App):
         pass
 
-    @App.path('/')
+    @App.path("/")
     class Root(object):
         pass
 
@@ -1154,15 +1166,15 @@ def test_staticmethod():
 
     c = Client(App())
 
-    response = c.get('/')
-    assert response.body == b'Hello world'
+    response = c.get("/")
+    assert response.body == b"Hello world"
 
 
 def test_classmethod_equivalent_to_staticmethod():
     class App(morepath.App):
         pass
 
-    @App.path('/')
+    @App.path("/")
     class Root(object):
         pass
 
@@ -1175,15 +1187,15 @@ def test_classmethod_equivalent_to_staticmethod():
 
     c = Client(App())
 
-    response = c.get('/')
-    assert response.body == b'Hello world'
+    response = c.get("/")
+    assert response.body == b"Hello world"
 
 
 def test_classmethod_bound_outside():
     class App(morepath.App):
         pass
 
-    @App.path('/')
+    @App.path("/")
     class Root(object):
         pass
 
@@ -1197,8 +1209,8 @@ def test_classmethod_bound_outside():
 
     c = Client(App())
 
-    response = c.get('/')
-    assert response.body == b'Hello world'
+    response = c.get("/")
+    assert response.body == b"Hello world"
 
 
 def test_instantiation_before_config():
@@ -1210,15 +1222,15 @@ def test_instantiation_before_config():
     # might as well make sure it works:
     app = App()
 
-    @App.path(path='')
+    @App.path(path="")
     class Hello(object):
         pass
 
     @App.view(model=Hello)
     def hello_view(self, request):
-        return 'hello'
+        return "hello"
 
     c = Client(app)
 
-    response = c.get('/')
-    assert response.body == b'hello'
+    response = c.get("/")
+    assert response.body == b"hello"

@@ -9,9 +9,9 @@ def test_settings_property():
     class App(morepath.App):
         pass
 
-    @App.setting('foo', 'bar')
+    @App.setting("foo", "bar")
     def get_foo_setting():
-        return 'bar'
+        return "bar"
 
     dectate.commit(App)
     app = App()
@@ -26,13 +26,13 @@ def test_app_extends_settings():
     class beta(alpha):
         pass
 
-    @alpha.setting('one', 'foo')
+    @alpha.setting("one", "foo")
     def get_foo_setting():
-        return 'FOO'
+        return "FOO"
 
-    @beta.setting('one', 'bar')
+    @beta.setting("one", "bar")
     def get_bar_setting():
-        return 'BAR'
+        return "BAR"
 
     dectate.commit(alpha, beta)
 
@@ -40,15 +40,15 @@ def test_app_extends_settings():
 
     settings = alpha_inst.config.setting_registry
 
-    assert settings.one.foo == 'FOO'
+    assert settings.one.foo == "FOO"
     with pytest.raises(AttributeError):
         settings.one.bar
 
     beta_inst = beta()
     settings = beta_inst.config.setting_registry
 
-    assert settings.one.foo == 'FOO'
-    assert settings.one.bar == 'BAR'
+    assert settings.one.foo == "FOO"
+    assert settings.one.bar == "BAR"
 
 
 def test_app_overrides_settings():
@@ -58,18 +58,18 @@ def test_app_overrides_settings():
     class beta(alpha):
         pass
 
-    @alpha.setting('one', 'foo')
+    @alpha.setting("one", "foo")
     def get_foo_setting():
-        return 'FOO'
+        return "FOO"
 
-    @beta.setting('one', 'foo')
+    @beta.setting("one", "foo")
     def get_bar_setting():
-        return 'OVERRIDE'
+        return "OVERRIDE"
 
     dectate.commit(alpha, beta)
 
-    assert alpha().config.setting_registry.one.foo == 'FOO'
-    assert beta().config.setting_registry.one.foo == 'OVERRIDE'
+    assert alpha().config.setting_registry.one.foo == "FOO"
+    assert beta().config.setting_registry.one.foo == "OVERRIDE"
 
 
 def test_app_overrides_settings_three():
@@ -82,29 +82,26 @@ def test_app_overrides_settings_three():
     class gamma(beta):
         pass
 
-    @alpha.setting('one', 'foo')
+    @alpha.setting("one", "foo")
     def get_foo_setting():
-        return 'FOO'
+        return "FOO"
 
-    @beta.setting('one', 'foo')
+    @beta.setting("one", "foo")
     def get_bar_setting():
-        return 'OVERRIDE'
+        return "OVERRIDE"
 
     dectate.commit(alpha, beta, gamma)
 
-    assert gamma().config.setting_registry.one.foo == 'OVERRIDE'
+    assert gamma().config.setting_registry.one.foo == "OVERRIDE"
 
 
 def test_app_section_settings():
     class app(morepath.App):
         pass
 
-    @app.setting_section('one')
+    @app.setting_section("one")
     def settings():
-        return {
-            'foo': "FOO",
-            'bar': "BAR"
-        }
+        return {"foo": "FOO", "bar": "BAR"}
 
     dectate.commit(app)
 
@@ -112,24 +109,21 @@ def test_app_section_settings():
 
     s = app_inst.config.setting_registry
 
-    assert s.one.foo == 'FOO'
-    assert s.one.bar == 'BAR'
+    assert s.one.foo == "FOO"
+    assert s.one.bar == "BAR"
 
 
 def test_app_section_settings_conflict():
     class app(morepath.App):
         pass
 
-    @app.setting_section('one')
+    @app.setting_section("one")
     def settings():
-        return {
-            'foo': "FOO",
-            'bar': "BAR"
-        }
+        return {"foo": "FOO", "bar": "BAR"}
 
-    @app.setting('one', 'foo')
+    @app.setting("one", "foo")
     def get_foo():
-        return 'another'
+        return "another"
 
     with pytest.raises(ConflictError):
         dectate.commit(app)
@@ -139,11 +133,11 @@ def test_settings_property_in_view():
     class app(morepath.App):
         pass
 
-    @app.setting('section', 'name')
+    @app.setting("section", "name")
     def setting():
-        return 'LAH'
+        return "LAH"
 
-    @app.path(path='')
+    @app.path(path="")
     class Model(object):
         def __init__(self):
             pass
@@ -154,5 +148,5 @@ def test_settings_property_in_view():
 
     c = Client(app())
 
-    response = c.get('/')
-    assert response.body == b'LAH'
+    response = c.get("/")
+    assert response.body == b"LAH"

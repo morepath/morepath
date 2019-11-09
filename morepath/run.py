@@ -16,28 +16,30 @@ def make_parser(prog, default_host, default_port):
         if not 0 <= v <= 65536:
             raise ValueError
         return v
-    unsigned_short.__name__ = 'integer in 0..65535'
+
+    unsigned_short.__name__ = "integer in 0..65535"
 
     parser = argparse.ArgumentParser(
-        prog=prog,
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        prog=prog, formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
     parser.add_argument(
-        "-p", "--port", type=unsigned_short,
-        help="TCP port on which to listen")
+        "-p", "--port", type=unsigned_short, help="TCP port on which to listen"
+    )
     parser.add_argument(
-        "-H", "--host",
-        help="hostname or IP address on which to listen")
+        "-H", "--host", help="hostname or IP address on which to listen"
+    )
     parser.set_defaults(host=default_host, port=default_port)
     return parser
 
 
 def run(
-        wsgi,
-        host='127.0.0.1',
-        port=5000,
-        prog=None,
-        ignore_cli=False,
-        callback=None):
+    wsgi,
+    host="127.0.0.1",
+    port=5000,
+    prog=None,
+    ignore_cli=False,
+    callback=None,
+):
     """Uses wsgiref.simple_server to run an application for debugging purposes.
 
     By default, this function looks at the command line for arguments
@@ -101,15 +103,21 @@ def run(
         hint = ""
         if ex.errno == errno.EADDRINUSE and not ignore_cli:
             hint = "\n  Use '--port PORT' to specify a different port.\n\n"
-        parser.exit(ex.errno, '{}: {}: {}:{}\n'.format
-                    (parser.prog, ex, args.host, args.port) + hint)
+        parser.exit(
+            ex.errno,
+            "{}: {}: {}:{}\n".format(parser.prog, ex, args.host, args.port)
+            + hint,
+        )
 
     if callback is not None:
         callback(server)
 
     print("Running {}".format(wsgi))
-    print("Listening on http://{}:{}".format(
-        server.server_address[0], server.server_port))
+    print(
+        "Listening on http://{}:{}".format(
+            server.server_address[0], server.server_port
+        )
+    )
     print("Press Ctrl-C to stop...")
     try:
         server.serve_forever()

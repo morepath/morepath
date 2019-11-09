@@ -2,7 +2,8 @@ from pdb import Pdb  # pragma: nocoverage
 
 
 morepath_pdb = Pdb(
-    skip=['reg.*', 'inspect', 'repoze.lru'])  # pragma: nocoverage
+    skip=["reg.*", "inspect", "repoze.lru"]
+)  # pragma: nocoverage
 
 
 def set_trace(*args, **kw):  # pragma: nocoverage

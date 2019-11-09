@@ -1,5 +1,9 @@
 from ..converter import (
-    ConverterRegistry, Converter, ListConverter, IDENTITY_CONVERTER)
+    ConverterRegistry,
+    Converter,
+    ListConverter,
+    IDENTITY_CONVERTER,
+)
 from dectate import DirectiveError
 import pytest
 
@@ -7,13 +11,13 @@ import pytest
 def test_converter_registry():
     r = ConverterRegistry()
 
-    c = Converter(int, type(u""))
+    c = Converter(int, type(""))
     r.register_converter(int, c)
     assert r.get_converter(int) is c
     assert r.get_converter(type(1)) is c
     assert r.get_converter(type(None)) is IDENTITY_CONVERTER
     with pytest.raises(DirectiveError):
-        r.get_converter(type('s'))
+        r.get_converter(type("s"))
 
 
 def test_converter_registry_inheritance():
@@ -26,12 +30,12 @@ def test_converter_registry_inheritance():
     class Animal(Lifeform):
         pass
 
-    seaweed = Lifeform('seaweed')
-    elephant = Animal('elephant')
+    seaweed = Lifeform("seaweed")
+    elephant = Animal("elephant")
 
     lifeforms = {
-        'seaweed': seaweed,
-        'elephant': elephant,
+        "seaweed": seaweed,
+        "elephant": elephant,
     }
 
     def lifeform_decode(s):
@@ -47,13 +51,13 @@ def test_converter_registry_inheritance():
     r.register_converter(Lifeform, c)
     assert r.get_converter(Lifeform) is c
     assert r.get_converter(Animal) is c
-    assert r.get_converter(type(Lifeform('seaweed'))) is c
-    assert r.get_converter(type(Animal('elephant'))) is c
+    assert r.get_converter(type(Lifeform("seaweed"))) is c
+    assert r.get_converter(type(Animal("elephant"))) is c
     assert r.get_converter(type(None)) is IDENTITY_CONVERTER
     with pytest.raises(DirectiveError):
-        assert r.get_converter(type('s')) is None
-    assert r.get_converter(Lifeform).decode(['elephant']) is elephant
-    assert r.get_converter(Lifeform).encode(seaweed) == ['seaweed']
+        assert r.get_converter(type("s")) is None
+    assert r.get_converter(Lifeform).decode(["elephant"]) is elephant
+    assert r.get_converter(Lifeform).encode(seaweed) == ["seaweed"]
 
 
 def test_converter_equality():

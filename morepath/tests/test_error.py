@@ -12,7 +12,7 @@ def test_missing_arguments_in_path_function_error():
     class Model(object):
         pass
 
-    @App.path(path='{id}', model=Model)
+    @App.path(path="{id}", model=Model)
     def get_model():
         return Model()
 
@@ -28,7 +28,7 @@ def test_path_function_with_args_error():
         def __init__(self, id):
             self.id = id
 
-    @App.path(path='{id}', model=Model)
+    @App.path(path="{id}", model=Model)
     def get_model(*args):
         return Model(args[0])
 
@@ -44,9 +44,9 @@ def test_path_function_with_kwargs():
         def __init__(self, id):
             self.id = id
 
-    @App.path(path='{id}', model=Model)
+    @App.path(path="{id}", model=Model)
     def get_model(**kw):
-        return Model(kw['id'])
+        return Model(kw["id"])
 
     with pytest.raises(DirectiveReportError):
         dectate.commit(App)
@@ -56,5 +56,5 @@ def test_conflict_error_should_report_line_numbers():
     with pytest.raises(ConflictError) as e:
         dectate.commit(conflicterror.App)
     v = str(e.value)
-    assert 'line 8' in v
-    assert 'line 15' in v
+    assert "line 8" in v
+    assert "line 13" in v

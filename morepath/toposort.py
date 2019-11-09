@@ -21,8 +21,7 @@ def toposorted(infos):
         for before in info.before:
             before_info = key_to_info[before]
             depends[before_info.key].append(info)
-    return topological_sort(
-        infos, lambda info: depends[info.key])
+    return topological_sort(infos, lambda info: depends[info.key])
 
 
 class Info(object):
@@ -31,6 +30,7 @@ class Info(object):
     Base class that helps with toposorted. ``before`` and ``after``
     can be lists of keys, or a single key, or ``None``.
     """
+
     def __init__(self, key, before, after):
         self.key = key
         self.before = _convert_before_after(before)

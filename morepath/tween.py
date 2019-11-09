@@ -15,6 +15,7 @@ from .toposort import toposorted, Info
 class TweenRegistry(object):
     """Registry for tweens.
     """
+
     def __init__(self):
         self._tween_infos = []
 
@@ -50,6 +51,7 @@ class TweenRegistry(object):
         """
         # to avoid circular import import publish here
         from .publish import publish as result
+
         for tween_factory in reversed(self.sorted_tween_factories()):
             result = tween_factory(app, result)
         return result

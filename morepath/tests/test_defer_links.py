@@ -5,14 +5,13 @@ import pytest
 
 
 def test_defer_links():
-
     class Root(morepath.App):
         pass
 
     class Sub(morepath.App):
         pass
 
-    @Root.path(path='')
+    @Root.path(path="")
     class RootModel(object):
         pass
 
@@ -20,15 +19,15 @@ def test_defer_links():
     def root_model_default(self, request):
         return request.link(SubModel())
 
-    @Root.view(model=RootModel, name='class_link')
+    @Root.view(model=RootModel, name="class_link")
     def root_model_class_link(self, request):
         return request.class_link(SubModel)
 
-    @Sub.path(path='')
+    @Sub.path(path="")
     class SubModel(object):
         pass
 
-    @Root.mount(app=Sub, path='sub')
+    @Root.mount(app=Sub, path="sub")
     def mount_sub():
         return Sub()
 
@@ -38,11 +37,11 @@ def test_defer_links():
 
     c = Client(Root())
 
-    response = c.get('/')
-    assert response.body == b'http://localhost/sub'
+    response = c.get("/")
+    assert response.body == b"http://localhost/sub"
 
     with pytest.raises(LinkError):
-        c.get('/class_link')
+        c.get("/class_link")
 
 
 def test_defer_view():
@@ -52,7 +51,7 @@ def test_defer_view():
     class Sub(morepath.App):
         pass
 
-    @Root.path(path='')
+    @Root.path(path="")
     class RootModel(object):
         pass
 
@@ -60,15 +59,15 @@ def test_defer_view():
     def root_model_default(self, request):
         return request.view(SubModel())
 
-    @Sub.path(path='')
+    @Sub.path(path="")
     class SubModel(object):
         pass
 
     @Sub.json(model=SubModel)
     def submodel_default(self, request):
-        return {'hello': 'world'}
+        return {"hello": "world"}
 
-    @Root.mount(app=Sub, path='sub')
+    @Root.mount(app=Sub, path="sub")
     def mount_sub():
         return Sub()
 
@@ -78,8 +77,8 @@ def test_defer_view():
 
     c = Client(Root())
 
-    response = c.get('/')
-    assert response.json == {'hello': 'world'}
+    response = c.get("/")
+    assert response.json == {"hello": "world"}
 
 
 def test_defer_view_predicates():
@@ -89,23 +88,23 @@ def test_defer_view_predicates():
     class Sub(morepath.App):
         pass
 
-    @Root.path(path='')
+    @Root.path(path="")
     class RootModel(object):
         pass
 
     @Root.json(model=RootModel)
     def root_model_default(self, request):
-        return request.view(SubModel(), name='edit')
+        return request.view(SubModel(), name="edit")
 
-    @Sub.path(path='')
+    @Sub.path(path="")
     class SubModel(object):
         pass
 
-    @Sub.json(model=SubModel, name='edit')
+    @Sub.json(model=SubModel, name="edit")
     def submodel_edit(self, request):
-        return {'hello': 'world'}
+        return {"hello": "world"}
 
-    @Root.mount(app=Sub, path='sub')
+    @Root.mount(app=Sub, path="sub")
     def mount_sub():
         return Sub()
 
@@ -115,8 +114,8 @@ def test_defer_view_predicates():
 
     c = Client(Root())
 
-    response = c.get('/')
-    assert response.json == {'hello': 'world'}
+    response = c.get("/")
+    assert response.json == {"hello": "world"}
 
 
 def test_defer_view_missing_view():
@@ -126,23 +125,23 @@ def test_defer_view_missing_view():
     class Sub(morepath.App):
         pass
 
-    @Root.path(path='')
+    @Root.path(path="")
     class RootModel(object):
         pass
 
     @Root.json(model=RootModel)
     def root_model_default(self, request):
-        return {'not_found': request.view(SubModel(), name='unknown')}
+        return {"not_found": request.view(SubModel(), name="unknown")}
 
-    @Sub.path(path='')
+    @Sub.path(path="")
     class SubModel(object):
         pass
 
-    @Sub.json(model=SubModel, name='edit')
+    @Sub.json(model=SubModel, name="edit")
     def submodel_edit(self, request):
-        return {'hello': 'world'}
+        return {"hello": "world"}
 
-    @Root.mount(app=Sub, path='sub')
+    @Root.mount(app=Sub, path="sub")
     def mount_sub():
         return Sub()
 
@@ -152,8 +151,8 @@ def test_defer_view_missing_view():
 
     c = Client(Root())
 
-    response = c.get('/')
-    assert response.json == {'not_found': None}
+    response = c.get("/")
+    assert response.json == {"not_found": None}
 
 
 def test_defer_links_mount_parameters():
@@ -166,24 +165,25 @@ def test_defer_links_mount_parameters():
         def __init__(self, name):
             self.name = name
 
-    @root.path(path='')
+    @root.path(path="")
     class RootModel(object):
         pass
 
     @root.view(model=RootModel)
     def root_model_default(self, request):
-        return request.link(SubModel('foo'))
+        return request.link(SubModel("foo"))
 
     class SubModel(object):
         def __init__(self, name):
             self.name = name
 
-    @sub.path(path='', model=SubModel)
+    @sub.path(path="", model=SubModel)
     def get_sub_model(request):
         return SubModel(request.app.name)
 
-    @root.mount(app=sub, path='{mount_name}',
-                variables=lambda a: {'mount_name': a.name})
+    @root.mount(
+        app=sub, path="{mount_name}", variables=lambda a: {"mount_name": a.name}
+    )
     def mount_sub(mount_name):
         return sub(name=mount_name)
 
@@ -193,8 +193,8 @@ def test_defer_links_mount_parameters():
 
     c = Client(root())
 
-    response = c.get('/')
-    assert response.body == b'http://localhost/foo'
+    response = c.get("/")
+    assert response.body == b"http://localhost/foo"
 
 
 def test_defer_link_acquisition():
@@ -204,7 +204,7 @@ def test_defer_link_acquisition():
     class sub(morepath.App):
         pass
 
-    @root.path(path='model/{id}')
+    @root.path(path="model/{id}")
     class Model(object):
         def __init__(self, id):
             self.id = id
@@ -213,15 +213,15 @@ def test_defer_link_acquisition():
     def model_default(self, request):
         return "Hello"
 
-    @sub.path(path='')
+    @sub.path(path="")
     class SubModel(object):
         pass
 
     @sub.view(model=SubModel)
     def sub_model_default(self, request):
-        return request.link(Model('foo'))
+        return request.link(Model("foo"))
 
-    @root.mount(app=sub, path='sub')
+    @root.mount(app=sub, path="sub")
     def mount_sub(obj, app):
         return app.child(sub())
 
@@ -231,8 +231,8 @@ def test_defer_link_acquisition():
 
     c = Client(root())
 
-    response = c.get('/sub')
-    assert response.body == b'http://localhost/model/foo'
+    response = c.get("/sub")
+    assert response.body == b"http://localhost/model/foo"
 
 
 def test_defer_view_acquisition():
@@ -242,7 +242,7 @@ def test_defer_view_acquisition():
     class sub(morepath.App):
         pass
 
-    @root.path(path='model/{id}')
+    @root.path(path="model/{id}")
     class Model(object):
         def __init__(self, id):
             self.id = id
@@ -251,15 +251,15 @@ def test_defer_view_acquisition():
     def model_default(self, request):
         return {"Hello": "World"}
 
-    @sub.path(path='')
+    @sub.path(path="")
     class SubModel(object):
         pass
 
     @sub.json(model=SubModel)
     def sub_model_default(self, request):
-        return request.view(Model('foo'))
+        return request.view(Model("foo"))
 
-    @root.mount(app=sub, path='sub')
+    @root.mount(app=sub, path="sub")
     def mount_sub(obj, app):
         return app.child(sub())
 
@@ -269,7 +269,7 @@ def test_defer_view_acquisition():
 
     c = Client(root())
 
-    response = c.get('/sub')
+    response = c.get("/sub")
     assert response.json == {"Hello": "World"}
 
 
@@ -280,7 +280,7 @@ def test_defer_link_acquisition_blocking():
     class sub(morepath.App):
         pass
 
-    @root.path(path='model/{id}')
+    @root.path(path="model/{id}")
     class Model(object):
         def __init__(self, id):
             self.id = id
@@ -289,18 +289,18 @@ def test_defer_link_acquisition_blocking():
     def model_default(self, request):
         return "Hello"
 
-    @sub.path(path='')
+    @sub.path(path="")
     class SubModel(object):
         pass
 
     @sub.view(model=SubModel)
     def sub_model_default(self, request):
         try:
-            return request.link(Model('foo'))
+            return request.link(Model("foo"))
         except LinkError:
             return "link error"
 
-    @root.mount(app=sub, path='sub')
+    @root.mount(app=sub, path="sub")
     def mount_sub():
         return sub()
 
@@ -308,8 +308,8 @@ def test_defer_link_acquisition_blocking():
 
     c = Client(root())
 
-    response = c.get('/sub')
-    assert response.body == b'link error'
+    response = c.get("/sub")
+    assert response.body == b"link error"
 
 
 def test_defer_view_acquisition_blocking():
@@ -319,7 +319,7 @@ def test_defer_view_acquisition_blocking():
     class sub(morepath.App):
         pass
 
-    @root.path(path='model/{id}')
+    @root.path(path="model/{id}")
     class Model(object):
         def __init__(self, id):
             self.id = id
@@ -328,15 +328,15 @@ def test_defer_view_acquisition_blocking():
     def model_default(self, request):
         return {"Hello": "World"}
 
-    @sub.path(path='')
+    @sub.path(path="")
     class SubModel(object):
         pass
 
     @sub.json(model=SubModel)
     def sub_model_default(self, request):
-        return request.view(Model('foo')) is None
+        return request.view(Model("foo")) is None
 
-    @root.mount(app=sub, path='sub')
+    @root.mount(app=sub, path="sub")
     def mount_sub():
         return sub()
 
@@ -344,7 +344,7 @@ def test_defer_view_acquisition_blocking():
 
     c = Client(root())
 
-    response = c.get('/sub')
+    response = c.get("/sub")
     assert response.json is True
 
 
@@ -355,7 +355,7 @@ def test_defer_link_should_not_cause_web_views_to_exist():
     class sub(morepath.App):
         pass
 
-    @root.path(path='')
+    @root.path(path="")
     class Model(object):
         pass
 
@@ -363,13 +363,13 @@ def test_defer_link_should_not_cause_web_views_to_exist():
     def model_default(self, request):
         return "Hello"
 
-    @root.view(model=Model, name='extra')
+    @root.view(model=Model, name="extra")
     def model_extra(self, request):
         return "Extra"
 
     # note inheritance from model. we still don't
     # want the extra view to show up on the web
-    @sub.path(path='')
+    @sub.path(path="")
     class SubModel(Model):
         pass
 
@@ -377,7 +377,7 @@ def test_defer_link_should_not_cause_web_views_to_exist():
     def sub_model_default(self, request):
         return request.link(Model())
 
-    @root.mount(app=sub, path='sub')
+    @root.mount(app=sub, path="sub")
     def mount_sub():
         return sub()
 
@@ -387,10 +387,10 @@ def test_defer_link_should_not_cause_web_views_to_exist():
 
     c = Client(root())
 
-    response = c.get('/sub')
-    assert response.body == b'http://localhost/'
+    response = c.get("/sub")
+    assert response.body == b"http://localhost/"
 
-    c.get('/sub/+extra', status=404)
+    c.get("/sub/+extra", status=404)
 
 
 def test_defer_link_to_parent_from_root():
@@ -400,7 +400,7 @@ def test_defer_link_to_parent_from_root():
     class sub(morepath.App):
         pass
 
-    @root.path(path='')
+    @root.path(path="")
     class Model(object):
         pass
 
@@ -418,7 +418,7 @@ def test_defer_link_to_parent_from_root():
     c = Client(root())
 
     with pytest.raises(LinkError):
-        c.get('/')
+        c.get("/")
 
 
 def test_special_link_overrides_deferred_link():
@@ -434,15 +434,15 @@ def test_special_link_overrides_deferred_link():
     class SpecialAlphaModel(AlphaModel):
         pass
 
-    @root.mount(app=alpha, path='alpha')
+    @root.mount(app=alpha, path="alpha")
     def mount_alpha():
         return alpha()
 
-    @root.path(path='')
+    @root.path(path="")
     class RootModel(object):
         pass
 
-    @root.path(model=SpecialAlphaModel, path='roots_alpha')
+    @root.path(model=SpecialAlphaModel, path="roots_alpha")
     def get_root_alpha():
         return SpecialAlphaModel()
 
@@ -450,11 +450,11 @@ def test_special_link_overrides_deferred_link():
     def root_model_default(self, request):
         return request.link(AlphaModel())
 
-    @root.view(model=RootModel, name='special')
+    @root.view(model=RootModel, name="special")
     def root_model_special(self, request):
         return request.link(SpecialAlphaModel())
 
-    @alpha.path(path='', model=AlphaModel)
+    @alpha.path(path="", model=AlphaModel)
     def get_alpha():
         return AlphaModel()
 
@@ -464,11 +464,11 @@ def test_special_link_overrides_deferred_link():
 
     c = Client(root())
 
-    response = c.get('/')
-    assert response.body == b'http://localhost/alpha'
+    response = c.get("/")
+    assert response.body == b"http://localhost/alpha"
 
-    response = c.get('/special')
-    assert response.body == b'http://localhost/roots_alpha'
+    response = c.get("/special")
+    assert response.body == b"http://localhost/roots_alpha"
 
 
 def test_deferred_deferred_link():
@@ -481,7 +481,7 @@ def test_deferred_deferred_link():
     class beta(morepath.App):
         pass
 
-    @root.path(path='')
+    @root.path(path="")
     class RootModel(object):
         pass
 
@@ -489,11 +489,11 @@ def test_deferred_deferred_link():
     def root_model_default(self, request):
         return request.link(AlphaModel())
 
-    @alpha.path(path='')
+    @alpha.path(path="")
     class AlphaModel(object):
         pass
 
-    @beta.path(path='')
+    @beta.path(path="")
     class BetaModel(object):
         pass
 
@@ -501,11 +501,11 @@ def test_deferred_deferred_link():
     def beta_model_default(self, request):
         return request.link(AlphaModel())
 
-    @root.mount(app=alpha, path='alpha')
+    @root.mount(app=alpha, path="alpha")
     def mount_alpha():
         return alpha()
 
-    @root.mount(app=beta, path='beta')
+    @root.mount(app=beta, path="beta")
     def mount_beta():
         return beta()
 
@@ -519,11 +519,11 @@ def test_deferred_deferred_link():
 
     c = Client(root())
 
-    response = c.get('/')
-    assert response.body == b'http://localhost/alpha'
+    response = c.get("/")
+    assert response.body == b"http://localhost/alpha"
 
-    response = c.get('/beta')
-    assert response.body == b'http://localhost/alpha'
+    response = c.get("/beta")
+    assert response.body == b"http://localhost/alpha"
 
 
 def test_deferred_deferred_view():
@@ -536,7 +536,7 @@ def test_deferred_deferred_view():
     class beta(morepath.App):
         pass
 
-    @root.path(path='')
+    @root.path(path="")
     class RootModel(object):
         pass
 
@@ -544,7 +544,7 @@ def test_deferred_deferred_view():
     def root_model_default(self, request):
         return request.view(AlphaModel())
 
-    @alpha.path(path='')
+    @alpha.path(path="")
     class AlphaModel(object):
         pass
 
@@ -552,7 +552,7 @@ def test_deferred_deferred_view():
     def alpha_model_default(self, request):
         return {"model": "alpha"}
 
-    @beta.path(path='')
+    @beta.path(path="")
     class BetaModel(object):
         pass
 
@@ -560,11 +560,11 @@ def test_deferred_deferred_view():
     def beta_model_default(self, request):
         return request.view(AlphaModel())
 
-    @root.mount(app=alpha, path='alpha')
+    @root.mount(app=alpha, path="alpha")
     def mount_alpha():
         return alpha()
 
-    @root.mount(app=beta, path='beta')
+    @root.mount(app=beta, path="beta")
     def mount_beta():
         return beta()
 
@@ -578,11 +578,11 @@ def test_deferred_deferred_view():
 
     c = Client(root())
 
-    response = c.get('/')
-    assert response.json == {'model': 'alpha'}
+    response = c.get("/")
+    assert response.json == {"model": "alpha"}
 
-    response = c.get('/beta')
-    assert response.json == {'model': 'alpha'}
+    response = c.get("/beta")
+    assert response.json == {"model": "alpha"}
 
 
 def test_deferred_view_has_app_of_defer():
@@ -595,30 +595,30 @@ def test_deferred_view_has_app_of_defer():
     class beta(morepath.App):
         pass
 
-    @root.mount(app=alpha, path='alpha')
+    @root.mount(app=alpha, path="alpha")
     def mount_alpha():
         return alpha()
 
-    @root.mount(app=beta, path='beta')
+    @root.mount(app=beta, path="beta")
     def mount_beta():
         return beta()
 
-    @root.path(path='')
+    @root.path(path="")
     class RootModel(object):
         pass
 
-    @alpha.path(path='')
+    @alpha.path(path="")
     class AlphaModel(object):
         pass
 
     @alpha.json(model=AlphaModel)
     def alpha_model_default(self, request):
         if request.app.__class__ == alpha:
-            return 'correct'
+            return "correct"
         else:
-            return 'wrong'
+            return "wrong"
 
-    @beta.path(path='')
+    @beta.path(path="")
     class BetaModel(object):
         pass
 
@@ -628,12 +628,12 @@ def test_deferred_view_has_app_of_defer():
 
     @beta.defer_links(model=AlphaModel)
     def defer_links_parent(app, obj):
-        return app.parent.child('alpha')
+        return app.parent.child("alpha")
 
     c = Client(root())
 
-    response = c.get('/beta')
-    assert response.json == 'correct'
+    response = c.get("/beta")
+    assert response.json == "correct"
 
 
 def test_deferred_loop():
@@ -643,7 +643,7 @@ def test_deferred_loop():
     class alpha(morepath.App):
         pass
 
-    @root.path(path='')
+    @root.path(path="")
     class RootModel(object):
         pass
 
@@ -655,7 +655,7 @@ def test_deferred_loop():
     def root_model_default(self, request):
         return request.link(Model())
 
-    @root.mount(app=alpha, path='alpha')
+    @root.mount(app=alpha, path="alpha")
     def mount_alpha():
         return alpha()
 
@@ -671,12 +671,12 @@ def test_deferred_loop():
     c = Client(root())
 
     with pytest.raises(LinkError) as ex:
-        c.get('/')
+        c.get("/")
 
-    assert 'Circular' in str(ex.value)
+    assert "Circular" in str(ex.value)
 
 
-@pytest.mark.skip(reason='Infinite loop (#479)', run=False)
+@pytest.mark.skip(reason="Infinite loop (#479)", run=False)
 def test_deferred_loop_siblings():
     # https://github.com/morepath/morepath/issues/479
     class Root(morepath.App):
@@ -688,7 +688,7 @@ def test_deferred_loop_siblings():
     class Beta(morepath.App):
         pass
 
-    @Root.path(path='')
+    @Root.path(path="")
     class RootModel(object):
         pass
 
@@ -704,11 +704,11 @@ def test_deferred_loop_siblings():
     def defer_links_alpha(app, obj):
         return app.child(Alpha())
 
-    @Root.mount(app=Alpha, path='alpha')
+    @Root.mount(app=Alpha, path="alpha")
     def mount_alpha():
         return Alpha()
 
-    @Root.mount(app=Beta, path='beta')
+    @Root.mount(app=Beta, path="beta")
     def mount_beta():
         return Beta()
 
@@ -724,9 +724,9 @@ def test_deferred_loop_siblings():
     c = Client(Root())
 
     with pytest.raises(LinkError) as ex:
-        c.get('/')
+        c.get("/")
 
-    assert 'Circular' in str(ex.value)
+    assert "Circular" in str(ex.value)
 
 
 # see issue #342
@@ -740,7 +740,7 @@ def test_defer_link_scenario():
     class Document(object):
         pass
 
-    @App.mount(app=Child, path='child')
+    @App.mount(app=Child, path="child")
     def mount_child():
         return Child()
 
@@ -748,50 +748,48 @@ def test_defer_link_scenario():
     def defer_document(app, doc):
         return app.child(Child())
 
-    @App.path(path='')
+    @App.path(path="")
     class Root(object):
         pass
 
     @App.json(model=Root)
     def root_view(self, request):
         return {
-            'link': request.link(Document()),
-            'view': request.view(Document())
+            "link": request.link(Document()),
+            "view": request.view(Document()),
         }
 
     # if this is commented out, the Child app's view for Document
     # will be used by root_view, which is surprising.
     @App.json(model=Document)
     def app_document_default(self, request):
-        return {
-            'app': 'App'
-        }
+        return {"app": "App"}
 
-    @Child.path('', model=Document)
+    @Child.path("", model=Document)
     def get_document():
         return Document()
 
     @Child.json(model=Document)
     def document_default(self, request):
         return {
-            'app': 'Child',
+            "app": "Child",
         }
 
     c = Client(App())
 
-    response = c.get('/child')
+    response = c.get("/child")
 
-    assert response.json == {'app': 'Child'}
+    assert response.json == {"app": "Child"}
 
-    response = c.get('/')
+    response = c.get("/")
 
     # it is rather surprising that the view is not deferred to Child if there
     # is a view defined for App. It is according to spec: the app uses
     # its own behavior if it's there, and only defers afterwards. Is this
     # really what we want, though?
     assert response.json == {
-        'link': 'http://localhost/child',
-        'view': {'app': 'App'}
+        "link": "http://localhost/child",
+        "view": {"app": "App"},
     }
 
 
@@ -802,7 +800,7 @@ def test_defer_class_links_without_variables():
     class Sub(morepath.App):
         pass
 
-    @Root.path(path='')
+    @Root.path(path="")
     class RootModel(object):
         pass
 
@@ -810,11 +808,11 @@ def test_defer_class_links_without_variables():
     def root_model_default(self, request):
         return request.class_link(SubModel)
 
-    @Sub.path(path='')
+    @Sub.path(path="")
     class SubModel(object):
         pass
 
-    @Root.mount(app=Sub, path='sub')
+    @Root.mount(app=Sub, path="sub")
     def mount_sub():
         return Sub()
 
@@ -824,8 +822,8 @@ def test_defer_class_links_without_variables():
 
     c = Client(Root())
 
-    response = c.get('/')
-    assert response.body == b'http://localhost/sub'
+    response = c.get("/")
+    assert response.body == b"http://localhost/sub"
 
 
 def test_defer_class_links_with_variables():
@@ -835,32 +833,33 @@ def test_defer_class_links_with_variables():
     class Sub(morepath.App):
         pass
 
-    @Root.path(path='')
+    @Root.path(path="")
     class RootModel(object):
         pass
 
     @Root.view(model=RootModel)
     def root_model_default(self, request):
-        return request.class_link(SubModel, variables=dict(name='foo'))
+        return request.class_link(SubModel, variables=dict(name="foo"))
 
-    @Sub.path(path='{name}')
+    @Sub.path(path="{name}")
     class SubModel(object):
         def __init__(self, name):
             self.name = name
 
-    @Root.mount(app=Sub, path='sub')
+    @Root.mount(app=Sub, path="sub")
     def mount_sub():
         return Sub()
 
-    @Root.defer_class_links(model=SubModel,
-                            variables=lambda obj: {'name': obj.name})
+    @Root.defer_class_links(
+        model=SubModel, variables=lambda obj: {"name": obj.name}
+    )
     def defer_class_links_sub_model(app, model, variables):
         return app.child(Sub())
 
     c = Client(Root())
 
-    response = c.get('/')
-    assert response.body == b'http://localhost/sub/foo'
+    response = c.get("/")
+    assert response.body == b"http://localhost/sub/foo"
 
 
 def test_deferred_class_link_loop():
@@ -870,7 +869,7 @@ def test_deferred_class_link_loop():
     class Alpha(morepath.App):
         pass
 
-    @Root.path(path='')
+    @Root.path(path="")
     class RootModel(object):
         pass
 
@@ -882,7 +881,7 @@ def test_deferred_class_link_loop():
     def root_model_default(self, request):
         return request.class_link(SubModel)
 
-    @Root.mount(app=Alpha, path='alpha')
+    @Root.mount(app=Alpha, path="alpha")
     def mount_alpha():
         return Alpha()
 
@@ -898,9 +897,9 @@ def test_deferred_class_link_loop():
     c = Client(Root())
 
     with pytest.raises(LinkError) as ex:
-        c.get('/')
+        c.get("/")
 
-    assert 'Circular' in str(ex.value)
+    assert "Circular" in str(ex.value)
 
 
 def test_link_uses_defer_class_links():
@@ -910,32 +909,33 @@ def test_link_uses_defer_class_links():
     class Sub(morepath.App):
         pass
 
-    @Root.path(path='')
+    @Root.path(path="")
     class RootModel(object):
         pass
 
     @Root.view(model=RootModel)
     def root_model_default(self, request):
-        return request.link(SubModel('foo'))
+        return request.link(SubModel("foo"))
 
-    @Sub.path(path='{name}')
+    @Sub.path(path="{name}")
     class SubModel(object):
         def __init__(self, name):
             self.name = name
 
-    @Root.mount(app=Sub, path='sub')
+    @Root.mount(app=Sub, path="sub")
     def mount_sub():
         return Sub()
 
-    @Root.defer_class_links(model=SubModel,
-                            variables=lambda obj: {'name': obj.name})
+    @Root.defer_class_links(
+        model=SubModel, variables=lambda obj: {"name": obj.name}
+    )
     def defer_class_links_sub_model(app, model, variables):
         return app.child(Sub())
 
     c = Client(Root())
 
-    response = c.get('/')
-    assert response.body == b'http://localhost/sub/foo'
+    response = c.get("/")
+    assert response.body == b"http://localhost/sub/foo"
 
 
 def test_defer_links_and_defer_links_conflict():
@@ -945,20 +945,20 @@ def test_defer_links_and_defer_links_conflict():
     class Sub(morepath.App):
         pass
 
-    @Root.path(path='')
+    @Root.path(path="")
     class RootModel(object):
         pass
 
     @Root.view(model=RootModel)
     def root_model_default(self, request):
-        return request.link(SubModel('foo'))
+        return request.link(SubModel("foo"))
 
-    @Sub.path(path='{name}')
+    @Sub.path(path="{name}")
     class SubModel(object):
         def __init__(self, name):
             self.name = name
 
-    @Root.mount(app=Sub, path='sub')
+    @Root.mount(app=Sub, path="sub")
     def mount_sub():
         return Sub()
 
@@ -966,8 +966,9 @@ def test_defer_links_and_defer_links_conflict():
     def defer_links_sub_model(app, obj):
         return app.chidl(Sub())
 
-    @Root.defer_class_links(model=SubModel,
-                            variables=lambda obj: {'name': obj.name})
+    @Root.defer_class_links(
+        model=SubModel, variables=lambda obj: {"name": obj.name}
+    )
     def defer_class_links_sub_model(app, model, variables):
         return app.child(Sub())
 

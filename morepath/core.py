@@ -26,14 +26,19 @@ from datetime import datetime, date
 from time import mktime, strptime
 
 from webob.exc import (
-    HTTPException, HTTPNotFound, HTTPMethodNotAllowed,
-    HTTPOk, HTTPRedirection, HTTPBadRequest)
+    HTTPException,
+    HTTPNotFound,
+    HTTPMethodNotAllowed,
+    HTTPOk,
+    HTTPRedirection,
+    HTTPBadRequest,
+)
 
 from .app import App
 from .converter import Converter, IDENTITY_CONVERTER
 
 
-@App.predicate(App.get_view, name='model', default=None, index=ClassIndex)
+@App.predicate(App.get_view, name="model", default=None, index=ClassIndex)
 def model_predicate(self, obj, request):
     """match model argument by class.
 
@@ -51,8 +56,9 @@ def model_not_found(self, obj, request):
     raise HTTPNotFound()
 
 
-@App.predicate(App.get_view, name='name', default='', index=KeyIndex,
-               after=model_predicate)
+@App.predicate(
+    App.get_view, name="name", default="", index=KeyIndex, after=model_predicate
+)
 def name_predicate(self, obj, request):
     """match name argument with request.view_name.
 
@@ -70,8 +76,13 @@ def name_not_found(self, obj, request):
     raise HTTPNotFound()
 
 
-@App.predicate(App.get_view, name='request_method', default='GET',
-               index=KeyIndex, after=name_predicate)
+@App.predicate(
+    App.get_view,
+    name="request_method",
+    default="GET",
+    index=KeyIndex,
+    after=name_predicate,
+)
 def request_method_predicate(self, obj, request):
     """match request method.
 
@@ -95,18 +106,18 @@ def int_converter():
     return Converter(int)
 
 
-@App.converter(type=type(u""))
+@App.converter(type=type(""))
 def unicode_converter():
     """Converter for text."""
     return IDENTITY_CONVERTER
 
 
 def date_decode(s):
-    return date.fromtimestamp(mktime(strptime(s, '%Y%m%d')))
+    return date.fromtimestamp(mktime(strptime(s, "%Y%m%d")))
 
 
 def date_encode(d):
-    return d.strftime('%Y%m%d')
+    return d.strftime("%Y%m%d")
 
 
 @App.converter(type=date)
@@ -116,11 +127,11 @@ def date_converter():
 
 
 def datetime_decode(s):
-    return datetime.fromtimestamp(mktime(strptime(s, '%Y%m%dT%H%M%S')))
+    return datetime.fromtimestamp(mktime(strptime(s, "%Y%m%dT%H%M%S")))
 
 
 def datetime_encode(d):
-    return d.strftime('%Y%m%dT%H%M%S')
+    return d.strftime("%Y%m%dT%H%M%S")
 
 
 @App.converter(type=datetime)
@@ -139,6 +150,7 @@ def excview_tween_factory(app, handler):
     If no view can be found, raise it all the way up -- this will be a
     500 internal server error and an exception logged.
     """
+
     def excview_tween(request):
         try:
             response = handler(request)
@@ -148,7 +160,8 @@ def excview_tween_factory(app, handler):
             # we don't want its request method or name to influence
             # exception lookup
             view = request.app.get_view.by_predicates(
-                model=exc.__class__).component
+                model=exc.__class__
+            ).component
             if view is None:
                 raise
 
@@ -158,6 +171,7 @@ def excview_tween_factory(app, handler):
 
             return view(app, exc, request)
         return response
+
     return excview_tween
 
 
@@ -176,7 +190,8 @@ def poisoned_host_header_protection_tween_factory(app, handler):
 
     """
     valid_host_re = re.compile(
-        r"^([a-z0-9.\-_]+|\[[a-f0-9]*:[a-f0-9:]+\])(:\d+)?$")
+        r"^([a-z0-9.\-_]+|\[[a-f0-9]*:[a-f0-9:]+\])(:\d+)?$"
+    )
 
     def poisoned_host_header_protection_tween(request):
         if not valid_host_re.match(request.host.lower()):

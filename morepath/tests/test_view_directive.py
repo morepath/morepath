@@ -10,7 +10,7 @@ def test_view_get_only():
     class App(morepath.App):
         pass
 
-    @App.path(path='')
+    @App.path(path="")
     class Model(object):
         def __init__(self):
             pass
@@ -21,17 +21,17 @@ def test_view_get_only():
 
     c = Client(App())
 
-    response = c.get('/')
-    assert response.body == b'View'
+    response = c.get("/")
+    assert response.body == b"View"
 
-    response = c.post('/', status=405)
+    response = c.post("/", status=405)
 
 
 def test_view_name_conflict_involving_default():
     class App(morepath.App):
         pass
 
-    @App.path(path='')
+    @App.path(path="")
     class Model(object):
         def __init__(self):
             pass
@@ -40,7 +40,7 @@ def test_view_name_conflict_involving_default():
     def default(self, request):
         return "View"
 
-    @App.view(model=Model, name='')
+    @App.view(model=Model, name="")
     def default2(self, request):
         return "View"
 
@@ -55,13 +55,17 @@ def test_view_custom_predicate_conflict_involving_default_extends():
     class App(Core):
         pass
 
-    @Core.predicate(morepath.App.get_view, name='extra', default='DEFAULT',
-                    index=ClassIndex,
-                    after=request_method_predicate)
+    @Core.predicate(
+        morepath.App.get_view,
+        name="extra",
+        default="DEFAULT",
+        index=ClassIndex,
+        after=request_method_predicate,
+    )
     def dummy_predicate(request):
         return None
 
-    @App.path(path='')
+    @App.path(path="")
     class Model(object):
         def __init__(self):
             pass
@@ -70,7 +74,7 @@ def test_view_custom_predicate_conflict_involving_default_extends():
     def default(self, request):
         return "View"
 
-    @App.view(model=Model, extra='DEFAULT')
+    @App.view(model=Model, extra="DEFAULT")
     def default2(self, request):
         return "View"
 
@@ -85,27 +89,31 @@ def test_view_custom_predicate_without_fallback():
     class App(Core):
         pass
 
-    @Core.predicate(morepath.App.get_view, name='extra', default='DEFAULT',
-                    index=KeyIndex,
-                    after=request_method_predicate)
+    @Core.predicate(
+        morepath.App.get_view,
+        name="extra",
+        default="DEFAULT",
+        index=KeyIndex,
+        after=request_method_predicate,
+    )
     def dummy_predicate(self, obj, request):
-        return 'match'
+        return "match"
 
-    @App.path(path='')
+    @App.path(path="")
     class Model(object):
         def __init__(self):
             pass
 
-    @App.view(model=Model, extra='match')
+    @App.view(model=Model, extra="match")
     def default(self, request):
         return "View"
 
-    @App.view(model=Model, name='foo', extra='not match')
+    @App.view(model=Model, name="foo", extra="not match")
     def not_match(self, request):
         return "Not match"
 
     c = Client(App())
 
-    response = c.get('/')
-    assert response.body == b'View'
-    c.get('/foo', status=404)
+    response = c.get("/")
+    assert response.body == b"View"
+    c.get("/foo", status=404)

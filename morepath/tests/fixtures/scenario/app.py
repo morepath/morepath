@@ -15,12 +15,12 @@ class Document(morepath.App):
     pass
 
 
-@Root.mount(app=Generic, path='{name}')
+@Root.mount(app=Generic, path="{name}")
 def get_generic_app(name):
     return Generic(name)
 
 
-@Root.mount(app=Document, path='document')
+@Root.mount(app=Document, path="document")
 def get_document_app():
     return Document()
 

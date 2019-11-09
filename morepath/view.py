@@ -35,8 +35,16 @@ class View(object):
       :meth:`morepath.Request.view` but it doesn't have a URL
       and will be 404 Not Found.
     """
-    def __init__(self, func, render=None, load=None, permission=None,
-                 internal=False, code_info=None):
+
+    def __init__(
+        self,
+        func,
+        render=None,
+        load=None,
+        permission=None,
+        internal=False,
+        code_info=None,
+    ):
         self.func = func
         self.render = render or render_view
         self.load = load
@@ -64,8 +72,9 @@ class View(object):
         request.view_code_info = self.code_info
         if self.internal:
             raise HTTPNotFound()
-        if (self.permission is not None and
-            not request.app._permits(request.identity, obj, self.permission)):
+        if self.permission is not None and not request.app._permits(
+            request.identity, obj, self.permission
+        ):
             raise HTTPForbidden()
         if self.load is not None:
             content = self.func(obj, request, self.load(request))
@@ -92,7 +101,7 @@ def render_view(content, request):
     :param request: request object
     :return: a response instance with the content.
     """
-    return Response(content, content_type='text/plain')
+    return Response(content, content_type="text/plain")
 
 
 def render_json(content, request):
@@ -107,8 +116,10 @@ def render_json(content, request):
     :return: a :class:`morepath.Response` instance with a serialized
       JSON body.
     """
-    return Response(json_body=request.app._dump_json(content, request),
-                    content_type='application/json')
+    return Response(
+        json_body=request.app._dump_json(content, request),
+        content_type="application/json",
+    )
 
 
 def render_html(content, request):
@@ -119,7 +130,7 @@ def render_html(content, request):
     :return: a :class:`morepath.Response` instance with ``content``
       as the body.
     """
-    return Response(content, content_type='text/html')
+    return Response(content, content_type="text/html")
 
 
 def redirect(location):

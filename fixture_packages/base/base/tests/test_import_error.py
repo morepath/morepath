@@ -1,1 +1,1 @@
-import impossible_import_error_generating_thing_should_be_ignored
+import impossible_import_error_generating_thing_should_be_ignored  # noqa

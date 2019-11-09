@@ -36,13 +36,13 @@ from .converter import IDENTITY_CONVERTER
 from .error import TrajectError
 
 
-IDENTIFIER = re.compile(r'^[^\d\W]\w*$')
+IDENTIFIER = re.compile(r"^[^\d\W]\w*$")
 """regex for a valid variable name in a route.
 
 same rule as for Python identifiers.
 """
 
-PATH_VARIABLE = re.compile(r'\{([^}]*)\}')
+PATH_VARIABLE = re.compile(r"\{([^}]*)\}")
 """regex to find curly-brace marked variables ``{foo}`` in routes.
 """
 
@@ -55,21 +55,23 @@ class Step(object):
       ``'foo{variable}bar'``.
     :param converters: dict of converters for variables.
     """
+
     def __init__(self, s, converters=None):
         self.s = s
         self.converters = converters or {}
         self.generalized = generalize_variables(s)
-        self.parts = tuple(self.generalized.split('{}'))
+        self.parts = tuple(self.generalized.split("{}"))
         self.names = parse_variables(s)
         if len(set(self.names)) != len(self.names):
             raise TrajectError("Duplicate variable")
         self._variables_re = create_variables_re(s)
         self.cmp_converters = [
-            self.converters.get(name, IDENTITY_CONVERTER)
-            for name in self.names]
+            self.converters.get(name, IDENTITY_CONVERTER) for name in self.names
+        ]
         self.validate()
         self.named_interpolation_str = interpolation_str(s) % tuple(
-            [('%(' + name + ')s') for name in self.names])
+            [("%(" + name + ")s") for name in self.names]
+        )
 
     def validate(self):
         """Validate whether step makes sense.
@@ -88,7 +90,7 @@ class Step(object):
         """
         # XXX should also check for valid URL characters
         for part in self.parts:
-            if '{' in part or '}' in part:
+            if "{" in part or "}" in part:
                 raise TrajectError("invalid step: %s" % self.s)
 
     def validate_variables(self):
@@ -98,14 +100,13 @@ class Step(object):
         with the variables.
         """
         parts = self.parts
-        if parts[0] == '':
+        if parts[0] == "":
             parts = parts[1:]
-        if parts[-1] == '':
+        if parts[-1] == "":
             parts = parts[:-1]
         for part in parts:
-            if part == '':
-                raise TrajectError(
-                    "illegal consecutive variables: %s" % self.s)
+            if part == "":
+                raise TrajectError("illegal consecutive variables: %s" % self.s)
 
     def discriminator_info(self):
         """Information needed to construct path discriminator.
@@ -182,6 +183,7 @@ class Step(object):
 class Node(object):
     """A node in the traject tree.
     """
+
     def __init__(self):
         self._name_nodes = {}
         self._variable_nodes = []
@@ -212,8 +214,9 @@ class Node(object):
             if node.step == step:
                 return node
             if node.step.generalized == step.generalized:
-                raise TrajectError("step %s and %s are in conflict" %
-                                   (node.step.s, step.s))
+                raise TrajectError(
+                    "step %s and %s are in conflict" % (node.step.s, step.s)
+                )
             if step > node.step:
                 continue
             result = StepNode(step)
@@ -249,6 +252,7 @@ class StepNode(Node):
 
     :param step: the step
     """
+
     def __init__(self, step):
         super(StepNode, self).__init__()
         self.step = step
@@ -269,20 +273,21 @@ class Path(object):
 
     :param path: the route.
     """
+
     def __init__(self, path):
         self.steps = [Step(segment) for segment in parse_path(path)]
 
     def discriminator(self):
         """Creates a unique discriminator for the path.
         """
-        return '/'.join([step.discriminator_info() for step in self.steps])
+        return "/".join([step.discriminator_info() for step in self.steps])
 
     def interpolation_str(self):
         """Create a string for interpolating variables.
 
         Used for link generation (inverse).
         """
-        return '/'.join([step.named_interpolation_str for step in self.steps])
+        return "/".join([step.named_interpolation_str for step in self.steps])
 
     def variables(self):
         """Get the variables used by the path.
@@ -298,12 +303,21 @@ class Path(object):
 class TrajectRegistry(object):
     """Tree of route steps.
     """
+
     def __init__(self):
         self._root = Node()
 
-    def add_pattern(self, path, model_factory, defaults=None,
-                    converters=None, absorb=False, required=None,
-                    extra=None, code_info=None):
+    def add_pattern(
+        self,
+        path,
+        model_factory,
+        defaults=None,
+        converters=None,
+        absorb=False,
+        required=None,
+        extra=None,
+        code_info=None,
+    ):
         """Add a route to the tree.
 
         :param path: route to add.
@@ -329,20 +343,21 @@ class TrajectRegistry(object):
             known_variables.update(variables)
         if defaults or converters or required or extra:
             parameter_factory = ParameterFactory(
-                defaults, converters, required, extra)
+                defaults, converters, required, extra
+            )
         else:
             parameter_factory = _simple_parameter_factory
 
         model_args = set(arginfo(model_factory).args)
-        wants_request = 'request' in model_args
-        wants_app = 'app' in model_args
+        wants_request = "request" in model_args
+        wants_app = "app" in model_args
 
         def create(path_variables, request):
             variables = parameter_factory(request)
             if wants_request:
-                variables['request'] = request
+                variables["request"] = request
             if wants_app:
-                variables['app'] = request.app
+                variables["app"] = request.app
             request.path_code_info = code_info
             variables.update(path_variables)
             return model_factory(**variables)
@@ -372,12 +387,12 @@ class TrajectRegistry(object):
         segment = None
         while stack:
             if node.absorb:
-                variables['absorb'] = '/'.join(reversed(stack))
+                variables["absorb"] = "/".join(reversed(stack))
                 request.unconsumed = []
                 return node.create(variables, request)
             segment = stack.pop()
             # special view prefix
-            if segment.startswith('+'):
+            if segment.startswith("+"):
                 stack.append(segment)
                 return node.create(variables, request)
             new_node = node.resolve(segment, variables)
@@ -388,7 +403,7 @@ class TrajectRegistry(object):
                 return node.create(variables, request)
             node = new_node
         if node.absorb:
-            variables['absorb'] = ''
+            variables["absorb"] = ""
         return node.create(variables, request)
 
 
@@ -404,6 +419,7 @@ class ParameterFactory(object):
     :param required: dictionary of parameter names -> required booleans.
     :param extra: should extra unknown parameters be included?
     """
+
     def __init__(self, parameters, converters, required, extra=False):
         self.parameters = parameters
         self.converters = converters
@@ -425,22 +441,21 @@ class ParameterFactory(object):
             if converter.is_missing(value):
                 if name in self.required:
                     raise HTTPBadRequest(
-                        "Required URL parameter missing: %s" %
-                        name)
+                        "Required URL parameter missing: %s" % name
+                    )
                 result[name] = default
                 continue
             try:
                 result[name] = converter.decode(value)
             except ValueError:
                 raise HTTPBadRequest(
-                    "Cannot decode URL parameter %s: %s" % (
-                        name, value))
+                    "Cannot decode URL parameter %s: %s" % (name, value)
+                )
 
         if not self.extra:
             return result
 
-        remaining = set(url_parameters.keys()).difference(
-            set(result.keys()))
+        remaining = set(url_parameters.keys()).difference(set(result.keys()))
         extra = {}
         for name in remaining:
             value = url_parameters.getall(name)
@@ -449,9 +464,9 @@ class ParameterFactory(object):
                 extra[name] = converter.decode(value)
             except ValueError:
                 raise HTTPBadRequest(
-                    "Cannot decode URL parameter %s: %s" % (
-                        name, value))
-        result['extra_parameters'] = extra
+                    "Cannot decode URL parameter %s: %s" % (name, value)
+                )
+        result["extra_parameters"] = extra
         return result
 
 
@@ -465,7 +480,7 @@ def create_path(segments):
     :param stack: a list of segments
     :return: a path
     """
-    return '/' + '/'.join(segments)
+    return "/" + "/".join(segments)
 
 
 def parse_path(path):
@@ -479,12 +494,12 @@ def parse_path(path):
     :param path: path string to parse
     :return: normalized list of path segments.
     """
-    segments = path.split('/')
+    segments = path.split("/")
     result = []
     for segment in segments:
-        if not segment or segment == '.':
+        if not segment or segment == ".":
             continue
-        if segment == '..':
+        if segment == "..":
             try:
                 result.pop()
             except IndexError:
@@ -546,8 +561,7 @@ def parse_variables(s):
     result = PATH_VARIABLE.findall(s)
     for name in result:
         if not is_identifier(name):
-            raise TrajectError(
-                "illegal variable identifier: %s" % name)
+            raise TrajectError("illegal variable identifier: %s" % name)
     return result
 
 
@@ -557,9 +571,11 @@ def create_variables_re(s):
     :param s: a route segment with variables in it.
     :return: a regular expression that matches with variables for the route.
     """
+
     def _repl(m):
-        return '(?P<%s>.+)' % m.group(0)[1:-1]
-    return re.compile('^' + PATH_VARIABLE.sub(_repl, s) + '$')
+        return "(?P<%s>.+)" % m.group(0)[1:-1]
+
+    return re.compile("^" + PATH_VARIABLE.sub(_repl, s) + "$")
 
 
 def generalize_variables(s):
@@ -568,7 +584,7 @@ def generalize_variables(s):
     :param s: a route segment.
     :return: a generalized route where all variables are empty ({}).
     """
-    return PATH_VARIABLE.sub('{}', s)
+    return PATH_VARIABLE.sub("{}", s)
 
 
 def interpolation_str(s):
@@ -576,4 +592,4 @@ def interpolation_str(s):
 
     Given ``a{foo}b``, creates ``a%sb``.
     """
-    return PATH_VARIABLE.sub('%s', s)
+    return PATH_VARIABLE.sub("%s", s)

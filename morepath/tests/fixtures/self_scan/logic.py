@@ -1,10 +1,10 @@
 from .app import App
 
 
-@App.path(path='/')
+@App.path(path="/")
 class Root(object):
     def __init__(self):
-        self.value = 'ROOT'
+        self.value = "ROOT"
 
 
 class Model(object):

@@ -17,6 +17,7 @@ class NoIdentity(object):
 
     The request is anonymous.
     """
+
     userid = None
 
 
@@ -33,6 +34,7 @@ class Identity(object):
     Note that this identity is just a claim; to authenticate the user
     and authorize them you need to implement Morepath permission directives.
     """
+
     def __init__(self, userid, **kw):
         """
         :param userid: The userid of this identity
@@ -55,7 +57,7 @@ class Identity(object):
 
         :return: dict with identity info.
         """
-        result = {'userid': self.userid}
+        result = {"userid": self.userid}
         for name in self._names:
             result[name] = getattr(self, name)
         return result

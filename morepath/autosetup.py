@@ -31,7 +31,7 @@ def scan(package=None, ignore=None, handle_error=None):
     if package is None:
         package = caller_package()
     if ignore is None:
-        ignore = ['.test', '.tests']
+        ignore = [".test", ".tests"]
     importscan.scan(package, ignore, handle_error)
 
 
@@ -110,7 +110,7 @@ def autoscan(ignore=None):
     """
     if ignore is None:
         ignore = []
-        ignore.extend(['.test', '.tests'])
+        ignore.extend([".test", ".tests"])
     for package in morepath_packages():
         importscan.scan(package, ignore)
 
@@ -131,7 +131,7 @@ def morepath_packages():
     m = DependencyMap()
     m.load()
 
-    for distribution in m.relevant_dists('morepath'):
+    for distribution in m.relevant_dists("morepath"):
         yield import_package(distribution)
 
 
@@ -152,6 +152,7 @@ class DependencyMap(object):
     Used by :func:`morepath_packages` to find installed Python distributions
     that depend on Morepath, directly or indirectly.
     """
+
     def __init__(self):
         self._d = {}
 
@@ -160,8 +161,7 @@ class DependencyMap(object):
         """
         for dist in pkg_resources.working_set:
             for r in dist.requires():
-                self._d.setdefault(
-                    dist.project_name, set()).add(r.project_name)
+                self._d.setdefault(dist.project_name, set()).add(r.project_name)
 
     def depends(self, project_name, on_project_name, visited=None):
         """Check whether project transitively depends on another.
@@ -212,20 +212,21 @@ def get_module_name(distribution):
 
     See :func:`morepath.autoscan` for details and an example.
     """
-    if hasattr(distribution, 'get_entry_map'):
-        entry_points = distribution.get_entry_map('morepath')
+    if hasattr(distribution, "get_entry_map"):
+        entry_points = distribution.get_entry_map("morepath")
     else:
         entry_points = None
 
-    if entry_points and 'scan' in entry_points:
-        return entry_points['scan'].module_name
+    if entry_points and "scan" in entry_points:
+        return entry_points["scan"].module_name
     # use normal setuptools project name.
     # setuptools has the nasty habit to turn _ in package names
     # into -. We turn them back again.
-    return distribution.project_name.replace('-', '_')
+    return distribution.project_name.replace("-", "_")
 
 
 # taken from pyramid.path
+
 
 def caller_module(level=2):
     """Give module where calling function is defined.
@@ -234,7 +235,7 @@ def caller_module(level=2):
     :return: a Python module
     """
     module_globals = sys._getframe(level).f_globals
-    module_name = module_globals.get('__name__') or '__main__'
+    module_name = module_globals.get("__name__") or "__main__"
     module = sys.modules[module_name]
     return module
 
@@ -247,10 +248,10 @@ def caller_package(level=2):
     """
     # caller_module in arglist for tests
     module = caller_module(level + 1)
-    f = getattr(module, '__file__', '')
-    if ('__init__.py' in f) or ('__init__$py' in f):  # empty at >>>
+    f = getattr(module, "__file__", "")
+    if ("__init__.py" in f) or ("__init__$py" in f):  # empty at >>>
         # Module is a package
         return module
     # Go up one level to get package
-    package_name = module.__name__.rsplit('.', 1)[0]
+    package_name = module.__name__.rsplit(".", 1)[0]
     return sys.modules[package_name]
