@@ -15,6 +15,8 @@ CHANGES
 * Update to new signature of reg.arginfo, which returns now a FullArgSpec
   tuple instead of an ArgSpec tuple.
 
+* Add integration for the Black code formatter.
+
 
 0.18.2 (2019-01-22)
 ===================
