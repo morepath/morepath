@@ -12,7 +12,7 @@ def test_implicit_function():
         def two(self):
             return "Default two"
 
-    @app.path(path='')
+    @app.path(path="")
     class Model(object):
         def __init__(self):
             pass
@@ -31,8 +31,8 @@ def test_implicit_function():
 
     c = Client(app())
 
-    response = c.get('/')
-    assert response.body == b'The real two'
+    response = c.get("/")
+    assert response.body == b"The real two"
 
 
 def test_implicit_function_mounted():
@@ -52,7 +52,7 @@ def test_implicit_function_mounted():
         def __init__(self, id):
             self.id = id
 
-    @alpha.mount(path='mounted/{id}', app=beta)
+    @alpha.mount(path="mounted/{id}", app=beta)
     def mount_beta(id):
         return beta(id=id)
 
@@ -63,11 +63,11 @@ def test_implicit_function_mounted():
         def __init__(self, id):
             self.id = id
 
-    @alpha.path(path='/', model=AlphaRoot)
+    @alpha.path(path="/", model=AlphaRoot)
     def get_alpha_root():
         return AlphaRoot()
 
-    @beta.path(path='/', model=Root)
+    @beta.path(path="/", model=Root)
     def get_root(app):
         return Root(app.id)
 
@@ -89,8 +89,8 @@ def test_implicit_function_mounted():
 
     c = Client(alpha())
 
-    response = c.get('/mounted/1')
-    assert response.body == b'View for 1, message: The real two'
+    response = c.get("/mounted/1")
+    assert response.body == b"View for 1, message: The real two"
 
-    response = c.get('/')
-    assert response.body == b'Default one'
+    response = c.get("/")
+    assert response.body == b"Default one"

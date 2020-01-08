@@ -8,12 +8,12 @@ def test_404_http_exception():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         pass
 
     c = Client(app())
-    c.get('/', status=404)
+    c.get("/", status=404)
 
 
 def test_other_exception_not_handled():
@@ -23,7 +23,7 @@ def test_other_exception_not_handled():
     class MyException(Exception):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         pass
 
@@ -36,14 +36,14 @@ def test_other_exception_not_handled():
     # the WSGI web server will handle any unhandled errors and turn
     # them into 500 errors
     with pytest.raises(MyException):
-        c.get('/')
+        c.get("/")
 
 
 def test_http_exception_excview():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         pass
 
@@ -52,8 +52,8 @@ def test_http_exception_excview():
         return "Not found!"
 
     c = Client(app())
-    response = c.get('/')
-    assert response.body == b'Not found!'
+    response = c.get("/")
+    assert response.body == b"Not found!"
 
 
 def test_other_exception_excview():
@@ -63,7 +63,7 @@ def test_other_exception_excview():
     class MyException(Exception):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         pass
 
@@ -77,15 +77,15 @@ def test_other_exception_excview():
 
     c = Client(app())
 
-    response = c.get('/')
-    assert response.body == b'My exception'
+    response = c.get("/")
+    assert response.body == b"My exception"
 
 
 def test_http_exception_excview_retain_status():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         pass
 
@@ -93,26 +93,27 @@ def test_http_exception_excview_retain_status():
     def notfound_default(self, request):
         def set_status(response):
             response.status_code = self.code
+
         request.after(set_status)
         return "Not found!!"
 
     c = Client(app())
-    response = c.get('/', status=404)
-    assert response.body == b'Not found!!'
+    response = c.get("/", status=404)
+    assert response.body == b"Not found!!"
 
 
 def test_excview_named_view():
     class app(morepath.App):
         pass
 
-    @app.path(path='')
+    @app.path(path="")
     class Root(object):
         pass
 
     class MyException(Exception):
         pass
 
-    @app.view(model=Root, name='view')
+    @app.view(model=Root, name="view")
     def view(self, request):
         raise MyException()
 
@@ -122,8 +123,8 @@ def test_excview_named_view():
         return "My exception"
 
     c = Client(app())
-    response = c.get('/view')
-    assert response.body == b'My exception'
+    response = c.get("/view")
+    assert response.body == b"My exception"
 
 
 def test_excview_in_mounted_app():
@@ -133,7 +134,7 @@ def test_excview_in_mounted_app():
     class Sub(morepath.App):
         pass
 
-    @App.mount(app=Sub, path='sub')
+    @App.mount(app=Sub, path="sub")
     def mount_sub():
         return Sub()
 
@@ -144,7 +145,7 @@ def test_excview_in_mounted_app():
     def error_default(self, request):
         return "Default error"
 
-    @Sub.path(path='/')
+    @Sub.path(path="/")
     class SubRoot(object):
         pass
 
@@ -153,5 +154,5 @@ def test_excview_in_mounted_app():
         raise Error()
 
     c = Client(App())
-    response = c.get('/sub')
-    assert response.body == b'Default error'
+    response = c.get("/sub")
+    assert response.body == b"Default error"

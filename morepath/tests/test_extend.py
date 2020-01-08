@@ -4,7 +4,7 @@ from webtest import TestApp as Client
 
 def test_function_extends():
     class App(morepath.App):
-        @morepath.dispatch_method('obj')
+        @morepath.dispatch_method("obj")
         def foo(self, obj):
             return "default"
 
@@ -22,8 +22,8 @@ def test_function_extends():
     def extending_foo(app, obj):
         return "Extending"
 
-    assert App().foo(Alpha()) == 'App'
-    assert Extending().foo(Alpha()) == 'Extending'
+    assert App().foo(Alpha()) == "App"
+    assert Extending().foo(Alpha()) == "Extending"
 
 
 def test_extends():
@@ -33,7 +33,7 @@ def test_extends():
     class Extending(App):
         pass
 
-    @App.path(path='users/{username}')
+    @App.path(path="users/{username}")
     class User(object):
         def __init__(self, username):
             self.username = username
@@ -42,20 +42,20 @@ def test_extends():
     def render_user(self, request):
         return "User: %s" % self.username
 
-    @Extending.view(model=User, name='edit')
+    @Extending.view(model=User, name="edit")
     def edit_user(self, request):
         return "Edit user: %s" % self.username
 
     cl = Client(App())
-    response = cl.get('/users/foo')
-    assert response.body == b'User: foo'
-    response = cl.get('/users/foo/edit', status=404)
+    response = cl.get("/users/foo")
+    assert response.body == b"User: foo"
+    response = cl.get("/users/foo/edit", status=404)
 
     cl = Client(Extending())
-    response = cl.get('/users/foo')
-    assert response.body == b'User: foo'
-    response = cl.get('/users/foo/edit')
-    assert response.body == b'Edit user: foo'
+    response = cl.get("/users/foo")
+    assert response.body == b"User: foo"
+    response = cl.get("/users/foo/edit")
+    assert response.body == b"Edit user: foo"
 
 
 def test_overrides_view():
@@ -65,7 +65,7 @@ def test_overrides_view():
     class Overriding(App):
         pass
 
-    @App.path(path='users/{username}')
+    @App.path(path="users/{username}")
     class User(object):
         def __init__(self, username):
             self.username = username
@@ -79,12 +79,12 @@ def test_overrides_view():
         return "USER: %s" % self.username
 
     cl = Client(App())
-    response = cl.get('/users/foo')
-    assert response.body == b'User: foo'
+    response = cl.get("/users/foo")
+    assert response.body == b"User: foo"
 
     cl = Client(Overriding())
-    response = cl.get('/users/foo')
-    assert response.body == b'USER: foo'
+    response = cl.get("/users/foo")
+    assert response.body == b"USER: foo"
 
 
 def test_overrides_model():
@@ -94,7 +94,7 @@ def test_overrides_model():
     class Overriding(App):
         pass
 
-    @App.path(path='users/{username}')
+    @App.path(path="users/{username}")
     class User(object):
         def __init__(self, username):
             self.username = username
@@ -103,19 +103,19 @@ def test_overrides_model():
     def render_user(self, request):
         return "User: %s" % self.username
 
-    @Overriding.path(model=User, path='users/{username}')
+    @Overriding.path(model=User, path="users/{username}")
     def get_user(username):
-        if username != 'bar':
+        if username != "bar":
             return None
         return User(username)
 
     cl = Client(App())
-    response = cl.get('/users/foo')
-    assert response.body == b'User: foo'
-    response = cl.get('/users/bar')
-    assert response.body == b'User: bar'
+    response = cl.get("/users/foo")
+    assert response.body == b"User: foo"
+    response = cl.get("/users/bar")
+    assert response.body == b"User: bar"
 
     cl = Client(Overriding())
-    response = cl.get('/users/foo', status=404)
-    response = cl.get('/users/bar')
-    assert response.body == b'User: bar'
+    response = cl.get("/users/foo", status=404)
+    response = cl.get("/users/bar")
+    assert response.body == b"User: bar"

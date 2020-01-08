@@ -12,7 +12,7 @@ from .traject import create_path, parse_path
 from .error import LinkError
 from .authentication import NO_IDENTITY
 
-SAME_APP = Sentinel('SAME_APP')
+SAME_APP = Sentinel("SAME_APP")
 
 
 class Request(BaseRequest):
@@ -20,6 +20,7 @@ class Request(BaseRequest):
 
     Extends :class:`webob.request.BaseRequest`
     """
+
     path_code_info = None
     view_code_info = None
 
@@ -100,8 +101,7 @@ class Request(BaseRequest):
         if cached is not None:
             return cached
 
-        prefix = self._link_prefix_cache[app.__class__]\
-               = app._link_prefix(self)
+        prefix = self._link_prefix_cache[app.__class__] = app._link_prefix(self)
 
         return prefix
 
@@ -129,7 +129,7 @@ class Request(BaseRequest):
         if app is SAME_APP:
             app = self.app
 
-        predicates['model'] = obj.__class__
+        predicates["model"] = obj.__class__
 
         def find(app, obj):
             return app.get_view.by_predicates(**predicates).component
@@ -146,7 +146,7 @@ class Request(BaseRequest):
         self.app = old_app
         return result
 
-    def link(self, obj, name='', default=None, app=SAME_APP):
+    def link(self, obj, name="", default=None, app=SAME_APP):
         """Create a link (URL) to a view on a model instance.
 
         The resulting link is prefixed by the link prefix. By default
@@ -191,7 +191,7 @@ class Request(BaseRequest):
 
         return info.url(self.link_prefix(app), name)
 
-    def class_link(self, model, variables=None, name='', app=SAME_APP):
+    def class_link(self, model, variables=None, name="", app=SAME_APP):
         """Create a link (URL) to a view on a class.
 
         Given a model class and a variables dictionary, create a link
@@ -266,6 +266,7 @@ class Request(BaseRequest):
         request = Request(self.environ.copy(), app, path_info=path)
         # try to resolve imports..
         from .publish import resolve_model
+
         return resolve_model(request)
 
     def after(self, func):
@@ -316,7 +317,7 @@ class Request(BaseRequest):
         if not self._after:
             return
         # run after only if it's not a 2XX or 3XX response
-        if response.status[0] not in ('2', '3'):
+        if response.status[0] not in ("2", "3"):
             return
         for after in self._after:
             after(response)

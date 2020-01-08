@@ -14,6 +14,6 @@ class Foo(object):
     pass
 
 
-@app.path(path='/', model=Foo)
+@app.path(path="/", model=Foo)
 def get_foo(a=Dummy()):
     pass

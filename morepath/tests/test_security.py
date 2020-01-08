@@ -6,6 +6,7 @@ from .fixtures import identity_policy
 import base64
 import json
 from webtest import TestApp as Client
+
 try:
     from cookielib import CookieJar
 except ImportError:
@@ -23,8 +24,9 @@ def test_no_permission():
     class Permission(object):
         pass
 
-    @app.path(model=Model, path='{id}',
-              variables=lambda model: {'id': model.id})
+    @app.path(
+        model=Model, path="{id}", variables=lambda model: {"id": model.id}
+    )
     def get_model(id):
         return Model(id)
 
@@ -34,7 +36,7 @@ def test_no_permission():
 
     c = Client(app())
 
-    c.get('/foo', status=403)
+    c.get("/foo", status=403)
 
 
 def test_permission_directive_identity():
@@ -52,14 +54,15 @@ def test_permission_directive_identity():
     def verify_identity(identity):
         return True
 
-    @app.path(model=Model, path='{id}',
-              variables=lambda model: {'id': model.id})
+    @app.path(
+        model=Model, path="{id}", variables=lambda model: {"id": model.id}
+    )
     def get_model(id):
         return Model(id)
 
     @app.permission_rule(model=Model, permission=Permission)
     def get_permission(identity, model, permission):
-        if model.id == 'foo':
+        if model.id == "foo":
             return True
         else:
             return False
@@ -71,7 +74,7 @@ def test_permission_directive_identity():
     @app.identity_policy()
     class IdentityPolicy(object):
         def identify(self, request):
-            return Identity('testidentity')
+            return Identity("testidentity")
 
         def remember(self, response, request, identity):
             pass
@@ -81,9 +84,9 @@ def test_permission_directive_identity():
 
     c = Client(app())
 
-    response = c.get('/foo')
-    assert response.body == b'Model: foo'
-    response = c.get('/bar', status=403)
+    response = c.get("/foo")
+    assert response.body == b"Model: foo"
+    response = c.get("/bar", status=403)
 
 
 def test_permission_directive_with_app_arg():
@@ -101,15 +104,16 @@ def test_permission_directive_with_app_arg():
     def verify_identity(identity):
         return True
 
-    @App.path(model=Model, path='{id}',
-              variables=lambda model: {'id': model.id})
+    @App.path(
+        model=Model, path="{id}", variables=lambda model: {"id": model.id}
+    )
     def get_model(id):
         return Model(id)
 
     @App.permission_rule(model=Model, permission=Permission)
     def get_permission(app, identity, model, permission):
         assert isinstance(app, App)
-        if model.id == 'foo':
+        if model.id == "foo":
             return True
         else:
             return False
@@ -121,7 +125,7 @@ def test_permission_directive_with_app_arg():
     @App.identity_policy()
     class IdentityPolicy(object):
         def identify(self, request):
-            return Identity('testidentity')
+            return Identity("testidentity")
 
         def remember(self, response, request, identity):
             pass
@@ -131,9 +135,9 @@ def test_permission_directive_with_app_arg():
 
     c = Client(App())
 
-    response = c.get('/foo')
-    assert response.body == b'Model: foo'
-    response = c.get('/bar', status=403)
+    response = c.get("/foo")
+    assert response.body == b"Model: foo"
+    response = c.get("/bar", status=403)
 
 
 def test_permission_directive_no_identity():
@@ -147,14 +151,15 @@ def test_permission_directive_no_identity():
     class Permission(object):
         pass
 
-    @app.path(model=Model, path='{id}',
-              variables=lambda model: {'id': model.id})
+    @app.path(
+        model=Model, path="{id}", variables=lambda model: {"id": model.id}
+    )
     def get_model(id):
         return Model(id)
 
     @app.permission_rule(model=Model, permission=Permission, identity=None)
     def get_permission(identity, model, permission):
-        if model.id == 'foo':
+        if model.id == "foo":
             return True
         else:
             return False
@@ -165,24 +170,24 @@ def test_permission_directive_no_identity():
 
     c = Client(app())
 
-    response = c.get('/foo')
-    assert response.body == b'Model: foo'
-    response = c.get('/bar', status=403)
+    response = c.get("/foo")
+    assert response.body == b"Model: foo"
+    response = c.get("/bar", status=403)
 
 
 def test_policy_action():
     c = Client(identity_policy.app())
 
-    response = c.get('/foo')
-    assert response.body == b'Model: foo'
-    response = c.get('/bar', status=403)
+    response = c.get("/foo")
+    assert response.body == b"Model: foo"
+    response = c.get("/bar", status=403)
 
 
 def test_no_identity_policy():
     class App(morepath.App):
         pass
 
-    @App.path(path='{id}')
+    @App.path(path="{id}")
     class Model(object):
         def __init__(self, id):
             self.id = id
@@ -194,14 +199,15 @@ def test_no_identity_policy():
     def default(self, request):
         return "Model: %s" % self.id
 
-    @App.view(model=Model, name='log_in')
+    @App.view(model=Model, name="log_in")
     def log_in(self, request):
         response = Response()
         request.app.remember_identity(
-            response, request, Identity(userid='user', payload='Amazing'))
+            response, request, Identity(userid="user", payload="Amazing")
+        )
         return response
 
-    @App.view(model=Model, name='log_out')
+    @App.view(model=Model, name="log_out")
     def log_out(self, request):
         response = Response()
         request.app.forget_identity(response, request)
@@ -216,15 +222,15 @@ def test_no_identity_policy():
     # if you protect things with permissions and you
     # install no identity policy, doing a log in has
     # no effect
-    c.get('/foo', status=403)
+    c.get("/foo", status=403)
 
-    c.get('/foo/log_in')
+    c.get("/foo/log_in")
 
-    c.get('/foo', status=403)
+    c.get("/foo", status=403)
 
-    c.get('/foo/log_out')
+    c.get("/foo/log_out")
 
-    c.get('/foo', status=403)
+    c.get("/foo", status=403)
 
 
 class DumbCookieIdentityPolicy(object):
@@ -232,8 +238,9 @@ class DumbCookieIdentityPolicy(object):
 
     Only for testing. Don't use in practice!
     """
+
     def identify(self, request):
-        data = request.cookies.get('dumb_id', None)
+        data = request.cookies.get("dumb_id", None)
         if data is None:
             return NO_IDENTITY
         data = json.loads(base64.b64decode(data).decode())
@@ -241,17 +248,17 @@ class DumbCookieIdentityPolicy(object):
 
     def remember(self, response, request, identity):
         data = base64.b64encode(str.encode(json.dumps(identity.as_dict())))
-        response.set_cookie('dumb_id', data)
+        response.set_cookie("dumb_id", data)
 
     def forget(self, response, request):
-        response.delete_cookie('dumb_id')
+        response.delete_cookie("dumb_id")
 
 
 def test_cookie_identity_policy():
     class app(morepath.App):
         pass
 
-    @app.path(path='{id}')
+    @app.path(path="{id}")
     class Model(object):
         def __init__(self, id):
             self.id = id
@@ -261,20 +268,21 @@ def test_cookie_identity_policy():
 
     @app.permission_rule(model=Model, permission=Permission)
     def get_permission(identity, model, permission):
-        return identity.userid == 'user'
+        return identity.userid == "user"
 
     @app.view(model=Model, permission=Permission)
     def default(self, request):
         return "Model: %s" % self.id
 
-    @app.view(model=Model, name='log_in')
+    @app.view(model=Model, name="log_in")
     def log_in(self, request):
         response = Response()
         request.app.remember_identity(
-            response, request, Identity(userid='user', payload='Amazing'))
+            response, request, Identity(userid="user", payload="Amazing")
+        )
         return response
 
-    @app.view(model=Model, name='log_out')
+    @app.view(model=Model, name="log_out")
     def log_out(self, request):
         response = Response()
         request.app.forget_identity(response, request)
@@ -290,23 +298,23 @@ def test_cookie_identity_policy():
 
     c = Client(app(), cookiejar=CookieJar())
 
-    response = c.get('/foo', status=403)
+    response = c.get("/foo", status=403)
 
-    response = c.get('/foo/log_in')
+    response = c.get("/foo/log_in")
 
-    response = c.get('/foo', status=200)
-    assert response.body == b'Model: foo'
+    response = c.get("/foo", status=200)
+    assert response.body == b"Model: foo"
 
-    response = c.get('/foo/log_out')
+    response = c.get("/foo/log_out")
 
-    response = c.get('/foo', status=403)
+    response = c.get("/foo", status=403)
 
 
 def test_default_verify_identity():
     class app(morepath.App):
         pass
 
-    identity = morepath.Identity('foo')
+    identity = morepath.Identity("foo")
 
     assert not app()._verify_identity(identity)
 
@@ -317,11 +325,11 @@ def test_verify_identity_directive():
 
     @app.verify_identity()
     def verify_identity(identity):
-        return identity.password == 'right'
+        return identity.password == "right"
 
-    identity = morepath.Identity('foo', password='wrong')
+    identity = morepath.Identity("foo", password="wrong")
     assert not app()._verify_identity(identity)
-    identity = morepath.Identity('foo', password='right')
+    identity = morepath.Identity("foo", password="right")
 
     assert app()._verify_identity(identity)
 
@@ -333,11 +341,11 @@ def test_verify_identity_directive_app_arg():
     @App.verify_identity()
     def verify_identity(app, identity):
         assert isinstance(app, App)
-        return identity.password == 'right'
+        return identity.password == "right"
 
-    identity = morepath.Identity('foo', password='wrong')
+    identity = morepath.Identity("foo", password="wrong")
     assert not App()._verify_identity(identity)
-    identity = morepath.Identity('foo', password='right')
+    identity = morepath.Identity("foo", password="right")
 
     assert App()._verify_identity(identity)
 
@@ -355,13 +363,13 @@ def test_verify_identity_directive_identity_argument():
 
     @app.verify_identity(identity=PlainIdentity)
     def verify_plain_identity(identity):
-        return identity.password == 'right'
+        return identity.password == "right"
 
-    identity = PlainIdentity('foo', password='wrong')
+    identity = PlainIdentity("foo", password="wrong")
     assert not app()._verify_identity(identity)
-    identity = morepath.Identity('foo', password='right')
+    identity = morepath.Identity("foo", password="right")
     assert not app()._verify_identity(identity)
-    identity = PlainIdentity('foo', password='right')
+    identity = PlainIdentity("foo", password="right")
     assert app()._verify_identity(identity)
 
 
@@ -369,7 +377,7 @@ def test_false_verify_identity():
     class app(morepath.App):
         pass
 
-    @app.path(path='{id}')
+    @app.path(path="{id}")
     class Model(object):
         def __init__(self, id):
             self.id = id
@@ -381,12 +389,12 @@ def test_false_verify_identity():
     def default(self, request):
         return "Model: %s" % self.id
 
-    @app.view(model=Model, name='log_in')
+    @app.view(model=Model, name="log_in")
     def log_in(self, request):
         response = Response()
         request.app.remember_identity(
-            response, request,
-            Identity(userid='user', payload='Amazing'))
+            response, request, Identity(userid="user", payload="Amazing")
+        )
         return response
 
     @app.identity_policy()
@@ -399,11 +407,11 @@ def test_false_verify_identity():
 
     c = Client(app(), cookiejar=CookieJar())
 
-    c.get('/foo', status=403)
+    c.get("/foo", status=403)
 
-    c.get('/foo/log_in')
+    c.get("/foo/log_in")
 
-    c.get('/foo', status=403)
+    c.get("/foo", status=403)
 
 
 def test_dispatch_verify_identity():
@@ -414,7 +422,7 @@ def test_dispatch_verify_identity():
     class App(morepath.App):
         pass
 
-    @App.path(path='{id}')
+    @App.path(path="{id}")
     class Model(object):
         def __init__(self, id):
             self.id = id
@@ -439,13 +447,13 @@ def test_dispatch_verify_identity():
     @App.identity_policy()
     class HeaderIdentityPolicy(object):
         def identify(self, request):
-            user = request.headers.get('user', None)
+            user = request.headers.get("user", None)
             if user is not None:
-                if user == '':
+                if user == "":
                     return Anonymous()
                 return Identity(
-                    userid=user,
-                    password=request.headers['password'])
+                    userid=user, password=request.headers["password"]
+                )
 
         def remember(self, response, request, identity):
             pass
@@ -455,7 +463,7 @@ def test_dispatch_verify_identity():
 
     @App.verify_identity(identity=Identity)
     def verify_identity(identity):
-        return identity.password == 'secret'
+        return identity.password == "secret"
 
     @App.verify_identity(identity=Anonymous)
     def verify_anonymous(identity):
@@ -463,15 +471,15 @@ def test_dispatch_verify_identity():
 
     c = Client(App())
 
-    r = c.get('/foo', status=403)
-    r = c.get('/foo', status=403, headers=dict(user='foo', password='wrong'))
-    r = c.get('/foo', status=403, headers=dict(user='bar', password='wrong'))
-    r = c.get('/foo', status=200, headers={'user': ''})
-    assert r.text == 'Read shared: foo'
-    r = c.get('/foo', status=200, headers=dict(user='foo', password='secret'))
-    assert r.text == 'Read restricted: foo'
-    r = c.get('/foo', status=200, headers=dict(user='bar', password='secret'))
-    assert r.text == 'Read shared: foo'
+    r = c.get("/foo", status=403)
+    r = c.get("/foo", status=403, headers=dict(user="foo", password="wrong"))
+    r = c.get("/foo", status=403, headers=dict(user="bar", password="wrong"))
+    r = c.get("/foo", status=200, headers={"user": ""})
+    assert r.text == "Read shared: foo"
+    r = c.get("/foo", status=200, headers=dict(user="foo", password="secret"))
+    assert r.text == "Read restricted: foo"
+    r = c.get("/foo", status=200, headers=dict(user="bar", password="secret"))
+    assert r.text == "Read shared: foo"
 
 
 def test_settings():
@@ -485,7 +493,7 @@ def test_settings():
     def verify_identity(identity):
         return True
 
-    @App.path(model=Model, path='test')
+    @App.path(model=Model, path="test")
     def get_model():
         return Model()
 
@@ -495,7 +503,7 @@ def test_settings():
 
     @App.setting_section(section="test")
     def get_test_settings():
-        return {'encryption_key': 'secret'}
+        return {"encryption_key": "secret"}
 
     @App.identity_policy()
     def get_identity_policy(settings):
@@ -512,7 +520,7 @@ def test_settings():
                 token, self.encryption_key
             ):
                 return NO_IDENTITY
-            return Identity('Testuser')
+            return Identity("Testuser")
 
         def remember(self, response, request, identity):
             pass
@@ -525,7 +533,7 @@ def test_settings():
                 authtype, token = request.authorization
             except ValueError:
                 return None
-            if authtype.lower() != 'bearer':
+            if authtype.lower() != "bearer":
                 return None
             return token
 
@@ -534,61 +542,59 @@ def test_settings():
 
     c = Client(App())
 
-    headers = {'Authorization': 'Bearer secret'}
-    response = c.get('/test', headers=headers)
-    assert response.body == b'Testuser, your token is valid.'
+    headers = {"Authorization": "Bearer secret"}
+    response = c.get("/test", headers=headers)
+    assert response.body == b"Testuser, your token is valid."
 
 
 def test_prevent_poisoned_host_headers():
-
     class App(morepath.App):
         pass
 
-    @App.path(path='')
+    @App.path(path="")
     class Model(object):
         pass
 
     @App.view(model=Model)
     def view_model(self, request):
-        return 'ok'
+        return "ok"
 
     poisoned_hosts = (
-        'example.com@evil.tld',
-        'example.com:dr.frankenstein@evil.tld',
-        'example.com:dr.frankenstein@evil.tld:80',
-        'example.com:80/badpath',
-        'example.com: recovermypassword.com',
+        "example.com@evil.tld",
+        "example.com:dr.frankenstein@evil.tld",
+        "example.com:dr.frankenstein@evil.tld:80",
+        "example.com:80/badpath",
+        "example.com: recovermypassword.com",
     )
 
     legit_hosts = (
-        'example.com',
-        'example.com:80',
-        '12.34.56.78',
-        '12.34.56.78:443',
-        '[2001:19f0:feee::dead:beef:cafe]',
-        '[2001:19f0:feee::dead:beef:cafe]:8080',
-        'xn--4ca9at.com',  # Punnycode for öäü.com
-        'under_scored.host.com',
-        'TFB-server:8080',
+        "example.com",
+        "example.com:80",
+        "12.34.56.78",
+        "12.34.56.78:443",
+        "[2001:19f0:feee::dead:beef:cafe]",
+        "[2001:19f0:feee::dead:beef:cafe]:8080",
+        "xn--4ca9at.com",  # Punnycode for öäü.com
+        "under_scored.host.com",
+        "TFB-server:8080",
     )
 
     c = Client(App())
 
     for host in legit_hosts:
-        response = c.get('/', headers={'Host': host})
+        response = c.get("/", headers={"Host": host})
         assert response.status_code == 200
 
     for host in poisoned_hosts:
-        response = c.get('/', headers={'Host': host}, expect_errors=True)
+        response = c.get("/", headers={"Host": host}, expect_errors=True)
         assert response.status_code == 400
 
 
 def test_settings_in_permission_rule():
-
     class App(morepath.App):
         pass
 
-    @App.path(path='{id}')
+    @App.path(path="{id}")
     class Model(object):
         def __init__(self, id):
             self.id = id
@@ -603,7 +609,7 @@ def test_settings_in_permission_rule():
     @App.setting_section(section="permissions")
     def get_roles_setting():
         return {
-            'read': {'foo'},
+            "read": {"foo"},
         }
 
     @App.permission_rule(model=Model, permission=Permission)
@@ -617,7 +623,7 @@ def test_settings_in_permission_rule():
     @App.identity_policy()
     class IdentityPolicy(object):
         def identify(self, request):
-            return Identity('testidentity')
+            return Identity("testidentity")
 
         def remember(self, response, request, identity):
             pass
@@ -627,6 +633,6 @@ def test_settings_in_permission_rule():
 
     c = Client(App())
 
-    response = c.get('/foo')
-    assert response.body == b'Model: foo'
-    response = c.get('/bar', status=403)
+    response = c.get("/foo")
+    assert response.body == b"Model: foo"
+    response = c.get("/bar", status=403)

@@ -24,19 +24,21 @@ def test_request_reset():
 
     @RootApp.tween_factory()
     def report_error(app, handler):
-
         def tween(request):
             try:
                 response = handler(request)
-                response.headers['Tween-Header'] = 'FOO'
+                response.headers["Tween-Header"] = "FOO"
                 return response
             except RuntimeError:
                 if reset_request:
                     request.reset()
                 response = render_json(
-                    {'app': repr(type(request.app)),
-                     'unconsumed': request.unconsumed},
-                    request)
+                    {
+                        "app": repr(type(request.app)),
+                        "unconsumed": request.unconsumed,
+                    },
+                    request,
+                )
                 response.status_code = 500
                 return response
 
@@ -45,32 +47,31 @@ def test_request_reset():
     class MountedApp(App):
         pass
 
-    @MountedApp.path(path='catalog')
+    @MountedApp.path(path="catalog")
     class Catalog(object):
         pass
 
-    @MountedApp.view(model=Catalog, name='text')
+    @MountedApp.view(model=Catalog, name="text")
     def view_catalog(self, request):
         if generate_error:
             raise RuntimeError("Error!")
         return "The catalog"
 
-    RootApp.mount(app=MountedApp, path='mount')(MountedApp)
+    RootApp.mount(app=MountedApp, path="mount")(MountedApp)
 
     c = Client(RootApp())
 
-    response = c.get('/mount/catalog/text')
-    assert response.text == 'The catalog'
-    assert response.headers['Tween-Header'] == 'FOO'
+    response = c.get("/mount/catalog/text")
+    assert response.text == "The catalog"
+    assert response.headers["Tween-Header"] == "FOO"
 
     generate_error = True
-    response = c.get('/mount/catalog/text', status=500)
-    assert response.json == {
-        'app': repr(MountedApp),
-        'unconsumed': ['text']}
+    response = c.get("/mount/catalog/text", status=500)
+    assert response.json == {"app": repr(MountedApp), "unconsumed": ["text"]}
 
     reset_request = True
-    response = c.get('/mount/catalog/text', status=500)
+    response = c.get("/mount/catalog/text", status=500)
     assert response.json == {
-        'app': repr(RootApp),
-        'unconsumed': ['text', 'catalog', 'mount']}
+        "app": repr(RootApp),
+        "unconsumed": ["text", "catalog", "mount"],
+    }

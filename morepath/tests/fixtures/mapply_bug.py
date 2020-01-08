@@ -5,7 +5,7 @@ class app(morepath.App):
     pass
 
 
-@app.path(path='')
+@app.path(path="")
 class Root(object):
     pass
 

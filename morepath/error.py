@@ -16,8 +16,13 @@ Dectate:
 
 # -*- coding: utf-8 -*-
 import textwrap
-from dectate import (ConfigError, ConflictError, TopologicalSortError,  # noqa
-                     DirectiveReportError, DirectiveError)  # noqa
+from dectate import (  # noqa F401
+    ConfigError,
+    ConflictError,
+    TopologicalSortError,
+    DirectiveReportError,
+    DirectiveError,
+)
 
 
 # XXX is ConfigError the right base class?

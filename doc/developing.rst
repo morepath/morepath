@@ -58,6 +58,16 @@ For upgrading the sources and requirements just run the command again.
 
 .. _virtualenv: https://pypi.python.org/pypi/virtualenv
 
+Install pre-commit hook for Black integration
+---------------------------------------------
+
+We're using Black_ for formatting the code and it's recommended to
+install the `pre-commit hook`_ for Black integration before committing::
+
+  $ pre-commit install
+
+.. _`pre-commit hook`: https://black.readthedocs.io/en/stable/version_control_integration.html
+
 Running the tests
 -----------------
 
@@ -74,6 +84,18 @@ in the project directory and click on modules to see detailed coverage
 information.
 
 .. _`py.test`: http://pytest.org/latest/
+
+Black
+-----
+
+To format the code with the `Black Code Formatter`_ run in the root directory::
+
+  $ black morepath
+
+Black has also integration_ for the most popular editors.
+
+.. _`Black Code Formatter`: https://black.readthedocs.io
+.. _integration: https://black.readthedocs.io/en/stable/editor_integration.html
 
 flake8
 ------

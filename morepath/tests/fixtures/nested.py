@@ -9,12 +9,12 @@ class app(morepath.App):
     pass
 
 
-@outer_app.mount('inner', app)
+@outer_app.mount("inner", app)
 def inner_context():
     return app()
 
 
-@app.path(path='')
+@app.path(path="")
 class Root(object):
     pass
 
@@ -24,7 +24,7 @@ class Model(object):
         self.id = id
 
 
-@app.path(model=Model, path='{id}')
+@app.path(model=Model, path="{id}")
 def get_model(id):
     return Model(id)
 
@@ -34,6 +34,6 @@ def default(self, request):
     return "The view for model: %s" % self.id
 
 
-@app.view(model=Model, name='link')
+@app.view(model=Model, name="link")
 def link(self, request):
     return request.link(self)

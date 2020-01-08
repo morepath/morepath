@@ -71,8 +71,10 @@ class Converter(object):
     def __eq__(self, other):
         if not isinstance(other, Converter):
             return False
-        return (self.single_decode is other.single_decode and
-                self.single_encode is other.single_encode)
+        return (
+            self.single_decode is other.single_decode
+            and self.single_encode is other.single_encode
+        )
 
     def __ne__(self, other):
         return not self == other
@@ -86,6 +88,7 @@ class ListConverter(object):
 
     Used for decoding/encoding URL parameters and path variables.
     """
+
     def __init__(self, converter):
         """Create new converter.
 
@@ -139,8 +142,7 @@ def get_converter(type):
     :param type: a class or type.
     :return: a :class:`morepath.Converter` instance.
     """
-    raise DirectiveError(
-        "Cannot find converter for type: %r" % type)
+    raise DirectiveError("Cannot find converter for type: %r" % type)
 
 
 class ConverterRegistry(object):
@@ -151,10 +153,11 @@ class ConverterRegistry(object):
 
     Is aware of inheritance.
     """
+
     def __init__(self):
         self.get_converter = reg.dispatch(
-            reg.match_class('type'),
-            get_key_lookup=reg.DictCachingKeyLookup)(get_converter)
+            reg.match_class("type"), get_key_lookup=reg.DictCachingKeyLookup
+        )(get_converter)
         self.register_converter(type(None), IDENTITY_CONVERTER)
 
     def register_converter(self, type, converter):
@@ -187,8 +190,10 @@ class ConverterRegistry(object):
     def argument_and_explicit_converters(self, arguments, converters):
         """Use explict converters unless none supplied, then use default args.
         """
-        result = {name: self.get_converter(type(value))
-                  for name, value in arguments.items()}
+        result = {
+            name: self.get_converter(type(value))
+            for name, value in arguments.items()
+        }
         for name, conv in converters.items():
             result[name] = self.actual_converter(conv)
         return result

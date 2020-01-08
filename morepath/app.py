@@ -37,8 +37,8 @@ def commit_if_needed(app):
 
 
 def dispatch_method(*predicates, **kw):
-    kw.setdefault('get_key_lookup', cached_key_lookup)
-    kw.setdefault('first_invocation_hook', commit_if_needed)
+    kw.setdefault("get_key_lookup", cached_key_lookup)
+    kw.setdefault("first_invocation_hook", commit_if_needed)
     return reg.dispatch_method(*predicates, **kw)
 
 
@@ -69,6 +69,7 @@ class App(dectate.App):
     :meth:`dectate.App.directive` decorator that lets you register
     new directives.
     """
+
     parent = None
     """The parent in which this app was mounted."""
 
@@ -79,7 +80,7 @@ class App(dectate.App):
     By default the request class is :class:`morepath.Request`
     """
 
-    logger_name = 'morepath.directive'
+    logger_name = "morepath.directive"
     """Prefix used by dectate to log configuration actions.
     """
 
@@ -256,9 +257,9 @@ class App(dectate.App):
             discovery.update(found)
             if callback is not None:
                 callback(*found)
-            found = (
-                {c for a in found for c in a.config.path_registry.mounted} -
-                discovery)
+            found = {
+                c for a in found for c in a.config.path_registry.mounted
+            } - discovery
         return discovery
 
     @classmethod
@@ -280,6 +281,7 @@ class App(dectate.App):
         :param settings: a dictionary of setting sections which contain
           dictionaries of settings.
         """
+
         def set_setting_section(section, section_settings):
             cls.setting_section(section)(lambda: section_settings)
 
@@ -308,7 +310,7 @@ class App(dectate.App):
         """
         return HTTPNotFound()
 
-    @dispatch_method('identity')
+    @dispatch_method("identity")
     def _verify_identity(self, identity):
         """Returns True if the claimed identity can be verified.
 
@@ -321,7 +323,7 @@ class App(dectate.App):
         """
         return False
 
-    @dispatch_method('identity', 'obj', reg.match_class('permission'))
+    @dispatch_method("identity", "obj", reg.match_class("permission"))
     def _permits(self, identity, obj, permission):
         """Returns ``True`` if identity has permission for model object.
 
@@ -336,7 +338,7 @@ class App(dectate.App):
         """
         return False
 
-    @dispatch_method('obj')
+    @dispatch_method("obj")
     def _dump_json(self, obj, request):
         """Dump an object as JSON.
 
@@ -358,7 +360,7 @@ class App(dectate.App):
         """
         return request.application_url
 
-    @dispatch_method(reg.match_class('model'))
+    @dispatch_method(reg.match_class("model"))
     def _class_path(self, model, variables):
         """Get the path for a model class.
 
@@ -370,7 +372,7 @@ class App(dectate.App):
         """
         return None
 
-    @dispatch_method('obj')
+    @dispatch_method("obj")
     def _path_variables(self, obj):
         """Get variables to use in path generation.
 
@@ -380,7 +382,7 @@ class App(dectate.App):
         """
         return self._default_path_variables(obj)
 
-    @dispatch_method('obj')
+    @dispatch_method("obj")
     def _default_path_variables(self, obj):
         """Get default variables to use in path generation.
 
@@ -392,7 +394,7 @@ class App(dectate.App):
         """
         return None
 
-    @dispatch_method('obj')
+    @dispatch_method("obj")
     def _deferred_link_app(self, obj):
         """Get application used for link generation.
 
@@ -403,7 +405,7 @@ class App(dectate.App):
         """
         return None
 
-    @dispatch_method(reg.match_class('model'))
+    @dispatch_method(reg.match_class("model"))
     def _deferred_class_link_app(self, model, variables):
         """Get application used for link generation for a model class.
 
@@ -478,7 +480,7 @@ class App(dectate.App):
             obj = app
             app = app.parent
         paths.reverse()
-        return PathInfo('/'.join(paths).strip('/'), parameters)
+        return PathInfo("/".join(paths).strip("/"), parameters)
 
     def _get_mounted_class_path(self, model, variables):
         """Path for model class and variables including mounted path.
@@ -498,7 +500,7 @@ class App(dectate.App):
         mount_info = self.parent._get_mounted_path(self)
         path = mount_info.path
         if info.path:
-            path += '/' + info.path
+            path += "/" + info.path
         parameters = info.parameters.copy()
         parameters.update(mount_info.parameters)
         return PathInfo(path, parameters)
@@ -511,6 +513,7 @@ class App(dectate.App):
         :meth:`morepath.App.defer_class_links` directives into
         account.
         """
+
         def find(app, obj):
             return app._get_mounted_path(obj)
 
@@ -523,10 +526,11 @@ class App(dectate.App):
         :meth:`morepath.App.defer_class_links` directive into
         account.
         """
+
         def find(app, model, variables):
             return app._get_mounted_class_path(model, variables)
-        info, app = self._follow_class_defers(
-            find, model, variables)
+
+        info, app = self._follow_class_defers(find, model, variables)
         return info
 
     def _follow_defers(self, find, obj):
@@ -560,7 +564,8 @@ class App(dectate.App):
                 variables = app._path_variables(obj)
                 if variables is not None:
                     next_app = app._deferred_class_link_app(
-                        obj.__class__, variables)
+                        obj.__class__, variables
+                    )
             app = next_app
         return None, app
 

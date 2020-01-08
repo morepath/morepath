@@ -19,6 +19,6 @@ class FormatLoader(object):
             path = os.path.join(template_directory, name)
             if not os.path.exists(path):
                 continue
-            with io.open(path, 'r') as f:
+            with io.open(path, "r") as f:
                 return FormatTemplate(f.read())
         return None

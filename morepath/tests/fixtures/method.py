@@ -11,10 +11,10 @@ class StaticMethod(object):
 
 class Root(object):
     def __init__(self):
-        self.value = 'ROOT'
+        self.value = "ROOT"
 
     @staticmethod
-    @app.path(model=StaticMethod, path='static')
+    @app.path(model=StaticMethod, path="static")
     def static_method():
         return StaticMethod()
 

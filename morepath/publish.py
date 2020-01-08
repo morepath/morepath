@@ -20,7 +20,7 @@ from webob.exc import HTTPNotFound
 from .app import App
 
 
-DEFAULT_NAME = u''
+DEFAULT_NAME = ""
 
 
 def publish(request):
@@ -107,7 +107,7 @@ def get_view_name(stack):
         return DEFAULT_NAME
     elif unconsumed_amount == 1:
         # last segment is view name, strip off any ``+`` view marker.
-        return stack[0].lstrip('+')
+        return stack[0].lstrip("+")
     else:
         # more than one segments means we have a path that doesn't exist
         return None

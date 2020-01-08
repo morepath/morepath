@@ -16,7 +16,7 @@ from .converter import ConverterRegistry, IDENTITY_CONVERTER
 from .error import LinkError
 
 
-SPECIAL_ARGUMENTS = ['request', 'app']
+SPECIAL_ARGUMENTS = ["request", "app"]
 
 
 class PathRegistry(TrajectRegistry):
@@ -33,9 +33,8 @@ class PathRegistry(TrajectRegistry):
       :class:`morepath.directive.ConverterRegistry` instance
 
     """
-    factory_arguments = {
-        'converter_registry': ConverterRegistry
-    }
+
+    factory_arguments = {"converter_registry": ConverterRegistry}
 
     app_class_arg = True
 
@@ -46,9 +45,18 @@ class PathRegistry(TrajectRegistry):
         self.mounted = {}
         self.named_mounted = {}
 
-    def register_path(self, model, path,
-                      variables, converters, required, get_converters,
-                      absorb, code_info, model_factory):
+    def register_path(
+        self,
+        model,
+        path,
+        variables,
+        converters,
+        required,
+        get_converters,
+        absorb,
+        code_info,
+        model_factory,
+    ):
         """Register a route.
 
         See :meth:`morepath.App.path` for more information.
@@ -71,24 +79,26 @@ class PathRegistry(TrajectRegistry):
             converters.update(get_converters())
         arguments = get_arguments(model_factory, SPECIAL_ARGUMENTS)
         converters = self.converter_registry.argument_and_explicit_converters(
-            arguments, converters)
+            arguments, converters
+        )
 
         info = arginfo(model_factory)
         if info.varargs is not None:
             raise DirectiveError(
-                "Cannot use varargs in function signature: %s" %
-                info.varargs)
+                "Cannot use varargs in function signature: %s" % info.varargs
+            )
         if info.varkw is not None:
             raise DirectiveError(
-                "Cannot use varkw in function signature: %s" %
-                info.varkw)
+                "Cannot use varkw in function signature: %s" % info.varkw
+            )
 
         path_variables = TrajectPath(path).variables()
         for path_variable in path_variables:
             if path_variable not in arguments:
                 raise DirectiveError(
                     "Variable in path not found in function signature: %s"
-                    % path_variable)
+                    % path_variable
+                )
 
         parameters = filter_arguments(arguments, path_variables)
 
@@ -96,19 +106,36 @@ class PathRegistry(TrajectRegistry):
             required = set()
         required = set(required)
 
-        extra = 'extra_parameters' in arguments
+        extra = "extra_parameters" in arguments
 
-        self.add_pattern(path, model_factory, parameters,
-                         converters, absorb, required, extra, code_info)
+        self.add_pattern(
+            path,
+            model_factory,
+            parameters,
+            converters,
+            absorb,
+            required,
+            extra,
+            code_info,
+        )
 
         if variables is not None:
             self.register_path_variables(model, variables)
 
-        self.register_inverse_path(model, path, arguments, converters,
-                                   absorb)
+        self.register_inverse_path(model, path, arguments, converters, absorb)
 
-    def register_mount(self, app, path, variables, converters, required,
-                       get_converters, mount_name, code_info, app_factory):
+    def register_mount(
+        self,
+        app,
+        path,
+        variables,
+        converters,
+        required,
+        get_converters,
+        mount_name,
+        code_info,
+        app_factory,
+    ):
         """Register a mounted app.
 
         See :meth:`morepath.App.mount` for more information.
@@ -126,9 +153,17 @@ class PathRegistry(TrajectRegistry):
         :param app_factory: function that constructs app instance given
           variables extracted from path and URL parameters.
         """
-        self.register_path(app, path, variables,
-                           converters, required, get_converters, False,
-                           code_info, app_factory)
+        self.register_path(
+            app,
+            path,
+            variables,
+            converters,
+            required,
+            get_converters,
+            False,
+            code_info,
+            app_factory,
+        )
 
         self.mounted[app] = app_factory
         mount_name = mount_name or path
@@ -142,10 +177,12 @@ class PathRegistry(TrajectRegistry):
           returns a variables dict.
         """
         self.app_class._path_variables.register(
-            methodify(func, selfname='app'), obj=model)
+            methodify(func, selfname="app"), obj=model
+        )
 
-    def register_inverse_path(self, model, path, factory_args,
-                              converters=None, absorb=False):
+    def register_inverse_path(
+        self, model, path, factory_args, converters=None, absorb=False
+    ):
         """Register information for link generation.
 
         :param model: model class
@@ -164,8 +201,8 @@ class PathRegistry(TrajectRegistry):
             return {name: getattr(obj, name) for name in factory_args}
 
         self.app_class._default_path_variables.register(
-            default_path_variables,
-            obj=model)
+            default_path_variables, obj=model
+        )
 
     def register_defer_links(self, model, app_factory):
         """Register factory for app to defer links to.
@@ -177,9 +214,7 @@ class PathRegistry(TrajectRegistry):
           object as arguments and should return another app instance that
           does the link generation.
         """
-        self.app_class._deferred_link_app.register(
-            app_factory,
-            obj=model)
+        self.app_class._deferred_link_app.register(app_factory, obj=model)
 
     def register_defer_class_links(self, model, get_variables, app_factory):
         """Register factory for app to defer class links to.
@@ -194,8 +229,8 @@ class PathRegistry(TrajectRegistry):
         """
         self.register_path_variables(model, get_variables)
         self.app_class._deferred_class_link_app.register(
-            app_factory,
-            model=model)
+            app_factory, model=model
+        )
 
 
 class PathInfo(object):
@@ -204,6 +239,7 @@ class PathInfo(object):
     :param path: a str representing a path
     :param parameters: a dict representing URL parameters.
     """
+
     def __init__(self, path, parameters):
         self.path = path
         self.parameters = parameters
@@ -223,16 +259,18 @@ class PathInfo(object):
             # of this Python bug:
             # https://bugs.python.org/issue16285
             # tilde should not be encoded according to RFC3986
-            parts.append(quote(self.path.encode('utf-8'), '/~'))
+            parts.append(quote(self.path.encode("utf-8"), "/~"))
         if name:
             parts.append(name)
         # add prefix in the end. Even if result is empty we always get
         # a / at least
-        result = prefix + '/' + '/'.join(parts)
+        result = prefix + "/" + "/".join(parts)
         if self.parameters:
-            parameters = sorted((key, [v.encode('utf-8') for v in value])
-                                for (key, value) in self.parameters.items())
-            result += '?' + fixed_urlencode(parameters, True)
+            parameters = sorted(
+                (key, [v.encode("utf-8") for v in value])
+                for (key, value) in self.parameters.items()
+            )
+            result += "?" + fixed_urlencode(parameters, True)
         return result
 
 
@@ -247,13 +285,15 @@ class Path(object):
       variables in the path.
     :param absorb: bool indicating this is an absorbing path.
     """
+
     def __init__(self, path, factory_args, converters, absorb):
         self.path = path
         traject_path = TrajectPath(path)
         self.interpolation_path = traject_path.interpolation_str()
         path_variables = traject_path.variables()
-        self.parameter_names = {name for name in factory_args if
-                                name not in path_variables}
+        self.parameter_names = {
+            name for name in factory_args if name not in path_variables
+        }
         self.converters = converters
         self.absorb = absorb
 
@@ -274,19 +314,23 @@ class Path(object):
             if name not in parameter_names:
                 if value is None:
                     raise LinkError(
-                        "Path variable %s for path %s is None" % (
-                            name, self.path))
+                        "Path variable %s for path %s is None"
+                        % (name, self.path)
+                    )
                 path_variables[name] = converters.get(
-                    name, IDENTITY_CONVERTER).encode(value)[0]
+                    name, IDENTITY_CONVERTER
+                ).encode(value)[0]
             else:
                 if value is None or value == []:
                     continue
                 parameters[name] = converters.get(
-                    name, IDENTITY_CONVERTER).encode(value)
+                    name, IDENTITY_CONVERTER
+                ).encode(value)
         if extra_parameters:
             for name, value in extra_parameters.items():
                 parameters[name] = converters.get(
-                    name, IDENTITY_CONVERTER).encode(value)
+                    name, IDENTITY_CONVERTER
+                ).encode(value)
         return path_variables, parameters
 
     def __call__(self, app, model, variables):
@@ -303,20 +347,21 @@ class Path(object):
         """
         if not isinstance(variables, dict):
             raise LinkError("Variables is not a dict: %r" % variables)
-        extra_parameters = variables.pop('extra_parameters', None)
+        extra_parameters = variables.pop("extra_parameters", None)
         if self.absorb:
-            absorbed_path = variables.pop('absorb')
+            absorbed_path = variables.pop("absorb")
         else:
             absorbed_path = None
 
         path_variables, url_parameters = self.get_variables_and_parameters(
-            variables, extra_parameters)
+            variables, extra_parameters
+        )
 
         path = self.interpolation_path % path_variables
 
         if absorbed_path is not None:
             if path:
-                path += '/' + absorbed_path
+                path += "/" + absorbed_path
             else:
                 # when there is no path yet we are absorbing from
                 # the root and we don't want an additional /
@@ -335,8 +380,11 @@ def get_arguments(callable, exclude):
     info = arginfo(callable)
     defaults = info.defaults or []
     defaults = [None] * (len(info.args) - len(defaults)) + list(defaults)
-    return {name: default for (name, default) in zip(info.args, defaults)
-            if name not in exclude}
+    return {
+        name: default
+        for (name, default) in zip(info.args, defaults)
+        if name not in exclude
+    }
 
 
 def filter_arguments(arguments, exclude):
@@ -349,8 +397,11 @@ def filter_arguments(arguments, exclude):
     :param exclude: set of argument names to exclude.
     :return: filtered arguments dict
     """
-    return {name: default for (name, default) in arguments.items() if
-            name not in exclude}
+    return {
+        name: default
+        for (name, default) in arguments.items()
+        if name not in exclude
+    }
 
 
 def fixed_urlencode(s, doseq=0):
@@ -362,4 +413,4 @@ def fixed_urlencode(s, doseq=0):
 
     tilde should not be encoded according to RFC3986
     """
-    return urlencode(s, doseq).replace('%7E', '~')
+    return urlencode(s, doseq).replace("%7E", "~")

@@ -5,7 +5,7 @@ class App(morepath.App):
     pass
 
 
-@App.path(path='')
+@App.path(path="")
 class Root(object):
     pass
 
@@ -15,5 +15,5 @@ def hello_world(self, request):
     return "Hello world!"
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     morepath.run(App())

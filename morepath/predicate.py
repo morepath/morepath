@@ -21,6 +21,7 @@ class PredicateRegistry(object):
     It also keeps track of how predicates are to be ordered.
 
     """
+
     app_class_arg = True
 
     def __init__(self, app_class):
@@ -28,8 +29,9 @@ class PredicateRegistry(object):
         self._predicate_infos = defaultdict(list)
         self._predicate_fallbacks = defaultdict(dict)
 
-    def register_predicate(self, func, dispatch, name, default, index,
-                           before, after):
+    def register_predicate(
+        self, func, dispatch, name, default, index, before, after
+    ):
         """Register a predicate for installation into the reg registry.
 
         See :meth:`morepath.App.predicate` for details.
@@ -66,7 +68,8 @@ class PredicateRegistry(object):
         """
         for dispatch in self._predicate_infos.keys():
             getattr(self.app_class, dispatch.__name__).add_predicates(
-                self.get_predicates(dispatch))
+                self.get_predicates(dispatch)
+            )
 
     def get_predicates(self, dispatch):
         """Create Reg predicates.
@@ -86,10 +89,13 @@ class PredicateRegistry(object):
         result = []
         for info in infos:
             fallback = self._predicate_fallbacks[dispatch].get(info.func)
-            predicate = Predicate(info.name, info.index,
-                                  adapt(info.func),
-                                  fallback=fallback,
-                                  default=info.default)
+            predicate = Predicate(
+                info.name,
+                info.index,
+                adapt(info.func),
+                fallback=fallback,
+                default=info.default,
+            )
             result.append(predicate)
         return result
 
@@ -105,6 +111,7 @@ class PredicateRegistry(object):
 def adapt(func):
     def wrapper(d):
         return func(**d)
+
     return wrapper
 
 
@@ -114,6 +121,7 @@ class PredicateInfo(Info):
     Is used to store registration information on a predicate
     before it is registered with Reg.
     """
+
     def __init__(self, func, name, default, index, before, after):
         super(PredicateInfo, self).__init__(func, before, after)
         self.func = func

@@ -14,7 +14,7 @@ class Permission(object):
     pass
 
 
-@app.path(model=Model, path='{id}')
+@app.path(model=Model, path="{id}")
 def get_model(id):
     return Model(id)
 
@@ -26,12 +26,12 @@ def default(self, request):
 
 @app.permission_rule(model=Model, permission=Permission)
 def model_permission(identity, model, permission):
-    return model.id == 'foo'
+    return model.id == "foo"
 
 
 class IdentityPolicy(object):
     def identify(self, request):
-        return morepath.Identity('testidentity')
+        return morepath.Identity("testidentity")
 
     def remember(self, response, request, identity):
         return []

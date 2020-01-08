@@ -15,7 +15,7 @@ def test_rescan():
     class Sub(basic.app):
         pass
 
-    @Sub.view(model=basic.Model, name='extra')
+    @Sub.view(model=basic.Model, name="extra")
     def extra(self, request):
         return "extra"
 
@@ -23,11 +23,11 @@ def test_rescan():
 
     c = Client(Sub())
 
-    response = c.get('/1/extra')
-    assert response.body == b'extra'
+    response = c.get("/1/extra")
+    assert response.body == b"extra"
 
-    response = c.get('/1')
-    assert response.body == b'The view for model: 1'
+    response = c.get("/1")
+    assert response.body == b"The view for model: 1"
 
 
 def test_scanned_some_error():
@@ -47,7 +47,7 @@ def test_self_scanning_package():
 
     assert App.commit() == {App}
     c = Client(App())
-    response = c.get('/', status=404)
+    response = c.get("/", status=404)
 
     # By performing the scan, we import the module with the application logic:
     self_scan.do_scan()
@@ -57,5 +57,5 @@ def test_self_scanning_package():
 
     # Querying the app will now succeed
     c = Client(App())
-    response = c.get('/')
-    assert response.body == b'The root: ROOT'
+    response = c.get("/")
+    assert response.body == b"The root: ROOT"

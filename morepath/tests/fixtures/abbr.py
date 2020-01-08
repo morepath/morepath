@@ -10,16 +10,17 @@ class Model(object):
         self.id = id
 
 
-@app.path(model=Model, path='{id}')
+@app.path(model=Model, path="{id}")
 def get_model(id):
     return Model(id)
 
 
 with app.view(model=Model) as view:
+
     @view()
     def default(self, request):
         return "Default view: %s" % self.id
 
-    @view(name='edit')
+    @view(name="edit")
     def edit(self, request):
         return "Edit view: %s" % self.id

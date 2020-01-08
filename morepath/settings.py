@@ -16,6 +16,7 @@ class SettingRegistry(object):
     This settings registry is exposed through
     :attr:`morepath.App.settings`.
     """
+
     def register_setting(self, section_name, setting_name, func):
         """Register a setting.
 
@@ -34,4 +35,5 @@ class SettingRegistry(object):
 class SettingSection(object):
     """A setting section that contains setting.
     """
+
     pass
