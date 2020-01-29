@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.19 (unreleased)
+0.19 (2020-01-30)
 =================
 
 * **Removed**: Removed support for Python 2.
