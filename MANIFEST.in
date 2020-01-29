@@ -1,4 +1,4 @@
-include *.txt *.rst *.cfg *.py *.ini .coveragerc
+include *.txt *.rst *.cfg *.py *.ini .coveragerc *.toml *.yaml
 exclude .*.cfg
 recursive-include morepath *.py *.format
 recursive-include tests *.py
