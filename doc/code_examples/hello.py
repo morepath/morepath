@@ -6,7 +6,7 @@ class App(morepath.App):
 
 
 @App.path(path="")
-class Root(object):
+class Root:
     pass
 
 

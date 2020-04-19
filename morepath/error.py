@@ -47,7 +47,7 @@ class AutoImportError(ConfigError):
         """
 
         msg = textwrap.dedent(msg).format(module_name)
-        super(AutoImportError, self).__init__(msg)
+        super().__init__(msg)
 
 
 class TrajectError(Exception):

@@ -5,11 +5,11 @@ class app(morepath.App):
     pass
 
 
-class StaticMethod(object):
+class StaticMethod:
     pass
 
 
-class Root(object):
+class Root:
     def __init__(self):
         self.value = "ROOT"
 

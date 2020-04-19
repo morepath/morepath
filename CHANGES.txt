@@ -4,7 +4,9 @@ CHANGES
 0.20 (unreleased)
 =================
 
-- Nothing changed yet.
+* Cleanup old Python 2 code with `pyupgrade`_.
+
+  .. _pyupgrade: https://github.com/asottile/pyupgrade
 
 
 0.19 (2020-01-30)

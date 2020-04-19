@@ -11,7 +11,7 @@ def test_view_get_only():
         pass
 
     @App.path(path="")
-    class Model(object):
+    class Model:
         def __init__(self):
             pass
 
@@ -32,7 +32,7 @@ def test_view_name_conflict_involving_default():
         pass
 
     @App.path(path="")
-    class Model(object):
+    class Model:
         def __init__(self):
             pass
 
@@ -66,7 +66,7 @@ def test_view_custom_predicate_conflict_involving_default_extends():
         return None
 
     @App.path(path="")
-    class Model(object):
+    class Model:
         def __init__(self):
             pass
 
@@ -100,7 +100,7 @@ def test_view_custom_predicate_without_fallback():
         return "match"
 
     @App.path(path="")
-    class Model(object):
+    class Model:
         def __init__(self):
             pass
 

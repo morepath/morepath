@@ -97,11 +97,11 @@ def test_basic_scenario():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         def __init__(self):
             self.value = "ROOT"
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -153,11 +153,11 @@ def test_link_to_unknown_model():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         def __init__(self):
             self.value = "ROOT"
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -188,11 +188,11 @@ def test_link_to_none():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         def __init__(self):
             self.value = "ROOT"
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -217,11 +217,11 @@ def test_link_with_parameters():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         def __init__(self):
             self.value = "ROOT"
 
-    class Model(object):
+    class Model:
         def __init__(self, id, param):
             self.id = id
             self.param = param
@@ -233,7 +233,7 @@ def test_link_with_parameters():
 
     @app.view(model=Model)
     def default(self, request):
-        return "The view for model: %s %s" % (self.id, self.param)
+        return "The view for model: {} {}".format(self.id, self.param)
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -259,7 +259,7 @@ def test_root_link_with_parameters():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         def __init__(self, param=0):
             assert isinstance(param, int)
             self.param = param
@@ -292,7 +292,7 @@ def test_link_with_prefix():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=Root, name="link")
@@ -319,7 +319,7 @@ def test_link_with_prefix_app_arg():
         pass
 
     @App.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @App.view(model=Root, name="link")
@@ -347,7 +347,7 @@ def test_link_prefix_cache():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=Root, name="link")
@@ -374,7 +374,7 @@ def test_link_with_invalid_prefix():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=Root, name="link")
@@ -398,10 +398,10 @@ def test_external_link_prefix():
     class ExternalApp(morepath.App):
         pass
 
-    class InternalDoc(object):
+    class InternalDoc:
         pass
 
-    class ExternalDoc(object):
+    class ExternalDoc:
         pass
 
     @App.path(model=InternalDoc, path="")
@@ -442,10 +442,10 @@ def test_implicit_variables():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -472,10 +472,10 @@ def test_implicit_parameters():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -508,10 +508,10 @@ def test_implicit_parameters_default():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -543,7 +543,7 @@ def test_simple_root():
     class app(morepath.App):
         pass
 
-    class Hello(object):
+    class Hello:
         pass
 
     hello = Hello()
@@ -567,7 +567,7 @@ def test_json_directive():
         pass
 
     @app.path(path="{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -586,7 +586,7 @@ def test_redirect():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         def __init__(self):
             pass
 
@@ -604,11 +604,11 @@ def test_root_conflict():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.path(path="")
-    class Something(object):
+    class Something:
         pass
 
     with pytest.raises(ConflictError):
@@ -620,11 +620,11 @@ def test_root_conflict2():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.path(path="/")
-    class Something(object):
+    class Something:
         pass
 
     with pytest.raises(ConflictError):
@@ -639,11 +639,11 @@ def test_root_no_conflict_different_apps():
         pass
 
     @app_a.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app_b.path(path="")
-    class Something(object):
+    class Something:
         pass
 
     dectate.commit(app_a, app_b)
@@ -653,7 +653,7 @@ def test_model_conflict():
     class app(morepath.App):
         pass
 
-    class A(object):
+    class A:
         pass
 
     @app.path(model=A, path="a")
@@ -672,10 +672,10 @@ def test_path_conflict():
     class app(morepath.App):
         pass
 
-    class A(object):
+    class A:
         pass
 
-    class B(object):
+    class B:
         pass
 
     @app.path(model=A, path="a")
@@ -694,10 +694,10 @@ def test_path_conflict_with_variable():
     class app(morepath.App):
         pass
 
-    class A(object):
+    class A:
         pass
 
-    class B(object):
+    class B:
         pass
 
     @app.path(model=A, path="a/{id}")
@@ -716,10 +716,10 @@ def test_path_conflict_with_variable_different_converters():
     class app(morepath.App):
         pass
 
-    class A(object):
+    class A:
         pass
 
-    class B(object):
+    class B:
         pass
 
     @app.path(model=A, path="a/{id}", converters=Converter(decode=int))
@@ -741,7 +741,7 @@ def test_model_no_conflict_different_apps():
     class app_b(morepath.App):
         pass
 
-    class A(object):
+    class A:
         pass
 
     @app_a.path(model=A, path="a")
@@ -759,7 +759,7 @@ def test_view_conflict():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     @app.view(model=Model, name="a")
@@ -778,7 +778,7 @@ def test_view_no_conflict_different_names():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     @app.view(model=Model, name="a")
@@ -796,7 +796,7 @@ def test_view_no_conflict_different_predicates():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     @app.view(model=Model, name="a", request_method="GET")
@@ -817,7 +817,7 @@ def test_view_no_conflict_different_apps():
     class app_b(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     @app_a.view(model=Model, name="a")
@@ -835,7 +835,7 @@ def test_view_conflict_with_json():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     @app.view(model=Model, name="a")
@@ -854,7 +854,7 @@ def test_view_conflict_with_html():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     @app.view(model=Model, name="a")
@@ -875,7 +875,7 @@ def test_function():
         def func(self, a):
             return "default"
 
-    class A(object):
+    class A:
         pass
 
     @App.method(App.func, a=A)
@@ -893,7 +893,7 @@ def test_method():
         def func(self, a):
             return "default"
 
-    class A(object):
+    class A:
         pass
 
     @App.method(App.func, a=A)
@@ -912,7 +912,7 @@ def test_function_conflict():
         def func(self, a):
             pass
 
-    class A(object):
+    class A:
         pass
 
     @app.method(app.func, a=A)
@@ -939,7 +939,7 @@ def test_function_no_conflict_different_apps():
     class app_b(base):
         pass
 
-    class A(object):
+    class A:
         pass
 
     @app_a.method(base.func, a=A)
@@ -976,7 +976,7 @@ def test_abbr_imperative():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     @app.path(path="/", model=Model)
@@ -1006,7 +1006,7 @@ def test_abbr_exception():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     @app.path(path="/", model=Model)
@@ -1042,7 +1042,7 @@ def test_abbr_imperative2():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     @app.path(path="/", model=Model)
@@ -1072,7 +1072,7 @@ def test_abbr_nested():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     @app.path(path="/", model=Model)
@@ -1113,7 +1113,7 @@ def test_function_directive():
         def mygeneric(self, o):
             return "The object: %s" % o
 
-    class Foo(object):
+    class Foo:
         def __init__(self, value):
             self.value = value
 
@@ -1136,7 +1136,7 @@ def test_classgeneric_function_directive():
         def mygeneric(self, o):
             return "The object"
 
-    class Foo(object):
+    class Foo:
         pass
 
     @app.method(app.mygeneric, o=Foo)
@@ -1154,10 +1154,10 @@ def test_staticmethod():
         pass
 
     @App.path("/")
-    class Root(object):
+    class Root:
         pass
 
-    class A(object):
+    class A:
         @staticmethod
         @App.view(model=Root)
         def root_default(self, request):
@@ -1175,10 +1175,10 @@ def test_classmethod_equivalent_to_staticmethod():
         pass
 
     @App.path("/")
-    class Root(object):
+    class Root:
         pass
 
-    class A(object):
+    class A:
         @classmethod
         @App.view(model=Root)
         def root_default(self, request):
@@ -1196,10 +1196,10 @@ def test_classmethod_bound_outside():
         pass
 
     @App.path("/")
-    class Root(object):
+    class Root:
         pass
 
-    class A(object):
+    class A:
         @classmethod
         def root_default(cls, self, request):
             assert isinstance(self, Root)
@@ -1223,7 +1223,7 @@ def test_instantiation_before_config():
     app = App()
 
     @App.path(path="")
-    class Hello(object):
+    class Hello:
         pass
 
     @App.view(model=Hello)

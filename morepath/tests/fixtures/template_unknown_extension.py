@@ -6,7 +6,7 @@ class App(morepath.App):
 
 
 @App.path(path="{name}")
-class Person(object):
+class Person:
     def __init__(self, name):
         self.name = name
 

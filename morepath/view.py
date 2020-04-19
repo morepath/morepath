@@ -17,7 +17,7 @@ from webob import Response as BaseResponse
 from .request import Response
 
 
-class View(object):
+class View:
     """A view as registered with :meth:`morepath.App.get_view`.
 
     :param func: view function. Given a model instance and a request

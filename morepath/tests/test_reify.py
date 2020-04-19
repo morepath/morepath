@@ -36,5 +36,5 @@ def test_no_doc():
     assert decorator.__doc__ is None
 
 
-class Dummy(object):
+class Dummy:
     pass

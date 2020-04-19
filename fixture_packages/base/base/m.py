@@ -5,7 +5,7 @@ class App(morepath.App):
     pass
 
 
-class Foo(object):
+class Foo:
     pass
 
 

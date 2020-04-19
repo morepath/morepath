@@ -48,7 +48,7 @@ def test_request_reset():
         pass
 
     @MountedApp.path(path="catalog")
-    class Catalog(object):
+    class Catalog:
         pass
 
     @MountedApp.view(model=Catalog, name="text")

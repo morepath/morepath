@@ -11,7 +11,7 @@ def test_function_extends():
     class Extending(App):
         pass
 
-    class Alpha(object):
+    class Alpha:
         pass
 
     @App.method(App.foo, obj=Alpha)
@@ -34,7 +34,7 @@ def test_extends():
         pass
 
     @App.path(path="users/{username}")
-    class User(object):
+    class User:
         def __init__(self, username):
             self.username = username
 
@@ -66,7 +66,7 @@ def test_overrides_view():
         pass
 
     @App.path(path="users/{username}")
-    class User(object):
+    class User:
         def __init__(self, username):
             self.username = username
 
@@ -95,7 +95,7 @@ def test_overrides_model():
         pass
 
     @App.path(path="users/{username}")
-    class User(object):
+    class User:
         def __init__(self, username):
             self.username = username
 

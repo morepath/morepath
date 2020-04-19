@@ -8,13 +8,13 @@ def test_dispatch_method_directive():
         def f(self, obj):
             return "fallback"
 
-    class Foo(object):
+    class Foo:
         pass
 
-    class Bar(object):
+    class Bar:
         pass
 
-    class Other(object):
+    class Other:
         pass
 
     @App.method(App.f, obj=Foo)
@@ -38,13 +38,13 @@ def test_dispatch_function_directive():
         def f(self, obj):
             return "fallback"
 
-    class Foo(object):
+    class Foo:
         pass
 
-    class Bar(object):
+    class Bar:
         pass
 
-    class Other(object):
+    class Other:
         pass
 
     @App.method(App.f, obj=Foo)
@@ -68,13 +68,13 @@ def test_dispatch_external_predicates():
         def f(app, obj):
             return "fallback"
 
-    class Foo(object):
+    class Foo:
         pass
 
-    class Bar(object):
+    class Bar:
         pass
 
-    class Other(object):
+    class Other:
         pass
 
     @App.predicate(App.f, name="model", default=None, index=ClassIndex)
@@ -102,13 +102,13 @@ def test_dispatch_external_predicates_predicate_fallback():
         def f(app, obj):
             return "dispatch function"
 
-    class Foo(object):
+    class Foo:
         pass
 
-    class Bar(object):
+    class Bar:
         pass
 
-    class Other(object):
+    class Other:
         pass
 
     @App.predicate(App.f, name="model", default=None, index=ClassIndex)
@@ -140,13 +140,13 @@ def test_dispatch_external_predicates_ordering_after():
         def f(app, obj, name):
             return "fallback"
 
-    class Foo(object):
+    class Foo:
         pass
 
-    class Bar(object):
+    class Bar:
         pass
 
-    class Other(object):
+    class Other:
         pass
 
     @App.predicate(App.f, name="model", default=None, index=ClassIndex)
@@ -192,13 +192,13 @@ def test_dispatch_external_predicates_ordering_before():
         def f(app, obj, name):
             return "fallback"
 
-    class Foo(object):
+    class Foo:
         pass
 
-    class Bar(object):
+    class Bar:
         pass
 
-    class Other(object):
+    class Other:
         pass
 
     @App.predicate(App.f, name="name", default="", index=KeyIndex)
@@ -247,13 +247,13 @@ def test_dispatch_external_override_fallback():
     class Sub(App):
         pass
 
-    class Foo(object):
+    class Foo:
         pass
 
-    class Bar(object):
+    class Bar:
         pass
 
-    class Other(object):
+    class Other:
         pass
 
     @App.predicate(App.f, name="model", default=None, index=ClassIndex)
@@ -303,13 +303,13 @@ def test_dispatch_external_override_predicate():
     class Sub(App):
         pass
 
-    class Foo(object):
+    class Foo:
         pass
 
-    class Bar(object):
+    class Bar:
         pass
 
-    class Other(object):
+    class Other:
         pass
 
     @App.predicate(App.f, name="model", default=None, index=ClassIndex)
@@ -359,7 +359,7 @@ def test_wrong_predicate_arguments_single():
         def f(self, obj):
             return "fallback"
 
-    class Foo(object):
+    class Foo:
         pass
 
     @App.method(App.f, wrong=Foo)
@@ -377,7 +377,7 @@ def test_wrong_predicate_arguments_multi():
         def f(self, a, b):
             return "fallback"
 
-    class Foo(object):
+    class Foo:
         pass
 
     @App.method(App.f, wrong=Foo)
@@ -395,13 +395,13 @@ def test_dispatch_external_predicates_without_predicate_directives():
         def f(self, obj):
             return "fallback"
 
-    class Foo(object):
+    class Foo:
         pass
 
-    class Bar(object):
+    class Bar:
         pass
 
-    class Other(object):
+    class Other:
         pass
 
     @App.method(App.f)

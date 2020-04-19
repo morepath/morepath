@@ -12,7 +12,7 @@ See also :class:`morepath.directive.IdentityPolicyRegistry`
 import abc
 
 
-class NoIdentity(object):
+class NoIdentity:
     """The user is not yet logged in.
 
     The request is anonymous.
@@ -28,7 +28,7 @@ The user has not yet logged in.
 """
 
 
-class Identity(object):
+class Identity:
     """Claimed identity of a user.
 
     Note that this identity is just a claim; to authenticate the user

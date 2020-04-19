@@ -15,11 +15,11 @@ def inner_context():
 
 
 @app.path(path="")
-class Root(object):
+class Root:
     pass
 
 
-class Model(object):
+class Model:
     def __init__(self, id):
         self.id = id
 

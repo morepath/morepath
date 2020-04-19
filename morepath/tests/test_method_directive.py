@@ -13,7 +13,7 @@ def test_implicit_function():
             return "Default two"
 
     @app.path(path="")
-    class Model(object):
+    class Model:
         def __init__(self):
             pass
 
@@ -56,10 +56,10 @@ def test_implicit_function_mounted():
     def mount_beta(id):
         return beta(id=id)
 
-    class AlphaRoot(object):
+    class AlphaRoot:
         pass
 
-    class Root(object):
+    class Root:
         def __init__(self, id):
             self.id = id
 
@@ -85,7 +85,7 @@ def test_implicit_function_mounted():
 
     @beta.view(model=Root)
     def default(self, request):
-        return "View for %s, message: %s" % (self.id, request.app.one())
+        return "View for {}, message: {}".format(self.id, request.app.one())
 
     c = Client(alpha())
 

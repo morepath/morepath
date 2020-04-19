@@ -25,7 +25,7 @@ class Request(BaseRequest):
     view_code_info = None
 
     def __init__(self, environ, app, **kw):
-        super(Request, self).__init__(environ, **kw)
+        super().__init__(environ, **kw)
         # parse path, normalizing dots away in
         # in case the client didn't do the normalization
         path_info = self.path_info

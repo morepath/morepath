@@ -1,10 +1,9 @@
-import io
 from setuptools import setup, find_packages
 
 long_description = "\n".join(
     (
-        io.open("README.rst", encoding="utf-8").read(),
-        io.open("CHANGES.txt", encoding="utf-8").read(),
+        open("README.rst", encoding="utf-8").read(),
+        open("CHANGES.txt", encoding="utf-8").read(),
     )
 )
 

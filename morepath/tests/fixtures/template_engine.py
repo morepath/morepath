@@ -1,8 +1,7 @@
 import os
-import io
 
 
-class FormatTemplate(object):
+class FormatTemplate:
     def __init__(self, text):
         self.text = text
 
@@ -10,7 +9,7 @@ class FormatTemplate(object):
         return self.text.format(**kw)
 
 
-class FormatLoader(object):
+class FormatLoader:
     def __init__(self, template_directories):
         self.template_directories = template_directories
 
@@ -19,6 +18,6 @@ class FormatLoader(object):
             path = os.path.join(template_directory, name)
             if not os.path.exists(path):
                 continue
-            with io.open(path, "r") as f:
+            with open(path, "r") as f:
                 return FormatTemplate(f.read())
         return None

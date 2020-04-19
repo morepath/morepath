@@ -11,7 +11,7 @@ def test_model_mount_conflict():
     class app2(morepath.App):
         pass
 
-    class A(object):
+    class A:
         pass
 
     @app.path(model=A, path="a")
@@ -35,7 +35,7 @@ def test_mount_basic():
             self.id = id
 
     @mounted.path(path="")
-    class MountedRoot(object):
+    class MountedRoot:
         pass
 
     @mounted.view(model=MountedRoot)
@@ -100,7 +100,7 @@ def test_mount_none_should_fail():
         pass
 
     @mounted.path(path="")
-    class MountedRoot(object):
+    class MountedRoot:
         pass
 
     @mounted.view(model=MountedRoot)
@@ -130,7 +130,7 @@ def test_mount_context():
             self.mount_id = mount_id
 
     @mounted.path(path="")
-    class MountedRoot(object):
+    class MountedRoot:
         def __init__(self, app):
             self.mount_id = app.mount_id
 
@@ -159,7 +159,7 @@ def test_mount_context_parameters():
             self.mount_id = mount_id
 
     @mounted.path(path="")
-    class MountedRoot(object):
+    class MountedRoot:
         def __init__(self, app):
             assert isinstance(app.mount_id, int)
             self.mount_id = app.mount_id
@@ -189,16 +189,15 @@ def test_mount_context_parameters_override_default():
             self.mount_id = mount_id
 
     @mounted.path(path="")
-    class MountedRoot(object):
+    class MountedRoot:
         def __init__(self, app, mount_id):
             self.mount_id = mount_id
             self.app_mount_id = app.mount_id
 
     @mounted.view(model=MountedRoot)
     def root_default(self, request):
-        return "mount_id: %s app_mount_id: %s" % (
-            self.mount_id,
-            self.app_mount_id,
+        return "mount_id: {} app_mount_id: {}".format(
+            self.mount_id, self.app_mount_id,
         )
 
     @app.mount(path="{id}", app=mounted)
@@ -221,7 +220,7 @@ def test_mount_context_standalone():
             self.mount_id = mount_id
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         def __init__(self, app):
             self.mount_id = app.mount_id
 
@@ -240,7 +239,7 @@ def test_mount_parent_link():
         pass
 
     @app.path(path="models/{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -249,7 +248,7 @@ def test_mount_parent_link():
             self.mount_id = mount_id
 
     @mounted.path(path="")
-    class MountedRoot(object):
+    class MountedRoot:
         def __init__(self, mount_id):
             self.mount_id = mount_id
 
@@ -276,12 +275,12 @@ def test_mount_child_link():
             self.mount_id = mount_id
 
     @mounted.path(path="models/{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=Root)
@@ -317,7 +316,7 @@ def test_mount_sibling_link():
         pass
 
     @first.path(path="models/{id}")
-    class FirstModel(object):
+    class FirstModel:
         def __init__(self, id):
             self.id = id
 
@@ -327,12 +326,12 @@ def test_mount_sibling_link():
         return request.link(SecondModel(2), app=sibling)
 
     @second.path(path="foos/{id}")
-    class SecondModel(object):
+    class SecondModel:
         def __init__(self, id):
             self.id = id
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.mount(path="first", app=first)
@@ -354,10 +353,10 @@ def test_mount_sibling_link_at_root_app():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
-    class Item(object):
+    class Item:
         def __init__(self, id):
             self.id = id
 
@@ -381,12 +380,12 @@ def test_mount_child_link_unknown_child():
             self.mount_id = mount_id
 
     @mounted.path(path="models/{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=Root)
@@ -417,12 +416,12 @@ def test_mount_child_link_unknown_parent():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=Root)
@@ -447,12 +446,12 @@ def test_mount_child_link_unknown_app():
             self.mount_id = mount_id
 
     @mounted.path(path="models/{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=Root)
@@ -486,11 +485,11 @@ def test_mount_link_prefix():
         return Mounted(mount_id=id)
 
     @App.path(path="")
-    class AppRoot(object):
+    class AppRoot:
         pass
 
     @Mounted.path(path="")
-    class MountedRoot(object):
+    class MountedRoot:
         pass
 
     @App.link_prefix()
@@ -538,11 +537,11 @@ def test_request_view_in_mount():
             self.mount_id = mount_id
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @mounted.path(path="models/{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -587,7 +586,7 @@ def test_request_link_child_child():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=Root)
@@ -615,7 +614,7 @@ def test_request_link_child_child():
         return submounted()
 
     @submounted.path(path="")
-    class SubRoot(object):
+    class SubRoot:
         pass
 
     @submounted.view(model=SubRoot)
@@ -647,11 +646,11 @@ def test_request_view_in_mount_broken():
             self.mount_id = mount_id
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @mounted.path(path="models/{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -714,7 +713,7 @@ def test_mount_implicit_converters():
         def __init__(self, id):
             self.id = id
 
-    class MountedRoot(object):
+    class MountedRoot:
         def __init__(self, id):
             self.id = id
 
@@ -724,7 +723,7 @@ def test_mount_implicit_converters():
 
     @mounted.view(model=MountedRoot)
     def root_default(self, request):
-        return "The root for: %s %s" % (self.id, type(self.id))
+        return "The root for: {} {}".format(self.id, type(self.id))
 
     @app.mount(path="{id}", app=mounted)
     def get_context(id=0):
@@ -747,7 +746,7 @@ def test_mount_explicit_converters():
         def __init__(self, id):
             self.id = id
 
-    class MountedRoot(object):
+    class MountedRoot:
         def __init__(self, id):
             self.id = id
 
@@ -757,7 +756,7 @@ def test_mount_explicit_converters():
 
     @mounted.view(model=MountedRoot)
     def root_default(self, request):
-        return "The root for: %s %s" % (self.id, type(self.id))
+        return "The root for: {} {}".format(self.id, type(self.id))
 
     @app.mount(path="{id}", app=mounted, converters=dict(id=int))
     def get_context(id):
@@ -780,7 +779,7 @@ def test_mount_view_in_child_view():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=Root)
@@ -788,7 +787,7 @@ def test_mount_view_in_child_view():
         return request.view(FooRoot(), app=request.app.child(fooapp))
 
     @fooapp.path(path="")
-    class FooRoot(object):
+    class FooRoot:
         pass
 
     @fooapp.view(model=FooRoot, name="name")
@@ -820,7 +819,7 @@ def test_mount_view_in_child_view_then_parent_view():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=Root)
@@ -837,7 +836,7 @@ def test_mount_view_in_child_view_then_parent_view():
         return "other"
 
     @fooapp.path(path="")
-    class FooRoot(object):
+    class FooRoot:
         pass
 
     @fooapp.view(model=FooRoot, name="name")
@@ -863,13 +862,13 @@ def test_mount_directive_with_link_and_absorb():
         pass
 
     @app1.path(path="")
-    class Model1(object):
+    class Model1:
         pass
 
     class app2(morepath.App):
         pass
 
-    class Model2(object):
+    class Model2:
         def __init__(self, absorb):
             self.absorb = absorb
 
@@ -879,7 +878,7 @@ def test_mount_directive_with_link_and_absorb():
 
     @app2.view(model=Model2)
     def default(self, request):
-        return "A:%s L:%s" % (self.absorb, request.link(self))
+        return "A:{} L:{}".format(self.absorb, request.link(self))
 
     @app1.mount(path="foo", app=app2)
     def get_mount():
@@ -902,12 +901,12 @@ def test_mount_named_child_link_explicit_name():
         pass
 
     @mounted.path(path="models/{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=Root)
@@ -939,12 +938,12 @@ def test_mount_named_child_link_name_defaults_to_path():
         pass
 
     @mounted.path(path="models/{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=Root)
@@ -977,11 +976,11 @@ def test_named_mount_with_parameters():
             self.mount_id = mount_id
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @mounted.path(path="")
-    class MountedRoot(object):
+    class MountedRoot:
         def __init__(self, mount_id):
             assert isinstance(mount_id, int)
             self.mount_id = mount_id
@@ -994,7 +993,7 @@ def test_named_mount_with_parameters():
     def get_context(mount_id=0):
         return mounted(mount_id=mount_id)
 
-    class Item(object):
+    class Item:
         def __init__(self, id):
             self.id = id
 
@@ -1022,11 +1021,11 @@ def test_named_mount_with_url_parameters():
             self.mount_id = mount_id
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @mounted.path(path="")
-    class MountedRoot(object):
+    class MountedRoot:
         def __init__(self, mount_id):
             assert isinstance(mount_id, int)
             self.mount_id = mount_id
@@ -1039,7 +1038,7 @@ def test_named_mount_with_url_parameters():
     def get_context(mount_id=0):
         return mounted(mount_id=mount_id)
 
-    class Item(object):
+    class Item:
         def __init__(self, id):
             self.id = id
 
@@ -1067,7 +1066,7 @@ def test_access_app_through_request():
             self.name = name
 
     @root.path(path="")
-    class RootModel(object):
+    class RootModel:
         pass
 
     @root.view(model=RootModel)
@@ -1075,7 +1074,7 @@ def test_access_app_through_request():
         child = request.app.child(sub, mount_name="foo")
         return request.link(SubModel("foo"), app=child)
 
-    class SubModel(object):
+    class SubModel:
         def __init__(self, name):
             self.name = name
 
@@ -1104,7 +1103,7 @@ def test_mount_ancestors():
             self.id = id
 
     @app.path(path="")
-    class AppRoot(object):
+    class AppRoot:
         pass
 
     @app.view(model=AppRoot)
@@ -1115,7 +1114,7 @@ def test_mount_ancestors():
         assert request.app.root is request.app
 
     @mounted.path(path="")
-    class MountedRoot(object):
+    class MountedRoot:
         pass
 
     @mounted.view(model=MountedRoot)
@@ -1153,11 +1152,11 @@ def test_breadthfist_vs_inheritance_on_commit():
         pass
 
     @App1.path(path="")
-    class Model1(object):
+    class Model1:
         pass
 
     @App2.path(path="")
-    class Model2(object):
+    class Model2:
         pass
 
     @App1.view(model=Model1)

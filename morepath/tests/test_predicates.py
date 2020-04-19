@@ -10,7 +10,7 @@ def test_view_predicates():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=Root, name="foo", request_method="GET")
@@ -34,7 +34,7 @@ def test_extra_predicates():
         pass
 
     @app.path(path="{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 

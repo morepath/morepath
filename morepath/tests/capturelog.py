@@ -19,7 +19,7 @@ class CaptureLog(logging.Handler):
     """
 
     def __init__(self, logger_name, level=logging.WARNING):
-        super(CaptureLog, self).__init__(level)
+        super().__init__(level)
         self.logger_name = logger_name
         self.level = level
         self.records = []

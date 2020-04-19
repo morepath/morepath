@@ -7,7 +7,7 @@ def test_json_obj_dump():
         pass
 
     @app.path(path="/models/{x}")
-    class Model(object):
+    class Model:
         def __init__(self, x):
             self.x = x
 
@@ -30,7 +30,7 @@ def test_json_obj_dump_app_arg():
         pass
 
     @App.path(path="/models/{x}")
-    class Model(object):
+    class Model:
         def __init__(self, x):
             self.x = x
 

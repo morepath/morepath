@@ -22,7 +22,7 @@ def mockserver(monkeypatch):
     return MockServer(argv)
 
 
-class MockServer(object):
+class MockServer:
     def __init__(self, argv):
         self.argv = argv
 

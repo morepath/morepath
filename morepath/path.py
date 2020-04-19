@@ -39,7 +39,7 @@ class PathRegistry(TrajectRegistry):
     app_class_arg = True
 
     def __init__(self, app_class, converter_registry):
-        super(PathRegistry, self).__init__()
+        super().__init__()
         self.app_class = app_class
         self.converter_registry = converter_registry
         self.mounted = {}
@@ -233,7 +233,7 @@ class PathRegistry(TrajectRegistry):
         )
 
 
-class PathInfo(object):
+class PathInfo:
     """Abstract representation of a path.
 
     :param path: a str representing a path
@@ -274,7 +274,7 @@ class PathInfo(object):
         return result
 
 
-class Path(object):
+class Path:
     """Registered path for linking purposes.
 
     :param path: the route.

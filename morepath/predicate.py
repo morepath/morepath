@@ -15,7 +15,7 @@ from .toposort import toposorted, Info
 from collections import defaultdict
 
 
-class PredicateRegistry(object):
+class PredicateRegistry:
     """A registry of what predicates are registered for which functions.
 
     It also keeps track of how predicates are to be ordered.
@@ -123,7 +123,7 @@ class PredicateInfo(Info):
     """
 
     def __init__(self, func, name, default, index, before, after):
-        super(PredicateInfo, self).__init__(func, before, after)
+        super().__init__(func, before, after)
         self.func = func
         self.name = name
         self.default = default

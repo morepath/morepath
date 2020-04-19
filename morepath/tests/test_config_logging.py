@@ -11,7 +11,7 @@ def test_config_logging_implicit_commit():
         pass
 
     @App.path(path="")
-    class Model(object):
+    class Model:
         pass
 
     @App.view(model=Model)

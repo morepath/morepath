@@ -146,7 +146,7 @@ def import_package(distribution):
         raise AutoImportError(distribution.project_name)
 
 
-class DependencyMap(object):
+class DependencyMap:
     """A registry that tracks dependencies between distributions.
 
     Used by :func:`morepath_packages` to find installed Python distributions
