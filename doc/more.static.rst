@@ -55,7 +55,7 @@ We give it a simple HTML page on the root HTML that contains a
 
 
   @App.path(path='/')
-  class Root(object):
+  class Root:
       pass
 
 
@@ -280,7 +280,7 @@ to serve a PNG image::
   from webob import static
 
   @App.path(path='')
-  class Image(object):
+  class Image:
       path = 'image.png'
 
   @App.view(model=Image)

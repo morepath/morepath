@@ -27,7 +27,7 @@ The :meth:`morepath.App.dump_json` directive lets you define a function
 that turns a model of a particular class into JSON. Here we define it
 for an ``Item`` class::
 
-  class Item(object):
+  class Item:
      def __init__(self, value):
          self.value = value
 

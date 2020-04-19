@@ -37,7 +37,7 @@ subclasses. This is a powerful mechanism to let you write generic UIs.
 
 For example, if we have this generic base class::
 
-  class ContainerBase(object):
+  class ContainerBase:
       def entries(self):
          """All entries in the container returned as a list."""
 
@@ -71,7 +71,7 @@ Model-driven Permissions
 Morepath features a very flexible but easy to use permission system.
 Let's say we have an ``Edit`` permission; it's just a class::
 
-  class Edit(object):
+  class Edit:
       pass
 
 And we have a view for some ``Document`` class that we only want to be

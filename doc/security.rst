@@ -194,10 +194,10 @@ permission.
 Let's say we want two permissions in our application, view and
 edit. We define those as plain Python classes::
 
-  class ViewPermission(object):
+  class ViewPermission:
       pass
 
-  class EditPermission(object):
+  class EditPermission:
       pass
 
 .. sidebar:: Permission Hierarchy

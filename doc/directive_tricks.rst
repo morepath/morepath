@@ -5,7 +5,7 @@ Directive tricks
 
   This in fact works::
 
-    class A(object):
+    class A:
         @classmethod
         @App.json(model=Foo)
         def foo_default(self, request):
@@ -16,7 +16,7 @@ Directive tricks
 
   This is **broken code**::
 
-    class A(object):
+    class A:
         @classmethod
         @App.json(model=Foo)
         def foo_default(cls, self, request):
@@ -28,7 +28,7 @@ Directive tricks
 
   This is also **broken code**::
 
-    class A(object):
+    class A:
         @App.json(model=Foo)
         @classmethod
         def foo_default(cls, self, request):
@@ -39,7 +39,7 @@ Directive tricks
 
   But if you do::
 
-    class A(object):
+    class A:
         @classmethod
         def foo_default(cls, self, request):
             ...
@@ -56,7 +56,7 @@ You usually use Morepath directives like decorators on functions::
 
 You can also use directives with ``@staticmethod``::
 
-  class A(object):
+  class A:
       @staticmethod
       @App.json(model=Foo)
       def foo_default(self, request):
@@ -68,7 +68,7 @@ Morepath directive is applied; it won't work the other away around.
 With ``@classmethod`` the situation is slightly more involved. This is the
 correct way to do it::
 
-  class A(object):
+  class A:
     @classmethod
     def foo_default(cls, self, request):
         ...

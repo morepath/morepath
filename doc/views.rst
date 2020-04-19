@@ -62,7 +62,7 @@ the rest. Let's see how that works.
 What if we want to have a view that works for any model that
 implements a certain API? Let's imagine we have a ``Collection`` model::
 
-  class Collection(object):
+  class Collection:
      def __init__(self, offset, limit):
          self.offset = offset
          self.limit = limit
@@ -89,7 +89,7 @@ This view is generic: it works for any kind of collection.
 
 We can now create a concrete collection that fulfills the requirements::
 
-  class Item(object):
+  class Item:
      def __init__(self, id):
          self.id = id
 
@@ -251,7 +251,7 @@ Permissions
 We can protect a view using a ``permission``. A permission is any
 Python class::
 
-  class Edit(object):
+  class Edit:
       pass
 
 The class doesn't do anything; it's just a marker for permission.

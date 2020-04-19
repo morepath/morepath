@@ -43,7 +43,7 @@ Paths
 
 Let's assume we have a model class ``Overview``::
 
-  class Overview(object):
+  class Overview:
       pass
 
 Here's how we could expose it to the web under the path ``overview``::
@@ -64,7 +64,7 @@ No variables are involved yet: they aren't in the ``path`` and the
 
 Let's try a single variable now. We have a class ``Document``::
 
-  class Document(object):
+  class Document:
       def __init__(self, name):
           self.name = name
 
@@ -86,7 +86,7 @@ view that knows how to display a ``Document`` instance.
 We can also have multiple variables in a path. We have a
 ``VersionedDocument``::
 
-  class VersionedDocument(object):
+  class VersionedDocument:
       def __init__(self, name, version):
           self.name = name
           self.version = version
@@ -125,7 +125,7 @@ URL parameters are more useful for queries. Let's imagine we have a
 collection of documents and we have an API on it that allows us to
 search in it for some ``text``::
 
-  class DocumentCollection(object):
+  class DocumentCollection:
       def __init__(self, text):
           self.text = text
 
@@ -201,7 +201,7 @@ retrieve the variables so that the path can be constructed.
 
 Here is a simple case involving ``Document`` again::
 
-  class Document(object):
+  class Document:
       def __init__(self, name):
           self.name = name
 
@@ -274,7 +274,7 @@ Or to spell it out without the use of ``lambda``::
 Let's change ``Document`` so that the name is stored in the ``id``
 attribute::
 
-  class DifferentDocument(object):
+  class DifferentDocument:
       def __init__(self, name):
           self.id = name
 
@@ -396,7 +396,7 @@ Let's say we want to be able to link to documents on the external site
 
 We can create a model for such an external document first::
 
-  class ExternalDocument(object):
+  class ExternalDocument:
       def __init__(self, id):
           self.id = id
 
@@ -428,7 +428,7 @@ or ``datetime``? What if we have a record that you obtain by an
 ``int`` id, for instance? Given some ``Record`` class that
 has an ``int`` id like this::
 
-  class Record(object):
+  class Record:
       def __init__(self, id):
           self.id = id
 
@@ -553,7 +553,7 @@ Let's now see how we can use ``date_converter``.
 We have some kind of ``Records`` collection that can be parameterized
 with ``start`` and ``end`` to select records in a date range::
 
-  class Records(object):
+  class Records:
      def __init__(self, start, end):
         self.start = start
         self.end = end
@@ -731,7 +731,7 @@ by the client-side router.
 You can do this using the special ``absorb`` argument to the path
 decorator, like this::
 
-  class Model(object):
+  class Model:
       def __init__(self, absorb):
           self.absorb = absorb
 
