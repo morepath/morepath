@@ -371,7 +371,7 @@ completely independent from Morepath and there is no reason to import
 anything Morepath related into this module. Here is an example
 ``model.py`` that just uses plain Python classes::
 
-  class Document(object):
+  class Document:
       def __init__(self, id, title, content):
           self.id = id
           self.title = title

@@ -73,12 +73,12 @@ Morepath Knows About Your Models
   class App(morepath.App):
       pass
 
-  class Document(object):
+  class Document:
       def __init__(self, id):
           self.id = id
 
   @App.path(path='')
-  class Root(object):
+  class Root:
       pass
 
   @App.path(path='documents/{id}', model=Document)
