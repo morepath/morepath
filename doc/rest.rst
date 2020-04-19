@@ -80,7 +80,7 @@ We could for instance have a ``Document`` model in our application:
 
 .. testcode::
 
-  class Document(object):
+  class Document:
       def __init__(self, title, author, content):
           self.title = title
           self.author = author
@@ -134,7 +134,7 @@ A collection resource could be modelled like this:
 
 .. testcode::
 
-  class DocumentCollection(object):
+  class DocumentCollection:
       def __init__(self):
           self.documents = []
           self.id_counter = 0

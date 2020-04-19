@@ -164,7 +164,7 @@ an application to manage users. Here's our ``User`` class:
 
 .. testcode::
 
-  class User(object):
+  class User:
       def __init__(self, username, fullname, email):
           self.username = username
           self.fullname = fullname

@@ -15,7 +15,7 @@ class reify:
 
       from morepath import reify
 
-      class Foo(object):
+      class Foo:
           @reify
           def jammy(self):
               print('jammy called')

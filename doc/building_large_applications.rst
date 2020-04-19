@@ -494,7 +494,7 @@ For instance::
   class Framework(morepath.App):
       pass
 
-  class Metadata(object):
+  class Metadata:
       def __init__(self, d):
           self.d = d # metadata dictionary
 
