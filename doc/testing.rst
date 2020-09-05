@@ -38,7 +38,7 @@ a test automation tool like pytest_ to run it:
 
 .. code-block:: console
 
-   $ py.test -q test_hello.py
+   $ pytest -q test_hello.py
    .
    1 passed in 0.13 seconds
 

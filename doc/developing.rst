@@ -71,19 +71,19 @@ install the `pre-commit hook`_ for Black integration before committing::
 Running the tests
 -----------------
 
-You can run the tests using `py.test`_::
+You can run the tests using `pytest`_::
 
-  $ py.test
+  $ pytest
 
 To generate test coverage information as HTML do::
 
-  $ py.test --cov --cov-report html
+  $ pytest --cov --cov-report html
 
 You can then point your web browser to the ``htmlcov/index.html`` file
 in the project directory and click on modules to see detailed coverage
 information.
 
-.. _`py.test`: http://pytest.org/latest/
+.. _`pytest`: http://pytest.org/latest/
 
 Black
 -----
@@ -179,7 +179,7 @@ directly.
 If you want to run the tests for one of them, let's say Reg, do::
 
   $ cd src/reg
-  $ py.test
+  $ pytest
 
 Tox
 ---

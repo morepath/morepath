@@ -7,7 +7,7 @@ pre-commit
 tox >= 2.4.1
 radon
 
-# py.test
+# pytest
 -r fixtures.txt
 
 # releaser
