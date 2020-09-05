@@ -120,8 +120,8 @@ def test_converter():
     assert not variables
 
 
-def sorted_steps(l):
-    steps = [Step(s) for s in l]
+def sorted_steps(input_list):
+    steps = [Step(s) for s in input_list]
     return [step.s for step in sorted(steps)]
 
 

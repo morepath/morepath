@@ -44,8 +44,8 @@ def test_converter_registry_inheritance():
         except KeyError:
             raise ValueError
 
-    def lifeform_encode(l):
-        return l.name
+    def lifeform_encode(lifeform):
+        return lifeform.name
 
     c = Converter(lifeform_decode, lifeform_encode)
     r.register_converter(Lifeform, c)
