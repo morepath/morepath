@@ -157,8 +157,7 @@ class DependencyMap(object):
         self._d = {}
 
     def load(self):
-        """Fill the registry with dependency information.
-        """
+        """Fill the registry with dependency information."""
         for dist in pkg_resources.working_set:
             for r in dist.requires():
                 self._d.setdefault(dist.project_name, set()).add(r.project_name)

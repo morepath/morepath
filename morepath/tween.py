@@ -13,8 +13,7 @@ from .toposort import toposorted, Info
 
 
 class TweenRegistry(object):
-    """Registry for tweens.
-    """
+    """Registry for tweens."""
 
     def __init__(self):
         self._tween_infos = []

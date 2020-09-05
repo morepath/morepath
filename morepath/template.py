@@ -132,8 +132,7 @@ class TemplateEngineRegistry(object):
 
 
 class TemplateDirectoryInfo(Info):
-    """Used by :class:`TemplateEngineRegistry` internally.
-    """
+    """Used by :class:`TemplateEngineRegistry` internally."""
 
     def __init__(self, key, directory, before, after, configurable):
         super(TemplateDirectoryInfo, self).__init__(key, before, after)

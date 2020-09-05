@@ -33,7 +33,6 @@ class SettingRegistry(object):
 
 
 class SettingSection(object):
-    """A setting section that contains setting.
-    """
+    """A setting section that contains setting."""
 
     pass

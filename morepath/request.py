@@ -311,8 +311,7 @@ class Request(BaseRequest):
         return func
 
     def _run_after(self, response):
-        """Run callbacks registered with :meth:`morepath.Request.after`.
-        """
+        """Run callbacks registered with :meth:`morepath.Request.after`."""
         # if we don't have anything to run, don't even check status
         if not self._after:
             return

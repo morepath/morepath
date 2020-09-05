@@ -51,10 +51,8 @@ class AutoImportError(ConfigError):
 
 
 class TrajectError(Exception):
-    """Raised when path supplied to traject is not allowed.
-    """
+    """Raised when path supplied to traject is not allowed."""
 
 
 class LinkError(Exception):
-    """Raised when a link cannot be made.
-    """
+    """Raised when a link cannot be made."""

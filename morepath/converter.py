@@ -63,8 +63,7 @@ class Converter(object):
         return [self.single_encode(value)]
 
     def is_missing(self, value):
-        """True is a given value is the missing value.
-        """
+        """True is a given value is the missing value."""
         # a single value is missing if the list is empty
         return value == []
 
@@ -115,8 +114,7 @@ class ListConverter(object):
         return [encode(v) for v in values]
 
     def is_missing(self, value):
-        """True is a given value is the missing value.
-        """
+        """True is a given value is the missing value."""
         # a list value is never missing, even if the list is empty
         return False
 
@@ -188,8 +186,7 @@ class ConverterRegistry(object):
         return spec
 
     def argument_and_explicit_converters(self, arguments, converters):
-        """Use explict converters unless none supplied, then use default args.
-        """
+        """Use explict converters unless none supplied, then use default args."""
         result = {
             name: self.get_converter(type(value))
             for name, value in arguments.items()
