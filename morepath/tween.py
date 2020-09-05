@@ -12,7 +12,7 @@ See also :class:`morepath.directive.TweenRegistry`
 from .toposort import toposorted, Info
 
 
-class TweenRegistry(object):
+class TweenRegistry:
     """Registry for tweens."""
 
     def __init__(self):

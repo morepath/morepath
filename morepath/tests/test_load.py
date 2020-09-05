@@ -8,7 +8,7 @@ def test_load():
         pass
 
     @App.path(path="/")
-    class Root(object):
+    class Root:
         pass
 
     def load(request):
@@ -31,7 +31,7 @@ def test_load_requires_three_arguments():
         pass
 
     @App.path(path="/")
-    class Root(object):
+    class Root:
         pass
 
     def load(request):
@@ -55,7 +55,7 @@ def test_load_json():
         pass
 
     @App.path(path="/")
-    class Root(object):
+    class Root:
         pass
 
     def load(request):
@@ -78,7 +78,7 @@ def test_load_html():
         pass
 
     @App.path(path="/")
-    class Root(object):
+    class Root:
         pass
 
     def load(request):

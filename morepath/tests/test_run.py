@@ -120,7 +120,7 @@ script-name: .*: 127.0.0.1:{}
 
         out, err = capsys.readouterr()
 
-        rex = "script-name: .*: 127.0.0.1:{}\n".format(used_port)
+        rex = f"script-name: .*: 127.0.0.1:{used_port}\n"
         assert re.match(rex, err)
         assert out == ""
 
@@ -157,7 +157,7 @@ def test_run_actual(capsys):
         thread = Thread(
             target=query,
             args=(
-                "http://127.0.0.1:{}".format(server.server_port),
+                f"http://127.0.0.1:{server.server_port}",
                 server.shutdown,
                 response,
             ),

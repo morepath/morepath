@@ -99,20 +99,19 @@ def run(
 
     try:
         server = make_server(args.host, args.port, wsgi)
-    except socket.error as ex:
+    except OSError as ex:
         hint = ""
         if ex.errno == errno.EADDRINUSE and not ignore_cli:
             hint = "\n  Use '--port PORT' to specify a different port.\n\n"
         parser.exit(
             ex.errno,
-            "{}: {}: {}:{}\n".format(parser.prog, ex, args.host, args.port)
-            + hint,
+            f"{parser.prog}: {ex}: {args.host}:{args.port}\n" + hint,
         )
 
     if callback is not None:
         callback(server)
 
-    print("Running {}".format(wsgi))
+    print(f"Running {wsgi}")
     print(
         "Listening on http://{}:{}".format(
             server.server_address[0], server.server_port

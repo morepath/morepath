@@ -13,11 +13,11 @@ def consume(mount, path, parameters=None):
     return mount.config.path_registry.consume(request), request
 
 
-class Root(object):
+class Root:
     pass
 
 
-class Model(object):
+class Model:
     pass
 
 

@@ -6,7 +6,7 @@ def test_code_info():
         pass
 
     @App.path(path="")
-    class Model(object):
+    class Model:
         def __init__(self):
             pass
 

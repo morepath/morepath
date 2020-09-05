@@ -6,11 +6,11 @@ class app(morepath.App):
 
 
 # for which there is no known converter
-class Dummy(object):
+class Dummy:
     pass
 
 
-class Foo(object):
+class Foo:
     pass
 
 

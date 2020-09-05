@@ -159,7 +159,7 @@ def test_tween_directive():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=Root)

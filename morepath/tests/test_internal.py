@@ -7,7 +7,7 @@ def test_internal():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.json(model=Root)

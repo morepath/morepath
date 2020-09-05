@@ -5,7 +5,7 @@ class app(morepath.App):
     pass
 
 
-class Model(object):
+class Model:
     def __init__(self, id):
         self.id = id
 

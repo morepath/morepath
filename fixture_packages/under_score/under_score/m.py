@@ -5,7 +5,7 @@ class UnderscoreApp(morepath.App):
     pass
 
 
-class Bar(object):
+class Bar:
     pass
 
 

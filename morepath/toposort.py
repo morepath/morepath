@@ -24,7 +24,7 @@ def toposorted(infos):
     return topological_sort(infos, lambda info: depends[info.key])
 
 
-class Info(object):
+class Info:
     """Toposorted info helper.
 
     Base class that helps with toposorted. ``before`` and ``after``

@@ -9,7 +9,7 @@ def test_missing_arguments_in_path_function_error():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     @App.path(path="{id}", model=Model)
@@ -24,7 +24,7 @@ def test_path_function_with_args_error():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -40,7 +40,7 @@ def test_path_function_with_kwargs():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 

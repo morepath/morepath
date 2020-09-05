@@ -180,11 +180,11 @@ def test_converter():
     assert r == [core.int_converter]
 
 
-class Foos(object):
+class Foos:
     pass
 
 
-class Base(object):
+class Base:
     pass
 
 
@@ -306,7 +306,7 @@ def test_path():
     assert r == [get_foo]
 
 
-class BasePermission(object):
+class BasePermission:
     pass
 
 

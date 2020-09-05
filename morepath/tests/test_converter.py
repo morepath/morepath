@@ -23,7 +23,7 @@ def test_converter_registry():
 def test_converter_registry_inheritance():
     r = ConverterRegistry()
 
-    class Lifeform(object):
+    class Lifeform:
         def __init__(self, name):
             self.name = name
 

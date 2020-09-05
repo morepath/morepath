@@ -16,7 +16,7 @@ import reg
 from dectate import DirectiveError
 
 
-class Converter(object):
+class Converter:
     """Decode from strings to objects and back.
 
     Used internally by the :meth:`morepath.App.converter` directive.
@@ -79,7 +79,7 @@ class Converter(object):
         return not self == other
 
 
-class ListConverter(object):
+class ListConverter:
     """How to decode from list of strings to list of objects and back.
 
     Used :class:`morepath.converter.ConverterRegistry` to handle
@@ -143,7 +143,7 @@ def get_converter(type):
     raise DirectiveError("Cannot find converter for type: %r" % type)
 
 
-class ConverterRegistry(object):
+class ConverterRegistry:
     """A registry for converters.
 
     Used to decode/encode URL parameters and path variables used

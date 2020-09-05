@@ -5,12 +5,12 @@ class app(morepath.App):
     pass
 
 
-class Model(object):
+class Model:
     def __init__(self, id):
         self.id = id
 
 
-class Permission(object):
+class Permission:
     pass
 
 
@@ -29,7 +29,7 @@ def model_permission(identity, model, permission):
     return model.id == "foo"
 
 
-class IdentityPolicy(object):
+class IdentityPolicy:
     def identify(self, request):
         return morepath.Identity("testidentity")
 

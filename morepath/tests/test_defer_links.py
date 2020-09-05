@@ -12,7 +12,7 @@ def test_defer_links():
         pass
 
     @Root.path(path="")
-    class RootModel(object):
+    class RootModel:
         pass
 
     @Root.view(model=RootModel)
@@ -24,7 +24,7 @@ def test_defer_links():
         return request.class_link(SubModel)
 
     @Sub.path(path="")
-    class SubModel(object):
+    class SubModel:
         pass
 
     @Root.mount(app=Sub, path="sub")
@@ -52,7 +52,7 @@ def test_defer_view():
         pass
 
     @Root.path(path="")
-    class RootModel(object):
+    class RootModel:
         pass
 
     @Root.json(model=RootModel)
@@ -60,7 +60,7 @@ def test_defer_view():
         return request.view(SubModel())
 
     @Sub.path(path="")
-    class SubModel(object):
+    class SubModel:
         pass
 
     @Sub.json(model=SubModel)
@@ -89,7 +89,7 @@ def test_defer_view_predicates():
         pass
 
     @Root.path(path="")
-    class RootModel(object):
+    class RootModel:
         pass
 
     @Root.json(model=RootModel)
@@ -97,7 +97,7 @@ def test_defer_view_predicates():
         return request.view(SubModel(), name="edit")
 
     @Sub.path(path="")
-    class SubModel(object):
+    class SubModel:
         pass
 
     @Sub.json(model=SubModel, name="edit")
@@ -126,7 +126,7 @@ def test_defer_view_missing_view():
         pass
 
     @Root.path(path="")
-    class RootModel(object):
+    class RootModel:
         pass
 
     @Root.json(model=RootModel)
@@ -134,7 +134,7 @@ def test_defer_view_missing_view():
         return {"not_found": request.view(SubModel(), name="unknown")}
 
     @Sub.path(path="")
-    class SubModel(object):
+    class SubModel:
         pass
 
     @Sub.json(model=SubModel, name="edit")
@@ -166,14 +166,14 @@ def test_defer_links_mount_parameters():
             self.name = name
 
     @root.path(path="")
-    class RootModel(object):
+    class RootModel:
         pass
 
     @root.view(model=RootModel)
     def root_model_default(self, request):
         return request.link(SubModel("foo"))
 
-    class SubModel(object):
+    class SubModel:
         def __init__(self, name):
             self.name = name
 
@@ -205,7 +205,7 @@ def test_defer_link_acquisition():
         pass
 
     @root.path(path="model/{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -214,7 +214,7 @@ def test_defer_link_acquisition():
         return "Hello"
 
     @sub.path(path="")
-    class SubModel(object):
+    class SubModel:
         pass
 
     @sub.view(model=SubModel)
@@ -243,7 +243,7 @@ def test_defer_view_acquisition():
         pass
 
     @root.path(path="model/{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -252,7 +252,7 @@ def test_defer_view_acquisition():
         return {"Hello": "World"}
 
     @sub.path(path="")
-    class SubModel(object):
+    class SubModel:
         pass
 
     @sub.json(model=SubModel)
@@ -281,7 +281,7 @@ def test_defer_link_acquisition_blocking():
         pass
 
     @root.path(path="model/{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -290,7 +290,7 @@ def test_defer_link_acquisition_blocking():
         return "Hello"
 
     @sub.path(path="")
-    class SubModel(object):
+    class SubModel:
         pass
 
     @sub.view(model=SubModel)
@@ -320,7 +320,7 @@ def test_defer_view_acquisition_blocking():
         pass
 
     @root.path(path="model/{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -329,7 +329,7 @@ def test_defer_view_acquisition_blocking():
         return {"Hello": "World"}
 
     @sub.path(path="")
-    class SubModel(object):
+    class SubModel:
         pass
 
     @sub.json(model=SubModel)
@@ -356,7 +356,7 @@ def test_defer_link_should_not_cause_web_views_to_exist():
         pass
 
     @root.path(path="")
-    class Model(object):
+    class Model:
         pass
 
     @root.view(model=Model)
@@ -401,10 +401,10 @@ def test_defer_link_to_parent_from_root():
         pass
 
     @root.path(path="")
-    class Model(object):
+    class Model:
         pass
 
-    class OtherModel(object):
+    class OtherModel:
         pass
 
     @root.view(model=Model)
@@ -428,7 +428,7 @@ def test_special_link_overrides_deferred_link():
     class alpha(morepath.App):
         pass
 
-    class AlphaModel(object):
+    class AlphaModel:
         pass
 
     class SpecialAlphaModel(AlphaModel):
@@ -439,7 +439,7 @@ def test_special_link_overrides_deferred_link():
         return alpha()
 
     @root.path(path="")
-    class RootModel(object):
+    class RootModel:
         pass
 
     @root.path(model=SpecialAlphaModel, path="roots_alpha")
@@ -482,7 +482,7 @@ def test_deferred_deferred_link():
         pass
 
     @root.path(path="")
-    class RootModel(object):
+    class RootModel:
         pass
 
     @root.view(model=RootModel)
@@ -490,11 +490,11 @@ def test_deferred_deferred_link():
         return request.link(AlphaModel())
 
     @alpha.path(path="")
-    class AlphaModel(object):
+    class AlphaModel:
         pass
 
     @beta.path(path="")
-    class BetaModel(object):
+    class BetaModel:
         pass
 
     @beta.view(model=BetaModel)
@@ -537,7 +537,7 @@ def test_deferred_deferred_view():
         pass
 
     @root.path(path="")
-    class RootModel(object):
+    class RootModel:
         pass
 
     @root.json(model=RootModel)
@@ -545,7 +545,7 @@ def test_deferred_deferred_view():
         return request.view(AlphaModel())
 
     @alpha.path(path="")
-    class AlphaModel(object):
+    class AlphaModel:
         pass
 
     @alpha.json(model=AlphaModel)
@@ -553,7 +553,7 @@ def test_deferred_deferred_view():
         return {"model": "alpha"}
 
     @beta.path(path="")
-    class BetaModel(object):
+    class BetaModel:
         pass
 
     @beta.json(model=BetaModel)
@@ -604,11 +604,11 @@ def test_deferred_view_has_app_of_defer():
         return beta()
 
     @root.path(path="")
-    class RootModel(object):
+    class RootModel:
         pass
 
     @alpha.path(path="")
-    class AlphaModel(object):
+    class AlphaModel:
         pass
 
     @alpha.json(model=AlphaModel)
@@ -619,7 +619,7 @@ def test_deferred_view_has_app_of_defer():
             return "wrong"
 
     @beta.path(path="")
-    class BetaModel(object):
+    class BetaModel:
         pass
 
     @beta.json(model=BetaModel)
@@ -644,11 +644,11 @@ def test_deferred_loop():
         pass
 
     @root.path(path="")
-    class RootModel(object):
+    class RootModel:
         pass
 
     # not actually exposed with path anywhere!
-    class Model(object):
+    class Model:
         pass
 
     @root.json(model=RootModel)
@@ -689,11 +689,11 @@ def test_deferred_loop_siblings():
         pass
 
     @Root.path(path="")
-    class RootModel(object):
+    class RootModel:
         pass
 
     # not actually exposed with path anywhere!
-    class Model(object):
+    class Model:
         pass
 
     @Root.json(model=RootModel)
@@ -737,7 +737,7 @@ def test_defer_link_scenario():
     class Child(morepath.App):
         pass
 
-    class Document(object):
+    class Document:
         pass
 
     @App.mount(app=Child, path="child")
@@ -749,7 +749,7 @@ def test_defer_link_scenario():
         return app.child(Child())
 
     @App.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @App.json(model=Root)
@@ -801,7 +801,7 @@ def test_defer_class_links_without_variables():
         pass
 
     @Root.path(path="")
-    class RootModel(object):
+    class RootModel:
         pass
 
     @Root.view(model=RootModel)
@@ -809,7 +809,7 @@ def test_defer_class_links_without_variables():
         return request.class_link(SubModel)
 
     @Sub.path(path="")
-    class SubModel(object):
+    class SubModel:
         pass
 
     @Root.mount(app=Sub, path="sub")
@@ -834,7 +834,7 @@ def test_defer_class_links_with_variables():
         pass
 
     @Root.path(path="")
-    class RootModel(object):
+    class RootModel:
         pass
 
     @Root.view(model=RootModel)
@@ -842,7 +842,7 @@ def test_defer_class_links_with_variables():
         return request.class_link(SubModel, variables=dict(name="foo"))
 
     @Sub.path(path="{name}")
-    class SubModel(object):
+    class SubModel:
         def __init__(self, name):
             self.name = name
 
@@ -870,11 +870,11 @@ def test_deferred_class_link_loop():
         pass
 
     @Root.path(path="")
-    class RootModel(object):
+    class RootModel:
         pass
 
     # not actually exposed with path anywhere!
-    class SubModel(object):
+    class SubModel:
         pass
 
     @Root.view(model=RootModel)
@@ -910,7 +910,7 @@ def test_link_uses_defer_class_links():
         pass
 
     @Root.path(path="")
-    class RootModel(object):
+    class RootModel:
         pass
 
     @Root.view(model=RootModel)
@@ -918,7 +918,7 @@ def test_link_uses_defer_class_links():
         return request.link(SubModel("foo"))
 
     @Sub.path(path="{name}")
-    class SubModel(object):
+    class SubModel:
         def __init__(self, name):
             self.name = name
 
@@ -946,7 +946,7 @@ def test_defer_links_and_defer_links_conflict():
         pass
 
     @Root.path(path="")
-    class RootModel(object):
+    class RootModel:
         pass
 
     @Root.view(model=RootModel)
@@ -954,7 +954,7 @@ def test_defer_links_and_defer_links_conflict():
         return request.link(SubModel("foo"))
 
     @Sub.path(path="{name}")
-    class SubModel(object):
+    class SubModel:
         def __init__(self, name):
             self.name = name
 

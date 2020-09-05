@@ -48,7 +48,7 @@ PATH_VARIABLE = re.compile(r"\{([^}]*)\}")
 
 
 @total_ordering
-class Step(object):
+class Step:
     """A single step in the tree.
 
     :param s: the path segment, such as ``'foo'`` or ``'{variable}'`` or
@@ -176,7 +176,7 @@ class Step(object):
         return self.parts > other.parts
 
 
-class Node(object):
+class Node:
     """A node in the traject tree."""
 
     def __init__(self):
@@ -207,7 +207,7 @@ class Node(object):
                 return node
             if node.step.generalized == step.generalized:
                 raise TrajectError(
-                    "step %s and %s are in conflict" % (node.step.s, step.s)
+                    f"step {node.step.s} and {step.s} are in conflict"
                 )
             if step > node.step:
                 continue
@@ -246,7 +246,7 @@ class StepNode(Node):
     """
 
     def __init__(self, step):
-        super(StepNode, self).__init__()
+        super().__init__()
         self.step = step
 
     def match(self, segment, variables):
@@ -254,7 +254,7 @@ class StepNode(Node):
         return self.step.match(segment, variables)
 
 
-class Path(object):
+class Path:
     """Helper when registering paths.
 
     Used by :meth:`morepath.App.path` to register inverse paths used for
@@ -290,7 +290,7 @@ class Path(object):
         return set(result)
 
 
-class TrajectRegistry(object):
+class TrajectRegistry:
     """Tree of route steps."""
 
     def __init__(self):
@@ -396,7 +396,7 @@ class TrajectRegistry(object):
         return node.create(variables, request)
 
 
-class ParameterFactory(object):
+class ParameterFactory:
     """Convert URL parameters.
 
     Given expected URL parameters, converters for them and required
@@ -437,7 +437,7 @@ class ParameterFactory(object):
                 result[name] = converter.decode(value)
             except ValueError:
                 raise HTTPBadRequest(
-                    "Cannot decode URL parameter %s: %s" % (name, value)
+                    f"Cannot decode URL parameter {name}: {value}"
                 )
 
         if not self.extra:
@@ -452,7 +452,7 @@ class ParameterFactory(object):
                 extra[name] = converter.decode(value)
             except ValueError:
                 raise HTTPBadRequest(
-                    "Cannot decode URL parameter %s: %s" % (name, value)
+                    f"Cannot decode URL parameter {name}: {value}"
                 )
         result["extra_parameters"] = extra
         return result
