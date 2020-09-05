@@ -91,7 +91,6 @@ def run(
 
     """
     import errno
-    import socket
     from wsgiref.simple_server import make_server
 
     parser = make_parser(prog, host, port)

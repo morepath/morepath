@@ -1,4 +1,3 @@
-import io
 from setuptools import setup, find_packages
 
 long_description = "\n".join(
