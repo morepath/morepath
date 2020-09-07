@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import dectate
 import morepath
 from morepath.converter import Converter
@@ -18,7 +16,7 @@ def test_simple_path_one_step():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self):
             pass
 
@@ -47,7 +45,7 @@ def test_simple_path_two_steps():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self):
             pass
 
@@ -76,7 +74,7 @@ def test_variable_path_one_step():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, name):
             self.name = name
 
@@ -105,7 +103,7 @@ def test_variable_path_two_steps():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, name):
             self.name = name
 
@@ -134,7 +132,7 @@ def test_variable_path_two_variables():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, name, version):
             self.name = name
             self.version = version
@@ -145,7 +143,7 @@ def test_variable_path_two_variables():
 
     @app.view(model=Model)
     def default(self, request):
-        return "View: %s %s" % (self.name, self.version)
+        return f"View: {self.name} {self.version}"
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -164,7 +162,7 @@ def test_variable_path_explicit_converter():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -174,7 +172,7 @@ def test_variable_path_explicit_converter():
 
     @app.view(model=Model)
     def default(self, request):
-        return "View: %s (%s)" % (self.id, type(self.id))
+        return "View: {} ({})".format(self.id, type(self.id))
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -198,7 +196,7 @@ def test_variable_path_implicit_converter():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -208,7 +206,7 @@ def test_variable_path_implicit_converter():
 
     @app.view(model=Model)
     def default(self, request):
-        return "View: %s (%s)" % (self.id, type(self.id))
+        return "View: {} ({})".format(self.id, type(self.id))
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -232,7 +230,7 @@ def test_variable_path_explicit_trumps_implicit():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -242,7 +240,7 @@ def test_variable_path_explicit_trumps_implicit():
 
     @app.view(model=Model)
     def default(self, request):
-        return "View: %s (%s)" % (self.id, type(self.id))
+        return "View: {} ({})".format(self.id, type(self.id))
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -266,7 +264,7 @@ def test_url_parameter_explicit_converter():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -276,7 +274,7 @@ def test_url_parameter_explicit_converter():
 
     @app.view(model=Model)
     def default(self, request):
-        return "View: %s (%s)" % (self.id, type(self.id))
+        return "View: {} ({})".format(self.id, type(self.id))
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -306,7 +304,7 @@ def test_url_parameter_explicit_converter_get_converters():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -319,7 +317,7 @@ def test_url_parameter_explicit_converter_get_converters():
 
     @app.view(model=Model)
     def default(self, request):
-        return "View: %s (%s)" % (self.id, type(self.id))
+        return "View: {} ({})".format(self.id, type(self.id))
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -349,7 +347,7 @@ def test_url_parameter_get_converters_overrides_converters():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -367,7 +365,7 @@ def test_url_parameter_get_converters_overrides_converters():
 
     @app.view(model=Model)
     def default(self, request):
-        return "View: %s (%s)" % (self.id, type(self.id))
+        return "View: {} ({})".format(self.id, type(self.id))
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -397,7 +395,7 @@ def test_url_parameter_implicit_converter():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -407,7 +405,7 @@ def test_url_parameter_implicit_converter():
 
     @app.view(model=Model)
     def default(self, request):
-        return "View: %s (%s)" % (self.id, type(self.id))
+        return "View: {} ({})".format(self.id, type(self.id))
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -437,7 +435,7 @@ def test_multiple_url_parameters_stable_order():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, a, b):
             self.a = a
             self.b = b
@@ -460,7 +458,7 @@ def test_url_parameter_explicit_trumps_implicit():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -470,7 +468,7 @@ def test_url_parameter_explicit_trumps_implicit():
 
     @app.view(model=Model)
     def default(self, request):
-        return "View: %s (%s)" % (self.id, type(self.id))
+        return "View: {} ({})".format(self.id, type(self.id))
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -500,7 +498,7 @@ def test_decode_encode():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -539,11 +537,11 @@ def test_unknown_converter():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, d):
             self.d = d
 
-    class Unknown(object):
+    class Unknown:
         pass
 
     @app.path(model=Model, path="/")
@@ -566,11 +564,11 @@ def test_not_all_path_variables_arguments_of_model_factory():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, foo):
             self.foo = foo
 
-    class Unknown(object):
+    class Unknown:
         pass
 
     @App.path(model=Model, path="/{foo}/{bar}")
@@ -588,11 +586,11 @@ def test_unknown_explicit_converter():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, d):
             self.d = d
 
-    class Unknown(object):
+    class Unknown:
         pass
 
     @app.path(model=Model, path="/", converters={"d": Unknown})
@@ -615,7 +613,7 @@ def test_default_date_converter():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, d):
             self.d = d
 
@@ -654,7 +652,7 @@ def test_default_datetime_converter():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, d):
             self.d = d
 
@@ -693,7 +691,7 @@ def test_custom_date_converter():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, d):
             self.d = d
 
@@ -743,7 +741,7 @@ def test_variable_path_parameter_required_no_default():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -771,7 +769,7 @@ def test_variable_path_parameter_required_with_default():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -799,7 +797,7 @@ def test_type_hints_and_converters():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, d):
             self.d = d
 
@@ -830,7 +828,7 @@ def test_link_for_none_means_no_parameter():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -859,7 +857,7 @@ def test_path_and_url_parameter_converter():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id, param):
             self.id = id
             self.param = param
@@ -872,7 +870,7 @@ def test_path_and_url_parameter_converter():
 
     @app.view(model=Model)
     def default(self, request):
-        return "View: %s %s" % (self.id, self.param)
+        return f"View: {self.id} {self.param}"
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -888,10 +886,10 @@ def test_path_converter_fallback_on_view():
     class app(morepath.App):
         pass
 
-    class Root(object):
+    class Root:
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
@@ -924,7 +922,7 @@ def test_root_named_link():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=Root)
@@ -941,11 +939,11 @@ def test_path_class_and_model_argument():
     class app(morepath.App):
         pass
 
-    class Foo(object):
+    class Foo:
         pass
 
     @app.path(path="", model=Foo)
-    class Root(object):
+    class Root:
         pass
 
     with pytest.raises(ConfigError):
@@ -968,7 +966,7 @@ def test_url_parameter_list():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, item):
             self.item = item
 
@@ -1005,7 +1003,7 @@ def test_url_parameter_list_empty():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, item):
             self.item = item
 
@@ -1040,7 +1038,7 @@ def test_url_parameter_list_explicit_converter():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, item):
             self.item = item
 
@@ -1077,11 +1075,11 @@ def test_url_parameter_list_unknown_explicit_converter():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, item):
             self.item = item
 
-    class Unknown(object):
+    class Unknown:
         pass
 
     @app.path(model=Model, path="/", converters={"item": [Unknown]})
@@ -1096,7 +1094,7 @@ def test_url_parameter_list_but_only_one_allowed():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, item):
             self.item = item
 
@@ -1123,7 +1121,7 @@ def test_extra_parameters():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, extra_parameters):
             self.extra_parameters = extra_parameters
 
@@ -1157,7 +1155,7 @@ def test_extra_parameters_with_get_converters():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, extra_parameters):
             self.extra_parameters = extra_parameters
 
@@ -1199,7 +1197,7 @@ def test_script_name():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self):
             pass
 
@@ -1234,11 +1232,11 @@ def test_sub_path_different_variable():
     class App(morepath.App):
         pass
 
-    class Foo(object):
+    class Foo:
         def __init__(self, id):
             self.id = id
 
-    class Bar(object):
+    class Bar:
         def __init__(self, id, foo):
             self.id = id
             self.foo = foo
@@ -1257,7 +1255,7 @@ def test_sub_path_different_variable():
 
     @App.view(model=Bar)
     def default_bar(self, request):
-        return "S: %s %s" % (self.id, self.foo.id)
+        return f"S: {self.id} {self.foo.id}"
 
     c = Client(App())
 
@@ -1275,10 +1273,10 @@ def test_absorb_path():
     class app(morepath.App):
         pass
 
-    class Root(object):
+    class Root:
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, absorb):
             self.absorb = absorb
 
@@ -1318,10 +1316,10 @@ def test_absorb_path_with_variables():
     class app(morepath.App):
         pass
 
-    class Root(object):
+    class Root:
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id, absorb):
             self.id = id
             self.absorb = absorb
@@ -1336,7 +1334,7 @@ def test_absorb_path_with_variables():
 
     @app.view(model=Model)
     def default(self, request):
-        return "I:%s A:%s" % (self.id, self.absorb)
+        return f"I:{self.id} A:{self.absorb}"
 
     @app.view(model=Root)
     def default_root(self, request):
@@ -1362,14 +1360,14 @@ def test_absorb_path_explicit_subpath_ignored():
     class app(morepath.App):
         pass
 
-    class Root(object):
+    class Root:
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, absorb):
             self.absorb = absorb
 
-    class Another(object):
+    class Another:
         pass
 
     @app.path(model=Root, path="")
@@ -1413,7 +1411,7 @@ def test_absorb_path_root():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, absorb):
             self.absorb = absorb
 
@@ -1423,7 +1421,7 @@ def test_absorb_path_root():
 
     @app.view(model=Model)
     def default(self, request):
-        return "A:%s L:%s" % (self.absorb, request.link(self))
+        return "A:{} L:{}".format(self.absorb, request.link(self))
 
     c = Client(app())
 
@@ -1441,7 +1439,7 @@ def test_path_explicit_variables():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.store_id = id
 
@@ -1465,7 +1463,7 @@ def test_path_explicit_variables_app_arg():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.store_id = id
 
@@ -1491,7 +1489,7 @@ def test_error_when_path_variable_is_none():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.store_id = id
 
@@ -1513,7 +1511,7 @@ def test_error_when_path_variable_is_missing():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.store_id = id
 
@@ -1535,7 +1533,7 @@ def test_error_when_path_variables_isnt_dict():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.store_id = id
 
@@ -1557,7 +1555,7 @@ def test_resolve_path_method_on_request_same_app():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self):
             pass
 
@@ -1591,7 +1589,7 @@ def test_resolve_path_method_on_request_different_app():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self):
             pass
 
@@ -1607,7 +1605,7 @@ def test_resolve_path_method_on_request_different_app():
     class Sub(morepath.App):
         pass
 
-    class SubModel(object):
+    class SubModel:
         pass
 
     @Sub.path(model=SubModel, path="p")
@@ -1628,7 +1626,7 @@ def test_resolve_path_with_dots_in_url():
     class app(morepath.App):
         pass
 
-    class Root(object):
+    class Root:
         def __init__(self, absorb):
             self.absorb = absorb
 
@@ -1662,7 +1660,7 @@ def test_quoting_link_generation():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self):
             pass
 
@@ -1691,7 +1689,7 @@ def test_quoting_link_generation_umlaut():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self):
             pass
 
@@ -1725,7 +1723,7 @@ def test_quoting_link_generation_tilde():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self):
             pass
 
@@ -1754,7 +1752,7 @@ def test_parameter_quoting():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, s):
             self.s = s
 
@@ -1773,7 +1771,7 @@ def test_parameter_quoting():
     c = Client(App())
 
     response = c.get("/?s=sim%C3%ABple")
-    assert response.body == "View: simëple".encode("utf-8")
+    assert response.body == "View: simëple".encode()
 
     response = c.get("/link?s=sim%C3%ABple")
     assert response.body == b"http://localhost/?s=sim%C3%ABple"
@@ -1783,7 +1781,7 @@ def test_parameter_quoting_tilde():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, s):
             self.s = s
 
@@ -1802,7 +1800,7 @@ def test_parameter_quoting_tilde():
     c = Client(App())
 
     response = c.get("/?s=sim~ple")
-    assert response.body == "View: sim~ple".encode("utf-8")
+    assert response.body == b"View: sim~ple"
 
     response = c.get("/link?s=sim~ple")
     assert response.body == b"http://localhost/?s=sim~ple"
@@ -1812,7 +1810,7 @@ def test_class_link_without_variables():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     @App.path(model=Model, path="/foo")
@@ -1833,7 +1831,7 @@ def test_class_link_no_app():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     @App.path(model=Model, path="/foo")
@@ -1854,7 +1852,7 @@ def test_class_link_with_variables():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     @App.path(model=Model, path="/foo/{x}")
@@ -1875,7 +1873,7 @@ def test_class_link_with_missing_variables():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     @App.path(model=Model, path="/foo/{x}")
@@ -1896,7 +1894,7 @@ def test_class_link_with_extra_variable():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     @App.path(model=Model, path="/foo/{x}")
@@ -1917,7 +1915,7 @@ def test_class_link_with_url_parameter_variable():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     @App.path(model=Model, path="/foo/{x}")
@@ -1938,7 +1936,7 @@ def test_class_link_with_subclass():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     class Sub(Model):
@@ -1962,10 +1960,10 @@ def test_absorb_class_path():
     class App(morepath.App):
         pass
 
-    class Root(object):
+    class Root:
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, absorb):
             self.absorb = absorb
 
@@ -1996,10 +1994,10 @@ def test_absorb_class_path_with_variables():
     class App(morepath.App):
         pass
 
-    class Root(object):
+    class Root:
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id, absorb):
             self.id = id
             self.absorb = absorb
@@ -2014,7 +2012,7 @@ def test_absorb_class_path_with_variables():
 
     @App.view(model=Model)
     def default(self, request):
-        return "I:%s A:%s" % (self.id, self.absorb)
+        return f"I:{self.id} A:{self.absorb}"
 
     @App.view(model=Root)
     def default_root(self, request):
@@ -2031,7 +2029,7 @@ def test_class_link_extra_parameters():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, extra_parameters):
             self.extra_parameters = extra_parameters
 
@@ -2063,12 +2061,12 @@ def test_path_on_model_class():
         pass
 
     @App.path("/")
-    class Model(object):
+    class Model:
         def __init__(self):
             pass
 
     @App.path("/login")
-    class Login(object):
+    class Login:
         pass
 
     @App.view(model=Model)
@@ -2105,7 +2103,7 @@ def test_two_path_on_same_model_should_conflict():
 
     @App.path("/login")
     @App.path("/")
-    class Login(object):
+    class Login:
         pass
 
     with pytest.raises(dectate.ConflictError):
@@ -2117,7 +2115,7 @@ def test_path_on_same_model_explicit_and_class_should_conflict():
         pass
 
     @App.path("/")
-    class Login(object):
+    class Login:
         pass
 
     @App.path("/login", model=Login)
@@ -2132,7 +2130,7 @@ def test_nonexisting_path_too_long_unconsumed():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self):
             pass
 
@@ -2153,11 +2151,11 @@ def test_collection_and_item():
     class App(morepath.App):
         pass
 
-    class Collection(object):
+    class Collection:
         def __init__(self):
             self.items = {}
 
-    class Item(object):
+    class Item:
         def __init__(self, id):
             self.id = id
 
@@ -2194,7 +2192,7 @@ def test_view_for_missing():
     class App(morepath.App):
         pass
 
-    class Item(object):
+    class Item:
         def __init__(self, id):
             self.id = id
 
@@ -2220,14 +2218,14 @@ def test_absorb_error():
         pass
 
     @App.path("/")
-    class Root(object):
+    class Root:
         pass
 
     @App.view(model=Root)
     def view_root(self, request):
         return "root"
 
-    class File(object):
+    class File:
         def __init__(self, absorb):
             self.absorb = absorb
 
@@ -2254,7 +2252,7 @@ def test_named_view_on_root():
         pass
 
     @App.path(path="/")
-    class Root(object):
+    class Root:
         pass
 
     @App.view(model=Root, name="named")

@@ -26,7 +26,7 @@ def test_mapply_args():
 
 
 def test_mapply_with_method():
-    class Foo(object):
+    class Foo:
         def method(self, a):
             return "method with %s" % a
 
@@ -36,7 +36,7 @@ def test_mapply_with_method():
 
 
 def test_mapply_with_constructor():
-    class Foo(object):
+    class Foo:
         def __init__(self, a):
             self.a = a
 
@@ -54,7 +54,7 @@ def test_mapply_with_old_style_class():
 
 
 def test_mapply_callable_object():
-    class Foo(object):
+    class Foo:
         def __call__(self, a):
             return "called with %s" % a
 
@@ -108,7 +108,7 @@ def test_mapply_all_args_kw():
 
 
 def test_mapply_class():
-    class Foo(object):
+    class Foo:
         def __init__(self):
             pass
 
@@ -116,7 +116,7 @@ def test_mapply_class():
 
 
 def test_mapply_class_too_much():
-    class Foo(object):
+    class Foo:
         def __init__(self):
             pass
 
@@ -132,7 +132,7 @@ def test_mapply_classic_class_too_much():
 
 
 def test_mapply_class_no_init_too_much():
-    class Foo(object):
+    class Foo:
         pass
 
     variables = {"base": None}
@@ -147,7 +147,7 @@ def test_mapply_classic_class_no_init_too_much():
 
 
 def test_mapply_kw_class():
-    class Foo(object):
+    class Foo:
         def __init__(self, **kw):
             self.kw = kw
 
@@ -155,7 +155,7 @@ def test_mapply_kw_class():
 
 
 def test_mapply_args_class():
-    class Foo(object):
+    class Foo:
         def __init__(self, *args):
             self.args = args
 
@@ -164,7 +164,7 @@ def test_mapply_args_class():
 
 
 def test_mapply_args_kw_class():
-    class Foo(object):
+    class Foo:
         def __init__(self, *args, **kw):
             self.args = args
             self.kw = kw
@@ -178,7 +178,7 @@ def test_mapply_args_kw_class():
 
 
 def test_mapply_all_args_kw_class():
-    class Foo(object):
+    class Foo:
         def __init__(self, a, *args, **kw):
             self.a = a
             self.args = args

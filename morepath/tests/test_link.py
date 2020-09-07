@@ -19,7 +19,7 @@ def info():
 def test_path_without_variables(info):
     app, r = info
 
-    class Foo(object):
+    class Foo:
         pass
 
     r.register_inverse_path(model=Foo, path="/", factory_args=set())
@@ -31,13 +31,13 @@ def test_path_without_variables(info):
 def test_path_with_variables(info):
     app, r = info
 
-    class Foo(object):
+    class Foo:
         def __init__(self, name):
             self.name = name
 
     r.register_path_variables(Foo, lambda obj: {"name": obj.name})
     r.register_inverse_path(
-        model=Foo, path="/foos/{name}", factory_args=set(["name"])
+        model=Foo, path="/foos/{name}", factory_args={"name"}
     )
     info = app._get_path(Foo("a"))
     assert info.path == "foos/a"
@@ -47,12 +47,12 @@ def test_path_with_variables(info):
 def test_path_with_default_variables(info):
     app, r = info
 
-    class Foo(object):
+    class Foo:
         def __init__(self, name):
             self.name = name
 
     r.register_inverse_path(
-        model=Foo, path="/foos/{name}", factory_args=set(["name"])
+        model=Foo, path="/foos/{name}", factory_args={"name"}
     )
     info = app._get_path(Foo("a"))
     assert info.path == "foos/a"
@@ -62,12 +62,12 @@ def test_path_with_default_variables(info):
 def test_path_with_parameters(info):
     app, r = info
 
-    class Foo(object):
+    class Foo:
         def __init__(self, name):
             self.name = name
 
     r.register_path_variables(Foo, lambda obj: {"name": obj.name})
-    r.register_inverse_path(model=Foo, path="/foos", factory_args=set(["name"]))
+    r.register_inverse_path(model=Foo, path="/foos", factory_args={"name"})
     info = app._get_path(Foo("a"))
     assert info.path == "foos"
     assert info.parameters == {"name": ["a"]}
@@ -76,7 +76,7 @@ def test_path_with_parameters(info):
 def test_class_path_without_variables(info):
     app, r = info
 
-    class Foo(object):
+    class Foo:
         pass
 
     r.register_inverse_path(model=Foo, path="/", factory_args=set())
@@ -88,12 +88,12 @@ def test_class_path_without_variables(info):
 def test_class_path_with_variables(info):
     app, r = info
 
-    class Foo(object):
+    class Foo:
         def __init__(self, name):
             self.name = name
 
     r.register_inverse_path(
-        model=Foo, path="/foos/{name}", factory_args=set(["name"])
+        model=Foo, path="/foos/{name}", factory_args={"name"}
     )
     info = app._class_path(Foo, {"name": "a"})
     assert info.path == "foos/a"
@@ -103,11 +103,11 @@ def test_class_path_with_variables(info):
 def test_class_path_with_parameters(info):
     app, r = info
 
-    class Foo(object):
+    class Foo:
         def __init__(self, name):
             self.name = name
 
-    r.register_inverse_path(model=Foo, path="/foos", factory_args=set(["name"]))
+    r.register_inverse_path(model=Foo, path="/foos", factory_args={"name"})
     info = app._class_path(Foo, {"name": "a"})
     assert info.path == "foos"
     assert info.parameters == {"name": ["a"]}
@@ -116,14 +116,14 @@ def test_class_path_with_parameters(info):
 def test_class_path_variables_with_converters(info):
     app, r = info
 
-    class Foo(object):
+    class Foo:
         def __init__(self, value):
             self.value = value
 
     r.register_inverse_path(
         model=Foo,
         path="/foos/{value}",
-        factory_args=set(["value"]),
+        factory_args={"value"},
         converters={"value": Converter(int)},
     )
     info = app._class_path(Foo, {"value": 1})
@@ -134,14 +134,14 @@ def test_class_path_variables_with_converters(info):
 def test_class_path_parameters_with_converters(info):
     app, r = info
 
-    class Foo(object):
+    class Foo:
         def __init__(self, value):
             self.value = value
 
     r.register_inverse_path(
         model=Foo,
         path="/foos",
-        factory_args=set(["value"]),
+        factory_args={"value"},
         converters={"value": Converter(int)},
     )
     info = app._class_path(Foo, {"value": 1})
@@ -152,7 +152,7 @@ def test_class_path_parameters_with_converters(info):
 def test_class_path_absorb(info):
     app, r = info
 
-    class Foo(object):
+    class Foo:
         pass
 
     r.register_inverse_path(
@@ -166,7 +166,7 @@ def test_class_path_absorb(info):
 def test_class_path_extra_parameters(info):
     app, r = info
 
-    class Foo(object):
+    class Foo:
         pass
 
     r.register_inverse_path(model=Foo, path="/foos", factory_args=set())
@@ -178,7 +178,7 @@ def test_class_path_extra_parameters(info):
 def test_class_path_extra_parameters_convert(info):
     app, r = info
 
-    class Foo(object):
+    class Foo:
         pass
 
     r.register_inverse_path(

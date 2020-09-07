@@ -4,7 +4,7 @@ See :class:`morepath.directive.SettingRegistry`
 """
 
 
-class SettingRegistry(object):
+class SettingRegistry:
     """Registry of settings.
 
     Used by the :class:`morepath.App.setting` directive and
@@ -32,8 +32,7 @@ class SettingRegistry(object):
         setattr(section, setting_name, func())
 
 
-class SettingSection(object):
-    """A setting section that contains setting.
-    """
+class SettingSection:
+    """A setting section that contains setting."""
 
     pass

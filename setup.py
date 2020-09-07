@@ -1,10 +1,9 @@
-import io
 from setuptools import setup, find_packages
 
 long_description = "\n".join(
     (
-        io.open("README.rst", encoding="utf-8").read(),
-        io.open("CHANGES.txt", encoding="utf-8").read(),
+        open("README.rst", encoding="utf-8").read(),
+        open("CHANGES.txt", encoding="utf-8").read(),
     )
 )
 
@@ -15,7 +14,7 @@ setup(
     long_description=long_description,
     author="Morepath developers",
     author_email="morepath@googlegroups.com",
-    url="http://morepath.readthedocs.io",
+    url="https://morepath.readthedocs.io",
     license="BSD",
     packages=find_packages(),
     include_package_data=True,
@@ -26,15 +25,15 @@ setup(
         "Environment :: Web Environment",
         "Topic :: Software Development :: Libraries :: Application Frameworks",
         "Topic :: Internet :: WWW/HTTP :: WSGI",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: Implementation :: PyPy",
         "Development Status :: 5 - Production/Stable",
     ],
     keywords="web wsgi routing morepath",
+    python_requires=">=3.6",
     install_requires=[
         "setuptools",
         "webob >= 1.7.0",

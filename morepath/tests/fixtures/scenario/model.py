@@ -1,21 +1,21 @@
-class RootRoot(object):
+class RootRoot:
     pass
 
 
-class GenericRoot(object):
+class GenericRoot:
     pass
 
 
-class GenericModel(object):
+class GenericModel:
     def __init__(self, id, name):
         self.id = id
         self.name = name
 
 
-class DocumentRoot(object):
+class DocumentRoot:
     pass
 
 
-class DocumentModel(object):
+class DocumentModel:
     def __init__(self, id):
         self.id = id

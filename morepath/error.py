@@ -47,14 +47,12 @@ class AutoImportError(ConfigError):
         """
 
         msg = textwrap.dedent(msg).format(module_name)
-        super(AutoImportError, self).__init__(msg)
+        super().__init__(msg)
 
 
 class TrajectError(Exception):
-    """Raised when path supplied to traject is not allowed.
-    """
+    """Raised when path supplied to traject is not allowed."""
 
 
 class LinkError(Exception):
-    """Raised when a link cannot be made.
-    """
+    """Raised when a link cannot be made."""

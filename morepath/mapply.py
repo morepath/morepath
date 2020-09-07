@@ -11,7 +11,7 @@ def mapply(func, *args, **kw):
 
       mapply(foo, a=1, b=2)
 
-    Zope has an mapply that does this but a lot more too. py.test has
+    Zope has an mapply that does this but a lot more too. pytest has
     an implementation of getting the argument names for a
     function/method that we've borrowed.
     """
@@ -19,5 +19,5 @@ def mapply(func, *args, **kw):
     if info.varkw:
         return func(*args, **kw)
     # XXX we don't support nested arguments
-    new_kw = dict((name, kw[name]) for name in info.args if name in kw)
+    new_kw = {name: kw[name] for name in info.args if name in kw}
     return func(*args, **new_kw)

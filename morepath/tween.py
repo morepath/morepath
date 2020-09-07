@@ -12,9 +12,8 @@ See also :class:`morepath.directive.TweenRegistry`
 from .toposort import toposorted, Info
 
 
-class TweenRegistry(object):
-    """Registry for tweens.
-    """
+class TweenRegistry:
+    """Registry for tweens."""
 
     def __init__(self):
         self._tween_infos = []

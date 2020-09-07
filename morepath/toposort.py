@@ -24,7 +24,7 @@ def toposorted(infos):
     return topological_sort(infos, lambda info: depends[info.key])
 
 
-class Info(object):
+class Info:
     """Toposorted info helper.
 
     Base class that helps with toposorted. ``before`` and ``after``
@@ -37,10 +37,10 @@ class Info(object):
         self.after = _convert_before_after(after)
 
 
-def _convert_before_after(l):
-    if isinstance(l, (list, tuple)):
-        return list(l)
-    elif l is None:
+def _convert_before_after(keys):
+    if isinstance(keys, (list, tuple)):
+        return list(keys)
+    elif keys is None:
         return []
     else:
-        return [l]
+        return [keys]

@@ -175,8 +175,7 @@ class App(dectate.App):
 
     @reify
     def root(self):
-        """The root application.
-        """
+        """The root application."""
         return list(self.ancestors())[-1]
 
     def child(self, app, **variables):

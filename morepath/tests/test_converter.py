@@ -23,7 +23,7 @@ def test_converter_registry():
 def test_converter_registry_inheritance():
     r = ConverterRegistry()
 
-    class Lifeform(object):
+    class Lifeform:
         def __init__(self, name):
             self.name = name
 
@@ -44,8 +44,8 @@ def test_converter_registry_inheritance():
         except KeyError:
             raise ValueError
 
-    def lifeform_encode(l):
-        return l.name
+    def lifeform_encode(lifeform):
+        return lifeform.name
 
     c = Converter(lifeform_decode, lifeform_encode)
     r.register_converter(Lifeform, c)

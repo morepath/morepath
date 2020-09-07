@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import morepath
 from morepath.request import Response
 from morepath.authentication import Identity, NO_IDENTITY
@@ -17,11 +16,11 @@ def test_no_permission():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
-    class Permission(object):
+    class Permission:
         pass
 
     @app.path(
@@ -43,11 +42,11 @@ def test_permission_directive_identity():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
-    class Permission(object):
+    class Permission:
         pass
 
     @app.verify_identity()
@@ -72,7 +71,7 @@ def test_permission_directive_identity():
         return "Model: %s" % self.id
 
     @app.identity_policy()
-    class IdentityPolicy(object):
+    class IdentityPolicy:
         def identify(self, request):
             return Identity("testidentity")
 
@@ -93,11 +92,11 @@ def test_permission_directive_with_app_arg():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
-    class Permission(object):
+    class Permission:
         pass
 
     @App.verify_identity()
@@ -123,7 +122,7 @@ def test_permission_directive_with_app_arg():
         return "Model: %s" % self.id
 
     @App.identity_policy()
-    class IdentityPolicy(object):
+    class IdentityPolicy:
         def identify(self, request):
             return Identity("testidentity")
 
@@ -144,11 +143,11 @@ def test_permission_directive_no_identity():
     class app(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
-    class Permission(object):
+    class Permission:
         pass
 
     @app.path(
@@ -188,11 +187,11 @@ def test_no_identity_policy():
         pass
 
     @App.path(path="{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
-    class Permission(object):
+    class Permission:
         pass
 
     @App.view(model=Model, permission=Permission)
@@ -233,7 +232,7 @@ def test_no_identity_policy():
     c.get("/foo", status=403)
 
 
-class DumbCookieIdentityPolicy(object):
+class DumbCookieIdentityPolicy:
     """A very insecure cookie-based policy.
 
     Only for testing. Don't use in practice!
@@ -259,11 +258,11 @@ def test_cookie_identity_policy():
         pass
 
     @app.path(path="{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
-    class Permission(object):
+    class Permission:
         pass
 
     @app.permission_rule(model=Model, permission=Permission)
@@ -378,11 +377,11 @@ def test_false_verify_identity():
         pass
 
     @app.path(path="{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
-    class Permission(object):
+    class Permission:
         pass
 
     @app.view(model=Model, permission=Permission)
@@ -423,16 +422,16 @@ def test_dispatch_verify_identity():
         pass
 
     @App.path(path="{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
-    class Read(object):
+    class Read:
         """Read Permission"""
 
     class Anonymous(Identity):
         def __init__(self, **kw):
-            super(Anonymous, self).__init__(userid=None, **kw)
+            super().__init__(userid=None, **kw)
 
     @App.permission_rule(model=Model, permission=Read)
     def get_permission(identity, model, permission):
@@ -445,7 +444,7 @@ def test_dispatch_verify_identity():
         return "Read shared: %s" % self.id
 
     @App.identity_policy()
-    class HeaderIdentityPolicy(object):
+    class HeaderIdentityPolicy:
         def identify(self, request):
             user = request.headers.get("user", None)
             if user is not None:
@@ -486,7 +485,7 @@ def test_settings():
     class App(morepath.App):
         pass
 
-    class Model(object):
+    class Model:
         pass
 
     @App.verify_identity()
@@ -510,7 +509,7 @@ def test_settings():
         test_settings = settings.test.__dict__.copy()
         return IdentityPolicy(**test_settings)
 
-    class IdentityPolicy(object):
+    class IdentityPolicy:
         def __init__(self, encryption_key):
             self.encryption_key = encryption_key
 
@@ -552,7 +551,7 @@ def test_prevent_poisoned_host_headers():
         pass
 
     @App.path(path="")
-    class Model(object):
+    class Model:
         pass
 
     @App.view(model=Model)
@@ -595,11 +594,11 @@ def test_settings_in_permission_rule():
         pass
 
     @App.path(path="{id}")
-    class Model(object):
+    class Model:
         def __init__(self, id):
             self.id = id
 
-    class Permission(object):
+    class Permission:
         pass
 
     @App.verify_identity()
@@ -621,7 +620,7 @@ def test_settings_in_permission_rule():
         return "Model: %s" % self.id
 
     @App.identity_policy()
-    class IdentityPolicy(object):
+    class IdentityPolicy:
         def identify(self, request):
             return Identity("testidentity")
 

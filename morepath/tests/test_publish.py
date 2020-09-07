@@ -14,7 +14,7 @@ def get_environ(path, **kw):
     return webob.Request.blank(path, **kw).environ
 
 
-class Model(object):
+class Model:
     pass
 
 
@@ -288,7 +288,7 @@ def test_view_after_doesnt_apply_to_raised_404_exception():
     class App(morepath.App):
         pass
 
-    class Root(object):
+    class Root:
         pass
 
     @App.path(model=Root, path="")
@@ -315,7 +315,7 @@ def test_view_after_doesnt_apply_to_returned_404_exception():
     class App(morepath.App):
         pass
 
-    class Root(object):
+    class Root:
         pass
 
     @App.path(model=Root, path="")
@@ -345,7 +345,7 @@ def test_view_after_applies_to_some_exceptions(status_code, exception_class):
     class App(morepath.App):
         pass
 
-    class Root(object):
+    class Root:
         pass
 
     @App.path(model=Root, path="")
@@ -372,7 +372,7 @@ def test_view_after_doesnt_apply_to_exception_view():
     class App(morepath.App):
         pass
 
-    class Root(object):
+    class Root:
         pass
 
     class MyException(Exception):

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Morepath documentation build configuration file, created by
 # sphinx-quickstart on Tue Aug  6 12:47:25 2013.
 #

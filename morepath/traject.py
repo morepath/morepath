@@ -48,7 +48,7 @@ PATH_VARIABLE = re.compile(r"\{([^}]*)\}")
 
 
 @total_ordering
-class Step(object):
+class Step:
     """A single step in the tree.
 
     :param s: the path segment, such as ``'foo'`` or ``'{variable}'`` or
@@ -109,13 +109,11 @@ class Step(object):
                 raise TrajectError("illegal consecutive variables: %s" % self.s)
 
     def discriminator_info(self):
-        """Information needed to construct path discriminator.
-        """
+        """Information needed to construct path discriminator."""
         return self.generalized
 
     def has_variables(self):
-        """True if there are any variables in this step.
-        """
+        """True if there are any variables in this step."""
         return bool(self.names)
 
     def match(self, s, variables):
@@ -140,15 +138,13 @@ class Step(object):
         return True
 
     def __eq__(self, other):
-        """True if this step is the same as another.
-        """
+        """True if this step is the same as another."""
         if self.s != other.s:
             return False
         return self.cmp_converters == other.cmp_converters
 
     def __ne__(self, other):
-        """True if this step is not equal to another.
-        """
+        """True if this step is not equal to another."""
         if self.s != other.s:
             return True
         return self.cmp_converters != other.cmp_converters
@@ -180,9 +176,8 @@ class Step(object):
         return self.parts > other.parts
 
 
-class Node(object):
-    """A node in the traject tree.
-    """
+class Node:
+    """A node in the traject tree."""
 
     def __init__(self):
         self._name_nodes = {}
@@ -191,15 +186,13 @@ class Node(object):
         self.create = lambda variables, request: None
 
     def add(self, step):
-        """Add a step into the tree as a child node of this node.
-        """
+        """Add a step into the tree as a child node of this node."""
         if not step.has_variables():
             return self.add_name_node(step)
         return self.add_variable_node(step)
 
     def add_name_node(self, step):
-        """Add a step into the tree as a node that doesn't match variables.
-        """
+        """Add a step into the tree as a node that doesn't match variables."""
         node = self._name_nodes.get(step.s)
         if node is not None:
             return node
@@ -208,14 +201,13 @@ class Node(object):
         return node
 
     def add_variable_node(self, step):
-        """Add a step into the tree as a node that matches variables.
-        """
+        """Add a step into the tree as a node that matches variables."""
         for i, node in enumerate(self._variable_nodes):
             if node.step == step:
                 return node
             if node.step.generalized == step.generalized:
                 raise TrajectError(
-                    "step %s and %s are in conflict" % (node.step.s, step.s)
+                    f"step {node.step.s} and {step.s} are in conflict"
                 )
             if step > node.step:
                 continue
@@ -254,16 +246,15 @@ class StepNode(Node):
     """
 
     def __init__(self, step):
-        super(StepNode, self).__init__()
+        super().__init__()
         self.step = step
 
     def match(self, segment, variables):
-        """Match a segment with the step.
-        """
+        """Match a segment with the step."""
         return self.step.match(segment, variables)
 
 
-class Path(object):
+class Path:
     """Helper when registering paths.
 
     Used by :meth:`morepath.App.path` to register inverse paths used for
@@ -278,8 +269,7 @@ class Path(object):
         self.steps = [Step(segment) for segment in parse_path(path)]
 
     def discriminator(self):
-        """Creates a unique discriminator for the path.
-        """
+        """Creates a unique discriminator for the path."""
         return "/".join([step.discriminator_info() for step in self.steps])
 
     def interpolation_str(self):
@@ -300,9 +290,8 @@ class Path(object):
         return set(result)
 
 
-class TrajectRegistry(object):
-    """Tree of route steps.
-    """
+class TrajectRegistry:
+    """Tree of route steps."""
 
     def __init__(self):
         self._root = Node()
@@ -407,7 +396,7 @@ class TrajectRegistry(object):
         return node.create(variables, request)
 
 
-class ParameterFactory(object):
+class ParameterFactory:
     """Convert URL parameters.
 
     Given expected URL parameters, converters for them and required
@@ -427,8 +416,7 @@ class ParameterFactory(object):
         self.extra = extra
 
     def __call__(self, request):
-        """Convert URL parameters to Python dictionary with values.
-        """
+        """Convert URL parameters to Python dictionary with values."""
         result = {}
         # it's possible we are not actually interested in parameters
         # but this parameter factory is used as we defined converters
@@ -449,7 +437,7 @@ class ParameterFactory(object):
                 result[name] = converter.decode(value)
             except ValueError:
                 raise HTTPBadRequest(
-                    "Cannot decode URL parameter %s: %s" % (name, value)
+                    f"Cannot decode URL parameter {name}: {value}"
                 )
 
         if not self.extra:
@@ -464,7 +452,7 @@ class ParameterFactory(object):
                 extra[name] = converter.decode(value)
             except ValueError:
                 raise HTTPBadRequest(
-                    "Cannot decode URL parameter %s: %s" % (name, value)
+                    f"Cannot decode URL parameter {name}: {value}"
                 )
         result["extra_parameters"] = extra
         return result

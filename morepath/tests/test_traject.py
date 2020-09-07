@@ -21,15 +21,15 @@ def traject_consume():
     pass
 
 
-class Root(object):
+class Root:
     pass
 
 
-class Model(object):
+class Model:
     pass
 
 
-class Special(object):
+class Special:
     pass
 
 
@@ -120,8 +120,8 @@ def test_converter():
     assert not variables
 
 
-def sorted_steps(l):
-    steps = [Step(s) for s in l]
+def sorted_steps(input_list):
+    steps = [Step(s) for s in input_list]
     return [step.s for step in sorted(steps)]
 
 
@@ -328,10 +328,10 @@ def req(path):
 def test_traject_simple():
     traject = TrajectRegistry()
 
-    class abc(object):
+    class abc:
         pass
 
-    class abd(object):
+    class abd:
         pass
 
     class xy:
@@ -377,11 +377,11 @@ def test_traject_simple():
 def test_traject_variable_specific_first():
     traject = TrajectRegistry()
 
-    class axb(object):
+    class axb:
         def __init__(self, x):
             self.x = x
 
-    class aprefixxb(object):
+    class aprefixxb:
         def __init__(self, x):
             self.x = x
 
@@ -400,7 +400,7 @@ def test_traject_variable_specific_first():
 def test_traject_multiple_steps_with_variables():
     traject = TrajectRegistry()
 
-    class xy(object):
+    class xy:
         def __init__(self, x, y):
             self.x = x
             self.y = y
@@ -414,7 +414,7 @@ def test_traject_multiple_steps_with_variables():
 def test_traject_with_converter():
     traject = TrajectRegistry()
 
-    class found(object):
+    class found:
         def __init__(self, x):
             self.x = x
 
@@ -429,11 +429,11 @@ def test_traject_with_converter():
 def test_traject_type_conflict():
     traject = TrajectRegistry()
 
-    class found_int(object):
+    class found_int:
         def __init__(self, x):
             self.x = x
 
-    class found_str(object):
+    class found_str:
         def __init__(self, x):
             self.x = x
 
@@ -445,11 +445,11 @@ def test_traject_type_conflict():
 def test_traject_type_conflict_default_type():
     traject = TrajectRegistry()
 
-    class found_str(object):
+    class found_str:
         def __init__(self, x):
             self.x = x
 
-    class found_int(object):
+    class found_int:
         def __init__(self, x):
             self.x = x
 
@@ -461,11 +461,11 @@ def test_traject_type_conflict_default_type():
 def test_traject_type_conflict_explicit_default():
     traject = TrajectRegistry()
 
-    class found_explicit(object):
+    class found_explicit:
         def __init__(self, x):
             self.x = x
 
-    class found_implicit(object):
+    class found_implicit:
         def __init__(self, x):
             self.x = x
 
@@ -480,11 +480,11 @@ def test_traject_type_conflict_explicit_default():
 def test_traject_type_conflict_middle():
     traject = TrajectRegistry()
 
-    class int_f(object):
+    class int_f:
         def __init__(self, x):
             self.x = x
 
-    class str_f(object):
+    class str_f:
         def __init__(self, x):
             self.x = x
 
@@ -496,11 +496,11 @@ def test_traject_type_conflict_middle():
 def test_traject_no_type_conflict_middle():
     traject = TrajectRegistry()
 
-    class int_f(object):
+    class int_f:
         def __init__(self, x):
             self.x = x
 
-    class int_f2(object):
+    class int_f2:
         def __init__(self, x):
             self.x = x
 
@@ -511,11 +511,11 @@ def test_traject_no_type_conflict_middle():
 def test_traject_greedy_middle_prefix():
     traject = TrajectRegistry()
 
-    class prefix(object):
+    class prefix:
         def __init__(self, x):
             self.x = x
 
-    class no_prefix(object):
+    class no_prefix:
         def __init__(self, x):
             self.x = x
 
@@ -536,11 +536,11 @@ def test_traject_greedy_middle_prefix():
 def test_traject_type_conflict_middle_end():
     traject = TrajectRegistry()
 
-    class int_f(object):
+    class int_f:
         def __init__(self, x):
             self.x = x
 
-    class str_f(object):
+    class str_f:
         def __init__(self, x):
             self.x = x
 
@@ -552,11 +552,11 @@ def test_traject_type_conflict_middle_end():
 def test_traject_no_type_conflict_middle_end():
     traject = TrajectRegistry()
 
-    class int_f(object):
+    class int_f:
         def __init__(self, x):
             self.x = x
 
-    class int_f2(object):
+    class int_f2:
         def __init__(self, x):
             self.x = x
 
@@ -668,7 +668,7 @@ def test_traject_consume_parameter():
 
     traject = App.config.path_registry
 
-    class Model(object):
+    class Model:
         def __init__(self, a):
             self.a = a
 
@@ -701,7 +701,7 @@ def test_traject_consume_model_factory_gets_request():
 
     traject = App.config.path_registry
 
-    class Model(object):
+    class Model:
         def __init__(self, info):
             self.info = info
 

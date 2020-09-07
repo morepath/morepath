@@ -138,7 +138,7 @@ def test_settings_property_in_view():
         return "LAH"
 
     @app.path(path="")
-    class Model(object):
+    class Model:
         def __init__(self):
             pass
 

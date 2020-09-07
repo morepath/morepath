@@ -9,7 +9,7 @@ from .error import ConfigError, TopologicalSortError
 from .settings import SettingRegistry
 
 
-class TemplateEngineRegistry(object):
+class TemplateEngineRegistry:
     """A registry of template engines.
 
     Is used by the :meth:`morepath.App.view`,
@@ -132,10 +132,9 @@ class TemplateEngineRegistry(object):
 
 
 class TemplateDirectoryInfo(Info):
-    """Used by :class:`TemplateEngineRegistry` internally.
-    """
+    """Used by :class:`TemplateEngineRegistry` internally."""
 
     def __init__(self, key, directory, before, after, configurable):
-        super(TemplateDirectoryInfo, self).__init__(key, before, after)
+        super().__init__(key, before, after)
         self.directory = directory
         self.configurable = configurable

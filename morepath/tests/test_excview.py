@@ -9,7 +9,7 @@ def test_404_http_exception():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     c = Client(app())
@@ -24,7 +24,7 @@ def test_other_exception_not_handled():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=Root)
@@ -44,7 +44,7 @@ def test_http_exception_excview():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=HTTPNotFound)
@@ -64,7 +64,7 @@ def test_other_exception_excview():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=Root)
@@ -86,7 +86,7 @@ def test_http_exception_excview_retain_status():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     @app.view(model=HTTPNotFound)
@@ -107,7 +107,7 @@ def test_excview_named_view():
         pass
 
     @app.path(path="")
-    class Root(object):
+    class Root:
         pass
 
     class MyException(Exception):
@@ -146,7 +146,7 @@ def test_excview_in_mounted_app():
         return "Default error"
 
     @Sub.path(path="/")
-    class SubRoot(object):
+    class SubRoot:
         pass
 
     @Sub.view(model=SubRoot)

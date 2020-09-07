@@ -77,7 +77,7 @@ class SettingAction(dectate.Action):
         setting_registry.register_setting(self.section, self.name, obj)
 
 
-class SettingValue(object):
+class SettingValue:
     def __init__(self, value):
         self.value = value
 
@@ -658,7 +658,7 @@ class ViewAction(dectate.Action):
         load=None,
         permission=None,
         internal=False,
-        **predicates
+        **predicates,
     ):
         """Register a view for a model.
 
@@ -759,7 +759,7 @@ class JsonAction(ViewAction):
         load=None,
         permission=None,
         internal=False,
-        **predicates
+        **predicates,
     ):
         """Register JSON view.
 
@@ -805,7 +805,7 @@ class JsonAction(ViewAction):
           documentation of :meth:`App.view` for more information.
         """
         render = render or render_json
-        super(JsonAction, self).__init__(
+        super().__init__(
             model, render, template, load, permission, internal, **predicates
         )
 
@@ -821,7 +821,7 @@ class HtmlAction(ViewAction):
         load=None,
         permission=None,
         internal=False,
-        **predicates
+        **predicates,
     ):
         """Register HTML view.
 
@@ -866,13 +866,13 @@ class HtmlAction(ViewAction):
           documentation of :meth:`App.view` for more information.
         """
         render = render or render_html
-        super(HtmlAction, self).__init__(
+        super().__init__(
             model, render, template, load, permission, internal, **predicates
         )
 
 
 # used by Mount to make sure there's at least a model to filter in a query
-class DummyModel(object):
+class DummyModel:
     pass
 
 
@@ -921,7 +921,7 @@ class MountAction(PathAction):
           the ``path`` argument is taken as the name.
 
         """
-        super(MountAction, self).__init__(
+        super().__init__(
             path,
             model=DummyModel,
             variables=variables,

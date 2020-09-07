@@ -1,7 +1,7 @@
 # Originally taken from pyramid.decorator
 
 
-class reify(object):
+class reify:
     """Cache a property.
 
     Use as a method decorator.  It operates almost exactly like the

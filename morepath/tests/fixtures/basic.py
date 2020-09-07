@@ -6,12 +6,12 @@ class app(morepath.App):
 
 
 @app.path(path="/")
-class Root(object):
+class Root:
     def __init__(self):
         self.value = "ROOT"
 
 
-class Model(object):
+class Model:
     def __init__(self, id):
         self.id = id
 
