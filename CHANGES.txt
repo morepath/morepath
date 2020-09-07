@@ -4,7 +4,17 @@ CHANGES
 0.20 (unreleased)
 =================
 
-- Nothing changed yet.
+- Fix Flake8.
+
+- Apply Black code formatter.
+
+- Drop support for EOL Python 3.4 and 3.5.
+
+- Upgrade Python syntax with pyupgrade --py36-plus.
+
+- Remove unused imports.
+
+- Also a nit: drop the dot in py.test.
 
 
 0.19 (2020-01-30)
