@@ -16,6 +16,7 @@ CHANGES
 
 - Also a nit: drop the dot in py.test.
 
+- Use GitHub Actions for CI.
 
 0.19 (2020-01-30)
 =================

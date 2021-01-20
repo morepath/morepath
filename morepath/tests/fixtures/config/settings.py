@@ -17,7 +17,7 @@ settings = {
     "jwtauth": {
         "algorithm": "ES256",
         "leeway": 20,
-        "public_key": "MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBWcJwPEAnS/k4kFgUhxNF7J0SQQhZG"
+        "public_key": "MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBWcJwPEAnS/k4kFgUhxNF7J0SQQhZG"  # noqa: E501
         "+nNgy+/mXwhQ5PZIUmId1a1TjkNXiKzv6DpttBqduHbz/V0EtH+QfWy0B4BhZ5MnT"
         "yDGjcz1DQqKdexebhzobbhSIZjpYd5aU48o9rXp/OnAnrajddpGsJ0bNf4rtMLBqF"
         "YJN6LOslAB7xTBRg=",
