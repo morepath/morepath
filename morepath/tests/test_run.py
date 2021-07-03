@@ -24,7 +24,7 @@ script-name: error: argument -p/--port: invalid integer in 0..65535 value: '-3'
 
 
 def test_run_socketerror(mockserver, capsys):
-    """Fail gracefuly on a socket error.
+    """Fail gracefully on a socket error.
 
     In this case the error is triggered by listening on example.com.
 

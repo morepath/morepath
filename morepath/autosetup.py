@@ -103,7 +103,7 @@ def autoscan(ignore=None):
     See also :func:`scan`.
 
     :param ignore: ignore to ignore some modules
-      during scanning. Optional. If ommitted, ignore ``.test`` and
+      during scanning. Optional. If omitted, ignore ``.test`` and
       ``.tests`` packages by default. See :func:`importscan.scan` for
       more details.
 

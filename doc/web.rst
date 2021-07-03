@@ -448,7 +448,7 @@ client.
 WebOb makes management of cookies more convenient: the
 :attr:`webob.request.BaseRequest.cookies` attribute on the request
 object contains the list of cookies sent by the client, and the
-response object has an API incuding
+response object has an API including
 :meth:`webob.response.Response.set_cookie` and
 :meth:`webob.response.Response.delete_cookie` to allow you to manage
 cookies.

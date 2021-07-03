@@ -51,7 +51,7 @@ Now we can write a JSON view that just returns an ``Item`` instance::
   def item_default(self, request):
       return self
 
-The ``self`` we return in this view is an istance of ``Item``. This is
+The ``self`` we return in this view is an instance of ``Item``. This is
 now automatically converted to a JSON object.
 
 load function for views
