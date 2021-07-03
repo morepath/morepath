@@ -6,7 +6,7 @@ def test_request_reset():
     # In order to  verify the behaviour of Request.reset  we issue the
     # same request three times:
     #
-    # 1. The server responds succesfully (generate_error = False)
+    # 1. The server responds successfully (generate_error = False)
     #
     # 2. The server responds with an error (generate_error = True) and
     # returns the request as it was when the exception was thrown

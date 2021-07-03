@@ -415,7 +415,7 @@ def test_false_verify_identity():
 
 def test_dispatch_verify_identity():
     # This app uses two Identity classes, morepath.Identity and
-    # Anonymous, which are verfied in two different ways (see the two
+    # Anonymous, which are verified in two different ways (see the two
     # functions a little further down that are decorated by
     # @App.verify_identity).
     class App(morepath.App):

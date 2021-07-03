@@ -117,7 +117,7 @@ def test_excview_named_view():
     def view(self, request):
         raise MyException()
 
-    # the view name should have no infleunce on myexception lookup
+    # the view name should have no influence on myexception lookup
     @app.view(model=MyException)
     def myexception_default(self, request):
         return "My exception"

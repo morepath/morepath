@@ -365,7 +365,7 @@ class App(dectate.App):
 
         :param model: model class or :class:`morepath.App` subclass.
         :param variables: dictionary with variables to reconstruct
-        the path and URL paramaters from path pattern.
+        the path and URL parameters from path pattern.
         :return: a :class:`morepath.path.PathInfo` with path within this app,
           or ``None`` if the path couldn't be determined.
         """
