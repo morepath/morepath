@@ -1,15 +1,15 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 20.8b1
+    rev: 22.3.0
     hooks:
       - id: black
         args: [--line-length=80]
   - repo: https://github.com/PyCQA/flake8
-    rev: "3.8.4"
+    rev: "4.0.1"
     hooks:
       - id: flake8
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.7.4
+    rev: v2.32.1
     hooks:
     - id: pyupgrade
       args: [--py36-plus]

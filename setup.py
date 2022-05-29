@@ -44,7 +44,7 @@ setup(
     ],
     extras_require=dict(
         test=[
-            "pytest >= 2.9.0",
+            "pytest >= 7",
             "pytest-remove-stale-bytecode",
             "WebTest >= 2.0.14",
         ],

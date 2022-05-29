@@ -11,13 +11,13 @@ import pytest
 def test_converter_registry():
     r = ConverterRegistry()
 
-    c = Converter(int, type(""))
+    c = Converter(int, str)
     r.register_converter(int, c)
     assert r.get_converter(int) is c
-    assert r.get_converter(type(1)) is c
+    assert r.get_converter(int) is c
     assert r.get_converter(type(None)) is IDENTITY_CONVERTER
     with pytest.raises(DirectiveError):
-        r.get_converter(type("s"))
+        r.get_converter(str)
 
 
 def test_converter_registry_inheritance():
@@ -55,7 +55,7 @@ def test_converter_registry_inheritance():
     assert r.get_converter(type(Animal("elephant"))) is c
     assert r.get_converter(type(None)) is IDENTITY_CONVERTER
     with pytest.raises(DirectiveError):
-        assert r.get_converter(type("s")) is None
+        assert r.get_converter(str) is None
     assert r.get_converter(Lifeform).decode(["elephant"]) is elephant
     assert r.get_converter(Lifeform).encode(seaweed) == ["seaweed"]
 

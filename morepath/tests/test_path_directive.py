@@ -172,7 +172,7 @@ def test_variable_path_explicit_converter():
 
     @app.view(model=Model)
     def default(self, request):
-        return "View: {} ({})".format(self.id, type(self.id))
+        return f"View: {self.id} ({type(self.id)})"
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -206,7 +206,7 @@ def test_variable_path_implicit_converter():
 
     @app.view(model=Model)
     def default(self, request):
-        return "View: {} ({})".format(self.id, type(self.id))
+        return f"View: {self.id} ({type(self.id)})"
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -240,7 +240,7 @@ def test_variable_path_explicit_trumps_implicit():
 
     @app.view(model=Model)
     def default(self, request):
-        return "View: {} ({})".format(self.id, type(self.id))
+        return f"View: {self.id} ({type(self.id)})"
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -274,7 +274,7 @@ def test_url_parameter_explicit_converter():
 
     @app.view(model=Model)
     def default(self, request):
-        return "View: {} ({})".format(self.id, type(self.id))
+        return f"View: {self.id} ({type(self.id)})"
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -317,7 +317,7 @@ def test_url_parameter_explicit_converter_get_converters():
 
     @app.view(model=Model)
     def default(self, request):
-        return "View: {} ({})".format(self.id, type(self.id))
+        return f"View: {self.id} ({type(self.id)})"
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -357,7 +357,7 @@ def test_url_parameter_get_converters_overrides_converters():
     @app.path(
         model=Model,
         path="/",
-        converters={id: type("")},
+        converters={id: str},
         get_converters=get_converters,
     )
     def get_model(id):
@@ -365,7 +365,7 @@ def test_url_parameter_get_converters_overrides_converters():
 
     @app.view(model=Model)
     def default(self, request):
-        return "View: {} ({})".format(self.id, type(self.id))
+        return f"View: {self.id} ({type(self.id)})"
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -405,7 +405,7 @@ def test_url_parameter_implicit_converter():
 
     @app.view(model=Model)
     def default(self, request):
-        return "View: {} ({})".format(self.id, type(self.id))
+        return f"View: {self.id} ({type(self.id)})"
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -468,7 +468,7 @@ def test_url_parameter_explicit_trumps_implicit():
 
     @app.view(model=Model)
     def default(self, request):
-        return "View: {} ({})".format(self.id, type(self.id))
+        return f"View: {self.id} ({type(self.id)})"
 
     @app.view(model=Model, name="link")
     def link(self, request):
@@ -1162,7 +1162,7 @@ def test_extra_parameters_with_get_converters():
     def get_converters():
         return {
             "a": int,
-            "b": type(""),
+            "b": str,
         }
 
     @app.path(model=Model, path="/", get_converters=get_converters)
@@ -1421,7 +1421,7 @@ def test_absorb_path_root():
 
     @app.view(model=Model)
     def default(self, request):
-        return "A:{} L:{}".format(self.absorb, request.link(self))
+        return f"A:{self.absorb} L:{request.link(self)}"
 
     c = Client(app())
 

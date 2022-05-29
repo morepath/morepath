@@ -70,7 +70,7 @@ class Step:
         ]
         self.validate()
         self.named_interpolation_str = interpolation_str(s) % tuple(
-            [("%(" + name + ")s") for name in self.names]
+            ("%(" + name + ")s") for name in self.names
         )
 
     def validate(self):
