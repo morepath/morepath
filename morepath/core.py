@@ -106,7 +106,7 @@ def int_converter():
     return Converter(int)
 
 
-@App.converter(type=type(""))
+@App.converter(type=str)
 def unicode_converter():
     """Converter for text."""
     return IDENTITY_CONVERTER

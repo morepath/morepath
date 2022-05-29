@@ -676,7 +676,7 @@ def test_deferred_loop():
     assert "Circular" in str(ex.value)
 
 
-@pytest.mark.skip(reason="Infinite loop (#479)", run=False)
+@pytest.mark.skip(reason="Infinite loop (#479)")
 def test_deferred_loop_siblings():
     # https://github.com/morepath/morepath/issues/479
     class Root(morepath.App):

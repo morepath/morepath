@@ -724,7 +724,7 @@ def test_mount_implicit_converters():
 
     @mounted.view(model=MountedRoot)
     def root_default(self, request):
-        return "The root for: {} {}".format(self.id, type(self.id))
+        return f"The root for: {self.id} {type(self.id)}"
 
     @app.mount(path="{id}", app=mounted)
     def get_context(id=0):
@@ -757,7 +757,7 @@ def test_mount_explicit_converters():
 
     @mounted.view(model=MountedRoot)
     def root_default(self, request):
-        return "The root for: {} {}".format(self.id, type(self.id))
+        return f"The root for: {self.id} {type(self.id)}"
 
     @app.mount(path="{id}", app=mounted, converters=dict(id=int))
     def get_context(id):
@@ -879,7 +879,7 @@ def test_mount_directive_with_link_and_absorb():
 
     @app2.view(model=Model2)
     def default(self, request):
-        return "A:{} L:{}".format(self.absorb, request.link(self))
+        return f"A:{self.absorb} L:{request.link(self)}"
 
     @app1.mount(path="foo", app=app2)
     def get_mount():

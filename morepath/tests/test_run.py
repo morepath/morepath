@@ -49,9 +49,12 @@ def test_run_defaults(mockserver, capsys):
     out, err = capsys.readouterr()
 
     assert err == ""
-    assert (
-        out
-        == """\
+    import sys
+
+    if sys.version_info < (3, 10):
+        assert (
+            out
+            == """\
 usage: script-name [-h] [-p PORT] [-H HOST]
 
 optional arguments:
@@ -60,7 +63,20 @@ optional arguments:
   -H HOST, --host HOST  hostname or IP address on which to listen (default:
                         localhost)
 """
-    )
+        )
+    else:
+        assert (
+            out
+            == """\
+usage: script-name [-h] [-p PORT] [-H HOST]
+
+options:
+  -h, --help            show this help message and exit
+  -p PORT, --port PORT  TCP port on which to listen (default: 80)
+  -H HOST, --host HOST  hostname or IP address on which to listen (default:
+                        localhost)
+"""
+        )
 
 
 def test_run(mockserver, capsys):
