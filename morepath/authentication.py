@@ -9,6 +9,7 @@ directive.
 
 See also :class:`morepath.directive.IdentityPolicyRegistry`
 """
+
 import abc
 
 
