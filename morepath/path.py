@@ -5,7 +5,6 @@ This builds on :mod:`morepath.traject`.
 See also :class:`morepath.directive.PathRegistry`
 """
 
-
 from dectate import DirectiveError
 from reg import arginfo, methodify
 from urllib.parse import urlencode, quote

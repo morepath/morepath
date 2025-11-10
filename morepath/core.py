@@ -19,6 +19,7 @@ Should you wish to do so you could even override these directives in a
 subclass of :class:`morepath.App`. We do not guarantee we won't break
 your code with future version of Morepath if you do that, though.
 """
+
 import re
 
 from reg import KeyIndex, ClassIndex
