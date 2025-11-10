@@ -1,5 +1,5 @@
-"""Topological sort functionality.
-"""
+"""Topological sort functionality."""
+
 from dectate import topological_sort
 
 
