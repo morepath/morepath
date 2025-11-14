@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 
 setup(
     name="ns.real2",
@@ -8,7 +8,7 @@ setup(
     author_email="faassen@startifact.com",
     license="BSD",
     namespace_packages=["ns"],
-    packages=find_packages(),
+    packages=find_namespace_packages(),
     zip_safe=False,
-    install_requires=["setuptools", "morepath"],
+    install_requires=["morepath"],
 )
