@@ -1,11 +1,13 @@
-from ..converter import (
-    ConverterRegistry,
-    Converter,
-    ListConverter,
-    IDENTITY_CONVERTER,
-)
-from dectate import DirectiveError
 import pytest
+
+from dectate import DirectiveError
+
+from ..converter import (
+    IDENTITY_CONVERTER,
+    Converter,
+    ConverterRegistry,
+    ListConverter,
+)
 
 
 def test_converter_registry():

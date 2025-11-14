@@ -1,5 +1,6 @@
-from morepath import App, render_json
 from webtest import TestApp as Client
+
+from morepath import App, render_json
 
 
 def test_request_reset():

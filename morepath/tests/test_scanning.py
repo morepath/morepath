@@ -1,8 +1,9 @@
-import morepath
-from .fixtures import basic, pkg, self_scan
-
 import pytest
 from webtest import TestApp as Client
+
+import morepath
+
+from .fixtures import basic, pkg, self_scan
 
 
 def test_rescan():

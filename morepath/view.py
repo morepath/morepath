@@ -11,8 +11,8 @@ this structure can be converted to HTML using a template.
 
 """
 
-from webob.exc import HTTPFound, HTTPNotFound, HTTPForbidden
 from webob import Response as BaseResponse
+from webob.exc import HTTPForbidden, HTTPFound, HTTPNotFound
 
 from .request import Response
 

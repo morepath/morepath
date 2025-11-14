@@ -5,15 +5,15 @@ This builds on :mod:`morepath.traject`.
 See also :class:`morepath.directive.PathRegistry`
 """
 
+from urllib.parse import quote, urlencode
+
 from dectate import DirectiveError
 from reg import arginfo, methodify
-from urllib.parse import urlencode, quote
 
-
-from .traject import Path as TrajectPath, TrajectRegistry
-from .converter import ConverterRegistry, IDENTITY_CONVERTER
+from .converter import IDENTITY_CONVERTER, ConverterRegistry
 from .error import LinkError
-
+from .traject import Path as TrajectPath
+from .traject import TrajectRegistry
 
 SPECIAL_ARGUMENTS = ["request", "app"]
 

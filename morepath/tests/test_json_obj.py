@@ -1,5 +1,6 @@
-import morepath
 from webtest import TestApp as Client
+
+import morepath
 
 
 def test_json_obj_dump():

@@ -1,22 +1,23 @@
-import dectate
-from .fixtures import (
-    basic,
-    nested,
-    abbr,
-    mapply_bug,
-    method,
-    conflict,
-    noconverter,
-)
-from dectate import ConflictError, DirectiveReportError
-from morepath.error import LinkError
-from morepath.view import render_html
-from morepath.converter import Converter
-import morepath
-import reg
-
 import pytest
 from webtest import TestApp as Client
+
+import dectate
+import morepath
+import reg
+from dectate import ConflictError, DirectiveReportError
+from morepath.converter import Converter
+from morepath.error import LinkError
+from morepath.view import render_html
+
+from .fixtures import (
+    abbr,
+    basic,
+    conflict,
+    mapply_bug,
+    method,
+    nested,
+    noconverter,
+)
 
 
 def test_basic():

@@ -1,9 +1,11 @@
 import logging
-import morepath
+
 from webtest import TestApp as Client
 
-from .fixtures import basic
+import morepath
+
 from .capturelog import CaptureLog
+from .fixtures import basic
 
 
 def test_config_logging_implicit_commit():

@@ -6,7 +6,6 @@ from this dictionary.
 
 import json
 
-
 settings = {
     "chameleon": {"debug": True},
     "jinja2": {

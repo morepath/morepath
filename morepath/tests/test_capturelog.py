@@ -1,6 +1,5 @@
 import logging
 
-
 from .capturelog import CaptureLog
 
 

@@ -1,15 +1,15 @@
+import pytest
+from webtest import TestApp as Client
+
 import dectate
 import morepath
 from morepath.converter import Converter
 from morepath.error import (
-    DirectiveReportError,
     ConfigError,
+    DirectiveReportError,
     LinkError,
     TrajectError,
 )
-
-from webtest import TestApp as Client
-import pytest
 
 
 def test_simple_path_one_step():
@@ -696,7 +696,7 @@ def test_custom_date_converter():
             self.d = d
 
     from datetime import date
-    from time import strptime, mktime
+    from time import mktime, strptime
 
     def date_decode(s):
         return date.fromtimestamp(mktime(strptime(s, "%d-%m-%Y")))

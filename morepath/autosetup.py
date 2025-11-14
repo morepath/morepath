@@ -5,11 +5,11 @@ This module defines functionality to automatically configure Morepath.
 are part of the public API.
 """
 
+import importlib
 import sys
 from importlib.metadata import distributions
 
 import importscan
-import importlib
 
 from .error import AutoImportError
 

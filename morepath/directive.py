@@ -30,19 +30,20 @@ from :mod:`morepath.directive`.
 """
 
 import os
+
 import dectate
 from reg import methodify
 
 from .authentication import Identity, NoIdentity
-from .view import render_view, render_json, render_html, View
-from .traject import Path
 from .converter import ConverterRegistry
-from .tween import TweenRegistry
-from .template import TemplateEngineRegistry
-from .predicate import PredicateRegistry
-from .path import PathRegistry
-from .settings import SettingRegistry
 from .mapply import mapply
+from .path import PathRegistry
+from .predicate import PredicateRegistry
+from .settings import SettingRegistry
+from .template import TemplateEngineRegistry
+from .traject import Path
+from .tween import TweenRegistry
+from .view import View, render_html, render_json, render_view
 
 
 def isbaseclass(a, b):

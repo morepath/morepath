@@ -1,10 +1,13 @@
-import morepath
-from morepath.request import Response
-from morepath.authentication import Identity, NO_IDENTITY
-from .fixtures import identity_policy
 import base64
 import json
+
 from webtest import TestApp as Client
+
+import morepath
+from morepath.authentication import NO_IDENTITY, Identity
+from morepath.request import Response
+
+from .fixtures import identity_policy
 
 try:
     from cookielib import CookieJar

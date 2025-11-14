@@ -1,5 +1,5 @@
-import morepath
 import dectate
+import morepath
 
 
 def test_cleanup():

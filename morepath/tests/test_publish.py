@@ -1,13 +1,14 @@
+import pytest
+import webob
+from webob.exc import HTTPBadRequest, HTTPFound, HTTPNotFound, HTTPOk
+from webtest import TestApp as Client
+
 import dectate
 import morepath
 from morepath.app import App
 from morepath.publish import publish, resolve_response
 from morepath.request import Response
-from morepath.view import render_json, render_html, View
-from webob.exc import HTTPNotFound, HTTPBadRequest, HTTPFound, HTTPOk
-import webob
-from webtest import TestApp as Client
-import pytest
+from morepath.view import View, render_html, render_json
 
 
 def get_environ(path, **kw):

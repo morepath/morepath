@@ -19,7 +19,6 @@ from webob.exc import HTTPNotFound
 
 from .app import App
 
-
 DEFAULT_NAME = ""
 
 

@@ -10,9 +10,11 @@ predicates.
 See also :class:`morepath.directive.PredicateRegistry`
 """
 
-from reg import Predicate
-from .toposort import toposorted, Info
 from collections import defaultdict
+
+from reg import Predicate
+
+from .toposort import Info, toposorted
 
 
 class PredicateRegistry:

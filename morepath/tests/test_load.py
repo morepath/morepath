@@ -1,6 +1,7 @@
-import morepath
 import pytest
 from webtest import TestApp as Client
+
+import morepath
 
 
 def test_load():

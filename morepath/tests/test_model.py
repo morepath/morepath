@@ -1,9 +1,11 @@
-import dectate
 from urllib.parse import urlencode
-from morepath.path import get_arguments
-from morepath.converter import Converter, IDENTITY_CONVERTER, ConverterRegistry
-import morepath
+
 import webob
+
+import dectate
+import morepath
+from morepath.converter import IDENTITY_CONVERTER, Converter, ConverterRegistry
+from morepath.path import get_arguments
 
 
 def consume(mount, path, parameters=None):

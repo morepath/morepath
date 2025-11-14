@@ -1,8 +1,9 @@
-import morepath
-from morepath.tween import TweenRegistry
-from morepath.error import TopologicalSortError
 import pytest
 from webtest import TestApp as Client
+
+import morepath
+from morepath.error import TopologicalSortError
+from morepath.tween import TweenRegistry
 
 
 def test_tween_sorting_no_tweens():

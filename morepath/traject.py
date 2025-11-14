@@ -29,12 +29,13 @@ For a description of a similar algorithm also read: http://littledev.nl/?p=99
 
 import re
 from functools import total_ordering
-from reg import arginfo
+
 from webob.exc import HTTPBadRequest
+
+from reg import arginfo
 
 from .converter import IDENTITY_CONVERTER
 from .error import TrajectError
-
 
 IDENTIFIER = re.compile(r"^[^\d\W]\w*$")
 """regex for a valid variable name in a route.

@@ -21,22 +21,22 @@ your code with future version of Morepath if you do that, though.
 """
 
 import re
-
-from reg import KeyIndex, ClassIndex
-from datetime import datetime, date
+from datetime import date, datetime
 from time import mktime, strptime
 
 from webob.exc import (
+    HTTPBadRequest,
     HTTPException,
-    HTTPNotFound,
     HTTPMethodNotAllowed,
+    HTTPNotFound,
     HTTPOk,
     HTTPRedirection,
-    HTTPBadRequest,
 )
 
+from reg import ClassIndex, KeyIndex
+
 from .app import App
-from .converter import Converter, IDENTITY_CONVERTER
+from .converter import IDENTITY_CONVERTER, Converter
 
 
 @App.predicate(App.get_view, name="model", default=None, index=ClassIndex)

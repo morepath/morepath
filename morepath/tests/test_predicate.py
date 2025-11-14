@@ -1,5 +1,5 @@
-from reg import ClassIndex, KeyIndex
 import morepath
+from reg import ClassIndex, KeyIndex
 
 
 def test_dispatch_method_directive():

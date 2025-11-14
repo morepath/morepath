@@ -10,7 +10,7 @@ Used by :meth:`morepath.App.tween_factory`.
 See also :class:`morepath.directive.TweenRegistry`
 """
 
-from .toposort import toposorted, Info
+from .toposort import Info, toposorted
 
 
 class TweenRegistry:

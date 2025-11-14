@@ -1,8 +1,11 @@
-import morepath
 import errno
 import re
-from .fixtures import basic
+
 import pytest
+
+import morepath
+
+from .fixtures import basic
 
 
 def test_run_port_out_of_range(mockserver, capsys):

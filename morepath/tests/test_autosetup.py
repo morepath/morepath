@@ -1,30 +1,29 @@
 from collections import namedtuple
 
+import pytest
+from base.m import App
+
+import morepath
 from morepath.autosetup import (
+    DependencyMap,
+    autoscan,
     caller_module,
     caller_package,
-    autoscan,
-    morepath_packages,
     import_package,
-    DependencyMap,
+    morepath_packages,
 )
-from base.m import App
-import morepath
-import pytest
 
 
 def test_import():
     import base
-    import sub
     import entrypoint
-    from ns import real
-    from ns import real2
-    import under_score
 
     # Pacakges to be ignored
     import no_mp
-    from ns import nomp
     import no_mp_sub
+    import sub
+    import under_score
+    from ns import nomp, real, real2
 
     found = set(morepath_packages())
     assert {base, entrypoint, real, real2, sub, under_score} <= found

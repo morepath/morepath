@@ -1,7 +1,7 @@
-from morepath.app import App
-
 from webtest import TestApp as Client
+
 import morepath
+from morepath.app import App
 from reg import KeyIndex
 
 

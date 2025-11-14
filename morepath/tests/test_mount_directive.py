@@ -1,7 +1,8 @@
-import morepath
-from morepath.error import LinkError, ConflictError
-from webtest import TestApp as Client
 import pytest
+from webtest import TestApp as Client
+
+import morepath
+from morepath.error import ConflictError, LinkError
 
 
 def test_model_mount_conflict():
