@@ -160,7 +160,7 @@ class DependencyMap:
     def load(self):
         """Fill the registry with dependency information."""
         for dist in distributions():
-            for r in (dist.requires or []):
+            for r in dist.requires or []:
                 self._d.setdefault(dist.name, set()).add(r)
 
     def depends(self, project_name, on_project_name, visited=None):
@@ -213,7 +213,9 @@ def get_module_name(distribution):
     See :func:`morepath.autoscan` for details and an example.
     """
     if hasattr(distribution, "entry_points"):
-        entry_points = distribution.entry_points.select(group="morepath", name="scan")
+        entry_points = distribution.entry_points.select(
+            group="morepath", name="scan"
+        )
     else:
         entry_points = None
 
