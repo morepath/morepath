@@ -6,9 +6,10 @@ are part of the public API.
 """
 
 import sys
+from importlib.metadata import distributions
+
 import importscan
 import importlib
-import pkg_resources
 
 from .error import AutoImportError
 
@@ -143,7 +144,7 @@ def import_package(distribution):
     try:
         return importlib.import_module(get_module_name(distribution))
     except ImportError:
-        raise AutoImportError(distribution.project_name)
+        raise AutoImportError(distribution.name)
 
 
 class DependencyMap:
@@ -158,9 +159,9 @@ class DependencyMap:
 
     def load(self):
         """Fill the registry with dependency information."""
-        for dist in pkg_resources.working_set:
-            for r in dist.requires():
-                self._d.setdefault(dist.project_name, set()).add(r.project_name)
+        for dist in distributions():
+            for r in (dist.requires or []):
+                self._d.setdefault(dist.name, set()).add(r)
 
     def depends(self, project_name, on_project_name, visited=None):
         """Check whether project transitively depends on another.
@@ -197,8 +198,8 @@ class DependencyMap:
         :return: iterable of Python distribution objects that depend on
           project
         """
-        for dist in pkg_resources.working_set:
-            if not self.depends(dist.project_name, on_project_name):
+        for dist in distributions():
+            if not self.depends(dist.name, on_project_name):
                 continue
             yield dist
 
@@ -207,21 +208,21 @@ def get_module_name(distribution):
     """Determines the module name to import from the given distribution.
 
     If an entry point named ``scan`` is found in the group ``morepath``,
-    it's value is used. If not, the project_name is used.
+    it's value is used. If not, the project name is used.
 
     See :func:`morepath.autoscan` for details and an example.
     """
-    if hasattr(distribution, "get_entry_map"):
-        entry_points = distribution.get_entry_map("morepath")
+    if hasattr(distribution, "entry_points"):
+        entry_points = distribution.entry_points.select(group="morepath", name="scan")
     else:
         entry_points = None
 
-    if entry_points and "scan" in entry_points:
-        return entry_points["scan"].module_name
+    if entry_points:
+        return entry_points[0].module
     # use normal setuptools project name.
     # setuptools has the nasty habit to turn _ in package names
     # into -. We turn them back again.
-    return distribution.project_name.replace("-", "_")
+    return distribution.name.replace("-", "_")
 
 
 # taken from pyramid.path
