@@ -138,7 +138,7 @@ def morepath_packages():
 
 def import_package(distribution):
     """
-    Takes a pkg_resources distribution and loads the module contained
+    Takes a importlib.Distribution and loads the module contained
     in it, if it matches the rules layed out in :func:`morepath.autoscan`.
     """
     try:
