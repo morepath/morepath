@@ -1,9 +1,10 @@
+import pytest
+from webtest import TestApp as Client
+
 import morepath
 from dectate import ConflictError
-from webtest import TestApp as Client
-from reg import ClassIndex, KeyIndex
-import pytest
 from morepath.core import request_method_predicate
+from reg import ClassIndex, KeyIndex
 
 
 def test_view_get_only():

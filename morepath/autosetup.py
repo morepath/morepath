@@ -5,10 +5,12 @@ This module defines functionality to automatically configure Morepath.
 are part of the public API.
 """
 
-import sys
-import importscan
 import importlib
+import sys
+
 import pkg_resources
+
+import importscan
 
 from .error import AutoImportError
 

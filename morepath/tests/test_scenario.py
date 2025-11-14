@@ -1,8 +1,9 @@
-from .fixtures import scenario
-from .fixtures.scenario import app
+from webtest import TestApp as Client
+
 import morepath
 
-from webtest import TestApp as Client
+from .fixtures import scenario
+from .fixtures.scenario import app
 
 
 def test_scenario():

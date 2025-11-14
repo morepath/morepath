@@ -1,5 +1,6 @@
-import morepath
 from webtest import TestApp as Client
+
+import morepath
 
 
 def test_function_extends():

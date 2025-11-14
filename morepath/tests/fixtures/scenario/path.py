@@ -1,5 +1,4 @@
-from . import model
-from . import app
+from . import app, model
 
 
 @app.Root.path(path="", model=model.RootRoot)

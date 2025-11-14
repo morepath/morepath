@@ -15,16 +15,17 @@ To actually serve requests it uses :func:`morepath.publish.publish`.
 Entirely documented in :class:`morepath.App` in the public API.
 """
 
-import dectate
-from dectate import directive
-import reg
 from webob.exc import HTTPNotFound
 
-from .request import Request
-from .reify import reify
-from .path import PathInfo
-from .error import LinkError
+import dectate
+import reg
+from dectate import directive
+
 from . import directive as action
+from .error import LinkError
+from .path import PathInfo
+from .reify import reify
+from .request import Request
 
 
 def cached_key_lookup(key_lookup):

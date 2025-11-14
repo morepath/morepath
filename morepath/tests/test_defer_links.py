@@ -1,7 +1,8 @@
-import morepath
-from webtest import TestApp as Client
-from morepath.error import LinkError, ConflictError
 import pytest
+from webtest import TestApp as Client
+
+import morepath
+from morepath.error import ConflictError, LinkError
 
 
 def test_defer_links():

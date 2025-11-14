@@ -1,8 +1,9 @@
+import pytest
+from webtest import TestApp as Client
+
 import dectate
 import morepath
 from morepath.error import ConflictError
-import pytest
-from webtest import TestApp as Client
 
 
 def test_settings_property():

@@ -4,13 +4,15 @@ Entirely documented in :class:`morepath.Request` and
 :class:`morepath.Response` in the public API.
 """
 
-from webob import BaseRequest, Response as BaseResponse
+from webob import Response as BaseResponse
+from webob.request import BaseRequest
+
 from dectate import Sentinel
 
+from .authentication import NO_IDENTITY
+from .error import LinkError
 from .reify import reify
 from .traject import create_path, parse_path
-from .error import LinkError
-from .authentication import NO_IDENTITY
 
 SAME_APP = Sentinel("SAME_APP")
 
@@ -330,3 +332,5 @@ class Response(BaseResponse):
 
     Extends :class:`webob.response.Response`.
     """
+
+    pass

@@ -1,14 +1,16 @@
-from morepath.error import ConfigError
-from webtest import TestApp as Client
 import pytest
+from webtest import TestApp as Client
+
+from morepath.error import ConfigError
+
 from .fixtures import (
     template,
+    template_no_template_directories,
     template_override,
     template_override_implicit,
+    template_override_under,
     template_unknown_extension,
     template_unknown_extension_no_render,
-    template_no_template_directories,
-    template_override_under,
 )
 
 

@@ -16,12 +16,13 @@ Dectate:
 
 # -*- coding: utf-8 -*-
 import textwrap
+
 from dectate import (  # noqa F401
     ConfigError,
     ConflictError,
-    TopologicalSortError,
-    DirectiveReportError,
     DirectiveError,
+    DirectiveReportError,
+    TopologicalSortError,
 )
 
 

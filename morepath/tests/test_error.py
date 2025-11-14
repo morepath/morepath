@@ -1,7 +1,9 @@
 import pytest
+
 import dectate
 import morepath
-from dectate import DirectiveReportError, ConflictError
+from dectate import ConflictError, DirectiveReportError
+
 from .fixtures import conflicterror
 
 

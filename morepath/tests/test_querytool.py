@@ -1,7 +1,8 @@
-import reg
 import dectate
 import morepath
+import reg
 from morepath import core
+
 from .fixtures import identity_policy
 
 

@@ -1,20 +1,21 @@
-import morepath
-from morepath.traject import (
-    TrajectRegistry,
-    Node,
-    Step,
-    TrajectError,
-    is_identifier,
-    parse_variables,
-    Path,
-    create_path,
-    parse_path,
-    normalize_path,
-    ParameterFactory,
-)
-from morepath.converter import Converter, IDENTITY_CONVERTER
 import pytest
 from webob.exc import HTTPBadRequest
+
+import morepath
+from morepath.converter import IDENTITY_CONVERTER, Converter
+from morepath.traject import (
+    Node,
+    ParameterFactory,
+    Path,
+    Step,
+    TrajectError,
+    TrajectRegistry,
+    create_path,
+    is_identifier,
+    normalize_path,
+    parse_path,
+    parse_variables,
+)
 
 
 def traject_consume():

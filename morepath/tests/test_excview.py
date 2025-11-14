@@ -1,7 +1,8 @@
-import morepath
+import pytest
 from webob.exc import HTTPNotFound
 from webtest import TestApp as Client
-import pytest
+
+import morepath
 
 
 def test_404_http_exception():

@@ -4,9 +4,10 @@ See :class:`morepath.directive.TemplateEngineRegistry`
 """
 
 import os
-from .toposort import toposorted, Info
+
 from .error import ConfigError, TopologicalSortError
 from .settings import SettingRegistry
+from .toposort import Info, toposorted
 
 
 class TemplateEngineRegistry:
