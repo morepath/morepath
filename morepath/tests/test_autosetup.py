@@ -1,5 +1,4 @@
 from collections import namedtuple
-from importlib import metadata
 
 from morepath.autosetup import (
     caller_module,

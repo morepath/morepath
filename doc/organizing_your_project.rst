@@ -133,7 +133,6 @@ Different sub-projects could then be called ``myproject.core``,
   myproject.core
       setup.py
       myproject
-          __init__.py
           core
               __init__.py
               app.py
@@ -143,11 +142,8 @@ Different sub-projects could then be called ``myproject.core``,
               run.py
               view.py
 
-The change is the namespace package directory ``myproject`` that contains
-a single file, ``__init__.py``, that contains the following code to declare
-it is a namespace package::
-
-  __import__('pkg_resources').declare_namespace(__name__)
+The change is the namespace package directory ``myproject`` that does not contain any
+files to declare it is a namespace package.
 
 Inside is the normal package called ``core``.
 
@@ -468,5 +464,3 @@ Directive debugging
 
 Morepath's directive issue log messages that can help you debug your
 application: see :doc:`logging` for more information.
-
-
