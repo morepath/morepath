@@ -1,4 +1,6 @@
 from collections import namedtuple
+from importlib import metadata
+
 from morepath.autosetup import (
     caller_module,
     caller_package,
@@ -32,7 +34,7 @@ def test_import():
 
 def test_load_distribution():
 
-    Distribution = namedtuple("Distribution", ["project_name"])
+    Distribution = namedtuple("Distribution", ["name"])
 
     assert import_package(Distribution("base")).m.App is App
 
