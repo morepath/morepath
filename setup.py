@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 long_description = "\n".join(
     (
@@ -25,11 +25,12 @@ setup(
         "Environment :: Web Environment",
         "Topic :: Software Development :: Libraries :: Application Frameworks",
         "Topic :: Internet :: WWW/HTTP :: WSGI",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: Implementation :: PyPy",
         "Development Status :: 5 - Production/Stable",
@@ -49,7 +50,7 @@ setup(
             "pytest-remove-stale-bytecode",
             "WebTest >= 2.0.14",
         ],
-        pep8=["flake8", "black"],
+        pep8=["black", "flake8", "isort"],
         coverage=["pytest-cov"],
         docs=["sphinx", "pyyaml", "WebTest >= 2.0.14"],
     ),

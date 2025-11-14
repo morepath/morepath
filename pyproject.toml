@@ -1,0 +1,25 @@
+[tool.black]
+line-length = 80
+target-version = ['py39', 'py310', 'py311', 'py312', 'py313', 'py314']
+include = '\.pyi?$'
+exclude = '''
+(
+  /(
+      \.git
+    | \.tox
+    | env
+    | venv
+    | .venv
+    | __pycache__
+    | build
+    | dist
+    | src
+  )/
+)
+'''
+
+
+[tool.isort]
+profile = 'black'
+py_version = 311
+skip_gitignore = true

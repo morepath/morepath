@@ -19,13 +19,13 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10", "3.11-dev", "pypy3"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "pypy-3.11"]
     
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: "actions/checkout@v2"
-      - uses: "actions/setup-python@v2"
+      - uses: "actions/checkout@v5"
+      - uses: "actions/setup-python@v6"
         with:
           python-version: "${{ matrix.python-version }}"
       - name: "Install dependencies"
@@ -39,10 +39,8 @@ jobs:
         run: "python -m tox -c .ci_tox.ini"
 
       - name: "Report to coveralls"
-        # coverage is only created in the py39 environment
-        # --service=github is a workaround for bug
-        # https://github.com/coveralls-clients/coveralls-python/issues/251
-        if: "matrix.python-version == '3.9'"
+        # coverage is only created in the py311 environment
+        if: "${{ matrix.python-version }} == '3.11'"
         run: |
           pip install coveralls
           coveralls --service=github
