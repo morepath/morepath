@@ -220,7 +220,7 @@ def get_module_name(distribution):
         entry_points = None
 
     if entry_points:
-        return entry_points[0].module
+        return tuple(entry_points)[0].module
     # use normal setuptools project name.
     # setuptools has the nasty habit to turn _ in package names
     # into -. We turn them back again.
