@@ -185,7 +185,7 @@ def poisoned_host_header_protection_tween_factory(app, handler):
     about this particular kind of attack have a look at the following
     references:
 
-    * http://skeletonscribe.net/2013/05/practical-http-host-header-attacks
+    * https://www.skeletonscribe.net/2013/05/practical-http-host-header-attacks.html
     * https://www.djangoproject.com/weblog/2012/dec/10/security/
     * https://github.com/django/django/commit/77b06e41516d8136b56c040cba7e235b
 

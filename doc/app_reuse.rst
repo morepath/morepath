@@ -21,7 +21,7 @@ Morepath instead has *general* mechanisms for app extension and
 reuse. Any normal Morepath app is reusable without extra
 effort. Anything registered in a Morepath app can be overridden.
 
-.. _Reg: http://blog.startifact.com/posts/reg-now-with-more-generic.html
+.. _Reg: https://blog.startifact.com/posts/reg-now-with-more-generic/
 
 Application Isolation
 ---------------------

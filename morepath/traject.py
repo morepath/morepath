@@ -19,7 +19,8 @@ routing; in Morepath the value is a model instance factory.
 
 When presented with a path, Traject traverses this internal tree.
 
-For a description of a similar algorithm also read: http://littledev.nl/?p=99
+For a description of a similar algorithm also read:
+https://littledev.nl/blog/2015-01-13-url-routing
 
 .. testsetup::
 

@@ -83,7 +83,7 @@ You can then point your web browser to the ``htmlcov/index.html`` file
 in the project directory and click on modules to see detailed coverage
 information.
 
-.. _`pytest`: http://pytest.org/latest/
+.. _`pytest`: https://pytest.org
 
 Black
 -----
@@ -112,7 +112,7 @@ To do pyflakes and pep8 checking do::
 
 .. _pyflakes: https://pypi.python.org/pypi/pyflakes
 
-.. _pep8: http://www.python.org/dev/peps/pep-0008/
+.. _pep8: https://peps.python.org/pep-0008
 
 radon
 -----
@@ -131,7 +131,7 @@ And to see the maintainability index::
 
   $ radon mi morepath -e "morepath/tests*"
 
-.. _radon: https://radon.readthedocs.org/en/latest/commandline.html
+.. _radon: https://radon.readthedocs.io/en/latest/commandline.html
 
 .. _`cyclomatic complexity`: https://en.wikipedia.org/wiki/Cyclomatic_complexity
 
@@ -186,12 +186,12 @@ Tox
 
 With tox you can test Morepath under different Python environments.
 
-We have Travis continuous integration installed on Morepath's github
+We have gh-actions continuous integration installed on Morepath's github
 repository and it runs the same tox tests after each checkin.
 
 First you should install all Python versions which you want to
 test. The versions which are not installed will be skipped. You should
-at least install Python 3.7 which is required by flake8, coverage and
+at least install Python 3.11 which is required by flake8, coverage and
 doctests.
 
 One tool you can use to install multiple versions of Python is pyenv_.
@@ -206,7 +206,7 @@ You can run all tox tests with::
 
 You can also specify a test environment to run e.g.::
 
-  $ tox -e py37
+  $ tox -e py311
   $ tox -e pep8
   $ tox -e docs
 

@@ -21,4 +21,4 @@ exposed to the web using *views*.
 
 Documentation_.
 
-.. _Documentation: http://morepath.readthedocs.io
+.. _Documentation: https://morepath.readthedocs.io

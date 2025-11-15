@@ -476,7 +476,7 @@ Exception views
 .. sidebar:: WebOb HTTP exceptions
 
   `A list of standard WebOb HTTP exceptions
-  <http://docs.webob.org/en/stable/api/exceptions.html>`_
+  <https://docs.pylonsproject.org/projects/webob/en/stable/api/exceptions.html>`_
 
   WebOb exceptions are also response objects, so you could return them
   directly from your view instead of raising them. But not that if you

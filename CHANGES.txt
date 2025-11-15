@@ -205,7 +205,7 @@ Features
   your code accordingly; see the `Dectate changelog`_ for more
   details.
 
-  .. _`Dectate changelog`: http://dectate.readthedocs.io/en/latest/changes.html
+  .. _`Dectate changelog`: https://dectate.readthedocs.io/en/latest/changes.html
 
 - **Breaking change** Previously Morepath used Reg's dispatch
   functions directly, with a mechanism to pass in a ``lookup``
@@ -599,9 +599,9 @@ Other
   configuration system that used to be in ``morepath.config``
   module. It's finally documented too!
 
-  .. _dectate: http://dectate.readthedocs.org
+  .. _dectate: https://dectate.readthedocs.io
 
-  .. _importscan: http://importscan.readthedocs.org
+  .. _importscan: https://importscan.readthedocs.io
 
   Dectate and thus Morepath does not use Venusian (or Venusifork)
   anymore so that dependency is gone.
@@ -899,10 +899,10 @@ Other
   See https://github.com/morepath/morepath/issues/329
 
 - Additional documentation on the Morepath config system:
-  http://morepath.readthedocs.org/en/latest/configuration.html
+  https://morepath.readthedocs.io/en/latest/configuration.html
 
 - Additional documentation on how to serve static images in
-  https://morepath.readthedocs.org/en/latest/more.static.html
+  https://morepath.readthedocs.io/en/latest/more.static.html
 
 - Move undocumented ``pdb`` out of ``__init__.py`` as it could
   sometimes trip up things. Instead documented it in the API docs in
@@ -920,12 +920,12 @@ Other
   your project, such as ``more.chameleon`` and ``more.jinja2``, but
   you can also add your own.
 
-  See http://morepath.readthedocs.org/en/latest/templates.html
+  See https://morepath.readthedocs.io/en/latest/templates.html
 
 - Add a new "A Review of the Web" document to the docs to show how
   Morepath fits within the web.
 
-  http://morepath.readthedocs.org/en/latest/web.html
+  https://morepath.readthedocs.io/en/latest/web.html
 
 - The publisher does not respond to a ``None`` render function
   anymore. Instead, the ``view`` directive now uses a default
@@ -969,10 +969,10 @@ Other
 
 - Directives are now logged to the ``morepath.directive`` log, which
   is using the standard Python ``logging`` infrastructure. See
-  http://morepath.readthedocs.org/en/latest/logging.html
+  https://morepath.readthedocs.io/en/latest/logging.html
 
 - Document ``more.forwarded`` proxy support in
-  http://morepath.readthedocs.org/en/latest/paths_and_linking.html
+  https://morepath.readthedocs.io/en/latest/paths_and_linking.html
 
 - Document behavior of ``request.after`` in combination with directly
   returning a response object from a view.
@@ -1055,7 +1055,7 @@ Other
     as it can now be extended with new predicates that use
     predicate-style dispatch.
 
-  .. _docs: http://reg.readthedocs.org
+  .. _docs: https://reg.readthedocs.io
 
 - Introduce the ``body_model`` predicate for views. You can give it
   the class of the ``request.body_obj`` you want to handle with this
@@ -1280,7 +1280,7 @@ Other
 - ``dump_json`` and ``load_json`` directives. This lets you
   automatically convert an object going to a response to JSON, and
   converts JSON coming in as a request body from JSON to an
-  object. See http://morepath.readthedocs.org/en/latest/json.html for
+  object. See https://morepath.readthedocs.io/en/latest/json.html for
   more information.
 
 - ``defer_links`` directive. This directive can be used to declare
@@ -1599,7 +1599,7 @@ Other
 
 - ``.gitignore`` tweaks (Auke Willem Oosterhoff)
 
-.. _`Morepath Security`: http://blog.startifact.com/posts/morepath-security.html
+.. _`Morepath Security`: https://blog.startifact.com/posts/morepath-security
 
 0.1 (2014-04-08)
 ================

@@ -70,7 +70,7 @@ declared by :meth:`morepath.App.setting` and
 :class:`morepath.directive.SettingRegistry` which is accessible through
 :attr:`morepath.App.settings`.
 
-.. _Dectate: http://dectate.readthedocs.org
+.. _Dectate: https://dectate.readthedocs.io
 
 instantiate the app
 ~~~~~~~~~~~~~~~~~~~
@@ -182,13 +182,13 @@ Morepath uses the following dependencies:
 * importscan_: automatically recursively import all modules in a
   package.
 
-.. _Webob: http://webob.org
+.. _Webob: https://docs.pylonsproject.org/projects/webob
 
-.. _Reg: http://reg.readthedocs.org
+.. _Reg: https://reg.readthedocs.io
 
-.. _Dectate: http://dectate.readthedocs.org
+.. _Dectate: https://dectate.readthedocs.io
 
-.. _importscan: http://importscan.readthedocs.org
+.. _importscan: https://importscan.readthedocs.io
 
 Internal APIs
 -------------

@@ -44,7 +44,7 @@ What just happened?
 * You hook it up so that a command-line script gets generated using
    setuptool's ``console_scripts`` mechanism.
 
-.. _Dectate: http://dectate.readthedocs.org
+.. _Dectate: https://dectate.readthedocs.io
 
 Usage
 -----

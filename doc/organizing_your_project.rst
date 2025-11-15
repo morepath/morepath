@@ -37,7 +37,7 @@ It is recommended you organize your code in a Python project with a
 ``setup.py`` where you declare the dependency on Morepath. If you're
 unfamiliar with how this works, you can check out `this tutorial`_.
 
-.. _`this tutorial`: http://pythonhosted.org/an_example_pypi_project/setuptools.html
+.. _`this tutorial`: https://pythonhosted.org/an_example_pypi_project/setuptools.html
 
 Doing this is good Python practice and makes it easy for you to
 install and distribute your project using common tools like pip,
@@ -289,7 +289,7 @@ your run module to look like this::
 Using this runner changes to Python code in your package trigger a
 restart of the WSGI server.
 
-.. _`Werkzeug's server`: http://werkzeug.pocoo.org/docs/latest/serving/
+.. _`Werkzeug's server`: https://werkzeug.palletsprojects.com/en/stable/serving/
 
 .. _`Werkzeug package`: https://pypi.python.org/pypi/Werkzeug
 
@@ -357,9 +357,9 @@ You can also use gunicorn_ this way::
 
   $ gunicorn -w 4 myproject.wsgi:prepared_app
 
-.. _Waitress: http://docs.pylonsproject.org/projects/waitress/en/latest/
+.. _Waitress: https://docs.pylonsproject.org/projects/waitress/en/latest/
 
-.. _Gunicorn: http://gunicorn.org
+.. _Gunicorn: https://gunicorn.org
 
 Model module
 ------------
@@ -377,7 +377,7 @@ anything Morepath related into this module. Here is an example
           self.title = title
           self.content = content
 
-.. _SQLAlchemy: http://sqlalchemy.org
+.. _SQLAlchemy: https://sqlalchemy.org
 
 Variation: models elsewhere
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

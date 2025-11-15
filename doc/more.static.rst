@@ -22,15 +22,15 @@ We recommend you read the BowerStatic documentation, but we provide a
 small example of how to integrate it here that should help you get
 started. You can find all the example code in the `github repo`_.
 
-.. _BowerStatic: http://bowerstatic.readthedocs.org
+.. _BowerStatic: https://bowerstatic.readthedocs.io
 
-.. _Fanstatic: http://fanstatic.org
+.. _Fanstatic: https://fanstatic.org
 
-.. _Webassets: http://webassets.readthedocs.org/
+.. _Webassets: https://webassets.readthedocs.io/
 
 .. _`github repo`: https://github.com/morepath/morepath_static
 
-.. _webob.static: http://webob.readthedocs.org/en/latest/modules/static.html
+.. _webob.static: https://docs.pylonsproject.org/projects/webob/en/stable/api/static.html
 
 Application layout
 ------------------
@@ -119,7 +119,7 @@ automatically included in the package archive. You could place
 ``bower_components`` elsewhere however and manage its contents
 separately.
 
-.. _bower: http://bower.io
+.. _bower: https://bower.io
 
 Registering ``bower_components``
 --------------------------------
@@ -216,7 +216,7 @@ Now you need to tell the local components object about it::
   local.component('/path/to/my_component', version=None)
 
 See the `BowerStatic local component documentation
-<http://bowerstatic.readthedocs.org/en/latest/local.html>`_ for more
+<https://bowerstatic.readthedocs.io/en/latest/local.html>`_ for more
 of what you can do with ``version`` -- it's clever about automatically
 busting the cache when you change things.
 
@@ -297,5 +297,5 @@ This example is one way to serve an image, but it is not the only way.
 In cases that require a more elaborate method for serving the content
 this `WebOb File-Serving Example`_ may be helpful.
 
-.. _`WebOb File-Serving Example`: http://webob.readthedocs.org/en/latest/file-example.html
-.. _webob.static.FileApp: http://webob.readthedocs.org/en/latest/modules/static.html#webob.static.FileApp
+.. _`WebOb File-Serving Example`: https://webob.readthedocs.io/en/latest/file-example.html
+.. _webob.static.FileApp: https://webob.readthedocs.io/en/latest/api/static.html#webob.static.FileApp

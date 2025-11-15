@@ -59,7 +59,7 @@ REST we do the following:
 
 .. _RESTful: https://en.wikipedia.org/wiki/Representational_state_transfer
 
-.. _`Richardson Maturity Model for REST`: http://martinfowler.com/articles/richardsonMaturityModel.html
+.. _`Richardson Maturity Model for REST`: https://martinfowler.com/articles/richardsonMaturityModel.html
 
 .. _HATEOAS: https://en.wikipedia.org/wiki/HATEOAS
 

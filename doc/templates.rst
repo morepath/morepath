@@ -215,10 +215,10 @@ Some details:
   function. It can also create a ``morepath.Response`` object
   directly.
 
-.. _`more.chameleon`: http://pypi.python.org/pypi/more.chameleon
+.. _`more.chameleon`: https://pypi.python.org/pypi/more.chameleon
 
-.. _`more.jinja2`: http://pypi.python.org/pypi/more.jinja2
+.. _`more.jinja2`: https://pypi.python.org/pypi/more.jinja2
 
-.. _`ZPT`: http://chameleon.readthedocs.org/en/latest/reference.html
+.. _`ZPT`: https://chameleon.readthedocs.io/en/latest/reference.html
 
-.. _`Jinja2`: http://jinja.pocoo.org
+.. _`Jinja2`: https://jinja.palletsprojects.com/en/stable/

@@ -25,7 +25,7 @@ directive :class:`dectate.Action` that declares one of these
 registries in :attr:`dectate.Action.config` you can import their class
 from :mod:`morepath.directive`.
 
-.. _Dectate: http://dectate.readthedocs.org
+.. _Dectate: https://dectate.readthedocs.io
 
 """
 

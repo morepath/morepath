@@ -59,14 +59,14 @@ own reusable project, called `dectate`_. Martijn also extensively
 refactored it and removed the Venusian dependency. Morepath now uses
 Dectate as a clean and well-documented configuration system.
 
-.. _dectate: http://dectate.readthedocs.org
+.. _dectate: https://dectate.readthedocs.io
 
 Routing system
 --------------
 
 In 2009 Martijn wrote a library called Traject:
 
-https://pypi.python.org/pypi/traject
+https://pypi.org/project/traject/
 
 Martijn was familiar with Zope traversal. Zope traversal matches a URL
 with an object by parsing the URL and going through an object graph
@@ -100,7 +100,7 @@ In early 2010 Martijn started the iface project with Thomas Lotze. In
 the Comparch project in 2013. He then renamed Comparch to Reg, and
 finally `converted Reg to a generic function implementation`_.
 
-.. _`converted Reg to a generic function implementation`: http://blog.startifact.com/posts/reg-now-with-more-generic.html
+.. _`converted Reg to a generic function implementation`: https://blog.startifact.com/posts/reg-now-with-more-generic
 
 In late 2014 there was another major change in Reg, when Martijn
 generalized it into a predicate dispatch implementation. In the summer
@@ -112,14 +112,14 @@ See `Reg's history section`_ for more information on its history. The
 Reg project provides the fundamental registries that Morepath builds
 on.
 
-.. _`Reg's history section`: http://reg.readthedocs.org/en/latest/history.html
+.. _`Reg's history section`: https://reg.readthedocs.io/en/latest/history.html
 
 Publisher
 ---------
 
 In 2010 Martijn wrote a system called Dawnlight:
 
-https://bitbucket.org/faassen/dawnlight
+https://pypi.org/project/dawnlight
 
 It was the core of an object publishing system with a system to find a
 model and a view for that model, based on a path. It used some
@@ -129,7 +129,7 @@ be easy to plug in Traject. Martijn didn't use Dawnlight himself, but
 it was adopted by the developers of the Cromlech web framework
 (Souheil Chelfouh and Alex Garel):
 
-http://pypi.dolmen-project.org/pypi/cromlech.dawnlight
+https://github.com/Cromlech/dawnlight
 
 Morepath contains a reformulation of the Dawnlight system,
 particularly in its publisher module.
@@ -149,8 +149,4 @@ In the fall of 2013 Martijn gave a keynote speech at PyCon DE about
 the creative processes behind Morepath, called "Spinning a Web
 Framework":
 
-.. raw:: html
-
-  <iframe id="ytplayer" type="text/html" width="640" height="390"
-    src="http://www.youtube.com/embed/9A5T9C2OBB4?autoplay=0&origin=http://morepath.readthedocs.org"
-    frameborder="0"></iframe>
+https://www.youtube.com/watch?v=9A5T9C2OBB4

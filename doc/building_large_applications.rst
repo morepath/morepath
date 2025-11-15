@@ -317,7 +317,7 @@ You can also mount applications this way in automated tests and then
 use WebTest_ or some other WSGI testing library, as explained in
 :doc:`testing`.
 
-.. _WebTest: http://webtest.readthedocs.org/
+.. _WebTest: https://webtest.readthedocs.io/
 
 Reusing an app
 --------------

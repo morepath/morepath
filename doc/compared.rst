@@ -9,7 +9,7 @@ We hear you ask:
 .. sidebar:: Pyramid Design Choices
 
   This document is a bit like the `Design Defense Document
-  <http://docs.pylonsproject.org/projects/pyramid/en/latest/designdefense.html>`__
+  <https://docs.pylonsproject.org/projects/pyramid/en/latest/designdefense.html>`__
   of the Pyramid web framework. The Pyramid document makes for a very
   interesting read if you're interested in web framework design. More
   web frameworks should do that.
@@ -66,9 +66,9 @@ core behavior of Morepath can be changed by overriding its generic
 functions. This makes Morepath like Zope, and especially like Pyramid,
 but less like Django or Flask.
 
-.. _Dectate: http://dectate.readthedocs.org
+.. _Dectate: https://dectate.readthedocs.io
 
-.. _Reg: http://reg.readthedocs.org
+.. _Reg: https://reg.readthedocs.io
 
 Routing
 -------
@@ -175,7 +175,7 @@ WSGI
 Morepath is a WSGI_-based framework, like Flask or Pyramid, and these
 days Django as well.
 
-.. _WSGI: http://wsgi.readthedocs.org/en/latest/
+.. _WSGI: https://wsgi.readthedocs.io/en/latest/
 
 A Morepath app is a standard WSGI app. You can plug it into a WSGI
 compliant web server like Apache or Nginx or gunicorn.
@@ -244,11 +244,11 @@ Morepath allows you to plug in server templates. You can plug in
 Jinja2_ through `more.jinja2`_, Chameleon_ through
 `more.chameleon`_ and Mako_ through `more.mako`_.
 
-.. _Jinja2: http://jinja.pocoo.org/
+.. _Jinja2: https://jinja.palletsprojects.com
 
-.. _Mako: http://www.makotemplates.org
+.. _Mako: https://www.makotemplates.org
 
-.. _Chameleon: https://chameleon.readthedocs.org
+.. _Chameleon: https://chameleon.readthedocs.io
 
 .. _`more.jinja2`: https://pypi.python.org/pypi/more.jinja2
 
@@ -314,11 +314,11 @@ is based around decorators attached to application objects. These
 application objects can extend other ones. Dectate supports a range
 sophisticated extension and override use cases in a general way.
 
-.. _Venusian: http://pypi.python.org/pypi/venusian
+.. _Venusian: https://pypi.python.org/pypi/venusian
 
-.. _Martian: http://pypi.python.org/pypi/martian
+.. _Martian: https://pypi.python.org/pypi/martian
 
-.. _Dectate: http://dectate.readthedocs.org
+.. _Dectate: https://dectate.readthedocs.io
 
 Components and Generic functions
 --------------------------------
@@ -340,7 +340,7 @@ Pyramid.
 Morepath uses something else: a library called Reg_. This is a new,
 reimagined, streamlined implementation of the idea of the ZCA.
 
-.. _Reg: http://reg.readthedocs.org
+.. _Reg: https://reg.readthedocs.io
 
 The underlying registration APIs of the ZCA is rather involved, with
 quite a few special cases. Reg has a much simpler, more general

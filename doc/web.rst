@@ -18,18 +18,18 @@ Version 1.1 of HTTP is most common on the web today. It is defined by
 a bunch of specifications:
 
 * `RFC7230 - HTTP/1.1: Message Syntax and Routing
-  <http://tools.ietf.org/html/rfc7230>`_
+  <https://tools.ietf.org/html/rfc7230>`_
 
-* `RFC7231 - HTTP/1.1: Semantics and Content <http://tools.ietf.org/html/rfc7231>`_
+* `RFC7231 - HTTP/1.1: Semantics and Content <https://tools.ietf.org/html/rfc7231>`_
 
-* `RFC7232 - HTTP/1.1: Conditional Requests <http://tools.ietf.org/html/rfc7232>`_
+* `RFC7232 - HTTP/1.1: Conditional Requests <https://tools.ietf.org/html/rfc7232>`_
 
-* `RFC7233 - HTTP/1.1: Range Requests <http://tools.ietf.org/html/rfc7233>`_
+* `RFC7233 - HTTP/1.1: Range Requests <https://tools.ietf.org/html/rfc7233>`_
 
-* `RFC7234 - HTTP/1.1: Caching <http://tools.ietf.org/html/rfc7234>`_
+* `RFC7234 - HTTP/1.1: Caching <https://tools.ietf.org/html/rfc7234>`_
 
 * `RFC7235 - HTTP/1.1: Authentication
-  <http://tools.ietf.org/html/rfc7235>`_
+  <https://tools.ietf.org/html/rfc7235>`_
 
 Luckily it's not necessary to understand the full details of these
 specifications to develop a web application. We'll go into a basic
@@ -59,13 +59,13 @@ A web server implements the HTTP protocol to respond to requests from
 HTTP clients such as web browsers.
 
 There are general web servers such as `Apache
-<https://httpd.apache.org/>`_ and `Nginx <http://nginx.org/>`_. These
+<https://httpd.apache.org/>`_ and `Nginx <https://nginx.org/>`_. These
 are programmable in various ways.
 
 There are also more specific web servers that are geared at particular
 tasks. Examples of these are `Waitress
-<http://waitress.readthedocs.org>`_ and `Gunicorn
-<http://gunicorn.org>`_ which are geared towards serving web
+<https://waitress.readthedocs.io>`_ and `Gunicorn
+<https://gunicorn.org>`_ which are geared towards serving web
 applications written in Python.
 
 A web server is programmable in various ways. Morepath can plug into
@@ -179,7 +179,7 @@ more easy than doing it by hand.
 
 Morepath offers Bower integration, see: :doc:`more.static`.
 
-.. _Bower: http://bower.io
+.. _Bower: https://bower.io
 
 .. _review-ajax:
 
@@ -234,7 +234,7 @@ Python request object using the WebOb_ library. It is a
 :class:`morepath.Request`, which is a subclass of
 :class:`webob.request.BaseRequest`.
 
-.. _WebOb: http://webob.org/
+.. _WebOb: https://webob.org/
 
 .. _review-http-response:
 
@@ -413,7 +413,7 @@ use the `more.forwarded`_ extension.
 
 .. _`more.forwarded`: https://pypi.python.org/pypi/more.forwarded/
 
-.. _forwarded: http://tools.ietf.org/html/rfc7239
+.. _forwarded: https://tools.ietf.org/html/rfc7239
 
 .. _review-cookies:
 
@@ -556,7 +556,7 @@ define a *predicate fallback*, which can be used to specify what HTTP
 status code to set when the view cannot be matched.
 
 See `view predicates
-<http://morepath.readthedocs.org/en/latest/views.html#predicates>`_
+<https://morepath.readthedocs.io/en/latest/views.html#predicates>`_
 
 .. _review-http-status-codes:
 
@@ -613,7 +613,7 @@ Sometimes it is still useful to set the status code directly. WebOb
 lets you raise `special exceptions`_ for HTTP errors. You can also set
 the :attr:`webob.response.Response.status` attribute on the response.
 
-.. _`special exceptions`: http://docs.webob.org/en/latest/modules/exceptions.html
+.. _`special exceptions`: https://docs.pylonsproject.org/projects/webob/en/stable/api/exceptions.html
 
 .. _review-json:
 
@@ -693,7 +693,7 @@ Morepath does not mandate the use of JSON-LD, or has any special
 support for it, but its link generation facilities make it easier to
 use it.
 
-.. _`JSON-LD`: http://json-ld.org/
+.. _`JSON-LD`: https://json-ld.org/
 
 .. _review-http-api:
 
@@ -723,7 +723,7 @@ HTTP.
 Morepath is designed to help you build HTTP APIs, but also to go you a
 step further to full REST.
 
-.. _`Richardson Maturity Model`: http://martinfowler.com/articles/richardsonMaturityModel.html
+.. _`Richardson Maturity Model`: https://martinfowler.com/articles/richardsonMaturityModel.html
 
 .. _review-rest-web-service:
 

@@ -61,7 +61,7 @@ library to accomplish this.
 
 For much more, see :doc:`views`.
 
-.. _Reg: http://reg.readthedocs.org
+.. _Reg: https://reg.readthedocs.io
 
 .. _model-driven-permissions:
 
@@ -197,4 +197,4 @@ directives and registries for Morepath with ease::
   def label_widget():
       ...
 
-.. _Dectate: http://dectate.readthedocs.org
+.. _Dectate: https://dectate.readthedocs.io

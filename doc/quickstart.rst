@@ -48,11 +48,11 @@ You can save this as ``hello.py`` and then run it with Python:
   all, but instead use an external WSGI server such as waitress_,
   `Apache mod_wsgi`_ or `nginx mod_wsgi`_.
 
-  .. _waitress: http://pylons.readthedocs.org/projects/waitress/en/latest/
+  .. _waitress: https://pylons.readthedocs.io/projects/waitress/en/latest/
 
-  .. _`Apache mod_wsgi`: https://modwsgi.readthedocs.org/en/latest/
+  .. _`Apache mod_wsgi`: https://modwsgi.readthedocs.io/en/latest/
 
-  .. _`nginx mod_wsgi`: http://wiki.nginx.org/NgxWSGIModule
+  .. _`nginx mod_wsgi`: https://nginx.org/en/docs/http/ngx_http_uwsgi_module.html
 
 If you now go with a web browser to the URL given, you should see
 "Hello world!"  as expected. When you want to stop the server, just
@@ -154,9 +154,9 @@ using an ORM such as SQLAlchemy_, or some NoSQL database such as the
 ZODB_. This is entirely up to you; Morepath does not put special
 requirements on models.
 
-.. _SQLAlchemy: http://www.sqlalchemy.org/
+.. _SQLAlchemy: https://www.sqlalchemy.org/
 
-.. _ZODB: http://www.zodb.org/en/latest/
+.. _ZODB: https://www.zodb.org/en/latest/
 
 Above we've exposed a ``Root`` model to the root route ``/``, which is
 rather boring. To make things more interesting, let's imagine we have

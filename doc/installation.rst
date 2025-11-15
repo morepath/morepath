@@ -22,7 +22,7 @@ Morepath::
 See :doc:`quickstart` for information on how to get started with
 Morepath itself, including an example of ``quickstart.py``.
 
-.. _virtualenv: http://www.virtualenv.org/
+.. _virtualenv: https://virtualenv.pypa.io/en/latest/
 
 .. _cookiecutter:
 
@@ -53,7 +53,7 @@ and also sets up an entry point to start the web server.
 Once you have a project you can use tools like pip_.
 We'll briefly describe how to it.
 
-.. _pip: http://www.pip-installer.org/
+.. _pip: https://pip.pypa.io/en/stable/
 
 pip
 ~~~

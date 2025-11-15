@@ -810,6 +810,6 @@ trusted proxy that indeed sets the ``Forwarded`` header. This because
 otherwise you could expose your application to attacks that affect
 link generation through the Forwarded header.
 
-.. _`more.forwarded`: http://pypi.python.org/pypi/more.forwarded
+.. _`more.forwarded`: https://pypi.python.org/pypi/more.forwarded
 
-.. _`Forwarded header`: http://tools.ietf.org/html/rfc7239
+.. _`Forwarded header`: https://tools.ietf.org/html/rfc7239

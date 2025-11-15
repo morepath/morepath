@@ -89,4 +89,4 @@ Let's now go through the test, line by line.
 
    >>> assert response.body == b'The view for model: foo'
 
-.. _webtest: https://webtest.readthedocs.org
+.. _webtest: https://webtest.readthedocs.io
