@@ -9,5 +9,5 @@ setup(
     license="BSD",
     packages=find_packages(),
     zip_safe=False,
-    install_requires=["setuptools", "morepath"],
+    install_requires=["morepath"],
 )

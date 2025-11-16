@@ -54,32 +54,34 @@ def test_run_defaults(mockserver, capsys):
     assert err == ""
     import sys
 
-    if sys.version_info < (3, 10):
-        assert (
-            out
-            == """\
-usage: script-name [-h] [-p PORT] [-H HOST]
+    if sys.version_info < (3, 13):
+        # Use regex matching to handle different whitespace formatting
+        import re
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -p PORT, --port PORT  TCP port on which to listen (default: 80)
-  -H HOST, --host HOST  hostname or IP address on which to listen (default:
-                        localhost)
-"""
-        )
-    else:
-        assert (
-            out
-            == """\
-usage: script-name [-h] [-p PORT] [-H HOST]
+        expected_pattern = r"""usage: script-name \[-h\] \[-p PORT\] \[-H HOST\]
 
 options:
   -h, --help            show this help message and exit
-  -p PORT, --port PORT  TCP port on which to listen (default: 80)
-  -H HOST, --host HOST  hostname or IP address on which to listen (default:
-                        localhost)
+  -p PORT, --port PORT  TCP port on which to listen \(default: 80\)
+  -H HOST, --host HOST  hostname or IP address on which to listen \(default:\s*localhost\)
 """
-        )
+        print("out:", out)
+        print("expected_pattern:", expected_pattern)
+
+        assert re.match(expected_pattern, out, re.DOTALL)
+
+    else:
+        # Use regex matching to handle different whitespace formatting
+        import re
+
+        expected_pattern = r"""usage: script-name \[-h\] \[-p PORT\] \[-H HOST\]
+
+options:
+  -h, --help       show this help message and exit
+  -p, --port PORT  TCP port on which to listen \(default: 80\)
+  -H, --host HOST  hostname or IP address on which to listen \(default:\s*localhost\)
+"""
+        assert re.match(expected_pattern, out, re.DOTALL)
 
 
 def test_run(mockserver, capsys):

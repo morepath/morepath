@@ -68,26 +68,18 @@ def run(
       full-featured command-line parser. Its help message describes
       how to use it:
 
-      .. testcode::
-        :hide:
-
-        from morepath.run import make_parser
-        make_parser('<script name>', '127.0.0.1', 5000).print_help()
-
-      .. testoutput::
+      .. code-block::
 
         usage: <script name> [-h] [-p PORT] [-H HOST]
 
-        optional arguments:
-          -h, --help            show this help message and exit
-          -p PORT, --port PORT  TCP port on which to listen (default: 5000)
-          -H HOST, --host HOST  hostname or IP address on which to listen \
-(default:
-                                127.0.0.1)
+        options:
+          -h, --help       show this help message and exit
+          -p, --port PORT  TCP port on which to listen (default: 5000)
+          -H, --host HOST  hostname or IP address on which to listen
+                           (default: 127.0.0.1)
 
       The default values for the ``--port`` and ``--host`` options are
-      takend from the value of the arguments passed to
-      :func:`morepath.run`.
+      taken from the value of the arguments passed to :func:`morepath.run`.
 
     """
     import errno

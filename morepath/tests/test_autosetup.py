@@ -18,7 +18,7 @@ def test_import():
     import base
     import entrypoint
 
-    # Pacakges to be ignored
+    # Packages to be ignored
     import no_mp
     import no_mp_sub
     import sub
@@ -83,3 +83,27 @@ def test_circular_dependency():
 
     for node in ("grandchild", "child-a", "child-b", "parent"):
         assert m.depends(node, "grandparent")
+
+
+def test_depends_visited_parameter():
+    # Test that the visited parameter is properly initialized when not provided
+    m = DependencyMap()
+    m._d = {
+        "a": {"b"},
+        "b": {"c"},
+        "c": set(),
+    }
+
+    # When called without visited parameter, it should initialize an empty set
+    assert m.depends("a", "c") is True
+    assert m.depends("a", "d") is False
+
+    # Test the recursive case where visited is passed along
+    m._d = {
+        "a": {"b"},
+        "b": {"a"},  # circular dependency
+    }
+
+    # This will trigger the recursive call with visited parameter
+    # The initial call will have visited=None
+    assert m.depends("a", "b") is True

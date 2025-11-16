@@ -12,4 +12,4 @@ repos:
     rev: v3.21.1
     hooks:
     - id: pyupgrade
-      args: [--py39-plus]
+      args: [--py310-plus]

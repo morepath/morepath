@@ -1,6 +1,132 @@
+[build-system]
+requires = ["setuptools"]
+build-system = ["setuptools.build_meta"]
+
+[project]
+name = "morepath"
+version="0.20.dev0"
+dynamic = ["readme"]
+description = "A micro web-framework with superpowers"
+license = "BSD-3-Clause"
+license-files = ["LICENSE.txt"]
+authors = [{name = "Morepath developers", email = "morepath@googlegroups.com"}]
+maintainers = [{name = "Henri Hulski", email = "henri@sancode.it"}]
+keywords = ["web", "wsgi", "routing", "morepath"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Environment :: Web Environment",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Internet :: WWW/HTTP :: WSGI",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Development Status :: 5 - Production/Stable",
+]
+requires-python = ">= 3.10"
+dependencies = [
+    "webob >= 1.7.0",
+    "reg >= 0.12",
+    "dectate >= 0.14",
+    "importscan >= 0.2"
+]
+
+[project.urls]
+Documentation = "https://morepath.readthedocs.io"
+Repository = "https://github.com/morepath/morepath"
+Issues = "https://github.com/morepath/morepath/issues"
+Changelog = "https://github.com/morepath/morepath/blob/master/CHANGES.txt"
+
+[project.optional-dependencies]
+test = ["pytest >= 8", "WebTest >= 2.0.14", "pytest-env"]
+docs = ["sphinx", "pyyaml", "WebTest >= 2.0.14"]
+coverage = ["pytest-cov"]
+lint = ["black", "flake8", "isort"]
+
+[tool.setuptools.packages]
+find = {}
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.rst", "CHANGES.txt"]}
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["morepath"]
+addopts = ["-vv"]
+env = ["RUN_ENV=test"]
+filterwarnings = [
+    "ignore:'cgi' is deprecated:DeprecationWarning",
+]
+
+[tool.coverage.run]
+omit = ["morepath/tests/*"]
+source = ["morepath"]
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.tox]
+requires = ["tox>=4"]
+env_list = [
+    "py310",
+    "py311",
+    "py312",
+    "py313",
+    "py314",
+    "pypy3",
+    "coverage",
+    "pre-commit",
+    "lint",
+    "docs",
+]
+skip_missing_interpreters = true
+
+[tool.tox.env_run_base]
+package = "editable"
+extras = ["test"]
+deps = [
+    "-r{tox_root}/requirements/corelibs.txt",
+    "-r{tox_root}/requirements/fixtures.txt",
+]
+commands = [["pytest", "{posargs:morepath}"]]
+
+[tool.tox.env.coverage]
+base_python = ["python3.11"]
+extras = ["test", "coverage"]
+commands = [
+    ["pytest", "--cov", "--cov-fail-under=99", "{posargs:morepath}"],
+]
+
+[tool.tox.env.pre-commit]
+base_python = ["python3.11"]
+package = "skip"
+deps = ["pre-commit"]
+commands = [
+    ["pre-commit", "run", "--all-files"],
+]
+
+[tool.tox.env.lint]
+base_python = ["python3.11"]
+extras = ["lint"]
+commands = [
+    ["flake8", "morepath"],
+    ["black", "--check", "--diff", "--color", "."],
+    ["isort", "--diff", "."],
+]
+
+[tool.tox.env.docs]
+base_python = ["python3.11"]
+extras = ["docs"]
+commands = [
+    ["sphinx-build", "-b", "doctest", "doc", "{env_tmp_dir}"],
+]
+
 [tool.black]
 line-length = 80
-target-version = ['py39', 'py310', 'py311', 'py312', 'py313', 'py314']
+target-version = ['py310', 'py311', 'py312', 'py313', 'py314']
 include = '\.pyi?$'
 exclude = '''
 (
@@ -17,7 +143,6 @@ exclude = '''
   )/
 )
 '''
-
 
 [tool.isort]
 profile = 'black'

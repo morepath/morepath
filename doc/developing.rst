@@ -207,7 +207,7 @@ You can run all tox tests with::
 You can also specify a test environment to run e.g.::
 
   $ tox -e py311
-  $ tox -e pep8
+  $ tox -e lint
   $ tox -e docs
 
 To find out which dependencies and which versions

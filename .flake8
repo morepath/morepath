@@ -1,0 +1,4 @@
+[flake8]
+ignore = E203, E231, W503
+show-source = True
+max-line-length = 90
