@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "morepath"
-version = "0.20"
+version = "0.21.dev0"
 dynamic = ["readme"]
 description = "A micro web-framework with superpowers"
 license = "BSD-3-Clause"
