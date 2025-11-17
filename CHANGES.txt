@@ -4,19 +4,18 @@ CHANGES
 0.20 (unreleased)
 =================
 
-- Fix Flake8.
+* Switch to pyproject.toml based project setup.
 
-- Apply Black code formatter.
+* Replace deprecated pkg_resources with importlib (by CONTACT software).
 
-- Drop support for EOL Python 3.4 and 3.5.
+* Add support for Python versions 3.10-3.14 and drop support for EOL versions 3.4-3.8.
 
-- Upgrade Python syntax with pyupgrade --py36-plus.
+* Switch CI from Travis to GitHub Actions.
 
-- Remove unused imports.
+* Overall cleanup and fix linting and small bugs.
 
-- Also a nit: drop the dot in py.test.
+* Update outdated web links.
 
-- Use GitHub Actions for CI.
 
 0.19 (2020-01-30)
 =================
