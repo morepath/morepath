@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.20 (unreleased)
+0.20 (2025-11-17)
 =================
 
 * Switch to pyproject.toml based project setup.
