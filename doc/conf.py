@@ -67,7 +67,28 @@ copyright = "2013-2016, Morepath developers"
 # built documents.
 #
 # The short X.Y version.
-version = metadata.version("morepath")
+try:
+    version = metadata.version("morepath")
+except metadata.PackageNotFoundError:
+    # Fallback for ReadTheDocs and other environments where the package isn't installed
+    # Try to get version from pyproject.toml
+    import os
+    import re
+
+    try:
+        pyproject_path = os.path.join(
+            os.path.dirname(__file__), "..", "pyproject.toml"
+        )
+        with open(pyproject_path) as f:
+            content = f.read()
+        # Simple regex to extract version
+        version_match = re.search(r'version\s*=\s*["\']([^"\']+)["\']', content)
+        if version_match:
+            version = version_match.group(1)
+        else:
+            version = "unknown"
+    except (FileNotFoundError, Exception):
+        version = "unknown"
 # The full version, including alpha/beta/rc tags.
 # the full version, including alpha/beta/rc tags
 release = version
