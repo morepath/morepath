@@ -4,7 +4,7 @@ CHANGES
 0.21 (unreleased)
 =================
 
-- Nothing changed yet.
+* Fix readthedocs integration.
 
 
 0.20 (2025-11-17)
