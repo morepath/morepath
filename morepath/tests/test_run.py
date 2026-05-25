@@ -16,13 +16,10 @@ def test_run_port_out_of_range(mockserver, capsys):
 
     out, err = capsys.readouterr()
 
-    assert (
-        err
-        == """\
+    assert err == """\
 usage: script-name [-h] [-p PORT] [-H HOST]
 script-name: error: argument -p/--port: invalid integer in 0..65535 value: '-3'
 """
-    )
     assert out == ""
 
 
@@ -126,9 +123,7 @@ script-name: .*: 127.0.0.1:{}
 
   Use '--port PORT' to specify a different port.
 
-""".format(
-            used_port
-        )
+""".format(used_port)
 
         assert re.match(rex, err)
         assert out == ""
