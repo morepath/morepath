@@ -11,10 +11,26 @@ this structure can be converted to HTML using a template.
 
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, TypeVar, overload
+
 from webob import Response as BaseResponse
 from webob.exc import HTTPForbidden, HTTPFound, HTTPNotFound
 
 from .request import Response
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from dectate.config import CodeInfo
+
+    from .app import App
+    from .request import Request
+
+_T = TypeVar("_T")
+_LoadedT = TypeVar("_LoadedT")
+_RequestT = TypeVar("_RequestT", bound="Request", contravariant=True)
 
 
 class View:
@@ -36,15 +52,72 @@ class View:
       and will be 404 Not Found.
     """
 
+    @overload
     def __init__(
         self,
-        func,
-        render=None,
-        load=None,
-        permission=None,
-        internal=False,
-        code_info=None,
-    ):
+        # we are lax and allow views that depend on subclasses of Request
+        func: Callable[[Any, _RequestT], BaseResponse | bytes | str | None],
+        render: None = None,
+        load: None = None,
+        permission: object | None = None,
+        internal: bool = False,
+        code_info: CodeInfo | None = None,
+    ) -> None: ...
+    @overload
+    def __init__(
+        self,
+        func: Callable[[Any, _RequestT], BaseResponse | _T],
+        render: Callable[[_T, _RequestT], BaseResponse],
+        load: None = None,
+        permission: object | None = None,
+        internal: bool = False,
+        code_info: CodeInfo | None = None,
+    ) -> None: ...
+    @overload
+    def __init__(
+        self,
+        func: Callable[[Any, _RequestT, _LoadedT], BaseResponse | _T],
+        render: Callable[[_T, _RequestT], BaseResponse],
+        load: Callable[[_RequestT], _LoadedT],
+        permission: object | None = None,
+        internal: bool = False,
+        code_info: CodeInfo | None = None,
+    ) -> None: ...
+    @overload
+    def __init__(
+        self,
+        func: Callable[
+            [Any, _RequestT, _LoadedT], BaseResponse | bytes | str | None
+        ],
+        render: None,
+        load: Callable[[_RequestT], _LoadedT],
+        permission: object | None = None,
+        internal: bool = False,
+        code_info: CodeInfo | None = None,
+    ) -> None: ...
+    @overload
+    def __init__(
+        self,
+        func: Callable[
+            [Any, _RequestT, _LoadedT], BaseResponse | bytes | str | None
+        ],
+        render: None = None,
+        *,
+        load: Callable[[_RequestT], _LoadedT],
+        permission: object | None = None,
+        internal: bool = False,
+        code_info: CodeInfo | None = None,
+    ) -> None: ...
+
+    def __init__(
+        self,
+        func: Callable[..., BaseResponse | Any],
+        render: Callable[[_T, Any], BaseResponse] | None = None,
+        load: Callable[[Any], _LoadedT] | None = None,
+        permission: object | None = None,
+        internal: bool = False,
+        code_info: CodeInfo | None = None,
+    ) -> None:
         self.func = func
         self.render = render or render_view
         self.load = load
@@ -52,7 +125,7 @@ class View:
         self.internal = internal
         self.code_info = code_info
 
-    def __call__(self, app, obj, request):
+    def __call__(self, app: App, obj: object, request: Request) -> BaseResponse:
         """Render a model instance.
 
         If view is internal it cannot be rendered.
@@ -91,7 +164,7 @@ class View:
         return response
 
 
-def render_view(content, request):
+def render_view(content: str, request: Request) -> Response:
     """Default render function for view if none was supplied.
 
     This just assumes the content is a string and renders it into
@@ -104,7 +177,7 @@ def render_view(content, request):
     return Response(content, content_type="text/plain")
 
 
-def render_json(content, request):
+def render_json(content: Any, request: Request) -> Response:
     """Take dict/list/string/number content and return json response.
 
     This respects the :meth:`morepath.App.dump_json` directive that
@@ -122,7 +195,7 @@ def render_json(content, request):
     )
 
 
-def render_html(content, request):
+def render_html(content: str, request: Request) -> Response:
     """Take string and return text/html response.
 
     :param content: contnet as returned from view function.
@@ -133,7 +206,7 @@ def render_html(content, request):
     return Response(content, content_type="text/html")
 
 
-def redirect(location):
+def redirect(location: str) -> HTTPFound:
     """Return a response object that redirects to location.
 
     :param location: a URL to redirect to.

@@ -3,6 +3,13 @@
 See :class:`morepath.directive.SettingRegistry`
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
 
 class SettingRegistry:
     """Registry of settings.
@@ -17,7 +24,9 @@ class SettingRegistry:
     :attr:`morepath.App.settings`.
     """
 
-    def register_setting(self, section_name, setting_name, func):
+    def register_setting(
+        self, section_name: str, setting_name: str, func: Callable[[], object]
+    ) -> None:
         """Register a setting.
 
         :param section_name: name of section to register in
@@ -31,8 +40,19 @@ class SettingRegistry:
             setattr(self, section_name, section)
         setattr(section, setting_name, func())
 
+    if TYPE_CHECKING:
+        # NOTE: Let type checkers know about dynamic attributes
+        def __getattr__(self, name: str) -> SettingSection:
+            raise NotImplementedError
+
 
 class SettingSection:
     """A setting section that contains setting."""
 
-    pass
+    if TYPE_CHECKING:
+        # NOTE: Let type checkers know about dynamic attributes
+        def __getattr__(self, name: str) -> Any:
+            raise NotImplementedError
+
+        def __setattr__(self, name: str, value: Any) -> None:
+            pass

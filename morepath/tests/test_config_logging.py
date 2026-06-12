@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 
 from webtest import TestApp as Client
@@ -8,7 +10,7 @@ from .capturelog import CaptureLog
 from .fixtures import basic
 
 
-def test_config_logging_implicit_commit():
+def test_config_logging_implicit_commit() -> None:
     class App(morepath.App):
         pass
 
@@ -17,7 +19,7 @@ def test_config_logging_implicit_commit():
         pass
 
     @App.view(model=Model)
-    def default(self, request):
+    def default(self: Model, request: morepath.Request) -> str:
         return "View"
 
     with CaptureLog("morepath.directive.path", logging.DEBUG) as captured:
@@ -42,7 +44,7 @@ def test_config_logging_implicit_commit():
         assert messages == []
 
 
-def test_config_logging_explicit_commit():
+def test_config_logging_explicit_commit() -> None:
     # Manually commit the app:
     with CaptureLog("morepath.directive.path", logging.DEBUG) as captured:
         assert basic.app.commit() == {basic.app}

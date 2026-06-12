@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from typing import Any
 from urllib.parse import urlencode
 
 import webob
@@ -8,7 +11,9 @@ from morepath.converter import IDENTITY_CONVERTER, Converter, ConverterRegistry
 from morepath.path import get_arguments
 
 
-def consume(mount, path, parameters=None):
+def consume(
+    mount: morepath.App, path: str, parameters: Any = None
+) -> tuple[Any, morepath.Request]:
     if parameters:
         path += "?" + urlencode(parameters, True)
     request = mount.request(webob.Request.blank(path).environ)
@@ -20,16 +25,17 @@ class Root:
 
 
 class Model:
-    pass
+    id: str
+    param: str
 
 
-def test_register_path():
+def test_register_path() -> None:
     class App(morepath.App):
         pass
 
     root = Root()
 
-    def get_model(id):
+    def get_model(id: str) -> Model:
         model = Model()
         model.id = id
         return model
@@ -61,18 +67,18 @@ def test_register_path():
     model.id = "b"
 
     info = app._get_path(model)
-
+    assert info is not None
     assert info.path == "b"
     assert info.parameters == {}
 
 
-def test_register_path_with_parameters():
+def test_register_path_with_parameters() -> None:
     class App(morepath.App):
         pass
 
     root = Root()
 
-    def get_model(id, param="default"):
+    def get_model(id: str, param: str = "default") -> Model:
         model = Model()
         model.id = id
         model.param = param
@@ -112,18 +118,18 @@ def test_register_path_with_parameters():
     model.param = "other"
 
     info = mount._get_path(model)
-
+    assert info is not None
     assert info.path == "b"
     assert info.parameters == {"param": ["other"]}
 
 
-def test_traject_path_with_leading_slash():
+def test_traject_path_with_leading_slash() -> None:
     class App(morepath.App):
         pass
 
     root = Root()
 
-    def get_model(id):
+    def get_model(id: str) -> Model:
         model = Model()
         model.id = id
         return model
@@ -154,28 +160,28 @@ def test_traject_path_with_leading_slash():
     assert obj.id == "a"
 
 
-def test_get_arguments():
-    def foo(a, b):
+def test_get_arguments() -> None:
+    def foo(a: int, b: int) -> None:
         pass
 
     assert get_arguments(foo, []) == {"a": None, "b": None}
 
 
-def test_get_arguments_defaults():
-    def foo(a, b=1):
+def test_get_arguments_defaults() -> None:
+    def foo(a: int, b: int = 1) -> None:
         pass
 
     assert get_arguments(foo, []) == {"a": None, "b": 1}
 
 
-def test_get_arguments_exclude():
-    def foo(a, b, request):
+def test_get_arguments_exclude() -> None:
+    def foo(a: int, b: int, request: morepath.Request) -> None:
         pass
 
     assert get_arguments(foo, ["request"]) == {"a": None, "b": None}
 
 
-def test_argument_and_explicit_converters_none_defaults():
+def test_argument_and_explicit_converters_none_defaults() -> None:
     reg = ConverterRegistry()
 
     assert reg.argument_and_explicit_converters({"a": None}, {}) == {
@@ -183,7 +189,7 @@ def test_argument_and_explicit_converters_none_defaults():
     }
 
 
-def test_argument_and_explicit_converters_explicit():
+def test_argument_and_explicit_converters_explicit() -> None:
     reg = ConverterRegistry()
 
     assert reg.argument_and_explicit_converters(
@@ -191,7 +197,7 @@ def test_argument_and_explicit_converters_explicit():
     ) == {"a": Converter(int)}
 
 
-def test_argument_and_explicit_converters_from_type():
+def test_argument_and_explicit_converters_from_type() -> None:
 
     reg = ConverterRegistry()
     reg.register_converter(int, Converter(int))

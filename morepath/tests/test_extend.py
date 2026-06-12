@@ -1,12 +1,16 @@
+from __future__ import annotations
+
+from typing import Any
+
 from webtest import TestApp as Client
 
 import morepath
 
 
-def test_function_extends():
+def test_function_extends() -> None:
     class App(morepath.App):
         @morepath.dispatch_method("obj")
-        def foo(self, obj):
+        def foo(self, obj: Any) -> str:
             return "default"
 
     class Extending(App):
@@ -16,18 +20,18 @@ def test_function_extends():
         pass
 
     @App.method(App.foo, obj=Alpha)
-    def app_foo(app, obj):
+    def app_foo(app: App, obj: Alpha) -> str:
         return "App"
 
     @Extending.method(App.foo, obj=Alpha)
-    def extending_foo(app, obj):
+    def extending_foo(app: Extending, obj: Alpha) -> str:
         return "Extending"
 
     assert App().foo(Alpha()) == "App"
     assert Extending().foo(Alpha()) == "Extending"
 
 
-def test_extends():
+def test_extends() -> None:
     class App(morepath.App):
         pass
 
@@ -36,15 +40,15 @@ def test_extends():
 
     @App.path(path="users/{username}")
     class User:
-        def __init__(self, username):
+        def __init__(self, username: str) -> None:
             self.username = username
 
     @App.view(model=User)
-    def render_user(self, request):
+    def render_user(self: User, request: morepath.Request) -> str:
         return "User: %s" % self.username
 
     @Extending.view(model=User, name="edit")
-    def edit_user(self, request):
+    def edit_user(self: User, request: morepath.Request) -> str:
         return "Edit user: %s" % self.username
 
     cl = Client(App())
@@ -59,7 +63,7 @@ def test_extends():
     assert response.body == b"Edit user: foo"
 
 
-def test_overrides_view():
+def test_overrides_view() -> None:
     class App(morepath.App):
         pass
 
@@ -68,15 +72,15 @@ def test_overrides_view():
 
     @App.path(path="users/{username}")
     class User:
-        def __init__(self, username):
+        def __init__(self, username: str) -> None:
             self.username = username
 
     @App.view(model=User)
-    def render_user(self, request):
+    def render_user(self: User, request: morepath.Request) -> str:
         return "User: %s" % self.username
 
     @Overriding.view(model=User)
-    def render_user2(self, request):
+    def render_user2(self: User, request: morepath.Request) -> str:
         return "USER: %s" % self.username
 
     cl = Client(App())
@@ -88,7 +92,7 @@ def test_overrides_view():
     assert response.body == b"USER: foo"
 
 
-def test_overrides_model():
+def test_overrides_model() -> None:
     class App(morepath.App):
         pass
 
@@ -97,15 +101,15 @@ def test_overrides_model():
 
     @App.path(path="users/{username}")
     class User:
-        def __init__(self, username):
+        def __init__(self, username: str) -> None:
             self.username = username
 
     @App.view(model=User)
-    def render_user(self, request):
+    def render_user(self: User, request: morepath.Request) -> str:
         return "User: %s" % self.username
 
     @Overriding.path(model=User, path="users/{username}")
-    def get_user(username):
+    def get_user(username: str) -> User | None:
         if username != "bar":
             return None
         return User(username)

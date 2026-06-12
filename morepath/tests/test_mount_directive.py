@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 import pytest
 from webtest import TestApp as Client
 
@@ -5,7 +9,7 @@ import morepath
 from morepath.error import ConflictError, LinkError
 
 
-def test_model_mount_conflict():
+def test_model_mount_conflict() -> None:
     class app(morepath.App):
         pass
 
@@ -16,23 +20,23 @@ def test_model_mount_conflict():
         pass
 
     @app.path(model=A, path="a")
-    def get_a():
+    def get_a() -> A:
         return A()
 
     @app.mount(app=app2, path="a")
-    def get_mount():
+    def get_mount() -> app2:
         return app2()
 
     with pytest.raises(ConflictError):
         app.commit()
 
 
-def test_mount_basic():
+def test_mount_basic() -> None:
     class app(morepath.App):
         pass
 
     class mounted(morepath.App):
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     @mounted.path(path="")
@@ -40,15 +44,15 @@ def test_mount_basic():
         pass
 
     @mounted.view(model=MountedRoot)
-    def root_default(self, request):
+    def root_default(self: MountedRoot, request: morepath.Request) -> str:
         return "The root"
 
     @mounted.view(model=MountedRoot, name="link")
-    def root_link(self, request):
+    def root_link(self: MountedRoot, request: morepath.Request) -> str:
         return request.link(self)
 
     @app.mount(path="{id}", app=mounted)
-    def get_mounted(id):
+    def get_mounted(id: str) -> mounted:
         return mounted(id=id)
 
     c = Client(app())
@@ -60,23 +64,23 @@ def test_mount_basic():
     assert response.body == b"http://localhost/foo"
 
 
-def test_mounted_app_classes():
+def test_mounted_app_classes() -> None:
     class App(morepath.App):
         pass
 
     class Mounted(morepath.App):
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     class Sub(morepath.App):
         pass
 
     @App.mount(path="{id}", app=Mounted)
-    def get_mounted(id):
+    def get_mounted(id: str) -> Mounted:
         return Mounted(id=id)
 
     @Mounted.mount(path="sub", app=Sub)
-    def get_sub():
+    def get_sub() -> Sub:
         return Sub()
 
     assert App.commit() == {App, Mounted, Sub}
@@ -84,7 +88,7 @@ def test_mounted_app_classes():
     assert App.mounted_app_classes() == {App, Mounted, Sub}
 
 
-def test_mounted_app_classes_nothing_mounted():
+def test_mounted_app_classes_nothing_mounted() -> None:
     class App(morepath.App):
         pass
 
@@ -93,7 +97,7 @@ def test_mounted_app_classes_nothing_mounted():
     assert App.mounted_app_classes() == {App}
 
 
-def test_mount_none_should_fail():
+def test_mount_none_should_fail() -> None:
     class app(morepath.App):
         pass
 
@@ -105,15 +109,15 @@ def test_mount_none_should_fail():
         pass
 
     @mounted.view(model=MountedRoot)
-    def root_default(self, request):
+    def root_default(self: MountedRoot, request: morepath.Request) -> str:
         return "The root"
 
     @mounted.view(model=MountedRoot, name="link")
-    def root_link(self, request):
+    def root_link(self: MountedRoot, request: morepath.Request) -> str:
         return request.link(self)
 
     @app.mount(path="{id}", app=mounted)
-    def mount_mounted(id):
+    def mount_mounted(id: str) -> None:
         return None
 
     c = Client(app())
@@ -122,25 +126,25 @@ def test_mount_none_should_fail():
     c.get("/foo/link", status=404)
 
 
-def test_mount_context():
+def test_mount_context() -> None:
     class app(morepath.App):
         pass
 
     class mounted(morepath.App):
-        def __init__(self, mount_id):
+        def __init__(self, mount_id: str) -> None:
             self.mount_id = mount_id
 
     @mounted.path(path="")
     class MountedRoot:
-        def __init__(self, app):
+        def __init__(self, app: mounted) -> None:
             self.mount_id = app.mount_id
 
     @mounted.view(model=MountedRoot)
-    def root_default(self, request):
+    def root_default(self: MountedRoot, request: morepath.Request) -> str:
         return "The root for mount id: %s" % self.mount_id
 
     @app.mount(path="{id}", app=mounted)
-    def get_context(id):
+    def get_context(id: str) -> mounted:
         return mounted(mount_id=id)
 
     c = Client(app())
@@ -151,26 +155,26 @@ def test_mount_context():
     assert response.body == b"The root for mount id: bar"
 
 
-def test_mount_context_parameters():
+def test_mount_context_parameters() -> None:
     class app(morepath.App):
         pass
 
     class mounted(morepath.App):
-        def __init__(self, mount_id):
+        def __init__(self, mount_id: int) -> None:
             self.mount_id = mount_id
 
     @mounted.path(path="")
     class MountedRoot:
-        def __init__(self, app):
+        def __init__(self, app: mounted) -> None:
             assert isinstance(app.mount_id, int)
             self.mount_id = app.mount_id
 
     @mounted.view(model=MountedRoot)
-    def root_default(self, request):
+    def root_default(self: MountedRoot, request: morepath.Request) -> str:
         return "The root for mount id: %s" % self.mount_id
 
     @app.mount(path="mounts", app=mounted)
-    def get_context(mount_id=0):
+    def get_context(mount_id: int = 0) -> mounted:
         return mounted(mount_id=mount_id)
 
     c = Client(app())
@@ -181,29 +185,29 @@ def test_mount_context_parameters():
     assert response.body == b"The root for mount id: 0"
 
 
-def test_mount_context_parameters_override_default():
+def test_mount_context_parameters_override_default() -> None:
     class app(morepath.App):
         pass
 
     class mounted(morepath.App):
-        def __init__(self, mount_id):
+        def __init__(self, mount_id: str) -> None:
             self.mount_id = mount_id
 
     @mounted.path(path="")
     class MountedRoot:
-        def __init__(self, app, mount_id):
+        def __init__(self, app: mounted, mount_id: str) -> None:
             self.mount_id = mount_id
             self.app_mount_id = app.mount_id
 
     @mounted.view(model=MountedRoot)
-    def root_default(self, request):
+    def root_default(self: MountedRoot, request: morepath.Request) -> str:
         return "mount_id: {} app_mount_id: {}".format(
             self.mount_id,
             self.app_mount_id,
         )
 
     @app.mount(path="{id}", app=mounted)
-    def get_context(id):
+    def get_context(id: str) -> mounted:
         return mounted(mount_id=id)
 
     c = Client(app())
@@ -216,18 +220,18 @@ def test_mount_context_parameters_override_default():
     assert response.body == b"mount_id: blah app_mount_id: bar"
 
 
-def test_mount_context_standalone():
+def test_mount_context_standalone() -> None:
     class app(morepath.App):
-        def __init__(self, mount_id):
+        def __init__(self, mount_id: str) -> None:
             self.mount_id = mount_id
 
     @app.path(path="")
     class Root:
-        def __init__(self, app):
+        def __init__(self, app: app) -> None:
             self.mount_id = app.mount_id
 
     @app.view(model=Root)
-    def root_default(self, request):
+    def root_default(self: Root, request: morepath.Request) -> str:
         return "The root for mount id: %s" % self.mount_id
 
     c = Client(app(mount_id="foo"))
@@ -236,30 +240,31 @@ def test_mount_context_standalone():
     assert response.body == b"The root for mount id: foo"
 
 
-def test_mount_parent_link():
+def test_mount_parent_link() -> None:
     class app(morepath.App):
         pass
 
     @app.path(path="models/{id}")
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     class mounted(morepath.App):
-        def __init__(self, mount_id):
+        def __init__(self, mount_id: str) -> None:
             self.mount_id = mount_id
 
     @mounted.path(path="")
     class MountedRoot:
-        def __init__(self, mount_id):
+        def __init__(self, mount_id: str) -> None:
             self.mount_id = mount_id
 
     @mounted.view(model=MountedRoot)
-    def root_default(self, request):
+    def root_default(self: MountedRoot, request: morepath.Request) -> str:
+        assert request.app.parent is not None
         return request.link(Model("one"), app=request.app.parent)
 
     @app.mount(path="{id}", app=mounted)
-    def get_context(id):
+    def get_context(id: str) -> mounted:
         return mounted(mount_id=id)
 
     c = Client(app())
@@ -268,17 +273,17 @@ def test_mount_parent_link():
     assert response.body == b"http://localhost/models/one"
 
 
-def test_mount_child_link():
+def test_mount_child_link() -> None:
     class app(morepath.App):
         pass
 
     class mounted(morepath.App):
-        def __init__(self, mount_id):
+        def __init__(self, mount_id: str) -> None:
             self.mount_id = mount_id
 
     @mounted.path(path="models/{id}")
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     @app.path(path="")
@@ -286,17 +291,19 @@ def test_mount_child_link():
         pass
 
     @app.view(model=Root)
-    def app_root_default(self, request):
+    def app_root_default(self: Root, request: morepath.Request) -> str:
         child = request.app.child(mounted, id="foo")
+        assert child is not None
         return request.link(Model("one"), app=child)
 
     @app.view(model=Root, name="inst")
-    def app_root_inst(self, request):
+    def app_root_inst(self: Root, request: morepath.Request) -> str:
         child = request.app.child(mounted(mount_id="foo"))
+        assert child is not None
         return request.link(Model("one"), app=child)
 
     @app.mount(path="{id}", app=mounted, variables=lambda a: {"id": a.mount_id})
-    def get_context(id):
+    def get_context(id: str) -> mounted:
         return mounted(mount_id=id)
 
     c = Client(app())
@@ -307,7 +314,7 @@ def test_mount_child_link():
     assert response.body == b"http://localhost/foo/models/one"
 
 
-def test_mount_sibling_link():
+def test_mount_sibling_link() -> None:
     class app(morepath.App):
         pass
 
@@ -319,17 +326,18 @@ def test_mount_sibling_link():
 
     @first.path(path="models/{id}")
     class FirstModel:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     @first.view(model=FirstModel)
-    def first_model_default(self, request):
+    def first_model_default(self: FirstModel, request: morepath.Request) -> str:
         sibling = request.app.sibling("second")
+        assert sibling is not None
         return request.link(SecondModel(2), app=sibling)
 
     @second.path(path="foos/{id}")
     class SecondModel:
-        def __init__(self, id):
+        def __init__(self, id: int) -> None:
             self.id = id
 
     @app.path(path="")
@@ -337,11 +345,11 @@ def test_mount_sibling_link():
         pass
 
     @app.mount(path="first", app=first)
-    def get_context_first():
+    def get_context_first() -> first:
         return first()
 
     @app.mount(path="second", app=second)
-    def get_context_second():
+    def get_context_second() -> second:
         return second()
 
     c = Client(app())
@@ -350,7 +358,7 @@ def test_mount_sibling_link():
     assert response.body == b"http://localhost/second/foos/2"
 
 
-def test_mount_sibling_link_at_root_app():
+def test_mount_sibling_link_at_root_app() -> None:
     class app(morepath.App):
         pass
 
@@ -359,13 +367,12 @@ def test_mount_sibling_link_at_root_app():
         pass
 
     class Item:
-        def __init__(self, id):
+        def __init__(self, id: int) -> None:
             self.id = id
 
     @app.view(model=Root)
-    def root_default(self, request):
-        sibling = request.app.sibling("foo")
-        return request.link(Item(3), app=sibling)
+    def root_default(self: Root, request: morepath.Request) -> str:
+        return request.link(Item(3), app=request.app.sibling("foo"))  # type: ignore
 
     c = Client(app())
 
@@ -373,17 +380,17 @@ def test_mount_sibling_link_at_root_app():
         c.get("/")
 
 
-def test_mount_child_link_unknown_child():
+def test_mount_child_link_unknown_child() -> None:
     class app(morepath.App):
         pass
 
     class mounted(morepath.App):
-        def __init__(self, mount_id):
+        def __init__(self, mount_id: str) -> None:
             self.mount_id = mount_id
 
     @mounted.path(path="models/{id}")
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     @app.path(path="")
@@ -391,14 +398,14 @@ def test_mount_child_link_unknown_child():
         pass
 
     @app.view(model=Root)
-    def app_root_default(self, request):
+    def app_root_default(self: Root, request: morepath.Request) -> str:
         child = request.app.child(mounted, id="foo")
         if child is None:
             return "link error"
         return request.link(Model("one"), app=child)
 
     @app.view(model=Root, name="inst")
-    def app_root_inst(self, request):
+    def app_root_inst(self: Root, request: morepath.Request) -> str:
         child = request.app.child(mounted(mount_id="foo"))
         if child is None:
             return "link error"
@@ -414,12 +421,12 @@ def test_mount_child_link_unknown_child():
     assert response.body == b"link error"
 
 
-def test_mount_child_link_unknown_parent():
+def test_mount_child_link_unknown_parent() -> None:
     class app(morepath.App):
         pass
 
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     @app.path(path="")
@@ -427,7 +434,7 @@ def test_mount_child_link_unknown_parent():
         pass
 
     @app.view(model=Root)
-    def app_root_default(self, request):
+    def app_root_default(self: Root, request: morepath.Request) -> str:
         parent = request.app.parent
         if parent is None:
             return "link error"
@@ -439,17 +446,17 @@ def test_mount_child_link_unknown_parent():
     assert response.body == b"link error"
 
 
-def test_mount_child_link_unknown_app():
+def test_mount_child_link_unknown_app() -> None:
     class app(morepath.App):
         pass
 
     class mounted(morepath.App):
-        def __init__(self, mount_id):
+        def __init__(self, mount_id: str) -> None:
             self.mount_id = mount_id
 
     @mounted.path(path="models/{id}")
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     @app.path(path="")
@@ -457,10 +464,10 @@ def test_mount_child_link_unknown_app():
         pass
 
     @app.view(model=Root)
-    def app_root_default(self, request):
+    def app_root_default(self: Root, request: morepath.Request) -> str:
         child = request.app.child(mounted, id="foo")
         try:
-            return request.link(Model("one"), app=child)
+            return request.link(Model("one"), app=child)  # type: ignore
         except LinkError:
             return "link error"
 
@@ -472,18 +479,18 @@ def test_mount_child_link_unknown_app():
     assert response.body == b"link error"
 
 
-def test_mount_link_prefix():
+def test_mount_link_prefix() -> None:
     class App(morepath.App):
         pass
 
     class Mounted(morepath.App):
-        def __init__(self, mount_id):
+        def __init__(self, mount_id: str) -> None:
             self.mount_id = mount_id
 
     @App.mount(
         path="/mnt/{id}", app=Mounted, variables=lambda a: dict(id=a.mount_id)
     )
-    def get_mounted(id):
+    def get_mounted(id: str) -> Mounted:
         return Mounted(mount_id=id)
 
     @App.path(path="")
@@ -495,24 +502,29 @@ def test_mount_link_prefix():
         pass
 
     @App.link_prefix()
-    def link_prefix(request):
+    def link_prefix(request: morepath.Request) -> str:
         return "http://app"
 
     @Mounted.link_prefix()
-    def mounted_link_prefix(request):
+    def mounted_link_prefix(request: morepath.Request) -> str:
         return "http://mounted"
 
     @App.view(model=AppRoot, name="get-root-link")
-    def get_root_link(self, request):
+    def get_root_link(self: AppRoot, request: morepath.Request) -> str:
         return request.link(self)
 
     @Mounted.view(model=MountedRoot, name="get-mounted-root-link")
-    def get_mounted_root_link(self, request):
+    def get_mounted_root_link(
+        self: MountedRoot, request: morepath.Request
+    ) -> str:
         return request.link(self)
 
     @Mounted.view(model=MountedRoot, name="get-root-link-through-mount")
-    def get_root_link_through_mount(self, request):
+    def get_root_link_through_mount(
+        self: MountedRoot, request: morepath.Request
+    ) -> Any:
         parent = request.app.parent
+        assert parent is not None
         return request.view(AppRoot(), app=parent, name="get-root-link")
 
     c = Client(App())
@@ -530,12 +542,12 @@ def test_mount_link_prefix():
     assert response.body == b"http://app/"
 
 
-def test_request_view_in_mount():
+def test_request_view_in_mount() -> None:
     class app(morepath.App):
         pass
 
     class mounted(morepath.App):
-        def __init__(self, mount_id):
+        def __init__(self, mount_id: str) -> None:
             self.mount_id = mount_id
 
     @app.path(path="")
@@ -544,27 +556,33 @@ def test_request_view_in_mount():
 
     @mounted.path(path="models/{id}")
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     @mounted.view(model=Model)
-    def model_default(self, request):
+    def model_default(self: Model, request: morepath.Request) -> dict[str, str]:
         return {"hey": "Hey"}
 
     @app.view(model=Root)
-    def root_default(self, request):
+    def root_default(self: Root, request: morepath.Request) -> Any:
         child = request.app.child(mounted, id="foo")
-        return request.view(Model("x"), app=child)["hey"]
+        assert child is not None
+        result = request.view(Model("x"), app=child)
+        assert result is not None
+        return result["hey"]
 
     @app.view(model=Root, name="inst")
-    def root_inst(self, request):
+    def root_inst(self: Root, request: morepath.Request) -> Any:
         child = request.app.child(mounted(mount_id="foo"))
-        return request.view(Model("x"), app=child)["hey"]
+        assert child is not None
+        result = request.view(Model("x"), app=child)
+        assert result is not None
+        return result["hey"]
 
     @app.mount(
         path="{id}", app=mounted, variables=lambda a: dict(id=a.mount_id)
     )
-    def get_context(id):
+    def get_context(id: str) -> mounted:
         return mounted(mount_id=id)
 
     c = Client(app())
@@ -576,12 +594,12 @@ def test_request_view_in_mount():
     assert response.body == b"Hey"
 
 
-def test_request_link_child_child():
+def test_request_link_child_child() -> None:
     class app(morepath.App):
         pass
 
     class mounted(morepath.App):
-        def __init__(self, mount_id):
+        def __init__(self, mount_id: str) -> None:
             self.mount_id = mount_id
 
     class submounted(morepath.App):
@@ -592,27 +610,33 @@ def test_request_link_child_child():
         pass
 
     @app.view(model=Root)
-    def root_default(self, request):
-        child = request.app.child(mounted, id="foo").child(submounted)
+    def root_default(self: Root, request: morepath.Request) -> Any:
+        child: morepath.App | None = request.app.child(mounted, id="foo")
+        assert child is not None
+        child = child.child(submounted)
+        assert child is not None
         return request.view(SubRoot(), app=child)
 
     @app.view(model=Root, name="inst")
-    def root_inst(self, request):
-        child = request.app.child(mounted(mount_id="foo")).child(submounted())
+    def root_inst(self: Root, request: morepath.Request) -> Any:
+        child: morepath.App | None = request.app.child(mounted(mount_id="foo"))
+        assert child is not None
+        child = child.child(submounted())
+        assert child is not None
         return request.view(SubRoot(), app=child)
 
     @app.view(model=Root, name="info")
-    def root_info(self, request):
+    def root_info(self: Root, request: morepath.Request) -> str:
         return "info"
 
     @app.mount(
         path="{id}", app=mounted, variables=lambda a: dict(mount_id=a.mount_id)
     )
-    def get_context(id):
+    def get_context(id: str) -> mounted:
         return mounted(mount_id=id)
 
     @mounted.mount(path="sub", app=submounted)
-    def get_context2():
+    def get_context2() -> submounted:
         return submounted()
 
     @submounted.path(path="")
@@ -620,12 +644,15 @@ def test_request_link_child_child():
         pass
 
     @submounted.view(model=SubRoot)
-    def subroot_default(self, request):
+    def subroot_default(self: SubRoot, request: morepath.Request) -> str:
         return "SubRoot"
 
     @submounted.view(model=SubRoot, name="parentage")
-    def subroot_parentage(self, request):
-        ancestor = request.app.parent.parent
+    def subroot_parentage(self: SubRoot, request: morepath.Request) -> Any:
+        parent = request.app.parent
+        assert parent is not None
+        ancestor = parent.parent
+        assert ancestor is not None
         return request.view(Root(), name="info", app=ancestor)
 
     c = Client(app())
@@ -639,12 +666,12 @@ def test_request_link_child_child():
     assert response.body == b"info"
 
 
-def test_request_view_in_mount_broken():
+def test_request_view_in_mount_broken() -> None:
     class app(morepath.App):
         pass
 
     class mounted(morepath.App):
-        def __init__(self, mount_id):
+        def __init__(self, mount_id: str) -> None:
             self.mount_id = mount_id
 
     @app.path(path="")
@@ -653,42 +680,46 @@ def test_request_view_in_mount_broken():
 
     @mounted.path(path="models/{id}")
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     @mounted.view(model=Model)
-    def model_default(self, request):
+    def model_default(self: Model, request: morepath.Request) -> dict[str, str]:
         return {"hey": "Hey"}
 
     @app.view(model=Root)
-    def root_default(self, request):
+    def root_default(self: Root, request: morepath.Request) -> Any:
         child = request.app.child(mounted, id="foo")
         try:
-            return request.view(Model("x"), app=child)["hey"]
+            return request.view(Model("x"), app=child)["hey"]  # type: ignore
         except LinkError:
             return "link error"
 
     @app.view(model=Root, name="inst")
-    def root_inst(self, request):
+    def root_inst(self: Root, request: morepath.Request) -> Any:
         child = request.app.child(mounted(mount_id="foo"))
         try:
-            return request.view(Model("x"), app=child)["hey"]
+            return request.view(Model("x"), app=child)["hey"]  # type: ignore
         except LinkError:
             return "link error"
 
     @app.view(model=Root, name="doublechild")
-    def doublechild(self, request):
+    def doublechild(self: Root, request: morepath.Request) -> str | None:
         try:
-            request.app.child(mounted, id="foo").child(mounted, id="bar")
+            request.app.child(mounted, id="foo").child(mounted, id="bar")  # type: ignore
         except AttributeError:
             return "link error"
+        else:
+            return None
 
     @app.view(model=Root, name="childparent")
-    def childparent(self, request):
+    def childparent(self: Root, request: morepath.Request) -> str | None:
         try:
-            request.app.child(mounted, id="foo").parent
+            request.app.child(mounted, id="foo").parent  # type: ignore
         except AttributeError:
             return "link error"
+        else:
+            return None
 
     # deliberately don't mount so using view is broken
 
@@ -707,28 +738,28 @@ def test_request_view_in_mount_broken():
     assert response.body == b"link error"
 
 
-def test_mount_implicit_converters():
+def test_mount_implicit_converters() -> None:
     class app(morepath.App):
         pass
 
     class mounted(morepath.App):
-        def __init__(self, id):
+        def __init__(self, id: int) -> None:
             self.id = id
 
     class MountedRoot:
-        def __init__(self, id):
+        def __init__(self, id: int) -> None:
             self.id = id
 
     @mounted.path(path="", model=MountedRoot)
-    def get_root(app):
+    def get_root(app: mounted) -> MountedRoot:
         return MountedRoot(app.id)
 
     @mounted.view(model=MountedRoot)
-    def root_default(self, request):
+    def root_default(self: MountedRoot, request: morepath.Request) -> str:
         return f"The root for: {self.id} {type(self.id)}"
 
     @app.mount(path="{id}", app=mounted)
-    def get_context(id=0):
+    def get_context(id: int = 0) -> mounted:
         return mounted(id=id)
 
     c = Client(app())
@@ -740,28 +771,28 @@ def test_mount_implicit_converters():
     )
 
 
-def test_mount_explicit_converters():
+def test_mount_explicit_converters() -> None:
     class app(morepath.App):
         pass
 
     class mounted(morepath.App):
-        def __init__(self, id):
+        def __init__(self, id: int) -> None:
             self.id = id
 
     class MountedRoot:
-        def __init__(self, id):
+        def __init__(self, id: int) -> None:
             self.id = id
 
     @mounted.path(path="", model=MountedRoot)
-    def get_root(app):
+    def get_root(app: mounted) -> MountedRoot:
         return MountedRoot(id=app.id)
 
     @mounted.view(model=MountedRoot)
-    def root_default(self, request):
+    def root_default(self: MountedRoot, request: morepath.Request) -> str:
         return f"The root for: {self.id} {type(self.id)}"
 
     @app.mount(path="{id}", app=mounted, converters=dict(id=int))
-    def get_context(id):
+    def get_context(id: int) -> mounted:
         return mounted(id=id)
 
     c = Client(app())
@@ -773,7 +804,7 @@ def test_mount_explicit_converters():
     )
 
 
-def test_mount_view_in_child_view():
+def test_mount_view_in_child_view() -> None:
     class app(morepath.App):
         pass
 
@@ -785,23 +816,27 @@ def test_mount_view_in_child_view():
         pass
 
     @app.view(model=Root)
-    def default_homepage(self, request):
-        return request.view(FooRoot(), app=request.app.child(fooapp))
+    def default_homepage(self: Root, request: morepath.Request) -> Any:
+        child = request.app.child(fooapp)
+        assert child is not None
+        return request.view(FooRoot(), app=child)
 
     @fooapp.path(path="")
     class FooRoot:
         pass
 
     @fooapp.view(model=FooRoot, name="name")
-    def foo_name(self, request):
+    def foo_name(self: FooRoot, request: morepath.Request) -> str:
         return "Foo"
 
     @fooapp.view(model=FooRoot)
-    def foo_default(self, request):
-        return "Hello " + request.view(self, name="name")
+    def foo_default(self: FooRoot, request: morepath.Request) -> str:
+        result = request.view(self, name="name")
+        assert isinstance(result, str)
+        return "Hello " + result
 
     @app.mount(path="foo", app=fooapp)
-    def mount_to_root():
+    def mount_to_root() -> fooapp:
         return fooapp()
 
     c = Client(app())
@@ -813,7 +848,7 @@ def test_mount_view_in_child_view():
     assert response.body == b"Hello Foo"
 
 
-def test_mount_view_in_child_view_then_parent_view():
+def test_mount_view_in_child_view_then_parent_view() -> None:
     class app(morepath.App):
         pass
 
@@ -825,16 +860,16 @@ def test_mount_view_in_child_view_then_parent_view():
         pass
 
     @app.view(model=Root)
-    def default_homepage(self, request):
+    def default_homepage(self: Root, request: morepath.Request) -> str:
         other = request.app.child(fooapp)
-        return (
-            request.view(FooRoot(), app=other)
-            + " "
-            + request.view(self, name="other")
+        assert other is not None
+        return "{} {}".format(
+            request.view(FooRoot(), app=other),
+            request.view(self, name="other"),
         )
 
     @app.view(model=Root, name="other")
-    def root_other(self, request):
+    def root_other(self: Root, request: morepath.Request) -> str:
         return "other"
 
     @fooapp.path(path="")
@@ -842,15 +877,15 @@ def test_mount_view_in_child_view_then_parent_view():
         pass
 
     @fooapp.view(model=FooRoot, name="name")
-    def foo_name(self, request):
+    def foo_name(self: FooRoot, request: morepath.Request) -> str:
         return "Foo"
 
     @fooapp.view(model=FooRoot)
-    def foo_default(self, request):
-        return "Hello " + request.view(self, name="name")
+    def foo_default(self: FooRoot, request: morepath.Request) -> str:
+        return "Hello {}".format(request.view(self, name="name"))
 
     @app.mount(path="foo", app=fooapp)
-    def mount_to_root():
+    def mount_to_root() -> fooapp:
         return fooapp()
 
     c = Client(app())
@@ -859,7 +894,7 @@ def test_mount_view_in_child_view_then_parent_view():
     assert response.body == b"Hello Foo other"
 
 
-def test_mount_directive_with_link_and_absorb():
+def test_mount_directive_with_link_and_absorb() -> None:
     class app1(morepath.App):
         pass
 
@@ -871,19 +906,19 @@ def test_mount_directive_with_link_and_absorb():
         pass
 
     class Model2:
-        def __init__(self, absorb):
+        def __init__(self, absorb: str) -> None:
             self.absorb = absorb
 
     @app2.path(model=Model2, path="", absorb=True)
-    def get_model(absorb):
+    def get_model(absorb: str) -> Model2:
         return Model2(absorb)
 
     @app2.view(model=Model2)
-    def default(self, request):
+    def default(self: Model2, request: morepath.Request) -> str:
         return f"A:{self.absorb} L:{request.link(self)}"
 
     @app1.mount(path="foo", app=app2)
-    def get_mount():
+    def get_mount() -> app2:
         return app2()
 
     c = Client(app1())
@@ -895,7 +930,7 @@ def test_mount_directive_with_link_and_absorb():
     assert response.body == b"A:bla L:http://localhost/foo/bla"
 
 
-def test_mount_named_child_link_explicit_name():
+def test_mount_named_child_link_explicit_name() -> None:
     class app(morepath.App):
         pass
 
@@ -904,7 +939,7 @@ def test_mount_named_child_link_explicit_name():
 
     @mounted.path(path="models/{id}")
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str):
             self.id = id
 
     @app.path(path="")
@@ -912,15 +947,19 @@ def test_mount_named_child_link_explicit_name():
         pass
 
     @app.view(model=Root)
-    def app_root_default(self, request):
-        return request.link(Model("one"), app=request.app.child(mounted))
+    def app_root_default(self: Root, request: morepath.Request) -> str:
+        child = request.app.child(mounted)
+        assert child is not None
+        return request.link(Model("one"), app=child)
 
     @app.view(model=Root, name="extra")
-    def app_root_default2(self, request):
-        return request.link(Model("one"), app=request.app.child("sub"))
+    def app_root_default2(self: Root, request: morepath.Request) -> str:
+        child = request.app.child("sub")
+        assert child is not None
+        return request.link(Model("one"), app=child)
 
     @app.mount(path="subapp", app=mounted, name="sub")
-    def get_context():
+    def get_context() -> mounted:
         return mounted()
 
     c = Client(app())
@@ -932,7 +971,7 @@ def test_mount_named_child_link_explicit_name():
     assert response.body == b"http://localhost/subapp/models/one"
 
 
-def test_mount_named_child_link_name_defaults_to_path():
+def test_mount_named_child_link_name_defaults_to_path() -> None:
     class app(morepath.App):
         pass
 
@@ -941,7 +980,7 @@ def test_mount_named_child_link_name_defaults_to_path():
 
     @mounted.path(path="models/{id}")
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     @app.path(path="")
@@ -949,15 +988,19 @@ def test_mount_named_child_link_name_defaults_to_path():
         pass
 
     @app.view(model=Root)
-    def app_root_default(self, request):
-        return request.link(Model("one"), app=request.app.child(mounted))
+    def app_root_default(self: Root, request: morepath.Request) -> str:
+        child = request.app.child(mounted)
+        assert child is not None
+        return request.link(Model("one"), app=child)
 
     @app.view(model=Root, name="extra")
-    def app_root_default2(self, request):
-        return request.link(Model("one"), app=request.app.child("subapp"))
+    def app_root_default2(self: Root, request: morepath.Request) -> str:
+        child = request.app.child("subapp")
+        assert child is not None
+        return request.link(Model("one"), app=child)
 
     @app.mount(path="subapp", app=mounted)
-    def get_context():
+    def get_context() -> mounted:
         return mounted()
 
     c = Client(app())
@@ -969,12 +1012,12 @@ def test_mount_named_child_link_name_defaults_to_path():
     assert response.body == b"http://localhost/subapp/models/one"
 
 
-def test_named_mount_with_parameters():
+def test_named_mount_with_parameters() -> None:
     class app(morepath.App):
         pass
 
     class mounted(morepath.App):
-        def __init__(self, mount_id):
+        def __init__(self, mount_id: int) -> None:
             self.mount_id = mount_id
 
     @app.path(path="")
@@ -983,29 +1026,30 @@ def test_named_mount_with_parameters():
 
     @mounted.path(path="")
     class MountedRoot:
-        def __init__(self, mount_id):
+        def __init__(self, mount_id: int) -> None:
             assert isinstance(mount_id, int)
             self.mount_id = mount_id
 
     @mounted.view(model=MountedRoot)
-    def root_default(self, request):
+    def root_default(self: MountedRoot, request: morepath.Request) -> str:
         return "The root for mount id: %s" % self.mount_id
 
     @app.mount(path="mounts/{mount_id}", app=mounted)
-    def get_context(mount_id=0):
+    def get_context(mount_id: int = 0) -> mounted:
         return mounted(mount_id=mount_id)
 
     class Item:
-        def __init__(self, id):
+        def __init__(self, id: str | int) -> None:
             self.id = id
 
     @mounted.path(path="items/{id}", model=Item)
-    def get_item(id):
+    def get_item(id: str) -> Item:
         return Item(id)
 
     @app.view(model=Root)
-    def root_default2(self, request):
+    def root_default2(self: Root, request: morepath.Request) -> str:
         child = request.app.child("mounts/{mount_id}", mount_id=3)
+        assert child is not None
         return request.link(Item(4), app=child)
 
     c = Client(app())
@@ -1014,12 +1058,12 @@ def test_named_mount_with_parameters():
     assert response.body == b"http://localhost/mounts/3/items/4"
 
 
-def test_named_mount_with_url_parameters():
+def test_named_mount_with_url_parameters() -> None:
     class app(morepath.App):
         pass
 
     class mounted(morepath.App):
-        def __init__(self, mount_id):
+        def __init__(self, mount_id: int) -> None:
             self.mount_id = mount_id
 
     @app.path(path="")
@@ -1028,29 +1072,30 @@ def test_named_mount_with_url_parameters():
 
     @mounted.path(path="")
     class MountedRoot:
-        def __init__(self, mount_id):
+        def __init__(self, mount_id: int) -> None:
             assert isinstance(mount_id, int)
             self.mount_id = mount_id
 
     @mounted.view(model=MountedRoot)
-    def root_default(self, request):
+    def root_default(self: MountedRoot, request: morepath.Request) -> str:
         return "The root for mount id: %s" % self.mount_id
 
     @app.mount(path="mounts", app=mounted)
-    def get_context(mount_id=0):
+    def get_context(mount_id: int = 0) -> mounted:
         return mounted(mount_id=mount_id)
 
     class Item:
-        def __init__(self, id):
+        def __init__(self, id: str | int) -> None:
             self.id = id
 
     @mounted.path(path="items/{id}", model=Item)
-    def get_item(id):
+    def get_item(id: str) -> Item:
         return Item(id)
 
     @app.view(model=Root)
-    def root_default2(self, request):
+    def root_default2(self: Root, request: morepath.Request) -> str:
         child = request.app.child("mounts", mount_id=3)
+        assert child is not None
         return request.link(Item(4), app=child)
 
     c = Client(app())
@@ -1059,12 +1104,12 @@ def test_named_mount_with_url_parameters():
     assert response.body == b"http://localhost/mounts/items/4?mount_id=3"
 
 
-def test_access_app_through_request():
+def test_access_app_through_request() -> None:
     class root(morepath.App):
         pass
 
     class sub(morepath.App):
-        def __init__(self, name):
+        def __init__(self, name: str) -> None:
             self.name = name
 
     @root.path(path="")
@@ -1072,22 +1117,23 @@ def test_access_app_through_request():
         pass
 
     @root.view(model=RootModel)
-    def root_model_default(self, request):
+    def root_model_default(self: RootModel, request: morepath.Request) -> str:
         child = request.app.child(sub, mount_name="foo")
+        assert child is not None
         return request.link(SubModel("foo"), app=child)
 
     class SubModel:
-        def __init__(self, name):
+        def __init__(self, name: str) -> None:
             self.name = name
 
     @sub.path(path="", model=SubModel)
-    def get_sub_model(request):
+    def get_sub_model(request: morepath.Request[sub]) -> SubModel:
         return SubModel(request.app.name)
 
     @root.mount(
         app=sub, path="{mount_name}", variables=lambda a: {"mount_name": a.name}
     )
-    def mount_sub(mount_name):
+    def mount_sub(mount_name: str) -> sub:
         return sub(name=mount_name)
 
     c = Client(root())
@@ -1096,12 +1142,12 @@ def test_access_app_through_request():
     assert response.body == b"http://localhost/foo"
 
 
-def test_mount_ancestors():
+def test_mount_ancestors() -> None:
     class app(morepath.App):
         pass
 
     class mounted(morepath.App):
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     @app.path(path="")
@@ -1109,7 +1155,7 @@ def test_mount_ancestors():
         pass
 
     @app.view(model=AppRoot)
-    def app_root_default(self, request):
+    def app_root_default(self: AppRoot, request: morepath.Request) -> None:
         ancestors = list(request.app.ancestors())
         assert len(ancestors) == 1
         assert ancestors[0] is request.app
@@ -1120,7 +1166,9 @@ def test_mount_ancestors():
         pass
 
     @mounted.view(model=MountedRoot)
-    def mounted_root_default(self, request):
+    def mounted_root_default(
+        self: MountedRoot, request: morepath.Request
+    ) -> None:
         ancestors = list(request.app.ancestors())
         assert len(ancestors) == 2
         assert ancestors[0] is request.app
@@ -1128,7 +1176,7 @@ def test_mount_ancestors():
         assert request.app.root is request.app.parent
 
     @app.mount(path="{id}", app=mounted)
-    def get_mounted(id):
+    def get_mounted(id: str) -> mounted:
         return mounted(id=id)
 
     c = Client(app())
@@ -1137,7 +1185,7 @@ def test_mount_ancestors():
     c.get("/foo")
 
 
-def test_breadthfist_vs_inheritance_on_commit():
+def test_breadthfist_vs_inheritance_on_commit() -> None:
     class Root(morepath.App):
         pass
 
@@ -1162,11 +1210,11 @@ def test_breadthfist_vs_inheritance_on_commit():
         pass
 
     @App1.view(model=Model1)
-    def view1(self, request):
+    def view1(self: Model1, request: morepath.Request) -> str:
         return type(request.app).__name__
 
     @App2.view(model=Model2)
-    def view2(self, request):
+    def view2(self: Model2, request: morepath.Request) -> str:
         return type(request.app).__name__
 
     Root.mount(app=App1, path="a/")(App1)

@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 from webtest import TestApp as Client
 
 import morepath
@@ -5,7 +9,7 @@ from morepath.app import App
 from reg import KeyIndex
 
 
-def test_view_predicates():
+def test_view_predicates() -> None:
     class app(App):
         pass
 
@@ -14,11 +18,11 @@ def test_view_predicates():
         pass
 
     @app.view(model=Root, name="foo", request_method="GET")
-    def get(self, request):
+    def get(self: Root, request: morepath.Request) -> str:
         return "GET"
 
     @app.view(model=Root, name="foo", request_method="POST")
-    def post(self, request):
+    def post(self: Root, request: morepath.Request) -> str:
         return "POST"
 
     c = Client(app())
@@ -29,21 +33,21 @@ def test_view_predicates():
     assert response.body == b"POST"
 
 
-def test_extra_predicates():
+def test_extra_predicates() -> None:
     class app(App):
         pass
 
     @app.path(path="{id}")
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     @app.view(model=Model, name="foo", id="a")
-    def get_a(self, request):
+    def get_a(self: Model, request: morepath.Request) -> str:
         return "a"
 
     @app.view(model=Model, name="foo", id="b")
-    def get_b(self, request):
+    def get_b(self: Model, request: morepath.Request) -> str:
         return "b"
 
     @app.predicate(
@@ -53,7 +57,7 @@ def test_extra_predicates():
         index=KeyIndex,
         after=morepath.request_method_predicate,
     )
-    def id_predicate(self, obj, request):
+    def id_predicate(self: app, obj: Any, request: morepath.Request) -> Any:
         return obj.id
 
     c = Client(app())

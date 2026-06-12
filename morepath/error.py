@@ -15,9 +15,11 @@ Dectate:
 """
 
 # -*- coding: utf-8 -*-
+from __future__ import annotations
+
 import textwrap
 
-from dectate import (  # noqa F401
+from dectate import (
     ConfigError,
     ConflictError,
     DirectiveError,
@@ -25,12 +27,23 @@ from dectate import (  # noqa F401
     TopologicalSortError,
 )
 
+__all__ = (
+    "AutoImportError",
+    "ConfigError",
+    "ConflictError",
+    "DirectiveError",
+    "DirectiveReportError",
+    "LinkError",
+    "TopologicalSortError",
+    "TrajectError",
+)
+
 
 # XXX is ConfigError the right base class?
 class AutoImportError(ConfigError):
     """Raised when Morepath fails to import a module during autoscan."""
 
-    def __init__(self, module_name):
+    def __init__(self, module_name: str) -> None:
 
         msg = """\
             Morepath wanted to import '{}' during auto-configuration, but

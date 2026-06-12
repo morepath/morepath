@@ -15,6 +15,12 @@ To actually serve requests it uses :func:`morepath.publish.publish`.
 Entirely documented in :class:`morepath.App` in the public API.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+from typing import NoReturn as Never
+from typing import TypeVar, overload
+
 from webob.exc import HTTPNotFound
 
 import dectate
@@ -27,20 +33,48 @@ from .path import PathInfo
 from .reify import reify
 from .request import Request
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator
+    from typing_extensions import Self
 
-def cached_key_lookup(key_lookup):
+    from webob.response import Response as BaseResponse
+
+    from reg.cache import DictCachingKeyLookup
+    from reg.predicate import Predicate
+    from reg.types import GetKeyLookup, KeyLookup
+
+    from .authentication import Identity, NoIdentity
+    from .settings import SettingRegistry
+    from .tween import TweenRegistry
+    from .types import AnyRequest, StartResponse, SupportsItems, WSGIEnvironment
+
+_T = TypeVar("_T")
+_AppT = TypeVar("_AppT", bound="App")
+
+
+def cached_key_lookup(key_lookup: KeyLookup) -> DictCachingKeyLookup:
     return reg.DictCachingKeyLookup(key_lookup)
 
 
-def commit_if_needed(app):
+def commit_if_needed(app: App) -> None:
     if not app.is_committed():
         app.commit()
 
 
-def dispatch_method(*predicates, **kw):
-    kw.setdefault("get_key_lookup", cached_key_lookup)
-    kw.setdefault("first_invocation_hook", commit_if_needed)
-    return reg.dispatch_method(*predicates, **kw)
+def dispatch_method(
+    *predicates: str | Predicate,
+    get_key_lookup: GetKeyLookup = cached_key_lookup,
+    first_invocation_hook: Callable[[Any], object] = commit_if_needed,
+    # NOTE: We keep allowing arbitrary keyword arguments at runtime
+    #       for now, but type checkers should emit an error for these.
+    **kw: Never,
+) -> reg.dispatch_method[Any, Any, Any]:
+    return reg.dispatch_method(
+        *predicates,
+        get_key_lookup=get_key_lookup,
+        first_invocation_hook=first_invocation_hook,
+        **kw,
+    )
 
 
 dispatch_method.__doc__ = reg.dispatch_method.__doc__
@@ -71,10 +105,10 @@ class App(dectate.App):
     new directives.
     """
 
-    parent = None
+    parent: App | None = None
     """The parent in which this app was mounted."""
 
-    request_class = Request
+    request_class: type[Request[Self]] = Request
     """The class of the Request to create. Must be a subclass of
     :class:`morepath.Request`.
 
@@ -109,10 +143,10 @@ class App(dectate.App):
     dump_json = directive(action.DumpJsonAction)
     link_prefix = directive(action.LinkPrefixAction)
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def request(self, environ):
+    def request(self, environ: WSGIEnvironment) -> Request[Self]:
         """Create a :class:`Request` given WSGI environment for this app.
 
         :param environ: WSGI environment
@@ -120,7 +154,9 @@ class App(dectate.App):
         """
         return self.request_class(environ, self)
 
-    def __call__(self, environ, start_response):
+    def __call__(
+        self, environ: WSGIEnvironment, start_response: StartResponse
+    ) -> Iterable[bytes]:
         """This app as a WSGI application.
 
         See the WSGI_ spec for more information.
@@ -139,7 +175,7 @@ class App(dectate.App):
         return response(environ, start_response)
 
     @reify
-    def publish(self):
+    def publish(self) -> Callable[[AnyRequest], BaseResponse]:
         """Publish functionality wrapped in tweens.
 
         You can use middleware (:doc:`tweens`) that can hooks in
@@ -161,25 +197,34 @@ class App(dectate.App):
         # lookup may not be touched yet at this point
         if not self.is_committed():
             self.commit()
-        return self.config.tween_registry.wrap(self)
 
-    def ancestors(self):
+        registry: TweenRegistry = self.config.tween_registry
+        return registry.wrap(self)
+
+    def ancestors(self) -> Iterator[App]:
         """Return iterable of all ancestors of this app.
 
         Includes this app itself as the first ancestor, all the way
         up to the root app in the mount chain.
         """
-        app = self
+        app: App | None = self
         while app is not None:
             yield app
             app = app.parent
 
     @reify
-    def root(self):
+    def root(self) -> App:
         """The root application."""
         return list(self.ancestors())[-1]
 
-    def child(self, app, **variables):
+    @overload
+    def child(self, app: type[_AppT], **variables: Any) -> _AppT | None: ...
+    @overload
+    def child(self, app: _AppT) -> _AppT | None: ...
+    @overload
+    def child(self, app: str, **variables: Any) -> App | None: ...
+
+    def child(self, app: type[App] | App | str, **variables: Any) -> App | None:
         """Get app mounted in this app.
 
         Either give it an instance of the app class as the first
@@ -209,7 +254,16 @@ class App(dectate.App):
         result.parent = self
         return result
 
-    def sibling(self, app, **variables):
+    @overload
+    def sibling(self, app: _AppT) -> _AppT | None: ...
+    @overload
+    def sibling(self, app: type[_AppT], **variables: Any) -> _AppT | None: ...
+    @overload
+    def sibling(self, app: str, **variables: Any) -> App | None: ...
+
+    def sibling(
+        self, app: type[App] | App | str, **variables: Any
+    ) -> App | None:
         """Get app mounted next to this app.
 
         Either give it an instance of the app class as the first
@@ -227,12 +281,14 @@ class App(dectate.App):
         return parent.child(app, **variables)
 
     @property
-    def settings(self):
+    def settings(self) -> SettingRegistry:
         """Returns the settings bound to this app."""
-        return self.config.setting_registry
+        return self.config.setting_registry  # type: ignore[no-any-return]
 
     @classmethod
-    def mounted_app_classes(cls, callback=None):
+    def mounted_app_classes(
+        cls, callback: Callable[..., object] | None = None
+    ) -> set[type[App]]:
         """Returns a set of this app class and any mounted under it.
 
         This assumes all app classes involved have already been
@@ -251,7 +307,7 @@ class App(dectate.App):
         :return: the set of app classes.
 
         """
-        discovery = set()
+        discovery: set[type[App]] = set()
         found = {cls}
         while found:
             discovery.update(found)
@@ -263,7 +319,7 @@ class App(dectate.App):
         return discovery
 
     @classmethod
-    def commit(cls):
+    def commit(cls) -> set[type[App]]:
         """Commit the app, and recursively, the apps mounted under it.
 
         Mounted apps are discovered in breadth-first order.
@@ -273,7 +329,9 @@ class App(dectate.App):
         return cls.mounted_app_classes(dectate.commit)
 
     @classmethod
-    def init_settings(cls, settings):
+    def init_settings(
+        cls, settings: SupportsItems[str, SupportsItems[str, Any]]
+    ) -> None:
         """Pre-fill the settings before the app is started.
 
         Add settings to App, which can act as normal, can be overridden, etc.
@@ -282,14 +340,16 @@ class App(dectate.App):
           dictionaries of settings.
         """
 
-        def set_setting_section(section, section_settings):
+        def set_setting_section(
+            section: str, section_settings: SupportsItems[str, Any]
+        ) -> None:
             cls.setting_section(section)(lambda: section_settings)
 
         for section, section_settings in settings.items():
             set_setting_section(section, section_settings)
 
     @dispatch_method()
-    def get_view(self, obj, request):
+    def get_view(self, obj: Any, request: Request) -> BaseResponse:
         """Get the view that represents the obj in the context of a request.
 
         This view is a representation of the obj that can be rendered to a
@@ -311,7 +371,7 @@ class App(dectate.App):
         return HTTPNotFound()
 
     @dispatch_method("identity")
-    def _verify_identity(self, identity):
+    def _verify_identity(self, identity: Identity) -> bool:
         """Returns True if the claimed identity can be verified.
 
         Look in the database to verify the identity, or in case of auth
@@ -324,7 +384,9 @@ class App(dectate.App):
         return False
 
     @dispatch_method("identity", "obj", reg.match_class("permission"))
-    def _permits(self, identity, obj, permission):
+    def _permits(
+        self, identity: Identity | NoIdentity, obj: Any, permission: Any
+    ) -> bool:
         """Returns ``True`` if identity has permission for model object.
 
         identity can be the special :data:`morepath.NO_IDENTITY`
@@ -339,7 +401,7 @@ class App(dectate.App):
         return False
 
     @dispatch_method("obj")
-    def _dump_json(self, obj, request):
+    def _dump_json(self, obj: Any, request: AnyRequest) -> Any:
         """Dump an object as JSON.
 
         ``obj`` is any Python object, try to interpret it as JSON.
@@ -350,7 +412,7 @@ class App(dectate.App):
         """
         return obj
 
-    def _link_prefix(self, request):
+    def _link_prefix(self, request: AnyRequest) -> str:
         """Returns a prefix that's added to every link generated by request.
 
         By default :attr:`webob.request.BaseRequest.application_url` is used.
@@ -358,10 +420,12 @@ class App(dectate.App):
         :param request: :class:`morepath.Request`
         :return: prefix string to add before links.
         """
-        return request.application_url
+        return request.application_url  # type: ignore[no-any-return]
 
     @dispatch_method(reg.match_class("model"))
-    def _class_path(self, model, variables):
+    def _class_path(
+        self, model: type[Any], variables: dict[str, Any]
+    ) -> PathInfo | None:
         """Get the path for a model class.
 
         :param model: model class or :class:`morepath.App` subclass.
@@ -373,7 +437,7 @@ class App(dectate.App):
         return None
 
     @dispatch_method("obj")
-    def _path_variables(self, obj):
+    def _path_variables(self, obj: Any) -> dict[str, Any] | None:
         """Get variables to use in path generation.
 
         :param obj: model object or :class:`morepath.App` instance.
@@ -383,7 +447,7 @@ class App(dectate.App):
         return self._default_path_variables(obj)
 
     @dispatch_method("obj")
-    def _default_path_variables(self, obj):
+    def _default_path_variables(self, obj: Any) -> dict[str, Any] | None:
         """Get default variables to use in path generation.
 
         Invoked if no specific ``path_variables`` is registered.
@@ -395,7 +459,7 @@ class App(dectate.App):
         return None
 
     @dispatch_method("obj")
-    def _deferred_link_app(self, obj):
+    def _deferred_link_app(self, obj: Any) -> App | None:
         """Get application used for link generation.
 
         :param obj: model object to link to.
@@ -406,7 +470,9 @@ class App(dectate.App):
         return None
 
     @dispatch_method(reg.match_class("model"))
-    def _deferred_class_link_app(self, model, variables):
+    def _deferred_class_link_app(
+        self, model: type[Any], variables: dict[str, Any] | None
+    ) -> App | None:
         """Get application used for link generation for a model class.
 
         :param model: model class
@@ -418,10 +484,10 @@ class App(dectate.App):
         return None
 
     @classmethod
-    def clean(cls):
+    def clean(cls) -> None:
         reg.clean_dispatch_methods(cls)
 
-    def _identify(self, request):
+    def _identify(self, request: AnyRequest) -> Identity | NoIdentity | None:
         """Determine identity for request.
 
         :param request: a :class:`morepath.Request` instance.
@@ -431,7 +497,9 @@ class App(dectate.App):
         """
         return None
 
-    def remember_identity(self, response, request, identity):
+    def remember_identity(
+        self, response: BaseResponse, request: AnyRequest, identity: Identity
+    ) -> None:
         """Modify response so that identity is remembered by client.
 
         :param response: :class:`morepath.Response` to remember identity on.
@@ -440,7 +508,9 @@ class App(dectate.App):
         """
         pass
 
-    def forget_identity(self, response, request):
+    def forget_identity(
+        self, response: BaseResponse, request: AnyRequest
+    ) -> None:
         """Modify response so that identity is forgotten by client.
 
         :param response: :class:`morepath.Response` to forget identity on.
@@ -448,7 +518,7 @@ class App(dectate.App):
         """
         pass
 
-    def _get_path(self, obj):
+    def _get_path(self, obj: Any) -> PathInfo | None:
         """Path for a model obj.
 
         Only includes path within the current app, does not take
@@ -457,9 +527,17 @@ class App(dectate.App):
         :param obj: model object
         :return: a :class:`morepath.path.PathInfo` with path within this app.
         """
-        return self._class_path(obj.__class__, self._path_variables(obj))
+        return self._class_path(
+            obj.__class__,
+            # NOTE: Path.__call__ will emit a LinkError if we got `None` back
+            #       for _path_variables, so we technically don't need to do to
+            #       anything here. It still might be worth to duplicate the
+            #       check and error generation to here, so it's a little bit
+            #       higher in the call stack.
+            self._path_variables(obj),  # type: ignore[arg-type]
+        )
 
-    def _get_mounted_path(self, obj):
+    def _get_mounted_path(self, obj: Any) -> PathInfo | None:
         """Path for model obj including mounted path.
 
         Includes path to this app itself, so takes mounting into account.
@@ -470,7 +548,7 @@ class App(dectate.App):
         """
         paths = []
         parameters = {}
-        app = self
+        app: App | None = self
         while app is not None:
             info = app._get_path(obj)
             if info is None:
@@ -482,7 +560,9 @@ class App(dectate.App):
         paths.reverse()
         return PathInfo("/".join(paths).strip("/"), parameters)
 
-    def _get_mounted_class_path(self, model, variables):
+    def _get_mounted_class_path(
+        self, model: type[Any], variables: dict[str, Any]
+    ) -> PathInfo | None:
         """Path for model class and variables including mounted path.
 
         Includes path to this app itself, so takes mounting into account.
@@ -498,6 +578,9 @@ class App(dectate.App):
         if self.parent is None:
             return info
         mount_info = self.parent._get_mounted_path(self)
+        # FIXME: Can mount_info be None if we got here? If so
+        #        what is the correct result?
+        assert mount_info is not None
         path = mount_info.path
         if info.path:
             path += "/" + info.path
@@ -505,7 +588,9 @@ class App(dectate.App):
         parameters.update(mount_info.parameters)
         return PathInfo(path, parameters)
 
-    def _get_deferred_mounted_path(self, obj):
+    def _get_deferred_mounted_path(
+        self, obj: Any
+    ) -> tuple[PathInfo | None, App | None]:
         """Path for obj taking into account deferring apps.
 
         Like :meth:`morepath.App._get_mounted_path` but takes
@@ -514,12 +599,14 @@ class App(dectate.App):
         account.
         """
 
-        def find(app, obj):
+        def find(app: App, obj: Any) -> PathInfo | None:
             return app._get_mounted_path(obj)
 
         return self._follow_defers(find, obj)
 
-    def _get_deferred_mounted_class_path(self, model, variables):
+    def _get_deferred_mounted_class_path(
+        self, model: type[Any], variables: dict[str, Any]
+    ) -> PathInfo | None:
         """Path for model and variables taking into account deferring apps.
 
         Like :meth:`morepath.App._get_mounted_class_path` but takes
@@ -527,13 +614,17 @@ class App(dectate.App):
         account.
         """
 
-        def find(app, model, variables):
+        def find(
+            app: App, model: type[Any], variables: dict[str, Any]
+        ) -> PathInfo | None:
             return app._get_mounted_class_path(model, variables)
 
         info, app = self._follow_class_defers(find, model, variables)
         return info
 
-    def _follow_defers(self, find, obj):
+    def _follow_defers(
+        self, find: Callable[[App, Any], _T | None], obj: Any
+    ) -> tuple[_T | None, App | None]:
         """Resolve to deferring app and find something.
 
         For ``obj``, look up deferring app as defined by
@@ -549,7 +640,7 @@ class App(dectate.App):
           which it was found.
         """
         seen = set()
-        app = self
+        app: App | None = self
         while app is not None:
             if app in seen:
                 raise LinkError("Circular defer. Cannot link to: %r" % obj)
@@ -569,7 +660,12 @@ class App(dectate.App):
             app = next_app
         return None, app
 
-    def _follow_class_defers(self, find, model, variables):
+    def _follow_class_defers(
+        self,
+        find: Callable[[App, type[Any], dict[str, Any]], _T | None],
+        model: type[Any],
+        variables: dict[str, Any],
+    ) -> tuple[_T | None, App | None]:
         """Resolve to deferring app and find something.
 
         For ``model`` and ``variables``, look up deferring app as defined
@@ -586,7 +682,7 @@ class App(dectate.App):
           which it was found.
         """
         seen = set()
-        app = self
+        app: App | None = self
         while app is not None:
             if app in seen:
                 raise LinkError("Circular defer. Cannot link to: %r" % model)

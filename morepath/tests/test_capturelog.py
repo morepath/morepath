@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import logging
 
 from .capturelog import CaptureLog
 
 
-def test_basic():
+def test_basic() -> None:
     logger = logging.getLogger("experiment")
 
     with CaptureLog("experiment") as captured:
@@ -15,7 +17,7 @@ def test_basic():
     assert captured.records[0].getMessage() == "Hello"
 
 
-def test_record_tuples():
+def test_record_tuples() -> None:
     logger = logging.getLogger("experiment")
 
     with CaptureLog("experiment") as captured:
@@ -25,7 +27,7 @@ def test_record_tuples():
     assert captured.record_tuples[0] == ("experiment", logging.WARNING, "Hello")
 
 
-def test_different_name():
+def test_different_name() -> None:
     logger = logging.getLogger("experiment")
 
     with CaptureLog("different") as captured:
@@ -34,7 +36,7 @@ def test_different_name():
     assert len(captured.records) == 0
 
 
-def test_name_prefix():
+def test_name_prefix() -> None:
     logger = logging.getLogger("prefix.experiment")
 
     with CaptureLog("prefix") as captured:
@@ -43,7 +45,7 @@ def test_name_prefix():
     assert len(captured.records) == 1
 
 
-def test_default_level():
+def test_default_level() -> None:
     logger = logging.getLogger("experiment")
 
     with CaptureLog("experiment") as captured:
@@ -54,7 +56,7 @@ def test_default_level():
     assert captured.records[0].msg == "Captured"
 
 
-def test_change_level():
+def test_change_level() -> None:
     logger = logging.getLogger("experiment")
 
     with CaptureLog("experiment", logging.DEBUG) as captured:

@@ -1,8 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, NoReturn
+
 import pytest
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 @pytest.fixture
-def mockserver(monkeypatch):
+def mockserver(monkeypatch: pytest.MonkeyPatch) -> MockServer:
     """Make the server in wsgiref receive Ctrl-C as soon as it starts serving.
 
     The fixture object provides these methods:
@@ -13,7 +20,7 @@ def mockserver(monkeypatch):
     import sys
     from wsgiref.simple_server import WSGIServer
 
-    def mock_serve_forever(self):
+    def mock_serve_forever(self: WSGIServer) -> NoReturn:
         raise KeyboardInterrupt
 
     monkeypatch.setattr(WSGIServer, "serve_forever", mock_serve_forever)
@@ -23,14 +30,14 @@ def mockserver(monkeypatch):
 
 
 class MockServer:
-    def __init__(self, argv):
+    def __init__(self, argv: list[str]) -> None:
         self.argv = argv
 
-    def set_argv(self, argv):
+    def set_argv(self, argv: Iterable[str]) -> None:
         """Set the command-line arguments seen by morepath.run."""
         self.argv.extend(argv)
 
-    def run(self, *args, **kw):
+    def run(self, *args: Any, **kw: Any) -> str | int | None:
         """Wrapper around morepath.run to catch SystemExit.
 
         :return: the exit code."""

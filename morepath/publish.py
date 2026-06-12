@@ -15,14 +15,25 @@ The publish module:
 It all starts at :func:`publish`.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
 from webob.exc import HTTPNotFound
 
 from .app import App
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from webob.response import Response as BaseResponse
+
+    from .request import Request
+
 DEFAULT_NAME = ""
 
 
-def publish(request):
+def publish(request: Request) -> BaseResponse:
     """Handle request and return response.
 
     It uses :func:`resolve_model` to use the information in
@@ -38,7 +49,7 @@ def publish(request):
     return resolve_response(obj, request)
 
 
-def resolve_model(request):
+def resolve_model(request: Request) -> Any | None:
     """Resolve request to a model object.
 
     This takes the path information as a stack of path segments in
@@ -71,7 +82,7 @@ def resolve_model(request):
     return app.config.path_registry.consume(request)
 
 
-def resolve_response(obj, request):
+def resolve_response(obj: object, request: Request) -> BaseResponse:
     """Given model object and request, create response.
 
     This uses :func:`get_view_name` to set up the view name on the
@@ -93,7 +104,7 @@ def resolve_response(obj, request):
     return request.app.get_view(obj, request)
 
 
-def get_view_name(stack):
+def get_view_name(stack: Sequence[str]) -> str | None:
     """Determine view name from leftover stack of path segments
 
     :param stack: a list of path segments left over after consuming

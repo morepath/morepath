@@ -1,26 +1,28 @@
+from __future__ import annotations
+
 import base64
 import json
+from http.cookiejar import CookieJar
+from typing import TYPE_CHECKING, Any
 
 from webtest import TestApp as Client
 
 import morepath
-from morepath.authentication import NO_IDENTITY, Identity
+from morepath.authentication import NO_IDENTITY, Identity, NoIdentity
 from morepath.request import Response
 
 from .fixtures import identity_policy
 
-try:
-    from cookielib import CookieJar
-except ImportError:
-    from http.cookiejar import CookieJar
+if TYPE_CHECKING:
+    from morepath.settings import SettingRegistry
 
 
-def test_no_permission():
+def test_no_permission() -> None:
     class app(morepath.App):
         pass
 
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     class Permission:
@@ -29,11 +31,11 @@ def test_no_permission():
     @app.path(
         model=Model, path="{id}", variables=lambda model: {"id": model.id}
     )
-    def get_model(id):
+    def get_model(id: str) -> Model:
         return Model(id)
 
     @app.view(model=Model, permission=Permission)
-    def default(self, request):
+    def default(self: Model, request: morepath.Request) -> str:
         return "Model: %s" % self.id
 
     c = Client(app())
@@ -41,47 +43,51 @@ def test_no_permission():
     c.get("/foo", status=403)
 
 
-def test_permission_directive_identity():
+def test_permission_directive_identity() -> None:
     class app(morepath.App):
         pass
 
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     class Permission:
         pass
 
     @app.verify_identity()
-    def verify_identity(identity):
+    def verify_identity(identity: object) -> bool:
         return True
 
     @app.path(
         model=Model, path="{id}", variables=lambda model: {"id": model.id}
     )
-    def get_model(id):
+    def get_model(id: str) -> Model:
         return Model(id)
 
     @app.permission_rule(model=Model, permission=Permission)
-    def get_permission(identity, model, permission):
+    def get_permission(
+        identity: object, model: Model, permission: object
+    ) -> bool:
         if model.id == "foo":
             return True
         else:
             return False
 
     @app.view(model=Model, permission=Permission)
-    def default(self, request):
+    def default(self: Model, request: morepath.Request) -> str:
         return "Model: %s" % self.id
 
     @app.identity_policy()
     class IdentityPolicy:
-        def identify(self, request):
+        def identify(self, request: object) -> Identity:
             return Identity("testidentity")
 
-        def remember(self, response, request, identity):
+        def remember(
+            self, response: object, request: object, identity: object
+        ) -> None:
             pass
 
-        def forget(self, response, request):
+        def forget(self, response: object, request: object) -> None:
             pass
 
     c = Client(app())
@@ -91,29 +97,31 @@ def test_permission_directive_identity():
     response = c.get("/bar", status=403)
 
 
-def test_permission_directive_with_app_arg():
+def test_permission_directive_with_app_arg() -> None:
     class App(morepath.App):
         pass
 
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     class Permission:
         pass
 
     @App.verify_identity()
-    def verify_identity(identity):
+    def verify_identity(identity: object) -> bool:
         return True
 
     @App.path(
         model=Model, path="{id}", variables=lambda model: {"id": model.id}
     )
-    def get_model(id):
+    def get_model(id: str) -> Model:
         return Model(id)
 
     @App.permission_rule(model=Model, permission=Permission)
-    def get_permission(app, identity, model, permission):
+    def get_permission(
+        app: App, identity: object, model: Model, permission: object
+    ) -> bool:
         assert isinstance(app, App)
         if model.id == "foo":
             return True
@@ -121,18 +129,20 @@ def test_permission_directive_with_app_arg():
             return False
 
     @App.view(model=Model, permission=Permission)
-    def default(self, request):
+    def default(self: Model, request: morepath.Request) -> str:
         return "Model: %s" % self.id
 
     @App.identity_policy()
     class IdentityPolicy:
-        def identify(self, request):
+        def identify(self, request: object) -> Identity:
             return Identity("testidentity")
 
-        def remember(self, response, request, identity):
+        def remember(
+            self, response: object, request: object, identity: object
+        ) -> None:
             pass
 
-        def forget(self, response, request):
+        def forget(self, response: object, request: object) -> None:
             pass
 
     c = Client(App())
@@ -142,12 +152,12 @@ def test_permission_directive_with_app_arg():
     response = c.get("/bar", status=403)
 
 
-def test_permission_directive_no_identity():
+def test_permission_directive_no_identity() -> None:
     class app(morepath.App):
         pass
 
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     class Permission:
@@ -156,18 +166,20 @@ def test_permission_directive_no_identity():
     @app.path(
         model=Model, path="{id}", variables=lambda model: {"id": model.id}
     )
-    def get_model(id):
+    def get_model(id: str) -> Model:
         return Model(id)
 
     @app.permission_rule(model=Model, permission=Permission, identity=None)
-    def get_permission(identity, model, permission):
+    def get_permission(
+        identity: object, model: Model, permission: object
+    ) -> bool:
         if model.id == "foo":
             return True
         else:
             return False
 
     @app.view(model=Model, permission=Permission)
-    def default(self, request):
+    def default(self: Model, request: morepath.Request) -> str:
         return "Model: %s" % self.id
 
     c = Client(app())
@@ -177,7 +189,7 @@ def test_permission_directive_no_identity():
     response = c.get("/bar", status=403)
 
 
-def test_policy_action():
+def test_policy_action() -> None:
     c = Client(identity_policy.app())
 
     response = c.get("/foo")
@@ -185,24 +197,24 @@ def test_policy_action():
     response = c.get("/bar", status=403)
 
 
-def test_no_identity_policy():
+def test_no_identity_policy() -> None:
     class App(morepath.App):
         pass
 
     @App.path(path="{id}")
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     class Permission:
         pass
 
     @App.view(model=Model, permission=Permission)
-    def default(self, request):
+    def default(self: Model, request: morepath.Request) -> str:
         return "Model: %s" % self.id
 
     @App.view(model=Model, name="log_in")
-    def log_in(self, request):
+    def log_in(self: Model, request: morepath.Request) -> Response:
         response = Response()
         request.app.remember_identity(
             response, request, Identity(userid="user", payload="Amazing")
@@ -210,13 +222,13 @@ def test_no_identity_policy():
         return response
 
     @App.view(model=Model, name="log_out")
-    def log_out(self, request):
+    def log_out(self: Model, request: morepath.Request) -> Response:
         response = Response()
         request.app.forget_identity(response, request)
         return response
 
     @App.verify_identity()
-    def verify_identity(identity):
+    def verify_identity(identity: object) -> bool:
         return True
 
     c = Client(App())
@@ -241,43 +253,47 @@ class DumbCookieIdentityPolicy:
     Only for testing. Don't use in practice!
     """
 
-    def identify(self, request):
+    def identify(self, request: morepath.Request) -> Identity | NoIdentity:
         data = request.cookies.get("dumb_id", None)
         if data is None:
             return NO_IDENTITY
         data = json.loads(base64.b64decode(data).decode())
         return Identity(**data)
 
-    def remember(self, response, request, identity):
+    def remember(
+        self, response: Response, request: morepath.Request, identity: Identity
+    ) -> None:
         data = base64.b64encode(str.encode(json.dumps(identity.as_dict())))
         response.set_cookie("dumb_id", data)
 
-    def forget(self, response, request):
+    def forget(self, response: Response, request: morepath.Request) -> None:
         response.delete_cookie("dumb_id")
 
 
-def test_cookie_identity_policy():
+def test_cookie_identity_policy() -> None:
     class app(morepath.App):
         pass
 
     @app.path(path="{id}")
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     class Permission:
         pass
 
     @app.permission_rule(model=Model, permission=Permission)
-    def get_permission(identity, model, permission):
+    def get_permission(
+        identity: Identity | NoIdentity, model: Model, permission: object
+    ) -> bool:
         return identity.userid == "user"
 
     @app.view(model=Model, permission=Permission)
-    def default(self, request):
+    def default(self: Model, request: morepath.Request) -> str:
         return "Model: %s" % self.id
 
     @app.view(model=Model, name="log_in")
-    def log_in(self, request):
+    def log_in(self: Model, request: morepath.Request) -> Response:
         response = Response()
         request.app.remember_identity(
             response, request, Identity(userid="user", payload="Amazing")
@@ -285,17 +301,17 @@ def test_cookie_identity_policy():
         return response
 
     @app.view(model=Model, name="log_out")
-    def log_out(self, request):
+    def log_out(self: Model, request: morepath.Request) -> Response:
         response = Response()
         request.app.forget_identity(response, request)
         return response
 
     @app.identity_policy()
-    def policy():
+    def policy() -> DumbCookieIdentityPolicy:
         return DumbCookieIdentityPolicy()
 
     @app.verify_identity()
-    def verify_identity(identity):
+    def verify_identity(identity: Identity) -> bool:
         return True
 
     c = Client(app(), cookiejar=CookieJar())
@@ -312,7 +328,7 @@ def test_cookie_identity_policy():
     response = c.get("/foo", status=403)
 
 
-def test_default_verify_identity():
+def test_default_verify_identity() -> None:
     class app(morepath.App):
         pass
 
@@ -321,13 +337,13 @@ def test_default_verify_identity():
     assert not app()._verify_identity(identity)
 
 
-def test_verify_identity_directive():
+def test_verify_identity_directive() -> None:
     class app(morepath.App):
         pass
 
     @app.verify_identity()
-    def verify_identity(identity):
-        return identity.password == "right"
+    def verify_identity(identity: Identity) -> bool:
+        return identity.password == "right"  # type: ignore[no-any-return]
 
     identity = morepath.Identity("foo", password="wrong")
     assert not app()._verify_identity(identity)
@@ -336,14 +352,14 @@ def test_verify_identity_directive():
     assert app()._verify_identity(identity)
 
 
-def test_verify_identity_directive_app_arg():
+def test_verify_identity_directive_app_arg() -> None:
     class App(morepath.App):
         pass
 
     @App.verify_identity()
-    def verify_identity(app, identity):
+    def verify_identity(app: App, identity: Identity) -> bool:
         assert isinstance(app, App)
-        return identity.password == "right"
+        return identity.password == "right"  # type: ignore[no-any-return]
 
     identity = morepath.Identity("foo", password="wrong")
     assert not App()._verify_identity(identity)
@@ -352,22 +368,22 @@ def test_verify_identity_directive_app_arg():
     assert App()._verify_identity(identity)
 
 
-def test_verify_identity_directive_identity_argument():
+def test_verify_identity_directive_identity_argument() -> None:
     class app(morepath.App):
         pass
 
     class PlainIdentity(morepath.Identity):
-        pass
+        password: str
 
     @app.verify_identity(identity=object)
-    def verify_identity(identity):
+    def verify_identity(identity: object) -> bool:
         return False
 
     @app.verify_identity(identity=PlainIdentity)
-    def verify_plain_identity(identity):
+    def verify_plain_identity(identity: PlainIdentity) -> bool:
         return identity.password == "right"
 
-    identity = PlainIdentity("foo", password="wrong")
+    identity: morepath.Identity = PlainIdentity("foo", password="wrong")
     assert not app()._verify_identity(identity)
     identity = morepath.Identity("foo", password="right")
     assert not app()._verify_identity(identity)
@@ -375,24 +391,24 @@ def test_verify_identity_directive_identity_argument():
     assert app()._verify_identity(identity)
 
 
-def test_false_verify_identity():
+def test_false_verify_identity() -> None:
     class app(morepath.App):
         pass
 
     @app.path(path="{id}")
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     class Permission:
         pass
 
     @app.view(model=Model, permission=Permission)
-    def default(self, request):
+    def default(self: Model, request: morepath.Request) -> str:
         return "Model: %s" % self.id
 
     @app.view(model=Model, name="log_in")
-    def log_in(self, request):
+    def log_in(self: Model, request: morepath.Request) -> Response:
         response = Response()
         request.app.remember_identity(
             response, request, Identity(userid="user", payload="Amazing")
@@ -400,11 +416,11 @@ def test_false_verify_identity():
         return response
 
     @app.identity_policy()
-    def policy():
+    def policy() -> DumbCookieIdentityPolicy:
         return DumbCookieIdentityPolicy()
 
     @app.verify_identity()
-    def verify_identity(identity):
+    def verify_identity(identity: Identity) -> bool:
         return False
 
     c = Client(app(), cookiejar=CookieJar())
@@ -416,7 +432,7 @@ def test_false_verify_identity():
     c.get("/foo", status=403)
 
 
-def test_dispatch_verify_identity():
+def test_dispatch_verify_identity() -> None:
     # This app uses two Identity classes, morepath.Identity and
     # Anonymous, which are verified in two different ways (see the two
     # functions a little further down that are decorated by
@@ -426,29 +442,31 @@ def test_dispatch_verify_identity():
 
     @App.path(path="{id}")
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     class Read:
         """Read Permission"""
 
     class Anonymous(Identity):
-        def __init__(self, **kw):
+        def __init__(self, **kw: Any) -> None:
             super().__init__(userid=None, **kw)
 
     @App.permission_rule(model=Model, permission=Read)
-    def get_permission(identity, model, permission):
+    def get_permission(
+        identity: object, model: Model, permission: object
+    ) -> bool:
         return True
 
     @App.view(model=Model, permission=Read)
-    def default(self, request):
+    def default(self: Model, request: morepath.Request) -> str:
         if request.identity.userid == self.id:
             return "Read restricted: %s" % self.id
         return "Read shared: %s" % self.id
 
     @App.identity_policy()
     class HeaderIdentityPolicy:
-        def identify(self, request):
+        def identify(self, request: morepath.Request) -> Identity | None:
             user = request.headers.get("user", None)
             if user is not None:
                 if user == "":
@@ -456,19 +474,22 @@ def test_dispatch_verify_identity():
                 return Identity(
                     userid=user, password=request.headers["password"]
                 )
+            return None
 
-        def remember(self, response, request, identity):
+        def remember(
+            self, response: object, request: object, identity: object
+        ) -> None:
             pass
 
-        def forget(self, response, request):
+        def forget(self, response: object, request: object) -> None:
             pass
 
     @App.verify_identity(identity=Identity)
-    def verify_identity(identity):
-        return identity.password == "secret"
+    def verify_identity(identity: Identity) -> bool:
+        return identity.password == "secret"  # type: ignore[no-any-return]
 
     @App.verify_identity(identity=Anonymous)
-    def verify_anonymous(identity):
+    def verify_anonymous(identity: Anonymous) -> bool:
         return True
 
     c = Client(App())
@@ -484,7 +505,7 @@ def test_dispatch_verify_identity():
     assert r.text == "Read shared: foo"
 
 
-def test_settings():
+def test_settings() -> None:
     class App(morepath.App):
         pass
 
@@ -492,31 +513,31 @@ def test_settings():
         pass
 
     @App.verify_identity()
-    def verify_identity(identity):
+    def verify_identity(identity: object) -> bool:
         return True
 
     @App.path(model=Model, path="test")
-    def get_model():
+    def get_model() -> Model:
         return Model()
 
     @App.view(model=Model)
-    def default(self, request):
+    def default(self: Model, request: morepath.Request) -> str:
         return "%s, your token is valid." % request.identity.userid
 
     @App.setting_section(section="test")
-    def get_test_settings():
+    def get_test_settings() -> dict[str, str]:
         return {"encryption_key": "secret"}
 
     @App.identity_policy()
-    def get_identity_policy(settings):
+    def get_identity_policy(settings: SettingRegistry) -> IdentityPolicy:
         test_settings = settings.test.__dict__.copy()
         return IdentityPolicy(**test_settings)
 
     class IdentityPolicy:
-        def __init__(self, encryption_key):
+        def __init__(self, encryption_key: str) -> None:
             self.encryption_key = encryption_key
 
-        def identify(self, request):
+        def identify(self, request: morepath.Request) -> Identity | NoIdentity:
             token = self.get_token(request)
             if token is None or not self.token_is_valid(
                 token, self.encryption_key
@@ -524,22 +545,24 @@ def test_settings():
                 return NO_IDENTITY
             return Identity("Testuser")
 
-        def remember(self, response, request, identity):
+        def remember(
+            self, response: object, request: object, identity: object
+        ) -> None:
             pass
 
-        def forget(self, response, request):
+        def forget(self, response: object, request: object) -> None:
             pass
 
-        def get_token(self, request):
-            try:
-                authtype, token = request.authorization
-            except ValueError:
+        def get_token(self, request: morepath.Request) -> str | None:
+            if request.authorization is None:
                 return None
+            authtype, token = request.authorization
             if authtype.lower() != "bearer":
                 return None
+            assert isinstance(token, str)
             return token
 
-        def token_is_valid(self, token, encryption_key):
+        def token_is_valid(self, token: str, encryption_key: str) -> bool:
             return token == encryption_key  # fake validation
 
     c = Client(App())
@@ -549,7 +572,7 @@ def test_settings():
     assert response.body == b"Testuser, your token is valid."
 
 
-def test_prevent_poisoned_host_headers():
+def test_prevent_poisoned_host_headers() -> None:
     class App(morepath.App):
         pass
 
@@ -558,7 +581,7 @@ def test_prevent_poisoned_host_headers():
         pass
 
     @App.view(model=Model)
-    def view_model(self, request):
+    def view_model(self: Model, request: morepath.Request) -> str:
         return "ok"
 
     poisoned_hosts = (
@@ -592,45 +615,49 @@ def test_prevent_poisoned_host_headers():
         assert response.status_code == 400
 
 
-def test_settings_in_permission_rule():
+def test_settings_in_permission_rule() -> None:
     class App(morepath.App):
         pass
 
     @App.path(path="{id}")
     class Model:
-        def __init__(self, id):
+        def __init__(self, id: str) -> None:
             self.id = id
 
     class Permission:
         pass
 
     @App.verify_identity()
-    def verify_identity(identity):
+    def verify_identity(identity: object) -> bool:
         return True
 
     @App.setting_section(section="permissions")
-    def get_roles_setting():
+    def get_roles_setting() -> dict[str, set[str]]:
         return {
             "read": {"foo"},
         }
 
     @App.permission_rule(model=Model, permission=Permission)
-    def get_permission(app, identity, model, permission):
+    def get_permission(
+        app: App, identity: object, model: Model, permission: object
+    ) -> bool:
         return model.id in app.settings.permissions.read
 
     @App.view(model=Model, permission=Permission)
-    def default(self, request):
+    def default(self: Model, request: morepath.Request) -> str:
         return "Model: %s" % self.id
 
     @App.identity_policy()
     class IdentityPolicy:
-        def identify(self, request):
+        def identify(self, request: object) -> Identity:
             return Identity("testidentity")
 
-        def remember(self, response, request, identity):
+        def remember(
+            self, response: object, request: object, identity: object
+        ) -> object:
             pass
 
-        def forget(self, response, request):
+        def forget(self, response: object, request: object) -> object:
             pass
 
     c = Client(App())

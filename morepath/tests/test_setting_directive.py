@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 from webtest import TestApp as Client
 
@@ -6,12 +8,12 @@ import morepath
 from morepath.error import ConflictError
 
 
-def test_settings_property():
+def test_settings_property() -> None:
     class App(morepath.App):
         pass
 
     @App.setting("foo", "bar")
-    def get_foo_setting():
+    def get_foo_setting() -> str:
         return "bar"
 
     dectate.commit(App)
@@ -20,7 +22,7 @@ def test_settings_property():
     assert app.settings is app.config.setting_registry
 
 
-def test_app_extends_settings():
+def test_app_extends_settings() -> None:
     class alpha(morepath.App):
         pass
 
@@ -28,11 +30,11 @@ def test_app_extends_settings():
         pass
 
     @alpha.setting("one", "foo")
-    def get_foo_setting():
+    def get_foo_setting() -> str:
         return "FOO"
 
     @beta.setting("one", "bar")
-    def get_bar_setting():
+    def get_bar_setting() -> str:
         return "BAR"
 
     dectate.commit(alpha, beta)
@@ -52,7 +54,7 @@ def test_app_extends_settings():
     assert settings.one.bar == "BAR"
 
 
-def test_app_overrides_settings():
+def test_app_overrides_settings() -> None:
     class alpha(morepath.App):
         pass
 
@@ -60,11 +62,11 @@ def test_app_overrides_settings():
         pass
 
     @alpha.setting("one", "foo")
-    def get_foo_setting():
+    def get_foo_setting() -> str:
         return "FOO"
 
     @beta.setting("one", "foo")
-    def get_bar_setting():
+    def get_bar_setting() -> str:
         return "OVERRIDE"
 
     dectate.commit(alpha, beta)
@@ -73,7 +75,7 @@ def test_app_overrides_settings():
     assert beta().config.setting_registry.one.foo == "OVERRIDE"
 
 
-def test_app_overrides_settings_three():
+def test_app_overrides_settings_three() -> None:
     class alpha(morepath.App):
         pass
 
@@ -84,11 +86,11 @@ def test_app_overrides_settings_three():
         pass
 
     @alpha.setting("one", "foo")
-    def get_foo_setting():
+    def get_foo_setting() -> str:
         return "FOO"
 
     @beta.setting("one", "foo")
-    def get_bar_setting():
+    def get_bar_setting() -> str:
         return "OVERRIDE"
 
     dectate.commit(alpha, beta, gamma)
@@ -96,12 +98,12 @@ def test_app_overrides_settings_three():
     assert gamma().config.setting_registry.one.foo == "OVERRIDE"
 
 
-def test_app_section_settings():
+def test_app_section_settings() -> None:
     class app(morepath.App):
         pass
 
     @app.setting_section("one")
-    def settings():
+    def settings() -> dict[str, str]:
         return {"foo": "FOO", "bar": "BAR"}
 
     dectate.commit(app)
@@ -114,38 +116,38 @@ def test_app_section_settings():
     assert s.one.bar == "BAR"
 
 
-def test_app_section_settings_conflict():
+def test_app_section_settings_conflict() -> None:
     class app(morepath.App):
         pass
 
     @app.setting_section("one")
-    def settings():
+    def settings() -> dict[str, str]:
         return {"foo": "FOO", "bar": "BAR"}
 
     @app.setting("one", "foo")
-    def get_foo():
+    def get_foo() -> str:
         return "another"
 
     with pytest.raises(ConflictError):
         dectate.commit(app)
 
 
-def test_settings_property_in_view():
+def test_settings_property_in_view() -> None:
     class app(morepath.App):
         pass
 
     @app.setting("section", "name")
-    def setting():
+    def setting() -> str:
         return "LAH"
 
     @app.path(path="")
     class Model:
-        def __init__(self):
+        def __init__(self) -> None:
             pass
 
     @app.view(model=Model)
-    def default(self, request):
-        return request.app.settings.section.name
+    def default(self: Model, request: morepath.Request) -> str:
+        return request.app.settings.section.name  # type: ignore[no-any-return]
 
     c = Client(app())
 

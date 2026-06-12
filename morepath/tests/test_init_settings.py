@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 
 import morepath
@@ -5,7 +7,7 @@ from morepath.error import ConflictError
 from morepath.tests.fixtures.config import settings as settings_file
 
 
-def test_init_settings():
+def test_init_settings() -> None:
 
     settings_dict = {
         "foo": {"enable_foo": True, "engine": "ADVANCED"},
@@ -26,7 +28,7 @@ def test_init_settings():
     assert app.settings.bar.security is False
 
 
-def test_app_extends_settings():
+def test_app_extends_settings() -> None:
     class Alpha(morepath.App):
         pass
 
@@ -53,7 +55,7 @@ def test_app_extends_settings():
     assert settings.bar.space == "huge"
 
 
-def test_app_overrides_settings():
+def test_app_overrides_settings() -> None:
     class Alpha(morepath.App):
         pass
 
@@ -84,7 +86,7 @@ def test_app_overrides_settings():
     assert settings.bar.space == "tiny"
 
 
-def test_section_settings_conflict():
+def test_section_settings_conflict() -> None:
 
     settings = {
         "foo": {"enable_foo": True, "engine": "ADVANCED"},
@@ -97,14 +99,14 @@ def test_section_settings_conflict():
     App.init_settings(settings)
 
     @App.setting("foo", "engine")
-    def get_foo_setting():
+    def get_foo_setting() -> str:
         return "STANDARD"
 
     with pytest.raises(ConflictError):
         morepath.commit(App)
 
 
-def test_extentions_settings():
+def test_extentions_settings() -> None:
 
     settings_dict = settings_file.settings
 

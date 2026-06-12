@@ -4,6 +4,10 @@ Entirely documented in :class:`morepath.Request` and
 :class:`morepath.Response` in the public API.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Generic, cast, overload
+
 from webob import Response as BaseResponse
 from webob.request import BaseRequest
 
@@ -14,19 +18,49 @@ from .error import LinkError
 from .reify import reify
 from .traject import create_path, parse_path
 
-SAME_APP = Sentinel("SAME_APP")
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing_extensions import TypeVar
+
+    from dectate import CodeInfo
+
+    from .app import App
+    from .authentication import Identity, NoIdentity
+    from .types import WSGIEnvironment
+    from .view import View
+
+    _AppT = TypeVar("_AppT", bound="App", default="App", covariant=True)
+else:
+    from typing import TypeVar
+
+    _AppT = TypeVar("_AppT", bound="App", covariant=True)
 
 
-class Request(BaseRequest):
+_T = TypeVar("_T")
+# NOTE: Technically `webob.Response` is the correct bound, since we're not
+#       guaranteed to always get a `morepath.Response`, but considering
+#       that `morepath.Response` does not add any attributes of its own,
+#       the improved ergonomics of being able to annotate as either
+#       `webob.Response` or `morepath.Response` interchangeably outweigh
+#       the risks of `morepath.Response` being inaccurate in some
+#       cirumstances.
+_AfterT = TypeVar("_AfterT", bound="Callable[[Response], object]")
+
+SAME_APP: Sentinel = Sentinel("SAME_APP")
+
+
+class Request(BaseRequest, Generic[_AppT]):
     """Request.
 
     Extends :class:`webob.request.BaseRequest`
     """
 
-    path_code_info = None
-    view_code_info = None
+    app: _AppT
+    path_code_info: CodeInfo | None = None
+    view_code_info: CodeInfo | None = None
+    view_name: str | None = None
 
-    def __init__(self, environ, app, **kw):
+    def __init__(self, environ: WSGIEnvironment, app: _AppT, **kw: Any) -> None:
         super().__init__(environ, **kw)
         # parse path, normalizing dots away in
         # in case the client didn't do the normalization
@@ -51,10 +85,10 @@ class Request(BaseRequest):
         self.app = app
         """:class:`morepath.App` instance currently handling request.
         """
-        self._after = []
-        self._link_prefix_cache = {}
+        self._after: list[Callable[[BaseResponse], object]] = []
+        self._link_prefix_cache: dict[type[object], str] = {}
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset request.
 
         This resets the request back to the state it had when request
@@ -69,7 +103,7 @@ class Request(BaseRequest):
         self._after = []
 
     @reify
-    def identity(self):
+    def identity(self) -> Identity | NoIdentity:
         """Self-proclaimed identity of the user.
 
         The identity is established using the identity policy. Normally
@@ -85,11 +119,13 @@ class Request(BaseRequest):
         result = self.app._identify(self)
         if result is None or result is NO_IDENTITY:
             return NO_IDENTITY
+
+        result = cast("Identity", result)
         if not self.app._verify_identity(result):
             return NO_IDENTITY
         return result
 
-    def link_prefix(self, app=None):
+    def link_prefix(self, app: App | None = None) -> str:
         """Prefix to all links created by this request.
 
         :param app: Optionally use the given app to create the link.
@@ -107,7 +143,13 @@ class Request(BaseRequest):
 
         return prefix
 
-    def view(self, obj, default=None, app=SAME_APP, **predicates):
+    def view(
+        self,
+        obj: object,
+        default: _T | None = None,
+        app: App | Sentinel = SAME_APP,
+        **predicates: Any,
+    ) -> Any | _T | None:
         """Call view for model instance.
 
         This does not render the view, but calls the appropriate
@@ -131,24 +173,63 @@ class Request(BaseRequest):
         if app is SAME_APP:
             app = self.app
 
+        assert not isinstance(app, Sentinel)
         predicates["model"] = obj.__class__
 
-        def find(app, obj):
-            return app.get_view.by_predicates(**predicates).component
+        def find(app: App, obj: object) -> View | None:
+            # NOTE: The fact that this is always a view instance is very much an
+            #       implementation detail and relies on all views getting registered
+            #       by the view action, rather than manually through get_view.register
+            return cast(
+                "View | None",
+                app.get_view.by_predicates(**predicates).component,
+            )
 
-        view, app = app._follow_defers(find, obj)
+        view, found_app = app._follow_defers(find, obj)
         if view is None:
             return default
 
+        assert found_app is not None
         old_app = self.app
-        self.app = app
+        self.app = found_app  # type: ignore[assignment]
         # need to use value as view is registered as a function, not
         # as a wrapped method
-        result = view.func(obj, self)
-        self.app = old_app
+        try:
+            result = view.func(obj, self)
+        finally:
+            # Make sure we always restore the original bound app, even
+            # if the view throws an exception
+            self.app = old_app
         return result
 
-    def link(self, obj, name="", default=None, app=SAME_APP):
+    @overload
+    def link(  # pyright: ignore[reportOverlappingOverload]
+        self,
+        obj: None,
+        name: str = "",
+        default: None = None,
+        app: App | Sentinel = ...,
+    ) -> None: ...
+    @overload
+    def link(
+        self, obj: None, name: str, default: _T, app: App | Sentinel = ...
+    ) -> _T: ...
+    @overload
+    def link(
+        self,
+        obj: object,
+        name: str = "",
+        default: Any = None,
+        app: App | Sentinel = ...,
+    ) -> str: ...
+
+    def link(
+        self,
+        obj: object,
+        name: str = "",
+        default: Any = None,
+        app: App | Sentinel = SAME_APP,
+    ) -> Any | None:
         """Create a link (URL) to a view on a model instance.
 
         The resulting link is prefixed by the link prefix. By default
@@ -186,14 +267,21 @@ class Request(BaseRequest):
         if app is SAME_APP:
             app = self.app
 
-        info, app = app._get_deferred_mounted_path(obj)
+        assert not isinstance(app, Sentinel)
+        info, found_app = app._get_deferred_mounted_path(obj)
 
         if info is None:
             raise LinkError("Cannot link to: %r" % obj)
 
-        return info.url(self.link_prefix(app), name)
+        return info.url(self.link_prefix(found_app), name)
 
-    def class_link(self, model, variables=None, name="", app=SAME_APP):
+    def class_link(
+        self,
+        model: type,
+        variables: dict[str, Any] | None = None,
+        name: str = "",
+        app: App | Sentinel = SAME_APP,
+    ) -> str:
         """Create a link (URL) to a view on a class.
 
         Given a model class and a variables dictionary, create a link
@@ -240,6 +328,7 @@ class Request(BaseRequest):
         if app is SAME_APP:
             app = self.app
 
+        assert not isinstance(app, Sentinel)
         info = app._get_deferred_mounted_class_path(model, variables)
 
         if info is None:
@@ -247,7 +336,9 @@ class Request(BaseRequest):
 
         return info.url(self.link_prefix(), name)
 
-    def resolve_path(self, path, app=SAME_APP):
+    def resolve_path(
+        self, path: str, app: App | Sentinel = SAME_APP
+    ) -> Any | None:
         """Resolve a path to a model instance.
 
         The resulting object is a model instance, or ``None`` if the
@@ -265,13 +356,14 @@ class Request(BaseRequest):
         if app is SAME_APP:
             app = self.app
 
+        assert not isinstance(app, Sentinel)
         request = Request(self.environ.copy(), app, path_info=path)
         # try to resolve imports..
         from .publish import resolve_model
 
         return resolve_model(request)
 
-    def after(self, func):
+    def after(self, func: _AfterT) -> _AfterT:
         """Call a function with the response after a successful request.
 
         A request is considered *successful* if the HTTP status is a 2XX or a
@@ -309,10 +401,11 @@ class Request(BaseRequest):
         :param func: callable that is called with response
         :return: func argument, not wrapped
         """
-        self._after.append(func)
+        # NOTE: See the note on _AfterT
+        self._after.append(func)  # type: ignore[arg-type]
         return func
 
-    def _run_after(self, response):
+    def _run_after(self, response: BaseResponse) -> None:
         """Run callbacks registered with :meth:`morepath.Request.after`."""
         # if we don't have anything to run, don't even check status
         if not self._after:
@@ -323,7 +416,7 @@ class Request(BaseRequest):
         for after in self._after:
             after(response)
 
-    def clear_after(self):
+    def clear_after(self) -> None:
         self._after = []
 
 
@@ -332,5 +425,3 @@ class Response(BaseResponse):
 
     Extends :class:`webob.response.Response`.
     """
-
-    pass

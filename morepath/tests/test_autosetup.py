@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from collections import namedtuple
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 import pytest
 from base.m import App
@@ -13,8 +16,14 @@ from morepath.autosetup import (
     morepath_packages,
 )
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
-def test_import():
+
+_T = TypeVar("_T")
+
+
+def test_import() -> None:
     import base
     import entrypoint
 
@@ -30,9 +39,9 @@ def test_import():
     assert {no_mp, nomp, no_mp_sub}.isdisjoint(found)
 
 
-def test_load_distribution():
+def test_load_distribution() -> None:
 
-    Distribution = namedtuple("Distribution", ["name"])
+    Distribution = cast("Any", namedtuple("Distribution", ["name"]))
 
     assert import_package(Distribution("base")).m.App is App
 
@@ -40,26 +49,27 @@ def test_load_distribution():
         import_package(Distribution("inexistant-package"))
 
 
-def invoke(callable):
+def invoke(callable: Callable[[], _T]) -> _T:
     "Add one frame to stack, no other purpose."
     return callable()
 
 
-def test_caller_module():
+def test_caller_module() -> None:
     import sys
 
     assert caller_module(1) == sys.modules[__name__]
     assert invoke(caller_module) == sys.modules[__name__]
 
 
-def test_caller_package():
+def test_caller_package() -> None:
     import sys
 
+    assert __package__ is not None
     assert caller_package(1) == sys.modules[__package__]
     assert invoke(caller_package) == sys.modules[__package__]
 
 
-def test_autoscan(monkeypatch):
+def test_autoscan(monkeypatch: pytest.MonkeyPatch) -> None:
     import sys
 
     for k in "base.m", "entrypoint.app", "under_score.m":
@@ -72,7 +82,7 @@ def test_autoscan(monkeypatch):
     assert "under_score.m" in sys.modules
 
 
-def test_circular_dependency():
+def test_circular_dependency() -> None:
     m = DependencyMap()
     m._d = {
         "parent": {"grandparent"},
@@ -85,7 +95,7 @@ def test_circular_dependency():
         assert m.depends(node, "grandparent")
 
 
-def test_depends_visited_parameter():
+def test_depends_visited_parameter() -> None:
     # Test that the visited parameter is properly initialized when not provided
     m = DependencyMap()
     m._d = {

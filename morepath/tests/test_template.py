@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 from webtest import TestApp as Client
 
@@ -14,14 +16,14 @@ from .fixtures import (
 )
 
 
-def test_template_fixture():
+def test_template_fixture() -> None:
     c = Client(template.App())
 
     response = c.get("/world")
     assert response.body == b"<p>Hello world!</p>\n"
 
 
-def test_template_override_fixture():
+def test_template_override_fixture() -> None:
     c = Client(template_override.App())
 
     response = c.get("/world")
@@ -33,12 +35,12 @@ def test_template_override_fixture():
     assert response.body == b"<div>Hi world!</div>"
 
 
-def test_template_override_not_directed():
+def test_template_override_not_directed() -> None:
     with pytest.raises(ConfigError):
         template_override_under.SubApp.commit()
 
 
-def test_template_override_implicit_fixture():
+def test_template_override_implicit_fixture() -> None:
     c = Client(template_override_implicit.App())
 
     response = c.get("/world")
@@ -50,17 +52,17 @@ def test_template_override_implicit_fixture():
     assert response.body == b"<div>Hi world!</div>"
 
 
-def test_unknown_extension_no_loader():
+def test_unknown_extension_no_loader() -> None:
     with pytest.raises(ConfigError):
         template_unknown_extension.App.commit()
 
 
-def test_unknown_extension_no_render():
+def test_unknown_extension_no_render() -> None:
     with pytest.raises(ConfigError):
         template_unknown_extension_no_render.App.commit()
 
 
-def test_no_template_directories():
+def test_no_template_directories() -> None:
     # we accept no template directories, as it is possible
     # for a base frameworky app not to define any (ChameleonApp, Jinja2App)
     assert template_no_template_directories.App.commit() == {

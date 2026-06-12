@@ -1,7 +1,19 @@
+from __future__ import annotations
+
 import sys
+from typing import TYPE_CHECKING, NoReturn
+
+if TYPE_CHECKING:
+    from argparse import ArgumentParser
+    from collections.abc import Callable
+    from wsgiref.simple_server import WSGIServer
+
+    from .types import WSGIApplication
 
 
-def make_parser(prog, default_host, default_port):
+def make_parser(
+    prog: str | None, default_host: str, default_port: int
+) -> ArgumentParser:
     """Make a command-line parser with host and port arguments.
 
     :param prog: the name of the program
@@ -11,7 +23,7 @@ def make_parser(prog, default_host, default_port):
     """
     import argparse
 
-    def unsigned_short(s):
+    def unsigned_short(s: str) -> int:
         v = int(s)
         if not 0 <= v <= 65536:
             raise ValueError
@@ -33,13 +45,13 @@ def make_parser(prog, default_host, default_port):
 
 
 def run(
-    wsgi,
-    host="127.0.0.1",
-    port=5000,
-    prog=None,
-    ignore_cli=False,
-    callback=None,
-):
+    wsgi: WSGIApplication,
+    host: str = "127.0.0.1",
+    port: int = 5000,
+    prog: str | None = None,
+    ignore_cli: bool = False,
+    callback: Callable[[WSGIServer], object] | None = None,
+) -> NoReturn:
     """Uses wsgiref.simple_server to run an application for debugging purposes.
 
     By default, this function looks at the command line for arguments
@@ -95,7 +107,7 @@ def run(
         if ex.errno == errno.EADDRINUSE and not ignore_cli:
             hint = "\n  Use '--port PORT' to specify a different port.\n\n"
         parser.exit(
-            ex.errno,
+            1 if ex.errno is None else ex.errno,
             f"{parser.prog}: {ex}: {args.host}:{args.port}\n" + hint,
         )
 
@@ -104,7 +116,9 @@ def run(
 
     print(f"Running {wsgi}")
     print(
-        "Listening on http://{}:{}".format(
+        # FIXME: Do we want to try to coerce from bytes to str, if we get
+        #        bytes or a bytearray?
+        "Listening on http://{}:{}".format(  # type: ignore[str-bytes-safe]
             server.server_address[0], server.server_port
         )
     )

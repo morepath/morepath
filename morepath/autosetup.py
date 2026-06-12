@@ -5,16 +5,30 @@ This module defines functionality to automatically configure Morepath.
 are part of the public API.
 """
 
+from __future__ import annotations
+
 import importlib
 import sys
 from importlib.metadata import distributions
+from typing import TYPE_CHECKING
 
 import importscan
 
 from .error import AutoImportError
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Generator, Iterable
+    from importlib.metadata import Distribution
+    from types import ModuleType
 
-def scan(package=None, ignore=None, handle_error=None):
+    from importscan.types import IgnoreModule
+
+
+def scan(
+    package: ModuleType | None = None,
+    ignore: Iterable[IgnoreModule] | IgnoreModule | None = None,
+    handle_error: Callable[[str, Exception], object] | None = None,
+) -> None:
     """Scan package for configuration actions (decorators).
 
     It scans by recursively importing the package and any modules
@@ -36,7 +50,9 @@ def scan(package=None, ignore=None, handle_error=None):
     importscan.scan(package, ignore, handle_error)
 
 
-def autoscan(ignore=None):
+def autoscan(
+    ignore: Collection[IgnoreModule] | IgnoreModule | None = None,
+) -> None:
     """Automatically load Morepath configuration from packages.
 
     Morepath configuration consists of decorator calls on :class:`App`
@@ -116,7 +132,7 @@ def autoscan(ignore=None):
         importscan.scan(package, ignore)
 
 
-def morepath_packages():
+def morepath_packages() -> Generator[ModuleType]:
     """Iterable of modules that depend on morepath. Each such module is
     imported before it is returned.
 
@@ -136,7 +152,7 @@ def morepath_packages():
         yield import_package(distribution)
 
 
-def import_package(distribution):
+def import_package(distribution: Distribution) -> ModuleType:
     """
     Takes a importlib.Distribution and loads the module contained
     in it, if it matches the rules layed out in :func:`morepath.autoscan`.
@@ -154,16 +170,21 @@ class DependencyMap:
     that depend on Morepath, directly or indirectly.
     """
 
-    def __init__(self):
-        self._d = {}
+    def __init__(self) -> None:
+        self._d: dict[str, set[str]] = {}
 
-    def load(self):
+    def load(self) -> None:
         """Fill the registry with dependency information."""
         for dist in distributions():
             for r in dist.requires or []:
                 self._d.setdefault(dist.name, set()).add(r)
 
-    def depends(self, project_name, on_project_name, visited=None):
+    def depends(
+        self,
+        project_name: str,
+        on_project_name: str,
+        visited: set[str] | None = None,
+    ) -> bool:
         """Check whether project transitively depends on another.
 
         A project depends on another project if it directly or
@@ -189,7 +210,7 @@ class DependencyMap:
                 return True
         return False
 
-    def relevant_dists(self, on_project_name):
+    def relevant_dists(self, on_project_name: str) -> Generator[Distribution]:
         """Iterable of distributions that depend on project.
 
         Dependency is transitive.
@@ -204,7 +225,7 @@ class DependencyMap:
             yield dist
 
 
-def get_module_name(distribution):
+def get_module_name(distribution: Distribution) -> str:
     """Determines the module name to import from the given distribution.
 
     If an entry point named ``scan`` is found in the group ``morepath``,
@@ -230,7 +251,7 @@ def get_module_name(distribution):
 # taken from pyramid.path
 
 
-def caller_module(level=2):
+def caller_module(level: int = 2) -> ModuleType:
     """Give module where calling function is defined.
 
     :level: levels deep to look up the stack frame
@@ -242,7 +263,7 @@ def caller_module(level=2):
     return module
 
 
-def caller_package(level=2):
+def caller_package(level: int = 2) -> ModuleType:
     """Give package where calling function is defined.
 
     :level: levels deep to look up the stack frame

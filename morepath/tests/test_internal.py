@@ -1,9 +1,13 @@
+from __future__ import annotations
+
+from typing import Any
+
 from webtest import TestApp as Client
 
 import morepath
 
 
-def test_internal():
+def test_internal() -> None:
     class app(morepath.App):
         pass
 
@@ -12,11 +16,11 @@ def test_internal():
         pass
 
     @app.json(model=Root)
-    def root_default(self, request):
+    def root_default(self: Root, request: morepath.Request) -> dict[str, Any]:
         return {"internal": request.view(self, name="internal")}
 
     @app.json(model=Root, name="internal", internal=True)
-    def root_internal(self, request):
+    def root_internal(self: Root, request: morepath.Request) -> str:
         return "Internal!"
 
     c = Client(app())

@@ -1,14 +1,16 @@
+from __future__ import annotations
+
 import pytest
 from webob.exc import HTTPBadRequest
 
 import morepath
 from morepath.converter import IDENTITY_CONVERTER, Converter
+from morepath.error import TrajectError
 from morepath.traject import (
     Node,
     ParameterFactory,
     Path,
     Step,
-    TrajectError,
     TrajectRegistry,
     create_path,
     is_identifier,
@@ -18,7 +20,7 @@ from morepath.traject import (
 )
 
 
-def traject_consume():
+def traject_consume() -> None:
     pass
 
 
@@ -27,14 +29,18 @@ class Root:
 
 
 class Model:
-    pass
+    foo: str
+    id: str
+    first_id: str
 
 
 class Special:
-    pass
+    id: str
+    first_id: str
+    second_id: str
 
 
-def test_name_step():
+def test_name_step() -> None:
     step = Step("foo")
     assert step.s == "foo"
     assert step.generalized == "foo"
@@ -44,14 +50,14 @@ def test_name_step():
     assert step.discriminator_info() == "foo"
 
     assert not step.has_variables()
-    variables = {}
+    variables: dict[str, object] = {}
     assert step.match("foo", variables)
     assert variables == {}
     assert not step.match("bar", variables)
     assert variables == {}
 
 
-def test_variable_step():
+def test_variable_step() -> None:
     step = Step("{foo}")
     assert step.s == "{foo}"
     assert step.generalized == "{}"
@@ -61,12 +67,12 @@ def test_variable_step():
     assert step.has_variables()
     assert step.discriminator_info() == "{}"
 
-    variables = {}
+    variables: dict[str, object] = {}
     assert step.match("bar", variables)
     assert variables == {"foo": "bar"}
 
 
-def test_mixed_step():
+def test_mixed_step() -> None:
     step = Step("a{foo}b")
     assert step.s == "a{foo}b"
     assert step.generalized == "a{}b"
@@ -76,7 +82,7 @@ def test_mixed_step():
     assert step.has_variables()
     assert step.discriminator_info() == "a{}b"
 
-    variables = {}
+    variables: dict[str, object] = {}
     assert step.match("abarb", variables)
     assert variables == {"foo": "bar"}
 
@@ -97,7 +103,7 @@ def test_mixed_step():
     assert not variables
 
 
-def test_multi_mixed_step():
+def test_multi_mixed_step() -> None:
     step = Step("{foo}a{bar}")
     assert step.s == "{foo}a{bar}"
     assert step.generalized == "{}a{}"
@@ -108,11 +114,11 @@ def test_multi_mixed_step():
     assert step.discriminator_info() == "{}a{}"
 
 
-def test_converter():
+def test_converter() -> None:
     step = Step("{foo}", converters=dict(foo=Converter(int)))
     assert step.discriminator_info() == "{}"
 
-    variables = {}
+    variables: dict[str, object] = {}
     assert step.match("1", variables)
     assert variables == {"foo": 1}
 
@@ -121,12 +127,12 @@ def test_converter():
     assert not variables
 
 
-def sorted_steps(input_list):
+def sorted_steps(input_list: list[str]) -> list[str]:
     steps = [Step(s) for s in input_list]
     return [step.s for step in sorted(steps)]
 
 
-def test_steps_the_same():
+def test_steps_the_same() -> None:
     step1 = Step("{foo}")
     step2 = Step("{foo}")
     assert step1 == step2
@@ -137,7 +143,7 @@ def test_steps_the_same():
     assert step1 <= step2
 
 
-def test_step_different():
+def test_step_different() -> None:
     step1 = Step("{foo}")
     step2 = Step("bar")
     assert step1 != step2
@@ -148,15 +154,15 @@ def test_step_different():
     assert not step1 <= step2
 
 
-def test_order_prefix_earlier():
+def test_order_prefix_earlier() -> None:
     assert sorted_steps(["{foo}", "prefix{foo}"]) == ["prefix{foo}", "{foo}"]
 
 
-def test_order_postfix_earlier():
+def test_order_postfix_earlier() -> None:
     assert sorted_steps(["{foo}", "{foo}postfix"]) == ["{foo}postfix", "{foo}"]
 
 
-def test_order_prefix_before_postfix():
+def test_order_prefix_before_postfix() -> None:
     assert sorted_steps(["{foo}", "a{foo}", "{foo}a"]) == [
         "a{foo}",
         "{foo}a",
@@ -164,7 +170,7 @@ def test_order_prefix_before_postfix():
     ]
 
 
-def test_order_prefix_before_postfix2():
+def test_order_prefix_before_postfix2() -> None:
     assert sorted_steps(["{foo}", "a{foo}", "{foo}b"]) == [
         "a{foo}",
         "{foo}b",
@@ -172,71 +178,71 @@ def test_order_prefix_before_postfix2():
     ]
 
 
-def test_order_longer_prefix_before_shorter():
+def test_order_longer_prefix_before_shorter() -> None:
     assert sorted_steps(["ab{f}", "a{f}"]) == ["ab{f}", "a{f}"]
 
 
-def test_order_longer_postfix_before_shorter():
+def test_order_longer_postfix_before_shorter() -> None:
     assert sorted_steps(["{f}ab", "{f}b"]) == ["{f}ab", "{f}b"]
 
 
-def test_order_dont_care_variable_names():
+def test_order_dont_care_variable_names() -> None:
     assert sorted_steps(["a{f}", "ab{g}"]) == ["ab{g}", "a{f}"]
 
 
-def test_order_two_variables_before_one():
+def test_order_two_variables_before_one() -> None:
     assert sorted_steps(["{a}x{b}", "{a}"]) == ["{a}x{b}", "{a}"]
 
 
-def test_order_two_variables_before_with_postfix():
+def test_order_two_variables_before_with_postfix() -> None:
     assert sorted_steps(["{a}x{b}x", "{a}x"]) == ["{a}x{b}x", "{a}x"]
 
 
-def test_order_two_variables_before_with_prefix():
+def test_order_two_variables_before_with_prefix() -> None:
     assert sorted_steps(["x{a}x{b}", "x{a}"]) == ["x{a}x{b}", "x{a}"]
 
 
-def test_order_two_variables_infix():
+def test_order_two_variables_infix() -> None:
     assert sorted_steps(
         ["{a}xyz{b}", "{a}xy{b}", "{a}yz{b}", "{a}x{b}", "{a}z{b}", "{a}y{b}"]
     ) == ["{a}xyz{b}", "{a}yz{b}", "{a}z{b}", "{a}xy{b}", "{a}y{b}", "{a}x{b}"]
 
 
-def test_order_alphabetical():
+def test_order_alphabetical() -> None:
     # reverse alphabetical
     assert sorted_steps(["a{f}", "b{f}"]) == ["b{f}", "a{f}"]
     assert sorted_steps(["{f}a", "{f}b"]) == ["{f}b", "{f}a"]
 
 
-def test_invalid_step():
+def test_invalid_step() -> None:
     with pytest.raises(TrajectError):
         Step("{foo")
 
 
-def test_illegal_consecutive_variables():
+def test_illegal_consecutive_variables() -> None:
     with pytest.raises(TrajectError):
         Step("{a}{b}")
 
 
-def test_illegal_variable():
+def test_illegal_variable() -> None:
     with pytest.raises(TrajectError):
         Step("{a:int:int}")
 
 
-def test_illegal_identifier():
+def test_illegal_identifier() -> None:
     with pytest.raises(TrajectError):
         Step("{1}")
 
 
-def test_unknown_converter():
+def test_unknown_converter() -> None:
     with pytest.raises(TrajectError):
         Step("{foo:blurb}")
 
 
-def test_name_node():
+def test_name_node() -> None:
     node = Node()
     step_node = node.add(Step("foo"))
-    variables = {}
+    variables: dict[str, object] = {}
     assert node.resolve("foo", variables) is step_node
     assert not variables
 
@@ -244,11 +250,11 @@ def test_name_node():
     assert not variables
 
 
-def test_variable_node():
+def test_variable_node() -> None:
     node = Node()
 
     step_node = node.add(Step("{x}"))
-    variables = {}
+    variables: dict[str, object] = {}
     assert node.resolve("foo", variables) is step_node
     assert variables == {"x": "foo"}
 
@@ -257,11 +263,11 @@ def test_variable_node():
     assert variables == {"x": "bar"}
 
 
-def test_mixed_node():
+def test_mixed_node() -> None:
     node = Node()
     step_node = node.add(Step("prefix{x}postfix"))
 
-    variables = {}
+    variables: dict[str, object] = {}
     assert node.resolve("prefixfoopostfix", variables) is step_node
     assert variables == {"x": "foo"}
 
@@ -274,13 +280,13 @@ def test_mixed_node():
     assert variables == {}
 
 
-def test_variable_node_specific_first():
+def test_variable_node_specific_first() -> None:
     node = Node()
     x_node = node.add(Step("{x}"))
 
     prefix_node = node.add(Step("prefix{x}"))
 
-    variables = {}
+    variables: dict[str, object] = {}
     assert node.resolve("what", variables) is x_node
     assert variables == {"x": "what"}
 
@@ -289,13 +295,13 @@ def test_variable_node_specific_first():
     assert variables == {"x": "what"}
 
 
-def test_variable_node_more_specific_first():
+def test_variable_node_more_specific_first() -> None:
     node = Node()
     xy_node = node.add(Step("x{x}y"))
     xay_node = node.add(Step("xa{x}y"))
     ay_node = node.add(Step("a{x}y"))
 
-    variables = {}
+    variables: dict[str, object] = {}
     assert node.resolve("xwhaty", variables) is xy_node
     assert variables == {"x": "what"}
 
@@ -308,12 +314,12 @@ def test_variable_node_more_specific_first():
     assert variables == {"x": "what"}
 
 
-def test_variable_node_optional_colon():
+def test_variable_node_optional_colon() -> None:
     node = Node()
     x_node = node.add(Step("{x}"))
     xy_node = node.add(Step("{x}:{y}"))
 
-    variables = {}
+    variables: dict[str, object] = {}
     assert node.resolve("a", variables) is x_node
     assert variables == {"x": "a"}
 
@@ -322,11 +328,11 @@ def test_variable_node_optional_colon():
     assert variables == {"x": "a", "y": "b"}
 
 
-def req(path):
+def req(path: str) -> morepath.Request:
     return morepath.Request.blank(path, app=morepath.App())
 
 
-def test_traject_simple():
+def test_traject_simple() -> None:
     traject = TrajectRegistry()
 
     class abc:
@@ -375,15 +381,15 @@ def test_traject_simple():
     assert r.unconsumed == []
 
 
-def test_traject_variable_specific_first():
+def test_traject_variable_specific_first() -> None:
     traject = TrajectRegistry()
 
     class axb:
-        def __init__(self, x):
+        def __init__(self, x: str) -> None:
             self.x = x
 
     class aprefixxb:
-        def __init__(self, x):
+        def __init__(self, x: str) -> None:
             self.x = x
 
     traject.add_pattern("a/{x}/b", axb)
@@ -398,11 +404,11 @@ def test_traject_variable_specific_first():
     assert obj.x == "lah"
 
 
-def test_traject_multiple_steps_with_variables():
+def test_traject_multiple_steps_with_variables() -> None:
     traject = TrajectRegistry()
 
     class xy:
-        def __init__(self, x, y):
+        def __init__(self, x: str, y: str) -> None:
             self.x = x
             self.y = y
 
@@ -412,11 +418,11 @@ def test_traject_multiple_steps_with_variables():
     assert obj.y == "y"
 
 
-def test_traject_with_converter():
+def test_traject_with_converter() -> None:
     traject = TrajectRegistry()
 
     class found:
-        def __init__(self, x):
+        def __init__(self, x: int) -> None:
             self.x = x
 
     traject.add_pattern("{x}", found, converters=dict(x=Converter(int)))
@@ -427,15 +433,15 @@ def test_traject_with_converter():
     assert traject.consume(req("foo")) is None
 
 
-def test_traject_type_conflict():
+def test_traject_type_conflict() -> None:
     traject = TrajectRegistry()
 
     class found_int:
-        def __init__(self, x):
+        def __init__(self, x: int) -> None:
             self.x = x
 
     class found_str:
-        def __init__(self, x):
+        def __init__(self, x: str) -> None:
             self.x = x
 
     traject.add_pattern("{x}", found_int, converters=dict(x=Converter(int)))
@@ -443,15 +449,15 @@ def test_traject_type_conflict():
         traject.add_pattern("{x}", found_str, converters=dict(x=Converter(str)))
 
 
-def test_traject_type_conflict_default_type():
+def test_traject_type_conflict_default_type() -> None:
     traject = TrajectRegistry()
 
     class found_str:
-        def __init__(self, x):
+        def __init__(self, x: str) -> None:
             self.x = x
 
     class found_int:
-        def __init__(self, x):
+        def __init__(self, x: int) -> None:
             self.x = x
 
     traject.add_pattern("{x}", found_str)
@@ -459,15 +465,15 @@ def test_traject_type_conflict_default_type():
         traject.add_pattern("{x}", found_int, converters=dict(x=Converter(int)))
 
 
-def test_traject_type_conflict_explicit_default():
+def test_traject_type_conflict_explicit_default() -> None:
     traject = TrajectRegistry()
 
     class found_explicit:
-        def __init__(self, x):
+        def __init__(self, x: str) -> None:
             self.x = x
 
     class found_implicit:
-        def __init__(self, x):
+        def __init__(self, x: str) -> None:
             self.x = x
 
     traject.add_pattern(
@@ -478,15 +484,15 @@ def test_traject_type_conflict_explicit_default():
     assert True
 
 
-def test_traject_type_conflict_middle():
+def test_traject_type_conflict_middle() -> None:
     traject = TrajectRegistry()
 
     class int_f:
-        def __init__(self, x):
+        def __init__(self, x: int) -> None:
             self.x = x
 
     class str_f:
-        def __init__(self, x):
+        def __init__(self, x: str) -> None:
             self.x = x
 
     traject.add_pattern("a/{x}/y", int_f, converters=dict(x=Converter(int)))
@@ -494,30 +500,30 @@ def test_traject_type_conflict_middle():
         traject.add_pattern("a/{x}/z", str_f)
 
 
-def test_traject_no_type_conflict_middle():
+def test_traject_no_type_conflict_middle() -> None:
     traject = TrajectRegistry()
 
     class int_f:
-        def __init__(self, x):
+        def __init__(self, x: int) -> None:
             self.x = x
 
     class int_f2:
-        def __init__(self, x):
+        def __init__(self, x: int) -> None:
             self.x = x
 
     traject.add_pattern("a/{x}/y", int_f, converters=dict(x=Converter(int)))
     traject.add_pattern("a/{x}/z", int_f2, converters=dict(x=Converter(int)))
 
 
-def test_traject_greedy_middle_prefix():
+def test_traject_greedy_middle_prefix() -> None:
     traject = TrajectRegistry()
 
     class prefix:
-        def __init__(self, x):
+        def __init__(self, x: str) -> None:
             self.x = x
 
     class no_prefix:
-        def __init__(self, x):
+        def __init__(self, x: str) -> None:
             self.x = x
 
     traject.add_pattern("a/prefix{x}/y", prefix)
@@ -534,15 +540,15 @@ def test_traject_greedy_middle_prefix():
     assert isinstance(obj, no_prefix)
 
 
-def test_traject_type_conflict_middle_end():
+def test_traject_type_conflict_middle_end() -> None:
     traject = TrajectRegistry()
 
     class int_f:
-        def __init__(self, x):
+        def __init__(self, x: int) -> None:
             self.x = x
 
     class str_f:
-        def __init__(self, x):
+        def __init__(self, x: str) -> None:
             self.x = x
 
     traject.add_pattern("a/{x}/y", int_f, converters=dict(x=Converter(int)))
@@ -550,15 +556,15 @@ def test_traject_type_conflict_middle_end():
         traject.add_pattern("a/{x}", str_f)
 
 
-def test_traject_no_type_conflict_middle_end():
+def test_traject_no_type_conflict_middle_end() -> None:
     traject = TrajectRegistry()
 
     class int_f:
-        def __init__(self, x):
+        def __init__(self, x: int) -> None:
             self.x = x
 
     class int_f2:
-        def __init__(self, x):
+        def __init__(self, x: int) -> None:
             self.x = x
 
     traject.add_pattern("a/{x}/y", int_f, converters=dict(x=Converter(int)))
@@ -566,50 +572,50 @@ def test_traject_no_type_conflict_middle_end():
     assert True
 
 
-def test_parse_path():
+def test_parse_path() -> None:
     assert parse_path("/a/b/c") == ["a", "b", "c"]
 
 
-def test_parse_path_empty():
+def test_parse_path_empty() -> None:
     assert parse_path("") == []
 
 
-def test_parse_path_slash():
+def test_parse_path_slash() -> None:
     assert parse_path("/") == []
 
 
-def test_parse_path_no_slash():
+def test_parse_path_no_slash() -> None:
     assert parse_path("a/b/c") == ["a", "b", "c"]
 
 
-def test_parse_path_end_slash():
+def test_parse_path_end_slash() -> None:
     assert parse_path("a/b/c/") == ["a", "b", "c"]
 
 
-def test_parse_path_multi_slash():
+def test_parse_path_multi_slash() -> None:
     assert parse_path("/a/b/c") == parse_path("/a//b/c")
     assert parse_path("/a/b/c") == parse_path("/a///b/c")
 
 
-def test_parse_path_dots():
+def test_parse_path_dots() -> None:
     assert parse_path("/a/b/../c") == parse_path("/a/c")
 
 
-def test_parse_path_single_dots():
+def test_parse_path_single_dots() -> None:
     assert parse_path("/a/./b") == parse_path("/a/b")
     assert parse_path("./a/b") == parse_path("/a/b")
 
 
-def test_parse_path_dots_start():
+def test_parse_path_dots_start() -> None:
     assert parse_path("/../a/b") == parse_path("/a/b")
 
 
-def test_create_path():
+def test_create_path() -> None:
     assert create_path(["a", "b", "c"]) == "/a/b/c"
     assert create_path([]) == "/"
 
 
-def test_normalize_path():
+def test_normalize_path() -> None:
     assert normalize_path("/a/..") == "/"
     assert normalize_path("/a/../../../../b") == "/b"
     assert normalize_path("/a/../c") == "/c"
@@ -625,9 +631,9 @@ def test_normalize_path():
     assert normalize_path("/a/b/c/../../d") == "/a/d"
 
 
-def test_identifier():
+def test_identifier() -> None:
     assert is_identifier("a")
-    not is_identifier("")
+    assert not is_identifier("")
     assert is_identifier("a1")
     assert not is_identifier("1")
     assert is_identifier("_")
@@ -636,7 +642,7 @@ def test_identifier():
     assert not is_identifier(".")
 
 
-def test_parse_variables():
+def test_parse_variables() -> None:
     assert parse_variables("No variables") == []
     assert parse_variables("The {foo} is the {bar}.") == ["foo", "bar"]
     with pytest.raises(TrajectError):
@@ -645,7 +651,7 @@ def test_parse_variables():
         parse_variables("{1illegal}")
 
 
-def test_traject_consume():
+def test_traject_consume() -> None:
     class App(morepath.App):
         pass
 
@@ -661,7 +667,7 @@ def test_traject_consume():
     assert r.unconsumed == []
 
 
-def test_traject_consume_parameter():
+def test_traject_consume_parameter() -> None:
     class App(morepath.App):
         pass
 
@@ -670,7 +676,7 @@ def test_traject_consume_parameter():
     traject = App.config.path_registry
 
     class Model:
-        def __init__(self, a):
+        def __init__(self, a: int) -> None:
             self.a = a
 
     traject.add_pattern(
@@ -694,7 +700,7 @@ def test_traject_consume_parameter():
     assert r.unconsumed == []
 
 
-def test_traject_consume_model_factory_gets_request():
+def test_traject_consume_model_factory_gets_request() -> None:
     class App(morepath.App):
         pass
 
@@ -702,12 +708,12 @@ def test_traject_consume_model_factory_gets_request():
 
     traject = App.config.path_registry
 
-    class Model:
-        def __init__(self, info):
+    class MyModel:
+        def __init__(self, info: str) -> None:
             self.info = info
 
-    def get_model(request):
-        return Model(request.method)
+    def get_model(request: morepath.Request) -> MyModel:
+        return MyModel(request.method)
 
     traject.add_pattern("sub", get_model)
 
@@ -717,7 +723,7 @@ def test_traject_consume_model_factory_gets_request():
     assert obj.info == "GET"
 
 
-def test_traject_consume_not_found():
+def test_traject_consume_not_found() -> None:
     class App(morepath.App):
         pass
 
@@ -730,7 +736,7 @@ def test_traject_consume_not_found():
     assert r.unconsumed == ["sub"]
 
 
-def test_traject_consume_factory_returns_none():
+def test_traject_consume_factory_returns_none() -> None:
     class App(morepath.App):
         pass
 
@@ -738,7 +744,7 @@ def test_traject_consume_factory_returns_none():
 
     traject = App.config.path_registry
 
-    def get_model():
+    def get_model() -> None:
         return None
 
     traject.add_pattern("sub", get_model)
@@ -748,7 +754,7 @@ def test_traject_consume_factory_returns_none():
     assert r.unconsumed == []
 
 
-def test_traject_consume_variable():
+def test_traject_consume_variable() -> None:
     class App(morepath.App):
         pass
 
@@ -756,7 +762,7 @@ def test_traject_consume_variable():
 
     traject = App.config.path_registry
 
-    def get_model(foo):
+    def get_model(foo: str) -> Model:
         result = Model()
         result.foo = foo
         return result
@@ -771,7 +777,7 @@ def test_traject_consume_variable():
     assert r.unconsumed == []
 
 
-def test_traject_consume_view():
+def test_traject_consume_view() -> None:
     class App(morepath.App):
         pass
 
@@ -779,7 +785,7 @@ def test_traject_consume_view():
 
     traject = App.config.path_registry
 
-    def get_model(foo):
+    def get_model(foo: str) -> Model:
         result = Model()
         result.foo = foo
         return result
@@ -794,7 +800,7 @@ def test_traject_consume_view():
     assert r.unconsumed == ["+something"]
 
 
-def test_traject_root():
+def test_traject_root() -> None:
     class App(morepath.App):
         pass
 
@@ -810,7 +816,7 @@ def test_traject_root():
     assert r.unconsumed == []
 
 
-def test_traject_consume_combination():
+def test_traject_consume_combination() -> None:
     class App(morepath.App):
         pass
 
@@ -818,7 +824,7 @@ def test_traject_consume_combination():
 
     traject = App.config.path_registry
 
-    def get_model(foo):
+    def get_model(foo: str) -> Model:
         result = Model()
         result.foo = foo
         return result
@@ -838,7 +844,7 @@ def test_traject_consume_combination():
     assert r.unconsumed == []
 
 
-def test_traject_consume_extra_path_variable():
+def test_traject_consume_extra_path_variable() -> None:
     class App(morepath.App):
         pass
 
@@ -846,7 +852,7 @@ def test_traject_consume_extra_path_variable():
 
     traject = App.config.path_registry
 
-    def get_model(foo):
+    def get_model(foo: str) -> Model:
         result = Model()
         result.foo = foo
         return result
@@ -860,7 +866,7 @@ def test_traject_consume_extra_path_variable():
         traject.consume(r)
 
 
-def test_traject_nested():
+def test_traject_nested() -> None:
     class App(morepath.App):
         pass
 
@@ -881,7 +887,7 @@ def test_traject_nested():
     assert r.unconsumed == []
 
 
-def test_traject_nested_not_resolved_entirely_by_consumer():
+def test_traject_nested_not_resolved_entirely_by_consumer() -> None:
     class App(morepath.App):
         pass
 
@@ -901,7 +907,7 @@ def test_traject_nested_not_resolved_entirely_by_consumer():
     assert r.unconsumed == ["b"]
 
 
-def test_traject_nested_with_variable():
+def test_traject_nested_with_variable() -> None:
     class App(morepath.App):
         pass
 
@@ -909,12 +915,12 @@ def test_traject_nested_with_variable():
 
     traject = App.config.path_registry
 
-    def get_model(id):
+    def get_model(id: str) -> Model:
         result = Model()
         result.id = id
         return result
 
-    def get_special(id):
+    def get_special(id: str) -> Special:
         result = Special()
         result.id = id
         return result
@@ -938,7 +944,7 @@ def test_traject_nested_with_variable():
     assert r.unconsumed == []
 
 
-def test_traject_with_multiple_variables():
+def test_traject_with_multiple_variables() -> None:
     class App(morepath.App):
         pass
 
@@ -946,12 +952,12 @@ def test_traject_with_multiple_variables():
 
     traject = App.config.path_registry
 
-    def get_model(first_id):
+    def get_model(first_id: str) -> Model:
         result = Model()
         result.first_id = first_id
         return result
 
-    def get_special(first_id, second_id):
+    def get_special(first_id: str, second_id: str) -> Special:
         result = Special()
         result.first_id = first_id
         result.second_id = second_id
@@ -975,20 +981,20 @@ def test_traject_with_multiple_variables():
     assert r.unconsumed == []
 
 
-def test_traject_no_concecutive_variables():
+def test_traject_no_concecutive_variables() -> None:
     traject = TrajectRegistry()
 
-    def f():
+    def f() -> None:
         pass
 
     with pytest.raises(TrajectError):
         traject.add_pattern("{foo}{bar}", f)
 
 
-def test_traject_no_duplicate_variables():
+def test_traject_no_duplicate_variables() -> None:
     traject = TrajectRegistry()
 
-    def f():
+    def f() -> None:
         pass
 
     with pytest.raises(TrajectError):
@@ -997,29 +1003,29 @@ def test_traject_no_duplicate_variables():
         traject.add_pattern("{foo}/{foo}", f)
 
 
-def test_interpolation_str():
+def test_interpolation_str() -> None:
     assert Path("{foo} is {bar}").interpolation_str() == "%(foo)s is %(bar)s"
 
 
-def test_path_discriminator():
+def test_path_discriminator() -> None:
     p = Path("/foo/{x}/bar/{y}")
     assert p.discriminator() == "foo/{}/bar/{}"
 
 
-def test_empty_parameter_factory():
+def test_empty_parameter_factory() -> None:
     get_parameters = ParameterFactory({}, {}, [])
     assert get_parameters(req("")) == {}
     # unexpected parameter is ignored
     assert get_parameters(req("?a=A")) == {}
 
 
-def test_single_parameter():
+def test_single_parameter() -> None:
     get_parameters = ParameterFactory({"a": None}, {"a": Converter(str)}, [])
     assert get_parameters(req("?a=A")) == {"a": "A"}
     assert get_parameters(req("")) == {"a": None}
 
 
-def test_single_parameter_int():
+def test_single_parameter_int() -> None:
     get_parameters = ParameterFactory({"a": None}, {"a": Converter(int)}, [])
     assert get_parameters(req("?a=1")) == {"a": 1}
     assert get_parameters(req("")) == {"a": None}
@@ -1027,13 +1033,13 @@ def test_single_parameter_int():
         get_parameters(req("?a=A"))
 
 
-def test_single_parameter_default():
+def test_single_parameter_default() -> None:
     get_parameters = ParameterFactory({"a": "default"}, {}, [])
     assert get_parameters(req("?a=A")) == {"a": "A"}
     assert get_parameters(req("")) == {"a": "default"}
 
 
-def test_single_parameter_int_default():
+def test_single_parameter_int_default() -> None:
     get_parameters = ParameterFactory({"a": 0}, {"a": Converter(int)}, [])
     assert get_parameters(req("?a=1")) == {"a": 1}
     assert get_parameters(req("")) == {"a": 0}
@@ -1041,14 +1047,14 @@ def test_single_parameter_int_default():
         get_parameters(req("?a=A"))
 
 
-def test_parameter_required():
+def test_parameter_required() -> None:
     get_parameters = ParameterFactory({"a": None}, {}, ["a"])
     assert get_parameters(req("?a=foo")) == {"a": "foo"}
     with pytest.raises(HTTPBadRequest):
         get_parameters(req(""))
 
 
-def test_extra_parameters():
+def test_extra_parameters() -> None:
     get_parameters = ParameterFactory({"a": None}, {}, [], True)
     assert get_parameters(req("?a=foo")) == {"a": "foo", "extra_parameters": {}}
     assert get_parameters(req("?b=foo")) == {

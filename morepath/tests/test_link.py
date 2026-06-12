@@ -1,11 +1,20 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, TypeAlias
+
 import pytest
 
 from morepath.app import App
 from morepath.converter import Converter
 
+if TYPE_CHECKING:
+    from morepath.path import PathRegistry
+
+    Info: TypeAlias = tuple[App, PathRegistry]
+
 
 @pytest.fixture
-def info():
+def info() -> Info:
     class MyApp(App):
         pass
 
@@ -16,108 +25,115 @@ def info():
     return app, r
 
 
-def test_path_without_variables(info):
+def test_path_without_variables(info: Info) -> None:
     app, r = info
 
     class Foo:
         pass
 
     r.register_inverse_path(model=Foo, path="/", factory_args=set())
-    info = app._get_path(Foo())
-    assert info.path == ""
-    assert info.parameters == {}
+    path_info = app._get_path(Foo())
+    assert path_info is not None
+    assert path_info.path == ""
+    assert path_info.parameters == {}
 
 
-def test_path_with_variables(info):
+def test_path_with_variables(info: Info) -> None:
     app, r = info
 
     class Foo:
-        def __init__(self, name):
+        def __init__(self, name: str) -> None:
             self.name = name
 
     r.register_path_variables(Foo, lambda obj: {"name": obj.name})
     r.register_inverse_path(
         model=Foo, path="/foos/{name}", factory_args={"name"}
     )
-    info = app._get_path(Foo("a"))
-    assert info.path == "foos/a"
-    assert info.parameters == {}
+    path_info = app._get_path(Foo("a"))
+    assert path_info is not None
+    assert path_info.path == "foos/a"
+    assert path_info.parameters == {}
 
 
-def test_path_with_default_variables(info):
+def test_path_with_default_variables(info: Info) -> None:
     app, r = info
 
     class Foo:
-        def __init__(self, name):
+        def __init__(self, name: str) -> None:
             self.name = name
 
     r.register_inverse_path(
         model=Foo, path="/foos/{name}", factory_args={"name"}
     )
-    info = app._get_path(Foo("a"))
-    assert info.path == "foos/a"
-    assert info.parameters == {}
+    path_info = app._get_path(Foo("a"))
+    assert path_info is not None
+    assert path_info.path == "foos/a"
+    assert path_info.parameters == {}
 
 
-def test_path_with_parameters(info):
+def test_path_with_parameters(info: Info) -> None:
     app, r = info
 
     class Foo:
-        def __init__(self, name):
+        def __init__(self, name: str) -> None:
             self.name = name
 
     r.register_path_variables(Foo, lambda obj: {"name": obj.name})
     r.register_inverse_path(model=Foo, path="/foos", factory_args={"name"})
-    info = app._get_path(Foo("a"))
-    assert info.path == "foos"
-    assert info.parameters == {"name": ["a"]}
+    path_info = app._get_path(Foo("a"))
+    assert path_info is not None
+    assert path_info.path == "foos"
+    assert path_info.parameters == {"name": ["a"]}
 
 
-def test_class_path_without_variables(info):
+def test_class_path_without_variables(info: Info) -> None:
     app, r = info
 
     class Foo:
         pass
 
     r.register_inverse_path(model=Foo, path="/", factory_args=set())
-    info = app._class_path(Foo, {})
-    assert info.path == ""
-    assert info.parameters == {}
+    path_info = app._class_path(Foo, {})
+    assert path_info is not None
+    assert path_info.path == ""
+    assert path_info.parameters == {}
 
 
-def test_class_path_with_variables(info):
+def test_class_path_with_variables(info: Info) -> None:
     app, r = info
 
     class Foo:
-        def __init__(self, name):
+        def __init__(self, name: str) -> None:
             self.name = name
 
     r.register_inverse_path(
         model=Foo, path="/foos/{name}", factory_args={"name"}
     )
-    info = app._class_path(Foo, {"name": "a"})
-    assert info.path == "foos/a"
-    assert info.parameters == {}
+    path_info = app._class_path(Foo, {"name": "a"})
+    assert path_info is not None
+    assert path_info.path == "foos/a"
+    assert path_info.parameters == {}
 
 
-def test_class_path_with_parameters(info):
+def test_class_path_with_parameters(info: Info) -> None:
     app, r = info
 
     class Foo:
-        def __init__(self, name):
+        def __init__(self, name: str) -> None:
             self.name = name
 
     r.register_inverse_path(model=Foo, path="/foos", factory_args={"name"})
-    info = app._class_path(Foo, {"name": "a"})
-    assert info.path == "foos"
-    assert info.parameters == {"name": ["a"]}
+    path_info = app._class_path(Foo, {"name": "a"})
+    assert path_info is not None
+    assert path_info.path == "foos"
+    assert path_info.parameters == {"name": ["a"]}
 
 
-def test_class_path_variables_with_converters(info):
+def test_class_path_variables_with_converters(info: Info) -> None:
     app, r = info
 
     class Foo:
-        def __init__(self, value):
+        def __init__(self, value: int) -> None:
             self.value = value
 
     r.register_inverse_path(
@@ -126,16 +142,17 @@ def test_class_path_variables_with_converters(info):
         factory_args={"value"},
         converters={"value": Converter(int)},
     )
-    info = app._class_path(Foo, {"value": 1})
-    assert info.path == "foos/1"
-    assert info.parameters == {}
+    path_info = app._class_path(Foo, {"value": 1})
+    assert path_info is not None
+    assert path_info.path == "foos/1"
+    assert path_info.parameters == {}
 
 
-def test_class_path_parameters_with_converters(info):
+def test_class_path_parameters_with_converters(info: Info) -> None:
     app, r = info
 
     class Foo:
-        def __init__(self, value):
+        def __init__(self, value: int) -> None:
             self.value = value
 
     r.register_inverse_path(
@@ -144,12 +161,13 @@ def test_class_path_parameters_with_converters(info):
         factory_args={"value"},
         converters={"value": Converter(int)},
     )
-    info = app._class_path(Foo, {"value": 1})
-    assert info.path == "foos"
-    assert info.parameters == {"value": ["1"]}
+    path_info = app._class_path(Foo, {"value": 1})
+    assert path_info is not None
+    assert path_info.path == "foos"
+    assert path_info.parameters == {"value": ["1"]}
 
 
-def test_class_path_absorb(info):
+def test_class_path_absorb(info: Info) -> None:
     app, r = info
 
     class Foo:
@@ -158,24 +176,26 @@ def test_class_path_absorb(info):
     r.register_inverse_path(
         model=Foo, path="/foos", factory_args=set(), absorb=True
     )
-    info = app._class_path(Foo, {"absorb": "bar"})
-    assert info.path == "foos/bar"
-    assert info.parameters == {}
+    path_info = app._class_path(Foo, {"absorb": "bar"})
+    assert path_info is not None
+    assert path_info.path == "foos/bar"
+    assert path_info.parameters == {}
 
 
-def test_class_path_extra_parameters(info):
+def test_class_path_extra_parameters(info: Info) -> None:
     app, r = info
 
     class Foo:
         pass
 
     r.register_inverse_path(model=Foo, path="/foos", factory_args=set())
-    info = app._class_path(Foo, {"extra_parameters": {"a": "A", "b": "B"}})
-    assert info.path == "foos"
-    assert info.parameters == {"a": ["A"], "b": ["B"]}
+    path_info = app._class_path(Foo, {"extra_parameters": {"a": "A", "b": "B"}})
+    assert path_info is not None
+    assert path_info.path == "foos"
+    assert path_info.parameters == {"a": ["A"], "b": ["B"]}
 
 
-def test_class_path_extra_parameters_convert(info):
+def test_class_path_extra_parameters_convert(info: Info) -> None:
     app, r = info
 
     class Foo:
@@ -187,6 +207,7 @@ def test_class_path_extra_parameters_convert(info):
         factory_args=set(),
         converters={"a": Converter(int)},
     )
-    info = app._class_path(Foo, {"extra_parameters": {"a": 1, "b": "B"}})
-    assert info.path == "foos"
-    assert info.parameters == {"a": ["1"], "b": ["B"]}
+    path_info = app._class_path(Foo, {"extra_parameters": {"a": 1, "b": "B"}})
+    assert path_info is not None
+    assert path_info.path == "foos"
+    assert path_info.parameters == {"a": ["1"], "b": ["B"]}

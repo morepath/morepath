@@ -20,9 +20,12 @@ subclass of :class:`morepath.App`. We do not guarantee we won't break
 your code with future version of Morepath if you do that, though.
 """
 
+from __future__ import annotations
+
 import re
 from datetime import date, datetime
 from time import mktime, strptime
+from typing import TYPE_CHECKING
 
 from webob.exc import (
     HTTPBadRequest,
@@ -38,9 +41,15 @@ from reg import ClassIndex, KeyIndex
 from .app import App
 from .converter import IDENTITY_CONVERTER, Converter
 
+if TYPE_CHECKING:
+    from webob import Response as BaseResponse
+
+    from .request import Request
+    from .types import Tween
+
 
 @App.predicate(App.get_view, name="model", default=None, index=ClassIndex)
-def model_predicate(self, obj, request):
+def model_predicate(self: App, obj: object, request: Request) -> type[object]:
     """match model argument by class.
 
     Predicate for :meth:`morepath.App.view`.
@@ -49,7 +58,7 @@ def model_predicate(self, obj, request):
 
 
 @App.predicate_fallback(App.get_view, model_predicate)
-def model_not_found(self, obj, request):
+def model_not_found(self: App, obj: object, request: Request) -> HTTPNotFound:
     """if model not matched, HTTP 404.
 
     Fallback for :meth:`morepath.App.view`.
@@ -60,7 +69,7 @@ def model_not_found(self, obj, request):
 @App.predicate(
     App.get_view, name="name", default="", index=KeyIndex, after=model_predicate
 )
-def name_predicate(self, obj, request):
+def name_predicate(self: App, obj: object, request: Request) -> str | None:
     """match name argument with request.view_name.
 
     Predicate for :meth:`morepath.App.view`.
@@ -69,7 +78,7 @@ def name_predicate(self, obj, request):
 
 
 @App.predicate_fallback(App.get_view, name_predicate)
-def name_not_found(self, obj, request):
+def name_not_found(self: App, obj: object, request: Request) -> HTTPNotFound:
     """if name not matched, HTTP 404.
 
     Fallback for :meth:`morepath.App.view`.
@@ -84,7 +93,7 @@ def name_not_found(self, obj, request):
     index=KeyIndex,
     after=name_predicate,
 )
-def request_method_predicate(self, obj, request):
+def request_method_predicate(self: App, obj: object, request: Request) -> str:
     """match request method.
 
     Predicate for :meth:`morepath.App.view`.
@@ -93,7 +102,9 @@ def request_method_predicate(self, obj, request):
 
 
 @App.predicate_fallback(App.get_view, request_method_predicate)
-def method_not_allowed(self, obj, request):
+def method_not_allowed(
+    self: App, obj: object, request: Request
+) -> HTTPMethodNotAllowed:
     """if request predicate not matched, method not allowed.
 
     Fallback for :meth:`morepath.App.view`.
@@ -102,47 +113,47 @@ def method_not_allowed(self, obj, request):
 
 
 @App.converter(type=int)
-def int_converter():
+def int_converter() -> Converter[int]:
     """Converter for int."""
     return Converter(int)
 
 
 @App.converter(type=str)
-def unicode_converter():
+def unicode_converter() -> Converter[str]:
     """Converter for text."""
     return IDENTITY_CONVERTER
 
 
-def date_decode(s):
+def date_decode(s: str) -> date:
     return date.fromtimestamp(mktime(strptime(s, "%Y%m%d")))
 
 
-def date_encode(d):
+def date_encode(d: date) -> str:
     return d.strftime("%Y%m%d")
 
 
 @App.converter(type=date)
-def date_converter():
+def date_converter() -> Converter[date]:
     """Converter for date."""
     return Converter(date_decode, date_encode)
 
 
-def datetime_decode(s):
+def datetime_decode(s: str) -> datetime:
     return datetime.fromtimestamp(mktime(strptime(s, "%Y%m%dT%H%M%S")))
 
 
-def datetime_encode(d):
+def datetime_encode(d: datetime) -> str:
     return d.strftime("%Y%m%dT%H%M%S")
 
 
 @App.converter(type=datetime)
-def datetime_converter():
+def datetime_converter() -> Converter[datetime]:
     """Converter for datetime."""
     return Converter(datetime_decode, datetime_encode)
 
 
 @App.tween_factory()
-def excview_tween_factory(app, handler):
+def excview_tween_factory(app: App, handler: Tween) -> Tween:
     """Exception views.
 
     If an exception is raised by application code and a view is
@@ -152,7 +163,7 @@ def excview_tween_factory(app, handler):
     500 internal server error and an exception logged.
     """
 
-    def excview_tween(request):
+    def excview_tween(request: Request) -> BaseResponse:
         try:
             response = handler(request)
         except Exception as exc:
@@ -177,7 +188,9 @@ def excview_tween_factory(app, handler):
 
 
 @App.tween_factory(over=excview_tween_factory)
-def poisoned_host_header_protection_tween_factory(app, handler):
+def poisoned_host_header_protection_tween_factory(
+    app: App, handler: Tween
+) -> Tween:
     """Protect Morepath applications against the most basic host header
     poisoning attacts.
 
@@ -194,7 +207,7 @@ def poisoned_host_header_protection_tween_factory(app, handler):
         r"^([a-z0-9.\-_]+|\[[a-f0-9]*:[a-f0-9:]+\])(:\d+)?$"
     )
 
-    def poisoned_host_header_protection_tween(request):
+    def poisoned_host_header_protection_tween(request: Request) -> BaseResponse:
         if not valid_host_re.match(request.host.lower()):
             return HTTPBadRequest("Invalid HOST header")
 
@@ -204,7 +217,9 @@ def poisoned_host_header_protection_tween_factory(app, handler):
 
 
 @App.view(model=HTTPException)
-def standard_exception_view(self, request):
+def standard_exception_view(
+    self: HTTPException, request: Request
+) -> HTTPException:
     """We want the webob standard responses for any webob-based HTTP exception.
 
     Applies to subclasses of :class:`webob.HTTPException`.
