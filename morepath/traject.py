@@ -28,8 +28,11 @@ https://littledev.nl/blog/2015-01-13-url-routing
 
 """
 
+from __future__ import annotations
+
 import re
 from functools import total_ordering
+from typing import TYPE_CHECKING, Any
 
 from webob.exc import HTTPBadRequest
 
@@ -37,6 +40,14 @@ from reg import arginfo
 
 from .converter import IDENTITY_CONVERTER
 from .error import TrajectError
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Collection
+
+    from dectate import CodeInfo
+
+    from .request import Request
+    from .types import AnyConverter
 
 IDENTIFIER = re.compile(r"^[^\d\W]\w*$")
 """regex for a valid variable name in a route.
@@ -58,7 +69,9 @@ class Step:
     :param converters: dict of converters for variables.
     """
 
-    def __init__(self, s, converters=None):
+    def __init__(
+        self, s: str, converters: dict[str, AnyConverter] | None = None
+    ) -> None:
         self.s = s
         self.converters = converters or {}
         self.generalized = generalize_variables(s)
@@ -75,7 +88,7 @@ class Step:
             ("%(" + name + ")s") for name in self.names
         )
 
-    def validate(self):
+    def validate(self) -> None:
         """Validate whether step makes sense.
 
         Raises :class:`morepath.error.TrajectError` if there is a problem
@@ -84,7 +97,7 @@ class Step:
         self.validate_parts()
         self.validate_variables()
 
-    def validate_parts(self):
+    def validate_parts(self) -> None:
         """Check whether all non-variable parts of the segment are valid.
 
         Raises :class:`morepath.error.TrajectError` if there is a problem
@@ -95,7 +108,7 @@ class Step:
             if "{" in part or "}" in part:
                 raise TrajectError("invalid step: %s" % self.s)
 
-    def validate_variables(self):
+    def validate_variables(self) -> None:
         """Check whether all variables of the segment are valid.
 
         Raises :class:`morepath.error.TrajectError` if there is a problem
@@ -110,15 +123,15 @@ class Step:
             if part == "":
                 raise TrajectError("illegal consecutive variables: %s" % self.s)
 
-    def discriminator_info(self):
+    def discriminator_info(self) -> str:
         """Information needed to construct path discriminator."""
         return self.generalized
 
-    def has_variables(self):
+    def has_variables(self) -> bool:
         """True if there are any variables in this step."""
         return bool(self.names)
 
-    def match(self, s, variables):
+    def match(self, s: str, variables: dict[str, Any]) -> bool:
         """Match this step with actual path segment.
 
         :param s: path segment to match with
@@ -139,19 +152,23 @@ class Step:
                 return False
         return True
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """True if this step is the same as another."""
+        if not isinstance(other, self.__class__):
+            return False
         if self.s != other.s:
             return False
         return self.cmp_converters == other.cmp_converters
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         """True if this step is not equal to another."""
+        if not isinstance(other, self.__class__):
+            return True
         if self.s != other.s:
             return True
         return self.cmp_converters != other.cmp_converters
 
-    def __lt__(self, other):
+    def __lt__(self, other: Step) -> bool:
         """Used for inserting steps in correct place in the tree.
 
         The order in which a step is inserted into the tree compared
@@ -181,19 +198,21 @@ class Step:
 class Node:
     """A node in the traject tree."""
 
-    def __init__(self):
-        self._name_nodes = {}
-        self._variable_nodes = []
+    def __init__(self) -> None:
+        self._name_nodes: dict[str, StepNode] = {}
+        self._variable_nodes: list[StepNode] = []
         self.absorb = False
-        self.create = lambda variables, request: None
+        self.create: Callable[[dict[str, Any], Request], Any] = (
+            lambda variables, request: None
+        )
 
-    def add(self, step):
+    def add(self, step: Step) -> StepNode:
         """Add a step into the tree as a child node of this node."""
         if not step.has_variables():
             return self.add_name_node(step)
         return self.add_variable_node(step)
 
-    def add_name_node(self, step):
+    def add_name_node(self, step: Step) -> StepNode:
         """Add a step into the tree as a node that doesn't match variables."""
         node = self._name_nodes.get(step.s)
         if node is not None:
@@ -202,7 +221,7 @@ class Node:
         self._name_nodes[step.s] = node
         return node
 
-    def add_variable_node(self, step):
+    def add_variable_node(self, step: Step) -> StepNode:
         """Add a step into the tree as a node that matches variables."""
         for i, node in enumerate(self._variable_nodes):
             if node.step == step:
@@ -220,7 +239,9 @@ class Node:
         self._variable_nodes.append(result)
         return result
 
-    def resolve(self, segment, variables):
+    def resolve(
+        self, segment: str, variables: dict[str, Any]
+    ) -> StepNode | None:
         """Match a path segment, traversing this node.
 
         Matches non-variable nodes before nodes with variables in them.
@@ -247,11 +268,11 @@ class StepNode(Node):
     :param step: the step
     """
 
-    def __init__(self, step):
+    def __init__(self, step: Step) -> None:
         super().__init__()
         self.step = step
 
-    def match(self, segment, variables):
+    def match(self, segment: str, variables: dict[str, Any]) -> bool:
         """Match a segment with the step."""
         return self.step.match(segment, variables)
 
@@ -267,48 +288,45 @@ class Path:
     :param path: the route.
     """
 
-    def __init__(self, path):
+    def __init__(self, path: str) -> None:
         self.steps = [Step(segment) for segment in parse_path(path)]
 
-    def discriminator(self):
+    def discriminator(self) -> str:
         """Creates a unique discriminator for the path."""
-        return "/".join([step.discriminator_info() for step in self.steps])
+        return "/".join(step.discriminator_info() for step in self.steps)
 
-    def interpolation_str(self):
+    def interpolation_str(self) -> str:
         """Create a string for interpolating variables.
 
         Used for link generation (inverse).
         """
-        return "/".join([step.named_interpolation_str for step in self.steps])
+        return "/".join(step.named_interpolation_str for step in self.steps)
 
-    def variables(self):
+    def variables(self) -> set[str]:
         """Get the variables used by the path.
 
-        :return: a list of variable names
+        :return: a set of variable names
         """
-        result = []
-        for step in self.steps:
-            result.extend(step.names)
-        return set(result)
+        return {name for step in self.steps for name in step.names}
 
 
 class TrajectRegistry:
     """Tree of route steps."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._root = Node()
 
     def add_pattern(
         self,
-        path,
-        model_factory,
-        defaults=None,
-        converters=None,
-        absorb=False,
-        required=None,
-        extra=None,
-        code_info=None,
-    ):
+        path: str,
+        model_factory: Callable[..., Any],
+        defaults: dict[str, Any] | None = None,
+        converters: dict[str, AnyConverter] | None = None,
+        absorb: bool = False,
+        required: Collection[str] | None = None,
+        extra: bool = False,
+        code_info: CodeInfo | None = None,
+    ) -> None:
         """Add a route to the tree.
 
         :param path: route to add.
@@ -324,7 +342,7 @@ class TrajectRegistry:
 
         """
         node = self._root
-        known_variables = set()
+        known_variables: set[str] = set()
         for segment in parse_path(path):
             step = Step(segment, converters)
             node = node.add(step)
@@ -332,18 +350,22 @@ class TrajectRegistry:
             if known_variables.intersection(variables):
                 raise TrajectError("Duplicate variables")
             known_variables.update(variables)
+
+        parameter_factory: Callable[[Request], dict[str, Any]]
         if defaults or converters or required or extra:
             parameter_factory = ParameterFactory(
-                defaults, converters, required, extra
+                defaults, converters or {}, required or (), extra
             )
         else:
             parameter_factory = _simple_parameter_factory
 
-        model_args = set(arginfo(model_factory).args)
+        info = arginfo(model_factory)
+        assert info is not None
+        model_args = set(info.args)
         wants_request = "request" in model_args
         wants_app = "app" in model_args
 
-        def create(path_variables, request):
+        def create(path_variables: dict[str, Any], request: Request) -> Any:
             variables = parameter_factory(request)
             if wants_request:
                 variables["request"] = request
@@ -356,7 +378,7 @@ class TrajectRegistry:
         node.create = create
         node.absorb = absorb
 
-    def consume(self, request):
+    def consume(self, request: Request) -> Any:
         """Consume a stack given route, returning object.
 
         Removes the successfully consumed path segments from
@@ -411,15 +433,21 @@ class ParameterFactory:
     :param extra: should extra unknown parameters be included?
     """
 
-    def __init__(self, parameters, converters, required, extra=False):
+    def __init__(
+        self,
+        parameters: dict[str, Any] | None,
+        converters: dict[str, Any],
+        required: Collection[str],
+        extra: bool = False,
+    ) -> None:
         self.parameters = parameters
         self.converters = converters
         self.required = required
         self.extra = extra
 
-    def __call__(self, request):
+    def __call__(self, request: Request) -> dict[str, Any]:
         """Convert URL parameters to Python dictionary with values."""
-        result = {}
+        result: dict[str, Any] = {}
         # it's possible we are not actually interested in parameters
         # but this parameter factory is used as we defined converters
         if not self.parameters:
@@ -446,7 +474,7 @@ class ParameterFactory:
             return result
 
         remaining = set(url_parameters.keys()).difference(set(result.keys()))
-        extra = {}
+        extra: dict[str, str] = {}
         for name in remaining:
             value = url_parameters.getall(name)
             converter = self.converters.get(name, IDENTITY_CONVERTER)
@@ -460,11 +488,11 @@ class ParameterFactory:
         return result
 
 
-def _simple_parameter_factory(request):
+def _simple_parameter_factory(request: Request) -> dict[str, Any]:
     return {}
 
 
-def create_path(segments):
+def create_path(segments: list[str]) -> str:
     """Builds a path from a list of segments.
 
     :param stack: a list of segments
@@ -473,7 +501,7 @@ def create_path(segments):
     return "/" + "/".join(segments)
 
 
-def parse_path(path):
+def parse_path(path: str) -> list[str]:
     """Parses path, creates normalized segment list.
 
     Dots are collapsed:
@@ -485,7 +513,7 @@ def parse_path(path):
     :return: normalized list of path segments.
     """
     segments = path.split("/")
-    result = []
+    result: list[str] = []
     for segment in segments:
         if not segment or segment == ".":
             continue
@@ -499,7 +527,7 @@ def parse_path(path):
     return result
 
 
-def normalize_path(path):
+def normalize_path(path: str) -> str:
     """Converts path into normalized path.
 
     Rules:
@@ -530,7 +558,7 @@ def normalize_path(path):
     return create_path(parse_path(path))
 
 
-def is_identifier(s):
+def is_identifier(s: str) -> bool:
     """Check whether a variable name is a proper identifier.
 
     :param s: variable
@@ -539,7 +567,7 @@ def is_identifier(s):
     return IDENTIFIER.match(s) is not None
 
 
-def parse_variables(s):
+def parse_variables(s: str) -> list[str]:
     """Parse variables out of a segment.
 
     Raised a :class:`morepath.error.TrajectError` if a variable
@@ -555,20 +583,20 @@ def parse_variables(s):
     return result
 
 
-def create_variables_re(s):
+def create_variables_re(s: str) -> re.Pattern[str]:
     """Create regular expression that matches variables from route segment.
 
     :param s: a route segment with variables in it.
     :return: a regular expression that matches with variables for the route.
     """
 
-    def _repl(m):
+    def _repl(m: re.Match[str]) -> str:
         return "(?P<%s>.+)" % m.group(0)[1:-1]
 
     return re.compile("^" + PATH_VARIABLE.sub(_repl, s) + "$")
 
 
-def generalize_variables(s):
+def generalize_variables(s: str) -> str:
     """Generalize a route segment.
 
     :param s: a route segment.
@@ -577,7 +605,7 @@ def generalize_variables(s):
     return PATH_VARIABLE.sub("{}", s)
 
 
-def interpolation_str(s):
+def interpolation_str(s: str) -> str:
     """Create a Python string with interpolation variables for a route segment.
 
     Given ``a{foo}b``, creates ``a%sb``.

@@ -10,11 +10,22 @@ predicates.
 See also :class:`morepath.directive.PredicateRegistry`
 """
 
+from __future__ import annotations
+
 from collections import defaultdict
+from typing import TYPE_CHECKING, Any
 
 from reg import Predicate
 
 from .toposort import Info, toposorted
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from reg.predicate import KeyIndex
+    from reg.types import DispatchCall
+
+    from .app import App
 
 
 class PredicateRegistry:
@@ -26,14 +37,26 @@ class PredicateRegistry:
 
     app_class_arg = True
 
-    def __init__(self, app_class):
+    def __init__(self, app_class: type[App]) -> None:
         self.app_class = app_class
-        self._predicate_infos = defaultdict(list)
-        self._predicate_fallbacks = defaultdict(dict)
+        self._predicate_infos: dict[
+            DispatchCall[..., Any], list[PredicateInfo]
+        ] = defaultdict(list)
+        self._predicate_fallbacks: dict[
+            DispatchCall[..., Any] | str,
+            dict[Callable[..., Any] | str, Callable[..., Any]],
+        ] = defaultdict(dict)
 
     def register_predicate(
-        self, func, dispatch, name, default, index, before, after
-    ):
+        self,
+        func: Callable[..., Any],
+        dispatch: DispatchCall[..., Any],
+        name: str,
+        default: Any,
+        index: Callable[[Callable[..., Any] | None], KeyIndex],
+        before: Callable[..., Any] | None,
+        after: Callable[..., Any] | None,
+    ) -> None:
         """Register a predicate for installation into the reg registry.
 
         See :meth:`morepath.App.predicate` for details.
@@ -49,7 +72,12 @@ class PredicateRegistry:
         info = PredicateInfo(func, name, default, index, before, after)
         self._predicate_infos[dispatch].append(info)
 
-    def register_predicate_fallback(self, dispatch, func, fallback_func):
+    def register_predicate_fallback(
+        self,
+        dispatch: DispatchCall[..., Any] | str,
+        func: Callable[..., Any] | str,
+        fallback_func: Callable[..., Any],
+    ) -> None:
         """Register a predicate fallback for installation into reg registry.
 
         See :meth:`morepath.App.predicate_fallback` for details.
@@ -60,7 +88,7 @@ class PredicateRegistry:
         """
         self._predicate_fallbacks[dispatch][func] = fallback_func
 
-    def install_predicates(self):
+    def install_predicates(self) -> None:
         """Install the predicates with reg.
 
         This should be called during configuration once all predicates
@@ -73,7 +101,9 @@ class PredicateRegistry:
                 self.get_predicates(dispatch)
             )
 
-    def get_predicates(self, dispatch):
+    def get_predicates(
+        self, dispatch: DispatchCall[..., Any]
+    ) -> list[Predicate]:
         """Create Reg predicates.
 
         This creates :class:`reg.Predicate` objects for a particular
@@ -101,7 +131,9 @@ class PredicateRegistry:
             result.append(predicate)
         return result
 
-    def sorted_predicate_infos(self, dispatch):
+    def sorted_predicate_infos(
+        self, dispatch: DispatchCall[..., Any]
+    ) -> list[PredicateInfo]:
         """Topologically sort predicate infos for a dispatch function.
 
         :param dispatch: the dispatch function to sort for.
@@ -110,21 +142,29 @@ class PredicateRegistry:
         return toposorted(self._predicate_infos[dispatch])
 
 
-def adapt(func):
-    def wrapper(d):
+def adapt(func: Callable[..., Any]) -> Callable[[dict[str, Any]], Any]:
+    def wrapper(d: dict[str, Any]) -> Any:
         return func(**d)
 
     return wrapper
 
 
-class PredicateInfo(Info):
+class PredicateInfo(Info["Callable[..., Any]"]):
     """Used by :class:`PredicateRegistry` internally.
 
     Is used to store registration information on a predicate
     before it is registered with Reg.
     """
 
-    def __init__(self, func, name, default, index, before, after):
+    def __init__(
+        self,
+        func: Callable[..., Any],
+        name: str,
+        default: Any,
+        index: Callable[[Callable[..., Any] | None], KeyIndex],
+        before: Callable[..., Any] | None,
+        after: Callable[..., Any] | None,
+    ):
         super().__init__(func, before, after)
         self.func = func
         self.name = name

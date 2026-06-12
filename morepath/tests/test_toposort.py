@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from morepath.toposort import Info, toposorted
 
 
-def test_toposorted_single_before_after():
+def test_toposorted_single_before_after() -> None:
     a = Info(1, None, None)
     b = Info(2, 1, None)
     c = Info(3, None, 1)
@@ -18,7 +20,7 @@ def test_toposorted_single_before_after():
     assert toposorted(infos) == [c, a, b]
 
 
-def test_toposorted_multi_before_after():
+def test_toposorted_multi_before_after() -> None:
     a = Info(1, None, None)
     b = Info(2, [1], None)
     c = Info(3, None, [1, 2])

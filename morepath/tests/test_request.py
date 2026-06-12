@@ -1,9 +1,19 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from webtest import TestApp as Client
 
 from morepath import App, render_json
 
+if TYPE_CHECKING:
+    from webob import Response as BaseResponse
 
-def test_request_reset():
+    from morepath import Request
+    from morepath.types import Tween
+
+
+def test_request_reset() -> None:
     # In order to  verify the behaviour of Request.reset  we issue the
     # same request three times:
     #
@@ -24,8 +34,8 @@ def test_request_reset():
         pass
 
     @RootApp.tween_factory()
-    def report_error(app, handler):
-        def tween(request):
+    def report_error(app: RootApp, handler: Tween) -> Tween:
+        def tween(request: Request) -> BaseResponse:
             try:
                 response = handler(request)
                 response.headers["Tween-Header"] = "FOO"
@@ -53,7 +63,7 @@ def test_request_reset():
         pass
 
     @MountedApp.view(model=Catalog, name="text")
-    def view_catalog(self, request):
+    def view_catalog(self: Catalog, request: Request) -> str:
         if generate_error:
             raise RuntimeError("Error!")
         return "The catalog"

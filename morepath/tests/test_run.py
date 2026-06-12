@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import errno
 import re
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -7,8 +10,16 @@ import morepath
 
 from .fixtures import basic
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from wsgiref.simple_server import WSGIServer
 
-def test_run_port_out_of_range(mockserver, capsys):
+    from .conftest import MockServer
+
+
+def test_run_port_out_of_range(
+    mockserver: MockServer, capsys: pytest.CaptureFixture[str]
+) -> None:
     "Fail gracefully if the port is out of range."
     mockserver.set_argv(["--port", "-3"])
 
@@ -16,17 +27,16 @@ def test_run_port_out_of_range(mockserver, capsys):
 
     out, err = capsys.readouterr()
 
-    assert (
-        err
-        == """\
+    assert err == """\
 usage: script-name [-h] [-p PORT] [-H HOST]
 script-name: error: argument -p/--port: invalid integer in 0..65535 value: '-3'
 """
-    )
     assert out == ""
 
 
-def test_run_socketerror(mockserver, capsys):
+def test_run_socketerror(
+    mockserver: MockServer, capsys: pytest.CaptureFixture[str]
+) -> None:
     """Fail gracefully on a socket error.
 
     In this case the error is triggered by listening on example.com.
@@ -43,7 +53,9 @@ def test_run_socketerror(mockserver, capsys):
     assert out == ""
 
 
-def test_run_defaults(mockserver, capsys):
+def test_run_defaults(
+    mockserver: MockServer, capsys: pytest.CaptureFixture[str]
+) -> None:
     "The arguments to makeserver form the defaults for the CLI."
     mockserver.set_argv(["script-name", "--help"])
 
@@ -84,7 +96,9 @@ options:
         assert re.match(expected_pattern, out, re.DOTALL)
 
 
-def test_run(mockserver, capsys):
+def test_run(
+    mockserver: MockServer, capsys: pytest.CaptureFixture[str]
+) -> None:
     "Run with a mocked server."
     mockserver.set_argv(["--port", "0"])
 
@@ -104,7 +118,9 @@ Received keyboard interrupt.""",
     )
 
 
-def test_run_hint_on_eaddrinuse(mockserver, capsys):
+def test_run_hint_on_eaddrinuse(
+    mockserver: MockServer, capsys: pytest.CaptureFixture[str]
+) -> None:
     """Fail not only gracefully but also helpfully on EADDRINUSE.
 
     In this case having a second server (mockserver) listening on the
@@ -112,7 +128,7 @@ def test_run_hint_on_eaddrinuse(mockserver, capsys):
 
     """
 
-    def with_existing(first_server):
+    def with_existing(first_server: WSGIServer) -> None:
         used_port = first_server.server_port
         # setup a second server on exactly the same port
         mockserver.set_argv(["--port", str(used_port)])
@@ -126,9 +142,7 @@ script-name: .*: 127.0.0.1:{}
 
   Use '--port PORT' to specify a different port.
 
-""".format(
-            used_port
-        )
+""".format(used_port)
 
         assert re.match(rex, err)
         assert out == ""
@@ -157,14 +171,16 @@ script-name: .*: 127.0.0.1:{}
     assert ex.value.code == 0
 
 
-def test_run_actual(capsys):
+def test_run_actual(capsys: pytest.CaptureFixture[str]) -> None:
     from threading import Thread
 
-    def query(url, completion_callback, response):
-        try:
-            from urllib import urlopen
-        except ImportError:
-            from urllib.request import urlopen
+    def query(
+        url: str,
+        completion_callback: Callable[[], object],
+        response: list[Exception | bytes],
+    ) -> None:
+        from urllib.request import urlopen
+
         try:
             response.append(urlopen(url).read())
         except Exception as ex:
@@ -172,9 +188,9 @@ def test_run_actual(capsys):
         finally:
             completion_callback()
 
-    response = []
+    response: list[Exception | bytes] = []
 
-    def callback(server):
+    def callback(server: WSGIServer) -> None:
         thread = Thread(
             target=query,
             args=(

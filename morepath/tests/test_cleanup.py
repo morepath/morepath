@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import dectate
 import morepath
 
 
-def test_cleanup():
+def test_cleanup() -> None:
     class App(morepath.App):
         pass
 

@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import pytest
 from webtest import TestApp as Client
 
@@ -5,89 +9,94 @@ import morepath
 from morepath.error import TopologicalSortError
 from morepath.tween import TweenRegistry
 
+if TYPE_CHECKING:
+    from webob import Response as BaseResponse
 
-def test_tween_sorting_no_tweens():
+    from morepath.types import Tween
+
+
+def test_tween_sorting_no_tweens() -> None:
     reg = TweenRegistry()
     assert reg.sorted_tween_factories() == []
 
 
-def test_tween_sorting_one_tween():
+def test_tween_sorting_one_tween() -> None:
     reg = TweenRegistry()
 
-    def foo():
-        pass
+    def foo(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
     reg.register_tween_factory(foo, over=None, under=None)
     assert reg.sorted_tween_factories() == [foo]
 
 
-def test_tween_sorting_two_tweens_under():
+def test_tween_sorting_two_tweens_under() -> None:
     reg = TweenRegistry()
 
-    def top():
-        pass
+    def top(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
-    def bottom():
-        pass
+    def bottom(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
     reg.register_tween_factory(top, over=None, under=None)
     reg.register_tween_factory(bottom, over=None, under=top)
     assert reg.sorted_tween_factories() == [top, bottom]
 
 
-def test_tween_sorting_two_tweens_under_reverse_reg():
+def test_tween_sorting_two_tweens_under_reverse_reg() -> None:
     reg = TweenRegistry()
 
-    def top():
-        pass
+    def top(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
-    def bottom():
-        pass
+    def bottom(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
     reg.register_tween_factory(bottom, over=None, under=top)
     reg.register_tween_factory(top, over=None, under=None)
     assert reg.sorted_tween_factories() == [top, bottom]
 
 
-def test_tween_sorting_two_tweens_over():
+def test_tween_sorting_two_tweens_over() -> None:
     reg = TweenRegistry()
 
-    def top():
-        pass
+    def top(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
-    def bottom():
-        pass
+    def bottom(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
     reg.register_tween_factory(top, over=bottom, under=None)
     reg.register_tween_factory(bottom, over=None, under=None)
     assert reg.sorted_tween_factories() == [top, bottom]
 
 
-def test_tween_sorting_two_tweens_over_reverse_reg():
+def test_tween_sorting_two_tweens_over_reverse_reg() -> None:
     reg = TweenRegistry()
 
-    def top():
-        pass
+    def top(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
-    def bottom():
-        pass
+    def bottom(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
     reg.register_tween_factory(bottom, over=None, under=None)
     reg.register_tween_factory(top, over=bottom, under=None)
     assert reg.sorted_tween_factories() == [top, bottom]
 
 
-def test_tween_sorting_three():
+def test_tween_sorting_three() -> None:
     reg = TweenRegistry()
 
-    def a():
-        pass
+    def a(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
-    def b():
-        pass
+    def b(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
-    def c():
-        pass
+    def c(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
     reg.register_tween_factory(a, over=None, under=None)
     reg.register_tween_factory(b, over=None, under=a)
@@ -95,11 +104,11 @@ def test_tween_sorting_three():
     assert reg.sorted_tween_factories() == [c, a, b]
 
 
-def test_tween_sorting_dag_error():
+def test_tween_sorting_dag_error() -> None:
     reg = TweenRegistry()
 
-    def a():
-        pass
+    def a(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
     reg.register_tween_factory(a, over=None, under=a)
 
@@ -107,11 +116,11 @@ def test_tween_sorting_dag_error():
         reg.sorted_tween_factories()
 
 
-def test_tween_sorting_dag_error2():
+def test_tween_sorting_dag_error2() -> None:
     reg = TweenRegistry()
 
-    def a():
-        pass
+    def a(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
     reg.register_tween_factory(a, over=a, under=None)
 
@@ -119,14 +128,14 @@ def test_tween_sorting_dag_error2():
         reg.sorted_tween_factories()
 
 
-def test_tween_sorting_dag_error3():
+def test_tween_sorting_dag_error3() -> None:
     reg = TweenRegistry()
 
-    def a():
-        pass
+    def a(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
-    def b():
-        pass
+    def b(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
     reg.register_tween_factory(a, over=b, under=None)
     reg.register_tween_factory(b, over=a, under=None)
@@ -135,17 +144,17 @@ def test_tween_sorting_dag_error3():
         reg.sorted_tween_factories()
 
 
-def test_tween_sorting_dag_error4():
+def test_tween_sorting_dag_error4() -> None:
     reg = TweenRegistry()
 
-    def a():
-        pass
+    def a(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
-    def b():
-        pass
+    def b(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
-    def c():
-        pass
+    def c(app: morepath.App, handler: Tween) -> Tween:
+        return handler
 
     reg.register_tween_factory(a, over=b, under=None)
     reg.register_tween_factory(b, over=c, under=None)
@@ -155,7 +164,7 @@ def test_tween_sorting_dag_error4():
         reg.sorted_tween_factories()
 
 
-def test_tween_directive():
+def test_tween_directive() -> None:
     class app(morepath.App):
         pass
 
@@ -164,12 +173,12 @@ def test_tween_directive():
         pass
 
     @app.view(model=Root)
-    def default(self, request):
+    def default(self: Root, request: morepath.Request) -> str:
         return "View"
 
     @app.tween_factory()
-    def get_modify_response_tween(app, handler):
-        def plusplustween(request):
+    def get_modify_response_tween(app: app, handler: Tween) -> Tween:
+        def plusplustween(request: morepath.Request) -> BaseResponse:
             response = handler(request)
             response.headers["Tween-Header"] = "FOO"
             return response

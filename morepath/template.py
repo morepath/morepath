@@ -3,11 +3,21 @@
 See :class:`morepath.directive.TemplateEngineRegistry`
 """
 
+from __future__ import annotations
+
 import os
+from typing import TYPE_CHECKING, Any
 
 from .error import ConfigError, TopologicalSortError
 from .settings import SettingRegistry
 from .toposort import Info, toposorted
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from dectate.config import Configurable
+
+    from .types import GetRender, GetStrPath, Render, StrPath
 
 
 class TemplateEngineRegistry:
@@ -24,16 +34,23 @@ class TemplateEngineRegistry:
 
     factory_arguments = {"setting_registry": SettingRegistry}
 
-    def __init__(self, setting_registry):
+    def __init__(self, setting_registry: SettingRegistry) -> None:
         self._setting_registry = setting_registry
-        self._template_loaders = {}
-        self._template_renders = {}
-        self._template_directory_infos = []
-        self._template_configurable_to_keys = {}
+        self._template_loaders: dict[str, Any] = {}
+        self._template_renders: dict[str, GetRender] = {}
+        self._template_directory_infos: list[TemplateDirectoryInfo] = []
+        self._template_configurable_to_keys: dict[
+            Configurable, list[GetStrPath]
+        ] = {}
 
     def register_template_directory_info(
-        self, key, directory, before, after, configurable
-    ):
+        self,
+        key: GetStrPath,
+        directory: StrPath,
+        before: GetStrPath | None,
+        after: GetStrPath | None,
+        configurable: Configurable,
+    ) -> None:
         """Register a directory to look for templates.
 
         Used by the :meth:`morepath.App.template_directory` directive.
@@ -53,7 +70,7 @@ class TemplateEngineRegistry:
             key
         )
 
-    def register_template_render(self, extension, func):
+    def register_template_render(self, extension: str, func: GetRender) -> None:
         """Register way to get a view render function for a file extension.
 
         Used by the :meth:`morepath.App.template_render` directive. See
@@ -65,12 +82,16 @@ class TemplateEngineRegistry:
         """
         self._template_renders[extension] = func
 
-    def initialize_template_loader(self, extension, func):
+    def initialize_template_loader(
+        self,
+        extension: str,
+        func: Callable[[list[StrPath], SettingRegistry], Any],
+    ) -> None:
         """Initialize a template loader for an extension.
 
         Used by the :meth:`morepath.App.template_loader` directive.
 
-        :param extension: template extension like ``.p.t``
+        :param extension: template extension like ``.pt``
         :param func: function that given a list of template directories
           returns a load object that be used to load the template for use.
         """
@@ -78,7 +99,7 @@ class TemplateEngineRegistry:
             self.sorted_template_directories(), self._setting_registry
         )
 
-    def sorted_template_directories(self):
+    def sorted_template_directories(self) -> list[StrPath]:
         """Get sorted template directories.
 
         Use explicit ``before`` and ``after`` information but also
@@ -108,7 +129,11 @@ class TemplateEngineRegistry:
                 "application inheritance."
             )
 
-    def get_template_render(self, name, original_render):
+    def get_template_render(
+        self,
+        name: str,
+        original_render: Render,
+    ) -> Render:
         """Get a template render function.
 
         :param name: filename of the template (with extension, without path),
@@ -132,10 +157,17 @@ class TemplateEngineRegistry:
         return get_render(loader, name, original_render)
 
 
-class TemplateDirectoryInfo(Info):
+class TemplateDirectoryInfo(Info["GetStrPath"]):
     """Used by :class:`TemplateEngineRegistry` internally."""
 
-    def __init__(self, key, directory, before, after, configurable):
+    def __init__(
+        self,
+        key: GetStrPath,
+        directory: StrPath,
+        before: GetStrPath | None,
+        after: GetStrPath | None,
+        configurable: Configurable,
+    ) -> None:
         super().__init__(key, before, after)
         self.directory = directory
         self.configurable = configurable

@@ -28,7 +28,7 @@ classifiers = [
 ]
 requires-python = ">= 3.10"
 dependencies = [
-    "webob >= 1.7.0",
+    "WebOb >= 1.7.0",
     "reg >= 0.12",
     "dectate >= 0.14",
     "importscan >= 0.2"
@@ -41,13 +41,18 @@ Issues = "https://github.com/morepath/morepath/issues"
 Changelog = "https://github.com/morepath/morepath/blob/master/CHANGES.txt"
 
 [project.optional-dependencies]
-test = ["pytest >= 8", "WebTest >= 2.0.14", "pytest-env"]
+test = ["pytest >= 8", "pytest-env", "WebTest >= 2.0.14"]
 docs = ["sphinx", "pyyaml", "WebTest >= 2.0.14"]
 coverage = ["pytest-cov"]
-lint = ["black", "flake8", "isort"]
+lint = ["black", "flake8", "flake8-pyproject", "isort"]
+mypy = ["mypy", "pytest", "types-WebOb", "types-WebTest"]
+pyright = ["pyright", "pytest", "types-WebOb", "types-WebTest", "WebTest >= 2.0.14"]
 
 [tool.setuptools.packages]
 find = {}
+
+[tool.setuptools.package-data]
+morepath = ["py.typed"]
 
 [tool.setuptools.dynamic]
 readme = {file = ["README.rst", "CHANGES.txt"]}
@@ -62,11 +67,48 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
-omit = ["morepath/tests/*"]
+omit = ["morepath/tests/*", "morepath/types.py"]
 source = ["morepath"]
 
 [tool.coverage.report]
 show_missing = true
+
+[tool.flake8]
+ignore = ["E203", "E231", "E301", "E501", "E704", "W503"]
+show-source = true
+max-line-length = 90
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_unreachable = true
+untyped_calls_exclude = "morepath.tests.fixtures"
+
+[[tool.mypy.overrides]]
+module = ["morepath.tests.fixtures.*"]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = [
+    "base.*",
+    "entrypoint.*",
+    "no_mp.*",
+    "ns.*",
+    "no_mp_sub.*",
+    "sub.*",
+    "under_score.*",
+]
+ignore_missing_imports = true
+
+[tool.pyright]
+exclude = [
+    "**/pdbsupport.py",
+    "**/tests/fixtures/**",
+]
+
+[[tool.pyright.executionEnvironments]]
+root = "morepath/tests/test_autosetup.py"
+reportMissingImports = "none"
 
 [tool.tox]
 requires = ["tox>=4"]
@@ -124,6 +166,28 @@ commands = [
     ["sphinx-build", "-b", "doctest", "doc", "{env_tmp_dir}"],
 ]
 
+[tool.tox.env.mypy]
+base_python = ["python3"]
+extras = ["mypy"]
+commands = [
+    ["mypy", "-p", "morepath", "--python-version", "3.10"],
+    ["mypy", "-p", "morepath", "--python-version", "3.11"],
+    ["mypy", "-p", "morepath", "--python-version", "3.12"],
+    ["mypy", "-p", "morepath", "--python-version", "3.13"],
+    ["mypy", "-p", "morepath", "--python-version", "3.14"],
+]
+
+[tool.tox.env.pyright]
+base_python = ["python3"]
+extras = ["pyright"]
+commands = [
+    ["pyright", "morepath", "--pythonversion", "3.10"],
+    ["pyright", "morepath", "--pythonversion", "3.11"],
+    ["pyright", "morepath", "--pythonversion", "3.12"],
+    ["pyright", "morepath", "--pythonversion", "3.13"],
+    ["pyright", "morepath", "--pythonversion", "3.14"],
+]
+
 [tool.black]
 line-length = 80
 target-version = ['py310', 'py311', 'py312', 'py313', 'py314']
@@ -148,3 +212,5 @@ exclude = '''
 profile = 'black'
 py_version = 311
 skip_gitignore = true
+extra_standard_library = ["typing_extensions"]
+known_first_party = ["dectate", "importscan", "reg"]

@@ -10,7 +10,14 @@ directive.
 See also :class:`morepath.directive.IdentityPolicyRegistry`
 """
 
+from __future__ import annotations
+
 import abc
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from .request import Response
+    from .types import AnyRequest
 
 
 class NoIdentity:
@@ -22,7 +29,7 @@ class NoIdentity:
     userid = None
 
 
-NO_IDENTITY = NoIdentity()
+NO_IDENTITY: NoIdentity = NoIdentity()
 """The identity if the request is anonymous.
 
 The user has not yet logged in.
@@ -36,7 +43,7 @@ class Identity:
     and authorize them you need to implement Morepath permission directives.
     """
 
-    def __init__(self, userid, **kw):
+    def __init__(self, userid: Any, **kw: Any) -> None:
         """
         :param userid: The userid of this identity
         :param kw: Extra information to store in identity.
@@ -50,7 +57,7 @@ class Identity:
             setattr(self, key, value)
         self.verified = None  # starts out as never verified
 
-    def as_dict(self):
+    def as_dict(self) -> dict[str, Any]:
         """Export identity as dictionary.
 
         This includes the userid and the extra keyword parameters used
@@ -63,6 +70,14 @@ class Identity:
             result[name] = getattr(self, name)
         return result
 
+    if TYPE_CHECKING:
+        # NOTE: Since the identity may contain any number of attributes
+        #       we need to let type checkers know about that. If people
+        #       want better type checking on their identities, they will
+        #       need to subclass this one and declare the attributes.
+        def __getattr__(self, key: str) -> Any:
+            pass
+
 
 class IdentityPolicy(metaclass=abc.ABCMeta):
     """Identity policy API.
@@ -72,7 +87,7 @@ class IdentityPolicy(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def identify(self, request):
+    def identify(self, request: AnyRequest) -> Identity | NoIdentity | None:
         """Establish what identity this user claims to have from request.
 
         :param request: Request to extract identity information from.
@@ -83,7 +98,9 @@ class IdentityPolicy(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def remember(self, response, request, identity):
+    def remember(
+        self, response: Response, request: AnyRequest, identity: Identity
+    ) -> None:
         """Remember identity on response.
 
         Implements ``morepath.App.remember_identity``, which is called
@@ -104,7 +121,7 @@ class IdentityPolicy(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def forget(self, response, request):
+    def forget(self, response: Response, request: AnyRequest) -> None:
         """Forget identity on response.
 
         Implements ``morepath.App.forget_identity``, which is called from

@@ -4,6 +4,14 @@ CHANGES
 0.21 (unreleased)
 =================
 
+* Add type hints
+
+* Fixes a minor bug in ``Request.view``
+  
+  If the targeted view was mounted on a different application instance
+  and that view threw an exception, then the bound application object
+  was not properly restored back to the original instance.
+
 * Fix readthedocs integration.
 
 

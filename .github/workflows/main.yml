@@ -38,13 +38,17 @@ jobs:
             python-version: "3.11"
           - tox-env: "lint"
             python-version: "3.11"
+          - tox-env: "mypy"
+            python-version: "3.11"
+          - tox-env: "pyright"
+            python-version: "3.11"
           - tox-env: "docs"
             python-version: "3.11"
     
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: "actions/checkout@v5"
+      - uses: "actions/checkout@v6"
       - uses: "actions/setup-python@v6"
         with:
           python-version: "${{ matrix.python-version }}"

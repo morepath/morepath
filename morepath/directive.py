@@ -29,10 +29,13 @@ from :mod:`morepath.directive`.
 
 """
 
+from __future__ import annotations
+
 import os
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import dectate
-from reg import methodify
+from reg import KeyIndex, methodify
 
 from .authentication import Identity, NoIdentity
 from .converter import ConverterRegistry
@@ -45,15 +48,36 @@ from .traject import Path
 from .tween import TweenRegistry
 from .view import View, render_html, render_json, render_view
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Generator
 
-def isbaseclass(a, b):
+    from webob import Response as BaseResponse
+
+    from reg.types import DispatchCall, DispatchMethodCall
+
+    from .app import App
+    from .types import (
+        AnyApp,
+        AnyRequest,
+        GetStrPath,
+        MaybeTakesApp,
+        StrPath,
+        SupportsItems,
+        TweenFactory,
+    )
+
+_T = TypeVar("_T")
+_AppT = TypeVar("_AppT", bound="App")
+
+
+def isbaseclass(a: type[object], b: type[object]) -> bool:
     return issubclass(b, a)
 
 
 class SettingAction(dectate.Action):
     config = {"setting_registry": SettingRegistry}
 
-    def __init__(self, section, name):
+    def __init__(self, section: str, name: str) -> None:
         """Register application setting.
 
         An application setting is registered under the
@@ -71,25 +95,25 @@ class SettingAction(dectate.Action):
         self.section = section
         self.name = name
 
-    def identifier(self, setting_registry):
+    def identifier(self, setting_registry: SettingRegistry) -> tuple[str, str]:
         return self.section, self.name
 
-    def perform(self, obj, setting_registry):
+    def perform(self, obj: Any, setting_registry: SettingRegistry) -> None:
         setting_registry.register_setting(self.section, self.name, obj)
 
 
 class SettingValue:
-    def __init__(self, value):
+    def __init__(self, value: Any) -> None:
         self.value = value
 
-    def __call__(self):
+    def __call__(self) -> Any:
         return self.value
 
 
 class SettingSectionAction(dectate.Composite):
     query_classes = [SettingAction]
 
-    def __init__(self, section):
+    def __init__(self, section: str) -> None:
         """Register application setting in a section.
 
         An application settings are registered under the ``settings``
@@ -105,7 +129,9 @@ class SettingSectionAction(dectate.Composite):
         """
         self.section = section
 
-    def actions(self, obj):
+    def actions(
+        self, obj: Callable[[], SupportsItems[str, Any]]
+    ) -> Generator[tuple[SettingAction, SettingValue]]:
         section = obj()
         for name, value in section.items():
             yield (
@@ -127,7 +153,9 @@ class PredicateFallbackAction(dectate.Action):
         "func": dectate.convert_dotted_name,
     }
 
-    def __init__(self, dispatch, func):
+    def __init__(
+        self, dispatch: DispatchCall[..., Any], func: Callable[..., Any]
+    ) -> None:
         """For a given dispatch and function dispatched to, register fallback.
 
         The fallback is called with the same arguments as the dispatch
@@ -140,10 +168,14 @@ class PredicateFallbackAction(dectate.Action):
         self.dispatch = dispatch
         self.func = func
 
-    def identifier(self, predicate_registry):
+    def identifier(
+        self, predicate_registry: PredicateRegistry
+    ) -> tuple[DispatchCall[..., Any], Callable[..., Any]]:
         return self.dispatch, self.func
 
-    def perform(self, obj, predicate_registry):
+    def perform(
+        self, obj: Callable[..., Any], predicate_registry: PredicateRegistry
+    ) -> None:
         predicate_registry.register_predicate_fallback(
             self.dispatch, self.func, obj
         )
@@ -163,7 +195,15 @@ class PredicateAction(dectate.Action):
 
     filter_name = {"before": "_before", "after": "_after"}
 
-    def __init__(self, dispatch, name, default, index, before=None, after=None):
+    def __init__(
+        self,
+        dispatch: DispatchCall[..., Any],
+        name: str,
+        default: Any,
+        index: type[KeyIndex],
+        before: Callable[..., Any] | None = None,
+        after: Callable[..., Any] | None = None,
+    ) -> None:
         """Register a custom predicate for a dispatch method.
 
         The function to be registered should have the same arguments
@@ -196,10 +236,16 @@ class PredicateAction(dectate.Action):
         self._before = before
         self._after = after
 
-    def identifier(self, predicate_registry):
+    def identifier(self, predicate_registry: PredicateRegistry) -> tuple[
+        DispatchCall[..., Any],
+        Callable[..., Any] | None,
+        Callable[..., Any] | None,
+    ]:
         return self.dispatch, self._before, self._after
 
-    def perform(self, obj, predicate_registry):
+    def perform(
+        self, obj: Callable[..., Any], predicate_registry: PredicateRegistry
+    ) -> None:
         predicate_registry.register_predicate(
             obj,
             self.dispatch,
@@ -211,7 +257,7 @@ class PredicateAction(dectate.Action):
         )
 
     @staticmethod
-    def after(predicate_registry):
+    def after(predicate_registry: PredicateRegistry) -> None:
         predicate_registry.install_predicates()
 
 
@@ -220,7 +266,7 @@ class MethodAction(dectate.Action):
 
     depends = [SettingAction, PredicateAction, PredicateFallbackAction]
 
-    def filter_get_value(self, name):
+    def filter_get_value(self, name: str) -> Any | dectate.Sentinel:
         return self.key_dict.get(name, dectate.NOT_FOUND)
 
     app_class_arg = True
@@ -229,7 +275,9 @@ class MethodAction(dectate.Action):
     # the convert
     filter_convert = {"dispatch_method": dectate.convert_dotted_name}
 
-    def __init__(self, dispatch_method, **kw):
+    def __init__(
+        self, dispatch_method: DispatchMethodCall[..., Any, Any], **kw: Any
+    ) -> None:
         """Register function as implementation of dispatch method.
 
         This way you can create new hookable functions of your own, or
@@ -256,13 +304,17 @@ class MethodAction(dectate.Action):
         self.dispatch_method = dispatch_method
         self.key_dict = kw
 
-    def identifier(self, app_class):
+    def identifier(
+        self, app_class: type[dectate.App]
+    ) -> tuple[DispatchMethodCall[..., Any, Any], tuple[Any, ...]]:
         return (
             self.dispatch_method,
             self.dispatch_method.by_predicates(**self.key_dict).key,
         )
 
-    def perform(self, obj, app_class):
+    def perform(
+        self, obj: Callable[..., Any], app_class: type[dectate.App]
+    ) -> None:
         getattr(app_class, self.dispatch_method.__name__).register(
             obj, **self.key_dict
         )
@@ -276,7 +328,7 @@ class ConverterAction(dectate.Action):
     # use __builtin__.foo to match with builtin foo
     filter_convert = {"type": dectate.convert_dotted_name}
 
-    def __init__(self, type):
+    def __init__(self, type: type[Any]) -> None:
         """Register custom converter for type.
 
         :param type: the Python type for which to register the
@@ -291,10 +343,14 @@ class ConverterAction(dectate.Action):
         """
         self.type = type
 
-    def identifier(self, converter_registry):
+    def identifier(
+        self, converter_registry: ConverterRegistry
+    ) -> tuple[str, type[Any]]:
         return ("converter", self.type)
 
-    def perform(self, obj, converter_registry):
+    def perform(
+        self, obj: Callable[..., Any], converter_registry: ConverterRegistry
+    ) -> None:
         converter_registry.register_converter(self.type, obj())
 
 
@@ -312,29 +368,33 @@ class PathAction(dectate.Action):
 
     def __init__(
         self,
-        path,
-        model=None,
-        variables=None,
-        converters=None,
-        required=None,
-        get_converters=None,
-        absorb=False,
-    ):
-        self.model = model
+        path: str,
+        model: type[_T] | None = None,
+        variables: MaybeTakesApp[[_T], dict[str, Any]] | None = None,
+        converters: dict[str, Any] | None = None,
+        required: Collection[str] | None = None,
+        get_converters: Callable[[], dict[str, Any]] | None = None,
+        absorb: bool = False,
+    ) -> None:
+        self.model: type[Any] | None = model
         self.path = path
-        self.variables = variables
+        self.variables: MaybeTakesApp[[Any], dict[str, Any]] | None = variables
         self.converters = converters
         self.required = required
         self.get_converters = get_converters
         self.absorb = absorb
 
-    def identifier(self, path_registry):
+    def identifier(self, path_registry: PathRegistry) -> tuple[str, str]:
         return ("path", Path(self.path).discriminator())
 
-    def discriminators(self, path_registry):
+    def discriminators(
+        self, path_registry: PathRegistry
+    ) -> list[tuple[str, type[Any] | None]]:
         return [("model", self.model)]
 
-    def perform(self, obj, path_registry):
+    def perform(
+        self, obj: Callable[..., Any], path_registry: PathRegistry
+    ) -> None:
         path_registry.register_path(
             self.model,
             self.path,
@@ -360,14 +420,14 @@ class PathCompositeAction(dectate.Composite):
 
     def __init__(
         self,
-        path,
-        model=None,
-        variables=None,
-        converters=None,
-        required=None,
-        get_converters=None,
-        absorb=False,
-    ):
+        path: str,
+        model: type[Any] | None = None,
+        variables: MaybeTakesApp[[Any], dict[str, Any]] | None = None,
+        converters: dict[str, Any] | None = None,
+        required: Collection[str] | None = None,
+        get_converters: Callable[[], dict[str, Any]] | None = None,
+        absorb: bool = False,
+    ) -> None:
         """Register a model for a path.
 
         Decorate a function or a class (constructor). The function
@@ -415,7 +475,7 @@ class PathCompositeAction(dectate.Composite):
         self.get_converters = get_converters
         self.absorb = absorb
 
-    def actions(self, obj):
+    def actions(self, obj: _T) -> Generator[tuple[PathAction, _T]]:
         # this composite action exists to let you use path with a
         # class and still have the path action discriminator work
         # correctly, which reports a conflict if you use the path
@@ -462,7 +522,12 @@ class PermissionRuleAction(dectate.Action):
 
     depends = [SettingAction]
 
-    def __init__(self, model, permission, identity=Identity):
+    def __init__(
+        self,
+        model: type[Any],
+        permission: Any,
+        identity: type[Identity | NoIdentity] | None = Identity,
+    ) -> None:
         """Declare whether a model has a permission.
 
         The decorated function receives ``app``, ``model``,
@@ -485,10 +550,12 @@ class PermissionRuleAction(dectate.Action):
             identity = NoIdentity
         self.identity = identity
 
-    def identifier(self, app_class):
+    def identifier(
+        self, app_class: type[dectate.App]
+    ) -> tuple[type[Any], Any, type[Identity | NoIdentity]]:
         return (self.model, self.permission, self.identity)
 
-    def perform(self, obj, app_class):
+    def perform(self, obj: Callable[..., Any], app_class: type[App]) -> None:
         app_class._permits.register(
             methodify(obj, selfname="app"),
             identity=self.identity,
@@ -512,7 +579,12 @@ class TemplateDirectoryAction(dectate.Action):
         "before": dectate.convert_dotted_name,
     }
 
-    def __init__(self, after=None, before=None, name=None):
+    def __init__(
+        self,
+        after: GetStrPath | None = None,
+        before: GetStrPath | None = None,
+        name: str | None = None,
+    ) -> None:
         """Register template directory.
 
         The decorated function gets no argument and should return a
@@ -546,18 +618,26 @@ class TemplateDirectoryAction(dectate.Action):
             template_directory_id += 1
         self.name = name
 
-    def identifier(self, template_engine_registry):
+    def identifier(
+        self, template_engine_registry: TemplateEngineRegistry
+    ) -> str:
         return self.name
 
-    def perform(self, obj, template_engine_registry):
+    def perform(
+        self,
+        obj: Callable[[], StrPath],
+        template_engine_registry: TemplateEngineRegistry,
+    ) -> None:
         directory = obj()
         if not os.path.isabs(directory):
+            assert self.code_info is not None
             directory = os.path.join(
                 os.path.dirname(self.code_info.path), directory
             )
         # hacky to have to get configurable and pass it in.
         # note that this cannot be app_class as we want the app of
         # the directive that *defined* it so we sort things properly.
+        assert self.directive is not None
         template_engine_registry.register_template_directory_info(
             obj,
             directory,
@@ -572,7 +652,7 @@ class TemplateLoaderAction(dectate.Action):
 
     depends = [TemplateDirectoryAction]
 
-    def __init__(self, extension):
+    def __init__(self, extension: str) -> None:
         """Create a template loader.
 
         The decorated function gets a ``template_directories`` argument,
@@ -585,10 +665,19 @@ class TemplateLoaderAction(dectate.Action):
         """
         self.extension = extension
 
-    def identifier(self, template_engine_registry):
+    def identifier(
+        self, template_engine_registry: TemplateEngineRegistry
+    ) -> str:
         return self.extension
 
-    def perform(self, obj, template_engine_registry):
+    def perform(
+        self,
+        # NOTE: While list[StrPath] is the correct constraint, it might
+        #       be too strict if someone's application only ever uses
+        #       plain strings for paths, so we're being more forgiving.
+        obj: Callable[[list[Any], SettingRegistry], Any],
+        template_engine_registry: TemplateEngineRegistry,
+    ) -> None:
         template_engine_registry.initialize_template_loader(self.extension, obj)
 
 
@@ -597,7 +686,7 @@ class TemplateRenderAction(dectate.Action):
 
     depends = [SettingAction, TemplateLoaderAction]
 
-    def __init__(self, extension):
+    def __init__(self, extension: str) -> None:
         """Register a template engine.
 
         :param extension: the template file extension (``.pt``, etc)
@@ -613,14 +702,20 @@ class TemplateRenderAction(dectate.Action):
         """
         self.extension = extension
 
-    def identifier(self, template_engine_registry):
+    def identifier(
+        self, template_engine_registry: TemplateEngineRegistry
+    ) -> str:
         return self.extension
 
-    def perform(self, obj, template_engine_registry):
+    def perform(
+        self,
+        obj: Callable[..., Any],
+        template_engine_registry: TemplateEngineRegistry,
+    ) -> None:
         template_engine_registry.register_template_render(self.extension, obj)
 
 
-def issubclass_or_none(a, b):
+def issubclass_or_none(a: type | None, b: type | None) -> bool:
     if a is None or b is None:
         return a == b
     return issubclass(a, b)
@@ -641,7 +736,7 @@ class ViewAction(dectate.Action):
         "internal": dectate.convert_bool,
     }
 
-    def filter_get_value(self, name):
+    def filter_get_value(self, name: str) -> Any | dectate.Sentinel:
         return self.predicates.get(name, dectate.NOT_FOUND)
 
     filter_compare = {
@@ -653,14 +748,14 @@ class ViewAction(dectate.Action):
 
     def __init__(
         self,
-        model,
-        render=None,
-        template=None,
-        load=None,
-        permission=None,
-        internal=False,
-        **predicates,
-    ):
+        model: type[Any],
+        render: Callable[[Any, AnyRequest], BaseResponse] | None = None,
+        template: str | None = None,
+        load: Callable[[AnyRequest], Any] | None = None,
+        permission: object | None = None,
+        internal: bool = False,
+        **predicates: Any,
+    ) -> None:
         """Register a view for a model.
 
         The decorated function gets ``self`` (model instance) and
@@ -722,17 +817,26 @@ class ViewAction(dectate.Action):
         self.internal = internal
         self.predicates = predicates
 
-    def key_dict(self):
+    def key_dict(self) -> dict[str, Any]:
         """Return a dict containing view registration info,
         for instance model, request_method, etc."""
         result = self.predicates.copy()
         result["model"] = self.model
         return result
 
-    def identifier(self, template_engine_registry, app_class):
+    def identifier(
+        self,
+        template_engine_registry: TemplateEngineRegistry,
+        app_class: type[App],
+    ) -> tuple[Any, ...]:
         return app_class.get_view.by_predicates(**self.key_dict()).key
 
-    def perform(self, obj, template_engine_registry, app_class):
+    def perform(
+        self,
+        obj: Callable[..., Any],
+        template_engine_registry: TemplateEngineRegistry,
+        app_class: type[App],
+    ) -> None:
         render = self.render
         if self.template is not None:
             render = template_engine_registry.get_template_render(
@@ -754,13 +858,13 @@ class JsonAction(ViewAction):
 
     def __init__(
         self,
-        model,
-        render=None,
-        template=None,
-        load=None,
-        permission=None,
-        internal=False,
-        **predicates,
+        model: type[Any],
+        render: Callable[[Any, AnyRequest], BaseResponse] | None = None,
+        template: str | None = None,
+        load: Callable[[AnyRequest], Any] | None = None,
+        permission: object | None = None,
+        internal: bool = False,
+        **predicates: Any,
     ):
         """Register JSON view.
 
@@ -816,13 +920,13 @@ class HtmlAction(ViewAction):
 
     def __init__(
         self,
-        model,
-        render=None,
-        template=None,
-        load=None,
-        permission=None,
-        internal=False,
-        **predicates,
+        model: type[Any],
+        render: Callable[[Any, AnyRequest], BaseResponse] | None = None,
+        template: str | None = None,
+        load: Callable[[AnyRequest], Any] | None = None,
+        permission: object | None = None,
+        internal: bool = False,
+        **predicates: Any,
     ):
         """Register HTML view.
 
@@ -878,6 +982,7 @@ class DummyModel:
 
 
 class MountAction(PathAction):
+    variables: Callable[[AnyApp], dict[str, Any]]  # pyright: ignore
     group_class = PathAction
     depends = [SettingAction, ConverterAction]
 
@@ -886,14 +991,14 @@ class MountAction(PathAction):
 
     def __init__(
         self,
-        path,
-        app,
-        variables=None,
-        converters=None,
-        required=None,
-        get_converters=None,
-        name=None,
-    ):
+        path: str,
+        app: type[_AppT],
+        variables: Callable[[_AppT], dict[str, Any]] | None = None,
+        converters: dict[str, Any] | None = None,
+        required: Collection[str] | None = None,
+        get_converters: Callable[[], dict[str, Any]] | None = None,
+        name: str | None = None,
+    ) -> None:
         """Mount sub application on path.
 
         The decorated function gets the variables specified in path as
@@ -925,7 +1030,10 @@ class MountAction(PathAction):
         super().__init__(
             path,
             model=DummyModel,
-            variables=variables,
+            # NOTE: This is safe because we override perform to not make
+            #       use of model, so it doesn't matter that the variables
+            #       callback accepts a different kind of object.
+            variables=variables,  # type: ignore[arg-type]
             converters=converters,
             required=required,
             get_converters=get_converters,
@@ -933,10 +1041,14 @@ class MountAction(PathAction):
         self.name = name or path
         self.app = app
 
-    def discriminators(self, path_registry):
+    def discriminators(
+        self, path_registry: PathRegistry
+    ) -> list[tuple[str, type[Any] | None]]:
         return [("mount", self.app)]
 
-    def perform(self, obj, path_registry):
+    def perform(
+        self, obj: Callable[..., Any], path_registry: PathRegistry
+    ) -> None:
         path_registry.register_mount(
             self.app,
             self.path,
@@ -958,7 +1070,7 @@ class DeferLinksAction(dectate.Action):
 
     filter_compare = {"model": isbaseclass}
 
-    def __init__(self, model):
+    def __init__(self, model: type[Any]) -> None:
         """Defer link generation for model to mounted app.
 
         With ``defer_links`` you can specify that link generation for
@@ -981,13 +1093,15 @@ class DeferLinksAction(dectate.Action):
         """
         self.model = model
 
-    def identifier(self, path_registry):
+    def identifier(self, path_registry: PathRegistry) -> tuple[str, type[Any]]:
         return ("defer_links", self.model)
 
-    def discriminators(self, path_registry):
+    def discriminators(
+        self, path_registry: PathRegistry
+    ) -> list[tuple[str, type[Any]]]:
         return [("model", self.model)]
 
-    def perform(self, obj, path_registry):
+    def perform(self, obj: Any, path_registry: PathRegistry) -> None:
         path_registry.register_defer_links(self.model, obj)
 
 
@@ -999,7 +1113,11 @@ class DeferClassLinksAction(dectate.Action):
 
     filter_compare = {"model": isbaseclass}
 
-    def __init__(self, model, variables):
+    def __init__(
+        self,
+        model: type[Any],
+        variables: Callable[[Any], dict[str, Any]],
+    ) -> None:
         """Defer class link generation for model class to mounted app.
 
         With ``defer_class_links`` you can specify that link
@@ -1030,15 +1148,19 @@ class DeferClassLinksAction(dectate.Action):
         self.model = model
         self.variables = variables
 
-    def identifier(self, path_registry):
+    def identifier(self, path_registry: PathRegistry) -> tuple[str, type[Any]]:
         # either implement defer_links for a model or implement
         # defer_class_links but not both
         return ("defer_links", self.model)
 
-    def discriminators(self, path_registry):
+    def discriminators(
+        self, path_registry: PathRegistry
+    ) -> list[tuple[str, type[Any]]]:
         return [("model", self.model)]
 
-    def perform(self, obj, path_registry):
+    def perform(
+        self, obj: Callable[..., Any], path_registry: PathRegistry
+    ) -> None:
         path_registry.register_defer_class_links(
             self.model, self.variables, obj
         )
@@ -1057,7 +1179,12 @@ class TweenFactoryAction(dectate.Action):
         "over": dectate.convert_dotted_name,
     }
 
-    def __init__(self, under=None, over=None, name=None):
+    def __init__(
+        self,
+        under: TweenFactory | None = None,
+        over: TweenFactory | None = None,
+        name: str | None = None,
+    ) -> None:
         """Register tween factory.
 
         The tween system allows the creation of lightweight middleware
@@ -1090,10 +1217,10 @@ class TweenFactoryAction(dectate.Action):
             tween_factory_id += 1
         self.name = name
 
-    def identifier(self, tween_registry):
+    def identifier(self, tween_registry: TweenRegistry) -> str:
         return self.name
 
-    def perform(self, obj, tween_registry):
+    def perform(self, obj: TweenFactory, tween_registry: TweenRegistry) -> None:
         tween_registry.register_tween_factory(
             obj, over=self.over, under=self.under
         )
@@ -1108,7 +1235,7 @@ class IdentityPolicyAction(dectate.Action):
 
     app_class_arg = True
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Register identity policy.
 
         The decorated function should return an instance of
@@ -1119,16 +1246,22 @@ class IdentityPolicyAction(dectate.Action):
         identity policy is in use. So you can pass some settings directly to
         the IdentityPolicy class.
         """
-        pass
 
-    def identifier(self, setting_registry, app_class):
+    def identifier(
+        self, setting_registry: SettingRegistry, app_class: type[dectate.App]
+    ) -> tuple[()]:
         return ()
 
-    def perform(self, obj, setting_registry, app_class):
+    def perform(
+        self,
+        obj: Callable[..., Any],
+        setting_registry: SettingRegistry,
+        app_class: type[App],
+    ) -> None:
         identity_policy = mapply(obj, settings=setting_registry)
-        app_class._identify = identity_policy.identify
-        app_class.remember_identity = identity_policy.remember
-        app_class.forget_identity = identity_policy.forget
+        app_class._identify = identity_policy.identify  # type: ignore[method-assign]
+        app_class.remember_identity = identity_policy.remember  # type: ignore[method-assign]
+        app_class.forget_identity = identity_policy.forget  # type: ignore[method-assign]
 
 
 class VerifyIdentityAction(dectate.Action):
@@ -1142,7 +1275,7 @@ class VerifyIdentityAction(dectate.Action):
         "identity": dectate.convert_dotted_name,
     }
 
-    def __init__(self, identity=object):
+    def __init__(self, identity: type[Any] = object) -> None:
         """Verify claimed identity.
 
         The decorated function takes an ``app`` argument and an
@@ -1166,10 +1299,10 @@ class VerifyIdentityAction(dectate.Action):
         """
         self.identity = identity
 
-    def identifier(self, app_class):
+    def identifier(self, app_class: type[App]) -> object:
         return self.identity
 
-    def perform(self, obj, app_class):
+    def perform(self, obj: Callable[..., Any], app_class: type[App]) -> None:
         app_class._verify_identity.register(
             methodify(obj, selfname="app"), identity=self.identity
         )
@@ -1184,7 +1317,7 @@ class DumpJsonAction(dectate.Action):
 
     app_class_arg = True
 
-    def __init__(self, model=object):
+    def __init__(self, model: type[Any] = object) -> None:
         """Register a function that converts model to JSON.
 
         The decorated function gets ``app`` (app instance), ``obj``
@@ -1200,10 +1333,10 @@ class DumpJsonAction(dectate.Action):
         """
         self.model = model
 
-    def identifier(self, app_class):
+    def identifier(self, app_class: type[App]) -> type[Any]:
         return self.model
 
-    def perform(self, obj, app_class):
+    def perform(self, obj: Callable[..., Any], app_class: type[App]) -> None:
         app_class._dump_json.register(
             methodify(obj, selfname="app"), obj=self.model
         )
@@ -1214,7 +1347,7 @@ class LinkPrefixAction(dectate.Action):
 
     app_class_arg = True
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Register a function that returns the prefix added to every link
         generated by the request.
 
@@ -1225,10 +1358,9 @@ class LinkPrefixAction(dectate.Action):
         (:class:`morepath.Request`) arguments. The ``app`` argument is
         optional. The function should return a string.
         """
-        pass
 
-    def identifier(self, app_class):
+    def identifier(self, app_class: type[App]) -> tuple[()]:
         return ()
 
-    def perform(self, obj, app_class):
-        app_class._link_prefix = methodify(obj, selfname="app")
+    def perform(self, obj: Callable[..., Any], app_class: type[App]) -> None:
+        app_class._link_prefix = methodify(obj, selfname="app")  # type: ignore[method-assign]

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 from webob.exc import HTTPNotFound
 from webtest import TestApp as Client
@@ -5,7 +7,7 @@ from webtest import TestApp as Client
 import morepath
 
 
-def test_404_http_exception():
+def test_404_http_exception() -> None:
     class app(morepath.App):
         pass
 
@@ -17,7 +19,7 @@ def test_404_http_exception():
     c.get("/", status=404)
 
 
-def test_other_exception_not_handled():
+def test_other_exception_not_handled() -> None:
     class app(morepath.App):
         pass
 
@@ -29,7 +31,7 @@ def test_other_exception_not_handled():
         pass
 
     @app.view(model=Root)
-    def root_default(self, request):
+    def root_default(self: Root, request: morepath.Request) -> None:
         raise MyException()
 
     c = Client(app())
@@ -40,7 +42,7 @@ def test_other_exception_not_handled():
         c.get("/")
 
 
-def test_http_exception_excview():
+def test_http_exception_excview() -> None:
     class app(morepath.App):
         pass
 
@@ -49,7 +51,7 @@ def test_http_exception_excview():
         pass
 
     @app.view(model=HTTPNotFound)
-    def notfound_default(self, request):
+    def notfound_default(self: HTTPNotFound, request: morepath.Request) -> str:
         return "Not found!"
 
     c = Client(app())
@@ -57,7 +59,7 @@ def test_http_exception_excview():
     assert response.body == b"Not found!"
 
 
-def test_other_exception_excview():
+def test_other_exception_excview() -> None:
     class app(morepath.App):
         pass
 
@@ -69,11 +71,13 @@ def test_other_exception_excview():
         pass
 
     @app.view(model=Root)
-    def root_default(self, request):
+    def root_default(self: Root, request: morepath.Request) -> None:
         raise MyException()
 
     @app.view(model=MyException)
-    def myexception_default(self, request):
+    def myexception_default(
+        self: MyException, request: morepath.Request
+    ) -> str:
         return "My exception"
 
     c = Client(app())
@@ -82,7 +86,7 @@ def test_other_exception_excview():
     assert response.body == b"My exception"
 
 
-def test_http_exception_excview_retain_status():
+def test_http_exception_excview_retain_status() -> None:
     class app(morepath.App):
         pass
 
@@ -91,8 +95,8 @@ def test_http_exception_excview_retain_status():
         pass
 
     @app.view(model=HTTPNotFound)
-    def notfound_default(self, request):
-        def set_status(response):
+    def notfound_default(self: HTTPNotFound, request: morepath.Request) -> str:
+        def set_status(response: morepath.Response) -> None:
             response.status_code = self.code
 
         request.after(set_status)
@@ -103,7 +107,7 @@ def test_http_exception_excview_retain_status():
     assert response.body == b"Not found!!"
 
 
-def test_excview_named_view():
+def test_excview_named_view() -> None:
     class app(morepath.App):
         pass
 
@@ -115,12 +119,14 @@ def test_excview_named_view():
         pass
 
     @app.view(model=Root, name="view")
-    def view(self, request):
+    def view(self: Root, request: morepath.Request) -> None:
         raise MyException()
 
     # the view name should have no influence on myexception lookup
     @app.view(model=MyException)
-    def myexception_default(self, request):
+    def myexception_default(
+        self: MyException, request: morepath.Request
+    ) -> str:
         return "My exception"
 
     c = Client(app())
@@ -128,7 +134,7 @@ def test_excview_named_view():
     assert response.body == b"My exception"
 
 
-def test_excview_in_mounted_app():
+def test_excview_in_mounted_app() -> None:
     class App(morepath.App):
         pass
 
@@ -136,14 +142,14 @@ def test_excview_in_mounted_app():
         pass
 
     @App.mount(app=Sub, path="sub")
-    def mount_sub():
+    def mount_sub() -> Sub:
         return Sub()
 
     class Error(Exception):
         pass
 
     @Sub.view(model=Error)
-    def error_default(self, request):
+    def error_default(self: Error, request: morepath.Request) -> str:
         return "Default error"
 
     @Sub.path(path="/")
@@ -151,7 +157,7 @@ def test_excview_in_mounted_app():
         pass
 
     @Sub.view(model=SubRoot)
-    def subroot_default(self, request):
+    def subroot_default(self: SubRoot, request: morepath.Request) -> None:
         raise Error()
 
     c = Client(App())

@@ -12,11 +12,24 @@ also needs to be provided to support link generation.
 See also :class:`morepath.directive.ConverterRegistry`
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, overload
+
 import reg
 from dectate import DirectiveError
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
 
-class Converter:
+    from reg.types import DispatchCall
+
+    from .types import AnyConverter
+
+_T = TypeVar("_T")
+
+
+class Converter(Generic[_T]):
     """Decode from strings to objects and back.
 
     Used internally by the :meth:`morepath.App.converter` directive.
@@ -31,7 +44,11 @@ class Converter:
     # see https://docs.python.org/3.1/reference/datamodel.html#object.__hash__
     __hash__ = object.__hash__
 
-    def __init__(self, decode, encode=None):
+    def __init__(
+        self,
+        decode: Callable[[str], _T | None],
+        encode: Callable[[_T], str] | None = None,
+    ) -> None:
         """Create new converter.
 
         :param decode: function that given string can decode them into objects.
@@ -42,7 +59,7 @@ class Converter:
         self.single_decode = decode
         self.single_encode = encode or fallback_encode
 
-    def decode(self, strings):
+    def decode(self, strings: list[str]) -> _T | None:
         """Decode list of strings into Python value.
 
         String must have only a single entry.
@@ -54,7 +71,7 @@ class Converter:
             raise ValueError
         return self.single_decode(strings[0])
 
-    def encode(self, value):
+    def encode(self, value: _T) -> list[str]:
         """Encode Python value into list of strings.
 
         :param value: Python value
@@ -62,12 +79,12 @@ class Converter:
         """
         return [self.single_encode(value)]
 
-    def is_missing(self, value):
+    def is_missing(self, value: object) -> bool:
         """True is a given value is the missing value."""
         # a single value is missing if the list is empty
         return value == []
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Converter):
             return False
         return (
@@ -75,11 +92,11 @@ class Converter:
             and self.single_encode is other.single_encode
         )
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         return not self == other
 
 
-class ListConverter:
+class ListConverter(Generic[_T]):
     """How to decode from list of strings to list of objects and back.
 
     Used :class:`morepath.converter.ConverterRegistry` to handle
@@ -88,14 +105,14 @@ class ListConverter:
     Used for decoding/encoding URL parameters and path variables.
     """
 
-    def __init__(self, converter):
+    def __init__(self, converter: Converter[_T]) -> None:
         """Create new converter.
 
         :param converter: the converter to use for list entries
         """
         self.converter = converter
 
-    def decode(self, strings):
+    def decode(self, strings: list[str]) -> list[_T | None]:
         """Decode list of strings into list of Python values.
 
         :param strings: list of strings
@@ -104,7 +121,7 @@ class ListConverter:
         decode = self.converter.single_decode
         return [decode(s) for s in strings]
 
-    def encode(self, values):
+    def encode(self, values: list[_T]) -> list[str]:
         """Encode list of Python values into list of strings
 
         :param values: list of Python values.
@@ -113,28 +130,28 @@ class ListConverter:
         encode = self.converter.single_encode
         return [encode(v) for v in values]
 
-    def is_missing(self, value):
+    def is_missing(self, value: object) -> bool:
         """True is a given value is the missing value."""
         # a list value is never missing, even if the list is empty
         return False
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, ListConverter):
             return False
         return self.converter == other.converter
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         return not self == other
 
 
-IDENTITY_CONVERTER = Converter(lambda s: s, lambda s: s)
+IDENTITY_CONVERTER: Converter[str] = Converter(lambda s: s, lambda s: s)
 """Converter that has no effect.
 
 String becomes string.
 """
 
 
-def get_converter(type):
+def get_converter(type: type[_T]) -> Converter[_T]:
     """Get the converter for a given type.
 
     :param type: a class or type.
@@ -152,13 +169,17 @@ class ConverterRegistry:
     Is aware of inheritance.
     """
 
-    def __init__(self):
-        self.get_converter = reg.dispatch(
-            reg.match_class("type"), get_key_lookup=reg.DictCachingKeyLookup
-        )(get_converter)
-        self.register_converter(type(None), IDENTITY_CONVERTER)
+    def __init__(self) -> None:
+        self.get_converter: DispatchCall[[type[Any]], Converter[Any]] = (
+            reg.dispatch(
+                reg.match_class("type"), get_key_lookup=reg.DictCachingKeyLookup
+            )(get_converter)
+        )
+        self.register_converter(type(None), IDENTITY_CONVERTER)  # type: ignore[misc]
 
-    def register_converter(self, type, converter):
+    def register_converter(
+        self, type: type[_T], converter: Converter[_T]
+    ) -> None:
         """Register a converter for type.
 
         :param type: the Python type for which to register
@@ -167,7 +188,22 @@ class ConverterRegistry:
         """
         self.get_converter.register(type=type)(lambda type: converter)
 
-    def actual_converter(self, spec):
+    @overload
+    def actual_converter(  # pyright: ignore[reportOverlappingOverload]
+        self, spec: list[type[_T]]
+    ) -> ListConverter[_T]: ...
+    @overload
+    def actual_converter(
+        self, spec: type[_T] | Converter[_T]
+    ) -> Converter[_T]: ...
+
+    # this is for the empty list case, pretty icky but nothing we can do
+    @overload
+    def actual_converter(self, spec: list[Any]) -> Converter[str | None]: ...
+
+    def actual_converter(
+        self, spec: list[type[_T]] | type[_T] | Converter[_T]
+    ) -> Converter[_T] | ListConverter[_T]:
         """Return an actual converter for a given spec.
 
         :param spec: if a type, return the registered converter for
@@ -177,17 +213,21 @@ class ConverterRegistry:
         """
         if isinstance(spec, list):
             if len(spec) == 0:
-                spec = IDENTITY_CONVERTER
+                converter: Converter[Any] = IDENTITY_CONVERTER
             else:
-                spec = self.actual_converter(spec[0])
-            return ListConverter(spec)
+                converter = self.actual_converter(spec[0])
+            return ListConverter(converter)
         if isinstance(spec, type):
             return self.get_converter(spec)
         return spec
 
-    def argument_and_explicit_converters(self, arguments, converters):
+    def argument_and_explicit_converters(
+        self,
+        arguments: Mapping[str, Any],
+        converters: Mapping[str, Converter[Any] | list[Any] | type[Any]],
+    ) -> dict[str, AnyConverter]:
         """Use explict converters unless none supplied, then use default args."""
-        result = {
+        result: dict[str, Converter[Any] | ListConverter[Any]] = {
             name: self.get_converter(type(value))
             for name, value in arguments.items()
         }

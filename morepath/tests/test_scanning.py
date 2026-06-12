@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 from webtest import TestApp as Client
 
@@ -6,7 +8,7 @@ import morepath
 from .fixtures import basic, pkg, self_scan
 
 
-def test_rescan():
+def test_rescan() -> None:
     morepath.scan(basic)
 
     assert basic.app.commit() == {basic.app}
@@ -17,7 +19,7 @@ def test_rescan():
         pass
 
     @Sub.view(model=basic.Model, name="extra")
-    def extra(self, request):
+    def extra(self: basic.Model, request: morepath.Request) -> str:
         return "extra"
 
     assert Sub.commit() == {Sub}
@@ -31,16 +33,16 @@ def test_rescan():
     assert response.body == b"The view for model: 1"
 
 
-def test_scanned_some_error():
+def test_scanned_some_error() -> None:
     with pytest.raises(ZeroDivisionError):
         morepath.scan(pkg)
 
 
-def test_caller_package_in_init():
+def test_caller_package_in_init() -> None:
     assert self_scan.get_this_package() == self_scan
 
 
-def test_self_scanning_package():
+def test_self_scanning_package() -> None:
     from .fixtures.self_scan.app import App
 
     # Importing the app as we did above imports the definition only,

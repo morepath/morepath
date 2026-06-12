@@ -1,7 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, TypeVar
+
 from reg import arginfo
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
-def mapply(func, *args, **kw):
+_T = TypeVar("_T")
+
+
+def mapply(func: Callable[..., _T], *args: Any, **kw: Any) -> _T:
     """Apply keyword arguments to function only if it defines them.
 
     So this works without error as ``b`` is ignored::
@@ -16,8 +25,10 @@ def mapply(func, *args, **kw):
     function/method that we've borrowed.
     """
     info = arginfo(func)
+    assert info is not None
     if info.varkw:
         return func(*args, **kw)
     # XXX we don't support nested arguments
+    # FIXME: we don't support keyword-only arguments
     new_kw = {name: kw[name] for name in info.args if name in kw}
     return func(*args, **new_kw)

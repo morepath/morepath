@@ -1,17 +1,19 @@
+from __future__ import annotations
+
 import morepath
 
 
-def test_code_info():
+def test_code_info() -> None:
     class App(morepath.App):
         pass
 
     @App.path(path="")
     class Model:
-        def __init__(self):
+        def __init__(self) -> None:
             pass
 
     @App.view(model=Model)
-    def default(self, request):
+    def default(self: Model, request: object) -> str:
         return "View"
 
     App.commit()
@@ -25,7 +27,7 @@ def test_code_info():
     assert r.view_code_info.sourceline == "@App.view(model=Model)"
 
 
-def test_code_info_no_path():
+def test_code_info_no_path() -> None:
     class App(morepath.App):
         pass
 

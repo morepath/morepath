@@ -5,6 +5,10 @@ This builds on :mod:`morepath.traject`.
 See also :class:`morepath.directive.PathRegistry`
 """
 
+from __future__ import annotations
+
+from itertools import zip_longest
+from typing import TYPE_CHECKING, Any, TypeVar
 from urllib.parse import quote, urlencode
 
 from dectate import DirectiveError
@@ -14,6 +18,17 @@ from .converter import IDENTITY_CONVERTER, ConverterRegistry
 from .error import LinkError
 from .traject import Path as TrajectPath
 from .traject import TrajectRegistry
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Collection
+
+    from dectate import CodeInfo
+
+    from .app import App
+    from .types import AnyConverter, MaybeTakesApp
+
+_T = TypeVar("_T")
+_AppT = TypeVar("_AppT", bound="App")
 
 SPECIAL_ARGUMENTS = ["request", "app"]
 
@@ -37,25 +52,27 @@ class PathRegistry(TrajectRegistry):
 
     app_class_arg = True
 
-    def __init__(self, app_class, converter_registry):
+    def __init__(
+        self, app_class: type[App], converter_registry: ConverterRegistry
+    ) -> None:
         super().__init__()
         self.app_class = app_class
         self.converter_registry = converter_registry
-        self.mounted = {}
-        self.named_mounted = {}
+        self.mounted: dict[type[App], Callable[..., App]] = {}
+        self.named_mounted: dict[str, Callable[..., App]] = {}
 
     def register_path(
         self,
-        model,
-        path,
-        variables,
-        converters,
-        required,
-        get_converters,
-        absorb,
-        code_info,
-        model_factory,
-    ):
+        model: type[_T] | None,
+        path: str,
+        variables: MaybeTakesApp[[_T], dict[str, Any]] | None,
+        converters: dict[str, Any] | None,
+        required: Collection[str] | None,
+        get_converters: Callable[[], dict[str, Any]] | None,
+        absorb: bool,
+        code_info: CodeInfo | None,
+        model_factory: Callable[..., Any],
+    ) -> None:
         """Register a route.
 
         See :meth:`morepath.App.path` for more information.
@@ -82,6 +99,7 @@ class PathRegistry(TrajectRegistry):
         )
 
         info = arginfo(model_factory)
+        assert info is not None
         if info.varargs is not None:
             raise DirectiveError(
                 "Cannot use varargs in function signature: %s" % info.varargs
@@ -125,16 +143,16 @@ class PathRegistry(TrajectRegistry):
 
     def register_mount(
         self,
-        app,
-        path,
-        variables,
-        converters,
-        required,
-        get_converters,
-        mount_name,
-        code_info,
-        app_factory,
-    ):
+        app: type[_AppT],
+        path: str,
+        variables: Callable[[_AppT], dict[str, Any]] | None,
+        converters: dict[str, Any] | None,
+        required: Collection[str] | None,
+        get_converters: Callable[[], dict[str, Any]] | None,
+        mount_name: str,
+        code_info: CodeInfo | None,
+        app_factory: Callable[..., App],
+    ) -> None:
         """Register a mounted app.
 
         See :meth:`morepath.App.mount` for more information.
@@ -168,7 +186,11 @@ class PathRegistry(TrajectRegistry):
         mount_name = mount_name or path
         self.named_mounted[mount_name] = app_factory
 
-    def register_path_variables(self, model, func):
+    def register_path_variables(
+        self,
+        model: type[_T] | None,
+        func: MaybeTakesApp[[_T], dict[str, Any]],
+    ) -> None:
         """Register variables function for a model class.
 
         :param model: model class
@@ -180,8 +202,13 @@ class PathRegistry(TrajectRegistry):
         )
 
     def register_inverse_path(
-        self, model, path, factory_args, converters=None, absorb=False
-    ):
+        self,
+        model: type[Any] | None,
+        path: str,
+        factory_args: Collection[str],
+        converters: dict[str, AnyConverter] | None = None,
+        absorb: bool = False,
+    ) -> None:
         """Register information for link generation.
 
         :param model: model class
@@ -196,14 +223,16 @@ class PathRegistry(TrajectRegistry):
 
         self.app_class._class_path.register(get_path, model=model)
 
-        def default_path_variables(app, obj):
+        def default_path_variables(app: App, obj: Any) -> dict[str, Any]:
             return {name: getattr(obj, name) for name in factory_args}
 
         self.app_class._default_path_variables.register(
             default_path_variables, obj=model
         )
 
-    def register_defer_links(self, model, app_factory):
+    def register_defer_links(
+        self, model: type[_T], app_factory: Callable[..., App]
+    ) -> None:
         """Register factory for app to defer links to.
 
         See :meth:`morepath.App.defer_links` for more information.
@@ -215,14 +244,19 @@ class PathRegistry(TrajectRegistry):
         """
         self.app_class._deferred_link_app.register(app_factory, obj=model)
 
-    def register_defer_class_links(self, model, get_variables, app_factory):
+    def register_defer_class_links(
+        self,
+        model: type[_T],
+        get_variables: Callable[[_T], dict[str, Any]],
+        app_factory: Callable[..., App],
+    ) -> None:
         """Register factory for app to defer class links to.
 
         See :meth:`morepath.App.defer_class_links` for more information.
 
         :param model: model class to defer links for.
         :param get_variables: get variables dict for obj.
-        :param app_factory: function that model class, app instance
+        :param app_factory: function that takes model class, app instance
           and variables dict as arguments and should return another
           app instance that does the link generation.
         """
@@ -239,11 +273,11 @@ class PathInfo:
     :param parameters: a dict representing URL parameters.
     """
 
-    def __init__(self, path, parameters):
+    def __init__(self, path: str, parameters: dict[str, list[str]]) -> None:
         self.path = path
         self.parameters = parameters
 
-    def url(self, prefix, name):
+    def url(self, prefix: str, name: str) -> str:
         """Turn a path into a URL.
 
         :param prefix: the URL prefix to put in front of the path. This
@@ -269,7 +303,7 @@ class PathInfo:
                 (key, [v.encode("utf-8") for v in value])
                 for (key, value) in self.parameters.items()
             )
-            result += "?" + fixed_urlencode(parameters, True)
+            result += "?" + urlencode(parameters, True)
         return result
 
 
@@ -285,7 +319,13 @@ class Path:
     :param absorb: bool indicating this is an absorbing path.
     """
 
-    def __init__(self, path, factory_args, converters, absorb):
+    def __init__(
+        self,
+        path: str,
+        factory_args: Collection[str],
+        converters: dict[str, AnyConverter],
+        absorb: bool,
+    ) -> None:
         self.path = path
         traject_path = TrajectPath(path)
         self.interpolation_path = traject_path.interpolation_str()
@@ -296,7 +336,9 @@ class Path:
         self.converters = converters
         self.absorb = absorb
 
-    def get_variables_and_parameters(self, variables, extra_parameters):
+    def get_variables_and_parameters(
+        self, variables: dict[str, Any], extra_parameters: dict[str, Any]
+    ) -> tuple[dict[str, str], dict[str, list[str]]]:
         """Get converted variables and parameters.
 
         :param variables: dict of variables to use in the path.
@@ -332,7 +374,9 @@ class Path:
                 ).encode(value)
         return path_variables, parameters
 
-    def __call__(self, app, model, variables):
+    def __call__(
+        self, app: App, model: type[object], variables: dict[str, Any]
+    ) -> PathInfo:
         """Get path info given model and variables.
 
         :param app: the app instance. Not actually used in the
@@ -368,7 +412,9 @@ class Path:
         return PathInfo(path, url_parameters)
 
 
-def get_arguments(callable, exclude):
+def get_arguments(
+    callable: Callable[..., Any], exclude: Collection[str]
+) -> dict[str, Any]:
     """Introspect callable to get callable arguments and their defaults.
 
     :param callable: callable object such as a function.
@@ -377,16 +423,20 @@ def get_arguments(callable, exclude):
        default values (or ``None`` if no default value was defined).
     """
     info = arginfo(callable)
-    defaults = info.defaults or []
-    defaults = [None] * (len(info.args) - len(defaults)) + list(defaults)
+    assert info is not None
+    defaults = info.defaults or ()
     return {
         name: default
-        for (name, default) in zip(info.args, defaults)
+        for (name, default) in zip_longest(
+            reversed(info.args), reversed(defaults)
+        )
         if name not in exclude
     }
 
 
-def filter_arguments(arguments, exclude):
+def filter_arguments(
+    arguments: dict[str, Any], exclude: Collection[str]
+) -> dict[str, Any]:
     """Filter arguments.
 
     Given a dictionary with arguments and defaults, filter out
@@ -401,15 +451,3 @@ def filter_arguments(arguments, exclude):
         for (name, default) in arguments.items()
         if name not in exclude
     }
-
-
-def fixed_urlencode(s, doseq=0):
-    """``urllib.urlencode`` fixed for ``~``
-
-    Workaround for Python bug:
-
-    https://bugs.python.org/issue16285
-
-    tilde should not be encoded according to RFC3986
-    """
-    return urlencode(s, doseq).replace("%7E", "~")

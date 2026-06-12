@@ -1,7 +1,16 @@
 # Originally taken from pyramid.decorator
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, overload
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing_extensions import Self
+
+_T = TypeVar("_T")
 
 
-class reify:
+class reify(Generic[_T]):
     """Cache a property.
 
     Use as a method decorator.  It operates almost exactly like the
@@ -34,11 +43,22 @@ class reify:
 
     """
 
-    def __init__(self, wrapped):
+    def __init__(self, wrapped: Callable[[Any], _T]) -> None:
         self.wrapped = wrapped
         self.__doc__ = wrapped.__doc__
 
-    def __get__(self, inst, objtype=None):
+    @overload
+    def __get__(
+        self, inst: None, objtype: type[object] | None = None
+    ) -> Self: ...
+    @overload
+    def __get__(
+        self, inst: object, objtype: type[object] | None = None
+    ) -> _T: ...
+
+    def __get__(
+        self, inst: object | None, objtype: type[object] | None = None
+    ) -> Self | _T:
         if inst is None:
             return self
         val = self.wrapped(inst)

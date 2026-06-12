@@ -1,4 +1,3 @@
-# flake8: noqa
 """This is the main public API of Morepath.
 
 Additional public APIs can be imported from the :mod:`morepath.error`
@@ -32,3 +31,28 @@ from .reify import reify
 from .request import Request, Response
 from .run import run
 from .view import redirect, render_html, render_json
+
+__all__ = (
+    "EXCVIEW",
+    "HOST_HEADER_PROTECTION",
+    "LAST_VIEW_PREDICATE",
+    "NO_IDENTITY",
+    "App",
+    "Converter",
+    "Identity",
+    "IdentityPolicy",
+    "Response",
+    "Request",
+    "autoscan",
+    "commit",
+    "dispatch_method",
+    "model_predicate",
+    "name_predicate",
+    "redirect",
+    "reify",
+    "render_html",
+    "render_json",
+    "request_method_predicate",
+    "run",
+    "scan",
+)

@@ -4,9 +4,12 @@ It contains also a helper function to create a JSON config file
 from this dictionary.
 """
 
-import json
+from __future__ import annotations
 
-settings = {
+import json
+from typing import Any
+
+settings: dict[str, Any] = {
     "chameleon": {"debug": True},
     "jinja2": {
         "auto_reload": False,
@@ -26,7 +29,7 @@ settings = {
 }
 
 
-def create_json_config():
+def create_json_config() -> None:
     stream = open("settings.json", "w")
     json.dump(
         settings, stream, sort_keys=True, indent=4, separators=(",", ": ")

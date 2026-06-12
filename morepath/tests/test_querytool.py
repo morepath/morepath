@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
 import dectate
 import morepath
 import reg
@@ -5,24 +9,27 @@ from morepath import core
 
 from .fixtures import identity_policy
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
-def objects(actions):
+
+def objects(actions: Iterable[tuple[dectate.Action, Any]]) -> list[Any]:
     result = []
     for action, obj in actions:
         result.append(obj)
     return result
 
 
-def test_setting():
+def test_setting() -> None:
     class App(morepath.App):
         pass
 
     @App.setting(section="foo", name="bar")
-    def f():
+    def f() -> str:
         return "Hello"
 
     @App.setting(section="foo", name="qux")
-    def g():
+    def g() -> str:
         return "Dag"
 
     dectate.commit(App)
@@ -34,7 +41,7 @@ def test_setting():
     assert objects(dectate.query_app(App, "setting_section")) == [f, g]
 
 
-def test_predicate_fallback():
+def test_predicate_fallback() -> None:
     class App(morepath.App):
         pass
 
@@ -76,7 +83,7 @@ def test_predicate_fallback():
     ]
 
 
-def test_predicate():
+def test_predicate() -> None:
     class App(morepath.App):
         pass
 
@@ -122,21 +129,21 @@ def test_predicate():
 
 class App(morepath.App):
     @morepath.dispatch_method()
-    def generic(self, v):
+    def generic(self, v: str) -> str | None:
         pass
 
 
-def test_method():
+def test_method() -> None:
     @App.predicate(App.generic, name="v", default="", index=reg.KeyIndex)
-    def get(self, v):
+    def get(self: App, v: str) -> str:
         return v
 
     @App.method(App.generic, v="A")
-    def a(app, v):
+    def a(app: App, v: str) -> str:
         return v
 
     @App.method(App.generic, v="B")
-    def b(app, v):
+    def b(app: App, v: str) -> str:
         return v
 
     dectate.commit(App)
@@ -162,7 +169,7 @@ def test_method():
     assert r == [a]
 
 
-def test_converter():
+def test_converter() -> None:
     class App(morepath.App):
         pass
 
@@ -205,30 +212,30 @@ class SubBar(Bar):
     pass
 
 
-def get_variables(obj):
-    pass
-
-
-def get_converters():
+def get_variables(obj: Any) -> dict[str, Any]:
     return {}
 
 
-def test_path():
+def get_converters() -> dict[str, Any]:
+    return {}
+
+
+def test_path() -> None:
     class App(morepath.App):
         pass
 
     @App.path("base", model=Base)
-    def get_base():
+    def get_base() -> None:
         pass
 
     @App.path("foos", model=Foos, variables=get_variables)
-    def get_foos():
+    def get_foos() -> None:
         pass
 
     @App.path(
         "foos/{id}", model=Foo, get_converters=get_converters, absorb=True
     )
-    def get_foo(id):
+    def get_foo(id: str) -> None:
         pass
 
     dectate.commit(App)
@@ -323,22 +330,22 @@ class SubIdentity(morepath.Identity):
     pass
 
 
-def test_permission_rule():
+def test_permission_rule() -> None:
     class App(morepath.App):
         pass
 
     @App.permission_rule(model=Base, permission=BasePermission)
-    def rule_base(obj, permission, identity):
+    def rule_base(obj: Base, permission: object, identity: object) -> bool:
         return True
 
     @App.permission_rule(model=Foo, permission=Permission)
-    def rule_foo(obj, permission, identity):
+    def rule_foo(obj: Foo, permission: object, identity: object) -> bool:
         return True
 
     @App.permission_rule(
         model=Foos, permission=SubPermission, identity=SubIdentity
     )
-    def rule_foos(obj, permission, identity):
+    def rule_foos(obj: Foos, permission: object, identity: object) -> bool:
         return True
 
     dectate.commit(App)
@@ -429,11 +436,11 @@ def test_permission_rule():
     assert r == [rule_foos]
 
 
-def template_directory_a():
+def template_directory_a() -> str:
     return "/"
 
 
-def test_template_directory():
+def test_template_directory() -> None:
     class App(morepath.App):
         pass
 
@@ -441,7 +448,7 @@ def test_template_directory():
     App.template_directory()(template_directory_a)
 
     @App.template_directory(after=template_directory_a, name="blah")
-    def b():
+    def b() -> str:
         return "/"
 
     dectate.commit(App)
@@ -464,16 +471,16 @@ def test_template_directory():
     assert r == [b]
 
 
-def test_template_render():
+def test_template_render() -> None:
     class App(morepath.App):
         pass
 
     @App.template_render(".zpt")
-    def render(loader, name, original_render):
+    def render(loader: object, name: str, original_render: object) -> None:
         pass
 
     @App.template_render(".blah")
-    def render2(loader, name, original_render):
+    def render2(loader: object, name: str, original_render: object) -> None:
         pass
 
     dectate.commit(App)
@@ -487,20 +494,20 @@ def test_template_render():
     assert r == [render2]
 
 
-def test_view():
+def test_view() -> None:
     class App(morepath.App):
         pass
 
     @App.json(model=Foo)
-    def foo_default(self, request):
+    def foo_default(self: Foo, request: morepath.Request) -> None:
         pass
 
     @App.view(model=Base)
-    def base_default(self, request):
+    def base_default(self: Base, request: morepath.Request) -> None:
         pass
 
     @App.view(model=Foo, name="edit")
-    def foo_edit(self, request):
+    def foo_edit(self: Foo, request: morepath.Request) -> None:
         pass
 
     dectate.commit(App)
@@ -552,24 +559,24 @@ def test_view():
     assert r == [foo_edit]
 
 
-def test_view_permission():
+def test_view_permission() -> None:
     class App(morepath.App):
         pass
 
     @App.view(model=Foo, name="n")
-    def foo_n(self, request):
+    def foo_n(self: Foo, request: morepath.Request) -> None:
         pass
 
     @App.view(model=Foo, name="b", permission=BasePermission)
-    def foo_b(self, request):
+    def foo_b(self: Foo, request: morepath.Request) -> None:
         pass
 
     @App.view(model=Foo, name="p", permission=Permission)
-    def foo_p(self, request):
+    def foo_p(self: Foo, request: morepath.Request) -> None:
         pass
 
     @App.view(model=Foo, name="s", permission=SubPermission)
-    def foo_s(self, request):
+    def foo_s(self: Foo, request: morepath.Request) -> None:
         pass
 
     dectate.commit(App)
@@ -618,16 +625,16 @@ class Mounted(morepath.App):
     pass
 
 
-def test_mount():
+def test_mount() -> None:
     class App(morepath.App):
         pass
 
     @App.path(path="foo", model=Foo)
-    def get_foo():
+    def get_foo() -> None:
         pass
 
     @App.mount(path="mounted", app=Mounted)
-    def mount_app():
+    def mount_app() -> Mounted:
         return Mounted()
 
     dectate.commit(App, Mounted)
@@ -653,7 +660,7 @@ def test_mount():
     assert r == [get_foo]
 
 
-def test_defer_links():
+def test_defer_links() -> None:
     class App(morepath.App):
         pass
 
@@ -661,15 +668,15 @@ def test_defer_links():
         pass
 
     @App.path(path="foo", model=Foo)
-    def get_foo():
+    def get_foo() -> None:
         pass
 
     @App.defer_links(model=Bar)
-    def defer_bar(app, obj):
+    def defer_bar(app: App, obj: Bar) -> morepath.App | None:
         return app.child("mounted")
 
     @App.mount(path="mounted", app=Mounted2)
-    def mount_app():
+    def mount_app() -> Mounted2:
         return Mounted2()
 
     dectate.commit(App, Mounted2)
@@ -702,15 +709,19 @@ def test_defer_links():
     assert r == [get_foo]
 
 
-def tween_a_factory():
-    pass
+if TYPE_CHECKING:
+    tween_a_factory: Any
+    tween_b_factory: Any
+else:
+
+    def tween_a_factory():
+        pass
+
+    def tween_b_factory():
+        pass
 
 
-def tween_b_factory():
-    pass
-
-
-def test_tween_factory():
+def test_tween_factory() -> None:
     class App(morepath.App):
         pass
 
@@ -739,12 +750,12 @@ def test_tween_factory():
     assert r == [tween_b_factory]
 
 
-def test_identity_policy():
+def test_identity_policy() -> None:
     class App(morepath.App):
         pass
 
     @App.identity_policy()
-    def get_identity_policy():
+    def get_identity_policy() -> identity_policy.IdentityPolicy:
         return identity_policy.IdentityPolicy()
 
     dectate.commit(App)
@@ -754,12 +765,12 @@ def test_identity_policy():
     assert len(r) == 1
 
 
-def test_verify_identity():
+def test_verify_identity() -> None:
     class App(morepath.App):
         pass
 
     @App.verify_identity()
-    def verify(identity):
+    def verify(identity: morepath.Identity) -> bool:
         return True
 
     dectate.commit(App)
@@ -769,16 +780,16 @@ def test_verify_identity():
     assert r == [verify]
 
 
-def test_dump_json():
+def test_dump_json() -> None:
     class App(morepath.App):
         pass
 
     @App.dump_json(model=Foo)
-    def dump_foo(self, request):
+    def dump_foo(self: Foo, request: morepath.Request) -> None:
         pass
 
     @App.dump_json(model=Bar)
-    def dump_bar(self, request):
+    def dump_bar(self: Bar, request: morepath.Request) -> None:
         pass
 
     dectate.commit(App)
@@ -804,12 +815,12 @@ def test_dump_json():
     assert r == [dump_foo]
 
 
-def test_link_prefix():
+def test_link_prefix() -> None:
     class App(morepath.App):
         pass
 
     @App.link_prefix()
-    def prefix(s):
+    def prefix(s: App) -> None:
         pass
 
     dectate.commit(App)

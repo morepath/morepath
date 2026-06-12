@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from webtest import TestApp as Client
 
 import morepath
@@ -6,7 +8,7 @@ from .fixtures import scenario
 from .fixtures.scenario import app
 
 
-def test_scenario():
+def test_scenario() -> None:
     morepath.scan(scenario)
 
     c = Client(app.Root())

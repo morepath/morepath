@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 
 from dectate import DirectiveError
@@ -10,7 +12,7 @@ from ..converter import (
 )
 
 
-def test_converter_registry():
+def test_converter_registry() -> None:
     r = ConverterRegistry()
 
     c = Converter(int, str)
@@ -22,11 +24,11 @@ def test_converter_registry():
         r.get_converter(str)
 
 
-def test_converter_registry_inheritance():
+def test_converter_registry_inheritance() -> None:
     r = ConverterRegistry()
 
     class Lifeform:
-        def __init__(self, name):
+        def __init__(self, name: str) -> None:
             self.name = name
 
     class Animal(Lifeform):
@@ -40,13 +42,13 @@ def test_converter_registry_inheritance():
         "elephant": elephant,
     }
 
-    def lifeform_decode(s):
+    def lifeform_decode(s: str) -> Lifeform:
         try:
             return lifeforms[s]
         except KeyError:
             raise ValueError
 
-    def lifeform_encode(lifeform):
+    def lifeform_encode(lifeform: Lifeform) -> str:
         return lifeform.name
 
     c = Converter(lifeform_decode, lifeform_encode)
@@ -62,17 +64,17 @@ def test_converter_registry_inheritance():
     assert r.get_converter(Lifeform).encode(seaweed) == ["seaweed"]
 
 
-def test_converter_equality():
-    def decode():
+def test_converter_equality() -> None:
+    def decode(x: str) -> object:
         pass
 
-    def encode():
-        pass
+    def encode(x: object) -> str:
+        return "x"
 
-    def other_encode():
-        pass
+    def other_encode(x: object) -> str:
+        return "y"
 
-    def other_decode():
+    def other_decode(x: str) -> object:
         pass
 
     one = Converter(decode, encode)
