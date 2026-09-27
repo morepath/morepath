@@ -55,9 +55,7 @@ def test_predicate_fallback() -> None:
     ]
 
     r = objects(
-        dectate.query_app(
-            App, "predicate_fallback", dispatch="morepath.App.get_view"
-        )
+        dectate.query_app(App, "predicate_fallback", dispatch="morepath.App.get_view")
     )
     assert r == [
         core.model_not_found,
@@ -96,9 +94,7 @@ def test_predicate() -> None:
         core.request_method_predicate,
     ]
 
-    r = objects(
-        dectate.query_app(App, "predicate", dispatch="morepath.App.get_view")
-    )
+    r = objects(dectate.query_app(App, "predicate", dispatch="morepath.App.get_view"))
     assert r == [
         core.model_predicate,
         core.name_predicate,
@@ -120,9 +116,7 @@ def test_predicate() -> None:
     assert r == [core.model_predicate]
 
     r = objects(
-        dectate.query_app(
-            App, "predicate", after="morepath.core.model_predicate"
-        )
+        dectate.query_app(App, "predicate", after="morepath.core.model_predicate")
     )
     assert r == [core.name_predicate]
 
@@ -232,9 +226,7 @@ def test_path() -> None:
     def get_foos() -> None:
         pass
 
-    @App.path(
-        "foos/{id}", model=Foo, get_converters=get_converters, absorb=True
-    )
+    @App.path("foos/{id}", model=Foo, get_converters=get_converters, absorb=True)
     def get_foo(id: str) -> None:
         pass
 
@@ -245,32 +237,24 @@ def test_path() -> None:
     assert r == [get_base, get_foos, get_foo]
 
     r = objects(
-        dectate.query_app(
-            App, "path", model="morepath.tests.test_querytool.Foo"
-        )
+        dectate.query_app(App, "path", model="morepath.tests.test_querytool.Foo")
     )
     assert r == [get_base, get_foo]
 
     r = objects(
-        dectate.query_app(
-            App, "path", model="morepath.tests.test_querytool.SubFoo"
-        )
+        dectate.query_app(App, "path", model="morepath.tests.test_querytool.SubFoo")
     )
 
     assert r == [get_base, get_foo]
 
     r = objects(
-        dectate.query_app(
-            App, "path", model="morepath.tests.test_querytool.Base"
-        )
+        dectate.query_app(App, "path", model="morepath.tests.test_querytool.Base")
     )
 
     assert r == [get_base]
 
     r = objects(
-        dectate.query_app(
-            App, "path", model="morepath.tests.test_querytool.Bar"
-        )
+        dectate.query_app(App, "path", model="morepath.tests.test_querytool.Bar")
     )
 
     assert r == [get_base]
@@ -342,9 +326,7 @@ def test_permission_rule() -> None:
     def rule_foo(obj: Foo, permission: object, identity: object) -> bool:
         return True
 
-    @App.permission_rule(
-        model=Foos, permission=SubPermission, identity=SubIdentity
-    )
+    @App.permission_rule(model=Foos, permission=SubPermission, identity=SubIdentity)
     def rule_foos(obj: Foos, permission: object, identity: object) -> bool:
         return True
 
@@ -419,9 +401,7 @@ def test_permission_rule() -> None:
 
     assert r == [rule_base, rule_foo]
 
-    r = objects(
-        dectate.query_app(App, "permission_rule", identity="morepath.Identity")
-    )
+    r = objects(dectate.query_app(App, "permission_rule", identity="morepath.Identity"))
 
     assert r == [rule_base, rule_foo, rule_foos]
 
@@ -531,25 +511,19 @@ def test_view() -> None:
     ]
 
     r = objects(
-        dectate.query_app(
-            App, "view", model="morepath.tests.test_querytool.Base"
-        )
+        dectate.query_app(App, "view", model="morepath.tests.test_querytool.Base")
     )
 
     assert r == [base_default]
 
     r = objects(
-        dectate.query_app(
-            App, "view", model="morepath.tests.test_querytool.Foo"
-        )
+        dectate.query_app(App, "view", model="morepath.tests.test_querytool.Foo")
     )
 
     assert r == [foo_default, base_default, foo_edit]
 
     r = objects(
-        dectate.query_app(
-            App, "view", model="morepath.tests.test_querytool.Bar"
-        )
+        dectate.query_app(App, "view", model="morepath.tests.test_querytool.Bar")
     )
 
     assert r == [base_default]
@@ -644,17 +618,13 @@ def test_mount() -> None:
     assert r == [get_foo, mount_app]
 
     r = objects(
-        dectate.query_app(
-            App, "mount", app="morepath.tests.test_querytool.Mounted"
-        )
+        dectate.query_app(App, "mount", app="morepath.tests.test_querytool.Mounted")
     )
 
     assert r == [mount_app]
 
     r = objects(
-        dectate.query_app(
-            App, "mount", model="morepath.tests.test_querytool.Foo"
-        )
+        dectate.query_app(App, "mount", model="morepath.tests.test_querytool.Foo")
     )
 
     assert r == [get_foo]
@@ -686,9 +656,7 @@ def test_defer_links() -> None:
     assert r == [get_foo, defer_bar, mount_app]
 
     r = objects(
-        dectate.query_app(
-            App, "defer_links", model="morepath.tests.test_querytool.Bar"
-        )
+        dectate.query_app(App, "defer_links", model="morepath.tests.test_querytool.Bar")
     )
 
     assert r == [defer_bar]
@@ -702,9 +670,7 @@ def test_defer_links() -> None:
     assert r == [defer_bar]
 
     r = objects(
-        dectate.query_app(
-            App, "defer_links", model="morepath.tests.test_querytool.Foo"
-        )
+        dectate.query_app(App, "defer_links", model="morepath.tests.test_querytool.Foo")
     )
     assert r == [get_foo]
 
@@ -799,9 +765,7 @@ def test_dump_json() -> None:
     assert r == [dump_foo, dump_bar]
 
     r = objects(
-        dectate.query_app(
-            App, "dump_json", model="morepath.tests.test_querytool.Foo"
-        )
+        dectate.query_app(App, "dump_json", model="morepath.tests.test_querytool.Foo")
     )
 
     assert r == [dump_foo]

@@ -170,16 +170,12 @@ class ConverterRegistry:
     """
 
     def __init__(self) -> None:
-        self.get_converter: DispatchCall[[type[Any]], Converter[Any]] = (
-            reg.dispatch(
-                reg.match_class("type"), get_key_lookup=reg.DictCachingKeyLookup
-            )(get_converter)
-        )
+        self.get_converter: DispatchCall[[type[Any]], Converter[Any]] = reg.dispatch(
+            reg.match_class("type"), get_key_lookup=reg.DictCachingKeyLookup
+        )(get_converter)
         self.register_converter(type(None), IDENTITY_CONVERTER)  # type: ignore[misc]
 
-    def register_converter(
-        self, type: type[_T], converter: Converter[_T]
-    ) -> None:
+    def register_converter(self, type: type[_T], converter: Converter[_T]) -> None:
         """Register a converter for type.
 
         :param type: the Python type for which to register
@@ -193,9 +189,7 @@ class ConverterRegistry:
         self, spec: list[type[_T]]
     ) -> ListConverter[_T]: ...
     @overload
-    def actual_converter(
-        self, spec: type[_T] | Converter[_T]
-    ) -> Converter[_T]: ...
+    def actual_converter(self, spec: type[_T] | Converter[_T]) -> Converter[_T]: ...
 
     # this is for the empty list case, pretty icky but nothing we can do
     @overload
@@ -228,8 +222,7 @@ class ConverterRegistry:
     ) -> dict[str, AnyConverter]:
         """Use explict converters unless none supplied, then use default args."""
         result: dict[str, Converter[Any] | ListConverter[Any]] = {
-            name: self.get_converter(type(value))
-            for name, value in arguments.items()
+            name: self.get_converter(type(value)) for name, value in arguments.items()
         }
         for name, conv in converters.items():
             result[name] = self.actual_converter(conv)

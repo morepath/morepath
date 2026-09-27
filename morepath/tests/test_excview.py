@@ -75,9 +75,7 @@ def test_other_exception_excview() -> None:
         raise MyException()
 
     @app.view(model=MyException)
-    def myexception_default(
-        self: MyException, request: morepath.Request
-    ) -> str:
+    def myexception_default(self: MyException, request: morepath.Request) -> str:
         return "My exception"
 
     c = Client(app())
@@ -124,9 +122,7 @@ def test_excview_named_view() -> None:
 
     # the view name should have no influence on myexception lookup
     @app.view(model=MyException)
-    def myexception_default(
-        self: MyException, request: morepath.Request
-    ) -> str:
+    def myexception_default(self: MyException, request: morepath.Request) -> str:
         return "My exception"
 
     c = Client(app())

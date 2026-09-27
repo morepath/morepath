@@ -171,9 +171,7 @@ def excview_tween_factory(app: App, handler: Tween) -> Tween:
             # do not want the request to feature in the lookup;
             # we don't want its request method or name to influence
             # exception lookup
-            view = request.app.get_view.by_predicates(
-                model=exc.__class__
-            ).component
+            view = request.app.get_view.by_predicates(model=exc.__class__).component
             if view is None:
                 raise
 
@@ -188,9 +186,7 @@ def excview_tween_factory(app: App, handler: Tween) -> Tween:
 
 
 @App.tween_factory(over=excview_tween_factory)
-def poisoned_host_header_protection_tween_factory(
-    app: App, handler: Tween
-) -> Tween:
+def poisoned_host_header_protection_tween_factory(app: App, handler: Tween) -> Tween:
     """Protect Morepath applications against the most basic host header
     poisoning attacts.
 
@@ -203,9 +199,7 @@ def poisoned_host_header_protection_tween_factory(
     * https://github.com/django/django/commit/77b06e41516d8136b56c040cba7e235b
 
     """
-    valid_host_re = re.compile(
-        r"^([a-z0-9.\-_]+|\[[a-f0-9]*:[a-f0-9:]+\])(:\d+)?$"
-    )
+    valid_host_re = re.compile(r"^([a-z0-9.\-_]+|\[[a-f0-9]*:[a-f0-9:]+\])(:\d+)?$")
 
     def poisoned_host_header_protection_tween(request: Request) -> BaseResponse:
         if not valid_host_re.match(request.host.lower()):
@@ -217,9 +211,7 @@ def poisoned_host_header_protection_tween_factory(
 
 
 @App.view(model=HTTPException)
-def standard_exception_view(
-    self: HTTPException, request: Request
-) -> HTTPException:
+def standard_exception_view(self: HTTPException, request: Request) -> HTTPException:
     """We want the webob standard responses for any webob-based HTTP exception.
 
     Applies to subclasses of :class:`webob.HTTPException`.

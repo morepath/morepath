@@ -39,9 +39,9 @@ class PredicateRegistry:
 
     def __init__(self, app_class: type[App]) -> None:
         self.app_class = app_class
-        self._predicate_infos: dict[
-            DispatchCall[..., Any], list[PredicateInfo]
-        ] = defaultdict(list)
+        self._predicate_infos: dict[DispatchCall[..., Any], list[PredicateInfo]] = (
+            defaultdict(list)
+        )
         self._predicate_fallbacks: dict[
             DispatchCall[..., Any] | str,
             dict[Callable[..., Any] | str, Callable[..., Any]],
@@ -101,9 +101,7 @@ class PredicateRegistry:
                 self.get_predicates(dispatch)
             )
 
-    def get_predicates(
-        self, dispatch: DispatchCall[..., Any]
-    ) -> list[Predicate]:
+    def get_predicates(self, dispatch: DispatchCall[..., Any]) -> list[Predicate]:
         """Create Reg predicates.
 
         This creates :class:`reg.Predicate` objects for a particular

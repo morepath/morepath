@@ -25,9 +25,7 @@ def test_defer_links() -> None:
         return request.link(SubModel())
 
     @Root.view(model=RootModel, name="class_link")
-    def root_model_class_link(
-        self: RootModel, request: morepath.Request
-    ) -> str:
+    def root_model_class_link(self: RootModel, request: morepath.Request) -> str:
         return request.class_link(SubModel)
 
     @Sub.path(path="")
@@ -71,9 +69,7 @@ def test_defer_view() -> None:
         pass
 
     @Sub.json(model=SubModel)
-    def submodel_default(
-        self: SubModel, request: morepath.Request
-    ) -> dict[str, Any]:
+    def submodel_default(self: SubModel, request: morepath.Request) -> dict[str, Any]:
         return {"hello": "world"}
 
     @Root.mount(app=Sub, path="sub")
@@ -785,9 +781,7 @@ def test_defer_link_scenario() -> None:
         return Document()
 
     @Child.json(model=Document)
-    def document_default(
-        self: Document, request: morepath.Request
-    ) -> dict[str, Any]:
+    def document_default(self: Document, request: morepath.Request) -> dict[str, Any]:
         return {
             "app": "Child",
         }
@@ -869,9 +863,7 @@ def test_defer_class_links_with_variables() -> None:
     def mount_sub() -> Sub:
         return Sub()
 
-    @Root.defer_class_links(
-        model=SubModel, variables=lambda obj: {"name": obj.name}
-    )
+    @Root.defer_class_links(model=SubModel, variables=lambda obj: {"name": obj.name})
     def defer_class_links_sub_model(
         app: Root, model: SubModel, variables: dict[str, Any]
     ) -> morepath.App | None:
@@ -951,9 +943,7 @@ def test_link_uses_defer_class_links() -> None:
     def mount_sub() -> Sub:
         return Sub()
 
-    @Root.defer_class_links(
-        model=SubModel, variables=lambda obj: {"name": obj.name}
-    )
+    @Root.defer_class_links(model=SubModel, variables=lambda obj: {"name": obj.name})
     def defer_class_links_sub_model(
         app: Root, model: SubModel, variables: dict[str, Any]
     ) -> morepath.App | None:
@@ -993,9 +983,7 @@ def test_defer_links_and_defer_links_conflict() -> None:
     def defer_links_sub_model(app: Root, obj: SubModel) -> morepath.App | None:
         return app.child(Sub())
 
-    @Root.defer_class_links(
-        model=SubModel, variables=lambda obj: {"name": obj.name}
-    )
+    @Root.defer_class_links(model=SubModel, variables=lambda obj: {"name": obj.name})
     def defer_class_links_sub_model(
         app: Root, model: SubModel, variables: dict[str, Any]
     ) -> morepath.App | None:

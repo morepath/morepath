@@ -1211,14 +1211,10 @@ def test_script_name() -> None:
 
     c = Client(app())
 
-    response = c.get(
-        "/prefix/simple", extra_environ=dict(SCRIPT_NAME="/prefix")
-    )
+    response = c.get("/prefix/simple", extra_environ=dict(SCRIPT_NAME="/prefix"))
     assert response.body == b"View"
 
-    response = c.get(
-        "/prefix/simple/link", extra_environ=dict(SCRIPT_NAME="/prefix")
-    )
+    response = c.get("/prefix/simple/link", extra_environ=dict(SCRIPT_NAME="/prefix"))
     assert response.body == b"http://localhost/prefix/simple"
 
 
@@ -1439,9 +1435,7 @@ def test_path_explicit_variables() -> None:
         def __init__(self, id: str) -> None:
             self.store_id = id
 
-    @App.path(
-        model=Model, path="models/{id}", variables=lambda m: {"id": m.store_id}
-    )
+    @App.path(model=Model, path="models/{id}", variables=lambda m: {"id": m.store_id})
     def get_model(id: str) -> Model:
         return Model(id)
 

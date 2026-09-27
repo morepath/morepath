@@ -60,14 +60,9 @@ def test_predicates() -> None:
     app.get_view.register(View(post_view), model=Model, request_method="POST")
 
     model = Model()
+    assert resolve_response(model, app().request(get_environ(path=""))).body == b"all"
     assert (
-        resolve_response(model, app().request(get_environ(path=""))).body
-        == b"all"
-    )
-    assert (
-        resolve_response(
-            model, app().request(get_environ(path="", method="POST"))
-        ).body
+        resolve_response(model, app().request(get_environ(path="", method="POST"))).body
         == b"post"
     )
 
@@ -149,9 +144,7 @@ def test_request_view_with_predicates() -> None:
     def view(self: object, request: morepath.Request) -> dict[str, str]:
         return {"hey": "hey"}
 
-    app.get_view.register(
-        View(view, render=render_json), model=Model, name="foo"
-    )
+    app.get_view.register(View(view, render=render_json), model=Model, name="foo")
 
     request = app().request(get_environ(path=""))
 

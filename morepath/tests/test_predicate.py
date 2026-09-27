@@ -157,9 +157,7 @@ def test_dispatch_external_predicates_ordering_after() -> None:
     def pred_obj(app: App, obj: object, name: str) -> type[Any]:
         return obj.__class__
 
-    @App.predicate(
-        App.f, name="name", default="", index=KeyIndex, after=pred_obj
-    )
+    @App.predicate(App.f, name="name", default="", index=KeyIndex, after=pred_obj)
     def pred_name(app: App, obj: object, name: str) -> str:
         return name
 

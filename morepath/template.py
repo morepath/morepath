@@ -39,9 +39,7 @@ class TemplateEngineRegistry:
         self._template_loaders: dict[str, Any] = {}
         self._template_renders: dict[str, GetRender] = {}
         self._template_directory_infos: list[TemplateDirectoryInfo] = []
-        self._template_configurable_to_keys: dict[
-            Configurable, list[GetStrPath]
-        ] = {}
+        self._template_configurable_to_keys: dict[Configurable, list[GetStrPath]] = {}
 
     def register_template_directory_info(
         self,
@@ -59,16 +57,14 @@ class TemplateEngineRegistry:
         :param directory: absolute path to template directory
         :param before: key to before in template lookup
         :param after: key to sort after in template lookup
-        :param configurable: :class:`dectate.Configurable` used that
+        :param configurable: :class:`dectate.config.Configurable` used that
           registered this template directory. Used for implicit
           sorting by app inheritance.
         """
         self._template_directory_infos.append(
             TemplateDirectoryInfo(key, directory, before, after, configurable)
         )
-        self._template_configurable_to_keys.setdefault(configurable, []).append(
-            key
-        )
+        self._template_configurable_to_keys.setdefault(configurable, []).append(key)
 
     def register_template_render(self, extension: str, func: GetRender) -> None:
         """Register way to get a view render function for a file extension.
@@ -113,14 +109,11 @@ class TemplateEngineRegistry:
         for info in self._template_directory_infos:
             extra_before = []
             for base in info.configurable.extends:
-                extra_before.extend(
-                    self._template_configurable_to_keys.get(base, [])
-                )
+                extra_before.extend(self._template_configurable_to_keys.get(base, []))
             info.before.extend(extra_before)
         try:
             return [
-                info.directory
-                for info in toposorted(self._template_directory_infos)
+                info.directory for info in toposorted(self._template_directory_infos)
             ]
         except TopologicalSortError:
             raise ConfigError(

@@ -21,9 +21,7 @@ def test_json_obj_dump() -> None:
         return self
 
     @app.dump_json(model=Model)
-    def dump_model_json(
-        self: Model, request: morepath.Request
-    ) -> dict[str, Any]:
+    def dump_model_json(self: Model, request: morepath.Request) -> dict[str, Any]:
         return {"x": self.x}
 
     c = Client(app())

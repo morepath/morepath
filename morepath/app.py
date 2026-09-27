@@ -261,9 +261,7 @@ class App(dectate.App):
     @overload
     def sibling(self, app: str, **variables: Any) -> App | None: ...
 
-    def sibling(
-        self, app: type[App] | App | str, **variables: Any
-    ) -> App | None:
+    def sibling(self, app: type[App] | App | str, **variables: Any) -> App | None:
         """Get app mounted next to this app.
 
         Either give it an instance of the app class as the first
@@ -508,9 +506,7 @@ class App(dectate.App):
         """
         pass
 
-    def forget_identity(
-        self, response: BaseResponse, request: AnyRequest
-    ) -> None:
+    def forget_identity(self, response: BaseResponse, request: AnyRequest) -> None:
         """Modify response so that identity is forgotten by client.
 
         :param response: :class:`morepath.Response` to forget identity on.
@@ -654,9 +650,7 @@ class App(dectate.App):
                 # fall back on using class link app
                 variables = app._path_variables(obj)
                 if variables is not None:
-                    next_app = app._deferred_class_link_app(
-                        obj.__class__, variables
-                    )
+                    next_app = app._deferred_class_link_app(obj.__class__, variables)
             app = next_app
         return None, app
 

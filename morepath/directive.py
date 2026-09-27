@@ -176,9 +176,7 @@ class PredicateFallbackAction(dectate.Action):
     def perform(
         self, obj: Callable[..., Any], predicate_registry: PredicateRegistry
     ) -> None:
-        predicate_registry.register_predicate_fallback(
-            self.dispatch, self.func, obj
-        )
+        predicate_registry.register_predicate_fallback(self.dispatch, self.func, obj)
 
 
 class PredicateAction(dectate.Action):
@@ -312,12 +310,8 @@ class MethodAction(dectate.Action):
             self.dispatch_method.by_predicates(**self.key_dict).key,
         )
 
-    def perform(
-        self, obj: Callable[..., Any], app_class: type[dectate.App]
-    ) -> None:
-        getattr(app_class, self.dispatch_method.__name__).register(
-            obj, **self.key_dict
-        )
+    def perform(self, obj: Callable[..., Any], app_class: type[dectate.App]) -> None:
+        getattr(app_class, self.dispatch_method.__name__).register(obj, **self.key_dict)
 
 
 class ConverterAction(dectate.Action):
@@ -392,9 +386,7 @@ class PathAction(dectate.Action):
     ) -> list[tuple[str, type[Any] | None]]:
         return [("model", self.model)]
 
-    def perform(
-        self, obj: Callable[..., Any], path_registry: PathRegistry
-    ) -> None:
+    def perform(self, obj: Callable[..., Any], path_registry: PathRegistry) -> None:
         path_registry.register_path(
             self.model,
             self.path,
@@ -484,8 +476,7 @@ class PathCompositeAction(dectate.Composite):
         if isinstance(obj, type):
             if model is not None:
                 raise dectate.DirectiveError(
-                    "@path decorates class so cannot "
-                    "have explicit model: %s" % model
+                    "@path decorates class so cannot " "have explicit model: %s" % model
                 )
             model = obj
         if model is None:
@@ -618,9 +609,7 @@ class TemplateDirectoryAction(dectate.Action):
             template_directory_id += 1
         self.name = name
 
-    def identifier(
-        self, template_engine_registry: TemplateEngineRegistry
-    ) -> str:
+    def identifier(self, template_engine_registry: TemplateEngineRegistry) -> str:
         return self.name
 
     def perform(
@@ -631,9 +620,7 @@ class TemplateDirectoryAction(dectate.Action):
         directory = obj()
         if not os.path.isabs(directory):
             assert self.code_info is not None
-            directory = os.path.join(
-                os.path.dirname(self.code_info.path), directory
-            )
+            directory = os.path.join(os.path.dirname(self.code_info.path), directory)
         # hacky to have to get configurable and pass it in.
         # note that this cannot be app_class as we want the app of
         # the directive that *defined* it so we sort things properly.
@@ -665,9 +652,7 @@ class TemplateLoaderAction(dectate.Action):
         """
         self.extension = extension
 
-    def identifier(
-        self, template_engine_registry: TemplateEngineRegistry
-    ) -> str:
+    def identifier(self, template_engine_registry: TemplateEngineRegistry) -> str:
         return self.extension
 
     def perform(
@@ -702,9 +687,7 @@ class TemplateRenderAction(dectate.Action):
         """
         self.extension = extension
 
-    def identifier(
-        self, template_engine_registry: TemplateEngineRegistry
-    ) -> str:
+    def identifier(self, template_engine_registry: TemplateEngineRegistry) -> str:
         return self.extension
 
     def perform(
@@ -839,9 +822,7 @@ class ViewAction(dectate.Action):
     ) -> None:
         render = self.render
         if self.template is not None:
-            render = template_engine_registry.get_template_render(
-                self.template, render
-            )
+            render = template_engine_registry.get_template_render(self.template, render)
         v = View(
             obj,
             render,
@@ -1046,9 +1027,7 @@ class MountAction(PathAction):
     ) -> list[tuple[str, type[Any] | None]]:
         return [("mount", self.app)]
 
-    def perform(
-        self, obj: Callable[..., Any], path_registry: PathRegistry
-    ) -> None:
+    def perform(self, obj: Callable[..., Any], path_registry: PathRegistry) -> None:
         path_registry.register_mount(
             self.app,
             self.path,
@@ -1158,12 +1137,8 @@ class DeferClassLinksAction(dectate.Action):
     ) -> list[tuple[str, type[Any]]]:
         return [("model", self.model)]
 
-    def perform(
-        self, obj: Callable[..., Any], path_registry: PathRegistry
-    ) -> None:
-        path_registry.register_defer_class_links(
-            self.model, self.variables, obj
-        )
+    def perform(self, obj: Callable[..., Any], path_registry: PathRegistry) -> None:
+        path_registry.register_defer_class_links(self.model, self.variables, obj)
 
 
 tween_factory_id = 0
@@ -1221,9 +1196,7 @@ class TweenFactoryAction(dectate.Action):
         return self.name
 
     def perform(self, obj: TweenFactory, tween_registry: TweenRegistry) -> None:
-        tween_registry.register_tween_factory(
-            obj, over=self.over, under=self.under
-        )
+        tween_registry.register_tween_factory(obj, over=self.over, under=self.under)
 
 
 class IdentityPolicyAction(dectate.Action):
@@ -1337,9 +1310,7 @@ class DumpJsonAction(dectate.Action):
         return self.model
 
     def perform(self, obj: Callable[..., Any], app_class: type[App]) -> None:
-        app_class._dump_json.register(
-            methodify(obj, selfname="app"), obj=self.model
-        )
+        app_class._dump_json.register(methodify(obj, selfname="app"), obj=self.model)
 
 
 class LinkPrefixAction(dectate.Action):

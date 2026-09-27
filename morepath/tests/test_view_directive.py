@@ -99,9 +99,7 @@ def test_view_custom_predicate_without_fallback() -> None:
         index=KeyIndex,
         after=request_method_predicate,
     )
-    def dummy_predicate(
-        self: Core, obj: object, request: morepath.Request
-    ) -> str:
+    def dummy_predicate(self: Core, obj: object, request: morepath.Request) -> str:
         return "match"
 
     @App.path(path="")

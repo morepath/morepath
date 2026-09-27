@@ -192,9 +192,9 @@ def test_argument_and_explicit_converters_none_defaults() -> None:
 def test_argument_and_explicit_converters_explicit() -> None:
     reg = ConverterRegistry()
 
-    assert reg.argument_and_explicit_converters(
-        {"a": None}, {"a": Converter(int)}
-    ) == {"a": Converter(int)}
+    assert reg.argument_and_explicit_converters({"a": None}, {"a": Converter(int)}) == {
+        "a": Converter(int)
+    }
 
 
 def test_argument_and_explicit_converters_from_type() -> None:

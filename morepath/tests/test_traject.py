@@ -476,9 +476,7 @@ def test_traject_type_conflict_explicit_default() -> None:
         def __init__(self, x: str) -> None:
             self.x = x
 
-    traject.add_pattern(
-        "{x}", found_explicit, converters=dict(x=IDENTITY_CONVERTER)
-    )
+    traject.add_pattern("{x}", found_explicit, converters=dict(x=IDENTITY_CONVERTER))
     traject.add_pattern("{x}", found_implicit)
     # these add_pattern calls are equivalent so will not result in an error
     assert True

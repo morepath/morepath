@@ -46,9 +46,7 @@ def test_path_with_variables(info: Info) -> None:
             self.name = name
 
     r.register_path_variables(Foo, lambda obj: {"name": obj.name})
-    r.register_inverse_path(
-        model=Foo, path="/foos/{name}", factory_args={"name"}
-    )
+    r.register_inverse_path(model=Foo, path="/foos/{name}", factory_args={"name"})
     path_info = app._get_path(Foo("a"))
     assert path_info is not None
     assert path_info.path == "foos/a"
@@ -62,9 +60,7 @@ def test_path_with_default_variables(info: Info) -> None:
         def __init__(self, name: str) -> None:
             self.name = name
 
-    r.register_inverse_path(
-        model=Foo, path="/foos/{name}", factory_args={"name"}
-    )
+    r.register_inverse_path(model=Foo, path="/foos/{name}", factory_args={"name"})
     path_info = app._get_path(Foo("a"))
     assert path_info is not None
     assert path_info.path == "foos/a"
@@ -106,9 +102,7 @@ def test_class_path_with_variables(info: Info) -> None:
         def __init__(self, name: str) -> None:
             self.name = name
 
-    r.register_inverse_path(
-        model=Foo, path="/foos/{name}", factory_args={"name"}
-    )
+    r.register_inverse_path(model=Foo, path="/foos/{name}", factory_args={"name"})
     path_info = app._class_path(Foo, {"name": "a"})
     assert path_info is not None
     assert path_info.path == "foos/a"
@@ -173,9 +167,7 @@ def test_class_path_absorb(info: Info) -> None:
     class Foo:
         pass
 
-    r.register_inverse_path(
-        model=Foo, path="/foos", factory_args=set(), absorb=True
-    )
+    r.register_inverse_path(model=Foo, path="/foos", factory_args=set(), absorb=True)
     path_info = app._class_path(Foo, {"absorb": "bar"})
     assert path_info is not None
     assert path_info.path == "foos/bar"

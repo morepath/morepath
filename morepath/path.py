@@ -261,9 +261,7 @@ class PathRegistry(TrajectRegistry):
           app instance that does the link generation.
         """
         self.register_path_variables(model, get_variables)
-        self.app_class._deferred_class_link_app.register(
-            app_factory, model=model
-        )
+        self.app_class._deferred_class_link_app.register(app_factory, model=model)
 
 
 class PathInfo:
@@ -355,23 +353,22 @@ class Path:
             if name not in parameter_names:
                 if value is None:
                     raise LinkError(
-                        "Path variable %s for path %s is None"
-                        % (name, self.path)
+                        f"Path variable {name} for path {self.path} is None"
                     )
-                path_variables[name] = converters.get(
-                    name, IDENTITY_CONVERTER
-                ).encode(value)[0]
+                path_variables[name] = converters.get(name, IDENTITY_CONVERTER).encode(
+                    value
+                )[0]
             else:
                 if value is None or value == []:
                     continue
-                parameters[name] = converters.get(
-                    name, IDENTITY_CONVERTER
-                ).encode(value)
+                parameters[name] = converters.get(name, IDENTITY_CONVERTER).encode(
+                    value
+                )
         if extra_parameters:
             for name, value in extra_parameters.items():
-                parameters[name] = converters.get(
-                    name, IDENTITY_CONVERTER
-                ).encode(value)
+                parameters[name] = converters.get(name, IDENTITY_CONVERTER).encode(
+                    value
+                )
         return path_variables, parameters
 
     def __call__(
@@ -427,9 +424,7 @@ def get_arguments(
     defaults = info.defaults or ()
     return {
         name: default
-        for (name, default) in zip_longest(
-            reversed(info.args), reversed(defaults)
-        )
+        for (name, default) in zip_longest(reversed(info.args), reversed(defaults))
         if name not in exclude
     }
 
@@ -447,7 +442,5 @@ def filter_arguments(
     :return: filtered arguments dict
     """
     return {
-        name: default
-        for (name, default) in arguments.items()
-        if name not in exclude
+        name: default for (name, default) in arguments.items() if name not in exclude
     }

@@ -429,15 +429,11 @@ def test_external_link_prefix() -> None:
         return "example.org"
 
     @App.json(model=InternalDoc)
-    def main_view(
-        self: InternalDoc, request: morepath.Request
-    ) -> dict[str, Any]:
+    def main_view(self: InternalDoc, request: morepath.Request) -> dict[str, Any]:
         return {
             "internal_link": request.link(InternalDoc()),
             "external_link_def": request.link(ExternalDoc()),
-            "external_link_expl": request.link(
-                ExternalDoc(), app=ExternalApp()
-            ),
+            "external_link_expl": request.link(ExternalDoc(), app=ExternalApp()),
         }
 
     assert Client(App()).get("/").json == {
