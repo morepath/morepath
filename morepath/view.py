@@ -86,9 +86,7 @@ class View:
     @overload
     def __init__(
         self,
-        func: Callable[
-            [Any, _RequestT, _LoadedT], BaseResponse | bytes | str | None
-        ],
+        func: Callable[[Any, _RequestT, _LoadedT], BaseResponse | bytes | str | None],
         render: None,
         load: Callable[[_RequestT], _LoadedT],
         permission: object | None = None,
@@ -98,9 +96,7 @@ class View:
     @overload
     def __init__(
         self,
-        func: Callable[
-            [Any, _RequestT, _LoadedT], BaseResponse | bytes | str | None
-        ],
+        func: Callable[[Any, _RequestT, _LoadedT], BaseResponse | bytes | str | None],
         render: None = None,
         *,
         load: Callable[[_RequestT], _LoadedT],

@@ -3,9 +3,7 @@ from __future__ import annotations
 from pdb import Pdb  # pragma: nocoverage
 from typing import Any
 
-morepath_pdb = Pdb(
-    skip=["reg.*", "inspect", "repoze.lru"]
-)  # pragma: nocoverage
+morepath_pdb = Pdb(skip=["reg.*", "inspect", "repoze.lru"])  # pragma: nocoverage
 
 
 def set_trace(*args: Any, **kw: Any) -> None:  # pragma: nocoverage

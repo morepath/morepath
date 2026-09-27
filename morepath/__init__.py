@@ -18,10 +18,7 @@ from .authentication import NO_IDENTITY, Identity, IdentityPolicy
 from .autosetup import autoscan, scan
 from .converter import Converter
 from .core import excview_tween_factory as EXCVIEW
-from .core import (
-    model_predicate,
-    name_predicate,
-)
+from .core import model_predicate, name_predicate
 from .core import (
     poisoned_host_header_protection_tween_factory as HOST_HEADER_PROTECTION,
 )

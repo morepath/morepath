@@ -487,9 +487,7 @@ def test_mount_link_prefix() -> None:
         def __init__(self, mount_id: str) -> None:
             self.mount_id = mount_id
 
-    @App.mount(
-        path="/mnt/{id}", app=Mounted, variables=lambda a: dict(id=a.mount_id)
-    )
+    @App.mount(path="/mnt/{id}", app=Mounted, variables=lambda a: dict(id=a.mount_id))
     def get_mounted(id: str) -> Mounted:
         return Mounted(mount_id=id)
 
@@ -514,9 +512,7 @@ def test_mount_link_prefix() -> None:
         return request.link(self)
 
     @Mounted.view(model=MountedRoot, name="get-mounted-root-link")
-    def get_mounted_root_link(
-        self: MountedRoot, request: morepath.Request
-    ) -> str:
+    def get_mounted_root_link(self: MountedRoot, request: morepath.Request) -> str:
         return request.link(self)
 
     @Mounted.view(model=MountedRoot, name="get-root-link-through-mount")
@@ -579,9 +575,7 @@ def test_request_view_in_mount() -> None:
         assert result is not None
         return result["hey"]
 
-    @app.mount(
-        path="{id}", app=mounted, variables=lambda a: dict(id=a.mount_id)
-    )
+    @app.mount(path="{id}", app=mounted, variables=lambda a: dict(id=a.mount_id))
     def get_context(id: str) -> mounted:
         return mounted(mount_id=id)
 
@@ -629,9 +623,7 @@ def test_request_link_child_child() -> None:
     def root_info(self: Root, request: morepath.Request) -> str:
         return "info"
 
-    @app.mount(
-        path="{id}", app=mounted, variables=lambda a: dict(mount_id=a.mount_id)
-    )
+    @app.mount(path="{id}", app=mounted, variables=lambda a: dict(mount_id=a.mount_id))
     def get_context(id: str) -> mounted:
         return mounted(mount_id=id)
 
@@ -1166,9 +1158,7 @@ def test_mount_ancestors() -> None:
         pass
 
     @mounted.view(model=MountedRoot)
-    def mounted_root_default(
-        self: MountedRoot, request: morepath.Request
-    ) -> None:
+    def mounted_root_default(self: MountedRoot, request: morepath.Request) -> None:
         ancestors = list(request.app.ancestors())
         assert len(ancestors) == 2
         assert ancestors[0] is request.app

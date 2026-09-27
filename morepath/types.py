@@ -60,15 +60,11 @@ AnyConverter: TypeAlias = Converter[Any] | ListConverter[Any]
 Tween: TypeAlias = Callable[[RequestT], BaseResponse]
 TweenFactory: TypeAlias = Callable[[AppT, TweenT], Tween]
 WSGIEnvironment: TypeAlias = dict[str, Any]
-WSGIApplication: TypeAlias = Callable[
-    [WSGIEnvironment, StartResponse], Iterable[bytes]
-]
+WSGIApplication: TypeAlias = Callable[[WSGIEnvironment, StartResponse], Iterable[bytes]]
 ExcInfo: TypeAlias = tuple[type[BaseException], BaseException, TracebackType]
 OptExcInfo: TypeAlias = ExcInfo | tuple[None, None, None]
 StrPath: TypeAlias = PathLike[str] | str
 GetStrPath: TypeAlias = Callable[[], StrPath]
-MaybeTakesApp: TypeAlias = (
-    Callable[Concatenate[AnyApp, _P], _T] | Callable[_P, _T]
-)
+MaybeTakesApp: TypeAlias = Callable[Concatenate[AnyApp, _P], _T] | Callable[_P, _T]
 Render: TypeAlias = Callable[[Any, AnyRequest], BaseResponse]
 GetRender: TypeAlias = Callable[[Any, str, Render], Render]

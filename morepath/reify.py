@@ -48,13 +48,9 @@ class reify(Generic[_T]):
         self.__doc__ = wrapped.__doc__
 
     @overload
-    def __get__(
-        self, inst: None, objtype: type[object] | None = None
-    ) -> Self: ...
+    def __get__(self, inst: None, objtype: type[object] | None = None) -> Self: ...
     @overload
-    def __get__(
-        self, inst: object, objtype: type[object] | None = None
-    ) -> _T: ...
+    def __get__(self, inst: object, objtype: type[object] | None = None) -> _T: ...
 
     def __get__(
         self, inst: object | None, objtype: type[object] | None = None

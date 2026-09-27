@@ -336,9 +336,7 @@ class Request(BaseRequest, Generic[_AppT]):
 
         return info.url(self.link_prefix(), name)
 
-    def resolve_path(
-        self, path: str, app: App | Sentinel = SAME_APP
-    ) -> Any | None:
+    def resolve_path(self, path: str, app: App | Sentinel = SAME_APP) -> Any | None:
         """Resolve a path to a model instance.
 
         The resulting object is a model instance, or ``None`` if the

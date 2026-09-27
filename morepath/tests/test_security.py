@@ -28,9 +28,7 @@ def test_no_permission() -> None:
     class Permission:
         pass
 
-    @app.path(
-        model=Model, path="{id}", variables=lambda model: {"id": model.id}
-    )
+    @app.path(model=Model, path="{id}", variables=lambda model: {"id": model.id})
     def get_model(id: str) -> Model:
         return Model(id)
 
@@ -58,16 +56,12 @@ def test_permission_directive_identity() -> None:
     def verify_identity(identity: object) -> bool:
         return True
 
-    @app.path(
-        model=Model, path="{id}", variables=lambda model: {"id": model.id}
-    )
+    @app.path(model=Model, path="{id}", variables=lambda model: {"id": model.id})
     def get_model(id: str) -> Model:
         return Model(id)
 
     @app.permission_rule(model=Model, permission=Permission)
-    def get_permission(
-        identity: object, model: Model, permission: object
-    ) -> bool:
+    def get_permission(identity: object, model: Model, permission: object) -> bool:
         if model.id == "foo":
             return True
         else:
@@ -82,9 +76,7 @@ def test_permission_directive_identity() -> None:
         def identify(self, request: object) -> Identity:
             return Identity("testidentity")
 
-        def remember(
-            self, response: object, request: object, identity: object
-        ) -> None:
+        def remember(self, response: object, request: object, identity: object) -> None:
             pass
 
         def forget(self, response: object, request: object) -> None:
@@ -112,9 +104,7 @@ def test_permission_directive_with_app_arg() -> None:
     def verify_identity(identity: object) -> bool:
         return True
 
-    @App.path(
-        model=Model, path="{id}", variables=lambda model: {"id": model.id}
-    )
+    @App.path(model=Model, path="{id}", variables=lambda model: {"id": model.id})
     def get_model(id: str) -> Model:
         return Model(id)
 
@@ -137,9 +127,7 @@ def test_permission_directive_with_app_arg() -> None:
         def identify(self, request: object) -> Identity:
             return Identity("testidentity")
 
-        def remember(
-            self, response: object, request: object, identity: object
-        ) -> None:
+        def remember(self, response: object, request: object, identity: object) -> None:
             pass
 
         def forget(self, response: object, request: object) -> None:
@@ -163,16 +151,12 @@ def test_permission_directive_no_identity() -> None:
     class Permission:
         pass
 
-    @app.path(
-        model=Model, path="{id}", variables=lambda model: {"id": model.id}
-    )
+    @app.path(model=Model, path="{id}", variables=lambda model: {"id": model.id})
     def get_model(id: str) -> Model:
         return Model(id)
 
     @app.permission_rule(model=Model, permission=Permission, identity=None)
-    def get_permission(
-        identity: object, model: Model, permission: object
-    ) -> bool:
+    def get_permission(identity: object, model: Model, permission: object) -> bool:
         if model.id == "foo":
             return True
         else:
@@ -453,9 +437,7 @@ def test_dispatch_verify_identity() -> None:
             super().__init__(userid=None, **kw)
 
     @App.permission_rule(model=Model, permission=Read)
-    def get_permission(
-        identity: object, model: Model, permission: object
-    ) -> bool:
+    def get_permission(identity: object, model: Model, permission: object) -> bool:
         return True
 
     @App.view(model=Model, permission=Read)
@@ -471,14 +453,10 @@ def test_dispatch_verify_identity() -> None:
             if user is not None:
                 if user == "":
                     return Anonymous()
-                return Identity(
-                    userid=user, password=request.headers["password"]
-                )
+                return Identity(userid=user, password=request.headers["password"])
             return None
 
-        def remember(
-            self, response: object, request: object, identity: object
-        ) -> None:
+        def remember(self, response: object, request: object, identity: object) -> None:
             pass
 
         def forget(self, response: object, request: object) -> None:
@@ -539,15 +517,11 @@ def test_settings() -> None:
 
         def identify(self, request: morepath.Request) -> Identity | NoIdentity:
             token = self.get_token(request)
-            if token is None or not self.token_is_valid(
-                token, self.encryption_key
-            ):
+            if token is None or not self.token_is_valid(token, self.encryption_key):
                 return NO_IDENTITY
             return Identity("Testuser")
 
-        def remember(
-            self, response: object, request: object, identity: object
-        ) -> None:
+        def remember(self, response: object, request: object, identity: object) -> None:
             pass
 
         def forget(self, response: object, request: object) -> None:

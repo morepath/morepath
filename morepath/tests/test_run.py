@@ -96,9 +96,7 @@ options:
         assert re.match(expected_pattern, out, re.DOTALL)
 
 
-def test_run(
-    mockserver: MockServer, capsys: pytest.CaptureFixture[str]
-) -> None:
+def test_run(mockserver: MockServer, capsys: pytest.CaptureFixture[str]) -> None:
     "Run with a mocked server."
     mockserver.set_argv(["--port", "0"])
 

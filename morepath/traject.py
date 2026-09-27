@@ -227,9 +227,7 @@ class Node:
             if node.step == step:
                 return node
             if node.step.generalized == step.generalized:
-                raise TrajectError(
-                    f"step {node.step.s} and {step.s} are in conflict"
-                )
+                raise TrajectError(f"step {node.step.s} and {step.s} are in conflict")
             if step > node.step:
                 continue
             result = StepNode(step)
@@ -239,9 +237,7 @@ class Node:
         self._variable_nodes.append(result)
         return result
 
-    def resolve(
-        self, segment: str, variables: dict[str, Any]
-    ) -> StepNode | None:
+    def resolve(self, segment: str, variables: dict[str, Any]) -> StepNode | None:
         """Match a path segment, traversing this node.
 
         Matches non-variable nodes before nodes with variables in them.
@@ -458,17 +454,13 @@ class ParameterFactory:
             converter = self.converters.get(name, IDENTITY_CONVERTER)
             if converter.is_missing(value):
                 if name in self.required:
-                    raise HTTPBadRequest(
-                        "Required URL parameter missing: %s" % name
-                    )
+                    raise HTTPBadRequest("Required URL parameter missing: %s" % name)
                 result[name] = default
                 continue
             try:
                 result[name] = converter.decode(value)
             except ValueError:
-                raise HTTPBadRequest(
-                    f"Cannot decode URL parameter {name}: {value}"
-                )
+                raise HTTPBadRequest(f"Cannot decode URL parameter {name}: {value}")
 
         if not self.extra:
             return result
@@ -481,9 +473,7 @@ class ParameterFactory:
             try:
                 extra[name] = converter.decode(value)
             except ValueError:
-                raise HTTPBadRequest(
-                    f"Cannot decode URL parameter {name}: {value}"
-                )
+                raise HTTPBadRequest(f"Cannot decode URL parameter {name}: {value}")
         result["extra_parameters"] = extra
         return result
 
