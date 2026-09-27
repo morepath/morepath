@@ -10,7 +10,7 @@ pip-wheel-metadata
 
 # Virtualenv
 /env/
-/.venv/
+.venv/
 /venv/
 /src/
 
@@ -22,7 +22,11 @@ htmlcov
 
 # Sphinx documentation
 /doc/build/
+/doc/_build/
 
 # Editor
 /.vscode/
 /.idea/
+
+# Type checkers
+.mypy_cache/

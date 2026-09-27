@@ -2,10 +2,9 @@
 -r corelibs.txt
 
 # development
--e '.[test,coverage,lint,docs]'
+-e '.[test,coverage,lint,docs,mypy,pyright]'
 pre-commit
-tox >= 2.4.1
-radon
+tox >= 4
 
 # pytest
 -r fixtures.txt
