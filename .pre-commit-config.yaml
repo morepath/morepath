@@ -3,12 +3,11 @@ repos:
     rev: 26.10.0
     hooks:
       - id: black
-        args: [--line-length=80]
   - repo: https://github.com/PyCQA/flake8
     rev: "7.4.1"
     hooks:
       - id: flake8
-        additional_dependencies: [flake8-pyproject]
+        additional_dependencies: [flake8-pyproject, flake8-type-checking]
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.21.2
     hooks:
