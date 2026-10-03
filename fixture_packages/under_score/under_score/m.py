@@ -10,5 +10,5 @@ class Bar:
 
 
 @UnderscoreApp.path(path="bar", model=Bar)
-def get_bar():
+def get_bar() -> Bar:
     return Bar()

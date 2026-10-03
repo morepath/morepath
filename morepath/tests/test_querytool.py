@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 
 
 def objects(actions: Iterable[tuple[dectate.Action, Any]]) -> list[Any]:
-    result = []
-    for action, obj in actions:
+    result: list[Any] = []
+    for _action, obj in actions:
         result.append(obj)
     return result
 
@@ -171,9 +171,12 @@ def test_converter() -> None:
 
     r = objects(dectate.query_app(App, "converter"))
 
-    expected = [core.int_converter, core.unicode_converter]
-
-    expected.extend([core.date_converter, core.datetime_converter])
+    expected = [
+        core.int_converter,
+        core.unicode_converter,
+        core.date_converter,
+        core.datetime_converter,
+    ]
 
     assert r == expected
 

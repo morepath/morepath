@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from morepath import reify
 
 # from pyramid.tests.test_decorator
@@ -17,9 +19,8 @@ def test__get__with_inst() -> None:
 
 
 def test__get__noinst() -> None:
-    decorator = reify(None)  # type: ignore
-    result = decorator.__get__(None)
-    assert result is decorator
+    decorator: reify[Any] = reify(None)  # type: ignore[arg-type]
+    assert decorator.__get__(None) is decorator
 
 
 def test__doc__copied() -> None:

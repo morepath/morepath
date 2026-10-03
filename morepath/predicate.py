@@ -116,7 +116,7 @@ class PredicateRegistry:
           correct order.
         """
         infos = self.sorted_predicate_infos(dispatch)
-        result = []
+        result: list[Predicate] = []
         for info in infos:
             fallback = self._predicate_fallbacks[dispatch].get(info.func)
             predicate = Predicate(

@@ -15,10 +15,10 @@ def test_dispatch_method_directive() -> None:
     class Foo:
         pass
 
-    class Bar:
+    class Bar:  # pyright: ignore[reportUnusedClass]
         pass
 
-    class Other:
+    class Other:  # pyright: ignore[reportUnusedClass]
         pass
 
     @App.method(App.f, obj=Foo)
@@ -398,12 +398,6 @@ def test_dispatch_external_predicates_without_predicate_directives() -> None:
             return "fallback"
 
     class Foo:
-        pass
-
-    class Bar:
-        pass
-
-    class Other:
         pass
 
     @App.method(App.f)

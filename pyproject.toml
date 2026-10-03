@@ -91,39 +91,48 @@ max-line-length = 88
 python_version = "3.10"
 strict = true
 files = ["."]
-warn_unreachable = true
+mypy_path = [
+    "fixture_packages/base",
+    "fixture_packages/entry-point",
+    "fixture_packages/no_mp",
+    "fixture_packages/no_mp_ns",
+    "fixture_packages/no_mp_sub",
+    "fixture_packages/ns",
+    "fixture_packages/ns2",
+    "fixture_packages/sub",
+    "fixture_packages/under_score",
+]
+explicit_package_bases = true
+exclude = ["fixture_packages/.*/setup\\.py$"]
 untyped_calls_exclude = "morepath.tests.fixtures"
+warn_unreachable = true
+warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
 module = ["morepath.tests.fixtures.*"]
 ignore_errors = true
 
-[[tool.mypy.overrides]]
-module = [
-    "base.*",
-    "entrypoint.*",
-    "no_mp.*",
-    "ns.*",
-    "no_mp_sub.*",
-    "sub.*",
-    "under_score.*",
-]
-ignore_missing_imports = true
-
 [tool.pyright]
 typeCheckingMode = "strict"
+extraPaths = [
+    "fixture_packages/base",
+    "fixture_packages/entry-point",
+    "fixture_packages/no_mp",
+    "fixture_packages/no_mp_ns",
+    "fixture_packages/no_mp_sub",
+    "fixture_packages/ns",
+    "fixture_packages/ns2",
+    "fixture_packages/sub",
+    "fixture_packages/under_score",
+]
 exclude = [
-    "**/pdbsupport.py",
-    "**/tests/fixtures/**",
+    "**/tests/fixtures",
     "__pycache__",
     ".venv",
     "**/.*",
     "**/node_modules",
 ]
-
-[[tool.pyright.executionEnvironments]]
-root = "morepath/tests/test_autosetup.py"
-reportMissingImports = "none"
+reportPrivateUsage = "none"
 
 [tool.tox]
 requires = ["tox>=4"]

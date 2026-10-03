@@ -14,7 +14,7 @@ See also :class:`morepath.directive.ConverterRegistry`
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast, overload
 
 import reg
 from dectate import DirectiveError
@@ -88,8 +88,8 @@ class Converter(Generic[_T]):
         if not isinstance(other, Converter):
             return False
         return (
-            self.single_decode is other.single_decode
-            and self.single_encode is other.single_encode
+            self.single_decode is cast("Converter[_T]", other).single_decode
+            and self.single_encode is cast("Converter[_T]", other).single_encode
         )
 
     def __ne__(self, other: object) -> bool:
@@ -138,7 +138,7 @@ class ListConverter(Generic[_T]):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ListConverter):
             return False
-        return self.converter == other.converter
+        return self.converter == cast("ListConverter[_T]", other).converter
 
     def __ne__(self, other: object) -> bool:
         return not self == other
@@ -222,7 +222,8 @@ class ConverterRegistry:
     ) -> dict[str, AnyConverter]:
         """Use explict converters unless none supplied, then use default args."""
         result: dict[str, Converter[Any] | ListConverter[Any]] = {
-            name: self.get_converter(type(value)) for name, value in arguments.items()
+            name: self.get_converter(cast("type[Any]", type(value)))  # type: ignore[redundant-cast]
+            for name, value in arguments.items()
         }
         for name, conv in converters.items():
             result[name] = self.actual_converter(conv)

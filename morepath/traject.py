@@ -392,7 +392,7 @@ class TrajectRegistry:
         """
         stack = request.unconsumed
         node = self._root
-        variables = {}
+        variables: dict[str, Any] = {}
         segment = None
         while stack:
             if node.absorb:

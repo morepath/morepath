@@ -543,7 +543,7 @@ def test_unknown_converter() -> None:
         def __init__(self, d: object) -> None:
             self.d = d
 
-    class Unknown:
+    class Unknown:  # pyright: ignore[reportUnusedClass]
         pass
 
     @app.path(model=Model, path="/")
@@ -569,9 +569,6 @@ def test_not_all_path_variables_arguments_of_model_factory() -> None:
     class Model:
         def __init__(self, foo: str) -> None:
             self.foo = foo
-
-    class Unknown:
-        pass
 
     @App.path(model=Model, path="/{foo}/{bar}")
     def get_model(foo: str) -> Model:
