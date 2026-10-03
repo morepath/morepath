@@ -19,7 +19,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 from typing import NoReturn as Never
-from typing import TypeVar, overload
+from typing import TypeVar, cast, overload
 
 from webob.exc import HTTPNotFound
 
@@ -108,7 +108,7 @@ class App(dectate.App):
     parent: App | None = None
     """The parent in which this app was mounted."""
 
-    request_class: type[Request[Self]] = Request
+    request_class: type[Request[Self]] = cast("type[Request[Self]]", Request)
     """The class of the Request to create. Must be a subclass of
     :class:`morepath.Request`.
 
@@ -542,8 +542,8 @@ class App(dectate.App):
         :return: a :class:`morepath.path.PathInfo` with fully resolved
           path in mounts.
         """
-        paths = []
-        parameters = {}
+        paths: list[str] = []
+        parameters: dict[str, list[str]] = {}
         app: App | None = self
         while app is not None:
             info = app._get_path(obj)
@@ -615,7 +615,7 @@ class App(dectate.App):
         ) -> PathInfo | None:
             return app._get_mounted_class_path(model, variables)
 
-        info, app = self._follow_class_defers(find, model, variables)
+        info, _app = self._follow_class_defers(find, model, variables)
         return info
 
     def _follow_defers(
@@ -635,7 +635,7 @@ class App(dectate.App):
         :return: a tuple with the thing found (or ``None``) and the app in
           which it was found.
         """
-        seen = set()
+        seen: set[App] = set()
         app: App | None = self
         while app is not None:
             if app in seen:
@@ -675,7 +675,7 @@ class App(dectate.App):
         :return: a tuple with the thing found (or ``None``) and the app in
           which it was found.
         """
-        seen = set()
+        seen: set[App] = set()
         app: App | None = self
         while app is not None:
             if app in seen:

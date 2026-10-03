@@ -207,7 +207,7 @@ def test_defer_link_acquisition() -> None:
     class root(morepath.App):
         pass
 
-    class sub(morepath.App):
+    class sub(morepath.App):  # pyright: ignore[reportUnusedClass]
         pass
 
     @root.path(path="model/{id}")
@@ -401,9 +401,6 @@ def test_defer_link_should_not_cause_web_views_to_exist() -> None:
 
 def test_defer_link_to_parent_from_root() -> None:
     class root(morepath.App):
-        pass
-
-    class sub(morepath.App):
         pass
 
     @root.path(path="")

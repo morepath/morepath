@@ -11,7 +11,7 @@ class Root:
 
 
 @App.view(model=Root)
-def hello_world(self, request):
+def hello_world(self: Root, request: morepath.Request) -> str:
     return "Hello world!"
 
 

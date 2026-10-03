@@ -160,14 +160,14 @@ def test_link_to_unknown_model() -> None:
     class app(morepath.App):
         pass
 
+    class Model:
+        def __init__(self, id: str) -> None:
+            self.id = id
+
     @app.path(path="")
     class Root:
         def __init__(self) -> None:
             self.value = "ROOT"
-
-    class Model:
-        def __init__(self, id: str) -> None:
-            self.id = id
 
     @app.view(model=Root)
     def root_link(self: Root, request: morepath.Request) -> str:
@@ -199,10 +199,6 @@ def test_link_to_none() -> None:
     class Root:
         def __init__(self) -> None:
             self.value = "ROOT"
-
-    class Model:
-        def __init__(self, id: str) -> None:
-            self.id = id
 
     @app.view(model=Root)
     def root_link(self: Root, request: morepath.Request) -> str:
@@ -765,7 +761,7 @@ def test_view_conflict() -> None:
     class app(morepath.App):
         pass
 
-    class Model:
+    class Model:  # pyright: ignore[reportUnusedClass]
         pass
 
     @app.view(model=Model, name="a")
@@ -1192,7 +1188,7 @@ def test_staticmethod() -> None:
     class Root:
         pass
 
-    class A:
+    class A:  # pyright: ignore[reportUnusedClass]
         @staticmethod
         @App.view(model=Root)
         def root_default(
@@ -1216,7 +1212,7 @@ def test_classmethod_equivalent_to_staticmethod() -> None:
     class Root:
         pass
 
-    class A:
+    class A:  # pyright: ignore[reportUnusedClass]
         @classmethod
         @App.view(model=Root)
         def root_default(

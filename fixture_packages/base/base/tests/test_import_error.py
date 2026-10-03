@@ -1,7 +1,7 @@
 import pytest
 
 
-def test_import_error():
+def test_import_error() -> None:
     """Test that import errors are properly handled.
 
     This test file is specifically designed to test import error handling

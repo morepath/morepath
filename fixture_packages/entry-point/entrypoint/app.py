@@ -10,5 +10,5 @@ class Foo:
 
 
 @App.path(path="bar", model=Foo)
-def get_foo():
+def get_foo() -> Foo:
     return Foo()

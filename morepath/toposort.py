@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 from dectate import topological_sort
 
@@ -57,7 +57,7 @@ def _convert_before_after(
     keys: list[_T] | tuple[_T, ...] | _T | None,
 ) -> list[_T]:
     if isinstance(keys, (list, tuple)):
-        return list(keys)
+        return list(cast("list[_T] | tuple[_T, ...]", keys))
     elif keys is None:
         return []
     else:

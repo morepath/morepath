@@ -284,7 +284,7 @@ class PathInfo:
         :param name: additional view name to postfix to the path.
         :return: a URL with the prefix, the name and URL encoded parameters.
         """
-        parts = []
+        parts: list[str] = []
         if self.path:
             # explicitly define safe with ~ for a workaround
             # of this Python bug:
@@ -346,8 +346,8 @@ class Path:
         """
         converters = self.converters
         parameter_names = self.parameter_names
-        path_variables = {}
-        parameters = {}
+        path_variables: dict[str, str] = {}
+        parameters: dict[str, list[str]] = {}
 
         for name, value in variables.items():
             if name not in parameter_names:
@@ -385,8 +385,11 @@ class Path:
           argument to the factory function should be represented.
         :return: :class:`PathInfo` instance representing the path.
         """
-        if not isinstance(variables, dict):
+        if not isinstance(
+            variables, dict
+        ):  # pyright: ignore[reportUnnecessaryIsInstance]
             raise LinkError("Variables is not a dict: %r" % variables)
+
         extra_parameters = variables.pop("extra_parameters", None)
         if self.absorb:
             absorbed_path = variables.pop("absorb")

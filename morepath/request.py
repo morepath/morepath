@@ -167,7 +167,7 @@ class Request(BaseRequest, Generic[_AppT]):
           and the default ``request_method`` is ``GET``. If you introduce
           your own predicates you can specify your own default.
         """
-        if app is None:
+        if app is None:  # pyright: ignore[reportUnnecessaryComparison]
             raise LinkError("Cannot view: app is None")
 
         if app is SAME_APP:
@@ -261,7 +261,7 @@ class Request(BaseRequest, Generic[_AppT]):
         if obj is None:
             return default
 
-        if app is None:
+        if app is None:  # pyright: ignore[reportUnnecessaryComparison]
             raise LinkError("Cannot link: app is None")
 
         if app is SAME_APP:
@@ -322,7 +322,7 @@ class Request(BaseRequest, Generic[_AppT]):
         if variables is None:
             variables = {}
 
-        if app is None:
+        if app is None:  # pyright: ignore[reportUnnecessaryComparison]
             raise LinkError("Cannot link: app is None")
 
         if app is SAME_APP:
@@ -348,7 +348,7 @@ class Request(BaseRequest, Generic[_AppT]):
           current application.
         :return: instance or ``None`` if no path could be resolved.
         """
-        if app is None:
+        if app is None:  # pyright: ignore[reportUnnecessaryComparison]
             raise LinkError("Cannot path: app is None")
 
         if app is SAME_APP:

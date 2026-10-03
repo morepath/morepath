@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-from collections import namedtuple
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, TypeVar, cast
 
 import pytest
 from base.m import App
 
-import morepath
 from morepath.autosetup import (
     DependencyMap,
     autoscan,
@@ -15,12 +13,17 @@ from morepath.autosetup import (
     import_package,
     morepath_packages,
 )
+from morepath.error import AutoImportError
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
 
 _T = TypeVar("_T")
+
+
+class _FakeDistribution(NamedTuple):
+    name: str
 
 
 def test_import() -> None:
@@ -30,9 +33,11 @@ def test_import() -> None:
     # Packages to be ignored
     import no_mp
     import no_mp_sub
+    import ns.nomp as nomp
+    import ns.real as real
+    import ns.real2 as real2
     import sub
     import under_score
-    from ns import nomp, real, real2
 
     found = set(morepath_packages())
     assert {base, entrypoint, real, real2, sub, under_score} <= found
@@ -40,13 +45,11 @@ def test_import() -> None:
 
 
 def test_load_distribution() -> None:
+    distribution = cast("Any", _FakeDistribution("base"))
+    assert import_package(distribution).m.App is App
 
-    Distribution = cast("Any", namedtuple("Distribution", ["name"]))
-
-    assert import_package(Distribution("base")).m.App is App
-
-    with pytest.raises(morepath.error.AutoImportError):
-        import_package(Distribution("inexistant-package"))
+    with pytest.raises(AutoImportError):
+        import_package(cast("Any", _FakeDistribution("inexistant-package")))
 
 
 def invoke(callable: Callable[[], _T]) -> _T:

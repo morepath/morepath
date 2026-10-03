@@ -107,7 +107,7 @@ class TemplateEngineRegistry:
         # make sure that template directories defined in subclasses
         # override those in base classes
         for info in self._template_directory_infos:
-            extra_before = []
+            extra_before: list[GetStrPath] = []
             for base in info.configurable.extends:
                 extra_before.extend(self._template_configurable_to_keys.get(base, []))
             info.before.extend(extra_before)
