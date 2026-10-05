@@ -11,5 +11,5 @@ class Root:
 
 
 @App.path(path="/", model=Root)
-def get_root():
+def get_root() -> Root:
     return Root()

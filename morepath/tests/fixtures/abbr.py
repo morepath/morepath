@@ -6,21 +6,21 @@ class App(morepath.App):
 
 
 class Model:
-    def __init__(self, id):
+    def __init__(self, id: str) -> None:
         self.id = id
 
 
 @App.path(model=Model, path="{id}")
-def get_model(id):
+def get_model(id: str) -> Model:
     return Model(id)
 
 
 with App.view(model=Model) as view:
 
     @view()
-    def default(self, request):
+    def default(self: Model, request: morepath.Request) -> str:
         return "Default view: %s" % self.id
 
     @view(name="edit")
-    def edit(self, request):
+    def edit(self: Model, request: morepath.Request) -> str:
         return "Edit view: %s" % self.id

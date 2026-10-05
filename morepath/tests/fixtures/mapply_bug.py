@@ -11,5 +11,5 @@ class Root:
 
 
 @App.html(model=Root)
-def index(self, request):
+def index(self: Root, request: morepath.Request) -> str:
     return "the root"

@@ -104,13 +104,8 @@ mypy_path = [
 ]
 explicit_package_bases = true
 exclude = ["fixture_packages/.*/setup\\.py$"]
-untyped_calls_exclude = "morepath.tests.fixtures"
 warn_unreachable = true
 warn_unused_ignores = true
-
-[[tool.mypy.overrides]]
-module = ["morepath.tests.fixtures.*"]
-ignore_errors = true
 
 [tool.pyright]
 typeCheckingMode = "strict"
@@ -124,13 +119,6 @@ extraPaths = [
     "fixture_packages/ns2",
     "fixture_packages/sub",
     "fixture_packages/under_score",
-]
-exclude = [
-    "**/tests/fixtures",
-    "__pycache__",
-    ".venv",
-    "**/.*",
-    "**/node_modules",
 ]
 reportPrivateUsage = "none"
 

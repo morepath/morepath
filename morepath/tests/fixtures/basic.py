@@ -7,40 +7,40 @@ class App(morepath.App):
 
 @App.path(path="/")
 class Root:
-    def __init__(self):
+    def __init__(self) -> None:
         self.value = "ROOT"
 
 
 class Model:
-    def __init__(self, id):
+    def __init__(self, id: str) -> None:
         self.id = id
 
 
 @App.path(model=Model, path="{id}")
-def get_model(id):
+def get_model(id: str) -> Model:
     return Model(id)
 
 
 @App.view(model=Model)
-def default(self, request):
+def default(self: Model, request: morepath.Request) -> str:
     return "The view for model: %s" % self.id
 
 
 @App.view(model=Model, name="link")
-def link(self, request):
+def link(self: Model, request: morepath.Request) -> str:
     return request.link(self)
 
 
 @App.view(model=Model, name="json", render=morepath.render_json)
-def json(self, request):
+def json(self: Model, request: morepath.Request) -> dict[str, str]:
     return {"id": self.id}
 
 
 @App.view(model=Root)
-def root_default(self, request):
+def root_default(self: Root, request: morepath.Request) -> str:
     return "The root: %s" % self.value
 
 
 @App.view(model=Root, name="link")
-def root_link(self, request):
+def root_link(self: Root, request: morepath.Request) -> str:
     return request.link(self)
