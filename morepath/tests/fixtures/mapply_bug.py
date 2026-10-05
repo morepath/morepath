@@ -1,15 +1,15 @@
 import morepath
 
 
-class app(morepath.App):
+class App(morepath.App):
     pass
 
 
-@app.path(path="")
+@App.path(path="")
 class Root:
     pass
 
 
-@app.html(model=Root)
+@App.html(model=Root)
 def index(self, request):
     return "the root"

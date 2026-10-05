@@ -1,15 +1,15 @@
 import morepath
 
 
-class app(morepath.App):
+class App(morepath.App):
     pass
 
 
-@app.path(path="/")
+@App.path(path="/")
 class Root:
     pass
 
 
-@app.path(path="/", model=Root)
+@App.path(path="/", model=Root)
 def get_root():
     return Root()

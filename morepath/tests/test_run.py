@@ -23,7 +23,7 @@ def test_run_port_out_of_range(
     "Fail gracefully if the port is out of range."
     mockserver.set_argv(["--port", "-3"])
 
-    assert mockserver.run(basic.app()) == 2
+    assert mockserver.run(basic.App()) == 2
 
     out, err = capsys.readouterr()
 
@@ -44,7 +44,7 @@ def test_run_socketerror(
     """
     mockserver.set_argv(["--host", "example.com"])
 
-    assert mockserver.run(basic.app()) != 0
+    assert mockserver.run(basic.App()) != 0
 
     out, err = capsys.readouterr()
 
@@ -59,7 +59,7 @@ def test_run_defaults(
     "The arguments to makeserver form the defaults for the CLI."
     mockserver.set_argv(["script-name", "--help"])
 
-    assert mockserver.run(basic.app(), host="localhost", port=80) == 0
+    assert mockserver.run(basic.App(), host="localhost", port=80) == 0
 
     out, err = capsys.readouterr()
 
@@ -75,7 +75,7 @@ def test_run_defaults(
 options:
   -h, --help            show this help message and exit
   -p PORT, --port PORT  TCP port on which to listen \(default: 80\)
-  -H HOST, --host HOST  hostname or IP address on which to listen \(default:\s*localhost\)
+  -H HOST, --host HOST  hostname or IP address on which to listen\s*\(default:\s*localhost\)
 """
         print("out:", out)
         print("expected_pattern:", expected_pattern)
@@ -91,7 +91,7 @@ options:
 options:
   -h, --help       show this help message and exit
   -p, --port PORT  TCP port on which to listen \(default: 80\)
-  -H, --host HOST  hostname or IP address on which to listen \(default:\s*localhost\)
+  -H, --host HOST  hostname or IP address on which to listen\s*\(default:\s*localhost\)
 """
         assert re.match(expected_pattern, out, re.DOTALL)
 
@@ -100,14 +100,14 @@ def test_run(mockserver: MockServer, capsys: pytest.CaptureFixture[str]) -> None
     "Run with a mocked server."
     mockserver.set_argv(["--port", "0"])
 
-    assert mockserver.run(basic.app()) == 0
+    assert mockserver.run(basic.App()) == 0
 
     out, err = capsys.readouterr()
 
     assert err == ""
     assert re.match(
         """\
-Running <morepath.tests.fixtures.basic.app object at 0x[0-9a-f]+>
+Running <morepath.tests.fixtures.basic.App object at 0x[0-9a-f]+>
 Listening on http://127.0.0.1:\\d+
 Press Ctrl-C to stop...
 
@@ -130,7 +130,7 @@ def test_run_hint_on_eaddrinuse(
         used_port = first_server.server_port
         # setup a second server on exactly the same port
         mockserver.set_argv(["--port", str(used_port)])
-        assert mockserver.run(basic.app()) == errno.EADDRINUSE
+        assert mockserver.run(basic.App()) == errno.EADDRINUSE
 
         out, err = capsys.readouterr()
 
@@ -147,7 +147,7 @@ script-name: .*: 127.0.0.1:{}
 
         # If ignore_cli is True, we don't get the helpful hint
         assert (
-            mockserver.run(basic.app(), port=used_port, ignore_cli=True)
+            mockserver.run(basic.App(), port=used_port, ignore_cli=True)
             == errno.EADDRINUSE
         )
 
@@ -160,7 +160,7 @@ script-name: .*: 127.0.0.1:{}
     # setup a first server
     with pytest.raises(SystemExit) as ex:
         morepath.run(
-            basic.app(),
+            basic.App(),
             port=0,
             prog="first-server",
             callback=with_existing,
@@ -202,7 +202,7 @@ def test_run_actual(capsys: pytest.CaptureFixture[str]) -> None:
 
     with pytest.raises(SystemExit) as ex:
         morepath.run(
-            basic.app(),
+            basic.App(),
             port=0,
             prog="script-name",
             callback=callback,
@@ -217,7 +217,7 @@ def test_run_actual(capsys: pytest.CaptureFixture[str]) -> None:
 
     assert re.match(
         """\
-Running <morepath.tests.fixtures.basic.app object at 0x[0-9a-f]+>
+Running <morepath.tests.fixtures.basic.App object at 0x[0-9a-f]+>
 Listening on http://127.0.0.1:\\d+
 Press Ctrl-C to stop...
 """,

@@ -1,7 +1,7 @@
 import morepath
 
 
-class app(morepath.App):
+class App(morepath.App):
     pass
 
 
@@ -14,6 +14,6 @@ class Foo:
     pass
 
 
-@app.path(path="/", model=Foo)
+@App.path(path="/", model=Foo)
 def get_foo(a=Dummy()):
     pass

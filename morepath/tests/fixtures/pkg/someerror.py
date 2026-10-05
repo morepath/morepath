@@ -1,7 +1,7 @@
 import morepath
 
 
-class app(morepath.App):
+class App(morepath.App):
     pass
 
 

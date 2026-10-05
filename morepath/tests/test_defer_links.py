@@ -163,15 +163,15 @@ def test_defer_view_missing_view() -> None:
 
 
 def test_defer_links_mount_parameters() -> None:
-    class root(morepath.App):
+    class Root(morepath.App):
         pass
 
-    class sub(morepath.App):
+    class Sub(morepath.App):
 
         def __init__(self, name: str) -> None:
             self.name = name
 
-    @root.path(path="")
+    @Root.path(path="")
     class RootModel:
         pass
 
@@ -179,219 +179,219 @@ def test_defer_links_mount_parameters() -> None:
         def __init__(self, name: str) -> None:
             self.name = name
 
-    @root.view(model=RootModel)
+    @Root.view(model=RootModel)
     def root_model_default(self: RootModel, request: morepath.Request) -> str:
         return request.link(SubModel("foo"))
 
-    @sub.path(path="", model=SubModel)
-    def get_sub_model(request: morepath.Request[sub]) -> SubModel:
+    @Sub.path(path="", model=SubModel)
+    def get_sub_model(request: morepath.Request[Sub]) -> SubModel:
         return SubModel(request.app.name)
 
-    @root.mount(
-        app=sub, path="{mount_name}", variables=lambda a: {"mount_name": a.name}
+    @Root.mount(
+        app=Sub, path="{mount_name}", variables=lambda a: {"mount_name": a.name}
     )
-    def mount_sub(mount_name: str) -> sub:
-        return sub(name=mount_name)
+    def mount_sub(mount_name: str) -> Sub:
+        return Sub(name=mount_name)
 
-    @root.defer_links(model=SubModel)
-    def defer_links_sub_model(app: root, obj: SubModel) -> morepath.App | None:
-        return app.child(sub(name=obj.name))
+    @Root.defer_links(model=SubModel)
+    def defer_links_sub_model(app: Root, obj: SubModel) -> morepath.App | None:
+        return app.child(Sub(name=obj.name))
 
-    c = Client(root())
+    c = Client(Root())
 
     response = c.get("/")
     assert response.body == b"http://localhost/foo"
 
 
 def test_defer_link_acquisition() -> None:
-    class root(morepath.App):
+    class Root(morepath.App):
         pass
 
-    class sub(morepath.App):  # pyright: ignore[reportUnusedClass]
+    class Sub(morepath.App):  # pyright: ignore[reportUnusedClass]
         pass
 
-    @root.path(path="model/{id}")
+    @Root.path(path="model/{id}")
     class Model:
         def __init__(self, id: str) -> None:
             self.id = id
 
-    @root.view(model=Model)
+    @Root.view(model=Model)
     def model_default(self: Model, request: morepath.Request) -> str:
         return "Hello"
 
-    @sub.path(path="")
+    @Sub.path(path="")
     class SubModel:
         pass
 
-    @sub.view(model=SubModel)
+    @Sub.view(model=SubModel)
     def sub_model_default(self: SubModel, request: morepath.Request) -> str:
         return request.link(Model("foo"))
 
-    @root.mount(app=sub, path="sub")
-    def mount_sub(obj: object, app: root) -> morepath.App | None:
-        return app.child(sub())
+    @Root.mount(app=Sub, path="sub")
+    def mount_sub(obj: object, app: Root) -> morepath.App | None:
+        return app.child(Sub())
 
-    @sub.defer_links(model=Model)
-    def get_parent(app: sub, obj: object) -> morepath.App | None:
+    @Sub.defer_links(model=Model)
+    def get_parent(app: Sub, obj: object) -> morepath.App | None:
         return app.parent
 
-    c = Client(root())
+    c = Client(Root())
 
     response = c.get("/sub")
     assert response.body == b"http://localhost/model/foo"
 
 
 def test_defer_view_acquisition() -> None:
-    class root(morepath.App):
+    class Root(morepath.App):
         pass
 
-    class sub(morepath.App):
+    class Sub(morepath.App):
         pass
 
-    @root.path(path="model/{id}")
+    @Root.path(path="model/{id}")
     class Model:
         def __init__(self, id: str) -> None:
             self.id = id
 
-    @root.json(model=Model)
+    @Root.json(model=Model)
     def model_default(self: Model, request: morepath.Request) -> dict[str, Any]:
         return {"Hello": "World"}
 
-    @sub.path(path="")
+    @Sub.path(path="")
     class SubModel:
         pass
 
-    @sub.json(model=SubModel)
+    @Sub.json(model=SubModel)
     def sub_model_default(self: SubModel, request: morepath.Request) -> Any:
         return request.view(Model("foo"))
 
-    @root.mount(app=sub, path="sub")
-    def mount_sub(obj: object, app: sub) -> morepath.App | None:
-        return app.child(sub())
+    @Root.mount(app=Sub, path="sub")
+    def mount_sub(obj: object, app: Root) -> morepath.App | None:
+        return app.child(Sub())
 
-    @sub.defer_links(model=Model)
-    def get_parent(app: sub, obj: object) -> morepath.App | None:
+    @Sub.defer_links(model=Model)
+    def get_parent(app: Sub, obj: object) -> morepath.App | None:
         return app.parent
 
-    c = Client(root())
+    c = Client(Root())
 
     response = c.get("/sub")
     assert response.json == {"Hello": "World"}
 
 
 def test_defer_link_acquisition_blocking() -> None:
-    class root(morepath.App):
+    class Root(morepath.App):
         pass
 
-    class sub(morepath.App):
+    class Sub(morepath.App):
         pass
 
-    @root.path(path="model/{id}")
+    @Root.path(path="model/{id}")
     class Model:
         def __init__(self, id: str) -> None:
             self.id = id
 
-    @root.view(model=Model)
+    @Root.view(model=Model)
     def model_default(self: Model, request: morepath.Request) -> str:
         return "Hello"
 
-    @sub.path(path="")
+    @Sub.path(path="")
     class SubModel:
         pass
 
-    @sub.view(model=SubModel)
+    @Sub.view(model=SubModel)
     def sub_model_default(self: SubModel, request: morepath.Request) -> str:
         try:
             return request.link(Model("foo"))
         except LinkError:
             return "link error"
 
-    @root.mount(app=sub, path="sub")
-    def mount_sub() -> sub:
-        return sub()
+    @Root.mount(app=Sub, path="sub")
+    def mount_sub() -> Sub:
+        return Sub()
 
     # no defer_links_to_parent
 
-    c = Client(root())
+    c = Client(Root())
 
     response = c.get("/sub")
     assert response.body == b"link error"
 
 
 def test_defer_view_acquisition_blocking() -> None:
-    class root(morepath.App):
+    class Root(morepath.App):
         pass
 
-    class sub(morepath.App):
+    class Sub(morepath.App):
         pass
 
-    @root.path(path="model/{id}")
+    @Root.path(path="model/{id}")
     class Model:
         def __init__(self, id: str) -> None:
             self.id = id
 
-    @root.json(model=Model)
+    @Root.json(model=Model)
     def model_default(self: Model, request: morepath.Request) -> dict[str, Any]:
         return {"Hello": "World"}
 
-    @sub.path(path="")
+    @Sub.path(path="")
     class SubModel:
         pass
 
-    @sub.json(model=SubModel)
+    @Sub.json(model=SubModel)
     def sub_model_default(self: SubModel, request: morepath.Request) -> bool:
         return request.view(Model("foo")) is None
 
-    @root.mount(app=sub, path="sub")
-    def mount_sub() -> sub:
-        return sub()
+    @Root.mount(app=Sub, path="sub")
+    def mount_sub() -> Sub:
+        return Sub()
 
     # no defer_links_to_parent
 
-    c = Client(root())
+    c = Client(Root())
 
     response = c.get("/sub")
     assert response.json is True
 
 
 def test_defer_link_should_not_cause_web_views_to_exist() -> None:
-    class root(morepath.App):
+    class Root(morepath.App):
         pass
 
-    class sub(morepath.App):
+    class Sub(morepath.App):
         pass
 
-    @root.path(path="")
+    @Root.path(path="")
     class Model:
         pass
 
-    @root.view(model=Model)
+    @Root.view(model=Model)
     def model_default(self: Model, request: morepath.Request) -> str:
         return "Hello"
 
-    @root.view(model=Model, name="extra")
+    @Root.view(model=Model, name="extra")
     def model_extra(self: Model, request: morepath.Request) -> str:
         return "Extra"
 
     # note inheritance from model. we still don't
     # want the extra view to show up on the web
-    @sub.path(path="")
+    @Sub.path(path="")
     class SubModel(Model):
         pass
 
-    @sub.view(model=SubModel)
+    @Sub.view(model=SubModel)
     def sub_model_default(self: SubModel, request: morepath.Request) -> str:
         return request.link(Model())
 
-    @root.mount(app=sub, path="sub")
-    def mount_sub() -> sub:
-        return sub()
+    @Root.mount(app=Sub, path="sub")
+    def mount_sub() -> Sub:
+        return Sub()
 
-    @sub.defer_links(model=Model)
-    def get_parent(app: sub, obj: Model) -> morepath.App | None:
+    @Sub.defer_links(model=Model)
+    def get_parent(app: Sub, obj: Model) -> morepath.App | None:
         return app.parent
 
-    c = Client(root())
+    c = Client(Root())
 
     response = c.get("/sub")
     assert response.body == b"http://localhost/"
@@ -400,35 +400,35 @@ def test_defer_link_should_not_cause_web_views_to_exist() -> None:
 
 
 def test_defer_link_to_parent_from_root() -> None:
-    class root(morepath.App):
+    class Root(morepath.App):
         pass
 
-    @root.path(path="")
+    @Root.path(path="")
     class Model:
         pass
 
     class OtherModel:
         pass
 
-    @root.view(model=Model)
+    @Root.view(model=Model)
     def model_default(self: Model, request: morepath.Request) -> str:
         return request.link(OtherModel())
 
-    @root.defer_links(model=OtherModel)
-    def get_parent(app: root, obj: OtherModel) -> morepath.App | None:
+    @Root.defer_links(model=OtherModel)
+    def get_parent(app: Root, obj: OtherModel) -> morepath.App | None:
         return app.parent
 
-    c = Client(root())
+    c = Client(Root())
 
     with pytest.raises(LinkError):
         c.get("/")
 
 
 def test_special_link_overrides_deferred_link() -> None:
-    class root(morepath.App):
+    class Root(morepath.App):
         pass
 
-    class alpha(morepath.App):
+    class Alpha(morepath.App):
         pass
 
     class AlphaModel:
@@ -437,35 +437,35 @@ def test_special_link_overrides_deferred_link() -> None:
     class SpecialAlphaModel(AlphaModel):
         pass
 
-    @root.mount(app=alpha, path="alpha")
-    def mount_alpha() -> alpha:
-        return alpha()
+    @Root.mount(app=Alpha, path="alpha")
+    def mount_alpha() -> Alpha:
+        return Alpha()
 
-    @root.path(path="")
+    @Root.path(path="")
     class RootModel:
         pass
 
-    @root.path(model=SpecialAlphaModel, path="roots_alpha")
+    @Root.path(model=SpecialAlphaModel, path="roots_alpha")
     def get_root_alpha() -> SpecialAlphaModel:
         return SpecialAlphaModel()
 
-    @root.view(model=RootModel)
+    @Root.view(model=RootModel)
     def root_model_default(self: RootModel, request: morepath.Request) -> str:
         return request.link(AlphaModel())
 
-    @root.view(model=RootModel, name="special")
+    @Root.view(model=RootModel, name="special")
     def root_model_special(self: RootModel, request: morepath.Request) -> str:
         return request.link(SpecialAlphaModel())
 
-    @alpha.path(path="", model=AlphaModel)
+    @Alpha.path(path="", model=AlphaModel)
     def get_alpha() -> AlphaModel:
         return AlphaModel()
 
-    @root.defer_links(model=AlphaModel)
-    def defer_links_alpha(app: root, obj: AlphaModel) -> morepath.App | None:
-        return app.child(alpha())
+    @Root.defer_links(model=AlphaModel)
+    def defer_links_alpha(app: Root, obj: AlphaModel) -> morepath.App | None:
+        return app.child(Alpha())
 
-    c = Client(root())
+    c = Client(Root())
 
     response = c.get("/")
     assert response.body == b"http://localhost/alpha"
@@ -475,52 +475,52 @@ def test_special_link_overrides_deferred_link() -> None:
 
 
 def test_deferred_deferred_link() -> None:
-    class root(morepath.App):
+    class Root(morepath.App):
         pass
 
-    class alpha(morepath.App):
+    class Alpha(morepath.App):
         pass
 
-    class beta(morepath.App):
+    class Beta(morepath.App):
         pass
 
-    @root.path(path="")
+    @Root.path(path="")
     class RootModel:
         pass
 
-    @root.view(model=RootModel)
+    @Root.view(model=RootModel)
     def root_model_default(self: RootModel, request: morepath.Request) -> str:
         return request.link(AlphaModel())
 
-    @alpha.path(path="")
+    @Alpha.path(path="")
     class AlphaModel:
         pass
 
-    @beta.path(path="")
+    @Beta.path(path="")
     class BetaModel:
         pass
 
-    @beta.view(model=BetaModel)
+    @Beta.view(model=BetaModel)
     def beta_model_default(self: BetaModel, request: morepath.Request) -> str:
         return request.link(AlphaModel())
 
-    @root.mount(app=alpha, path="alpha")
-    def mount_alpha() -> alpha:
-        return alpha()
+    @Root.mount(app=Alpha, path="alpha")
+    def mount_alpha() -> Alpha:
+        return Alpha()
 
-    @root.mount(app=beta, path="beta")
-    def mount_beta() -> beta:
-        return beta()
+    @Root.mount(app=Beta, path="beta")
+    def mount_beta() -> Beta:
+        return Beta()
 
-    @beta.defer_links(model=AlphaModel)
-    def defer_links_parent(app: beta, obj: AlphaModel) -> morepath.App | None:
+    @Beta.defer_links(model=AlphaModel)
+    def defer_links_parent(app: Beta, obj: AlphaModel) -> morepath.App | None:
         return app.parent
 
-    @root.defer_links(model=AlphaModel)
-    def defer_links_alpha(app: root, obj: AlphaModel) -> morepath.App | None:
-        return app.child(alpha())
+    @Root.defer_links(model=AlphaModel)
+    def defer_links_alpha(app: Root, obj: AlphaModel) -> morepath.App | None:
+        return app.child(Alpha())
 
-    c = Client(root())
+    c = Client(Root())
 
     response = c.get("/")
     assert response.body == b"http://localhost/alpha"
@@ -530,58 +530,58 @@ def test_deferred_deferred_link() -> None:
 
 
 def test_deferred_deferred_view() -> None:
-    class root(morepath.App):
+    class Root(morepath.App):
         pass
 
-    class alpha(morepath.App):
+    class Alpha(morepath.App):
         pass
 
-    class beta(morepath.App):
+    class Beta(morepath.App):
         pass
 
-    @root.path(path="")
+    @Root.path(path="")
     class RootModel:
         pass
 
-    @root.json(model=RootModel)
+    @Root.json(model=RootModel)
     def root_model_default(self: RootModel, request: morepath.Request) -> Any:
         return request.view(AlphaModel())
 
-    @alpha.path(path="")
+    @Alpha.path(path="")
     class AlphaModel:
         pass
 
-    @alpha.json(model=AlphaModel)
+    @Alpha.json(model=AlphaModel)
     def alpha_model_default(
         self: AlphaModel, request: morepath.Request
     ) -> dict[str, Any]:
         return {"model": "alpha"}
 
-    @beta.path(path="")
+    @Beta.path(path="")
     class BetaModel:
         pass
 
-    @beta.json(model=BetaModel)
+    @Beta.json(model=BetaModel)
     def beta_model_default(self: BetaModel, request: morepath.Request) -> Any:
         return request.view(AlphaModel())
 
-    @root.mount(app=alpha, path="alpha")
-    def mount_alpha() -> alpha:
-        return alpha()
+    @Root.mount(app=Alpha, path="alpha")
+    def mount_alpha() -> Alpha:
+        return Alpha()
 
-    @root.mount(app=beta, path="beta")
-    def mount_beta() -> beta:
-        return beta()
+    @Root.mount(app=Beta, path="beta")
+    def mount_beta() -> Beta:
+        return Beta()
 
-    @beta.defer_links(model=AlphaModel)
-    def defer_links_parent(app: beta, obj: AlphaModel) -> morepath.App | None:
+    @Beta.defer_links(model=AlphaModel)
+    def defer_links_parent(app: Beta, obj: AlphaModel) -> morepath.App | None:
         return app.parent
 
-    @root.defer_links(model=AlphaModel)
-    def defer_links_alpha(app: root, obj: AlphaModel) -> morepath.App | None:
-        return app.child(alpha())
+    @Root.defer_links(model=AlphaModel)
+    def defer_links_alpha(app: Root, obj: AlphaModel) -> morepath.App | None:
+        return app.child(Alpha())
 
-    c = Client(root())
+    c = Client(Root())
 
     response = c.get("/")
     assert response.json == {"model": "alpha"}
@@ -591,65 +591,65 @@ def test_deferred_deferred_view() -> None:
 
 
 def test_deferred_view_has_app_of_defer() -> None:
-    class root(morepath.App):
+    class Root(morepath.App):
         pass
 
-    class alpha(morepath.App):
+    class Alpha(morepath.App):
         pass
 
-    class beta(morepath.App):
+    class Beta(morepath.App):
         pass
 
-    @root.mount(app=alpha, path="alpha")
-    def mount_alpha() -> alpha:
-        return alpha()
+    @Root.mount(app=Alpha, path="alpha")
+    def mount_alpha() -> Alpha:
+        return Alpha()
 
-    @root.mount(app=beta, path="beta")
-    def mount_beta() -> beta:
-        return beta()
+    @Root.mount(app=Beta, path="beta")
+    def mount_beta() -> Beta:
+        return Beta()
 
-    @root.path(path="")
+    @Root.path(path="")
     class RootModel:
         pass
 
-    @alpha.path(path="")
+    @Alpha.path(path="")
     class AlphaModel:
         pass
 
-    @alpha.json(model=AlphaModel)
+    @Alpha.json(model=AlphaModel)
     def alpha_model_default(self: AlphaModel, request: morepath.Request) -> str:
-        if request.app.__class__ == alpha:
+        if request.app.__class__ == Alpha:
             return "correct"
         else:
             return "wrong"
 
-    @beta.path(path="")
+    @Beta.path(path="")
     class BetaModel:
         pass
 
-    @beta.json(model=BetaModel)
+    @Beta.json(model=BetaModel)
     def beta_model_default(self: BetaModel, request: morepath.Request) -> Any:
         return request.view(AlphaModel())
 
-    @beta.defer_links(model=AlphaModel)
-    def defer_links_parent(app: beta, obj: AlphaModel) -> morepath.App | None:
+    @Beta.defer_links(model=AlphaModel)
+    def defer_links_parent(app: Beta, obj: AlphaModel) -> morepath.App | None:
         assert app.parent is not None
         return app.parent.child("alpha")
 
-    c = Client(root())
+    c = Client(Root())
 
     response = c.get("/beta")
     assert response.json == "correct"
 
 
 def test_deferred_loop() -> None:
-    class root(morepath.App):
+    class Root(morepath.App):
         pass
 
-    class alpha(morepath.App):
+    class Alpha(morepath.App):
         pass
 
-    @root.path(path="")
+    @Root.path(path="")
     class RootModel:
         pass
 
@@ -657,24 +657,24 @@ def test_deferred_loop() -> None:
     class Model:
         pass
 
-    @root.json(model=RootModel)
+    @Root.json(model=RootModel)
     def root_model_default(self: RootModel, request: morepath.Request) -> str:
         return request.link(Model())
 
-    @root.mount(app=alpha, path="alpha")
-    def mount_alpha() -> alpha:
-        return alpha()
+    @Root.mount(app=Alpha, path="alpha")
+    def mount_alpha() -> Alpha:
+        return Alpha()
 
     # setup a loop: defer to parent and back to child!
-    @alpha.defer_links(model=Model)
-    def defer_links_parent(app: alpha, obj: Model) -> morepath.App | None:
+    @Alpha.defer_links(model=Model)
+    def defer_links_parent(app: Alpha, obj: Model) -> morepath.App | None:
         return app.parent
 
-    @root.defer_links(model=Model)
-    def defer_links_alpha(app: root, obj: Model) -> morepath.App | None:
-        return app.child(alpha())
+    @Root.defer_links(model=Model)
+    def defer_links_alpha(app: Root, obj: Model) -> morepath.App | None:
+        return app.child(Alpha())
 
-    c = Client(root())
+    c = Client(Root())
 
     with pytest.raises(LinkError) as ex:
         c.get("/")
