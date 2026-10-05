@@ -6,10 +6,10 @@ class App(morepath.App):
 
 
 @App.setting_section(section="config")
-def get_setting_section_a():
+def get_setting_section_a() -> dict[str, str]:
     return {"foo": "FOO"}
 
 
 @App.setting_section(section="config")
-def get_setting_section_b():
+def get_setting_section_b() -> dict[str, str]:
     return {"foo": "BAR"}

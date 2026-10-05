@@ -10,7 +10,7 @@ class App(morepath.App):
 
 
 @Outer_app.mount("inner", App)
-def inner_context():
+def inner_context() -> App:
     return App()
 
 
@@ -22,20 +22,20 @@ class Root:
 
 
 class Model:
-    def __init__(self, id):
+    def __init__(self, id: str) -> None:
         self.id = id
 
 
 @App.path(model=Model, path="{id}")
-def get_model(id):
+def get_model(id: str) -> Model:
     return Model(id)
 
 
 @App.view(model=Model)
-def default(self, request):
+def default(self: Model, request: morepath.Request) -> str:
     return "The view for model: %s" % self.id
 
 
 @App.view(model=Model, name="link")
-def link(self, request):
+def link(self: Model, request: morepath.Request) -> str:
     return request.link(self)

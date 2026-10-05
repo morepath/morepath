@@ -15,5 +15,5 @@ class Foo:
 
 
 @App.path(path="/", model=Foo)
-def get_foo(a=Dummy()):
+def get_foo(a: Dummy = Dummy()) -> Foo | None:
     pass

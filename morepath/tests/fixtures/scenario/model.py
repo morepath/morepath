@@ -7,7 +7,7 @@ class GenericRoot:
 
 
 class GenericModel:
-    def __init__(self, id, name):
+    def __init__(self, id: str, name: str):
         self.id = id
         self.name = name
 
@@ -17,5 +17,5 @@ class DocumentRoot:
 
 
 class DocumentModel:
-    def __init__(self, id):
+    def __init__(self, id: str):
         self.id = id

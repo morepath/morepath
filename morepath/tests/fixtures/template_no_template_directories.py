@@ -1,6 +1,18 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import morepath
 
 from .template_engine import FormatLoader
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from webob import Response as BaseResponse
+
+    from morepath.settings import SettingRegistry
+    from morepath.types import Render, StrPath
 
 
 class App(morepath.App):
@@ -9,25 +21,34 @@ class App(morepath.App):
 
 @App.path(path="{name}")
 class Person:
-    def __init__(self, name):
+    def __init__(self, name: str):
         self.name = name
 
 
 @App.template_loader(extension=".format")
-def get_template_loader(template_directories, settings):
+def get_template_loader(
+    template_directories: list[StrPath], settings: SettingRegistry
+) -> FormatLoader:
     return FormatLoader(template_directories)
 
 
 @App.template_render(extension=".format")
-def get_format_render(loader, name, original_render):
+def get_format_render(
+    loader: FormatLoader,
+    name: str,
+    original_render: Render,
+) -> Render:
     template = loader.get(name)
 
-    def render(content, request):
+    def render(
+        content: Mapping[str, object], request: morepath.Request
+    ) -> BaseResponse:
+        assert template is not None
         return original_render(template.render(**content), request)
 
     return render
 
 
 @App.html(model=Person, template="person.format")
-def person_default(self, request):
+def person_default(self: Person, request: morepath.Request) -> dict[str, str]:
     return {"name": self.name}
