@@ -8,23 +8,23 @@ import morepath
 
 
 def test_json_obj_dump() -> None:
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    @app.path(path="/models/{x}")
+    @App.path(path="/models/{x}")
     class Model:
         def __init__(self, x: str) -> None:
             self.x = x
 
-    @app.json(model=Model)
+    @App.json(model=Model)
     def default(self: Model, request: morepath.Request) -> Model:
         return self
 
-    @app.dump_json(model=Model)
+    @App.dump_json(model=Model)
     def dump_model_json(self: Model, request: morepath.Request) -> dict[str, Any]:
         return {"x": self.x}
 
-    c = Client(app())
+    c = Client(App())
 
     response = c.get("/models/foo")
     assert response.json == {"x": "foo"}

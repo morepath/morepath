@@ -6,7 +6,7 @@ import morepath
 
 
 def test_implicit_function() -> None:
-    class app(morepath.App):
+    class App(morepath.App):
         @morepath.dispatch_method()
         def one(self) -> str:
             return "Default one"
@@ -15,24 +15,24 @@ def test_implicit_function() -> None:
         def two(self) -> str:
             return "Default two"
 
-    @app.path(path="")
+    @App.path(path="")
     class Model:
         def __init__(self) -> None:
             pass
 
-    @app.method(app.one)
-    def one_impl(self: app) -> str:
+    @App.method(App.one)
+    def one_impl(self: App) -> str:
         return self.two()
 
-    @app.method(app.two)
-    def two_impl(self: app) -> str:
+    @App.method(App.two)
+    def two_impl(self: App) -> str:
         return "The real two"
 
-    @app.view(model=Model)
-    def default(self: Model, request: morepath.Request[app]) -> str:
+    @App.view(model=Model)
+    def default(self: Model, request: morepath.Request[App]) -> str:
         return request.app.one()
 
-    c = Client(app())
+    c = Client(App())
 
     response = c.get("/")
     assert response.body == b"The real two"

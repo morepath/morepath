@@ -165,19 +165,19 @@ def test_tween_sorting_dag_error4() -> None:
 
 
 def test_tween_directive() -> None:
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    @app.path(path="")
+    @App.path(path="")
     class Root:
         pass
 
-    @app.view(model=Root)
+    @App.view(model=Root)
     def default(self: Root, request: morepath.Request) -> str:
         return "View"
 
-    @app.tween_factory()
-    def get_modify_response_tween(app: app, handler: Tween) -> Tween:
+    @App.tween_factory()
+    def get_modify_response_tween(app: App, handler: Tween) -> Tween:
         def plusplustween(request: morepath.Request) -> BaseResponse:
             response = handler(request)
             response.headers["Tween-Header"] = "FOO"
@@ -185,7 +185,7 @@ def test_tween_directive() -> None:
 
         return plusplustween
 
-    c = Client(app())
+    c = Client(App())
 
     response = c.get("/")
     assert response.body == b"View"

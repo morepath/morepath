@@ -8,33 +8,33 @@ import morepath
 
 
 def test_404_http_exception() -> None:
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    @app.path(path="")
+    @App.path(path="")
     class Root:
         pass
 
-    c = Client(app())
+    c = Client(App())
     c.get("/", status=404)
 
 
 def test_other_exception_not_handled() -> None:
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
     class MyException(Exception):
         pass
 
-    @app.path(path="")
+    @App.path(path="")
     class Root:
         pass
 
-    @app.view(model=Root)
+    @App.view(model=Root)
     def root_default(self: Root, request: morepath.Request) -> None:
         raise MyException()
 
-    c = Client(app())
+    c = Client(App())
 
     # the WSGI web server will handle any unhandled errors and turn
     # them into 500 errors
@@ -43,56 +43,56 @@ def test_other_exception_not_handled() -> None:
 
 
 def test_http_exception_excview() -> None:
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    @app.path(path="")
+    @App.path(path="")
     class Root:
         pass
 
-    @app.view(model=HTTPNotFound)
+    @App.view(model=HTTPNotFound)
     def notfound_default(self: HTTPNotFound, request: morepath.Request) -> str:
         return "Not found!"
 
-    c = Client(app())
+    c = Client(App())
     response = c.get("/")
     assert response.body == b"Not found!"
 
 
 def test_other_exception_excview() -> None:
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
     class MyException(Exception):
         pass
 
-    @app.path(path="")
+    @App.path(path="")
     class Root:
         pass
 
-    @app.view(model=Root)
+    @App.view(model=Root)
     def root_default(self: Root, request: morepath.Request) -> None:
         raise MyException()
 
-    @app.view(model=MyException)
+    @App.view(model=MyException)
     def myexception_default(self: MyException, request: morepath.Request) -> str:
         return "My exception"
 
-    c = Client(app())
+    c = Client(App())
 
     response = c.get("/")
     assert response.body == b"My exception"
 
 
 def test_http_exception_excview_retain_status() -> None:
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    @app.path(path="")
+    @App.path(path="")
     class Root:
         pass
 
-    @app.view(model=HTTPNotFound)
+    @App.view(model=HTTPNotFound)
     def notfound_default(self: HTTPNotFound, request: morepath.Request) -> str:
         def set_status(response: morepath.Response) -> None:
             response.status_code = self.code
@@ -100,32 +100,32 @@ def test_http_exception_excview_retain_status() -> None:
         request.after(set_status)
         return "Not found!!"
 
-    c = Client(app())
+    c = Client(App())
     response = c.get("/", status=404)
     assert response.body == b"Not found!!"
 
 
 def test_excview_named_view() -> None:
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    @app.path(path="")
+    @App.path(path="")
     class Root:
         pass
 
     class MyException(Exception):
         pass
 
-    @app.view(model=Root, name="view")
+    @App.view(model=Root, name="view")
     def view(self: Root, request: morepath.Request) -> None:
         raise MyException()
 
     # the view name should have no influence on myexception lookup
-    @app.view(model=MyException)
+    @App.view(model=MyException)
     def myexception_default(self: MyException, request: morepath.Request) -> str:
         return "My exception"
 
-    c = Client(app())
+    c = Client(App())
     response = c.get("/view")
     assert response.body == b"My exception"
 

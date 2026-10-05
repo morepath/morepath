@@ -47,21 +47,21 @@ def test_config_logging_implicit_commit() -> None:
 def test_config_logging_explicit_commit() -> None:
     # Manually commit the app:
     with CaptureLog("morepath.directive.path", logging.DEBUG) as captured:
-        assert basic.app.commit() == {basic.app}
+        assert basic.App.commit() == {basic.App}
 
     messages = [record.getMessage() for record in captured.records]
     messages.sort()
 
     assert messages == [
-        "@morepath.tests.fixtures.basic.app.path("
+        "@morepath.tests.fixtures.basic.App.path("
         "model=<class 'morepath.tests.fixtures.basic.Model'>, "
         "path='{id}') on morepath.tests.fixtures.basic.get_model",
-        "@morepath.tests.fixtures.basic.app.path(path='/') on "
+        "@morepath.tests.fixtures.basic.App.path(path='/') on "
         "<class 'morepath.tests.fixtures.basic.Root'>",
     ]
 
     with CaptureLog("morepath.directive.path", logging.DEBUG) as captured:
-        c = Client(basic.app())
+        c = Client(basic.App())
         response = c.get("/")
         assert response.body == b"The root: ROOT"
 

@@ -11,11 +11,11 @@ from .fixtures import basic, pkg, self_scan
 def test_rescan() -> None:
     morepath.scan(basic)
 
-    assert basic.app.commit() == {basic.app}
+    assert basic.App.commit() == {basic.App}
 
     morepath.scan(basic)
 
-    class Sub(basic.app):
+    class Sub(basic.App):
         pass
 
     @Sub.view(model=basic.Model, name="extra")

@@ -8,22 +8,22 @@ import morepath
 
 
 def test_internal() -> None:
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    @app.path(path="")
+    @App.path(path="")
     class Root:
         pass
 
-    @app.json(model=Root)
+    @App.json(model=Root)
     def root_default(self: Root, request: morepath.Request) -> dict[str, Any]:
         return {"internal": request.view(self, name="internal")}
 
-    @app.json(model=Root, name="internal", internal=True)
+    @App.json(model=Root, name="internal", internal=True)
     def root_internal(self: Root, request: morepath.Request) -> str:
         return "Internal!"
 
-    c = Client(app())
+    c = Client(App())
 
     response = c.get("/")
 

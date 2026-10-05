@@ -4,18 +4,18 @@ from typing import TYPE_CHECKING, TypeAlias
 
 import pytest
 
-from morepath.app import App
+import morepath
 from morepath.converter import Converter
 
 if TYPE_CHECKING:
     from morepath.path import PathRegistry
 
-    Info: TypeAlias = tuple[App, PathRegistry]
+    Info: TypeAlias = tuple[morepath.App, PathRegistry]
 
 
 @pytest.fixture
 def info() -> Info:
-    class MyApp(App):
+    class MyApp(morepath.App):
         pass
 
     MyApp.commit()

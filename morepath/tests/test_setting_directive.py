@@ -99,16 +99,16 @@ def test_app_overrides_settings_three() -> None:
 
 
 def test_app_section_settings() -> None:
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    @app.setting_section("one")
+    @App.setting_section("one")
     def settings() -> dict[str, str]:
         return {"foo": "FOO", "bar": "BAR"}
 
-    dectate.commit(app)
+    dectate.commit(App)
 
-    app_inst = app()
+    app_inst = App()
 
     s = app_inst.config.setting_registry
 
@@ -117,39 +117,39 @@ def test_app_section_settings() -> None:
 
 
 def test_app_section_settings_conflict() -> None:
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    @app.setting_section("one")
+    @App.setting_section("one")
     def settings() -> dict[str, str]:
         return {"foo": "FOO", "bar": "BAR"}
 
-    @app.setting("one", "foo")
+    @App.setting("one", "foo")
     def get_foo() -> str:
         return "another"
 
     with pytest.raises(ConflictError):
-        dectate.commit(app)
+        dectate.commit(App)
 
 
 def test_settings_property_in_view() -> None:
-    class app(morepath.App):
+    class App(morepath.App):
         pass
 
-    @app.setting("section", "name")
+    @App.setting("section", "name")
     def setting() -> str:
         return "LAH"
 
-    @app.path(path="")
+    @App.path(path="")
     class Model:
         def __init__(self) -> None:
             pass
 
-    @app.view(model=Model)
+    @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
         return request.app.settings.section.name  # type: ignore[no-any-return]
 
-    c = Client(app())
+    c = Client(App())
 
     response = c.get("/")
     assert response.body == b"LAH"

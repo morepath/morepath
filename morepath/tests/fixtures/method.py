@@ -1,7 +1,7 @@
 import morepath
 
 
-class app(morepath.App):
+class App(morepath.App):
     pass
 
 
@@ -14,11 +14,11 @@ class Root:
         self.value = "ROOT"
 
     @staticmethod
-    @app.path(model=StaticMethod, path="static")
+    @App.path(model=StaticMethod, path="static")
     def static_method():
         return StaticMethod()
 
 
-@app.view(model=StaticMethod)
+@App.view(model=StaticMethod)
 def static_method_default(self, request):
     return "Static Method"

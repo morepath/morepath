@@ -1,7 +1,7 @@
 import morepath
 
 
-class app(morepath.App):
+class App(morepath.App):
     pass
 
 
@@ -10,12 +10,12 @@ class Model:
         self.id = id
 
 
-@app.path(model=Model, path="{id}")
+@App.path(model=Model, path="{id}")
 def get_model(id):
     return Model(id)
 
 
-with app.view(model=Model) as view:
+with App.view(model=Model) as view:
 
     @view()
     def default(self, request):
