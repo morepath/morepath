@@ -153,7 +153,7 @@ commands = [["pytest", "{posargs:morepath}"]]
 base_python = ["python3.14"]
 extras = ["test", "coverage"]
 commands = [
-    ["pytest", "--cov", "--cov-fail-under=99", "{posargs:morepath}"],
+    ["pytest", "--cov", "--cov-fail-under=100", "{posargs:morepath}"],
 ]
 
 [tool.tox.env.pre-commit]

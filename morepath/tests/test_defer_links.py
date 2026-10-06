@@ -735,6 +735,47 @@ def test_deferred_loop_siblings() -> None:
     assert "Circular" in str(ex.value)
 
 
+def test_defer_cycle_keys_distinguish_parameterized_mounts() -> None:
+    class Root(morepath.App):
+        pass
+
+    class Tenant(morepath.App):
+        def __init__(self, mount_id: str) -> None:
+            self.mount_id = mount_id
+
+    class Model:
+        pass
+
+    @Root.mount(
+        app=Tenant,
+        path="{tenant_id}",
+        variables=lambda tenant: {"tenant_id": tenant.mount_id},
+    )
+    def mount_tenant(tenant_id: str) -> Tenant:
+        return Tenant(tenant_id)
+
+    @Root.defer_links(model=Model)
+    def defer_to_first_tenant(app: Root, obj: Model) -> morepath.App | None:
+        return app.child(Tenant, tenant_id="first")
+
+    @Tenant.defer_links(model=Model)
+    def defer_to_next_tenant(app: Tenant, obj: Model) -> morepath.App | None:
+        next_tenant = {"first": "second", "second": "third"}.get(app.mount_id)
+        if next_tenant is None:
+            return None
+        return app.sibling(Tenant, tenant_id=next_tenant)
+
+    Root.commit()
+    root = Root()
+
+    def find_nothing(app: morepath.App, obj: Model) -> None:
+        return None
+
+    # These apps share a class and parent, but their custom mount variables
+    # identify distinct locations; the traversal must not report a false loop.
+    assert root._follow_defers(find_nothing, Model()) == (None, None)
+
+
 # see issue #342
 def test_defer_link_scenario() -> None:
     class App(morepath.App):

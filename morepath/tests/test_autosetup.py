@@ -98,6 +98,13 @@ def test_circular_dependency() -> None:
         assert m.depends(node, "grandparent")
 
 
+def test_circular_dependency_without_target() -> None:
+    m = DependencyMap()
+    m._d = {"a": {"b"}, "b": {"a"}}
+
+    assert not m.depends("a", "missing")
+
+
 def test_depends_visited_parameter() -> None:
     # Test that the visited parameter is properly initialized when not provided
     m = DependencyMap()

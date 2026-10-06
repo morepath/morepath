@@ -28,3 +28,12 @@ def test_toposorted_multi_before_after() -> None:
     infos = [a, b, c]
 
     assert toposorted(infos) == [b, a, c]
+
+
+def test_toposorted_tuple_before_after() -> None:
+    a = Info(1, (2,), None)
+    b = Info(2, None, ())
+
+    assert a.before == [2]
+    assert b.after == []
+    assert toposorted([a, b]) == [a, b]

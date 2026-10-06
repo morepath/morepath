@@ -154,6 +154,14 @@ def test_step_different() -> None:
     assert not step1 <= step2
 
 
+def test_step_compared_with_different_type() -> None:
+    step = Step("{foo}")
+    other = object()
+
+    assert step != other
+    assert not step == other
+
+
 def test_order_prefix_earlier() -> None:
     assert sorted_steps(["{foo}", "prefix{foo}"]) == ["prefix{foo}", "{foo}"]
 
