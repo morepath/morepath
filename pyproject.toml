@@ -75,7 +75,7 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
-omit = ["morepath/tests/*", "morepath/types.py"]
+omit = ["morepath/pdbsupport.py", "morepath/tests/*", "morepath/types.py"]
 source = ["morepath"]
 
 [tool.coverage.report]
