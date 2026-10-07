@@ -14,5 +14,3 @@
 .. autofunction:: get_arguments
 
 .. autofunction:: filter_arguments
-
-.. autofunction:: fixed_urlencode
