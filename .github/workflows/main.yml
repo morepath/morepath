@@ -54,10 +54,3 @@ jobs:
         run: python -m pip install --upgrade pip tox
       - name: Run tests for ${{ matrix.tox-env }}
         run: tox -e ${{ matrix.tox-env }}
-      - name: "Report to coveralls"
-        if: matrix.tox-env == 'coverage'
-        run: |
-          pip install coveralls
-          coveralls --service=github
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
