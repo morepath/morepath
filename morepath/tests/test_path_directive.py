@@ -86,7 +86,7 @@ def test_variable_path_one_step() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "View: %s" % self.name
+        return f"View: {self.name}"
 
     @App.view(model=Model, name="link")
     def link(self: Model, request: morepath.Request) -> str:
@@ -115,7 +115,7 @@ def test_variable_path_two_steps() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "View: %s" % self.name
+        return f"View: {self.name}"
 
     @App.view(model=Model, name="link")
     def link(self: Model, request: morepath.Request) -> str:
@@ -520,7 +520,7 @@ def test_decode_encode() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "View: %s" % self.id
+        return f"View: {self.id}"
 
     @App.view(model=Model, name="link")
     def link(self: Model, request: morepath.Request) -> str:
@@ -552,7 +552,7 @@ def test_unknown_converter() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "View: %s" % self.d
+        return f"View: {self.d}"
 
     @App.view(model=Model, name="link")
     def link(self: Model, request: morepath.Request) -> str:
@@ -577,7 +577,7 @@ def test_not_all_path_variables_arguments_of_model_factory() -> None:
     with pytest.raises(DirectiveReportError) as e:
         App.commit()
     assert str(e.value).startswith(
-        "Variable in path not found in function " "signature: bar"
+        "Variable in path not found in function signature: bar"
     )
 
 
@@ -598,7 +598,7 @@ def test_unknown_explicit_converter() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "View: %s" % self.d
+        return f"View: {self.d}"
 
     @App.view(model=Model, name="link")
     def link(self: Model, request: morepath.Request) -> str:
@@ -624,7 +624,7 @@ def test_default_date_converter() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "View: %s" % self.d
+        return f"View: {self.d}"
 
     @App.view(model=Model, name="link")
     def link(self: Model, request: morepath.Request) -> str:
@@ -663,7 +663,7 @@ def test_default_datetime_converter() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "View: %s" % self.d
+        return f"View: {self.d}"
 
     @App.view(model=Model, name="link")
     def link(self: Model, request: morepath.Request) -> str:
@@ -713,7 +713,7 @@ def test_custom_date_converter() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "View: %s" % self.d
+        return f"View: {self.d}"
 
     @App.view(model=Model, name="link")
     def link(self: Model, request: morepath.Request) -> str:
@@ -750,7 +750,7 @@ def test_variable_path_parameter_required_no_default() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "View: %s" % self.id
+        return f"View: {self.id}"
 
     @App.view(model=Model, name="link")
     def link(self: Model, request: morepath.Request) -> str:
@@ -778,7 +778,7 @@ def test_variable_path_parameter_required_with_default() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "View: %s" % self.id
+        return f"View: {self.id}"
 
     @App.view(model=Model, name="link")
     def link(self: Model, request: morepath.Request) -> str:
@@ -808,7 +808,7 @@ def test_type_hints_and_converters() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "View: %s" % self.d
+        return f"View: {self.d}"
 
     @App.view(model=Model, name="link")
     def link(self: Model, request: morepath.Request) -> str:
@@ -837,7 +837,7 @@ def test_link_for_none_means_no_parameter() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "View: %s" % self.id
+        return f"View: {self.id}"
 
     @App.view(model=Model, name="link")
     def link(self: Model, request: morepath.Request) -> str:
@@ -902,7 +902,7 @@ def test_path_converter_fallback_on_view() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "Default view for %s" % self.id
+        return f"Default view for {self.id}"
 
     @App.view(model=Root, name="named")
     def named(self: Root, request: morepath.Request) -> str:
@@ -1240,7 +1240,7 @@ def test_sub_path_different_variable() -> None:
 
     @App.view(model=Foo)
     def default_sbar(self: Foo, request: morepath.Request) -> str:
-        return "M: %s" % self.id
+        return f"M: {self.id}"
 
     @App.view(model=Bar)
     def default_bar(self: Bar, request: morepath.Request) -> str:
@@ -1279,7 +1279,7 @@ def test_absorb_path() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "%s" % self.absorb
+        return f"{self.absorb}"
 
     @App.view(model=Root)
     def default_root(self: Root, request: morepath.Request) -> str:
@@ -1373,7 +1373,7 @@ def test_absorb_path_explicit_subpath_ignored() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "%s" % self.absorb
+        return f"{self.absorb}"
 
     @App.view(model=Another)
     def default_another(self: Another, request: morepath.Request) -> str:
@@ -1625,7 +1625,7 @@ def test_resolve_path_with_dots_in_url() -> None:
 
     @App.view(model=Root)
     def default(self: Root, request: morepath.Request) -> str:
-        return "%s" % self.absorb
+        return f"{self.absorb}"
 
     c = Client(App())
 
@@ -1751,7 +1751,7 @@ def test_parameter_quoting() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "View: %s" % self.s
+        return f"View: {self.s}"
 
     @App.view(model=Model, name="link")
     def link(self: Model, request: morepath.Request) -> str:
@@ -1780,7 +1780,7 @@ def test_parameter_quoting_tilde() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "View: %s" % self.s
+        return f"View: {self.s}"
 
     @App.view(model=Model, name="link")
     def link(self: Model, request: morepath.Request) -> str:
@@ -1966,7 +1966,7 @@ def test_absorb_class_path() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "%s" % self.absorb
+        return f"{self.absorb}"
 
     @App.view(model=Root)
     def default_root(self: Root, request: morepath.Request) -> str:
@@ -2166,7 +2166,7 @@ def test_collection_and_item() -> None:
 
     @App.view(model=Item)
     def default(self: Item, request: morepath.Request) -> str:
-        return "View: %s" % self.id
+        return f"View: {self.id}"
 
     c = Client(App())
 
@@ -2193,7 +2193,7 @@ def test_view_for_missing() -> None:
 
     @App.view(model=Item, name="edit")
     def default(self: Item, request: morepath.Request) -> str:
-        return "View: %s" % self.id
+        return f"View: {self.id}"
 
     c = Client(App())
 

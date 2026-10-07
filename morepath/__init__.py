@@ -18,11 +18,10 @@ from .authentication import NO_IDENTITY, Identity, IdentityPolicy
 from .autosetup import autoscan, scan
 from .converter import Converter
 from .core import excview_tween_factory as EXCVIEW
-from .core import model_predicate, name_predicate
+from .core import model_predicate, name_predicate, request_method_predicate
 from .core import (
     poisoned_host_header_protection_tween_factory as HOST_HEADER_PROTECTION,
 )
-from .core import request_method_predicate
 from .core import request_method_predicate as LAST_VIEW_PREDICATE
 from .reify import reify
 from .request import Request, Response
@@ -38,8 +37,8 @@ __all__ = (
     "Converter",
     "Identity",
     "IdentityPolicy",
-    "Response",
     "Request",
+    "Response",
     "autoscan",
     "commit",
     "dispatch_method",

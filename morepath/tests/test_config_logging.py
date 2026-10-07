@@ -29,9 +29,7 @@ def test_config_logging_implicit_commit() -> None:
 
         messages = [record.getMessage() for record in captured.records]
         assert messages == [
-            "@morepath.tests.test_config_logging.App.path(path='') on {!r}".format(
-                Model
-            )
+            f"@morepath.tests.test_config_logging.App.path(path='') on {Model!r}"
         ]
 
     # Instantiating and serving a second app does not trigger a new

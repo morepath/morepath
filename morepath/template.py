@@ -140,12 +140,12 @@ class TemplateEngineRegistry:
         loader = self._template_loaders.get(extension)
         if loader is None:
             raise ConfigError(
-                "No template_loader configured for extension: %s" % extension
+                f"No template_loader configured for extension: {extension}"
             )
         get_render = self._template_renders.get(extension)
         if get_render is None:
             raise ConfigError(
-                "No template_render configured for extension: %s" % extension
+                f"No template_render configured for extension: {extension}"
             )
         return get_render(loader, name, original_render)
 

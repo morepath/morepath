@@ -271,7 +271,7 @@ class Request(BaseRequest, Generic[_AppT]):
         info, found_app = app._get_deferred_mounted_path(obj)
 
         if info is None:
-            raise LinkError("Cannot link to: %r" % obj)
+            raise LinkError(f"Cannot link to: {obj!r}")
 
         return info.url(self.link_prefix(found_app), name)
 
@@ -332,7 +332,7 @@ class Request(BaseRequest, Generic[_AppT]):
         info = app._get_deferred_mounted_class_path(model, variables)
 
         if info is None:
-            raise LinkError("Cannot link to class: %r" % model)
+            raise LinkError(f"Cannot link to class: {model!r}")
 
         return info.url(self.link_prefix(), name)
 

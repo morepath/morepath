@@ -17,9 +17,7 @@ Entirely documented in :class:`morepath.App` in the public API.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-from typing import Never
-from typing import Self, TypeVar, cast, overload
+from typing import TYPE_CHECKING, Any, Never, Self, TypeVar, cast, overload
 
 from webob.exc import HTTPNotFound
 
@@ -638,7 +636,7 @@ class App(dectate.App):
         app: App | None = self
         while app is not None:
             if app in seen:
-                raise LinkError("Circular defer. Cannot link to: %r" % obj)
+                raise LinkError(f"Circular defer. Cannot link to: {obj!r}")
             result = find(app, obj)
             if result is not None:
                 return result, app
@@ -678,7 +676,7 @@ class App(dectate.App):
         app: App | None = self
         while app is not None:
             if app in seen:
-                raise LinkError("Circular defer. Cannot link to: %r" % model)
+                raise LinkError(f"Circular defer. Cannot link to: {model!r}")
             result = find(app, model, variables)
             if result is not None:
                 return result, app

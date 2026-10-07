@@ -21,4 +21,4 @@ class Model:
 
 @App.view(model=Root)
 def root_default(self: Root, request: Request) -> str:
-    return "The root: %s" % self.value
+    return f"The root: {self.value}"

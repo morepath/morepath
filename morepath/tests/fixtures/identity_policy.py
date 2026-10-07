@@ -21,7 +21,7 @@ def get_model(id: str) -> Model:
 
 @App.view(model=Model, permission=Permission)
 def default(self: Model, request: morepath.Request) -> str:
-    return "Model: %s" % self.id
+    return f"Model: {self.id}"
 
 
 @App.permission_rule(model=Model, permission=Permission)

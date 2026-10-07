@@ -141,7 +141,7 @@ def test_mount_context() -> None:
 
     @Mounted.view(model=MountedRoot)
     def root_default(self: MountedRoot, request: morepath.Request) -> str:
-        return "The root for mount id: %s" % self.mount_id
+        return f"The root for mount id: {self.mount_id}"
 
     @App.mount(path="{id}", app=Mounted)
     def get_context(id: str) -> Mounted:
@@ -171,7 +171,7 @@ def test_mount_context_parameters() -> None:
 
     @Mounted.view(model=MountedRoot)
     def root_default(self: MountedRoot, request: morepath.Request) -> str:
-        return "The root for mount id: %s" % self.mount_id
+        return f"The root for mount id: {self.mount_id}"
 
     @App.mount(path="mounts", app=Mounted)
     def get_context(mount_id: int = 0) -> Mounted:
@@ -201,10 +201,7 @@ def test_mount_context_parameters_override_default() -> None:
 
     @Mounted.view(model=MountedRoot)
     def root_default(self: MountedRoot, request: morepath.Request) -> str:
-        return "mount_id: {} app_mount_id: {}".format(
-            self.mount_id,
-            self.app_mount_id,
-        )
+        return f"mount_id: {self.mount_id} app_mount_id: {self.app_mount_id}"
 
     @App.mount(path="{id}", app=Mounted)
     def get_context(id: str) -> Mounted:
@@ -232,7 +229,7 @@ def test_mount_context_standalone() -> None:
 
     @App.view(model=Root)
     def root_default(self: Root, request: morepath.Request) -> str:
-        return "The root for mount id: %s" % self.mount_id
+        return f"The root for mount id: {self.mount_id}"
 
     c = Client(App(mount_id="foo"))
 
@@ -1024,7 +1021,7 @@ def test_named_mount_with_parameters() -> None:
 
     @Mounted.view(model=MountedRoot)
     def root_default(self: MountedRoot, request: morepath.Request) -> str:
-        return "The root for mount id: %s" % self.mount_id
+        return f"The root for mount id: {self.mount_id}"
 
     @App.mount(path="mounts/{mount_id}", app=Mounted)
     def get_context(mount_id: int = 0) -> Mounted:
@@ -1070,7 +1067,7 @@ def test_named_mount_with_url_parameters() -> None:
 
     @Mounted.view(model=MountedRoot)
     def root_default(self: MountedRoot, request: morepath.Request) -> str:
-        return "The root for mount id: %s" % self.mount_id
+        return f"The root for mount id: {self.mount_id}"
 
     @App.mount(path="mounts", app=Mounted)
     def get_context(mount_id: int = 0) -> Mounted:

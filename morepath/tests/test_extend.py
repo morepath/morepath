@@ -45,11 +45,11 @@ def test_extends() -> None:
 
     @App.view(model=User)
     def render_user(self: User, request: morepath.Request) -> str:
-        return "User: %s" % self.username
+        return f"User: {self.username}"
 
     @Extending.view(model=User, name="edit")
     def edit_user(self: User, request: morepath.Request) -> str:
-        return "Edit user: %s" % self.username
+        return f"Edit user: {self.username}"
 
     cl = Client(App())
     response = cl.get("/users/foo")
@@ -77,11 +77,11 @@ def test_overrides_view() -> None:
 
     @App.view(model=User)
     def render_user(self: User, request: morepath.Request) -> str:
-        return "User: %s" % self.username
+        return f"User: {self.username}"
 
     @Overriding.view(model=User)
     def render_user2(self: User, request: morepath.Request) -> str:
-        return "USER: %s" % self.username
+        return f"USER: {self.username}"
 
     cl = Client(App())
     response = cl.get("/users/foo")
@@ -106,7 +106,7 @@ def test_overrides_model() -> None:
 
     @App.view(model=User)
     def render_user(self: User, request: morepath.Request) -> str:
-        return "User: %s" % self.username
+        return f"User: {self.username}"
 
     @Overriding.path(model=User, path="users/{username}")
     def get_user(username: str) -> User | None:

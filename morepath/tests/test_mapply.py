@@ -7,7 +7,7 @@ from ..mapply import mapply
 
 def test_mapply() -> None:
     def foo(a: int) -> str:
-        return "foo with %s" % a
+        return f"foo with {a}"
 
     assert mapply(foo, a=1) == "foo with 1"
     assert mapply(foo, a=1, b=2) == "foo with 1"
@@ -15,7 +15,7 @@ def test_mapply() -> None:
 
 def test_mapply_fail() -> None:
     def foo(a: int) -> str:
-        return "foo with %s" % a
+        return f"foo with {a}"
 
     with pytest.raises(TypeError):
         mapply(foo, b=2)
@@ -23,7 +23,7 @@ def test_mapply_fail() -> None:
 
 def test_mapply_args() -> None:
     def foo(a: int) -> str:
-        return "foo with %s" % a
+        return f"foo with {a}"
 
     assert mapply(foo, 1) == "foo with 1"
 
@@ -31,7 +31,7 @@ def test_mapply_args() -> None:
 def test_mapply_with_method() -> None:
     class Foo:
         def method(self, a: int) -> str:
-            return "method with %s" % a
+            return f"method with {a}"
 
     f = Foo()
     assert mapply(f.method, a=1) == "method with 1"
@@ -59,7 +59,7 @@ def test_mapply_with_old_style_class() -> None:
 def test_mapply_callable_object() -> None:
     class Foo:
         def __call__(self, a: int) -> str:
-            return "called with %s" % a
+            return f"called with {a}"
 
     f = Foo()
     assert mapply(f, a=1) == "called with 1"

@@ -234,7 +234,9 @@ class PredicateAction(dectate.Action):
         self._before = before
         self._after = after
 
-    def identifier(self, predicate_registry: PredicateRegistry) -> tuple[
+    def identifier(
+        self, predicate_registry: PredicateRegistry
+    ) -> tuple[
         DispatchCall[..., Any],
         Callable[..., Any] | None,
         Callable[..., Any] | None,
@@ -476,22 +478,25 @@ class PathCompositeAction(dectate.Composite):
         if isinstance(obj, type):
             if model is not None:
                 raise dectate.DirectiveError(
-                    "@path decorates class so cannot " "have explicit model: %s" % model
+                    f"@path decorates class so cannot have explicit model: {model}"
                 )
             model = obj
         if model is None:
             raise dectate.DirectiveError(
                 "@path does not decorate class and has no explicit model"
             )
-        yield PathAction(
-            self.path,
-            model,
-            self.variables,
-            self.converters,
-            self.required,
-            self.get_converters,
-            self.absorb,
-        ), obj
+        yield (
+            PathAction(
+                self.path,
+                model,
+                self.variables,
+                self.converters,
+                self.required,
+                self.get_converters,
+                self.absorb,
+            ),
+            obj,
+        )
 
 
 class PermissionRuleAction(dectate.Action):
@@ -605,7 +610,7 @@ class TemplateDirectoryAction(dectate.Action):
         self._after = after
         self._before = before
         if name is None:
-            name = "template_directory_%s" % template_directory_id
+            name = f"template_directory_{template_directory_id}"
             template_directory_id += 1
         self.name = name
 
@@ -1188,7 +1193,7 @@ class TweenFactoryAction(dectate.Action):
         self.under = under
         self.over = over
         if name is None:
-            name = "tween_factory_%s" % tween_factory_id
+            name = f"tween_factory_{tween_factory_id}"
             tween_factory_id += 1
         self.name = name
 
