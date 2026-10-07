@@ -45,13 +45,7 @@ Changelog = "https://github.com/morepath/morepath/blob/master/CHANGES.txt"
 [project.optional-dependencies]
 test = ["pytest >= 8", "pytest-env", "WebTest >= 2.0.14"]
 coverage = ["pytest-cov"]
-lint = [
-    "black",
-    "flake8",
-    "flake8-pyproject",
-    "flake8-type-checking",
-    "isort",
-]
+lint = ["ruff"]
 docs = ["sphinx < 9.1", "pyyaml", "WebTest >= 2.0.14"]
 mypy = ["mypy", "pytest", "types-WebOb", "types-WebTest"]
 pyright = ["pyright", "pytest", "types-WebOb", "types-WebTest", "WebTest >= 2.0.14"]
@@ -81,11 +75,17 @@ source = ["morepath"]
 [tool.coverage.report]
 show_missing = true
 
-[tool.flake8]
-show-source = true
-ignore = ["E203", "E231", "E301", "E501", "E704", "W503"]
-extend-select = ["TC", "TC1"]
-max-line-length = 88
+[tool.ruff]
+extend-exclude = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "TC", "UP", "RUF"]
+ignore = ["E501", "RUF012"]
+future-annotations = true
+
+[tool.ruff.lint.isort]
+extra-standard-library = ["typing_extensions"]
+known-first-party = ["dectate", "importscan", "reg"]
 
 [tool.mypy]
 python_version = "3.11"
@@ -132,7 +132,6 @@ env_list = [
     "py315",
     "pypy3",
     "coverage",
-    "pre-commit",
     "lint",
     "docs",
     "mypy",
@@ -155,22 +154,12 @@ extras = ["test", "coverage"]
 commands = [
     ["pytest", "--cov", "--cov-fail-under=100", "{posargs:morepath}"],
 ]
-
-[tool.tox.env.pre-commit]
-base_python = ["python3.14"]
-package = "skip"
-deps = ["pre-commit"]
-commands = [
-    ["pre-commit", "run", "--all-files"],
-]
-
 [tool.tox.env.lint]
 base_python = ["python3.14"]
 extras = ["lint"]
 commands = [
-    ["flake8", "morepath"],
-    ["black", "--check", "--diff", "--color", "."],
-    ["isort", "--diff", "."],
+    ["ruff", "check", "."],
+    ["ruff", "format", "--check", "."],
 ]
 
 [tool.tox.env.docs]
@@ -201,29 +190,3 @@ commands = [
     ["pyright", "--pythonversion", "3.14"],
     ["pyright", "--pythonversion", "3.15"],
 ]
-
-[tool.black]
-target-version = ['py311', 'py312', 'py313', 'py314', 'py315']
-include = '\.pyi?$'
-exclude = '''
-(
-  /(
-      \.git
-    | \.tox
-    | env
-    | venv
-    | .venv
-    | __pycache__
-    | build
-    | dist
-    | src
-  )/
-)
-'''
-
-[tool.isort]
-profile = 'black'
-py_version = 311
-skip_gitignore = true
-extra_standard_library = ["typing_extensions"]
-known_first_party = ["dectate", "importscan", "reg"]

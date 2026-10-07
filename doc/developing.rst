@@ -50,15 +50,24 @@ For upgrading the sources and requirements just run the command again.
 
 .. _github: https://docs.github.com/en/authentication/connecting-to-github-with-ssh
 
-Install pre-commit hook for Black integration
----------------------------------------------
+Code quality checks
+-------------------
 
-We're using Black_ for formatting the code and it's recommended to
-install the `pre-commit hook`_ for Black integration before committing::
+Morepath uses Ruff_ for linting, import sorting, and code formatting. Run
+the checks from the project directory with::
 
-  (.venv) $ pre-commit install
+  (.venv) $ ruff check .
+  (.venv) $ ruff format --check .
 
-.. _`pre-commit hook`: https://black.readthedocs.io/en/stable/integrations/source_version_control.html
+To apply lint fixes and format the code, run::
+
+  (.venv) $ ruff check --fix .
+  (.venv) $ ruff format .
+
+Ruff uses the project settings in ``pyproject.toml``. The ``lint`` tox
+environment runs both checks.
+
+.. _Ruff: https://docs.astral.sh/ruff/
 
 Running the tests
 -----------------
@@ -76,44 +85,6 @@ in the project directory and click on modules to see detailed coverage
 information.
 
 .. _`pytest`: https://pytest.org
-
-Black
------
-
-To format the code with the `Black Code Formatter`_ run in the root directory::
-
-  (.venv) $ black .
-
-Black has also integration_ for the most popular editors.
-
-.. _`Black Code Formatter`: https://black.readthedocs.io
-.. _integration: https://black.readthedocs.io/en/stable/editor_integration.html
-
-isort
------
-
-To sort imports with isort_ from the project directory do::
-
-  (.venv) $ isort .
-
-isort uses the settings in ``pyproject.toml``.
-
-.. _isort: https://pycqa.github.io/isort/
-
-flake8
-------
-
-flake8_ is a tool that can do various checks for common Python
-mistakes using pyflakes_ and checks for PEP8_ style compliance. We
-want a codebase where there are no flake8 messages.
-
-To do pyflakes and pep8 checking do::
-
-  (.venv) $ flake8 morepath
-
-.. _flake8: https://pypi.org/project/flake8
-.. _pyflakes: https://pypi.org/project/pyflakes
-.. _pep8: https://peps.python.org/pep-0008
 
 Type checking
 -------------

@@ -34,8 +34,6 @@ jobs:
             python-version: "pypy-3.12"
           - tox-env: "coverage"
             python-version: "3.14"
-          - tox-env: "pre-commit"
-            python-version: "3.14"
           - tox-env: "lint"
             python-version: "3.14"
           - tox-env: "mypy"
