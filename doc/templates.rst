@@ -204,7 +204,7 @@ Some details:
   * The ``original_render`` function as passed into the view
     decorator, so ``render_html`` for instance. It takes the content
     to render and the request and returns a webob response object.
-    then passed along to Chameleon.
+    then passed along to Chameleon / Jinja2.
 
   The decorated function needs to return a ``render`` function which
   takes the content to render (output from view function) and the

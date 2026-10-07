@@ -5,8 +5,6 @@
 
 .. autofunction:: morepath.autosetup.import_package
 
-.. autofunction:: morepath.autosetup.import_package
-
 .. autoclass:: morepath.autosetup.DependencyMap
   :members:
 

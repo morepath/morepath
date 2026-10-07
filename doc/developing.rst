@@ -23,24 +23,18 @@ Then go to the morepath directory::
 
   $ cd morepath
 
-Make sure you have virtualenv_ installed.
+Create a new virtualenv inside the morepath directory::
 
-Create a new virtualenv for Python 3 inside the morepath directory::
-
-  $ virtualenv -p python3 env/py3
+  $ python -m venv --upgrade-deps .venv
 
 Activate the virtualenv::
 
-  $ source env/py3/bin/activate
-
-Make sure you have recent setuptools and pip installed::
-
-  $ pip install -U setuptools pip
+  $ source .venv/bin/activate
 
 Install the various dependencies and development tools from
 requirements/develop.txt::
 
-  $ pip install -Ur requirements/develop.txt --src src
+  (.venv) $ pip install -Ur requirements/develop.txt --src src
 
 This needs your ssh key installed in github_ to work.
 
@@ -54,9 +48,7 @@ For upgrading the sources and requirements just run the command again.
 
    The following commands work only if you have the virtualenv activated.
 
-.. _github: https://help.github.com/articles/generating-an-ssh-key
-
-.. _virtualenv: https://pypi.python.org/pypi/virtualenv
+.. _github: https://docs.github.com/en/authentication/connecting-to-github-with-ssh
 
 Install pre-commit hook for Black integration
 ---------------------------------------------
@@ -64,20 +56,20 @@ Install pre-commit hook for Black integration
 We're using Black_ for formatting the code and it's recommended to
 install the `pre-commit hook`_ for Black integration before committing::
 
-  $ pre-commit install
+  (.venv) $ pre-commit install
 
-.. _`pre-commit hook`: https://black.readthedocs.io/en/stable/version_control_integration.html
+.. _`pre-commit hook`: https://black.readthedocs.io/en/stable/integrations/source_version_control.html
 
 Running the tests
 -----------------
 
 You can run the tests using `pytest`_::
 
-  $ pytest
+  (.venv) $ pytest
 
 To generate test coverage information as HTML do::
 
-  $ pytest --cov --cov-report html
+  (.venv) $ pytest --cov --cov-report html
 
 You can then point your web browser to the ``htmlcov/index.html`` file
 in the project directory and click on modules to see detailed coverage
@@ -90,12 +82,23 @@ Black
 
 To format the code with the `Black Code Formatter`_ run in the root directory::
 
-  $ black morepath
+  (.venv) $ black .
 
 Black has also integration_ for the most popular editors.
 
 .. _`Black Code Formatter`: https://black.readthedocs.io
 .. _integration: https://black.readthedocs.io/en/stable/editor_integration.html
+
+isort
+-----
+
+To sort imports with isort_ from the project directory do::
+
+  (.venv) $ isort .
+
+isort uses the settings in ``pyproject.toml``.
+
+.. _isort: https://pycqa.github.io/isort/
 
 flake8
 ------
@@ -106,34 +109,26 @@ want a codebase where there are no flake8 messages.
 
 To do pyflakes and pep8 checking do::
 
-  $ flake8 morepath
+  (.venv) $ flake8 morepath
 
-.. _flake8: https://pypi.python.org/pypi/flake8
-
-.. _pyflakes: https://pypi.python.org/pypi/pyflakes
-
+.. _flake8: https://pypi.org/project/flake8
+.. _pyflakes: https://pypi.org/project/pyflakes
 .. _pep8: https://peps.python.org/pep-0008
 
-radon
------
+Type checking
+-------------
 
-radon_ is a tool that can check various measures of code complexity.
+Morepath uses mypy_ and pyright_ for type checking. Run either checker
+from the project directory::
 
-To check for `cyclomatic complexity`_ (excluding the tests)::
+  (.venv) $ mypy
+  (.venv) $ pyright
 
-  $ radon cc morepath -e "morepath/tests*"
+Both checkers use the settings in ``pyproject.toml``.
 
-To filter for anything not ranked ``A``::
+.. _mypy: https://mypy.readthedocs.io/
+.. _pyright: https://microsoft.github.io/pyright/
 
-  $ radon cc morepath --min B -e "morepath/tests*"
-
-And to see the maintainability index::
-
-  $ radon mi morepath -e "morepath/tests*"
-
-.. _radon: https://radon.readthedocs.io/en/latest/commandline.html
-
-.. _`cyclomatic complexity`: https://en.wikipedia.org/wiki/Cyclomatic_complexity
 
 Running the documentation tests
 -------------------------------
@@ -141,32 +136,32 @@ Running the documentation tests
 The documentation contains code. To check these code snippets, you
 can run this code using this command::
 
-  (py3) $ sphinx-build -b doctest doc doc/build/doctest
+  (.venv) $ sphinx-build -b doctest doc doc/build/doctest
 
 Or alternatively if you have ``Make`` installed::
 
-  (py3) $ cd doc
-  (py3) $ make doctest
+  (.venv) $ cd doc
+  (.venv) $ make doctest
 
 Or from the Morepath project directory::
 
-  (py3) $ make -C doc doctest
+  (.venv) $ make -C doc doctest
 
 Building the HTML documentation
 -------------------------------
 
-To build the HTML documentation (output in ``doc/build/html``), run::
+To build the HTML documentation (output in ``doc/_build/html``), run::
 
-  $ sphinx-build doc doc/build/html
+  (.venv) $ sphinx-build doc doc/_build/html
 
 Or alternatively if you have ``Make`` installed::
 
-  $ cd doc
-  $ make html
+  (.venv) $ cd doc
+  (.venv) $ make html
 
 Or from the Morepath project directory::
 
-  $ make -C doc html
+  (.venv) $ make -C doc html
 
 Developing Reg, Dectate or Importscan
 -------------------------------------
@@ -178,8 +173,8 @@ directly.
 
 If you want to run the tests for one of them, let's say Reg, do::
 
-  $ cd src/reg
-  $ pytest
+  (.venv) $ cd src/reg
+  (.venv) $ pytest
 
 Tox
 ---
@@ -191,29 +186,29 @@ repository and it runs the same tox tests after each checkin.
 
 First you should install all Python versions which you want to
 test. The versions which are not installed will be skipped. You should
-at least install Python 3.11 which is required by flake8, coverage and
-doctests.
+at least install Python 3.14 which is required by flake8, coverage,
+doctests, mypy and pyright.
 
 One tool you can use to install multiple versions of Python is pyenv_.
 
 To find out which test environments are defined for Morepath in tox.ini run::
 
-  $ tox -l
+  (.venv) $ tox -l
 
 You can run all tox tests with::
 
-  $ tox
+  (.venv) $ tox
 
 You can also specify a test environment to run e.g.::
 
-  $ tox -e py311
-  $ tox -e lint
-  $ tox -e docs
+  (.venv) $ tox -e py311
+  (.venv) $ tox -e lint
+  (.venv) $ tox -e docs
 
 To find out which dependencies and which versions
 tox installs in the testenv, you can use::
 
-  $ tox -e freeze
+  (.venv) $ tox -e freeze
 
 .. _pyenv: https://github.com/yyuu/pyenv
 
