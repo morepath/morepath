@@ -119,7 +119,7 @@ def test_basic_scenario() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "The view for model: %s" % self.id
+        return f"The view for model: {self.id}"
 
     @App.view(model=Model, name="link")
     def link(self: Model, request: morepath.Request) -> str:
@@ -131,7 +131,7 @@ def test_basic_scenario() -> None:
 
     @App.view(model=Root)
     def root_default(self: Root, request: morepath.Request) -> str:
-        return "The root: %s" % self.value
+        return f"The root: {self.value}"
 
     @App.view(model=Root, name="link")
     def root_link(self: Root, request: morepath.Request) -> str:
@@ -270,7 +270,7 @@ def test_root_link_with_parameters() -> None:
 
     @App.view(model=Root)
     def default(self: Root, request: morepath.Request) -> str:
-        return "The view for root: %s" % self.param
+        return f"The view for root: {self.param}"
 
     @App.view(model=Root, name="link")
     def link(self: Root, request: morepath.Request) -> str:
@@ -457,7 +457,7 @@ def test_implicit_variables() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "The view for model: %s" % self.id
+        return f"The view for model: {self.id}"
 
     @App.view(model=Model, name="link")
     def link(self: Model, request: morepath.Request) -> str:
@@ -487,7 +487,7 @@ def test_implicit_parameters() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "The view for model: %s" % self.id
+        return f"The view for model: {self.id}"
 
     @App.view(model=Model, name="link")
     def link(self: Model, request: morepath.Request) -> str:
@@ -523,7 +523,7 @@ def test_implicit_parameters_default() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "The view for model: %s" % self.id
+        return f"The view for model: {self.id}"
 
     @App.view(model=Model, name="link")
     def link(self: Model, request: morepath.Request) -> str:
@@ -957,7 +957,6 @@ def test_function_no_conflict_different_apps() -> None:
 
 def test_run_app_with_context_without_it() -> None:
     class App(morepath.App):
-
         def __init__(self, mount_id: str) -> None:
             self.mount_id = mount_id
 
@@ -1142,18 +1141,18 @@ def test_function_directive() -> None:
     class App(morepath.App):
         @morepath.dispatch_method("o")
         def mygeneric(self, o: Any) -> str:
-            return "The object: %s" % o
+            return f"The object: {o}"
 
     class Foo:
         def __init__(self, value: int) -> None:
             self.value = value
 
         def __repr__(self) -> str:
-            return "<Foo with value: %s>" % self.value
+            return f"<Foo with value: {self.value}>"
 
     @App.method(App.mygeneric, o=Foo)
     def mygeneric_for_foo(App: App, o: Foo) -> str:
-        return "The foo object: %s" % o
+        return f"The foo object: {o}"
 
     a = App()
 

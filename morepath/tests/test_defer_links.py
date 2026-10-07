@@ -167,7 +167,6 @@ def test_defer_links_mount_parameters() -> None:
         pass
 
     class Sub(morepath.App):
-
         def __init__(self, name: str) -> None:
             self.name = name
 

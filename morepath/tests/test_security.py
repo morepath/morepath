@@ -34,7 +34,7 @@ def test_no_permission() -> None:
 
     @App.view(model=Model, permission=Permission)
     def default(self: Model, request: morepath.Request) -> str:
-        return "Model: %s" % self.id
+        return f"Model: {self.id}"
 
     c = Client(App())
 
@@ -69,7 +69,7 @@ def test_permission_directive_identity() -> None:
 
     @App.view(model=Model, permission=Permission)
     def default(self: Model, request: morepath.Request) -> str:
-        return "Model: %s" % self.id
+        return f"Model: {self.id}"
 
     @App.identity_policy()
     class IdentityPolicy:
@@ -120,7 +120,7 @@ def test_permission_directive_with_app_arg() -> None:
 
     @App.view(model=Model, permission=Permission)
     def default(self: Model, request: morepath.Request) -> str:
-        return "Model: %s" % self.id
+        return f"Model: {self.id}"
 
     @App.identity_policy()
     class IdentityPolicy:
@@ -164,7 +164,7 @@ def test_permission_directive_no_identity() -> None:
 
     @App.view(model=Model, permission=Permission)
     def default(self: Model, request: morepath.Request) -> str:
-        return "Model: %s" % self.id
+        return f"Model: {self.id}"
 
     c = Client(App())
 
@@ -195,7 +195,7 @@ def test_no_identity_policy() -> None:
 
     @App.view(model=Model, permission=Permission)
     def default(self: Model, request: morepath.Request) -> str:
-        return "Model: %s" % self.id
+        return f"Model: {self.id}"
 
     @App.view(model=Model, name="log_in")
     def log_in(self: Model, request: morepath.Request) -> Response:
@@ -274,7 +274,7 @@ def test_cookie_identity_policy() -> None:
 
     @App.view(model=Model, permission=Permission)
     def default(self: Model, request: morepath.Request) -> str:
-        return "Model: %s" % self.id
+        return f"Model: {self.id}"
 
     @App.view(model=Model, name="log_in")
     def log_in(self: Model, request: morepath.Request) -> Response:
@@ -389,7 +389,7 @@ def test_false_verify_identity() -> None:
 
     @App.view(model=Model, permission=Permission)
     def default(self: Model, request: morepath.Request) -> str:
-        return "Model: %s" % self.id
+        return f"Model: {self.id}"
 
     @App.view(model=Model, name="log_in")
     def log_in(self: Model, request: morepath.Request) -> Response:
@@ -443,8 +443,8 @@ def test_dispatch_verify_identity() -> None:
     @App.view(model=Model, permission=Read)
     def default(self: Model, request: morepath.Request) -> str:
         if request.identity.userid == self.id:
-            return "Read restricted: %s" % self.id
-        return "Read shared: %s" % self.id
+            return f"Read restricted: {self.id}"
+        return f"Read shared: {self.id}"
 
     @App.identity_policy()
     class HeaderIdentityPolicy:
@@ -500,7 +500,7 @@ def test_settings() -> None:
 
     @App.view(model=Model)
     def default(self: Model, request: morepath.Request) -> str:
-        return "%s, your token is valid." % request.identity.userid
+        return f"{request.identity.userid}, your token is valid."
 
     @App.setting_section(section="test")
     def get_test_settings() -> dict[str, str]:
@@ -619,7 +619,7 @@ def test_settings_in_permission_rule() -> None:
 
     @App.view(model=Model, permission=Permission)
     def default(self: Model, request: morepath.Request) -> str:
-        return "Model: %s" % self.id
+        return f"Model: {self.id}"
 
     @App.identity_policy()
     class IdentityPolicy:

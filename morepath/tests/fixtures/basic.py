@@ -23,7 +23,7 @@ def get_model(id: str) -> Model:
 
 @App.view(model=Model)
 def default(self: Model, request: morepath.Request) -> str:
-    return "The view for model: %s" % self.id
+    return f"The view for model: {self.id}"
 
 
 @App.view(model=Model, name="link")
@@ -38,7 +38,7 @@ def json(self: Model, request: morepath.Request) -> dict[str, str]:
 
 @App.view(model=Root)
 def root_default(self: Root, request: morepath.Request) -> str:
-    return "The root: %s" % self.value
+    return f"The root: {self.value}"
 
 
 @App.view(model=Root, name="link")

@@ -27,10 +27,13 @@ def test_run_port_out_of_range(
 
     out, err = capsys.readouterr()
 
-    assert err == """\
+    assert (
+        err
+        == """\
 usage: script-name [-h] [-p PORT] [-H HOST]
 script-name: error: argument -p/--port: invalid integer in 0..65535 value: '-3'
 """
+    )
     assert out == ""
 
 
@@ -135,12 +138,12 @@ def test_run_hint_on_eaddrinuse(
         out, err = capsys.readouterr()
 
         # The wording of the error message is system-specific.
-        rex = """\
-script-name: .*: 127.0.0.1:{}
+        rex = f"""\
+script-name: .*: 127.0.0.1:{used_port}
 
   Use '--port PORT' to specify a different port.
 
-""".format(used_port)
+"""
 
         assert re.match(rex, err)
         assert out == ""

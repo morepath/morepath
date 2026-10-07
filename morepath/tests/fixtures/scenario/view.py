@@ -23,7 +23,7 @@ def generic_root_default(self: model.GenericRoot, request: Request) -> str:
 
 @app.Generic.view(model=model.GenericModel)
 def generic_model_default(self: model.GenericModel, request: Request) -> str:
-    return "Generic model %s" % self.id
+    return f"Generic model {self.id}"
 
 
 @app.Generic.view(model=model.GenericModel, name="link")
@@ -38,7 +38,7 @@ def document_root_default(self: model.DocumentRoot, request: Request) -> str:
 
 @app.Document.view(model=model.DocumentModel)
 def document_model_default(self: model.DocumentModel, request: Request) -> str:
-    return "Document model %s" % self.id
+    return f"Document model {self.id}"
 
 
 @app.Document.view(model=model.DocumentModel, name="link")

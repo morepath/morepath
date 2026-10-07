@@ -102,19 +102,18 @@ class PathRegistry(TrajectRegistry):
         assert info is not None
         if info.varargs is not None:
             raise DirectiveError(
-                "Cannot use varargs in function signature: %s" % info.varargs
+                f"Cannot use varargs in function signature: {info.varargs}"
             )
         if info.varkw is not None:
             raise DirectiveError(
-                "Cannot use varkw in function signature: %s" % info.varkw
+                f"Cannot use varkw in function signature: {info.varkw}"
             )
 
         path_variables = TrajectPath(path).variables()
         for path_variable in path_variables:
             if path_variable not in arguments:
                 raise DirectiveError(
-                    "Variable in path not found in function signature: %s"
-                    % path_variable
+                    f"Variable in path not found in function signature: {path_variable}"
                 )
 
         parameters = filter_arguments(arguments, path_variables)
@@ -385,10 +384,8 @@ class Path:
           argument to the factory function should be represented.
         :return: :class:`PathInfo` instance representing the path.
         """
-        if not isinstance(
-            variables, dict
-        ):  # pyright: ignore[reportUnnecessaryIsInstance]
-            raise LinkError("Variables is not a dict: %r" % variables)
+        if not isinstance(variables, dict):  # pyright: ignore[reportUnnecessaryIsInstance]
+            raise LinkError(f"Variables is not a dict: {variables!r}")
 
         extra_parameters = variables.pop("extra_parameters", None)
         if self.absorb:

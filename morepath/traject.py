@@ -106,7 +106,7 @@ class Step:
         # XXX should also check for valid URL characters
         for part in self.parts:
             if "{" in part or "}" in part:
-                raise TrajectError("invalid step: %s" % self.s)
+                raise TrajectError(f"invalid step: {self.s}")
 
     def validate_variables(self) -> None:
         """Check whether all variables of the segment are valid.
@@ -121,7 +121,7 @@ class Step:
             parts = parts[:-1]
         for part in parts:
             if part == "":
-                raise TrajectError("illegal consecutive variables: %s" % self.s)
+                raise TrajectError(f"illegal consecutive variables: {self.s}")
 
     def discriminator_info(self) -> str:
         """Information needed to construct path discriminator."""
@@ -454,7 +454,7 @@ class ParameterFactory:
             converter = self.converters.get(name, IDENTITY_CONVERTER)
             if converter.is_missing(value):
                 if name in self.required:
-                    raise HTTPBadRequest("Required URL parameter missing: %s" % name)
+                    raise HTTPBadRequest(f"Required URL parameter missing: {name}")
                 result[name] = default
                 continue
             try:
@@ -569,7 +569,7 @@ def parse_variables(s: str) -> list[str]:
     result = PATH_VARIABLE.findall(s)
     for name in result:
         if not is_identifier(name):
-            raise TrajectError("illegal variable identifier: %s" % name)
+            raise TrajectError(f"illegal variable identifier: {name}")
     return result
 
 
@@ -581,7 +581,7 @@ def create_variables_re(s: str) -> re.Pattern[str]:
     """
 
     def _repl(m: re.Match[str]) -> str:
-        return "(?P<%s>.+)" % m.group(0)[1:-1]
+        return f"(?P<{m.group(0)[1:-1]}>.+)"
 
     return re.compile("^" + PATH_VARIABLE.sub(_repl, s) + "$")
 

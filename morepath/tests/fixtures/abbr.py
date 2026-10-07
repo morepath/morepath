@@ -19,8 +19,8 @@ with App.view(model=Model) as view:
 
     @view()
     def default(self: Model, request: morepath.Request) -> str:
-        return "Default view: %s" % self.id
+        return f"Default view: {self.id}"
 
     @view(name="edit")
     def edit(self: Model, request: morepath.Request) -> str:
-        return "Edit view: %s" % self.id
+        return f"Edit view: {self.id}"

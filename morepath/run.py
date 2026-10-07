@@ -118,9 +118,7 @@ def run(
     print(
         # FIXME: Do we want to try to coerce from bytes to str, if we get
         #        bytes or a bytearray?
-        "Listening on http://{}:{}".format(  # type: ignore[str-bytes-safe]
-            server.server_address[0], server.server_port
-        )
+        f"Listening on http://{server.server_address[0]}:{server.server_port}"  # type: ignore[str-bytes-safe]
     )
     print("Press Ctrl-C to stop...")
     try:

@@ -157,7 +157,7 @@ def get_converter(type: type[_T]) -> Converter[_T]:
     :param type: a class or type.
     :return: a :class:`morepath.Converter` instance.
     """
-    raise DirectiveError("Cannot find converter for type: %r" % type)
+    raise DirectiveError(f"Cannot find converter for type: {type!r}")
 
 
 class ConverterRegistry:
