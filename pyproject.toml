@@ -18,17 +18,17 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Application Frameworks",
     "Topic :: Internet :: WWW/HTTP :: WSGI",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Development Status :: 5 - Production/Stable",
 ]
-requires-python = ">= 3.10"
+requires-python = ">= 3.11"
 dependencies = [
     "WebOb >= 1.8.7",
     "reg >= 1.0.0.dev0",
@@ -88,7 +88,7 @@ extend-select = ["TC", "TC1"]
 max-line-length = 88
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.11"
 strict = true
 files = ["."]
 mypy_path = [
@@ -125,11 +125,11 @@ reportPrivateUsage = "none"
 [tool.tox]
 requires = ["tox>=4"]
 env_list = [
-    "py310",
     "py311",
     "py312",
     "py313",
     "py314",
+    "py315",
     "pypy3",
     "coverage",
     "pre-commit",
@@ -184,26 +184,26 @@ commands = [
 base_python = ["python3.14"]
 extras = ["mypy"]
 commands = [
-    ["mypy", "--python-version", "3.10"],
     ["mypy", "--python-version", "3.11"],
     ["mypy", "--python-version", "3.12"],
     ["mypy", "--python-version", "3.13"],
     ["mypy", "--python-version", "3.14"],
+    ["mypy", "--python-version", "3.15"],
 ]
 
 [tool.tox.env.pyright]
 base_python = ["python3.14"]
 extras = ["pyright"]
 commands = [
-    ["pyright", "--pythonversion", "3.10"],
     ["pyright", "--pythonversion", "3.11"],
     ["pyright", "--pythonversion", "3.12"],
     ["pyright", "--pythonversion", "3.13"],
     ["pyright", "--pythonversion", "3.14"],
+    ["pyright", "--pythonversion", "3.15"],
 ]
 
 [tool.black]
-target-version = ['py310', 'py311', 'py312', 'py313', 'py314']
+target-version = ['py311', 'py312', 'py313', 'py314', 'py315']
 include = '\.pyi?$'
 exclude = '''
 (
@@ -223,7 +223,7 @@ exclude = '''
 
 [tool.isort]
 profile = 'black'
-py_version = 310
+py_version = 311
 skip_gitignore = true
 extra_standard_library = ["typing_extensions"]
 known_first_party = ["dectate", "importscan", "reg"]

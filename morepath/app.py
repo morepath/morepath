@@ -18,8 +18,8 @@ Entirely documented in :class:`morepath.App` in the public API.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
-from typing import NoReturn as Never
-from typing import TypeVar, cast, overload
+from typing import Never
+from typing import Self, TypeVar, cast, overload
 
 from webob.exc import HTTPNotFound
 
@@ -35,7 +35,6 @@ from .request import Request
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
-    from typing_extensions import Self
 
     from webob.response import Response as BaseResponse
 

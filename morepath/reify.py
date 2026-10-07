@@ -1,11 +1,10 @@
 # Originally taken from pyramid.decorator
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar, overload
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from typing_extensions import Self
 
 _T = TypeVar("_T")
 

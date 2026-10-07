@@ -20,8 +20,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - tox-env: "py310"
-            python-version: "3.10"
           - tox-env: "py311"
             python-version: "3.11"
           - tox-env: "py312"
@@ -30,20 +28,22 @@ jobs:
             python-version: "3.13"
           - tox-env: "py314"
             python-version: "3.14"
+          - tox-env: "py315"
+            python-version: "3.15"
           - tox-env: "pypy3"
-            python-version: "pypy-3.11"
+            python-version: "pypy-3.12"
           - tox-env: "coverage"
-            python-version: "3.11"
+            python-version: "3.14"
           - tox-env: "pre-commit"
-            python-version: "3.11"
+            python-version: "3.14"
           - tox-env: "lint"
-            python-version: "3.11"
+            python-version: "3.14"
           - tox-env: "mypy"
-            python-version: "3.11"
+            python-version: "3.14"
           - tox-env: "pyright"
-            python-version: "3.11"
+            python-version: "3.14"
           - tox-env: "docs"
-            python-version: "3.11"
+            python-version: "3.14"
     
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
