@@ -1,10 +1,14 @@
 CHANGES
 *******
 
-0.21 (unreleased)
-=================
+1.0.0 (unreleased)
+==================
 
-* Add type hints
+* Add type annotations and integrate ``mypy`` and ``pyright``.
+
+* Add support for Python version 3.15 and drop support for EOL versions 3.9-3.10.
+
+* Support Pypy 3.12.
 
 * Fixes a minor bug in ``Request.view``
   
@@ -12,7 +16,35 @@ CHANGES
   and that view threw an exception, then the bound application object
   was not properly restored back to the original instance.
 
+* Add tests for 100% coverage.
+
+* Adjust Sphinx config.
+
+* Update developing documentation.
+
+* Make an overall cleanup and adjust the project setup.
+
 * Fix readthedocs integration.
+
+* Replace flake8, black, isort, pyupgrade and pre-commit with Ruff_.
+
+  .. _Ruff: https://docs.astral.sh/ruff
+
+* Remove coveralls integration.
+
+* Adjust the deployment strategy:
+  
+  - Move the Pypi upload from ``zest.release`` to ``gh-actions``.
+
+  - Use ``v`` + version as release tags like ``v1.0.0``.
+
+  - So we still use ``zest.release`` but without publishing to Pypi.
+    The Pypi upload is triggered by pushing the new release tag to GitHub.
+    This happens in the Release workflow in ``.github/workflows/release.yml``.
+    With this workflow we get Trusted Publishing with short-lived OIDC tokens
+    that PyPI issues to one specific repository, workflow file and environment (``pypi``).
+    We also get PEP 740 provenance and can set required reviewers for the environment
+    and a ruleset who can create release tags and trigger releases.
 
 
 0.20 (2025-11-17)
