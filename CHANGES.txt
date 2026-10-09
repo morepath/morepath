@@ -30,6 +30,8 @@ CHANGES
 
   .. _Ruff: https://docs.astral.sh/ruff
 
+* Add a tracked Git pre-commit hook for Ruff checks on staged Python files.
+
 * Remove coveralls integration.
 
 * Adjust the deployment strategy:

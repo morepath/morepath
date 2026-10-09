@@ -67,6 +67,23 @@ To apply lint fixes and format the code, run::
 Ruff uses the project settings in ``pyproject.toml``. The ``lint`` tox
 environment runs both checks.
 
+To run the checks automatically on staged Python files before each
+commit, enable the repository's optional Git hook once in your clone::
+
+  (.venv) $ git config core.hooksPath .githooks
+
+The hook checks the staged contents without modifying files.
+First it checks for formatting issues and then for remaining linting issues.
+It looks for Ruff in ``.venv`` and after on ``PATH``.
+On failure, it lists affected files and exact Ruff fix commands.
+Review and stage the changes before committing again.
+If needed install Ruff with::
+
+  (.venv) $ pip install -e .[lint]
+
+Hooks are local conveniences and can be bypassed. CI continues to run the full
+project lint and formatting checks.
+
 .. _Ruff: https://docs.astral.sh/ruff/
 
 Running the tests

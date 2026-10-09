@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+abort() {
+    printf '%s\n' "$@" >&2
+    exit 1
+}
+
+tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/morepath-ruff.XXXXXX") ||
+    abort 'Ruff pre-commit check: could not create a temporary directory.'
+trap 'rm -rf "$tmpdir"' EXIT
+
+list_file=$tmpdir/staged-files
+staged_file=$tmpdir/staged
+formatted_file=$tmpdir/formatted
+
+# Write the list to a file first so a git failure is not silently ignored.
+git diff --cached --name-only --diff-filter=ACMR -z -- '*.py' '*.pyi' \
+    >"$list_file" ||
+    abort 'Ruff pre-commit check: could not list the staged files.'
+
+python_files=()
+while IFS= read -r -d '' path; do
+    python_files+=("$path")
+done <"$list_file"
+
+if (( ${#python_files[@]} == 0 )); then
+    exit 0
+fi
+
+if [[ -x .venv/bin/ruff ]]; then
+    ruff_cmd=.venv/bin/ruff
+elif [[ -f .venv/Scripts/ruff.exe ]]; then
+    ruff_cmd=.venv/Scripts/ruff.exe
+elif command -v ruff >/dev/null 2>&1; then
+    ruff_cmd=$(command -v ruff)
+elif command -v ruff.exe >/dev/null 2>&1; then
+    ruff_cmd=$(command -v ruff.exe)
+else
+    abort 'Ruff not found in .venv or PATH.' \
+        "Install it with pip install -e '.[lint]'"
+fi
+
+# report <label> <fix label> <fix command> <files...>
+report() {
+    local label=$1 fixlabel=$2 fix=$3
+    shift 3
+    printf '\n%s (%d):' "$label" "$#"
+    printf ' %q' "$@"
+    printf '\n%s: %s' "$fixlabel" "$fix"
+    printf ' %q' "$@"
+    printf '\n'
+}
+
+format_files=()
+lint_files=()
+
+for path in "${python_files[@]}"; do
+    git show ":$path" >"$staged_file" ||
+        abort "Could not read the staged content of $path."
+
+    # Format the staged content; a non-zero exit is a real failure here
+    # (for example a syntax error or a broken config).
+    # --force-exclude makes ruff honor its exclude settings for stdin input.
+    errors=$("$ruff_cmd" format --force-exclude --stdin-filename "$path" - \
+        <"$staged_file" 2>&1 >"$formatted_file") ||
+        abort "Ruff format failed on $path:" "$errors"
+
+    if ! cmp -s "$staged_file" "$formatted_file"; then
+        format_files+=("$path")
+    fi
+
+    # Lint the formatted content, so that violations the formatter
+    # fixes anyway (e.g. trailing whitespace) are not reported twice.
+    output=$("$ruff_cmd" check --force-exclude --no-fix \
+        --stdin-filename "$path" - <"$formatted_file" 2>&1)
+    case $? in
+        0) ;;
+        1) lint_files+=("$path") ;;
+        *) abort "Ruff check failed on $path:" "$output" ;;
+    esac
+done
+
+if (( ${#format_files[@]} || ${#lint_files[@]} )); then
+    printf '%s\n' 'Ruff checks failed - no files were changed.'
+    if (( ${#format_files[@]} )); then
+        report 'Needs formatting' 'Fix with' 'ruff format' "${format_files[@]}"
+    fi
+    if (( ${#lint_files[@]} )); then
+        report 'Lint errors' 'Try' 'ruff check --fix' "${lint_files[@]}"
+    fi
+    printf '\n%s\n' 'Review and stage the fixes, then retry the commit.'
+    exit 1
+fi
