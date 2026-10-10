@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-1.0.0 (unreleased)
+1.0.0 (2026-10-10)
 ==================
 
 * Add type annotations and integrate ``mypy`` and ``pyright``.
