@@ -15,7 +15,6 @@ pip-wheel-metadata
 /src/
 
 # Unit test / coverage reports
-.*cache
 .coverage
 htmlcov
 .tox
@@ -28,5 +27,6 @@ htmlcov
 /.vscode/
 /.idea/
 
-# Type checkers
-.mypy_cache/
+# Caches
+.cache
+.*_cache
