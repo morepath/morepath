@@ -40,13 +40,22 @@ else
         "Install it with pip install -e '.[lint]'"
 fi
 
-# report <label> <fix label> <fix command> <files...>
+ruff_short_cmd=$ruff_cmd
+for command in ruff ruff.exe; do
+    if command_path=$(command -v "$command") &&
+        [[ "$command_path" -ef "$ruff_cmd" ]]; then
+        ruff_short_cmd=$command
+        break
+    fi
+done
+
+# report <label> <fix label> <ruff arguments> <files...>
 report() {
-    local label=$1 fixlabel=$2 fix=$3
+    local label=$1 fixlabel=$2 arguments=$3
     shift 3
     printf '\n%s (%d):' "$label" "$#"
     printf ' %q' "$@"
-    printf '\n%s: %s' "$fixlabel" "$fix"
+    printf '\n%s: %s %s' "$fixlabel" "$ruff_short_cmd" "$arguments"
     printf ' %q' "$@"
     printf '\n'
 }
@@ -83,10 +92,10 @@ done
 if (( ${#format_files[@]} || ${#lint_files[@]} )); then
     printf '%s\n' 'Ruff checks failed - no files were changed.'
     if (( ${#format_files[@]} )); then
-        report 'Needs formatting' 'Fix with' 'ruff format' "${format_files[@]}"
+        report 'Needs formatting' 'Fix with' 'format' "${format_files[@]}"
     fi
     if (( ${#lint_files[@]} )); then
-        report 'Lint errors' 'Try' 'ruff check --fix' "${lint_files[@]}"
+        report 'Lint errors' 'Try' 'check --fix' "${lint_files[@]}"
     fi
     printf '\n%s\n' 'Review and stage the fixes, then retry the commit.'
     exit 1
