@@ -639,3 +639,135 @@ def test_settings_in_permission_rule() -> None:
     response = c.get("/foo")
     assert response.body == b"Model: foo"
     response = c.get("/bar", status=403)
+
+
+def test_request_permits() -> None:
+    class App(morepath.App):
+        pass
+
+    class Model:
+        def __init__(self, id: str) -> None:
+            self.id = id
+
+    class Permission:
+        pass
+
+    @App.verify_identity()
+    def verify_identity(identity: object) -> bool:
+        return True
+
+    @App.identity_policy()
+    class IdentityPolicy:
+        def identify(self, request: object) -> Identity:
+            return Identity("testidentity")
+
+        def remember(self, response: object, request: object, identity: object) -> None:
+            pass
+
+        def forget(self, response: object, request: object, identity: object) -> None:
+            pass
+
+    @App.permission_rule(model=Model, permission=Permission)
+    def get_permission(identity: object, model: Model, permission: object) -> bool:
+        return model.id == "foo"
+
+    @App.path(path="")
+    class Root:
+        pass
+
+    @App.view(model=Root, name="permitted")
+    def permitted(self: Root, request: morepath.Request) -> str:
+        return str(request.permits(Model("foo"), Permission))
+
+    @App.view(model=Root, name="denied")
+    def denied(self: Root, request: morepath.Request) -> str:
+        return str(request.permits(Model("bar"), Permission))
+
+    c = Client(App())
+
+    assert c.get("/permitted").body == b"True"
+    assert c.get("/denied").body == b"False"
+
+
+def test_request_permits_no_identity() -> None:
+    class App(morepath.App):
+        pass
+
+    class Model:
+        pass
+
+    class Permission:
+        pass
+
+    @App.path(path="")
+    class Root:
+        pass
+
+    @App.view(model=Root)
+    def default(self: Root, request: morepath.Request) -> str:
+        return str(request.permits(Model(), Permission))
+
+    c = Client(App())
+
+    # without an identity policy the identity is NO_IDENTITY and the
+    # default permission rule denies access
+    assert c.get("/").body == b"False"
+
+
+def test_request_permits_app_arg() -> None:
+    class App(morepath.App):
+        pass
+
+    class OtherApp(morepath.App):
+        pass
+
+    class Model:
+        pass
+
+    class Permission:
+        pass
+
+    @App.verify_identity()
+    def verify_identity(identity: object) -> bool:
+        return True
+
+    @App.identity_policy()
+    class IdentityPolicy:
+        def identify(self, request: object) -> Identity:
+            return Identity("testidentity")
+
+        def remember(self, response: object, request: object, identity: object) -> None:
+            pass
+
+        def forget(self, response: object, request: object, identity: object) -> None:
+            pass
+
+    @App.permission_rule(model=Model, permission=Permission)
+    def get_permission(identity: object, model: Model, permission: object) -> bool:
+        return False
+
+    @OtherApp.permission_rule(model=Model, permission=Permission)
+    def get_other_permission(
+        identity: object, model: Model, permission: object
+    ) -> bool:
+        return True
+
+    @App.path(path="")
+    class Root:
+        pass
+
+    @App.view(model=Root, name="own")
+    def own(self: Root, request: morepath.Request) -> str:
+        return str(request.permits(Model(), Permission))
+
+    @App.view(model=Root, name="other")
+    def other(self: Root, request: morepath.Request) -> str:
+        return str(request.permits(Model(), Permission, app=OtherApp()))
+
+    App.commit()
+    OtherApp.commit()
+
+    c = Client(App())
+
+    assert c.get("/own").body == b"False"
+    assert c.get("/other").body == b"True"
