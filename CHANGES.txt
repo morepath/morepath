@@ -4,7 +4,10 @@ CHANGES
 1.0.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add ``Request.permits(obj, permission)`` to programmatically check
+  whether the current identity has a permission for a model instance,
+  with an optional ``app`` argument like ``Request.view``.
+  See https://github.com/morepath/morepath/issues/524
 
 
 1.0.0 (2026-10-10)
