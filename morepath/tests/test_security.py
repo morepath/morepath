@@ -5,10 +5,12 @@ import json
 from http.cookiejar import CookieJar
 from typing import TYPE_CHECKING, Any
 
+import pytest
 from webtest import TestApp as Client
 
 import morepath
 from morepath.authentication import NO_IDENTITY, Identity, NoIdentity
+from morepath.error import LinkError
 from morepath.request import Response
 
 from .fixtures import identity_policy
@@ -771,3 +773,10 @@ def test_request_permits_app_arg() -> None:
 
     assert c.get("/own").body == b"False"
     assert c.get("/other").body == b"True"
+
+
+def test_request_permits_none_app() -> None:
+    request = morepath.Request.blank("/", app=morepath.App())
+
+    with pytest.raises(LinkError, match="Cannot check permission: app is None"):
+        request.permits(object(), object, app=None)  # type: ignore[arg-type]
