@@ -202,6 +202,36 @@ class Request(BaseRequest, Generic[_AppT]):
             self.app = old_app
         return result
 
+    def permits(
+        self,
+        obj: object,
+        permission: Any,
+        app: App | Sentinel = SAME_APP,
+    ) -> bool:
+        """Check whether the current identity has a permission on a model.
+
+        This uses the permission rules registered with the
+        :meth:`App.permission_rule` directive, like view lookup does.
+        Useful to filter a list of model instances by whether the
+        current identity may view them.
+
+        :param obj: the model instance to check the permission for.
+        :param permission: the permission class to check.
+        :param app: If set, check the permission in the context of
+          another application. By default the permission is checked in
+          the context of the current application.
+        :return: ``True`` if the identity has the permission for
+          ``obj``, ``False`` otherwise.
+        """
+        if app is None:  # pyright: ignore[reportUnnecessaryComparison]
+            raise LinkError("Cannot check permission: app is None")
+
+        if app is SAME_APP:
+            app = self.app
+
+        assert not isinstance(app, Sentinel)
+        return bool(app._permits(self.identity, obj, permission))
+
     @overload
     def link(  # pyright: ignore[reportOverlappingOverload]
         self,
